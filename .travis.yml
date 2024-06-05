@@ -1,0 +1,73 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+os: linux
+
+# dist: precise # Ubuntu 12.04.x LTS (Precise Pangolin)
+# dist: trusty # Ubuntu 14.04.x LTS (Trusty Tahr)
+# dist: xenial # Ubuntu 16.04.x LTS (Xenial Xerus)
+# dist: bionic # Ubuntu 18.04.x LTS (Bionic Beaver)
+# dist: focal # Ubuntu 20.04.x LTS (Focal Fossa)
+dist: jammy # Ubuntu 22.04.x (Jammy Jellyfish
+
+language: android # requested Linux distribution not always honored!
+# language: java # required installing Android SDK Tools manually
+
+jdk: openjdk11
+
+sudo: required
+
+git:
+  submodules: false
+
+branches:
+  only:
+    - master #TBR main|prod
+    - mmathieum #TBR dev|ready|pull
+    - /^hotfix/.*$/
+    - develop
+    - /^feature/.*$/
+
+env:
+  global:
+    - ANDROID_API_LEVEL=34
+    - ANDROID_BUILD_TOOLS_VERSION=34.0.0
+    - TZ=America/Toronto
+
+android:
+  components:
+    - tools # to get the new repositories
+    - platform-tools
+    - tools # to install Android SDK tools
+    - build-tools-$ANDROID_BUILD_TOOLS_VERSION
+    - android-$ANDROID_API_LEVEL
+  licenses:
+    - 'android-sdk-license-.+'
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
+
+# STEPS:
+# https://docs.travis-ci.com/user/job-lifecycle/
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install gawk # GNU Awk v4+ required
+  - chmod +x checkout_submodules.sh
+  - ./checkout_submodules.sh
+  - chmod +x commons/sync.sh
+  - ./commons/sync.sh
+  - mkdir "$ANDROID_HOME/licenses" || true
+  - echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-license"
+  - echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> "$ANDROID_HOME/licenses/android-sdk-license"
+  - touch ~/.android/repositories.cfg
+
+install: true
+
+script:
+  - ./build.sh
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/

@@ -1,0 +1,153 @@
+name: MT sync code & data # download & parse
+on:
+  workflow_dispatch: # manual
+  schedule:
+    - cron: '0 12 * * 2' # Tuesdays @ 12pm UTC # WEEKLY https://crontab.guru/#0_12_*_*_2
+#   - cron: '0 12 * * 1,4' # 0 0 * * MON,THU #BI-WEEKLY https://crontab.guru/#0_12_*_*_1,4
+# gh workflow run mt-sync-code-data.yml --ref mmathieum
+# gh run list --workflow=mt-sync-code-data.yml
+# gh run watch ; gh browse --branch mmathieum
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+  # push to store
+  MT_ORG_PUSH_STORE_ON: ${{ secrets.MT_ORG_PUSH_STORE_ON }}
+  MT_ORG_PUSH_STORE_OFF: ${{ secrets.MT_ORG_PUSH_STORE_OFF }}
+  MT_PUSH_STORE_ON: ${{ secrets.MT_PUSH_STORE_ON }}
+  MT_PUSH_STORE_OFF: ${{ secrets.MT_PUSH_STORE_OFF }}
+  # push to store > alpha
+  MT_ORG_STORE_ALPHA_ON: ${{ secrets.MT_ORG_STORE_ALPHA_ON }}
+  MT_ORG_STORE_ALPHA_OFF: ${{ secrets.MT_ORG_STORE_ALPHA_OFF }}
+  MT_STORE_ALPHA_ON: ${{ secrets.MT_STORE_ALPHA_ON }}
+  MT_STORE_ALPHA_OFF: ${{ secrets.MT_STORE_ALPHA_OFF }}
+  # push to store > private beta
+  MT_ORG_STORE_BETA_PRIVATE_ON: ${{ secrets.MT_ORG_STORE_BETA_PRIVATE_ON }}
+  MT_ORG_STORE_BETA_PRIVATE_OFF: ${{ secrets.MT_ORG_STORE_BETA_PRIVATE_OFF }}
+  MT_STORE_BETA_PRIVATE_ON: ${{ secrets.MT_STORE_BETA_PRIVATE_ON }}
+  MT_STORE_BETA_PRIVATE_OFF: ${{ secrets.MT_STORE_BETA_PRIVATE_OFF }}
+  # push to store > production
+  MT_ORG_STORE_PRODUCTION_ON: ${{ secrets.MT_ORG_STORE_PRODUCTION_ON }}
+  MT_ORG_STORE_PRODUCTION_OFF: ${{ secrets.MT_ORG_STORE_PRODUCTION_OFF }}
+  MT_STORE_PRODUCTION_ON: ${{ secrets.MT_STORE_PRODUCTION_ON }}
+  MT_STORE_PRODUCTION_OFF: ${{ secrets.MT_STORE_PRODUCTION_OFF }}
+jobs:
+  MT-SYNC-CODE-DATA-JOB:
+    name: "MT Sync Code & Data"
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code (no submodules)
+        uses: actions/checkout@v4
+        with:
+          ref: mmathieum
+          submodules: true # required to set right token
+          token: ${{ secrets.MT_PAT }}
+          fetch-depth: 0 # fetch all (not required util release build)
+      - name: MT check out submodules
+        run: ./checkout_submodules.sh
+      - name: MT setup MT_GIT_BRANCH env
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: MT code sync
+        # if: github.event_name != 'pull_request'
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+        run: ./commons/code_sync.sh
+      - name: MT code setup
+        run: ./commons/code_setup.sh
+      - name: MT set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: MT cache > Gradle wrapper
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/wrapper
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: MT Gradle cache > Generate key
+        run: ./init_cache_key.sh
+      - name: MT cache > Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+          key: gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
+          restore-keys: |
+            gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
+            gradle-cache-
+      - name: MT download dependencies
+        run: ./download_dependencies.sh
+      - name: MT test
+        run: ./test.sh
+        env:
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+      - name: MT artifact > unit tests XML results
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }} # even if tests fails
+        with:
+          name: unit-test-xml-results
+          path: |
+            */build/test-results/**/*.xml
+            */build/test-results/*.xml
+            */build/reports/*.xml
+      - name: MT artifact > HTML reports
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }} # even if tests fails
+        with:
+          name: html-reports
+          path: |
+            */build/reports/
+            !**/*.xml
+      - name: MT commit code change
+        run: ./commit_code_change.sh
+      - name: MT download & parse
+        run: ./download_and_parse.sh
+      - name: MT artifact > GTFS files
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }} # even if tests fails
+        with:
+          name: gtfs
+          path: |
+            agency-parser/input/gtfs.zip
+            agency-parser/input/gtfs_next.zip
+          retention-days: 31
+      - name: MT artifact > GTFS validator results
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }} # even if tests fails
+        with:
+          name: gtfs-validator-results
+          path: |
+            agency-parser/output/current/
+            agency-parser/output/next/
+      - name: MT commit data change
+        run: ./commit_data_change.sh
+      - name: MT assemble release (APK & ABB)
+        run: ./assemble_release.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+      - name: MT artifact > app-android > APK & ABB
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-android-apk-bundle
+          path: |
+            app-android/build/outputs/apk
+            app-android/build/outputs/bundle
+      - name: MT set app release required (or not)
+        run: ./set_app_release_required.sh
+      - name: MT push commits
+        run: ./push_commits.sh
+      - name: MT Publish release (?)
+        run: ./publish_app_release.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}

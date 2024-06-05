@@ -1,0 +1,62 @@
+image: openjdk:11-jdk
+
+variables:
+  ANDROID_COMPILE_SDK: "32"
+  ANDROID_BUILD_TOOLS: "32.0.0"
+  ANDROID_SDK_TOOLS_VERSION: "8092744" # https://developer.android.com/studio/#command-tools
+  CACHE_KEY: 'gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-gradle-cache-{{ checksum "gradle_cache_key_checksum.txt" }}'
+
+before_script:
+  - apt-get --quiet update --yes
+  - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+  # SETUP PATH
+  - export ANDROID_HOME="${PWD}/android-home"
+  - install -d $ANDROID_HOME # create new directory
+  # DOWNLOAD ANDROID COMMAND LINE TOOLS FOR LINUX
+  - wget --output-document=$ANDROID_HOME/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip
+  - pushd $ANDROID_HOME
+  - unzip -d . cmdline-tools.zip
+  - ls -l #DEBUG
+  - ls -l cmdline-tools #DEBUG
+  - popd
+  - export PATH=$PATH:${ANDROID_HOME}/cmdline-tools/bin/
+  # PRINT VERSION
+  - sdkmanager --sdk_root=${ANDROID_HOME} --version
+  # INSTALL ANDROID SDK
+  - yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses || true
+  - sdkmanager --sdk_root=${ANDROID_HOME} "platforms;android-${ANDROID_COMPILE_SDK}"
+  - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
+  - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
+  # SETUP ENV
+  - export PATH=$PATH:$ANDROID_HOME/platform-tools/
+  - chmod +x checkout_submodules.sh
+  - ./checkout_submodules.sh
+  - chmod +x commons/sync.sh
+  - ./commons/sync.sh
+  # GENERATE CACHE KEY
+  - chmod +x init_cache_key.sh
+  - ./init_cache_key.sh
+  - chmod +x ./gradlew
+  - ./gradlew androidDependencies --console=plain
+
+cache:
+  key: ${CACHE_KEY}
+  paths:
+    - ~/.gradle/wrapper/
+    - ~/.gradle/caches/
+
+stages:
+  - build
+
+all:
+  stage: build
+  script:
+    - chmod +x build.sh
+    - ./build.sh
+  artifacts:
+    paths:
+    - app-android/build/reports
+    - app-android/build/outputs/apk
+    - app-android/build/outputs/bundle
+    - commons-android/build/reports
+

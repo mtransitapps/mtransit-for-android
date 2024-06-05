@@ -1,0 +1,99 @@
+name: MT build
+on:
+  workflow_dispatch: # manual
+  pull_request:
+  push:
+    branches:
+      - master
+      - mmathieum
+      - 'feature/**'
+      - 'hotfix/**'
+# gh workflow run mt-build.yml --ref mmathieum
+# gh run list --workflow=mt-build.yml
+# gh run watch ; gh browse --branch mmathieum
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.head_ref }}
+  cancel-in-progress: true
+jobs:
+  MT-BUILD-JOB:
+    name: "MT Build"
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code (no submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: true # required to set right token
+          fetch-depth: 0 # fetch all (not required util release build)
+      - name: MT check out submodules
+        run: ./checkout_submodules.sh
+      - name: MT setup MT_GIT_BRANCH env
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: MT code setup
+        run: ./commons/code_setup.sh
+      - name: MT set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: MT cache > Gradle wrapper
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/wrapper
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: MT Gradle cache > Generate key
+        run: ./init_cache_key.sh
+      - name: MT cache > Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+          key: gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
+          restore-keys: |
+            gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
+            gradle-cache-
+      - name: MT download dependencies
+        run: ./download_dependencies.sh
+      - name: MT test
+        run: ./test.sh
+        env:
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+      - name: MT artifact > unit tests XML results
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }} # even if tests fails
+        with:
+          name: unit-test-xml-results
+          path: |
+            */build/test-results/**/*.xml
+            */build/test-results/*.xml
+            */build/reports/*.xml
+      - name: MT artifact > HTML reports
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }} # even if tests fails
+        with:
+          name: html-reports
+          path: |
+            */build/reports/
+            !**/*.xml
+      - name: MT assemble release (APK & ABB)
+        run: ./assemble_release.sh
+        env:
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+      - name: MT artifact > app-android > APK & ABB
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-android-apk-bundle
+          path: |
+            app-android/build/outputs/apk
+            app-android/build/outputs/bundle
+      - name: DEBUG GIT STATUS
+        run: |
+          git status -sb
+          git submodule foreach git status -sb
+      - name: DEBUG LIST FILES
+        run: |
+          ls ${{ github.workspace }}

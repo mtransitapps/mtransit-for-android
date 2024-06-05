@@ -1,0 +1,124 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+# https://circleci.com/docs/android-images-support-policy/
+# https://discuss.circleci.com/t/android-image-deprecations-and-eol-for-2024/50180
+version: 2.1
+orbs:
+  # https://circleci.com/developer/orbs/orb/circleci/android
+  android: circleci/android@2.5.0
+workflows:
+  mt-workflow:
+    jobs:
+      - mt-job:
+          context:
+            - MT_shared_context
+jobs:
+  mt-job:
+    working_directory: ~/mtransit
+    # docker:
+    #   # https://circleci.com/developer/images/image/cimg/android
+    #   # https://github.com/CircleCI-Public/cimg-android
+    #   # https://hub.docker.com/r/cimg/android/tags
+    #   - image: cimg/android:2023.09.1
+    #     auth:
+    #       username: montransit
+    #       password: $MT_DOCKER_PASSWORD
+    executor:
+      name: android/android-machine
+      tag: default
+      # https://circleci.com/docs/configuration-reference/#linuxvm-execution-environment
+      # resource-class: medium # small, medium (default), medium+, large, xlarge
+      # resource-class: medium # (vCPU: 2 | RAM: 4GB) (DEFAULT)
+      resource-class: medium # (vCPU: 2 | RAM: 7.5GB)
+      # resource-class: large # (vCPU: 4 | RAM: 8GB) (large is maxiumum for free plan)
+    environment: # https://circleci.com/docs/2.0/java-oom/ (-XX:MaxRAMPercentage=90.0 )
+      JAVA_TOOL_OPTIONS: -Xmx5432m
+      JVM_OPTS: -Xmx5432m
+      JAVA_OPTS: -Xmx5432m -Dorg.gradle.jvmargs="-Xms1g -Xmx5432m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+      GRADLE_OPTS: -Xmx5432m -Dorg.gradle.jvmargs="-Xms1g -Xmx5432m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+      TERM: xterm-256color
+      TZ: "America/Toronto"
+    steps:
+      - run:
+          name: Install GAWK - GNU awk
+          command: |
+            sudo apt-get update
+            sudo apt-get -y install gawk
+      - android/accept-licenses
+      - android/change-java-version:
+          java-version: 17
+      - run:
+          name: Update SDK
+          command: echo y | sdkmanager "build-tools;34.0.0" "platform-tools" "platforms;android-34"
+      - checkout
+      - run:
+          name: checkout_submodules.sh permissions
+          command: sudo chmod +x checkout_submodules.sh
+      - run:
+          name: Checkout submodules
+          command: ./checkout_submodules.sh
+      - run:
+          name: commons/sync.sh permissions
+          command: sudo chmod +x commons/sync.sh
+      - run:
+          name: Sync files
+          command: ./commons/sync.sh
+      - android/restore-build-cache:
+          cache-prefix: android-build-cache
+      # - android/restore-gradle-cache:
+      # cache-prefix: gradle-cache
+      # find-args: . -type f \( -name "*.gradle" -o -name "gradle-wrapper.properties" \)
+      - restore_cache:
+          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - run:
+          name: Generate gradle cache key
+          command: ./init_cache_key.sh
+      - restore_cache:
+          keys:
+            - gradle-cache-{{ checksum "gradle_cache_key_checksum.txt" }}
+            - gradle-cache- # fallback to using the latest cache if no exact match is found
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies --no-daemon --no-parallel --no-configure-on-demand --max-workers=1 --console=plain
+      - run:
+          name: Build
+          command: ./build.sh
+      - save_cache:
+          paths:
+            - ~/.gradle/caches/
+          key: gradle-cache-{{ checksum "gradle_cache_key_checksum.txt" }}
+      - save_cache:
+          paths:
+            - ~/.gradle/wrapper/
+          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - android/save-build-cache:
+          cache-prefix: android-build-cache
+      # - android/save-gradle-cache:
+      # cache-prefix: gradle-cache
+      - store_artifacts:
+          path: agency-parser/output/current
+          destination: gtfs-validator-results-current
+      - store_artifacts:
+          path: agency-parser/output/next
+          destination: gtfs-validator-results-next
+      - store_artifacts:
+          path: app-android/build/reports
+          destination: reports
+      - store_artifacts:
+          path: app-android/build/outputs/apk
+          destination: apks
+      - store_artifacts:
+          path: app-android/build/outputs/bundle
+          destination: bundles
+      - store_artifacts:
+          path: commons-android/build/reports
+          destination: commons-android-reports
+      - run:
+          name: Save test results for all Gradle modules
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always # even when previous steps fail
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results/junit

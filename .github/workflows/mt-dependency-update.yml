@@ -1,0 +1,143 @@
+name: MT dependency update
+# TODO:
+# - use different env variable to block/allow git commit/push
+# - ...
+# - test manually 1st
+on:
+  workflow_dispatch: # manual
+  pull_request: # TO BE DELETED
+#  schedule:
+#   - cron: '0 12 * * 3' # Wednesdays @ 12pm UTC # WEEKLY https://crontab.guru/#0_12_*_*_3
+# gh workflow run mt-dependency-update.yml --ref mmathieum
+# gh run list --workflow=mt-dependency-update.yml
+# gh run watch ; gh browse --repo mtransitapps/commons --branch mmathieum
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+  # git commit & push > dependency update ONLY
+  MT_ORG_GIT_COMMIT_DEPENDENCY_UPDATE_ON: ${{ secrets.MT_ORG_GIT_COMMIT_DEPENDENCY_UPDATE_ON }}
+  MT_ORG_GIT_COMMIT_DEPENDENCY_UPDATE_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_DEPENDENCY_UPDATE_OFF }}
+  MT_GIT_COMMIT_DEPENDENCY_UPDATE_ON: ${{ secrets.MT_GIT_COMMIT_DEPENDENCY_UPDATE_ON }}
+  MT_GIT_COMMIT_DEPENDENCY_UPDATE_OFF: ${{ secrets.MT_GIT_COMMIT_DEPENDENCY_UPDATE_OFF }}
+jobs:
+  MT-DEPENDENCY-UPDATE-JOB:
+    name: "MT Dependency update"
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT pull request fail
+        if: github.event_name == 'pull_request'
+        run: exit 1000
+      - name: MT check out main repository code (no submodules)
+        uses: actions/checkout@v4
+        with:
+          ref: mmathieum
+          submodules: true # required to set right token
+          token: ${{ secrets.MT_PAT }}
+          fetch-depth: 0 # fetch all (not required util release build)
+      - name: MT check out submodules
+        run: ./checkout_submodules.sh
+      - name: MT setup MT_GIT_BRANCH env
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: MT add parser repo
+        uses: actions/checkout@v4
+        with:
+          ref: mmathieum
+          repository: mtransitapps/parser
+          path: parser
+          token: ${{ secrets.MT_PAT }}
+          fetch-depth: 0 # fetch all (not required util release build)
+      - name: MT code sync
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+        run: ./commons/code_sync.sh
+      - name: MT code setup
+        run: ./commons/code_setup.sh
+      - name: MT set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: MT cache > Gradle wrapper
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/wrapper
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: MT Gradle cache > Generate key
+        run: ./init_cache_key.sh
+      - name: MT cache > Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+          key: gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
+          restore-keys: |
+            gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
+            gradle-cache-
+      - name: MT dependency update check
+        run: ./dependency_update_check.sh
+      - name: MT dependency update update available
+        id: mt_dependency_update_available
+        uses: andstor/file-existence-action@v3
+        with:
+          files: "commons/gradle/libs.versions.updates.toml"
+      - name: MT dependency update update available env variable
+        if: steps.mt_dependency_update_available.outputs.files_exists == 'true'
+        run: |
+          echo "MT_DEPENDENCY_UPDATE_AVAILABLE=true" >> $GITHUB_ENV
+      # SHOULD STOP HERE IF no dependency available
+      - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
+        name: MT dependency update apply
+        run: ./dependency_update_apply.sh
+      - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
+        name: MT download dependencies
+        run: ./download_dependencies.sh
+      - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
+        name: MT test
+        run: ./test.sh
+        env:
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+      - if: ${{ env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true' && always() }} # even if tests fails
+        name: MT artifact > dependency update XML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-update-xml-results
+          path: |
+            build/dependencyUpdates/report.xml
+      - if: ${{ env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true' && always() }} # even if tests fails
+        name: MT artifact > dependency update HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-dependency-update-reports
+          path: |
+            build/dependencyUpdates/report.html
+      - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
+        name: MT remove parser repo
+        run: rm -rf parser
+      - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
+        name: MT dependency update commit code change
+        run: ./dependency_update_commit_code_change.sh
+      - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
+        name: MT assemble release (APK & ABB)
+        run: ./assemble_release.sh
+        env:
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+      - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
+        name: MT dependency update push commits
+        run: ./dependency_update_push_commits.sh
+      - name: DEBUG GIT STATUS
+        run: |
+          git status -sb
+          git submodule foreach git status -sb
+      - name: DEBUG LIST FILES
+        run: |
+          ls ${{ github.workspace }}
