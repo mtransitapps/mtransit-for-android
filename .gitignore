@@ -182,3 +182,6 @@ dev.properties
 /set_app_release_required.sh
 /settings.gradle
 /test.sh
+
+# Kotlin 2.0
+/.kotlin/
