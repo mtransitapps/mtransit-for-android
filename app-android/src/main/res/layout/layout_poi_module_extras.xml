@@ -6,6 +6,7 @@
     android:layout_height="@dimen/poi_extra_height"
     android:layout_alignParentStart="true"
     android:layout_marginEnd="@dimen/poi_extra_margin_end"
-    android:scaleType="center"
+    android:padding="@dimen/baseline_16"
+    android:scaleType="fitCenter"
     tools:background="#FF00FF"
     tools:src="@drawable/ic_directions_bike_black_24dp" />
