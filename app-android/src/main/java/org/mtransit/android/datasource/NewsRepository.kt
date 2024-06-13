@@ -45,7 +45,7 @@ class NewsRepository(
         comparator: Comparator<News>,
         let: ((List<News>) -> List<News>?) = { it },
         onSuccess: (() -> Unit)? = null,
-        context: CoroutineContext = EmptyCoroutineContext,
+        coroutineContext: CoroutineContext = EmptyCoroutineContext,
     ) = loadingNewsArticles(
         providers,
         poi?.let {
@@ -56,7 +56,7 @@ class NewsRepository(
         comparator,
         let,
         onSuccess,
-        context,
+        coroutineContext,
     )
 
     fun loadingNewsArticles(
@@ -67,7 +67,7 @@ class NewsRepository(
         comparator: Comparator<News>,
         let: ((List<News>) -> List<News>?) = { it },
         onSuccess: (() -> Unit)? = null,
-        context: CoroutineContext = EmptyCoroutineContext,
+        coroutineContext: CoroutineContext = EmptyCoroutineContext,
     ) = loadingNewsArticles(
         providers = allProviders?.filter {
             targetProviderAuthorities != null // SKIP
@@ -82,7 +82,7 @@ class NewsRepository(
         comparator,
         let,
         onSuccess,
-        context,
+        coroutineContext,
     )
 
     fun loadingNewsArticles(
@@ -91,12 +91,12 @@ class NewsRepository(
         comparator: Comparator<News>,
         let: ((List<News>) -> List<News>?) = { it },
         onSuccess: (() -> Unit)? = null,
-        context: CoroutineContext = EmptyCoroutineContext,
-    ) = liveData(context) {
+        coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    ) = liveData(coroutineContext) {
         if (providers == null || filter == null) {
             return@liveData // SKIP
         }
-        emit(loadNewsArticles(providers, filter, comparator, let, context))
+        emit(loadNewsArticles(providers, filter, comparator, let, coroutineContext))
         onSuccess?.invoke()
     }
 
@@ -105,8 +105,8 @@ class NewsRepository(
         filter: NewsProviderContract.Filter,
         comparator: Comparator<News>,
         let: ((List<News>) -> List<News>?) = { it },
-        context: CoroutineContext = ioDispatcher
-    ) = withContext(context) {
+        coroutineContext: CoroutineContext = ioDispatcher
+    ) = withContext(coroutineContext) {
         providers
             .map { provider ->
                 async {
@@ -127,13 +127,13 @@ class NewsRepository(
         provider: NewsProviderProperties?,
         onMissingProvider: ((oldNews: News?) -> (Unit)) = {},
         onNewsLoaded: ((loadedNews: News?) -> (Unit)) = {},
-        context: CoroutineContext = EmptyCoroutineContext,
+        coroutineContext: CoroutineContext = EmptyCoroutineContext,
     ) = loadingNewsArticle(
         provider,
         uuid?.let { NewsProviderContract.Filter.getNewUUIDFilter(uuid) },
         onMissingProvider,
         onNewsLoaded,
-        context,
+        coroutineContext,
     )
 
     fun loadingNewsArticle(
@@ -141,8 +141,8 @@ class NewsRepository(
         filter: NewsProviderContract.Filter?,
         onMissingProvider: ((oldNews: News?) -> (Unit)) = {},
         onNewsLoaded: ((loadedNews: News?) -> (Unit)) = {},
-        context: CoroutineContext = EmptyCoroutineContext,
-    ) = liveData<News?>(context) {
+        coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    ) = liveData(coroutineContext) {
         if (filter == null) {
             return@liveData // SKIP
         }
@@ -150,7 +150,7 @@ class NewsRepository(
             onMissingProvider(this.latestValue)
             return@liveData // SKIP
         }
-        val loadedNewsArticle = loadNewsArticle(provider, filter, context)
+        val loadedNewsArticle = loadNewsArticle(provider, filter, coroutineContext)
         onNewsLoaded(loadedNewsArticle)
         emit(loadedNewsArticle)
     }

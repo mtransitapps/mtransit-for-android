@@ -97,7 +97,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private static final ArrayList<String> KEYWORDS = ArrayUtils.asArrayList(
 			"transit", "bus", "subway", "bike", "sharing", "ferries", "boat", "trail", "lrt", "streetcar", "tram", "tramway",
-			"transport", "velo", "metro", "taxi", "train", "traversier");
+			"light rail", "transport", "velo", "metro", "taxi", "train", "traversier");
 
 	@Nullable
 	private Boolean showingAds = null;

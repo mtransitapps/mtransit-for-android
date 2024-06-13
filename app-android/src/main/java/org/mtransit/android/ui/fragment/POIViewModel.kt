@@ -179,7 +179,7 @@ class POIViewModel @Inject constructor(
                 }
                 selectedNews
             },
-            context = viewModelScope.coroutineContext + Dispatchers.IO,
+            coroutineContext = viewModelScope.coroutineContext + Dispatchers.IO,
         )
     }
 

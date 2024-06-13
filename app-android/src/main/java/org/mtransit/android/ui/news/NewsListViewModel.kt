@@ -113,7 +113,7 @@ class NewsListViewModel @Inject constructor(
                 onSuccess = {
                     _loading.postValue(false)
                 },
-                context = viewModelScope.coroutineContext + Dispatchers.IO,
+                coroutineContext = viewModelScope.coroutineContext + Dispatchers.IO,
             )
         }
 

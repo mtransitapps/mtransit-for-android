@@ -67,7 +67,7 @@ class NewsDetailsViewModel @Inject constructor(
                     dataSourceRemovedEvent.postValue(Event(true))
                 }
             },
-            context = viewModelScope.coroutineContext + Dispatchers.IO,
+            coroutineContext = viewModelScope.coroutineContext + Dispatchers.IO,
         )
     }
 }
