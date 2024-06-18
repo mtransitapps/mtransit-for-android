@@ -91,7 +91,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public final POI poi;
 	@Nullable
 	private CharSequence distanceString = null;
-	private float distance = -1;
+	private float distance = -1f;
 	@Nullable
 	private POIStatus status = null;
 	@Nullable
@@ -1081,39 +1081,51 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public static class POISameRouteComparator implements Comparator<POIManager> {
 
 		@Nullable
-		private Route targetedRoute = null;
+		private RouteTripStop targetedRouteTripStop = null;
 
-		public void setTargetedRoute(@Nullable Route targetedRoute) {
-			this.targetedRoute = targetedRoute;
+		public void setTargetedRouteTripStop(@Nullable RouteTripStop targetedRouteTripStop) {
+			this.targetedRouteTripStop = targetedRouteTripStop;
 		}
 
 		@Nullable
-		public Route getTargetedRoute() {
-			return targetedRoute;
+		public RouteTripStop getTargetedRouteTripStop() {
+			return targetedRouteTripStop;
 		}
 
 		@Override
 		public int compare(@Nullable POIManager poim1, @Nullable POIManager poim2) {
-			if (this.targetedRoute != null
+			if (this.targetedRouteTripStop != null
 					&& poim1 != null
 					&& poim2 != null
 					&& poim1.poi instanceof RouteTripStop
 					&& poim2.poi instanceof RouteTripStop
 			) {
-				final boolean poim1SameRoute = isSameRoute(poim1.poi);
-				final boolean poim2SameRoute = isSameRoute(poim2.poi);
-				if (poim1SameRoute && !poim2SameRoute) {
-					return ComparatorUtils.BEFORE;
-				} else if (!poim1SameRoute && poim2SameRoute) {
-					return ComparatorUtils.AFTER;
+				if (isSameLocation(poim1, poim2)) {
+					final boolean poim1SameRoute = isTargetedRouteAndStop(poim1.poi);
+					final boolean poim2SameRoute = isTargetedRouteAndStop(poim2.poi);
+					if (poim1SameRoute && !poim2SameRoute) {
+						return ComparatorUtils.BEFORE;
+					} else if (!poim1SameRoute && poim2SameRoute) {
+						return ComparatorUtils.AFTER;
+					}
 				}
 			}
 			return ComparatorUtils.SAME;
 		}
 
-		private boolean isSameRoute(@NonNull POI poi) {
-			if (poi instanceof RouteTripStop) {
-				return ((RouteTripStop) poi).getRoute().equals(targetedRoute);
+		private boolean isSameLocation(@NonNull POIManager poim1, @NonNull POIManager poim2) {
+			if (poim1.hasLocation() && poim2.hasLocation()) {
+				return poim1.getLat() == poim2.getLat()
+						&& poim1.getLng() == poim2.getLng();
+			}
+			return false;
+		}
+
+		private boolean isTargetedRouteAndStop(@NonNull POI poi) {
+			if (poi instanceof RouteTripStop && targetedRouteTripStop != null) {
+				final RouteTripStop rts = (RouteTripStop) poi;
+				return rts.getRoute().equals(targetedRouteTripStop.getRoute())
+						&& rts.getStop().equals(targetedRouteTripStop.getStop());
 			}
 			return false;
 		}

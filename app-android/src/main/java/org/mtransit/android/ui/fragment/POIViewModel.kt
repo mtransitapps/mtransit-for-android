@@ -112,7 +112,7 @@ class POIViewModel @Inject constructor(
         val lat = excludedPoi.lat
         val lng = excludedPoi.lng
         val excludedUUID = excludedPoi.uuid
-        this.poiSameRouteComparator.targetedRoute = (excludedPoi as? RouteTripStop)?.route
+        this.poiSameRouteComparator.targetedRouteTripStop = (excludedPoi as? RouteTripStop)
         val nearbyPOIs = mutableListOf<POIManager>()
         val ad = LocationUtils.getNewDefaultAroundDiff()
         // TODO latter ? var lastTypeAroundDiff: Double? = null
