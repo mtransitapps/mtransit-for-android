@@ -279,9 +279,6 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
 
     override fun isABOverrideGradient() = true
 
-    override fun getABBgColor(context: Context?) =
-        attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
-
     override fun getABTitle(context: Context?): CharSequence? {
         return attachedViewModel?.route?.value?.let { makeABTitle(it) }
             ?: super.getABTitle(context)
