@@ -19,13 +19,13 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.POIConnectionComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -95,7 +95,7 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private val poiSameRouteComparator by lazy { POIManager.POISameRouteComparator() }
+    private val poiConnectionComparator by lazy { POIConnectionComparator() }
 
     private suspend fun getNearbyPOIs(
         agency: IAgencyProperties? = this.agency.value,
@@ -112,7 +112,7 @@ class POIViewModel @Inject constructor(
         val lat = excludedPoi.lat
         val lng = excludedPoi.lng
         val excludedUUID = excludedPoi.uuid
-        this.poiSameRouteComparator.targetedRouteTripStop = (excludedPoi as? RouteTripStop)
+        this.poiConnectionComparator.targetedPOI = excludedPoi
         val nearbyPOIs = mutableListOf<POIManager>()
         val ad = LocationUtils.getNewDefaultAroundDiff()
         // TODO latter ? var lastTypeAroundDiff: Double? = null
@@ -141,7 +141,7 @@ class POIViewModel @Inject constructor(
                 LocationUtils.incAroundDiff(ad)
             }
         }
-        nearbyPOIs.sortWithAnd(poiSameRouteComparator)
+        nearbyPOIs.sortWithAnd(poiConnectionComparator)
         return nearbyPOIs.keepFirst(LocationUtils.MAX_POI_NEARBY_POIS_LIST)
     }
 

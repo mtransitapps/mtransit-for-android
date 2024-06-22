@@ -48,7 +48,7 @@ object AppRatingsUIManager : MTLog.Loggable {
         val onActionClicked: (() -> Unit) = {
             onAppRatingDisplayed(true)
         }
-        Snackbar.make(theContextView, labelText, Snackbar.LENGTH_INDEFINITE).apply {
+        Snackbar.make(theContextView, labelText, Snackbar.LENGTH_LONG).apply {
             setAction(actionText) {
                 onActionClicked.invoke()
             }

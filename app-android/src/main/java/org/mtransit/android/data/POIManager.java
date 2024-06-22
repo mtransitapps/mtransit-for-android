@@ -1052,16 +1052,16 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		result = 31 * result + (status != null ? status.hashCode() : 0);
 		result = 31 * result + (serviceUpdates != null ? serviceUpdates.hashCode() : 0);
 		result = 31 * result + (inFocus ? 1 : 0);
-		result = 31 * result + (int) (lastFindStatusTimestampMs ^ (lastFindStatusTimestampMs >>> 32));
+		result = 31 * result + Long.hashCode(lastFindStatusTimestampMs);
 		result = 31 * result + (statusLoaderListenerWR != null ? statusLoaderListenerWR.hashCode() : 0);
 		result = 31 * result + scheduleMaxDataRequests;
 		result = 31 * result + (serviceUpdateLoaderListenerWR != null ? serviceUpdateLoaderListenerWR.hashCode() : 0);
-		result = 31 * result + (int) (lastFindServiceUpdateTimestampMs ^ (lastFindServiceUpdateTimestampMs >>> 32));
+		result = 31 * result + Long.hashCode(lastFindServiceUpdateTimestampMs);
 		result = 31 * result + (color != null ? color.hashCode() : 0);
 		return result;
 	}
 
-	private static class POIAlphaComparator implements Comparator<POIManager> {
+	public static class POIAlphaComparator implements Comparator<POIManager> {
 		@Override
 		public int compare(POIManager lhs, POIManager rhs) {
 			POI lhsPoi = lhs == null ? null : lhs.poi;
@@ -1075,59 +1075,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				return ComparatorUtils.AFTER;
 			}
 			return lhsPoi.compareToAlpha(null, rhsPoi);
-		}
-	}
-
-	public static class POISameRouteComparator implements Comparator<POIManager> {
-
-		@Nullable
-		private RouteTripStop targetedRouteTripStop = null;
-
-		public void setTargetedRouteTripStop(@Nullable RouteTripStop targetedRouteTripStop) {
-			this.targetedRouteTripStop = targetedRouteTripStop;
-		}
-
-		@Nullable
-		public RouteTripStop getTargetedRouteTripStop() {
-			return targetedRouteTripStop;
-		}
-
-		@Override
-		public int compare(@Nullable POIManager poim1, @Nullable POIManager poim2) {
-			if (this.targetedRouteTripStop != null
-					&& poim1 != null
-					&& poim2 != null
-					&& poim1.poi instanceof RouteTripStop
-					&& poim2.poi instanceof RouteTripStop
-			) {
-				if (isSameLocation(poim1, poim2)) {
-					final boolean poim1SameRoute = isTargetedRouteAndStop(poim1.poi);
-					final boolean poim2SameRoute = isTargetedRouteAndStop(poim2.poi);
-					if (poim1SameRoute && !poim2SameRoute) {
-						return ComparatorUtils.BEFORE;
-					} else if (!poim1SameRoute && poim2SameRoute) {
-						return ComparatorUtils.AFTER;
-					}
-				}
-			}
-			return ComparatorUtils.SAME;
-		}
-
-		private boolean isSameLocation(@NonNull POIManager poim1, @NonNull POIManager poim2) {
-			if (poim1.hasLocation() && poim2.hasLocation()) {
-				return poim1.getLat() == poim2.getLat()
-						&& poim1.getLng() == poim2.getLng();
-			}
-			return false;
-		}
-
-		private boolean isTargetedRouteAndStop(@NonNull POI poi) {
-			if (poi instanceof RouteTripStop && targetedRouteTripStop != null) {
-				final RouteTripStop rts = (RouteTripStop) poi;
-				return rts.getRoute().equals(targetedRouteTripStop.getRoute())
-						&& rts.getStop().equals(targetedRouteTripStop.getStop());
-			}
-			return false;
 		}
 	}
 
