@@ -360,7 +360,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
-    override fun getABTitle(context: Context?) = context?.getString(R.string.app_name) ?: super.getABTitle(context)
+    override fun getABTitle(context: Context?) =
+        if (demoModeManager.isFullDemo()) "MonTransit"
+        else context?.getString(R.string.app_name) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) =
         this.attachedViewModel?.nearbyLocationAddress?.value ?: context?.getString(commonsR.string.ellipsis) ?: super.getABSubtitle(context)
