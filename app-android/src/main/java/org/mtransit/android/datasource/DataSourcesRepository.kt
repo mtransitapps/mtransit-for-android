@@ -113,12 +113,18 @@ class DataSourcesRepository @Inject constructor(
     @Deprecated(message = "Use live data")
     fun getAllSupportedDataSourceTypes() = this.dataSourcesInMemoryCache.getAllSupportedDataSourceTypes()
 
+    @Deprecated(message = "use DemoModeManager directly")
+    fun filterDataSourceTypes(dtsList: List<DataSourceType>): List<DataSourceType> {
+        return dtsList
+            .filterDemoModeType(demoModeManager)
+            .sortedWith(defaultDataSourceTypeComparator)
+    }
+
     private fun readingAllSupportedDataSourceTypesIO() = PairMediatorLiveData(
         dataSourcesIOCache.readingAllNotExtendedDataSourceTypes(),
         dataSourcesIOCache.readingAllExtendedDataSourceTypes()
     ).switchMap { (notExtendedDST, extendedDST) ->
         liveData {
-            MTLog.v(this, "readingAllSupportedDataSourceTypesIO > $notExtendedDST, $extendedDST")
             if (notExtendedDST == null || extendedDST == null) return@liveData
             emit(
                 notExtendedDST.toMutableList().apply { addAllNNE(extendedDST) }

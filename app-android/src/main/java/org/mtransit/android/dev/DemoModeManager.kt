@@ -202,6 +202,7 @@ class DemoModeManager @Inject constructor(
 
     fun isAllowedAnyway(agency: IAgencyProperties?) = isAllowedAnyway(agency?.type)
     fun isAllowedAnyway(dst: DataSourceType?) = dst?.isMapScreen != true
+
     fun isAllowedAnyway(targeted: ITargetedProviderProperties?) = this.allowedTargeted.contains(targeted?.authority)
 
     fun fixLocale(newBaseContext: Context): Context {

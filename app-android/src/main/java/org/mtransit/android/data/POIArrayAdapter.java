@@ -540,8 +540,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		final Map<DataSourceType, List<AgencyProperties>> dstToAgencies = this.dataSourcesRepository.getAllTypeToAgencies();
-		// noinspection deprecation // FIXME
-		final ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>(this.dataSourcesRepository.getAllSupportedDataSourceTypes());
+		// noinspection deprecation // FIXME use live data
+		final ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>(
+				this.dataSourcesRepository.filterDataSourceTypes(
+						this.dataSourcesRepository.getAllSupportedDataSourceTypes()
+				)
+		);
 		CollectionUtils.removeIfNN(allAgencyTypes, dst -> !dst.isHomeScreen());
 		final boolean hasFavorites = (this.favUUIDs != null && !this.favUUIDs.isEmpty())
 				|| (this.favUUIDsFolderIds != null && !this.favUUIDsFolderIds.isEmpty());
