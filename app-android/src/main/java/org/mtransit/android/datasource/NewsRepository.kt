@@ -12,6 +12,7 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.data.NewsProviderProperties
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.util.UITimeUtils
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -21,16 +22,19 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 @Singleton
 class NewsRepository(
-    private val ioDispatcher: CoroutineDispatcher,
     val dataSourceRequestManager: DataSourceRequestManager,
+    val demoModeManager: DemoModeManager,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
 
     @Inject
     constructor(
         dataSourceRequestManager: DataSourceRequestManager,
+        demoModeManager: DemoModeManager,
     ) : this(
-        Dispatchers.IO,
         dataSourceRequestManager,
+        demoModeManager,
+        Dispatchers.IO,
     )
 
     companion object {
@@ -51,7 +55,11 @@ class NewsRepository(
         poi?.let {
             NewsProviderContract.Filter
                 .getNewTargetFilter(poi)
-                .setMinCreatedAtInMs(UITimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(14L))
+                .setMinCreatedAtInMs(
+                    UITimeUtils.currentTimeMillis() -
+                            if (demoModeManager.enabled) TimeUnit.DAYS.toMillis(365L)
+                            else TimeUnit.DAYS.toMillis(14L)
+                )
         },
         comparator,
         let,
@@ -85,7 +93,7 @@ class NewsRepository(
         coroutineContext,
     )
 
-    fun loadingNewsArticles(
+    private fun loadingNewsArticles(
         providers: List<NewsProviderProperties>?,
         filter: NewsProviderContract.Filter?,
         comparator: Comparator<News>,
@@ -136,7 +144,7 @@ class NewsRepository(
         coroutineContext,
     )
 
-    fun loadingNewsArticle(
+    private fun loadingNewsArticle(
         provider: NewsProviderProperties?,
         filter: NewsProviderContract.Filter?,
         onMissingProvider: ((oldNews: News?) -> (Unit)) = {},
@@ -155,7 +163,7 @@ class NewsRepository(
         emit(loadedNewsArticle)
     }
 
-    suspend fun loadNewsArticle(
+    private suspend fun loadNewsArticle(
         provider: NewsProviderProperties,
         filter: NewsProviderContract.Filter,
         context: CoroutineContext = ioDispatcher,
