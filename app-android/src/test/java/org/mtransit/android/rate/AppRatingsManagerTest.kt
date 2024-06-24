@@ -13,6 +13,7 @@ class AppRatingsManagerTest {
         dataSourcesRepository = mock(),
         favoriteRepository = mock(),
         analyticsManager = mock(),
+        demoModeManager = mock(),
     )
 
     @Test
