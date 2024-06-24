@@ -56,6 +56,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -133,25 +134,23 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		});
 	}
 
-	@Nullable
-	private Boolean initialized = false;
+	@NonNull
+	private final AtomicBoolean initialized = new AtomicBoolean(false);
 
 	@Override
 	public void init(@NonNull IActivity activity) {
 		if (!AD_ENABLED) {
 			return;
 		}
-		if (this.initialized == null // IN PROGRESS
-				|| Boolean.TRUE.equals(this.initialized)) {
-			MTLog.d(this, "init() > SKIP (init: %s)", this.initialized);
-			return; // SKIP
-		}
 		final android.app.Activity theActivity = activity.getActivity();
 		if (theActivity == null) {
 			MTLog.w(this, "Trying to initialized w/o activity!");
 			return; // SKIP
 		}
-		this.initialized = null; // IN PROGRESS
+		if (this.initialized.getAndSet(true)) {
+			MTLog.d(this, "init() > SKIP (init: %s)", this.initialized.get());
+			return; // SKIP
+		}
 		try {
 			initOnBackgroundThread(AdManager.this, activity, theActivity);
 		} catch (Exception e) {
@@ -200,7 +199,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		@Override
 		public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
 			MTLog.d(this, "onInitializationComplete()");
-			this.adManager.initialized = true;
 			final IActivity activity = this.activityWR.get();
 			if (activity != null) {
 				this.adManager.setupAd(activity);
@@ -705,7 +703,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		if (hasAgenciesEnabled == null) {
 			hasAgenciesEnabled = this.dataSourcesRepository.hasAgenciesEnabled();
 		}
-		if (!Boolean.TRUE.equals(this.initialized)) {
+		if (!Boolean.TRUE.equals(this.initialized.get())) {
 			MTLog.d(this, "isShowingAds() > Not showing ads (not initialized yet).");
 			return false; // not showing ads
 		}
