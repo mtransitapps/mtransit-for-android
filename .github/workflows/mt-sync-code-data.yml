@@ -39,6 +39,7 @@ env:
 jobs:
   MT-SYNC-CODE-DATA-JOB:
     name: "MT Sync Code & Data"
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - name: MT check out main repository code (no submodules)
@@ -110,6 +111,7 @@ jobs:
       - name: MT commit code change
         run: ./commit_code_change.sh
       - name: MT download & parse
+        timeout-minutes: 10
         run: ./download_and_parse.sh
       - name: MT artifact > GTFS files
         uses: actions/upload-artifact@v4
