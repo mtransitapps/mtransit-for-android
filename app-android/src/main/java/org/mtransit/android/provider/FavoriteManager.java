@@ -30,12 +30,14 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.TextMessage;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteFolderColumns;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.commons.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -58,11 +60,16 @@ public class FavoriteManager implements MTLog.Loggable {
 	public static final int DEFAULT_FOLDER_ID = 0;
 
 	@NonNull
+	private final DemoModeManager demoModeManager;
+
+	@NonNull
 	private final IAnalyticsManager analyticsManager;
 
 	@Inject
 	public FavoriteManager(@NonNull @ApplicationContext Context context,
+						   @NonNull DemoModeManager demoModeManager,
 						   @NonNull IAnalyticsManager analyticsManager) {
+		this.demoModeManager = demoModeManager;
 		this.analyticsManager = analyticsManager;
 		Executors.newSingleThreadExecutor().execute(() -> {
 			final SparseArrayCompat<Favorite.Folder> newFavoriteFolders = findFolders(context);
@@ -80,7 +87,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	public boolean hasFavoriteFolders() {
-		return this.favoriteFolders.size() > 0;
+		return !this.favoriteFolders.isEmpty();
 	}
 
 	public boolean hasFavoriteFolder(int favoriteFolderId) {
@@ -107,7 +114,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	public boolean isUsingFavoriteFolders() {
-		if (this.favoriteFolders.size() == 0) {
+		if (this.favoriteFolders.isEmpty()) {
 			return false;
 		}
 		//noinspection RedundantIfStatement
@@ -153,6 +160,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	@WorkerThread
 	@Nullable
 	private Favorite findFavorite(@NonNull Context context, @NonNull String fkId) {
+		if (demoModeManager.getEnabled()) return null;
 		Favorite favorite = null;
 		Cursor cursor = null;
 		try {
@@ -199,7 +207,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	private boolean extractHasFavorites(@Nullable List<Favorite> favorites) {
-		return favorites != null && favorites.size() > 0;
+		return favorites != null && !favorites.isEmpty();
 	}
 
 	@WorkerThread
@@ -221,8 +229,9 @@ public class FavoriteManager implements MTLog.Loggable {
 
 	@WorkerThread
 	@NonNull
-	public ArrayList<Favorite> findFavorites(@NonNull Context context) {
-		ArrayList<Favorite> result = new ArrayList<>();
+	public List<Favorite> findFavorites(@NonNull Context context) {
+		if (demoModeManager.getEnabled()) return Collections.emptyList();
+		List<Favorite> result = new ArrayList<>();
 		Cursor cursor = null;
 		try {
 			cursor = DataSourceManager.queryContentResolver( //

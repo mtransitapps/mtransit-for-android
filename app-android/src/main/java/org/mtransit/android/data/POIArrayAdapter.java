@@ -1096,18 +1096,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@SuppressWarnings("UnusedReturnValue")
 	private boolean resetModulesStatus() {
-		boolean reseted = false;
+		boolean didReset = false;
 		if (this.poisByType != null) {
-			for (List<POIManager> poims : this.poisByType.values()) {
-				for (POIManager poim : poims) {
+			for (List<POIManager> poimList : this.poisByType.values()) {
+				for (POIManager poim : poimList) {
 					if (poim.poi.getType() == POI.ITEM_VIEW_TYPE_MODULE) {
 						poim.resetLastFindTimestamps(); // force get status from provider
-						reseted = true;
+						didReset = true;
 					}
 				}
 			}
 		}
-		return reseted;
+		return didReset;
 	}
 
 	public void notifyDataSetChanged(boolean force) {
@@ -2232,7 +2232,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		TaskUtils.execute(this.refreshFavoritesTask);
 	}
 
-	private static class RefreshFavoritesTask extends MTCancellableAsyncTask<Integer, Void, ArrayList<Favorite>> {
+	private static class RefreshFavoritesTask extends MTCancellableAsyncTask<Integer, Void, List<Favorite>> {
 
 		@NonNull
 		private final WeakReference<POIArrayAdapter> poiArrayAdapterWR;
@@ -2248,7 +2248,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 
 		@Override
-		protected ArrayList<Favorite> doInBackgroundNotCancelledMT(Integer... params) {
+		protected List<Favorite> doInBackgroundNotCancelledMT(Integer... params) {
 			final POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
 			if (poiArrayAdapter == null) {
 				return null;
@@ -2257,7 +2257,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 
 		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable ArrayList<Favorite> result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable List<Favorite> result) {
 			final POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
 			if (poiArrayAdapter == null) {
 				return;
@@ -2266,7 +2266,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
-	private void setFavorites(@Nullable ArrayList<Favorite> favorites) {
+	private void setFavorites(@Nullable List<Favorite> favorites) {
 		boolean newFav; // don't trigger update if favorites are the same
 		boolean updatedFav; // don't trigger if favorites are the same OR were not set
 		if (this.favUUIDs == null) {

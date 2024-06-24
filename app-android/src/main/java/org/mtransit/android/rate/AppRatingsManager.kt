@@ -18,6 +18,7 @@ import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.favorites.FavoritesFragment
 import org.mtransit.android.ui.home.HomeFragment
@@ -35,6 +36,7 @@ class AppRatingsManager @Inject constructor(
     dataSourcesRepository: DataSourcesRepository,
     private val favoriteRepository: FavoriteRepository,
     private val analyticsManager: IAnalyticsManager,
+    private val demoModeManager: DemoModeManager,
 ) : MTLog.Loggable {
 
     companion object {
@@ -122,6 +124,7 @@ class AppRatingsManager @Inject constructor(
         dailyUser,
     ).switchMap { (hasAgenciesEnabled, lastRequestAppOpenCount, appOpenCounts, dailyUser) ->
         liveData {
+            if (demoModeManager.enabled) return@liveData emit(false)
             delay(7.seconds) // wait until the screen is rendered and the user has finished navigating between screen
             val hasFavorites = hasFavorites()
             val isSamsungDevice = BatteryOptimizationIssueUtils.isSamsungDevice()
