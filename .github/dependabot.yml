@@ -12,3 +12,13 @@ updates:
         patterns:
           - "actions/*"
     open-pull-requests-limit: 7
+  # - package-ecosystem: "gitsubmodule"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "daily"
+  #   target-branch: "mmathieum"
+  #   groups:
+  #     all-git-submodules:
+  #       patterns:
+  #         - "*"
+  #   open-pull-requests-limit: 7
