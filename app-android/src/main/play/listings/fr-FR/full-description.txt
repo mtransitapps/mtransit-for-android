@@ -42,7 +42,7 @@ Réseaux sociaux :
 Cette application est gratuite et ouverte :
 https://github.com/mtransitapps/mtransit-for-android
 
-Plus d'information (en anglais) : https://goo.gl/z2e6HP
+Plus d'information (en anglais) : https://bit.ly/MonTransitStats
 
 Fait avec ♥ à Montréal au Canada en Amérique du Nord.
 

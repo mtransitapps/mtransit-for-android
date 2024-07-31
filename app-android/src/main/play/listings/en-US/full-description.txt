@@ -42,7 +42,7 @@ Social:
 This app is free & open-source:
 https://github.com/mtransitapps/mtransit-for-android
 
-More information: https://goo.gl/z2e6HP
+More information: https://bit.ly/MonTransitStats
 
 Made with ♥ in Montreal, Canada in North America.
 
