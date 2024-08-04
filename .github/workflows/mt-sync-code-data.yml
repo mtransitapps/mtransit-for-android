@@ -3,7 +3,6 @@ on:
   workflow_dispatch: # manual
   schedule:
     - cron: '0 12 * * 2' # Tuesdays @ 12pm UTC # WEEKLY https://crontab.guru/#0_12_*_*_2
-#   - cron: '0 12 * * 1,4' # 0 0 * * MON,THU #BI-WEEKLY https://crontab.guru/#0_12_*_*_1,4
 # gh workflow run mt-sync-code-data.yml --ref mmathieum
 # gh run list --workflow=mt-sync-code-data.yml
 # gh run watch ; gh browse --branch mmathieum
@@ -92,23 +91,23 @@ jobs:
       #   run: ./test.sh
       #   env:
       #     MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
-      - name: MT artifact > unit tests XML results
-        uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }} # even if tests fails
-        with:
-          name: unit-test-xml-results
-          path: |
-            */build/test-results/**/*.xml
-            */build/test-results/*.xml
-            */build/reports/*.xml
-      - name: MT artifact > HTML reports
-        uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }} # even if tests fails
-        with:
-          name: html-reports
-          path: |
-            */build/reports/
-            !**/*.xml
+      # - name: MT artifact > unit tests XML results
+      #   uses: actions/upload-artifact@v4
+      #   if: ${{ !cancelled() }} # even if tests fails
+      #   with:
+      #     name: unit-test-xml-results
+      #     path: |
+      #       */build/test-results/**/*.xml
+      #       */build/test-results/*.xml
+      #       */build/reports/*.xml
+      # - name: MT artifact > HTML reports
+      #   uses: actions/upload-artifact@v4
+      #   if: ${{ !cancelled() }} # even if tests fails
+      #   with:
+      #     name: html-reports
+      #     path: |
+      #       */build/reports/
+      #       !**/*.xml
       - name: MT commit code change
         run: ./commit_code_change.sh
       - name: MT download & parse
