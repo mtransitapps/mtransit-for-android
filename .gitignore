@@ -160,6 +160,8 @@ dev.properties
 /app_pidcat_debug.sh
 /app_pidcat_release.sh
 /app_setup.sh
+/app_start_debug.sh
+/app_start_release.sh
 /app_uninstall_debug.sh
 /assemble_release.sh
 /commit_code_change.sh
