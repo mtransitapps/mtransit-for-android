@@ -57,7 +57,8 @@ class SplashScreenViewModel @Inject constructor(
         var appOpenCounts = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
         appOpenCounts++
         var appOpenLast = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_LAST, PREF_USER_APP_OPEN_LAST_DEFAULT)
-        val dailyUser = appOpenLast > TimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(7L)
+        val sevenDaysAgo = TimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(7L)
+        val dailyUser = sevenDaysAgo < appOpenLast && appOpenCounts > 10 // opened in the last 7 days
         appOpenLast = TimeUtils.currentTimeMillis()
         defaultPrefRepository.pref.edit {
             putInt(PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
