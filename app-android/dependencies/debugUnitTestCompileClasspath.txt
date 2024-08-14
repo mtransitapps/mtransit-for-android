@@ -90,10 +90,10 @@ com.google.ads.mediation:facebook:6.17.0.0
 com.google.android.datatransport:transport-api:3.2.0
 com.google.android.datatransport:transport-backend-cct:3.3.0
 com.google.android.datatransport:transport-runtime:3.3.0
-com.google.android.gms:play-services-ads-base:23.2.0
+com.google.android.gms:play-services-ads-base:23.3.0
 com.google.android.gms:play-services-ads-identifier:18.0.0
-com.google.android.gms:play-services-ads-lite:23.2.0
-com.google.android.gms:play-services-ads:23.2.0
+com.google.android.gms:play-services-ads-lite:23.3.0
+com.google.android.gms:play-services-ads:23.3.0
 com.google.android.gms:play-services-appset:16.0.1
 com.google.android.gms:play-services-base:18.5.0
 com.google.android.gms:play-services-basement:18.4.0
@@ -111,7 +111,7 @@ com.google.android.material:material:1.12.0
 com.google.android.play:core-common:2.0.3
 com.google.android.play:review-ktx:2.0.1
 com.google.android.play:review:2.0.1
-com.google.android.ump:user-messaging-platform:2.2.0
+com.google.android.ump:user-messaging-platform:3.0.0
 com.google.code.findbugs:jsr305:3.0.2
 com.google.code.gson:gson:2.11.0
 com.google.dagger:dagger-lint-aar:2.52
