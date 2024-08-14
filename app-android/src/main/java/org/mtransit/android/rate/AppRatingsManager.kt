@@ -45,7 +45,7 @@ class AppRatingsManager @Inject constructor(
         const val ALWAYS_SHOW_APP_RATING_REQUEST = false
         // const val ALWAYS_SHOW_APP_RATING_REQUEST = true // DEBUG
 
-        private const val INCREASED_APP_OPEN_COUNT = 50
+        private const val INCREASED_APP_OPEN_COUNT = 100
 
         private const val SAMSUNG_INCREASED_APP_OPEN_COUNT = INCREASED_APP_OPEN_COUNT
 
@@ -55,10 +55,10 @@ class AppRatingsManager @Inject constructor(
             HomeFragment.TRACKING_SCREEN_NAME, // just opened the app
         )
 
-        private const val REDUCED_APP_OPEN_COUNT = 30
+        private const val REDUCED_APP_OPEN_COUNT = 10
 
-        private const val FIRST_REQUEST_APP_OPEN_COUNT = 70
-        private const val NEXT_REQUEST_APP_OPEN_COUNT = 100
+        private const val FIRST_REQUEST_APP_OPEN_COUNT = 100
+        private const val NEXT_REQUEST_APP_OPEN_COUNT = 250
 
         private const val HAS_FAVORITES_REDUCED_APP_OPEN_COUNT = REDUCED_APP_OPEN_COUNT
         private const val PREFERRED_SCREENS_REDUCED_APP_OPEN_COUNT = REDUCED_APP_OPEN_COUNT
