@@ -79,7 +79,7 @@ class AppRatingsManagerTest {
     fun verify_shouldShowAppRequest_firstAppOpenCount_Yes_Daily_Yes_NeverRequested() {
         val hasAgenciesEnabled = true
         val lastRequestAppOpenCount = 0
-        val appOpenCounts = 71
+        val appOpenCounts = 101
         val dailyUser = true
 
         val result = subject.shouldShowAppRatingRequest(
@@ -132,7 +132,7 @@ class AppRatingsManagerTest {
     fun verify_shouldShowAppRequest_firstAppOpenCount_Yes_Daily_Yes_RequestAgain_Yes() {
         val hasAgenciesEnabled = true
         val lastRequestAppOpenCount = 80
-        val appOpenCounts = 190
+        val appOpenCounts = 290
         val dailyUser = true
 
         val result = subject.shouldShowAppRatingRequest(
@@ -150,7 +150,7 @@ class AppRatingsManagerTest {
         val screenName = "Favorites"
         val hasAgenciesEnabled = true
         val lastRequestAppOpenCount = 0
-        val appOpenCounts = 41
+        val appOpenCounts = 91
         val dailyUser = true
 
         val result = subject.shouldShowAppRatingRequest(
@@ -169,7 +169,7 @@ class AppRatingsManagerTest {
         val hasFavorites = true
         val hasAgenciesEnabled = true
         val lastRequestAppOpenCount = 0
-        val appOpenCounts = 41
+        val appOpenCounts = 91
         val dailyUser = true
 
         val result = subject.shouldShowAppRatingRequest(
