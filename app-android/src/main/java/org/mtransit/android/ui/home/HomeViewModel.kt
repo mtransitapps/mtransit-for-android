@@ -35,6 +35,7 @@ import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
+import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -45,7 +46,6 @@ import org.mtransit.android.provider.location.network.NetworkLocationRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTViewModelWithLocation
-import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareViewModel
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
@@ -87,7 +87,7 @@ class HomeViewModel @Inject constructor(
         private const val NB_MAX_BY_TYPE_ONE_TYPE = 6
         private const val NB_MAX_BY_TYPE_TWO_TYPES = 4
 
-        private val POI_ALPHA_COMPARATOR = FavoritesViewModel.POIAlphaComparator()
+        private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
 
         private const val IGNORE_SAME_LOCATION_CHECK = false
         // private const val IGNORE_SAME_LOCATION_CHECK = true // DEBUG

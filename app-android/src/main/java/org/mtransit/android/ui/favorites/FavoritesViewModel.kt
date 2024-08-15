@@ -20,6 +20,7 @@ import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparator
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -128,22 +129,6 @@ class FavoritesViewModel @Inject constructor(
         return POIManager(this.favoriteRepository.generateFavEmptyFavPOI(textMessageId).also {
             it.dataSourceTypeId = this.favoriteRepository.generateFavoriteFolderId(favoriteFolderId)
         })
-    }
-
-    class POIAlphaComparator : Comparator<POIManager?> {
-        override fun compare(lhs: POIManager?, rhs: POIManager?): Int {
-            val lhsPoi = lhs?.poi
-            val rhsPoi = rhs?.poi
-            if (lhsPoi == null && rhsPoi == null) {
-                return ComparatorUtils.SAME
-            }
-            if (lhsPoi == null) {
-                return ComparatorUtils.BEFORE
-            } else if (rhsPoi == null) {
-                return ComparatorUtils.AFTER
-            }
-            return lhsPoi.compareToAlpha(null, rhsPoi)
-        }
     }
 
     class FavoriteFolderNameComparator(

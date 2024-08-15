@@ -19,7 +19,6 @@ import androidx.navigation.fragment.FragmentNavigator;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
@@ -58,7 +57,6 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,9 +76,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 		return LOG_TAG;
 	}
-
-	@SuppressWarnings("unused")
-	public static final POIAlphaComparator POI_ALPHA_COMPARATOR = new POIAlphaComparator();
 
 	@ColorInt
 	public static int getDefaultDistanceAndCompassColor(@NonNull Context context) {
@@ -1059,23 +1054,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		result = 31 * result + Long.hashCode(lastFindServiceUpdateTimestampMs);
 		result = 31 * result + (color != null ? color.hashCode() : 0);
 		return result;
-	}
-
-	public static class POIAlphaComparator implements Comparator<POIManager> {
-		@Override
-		public int compare(POIManager lhs, POIManager rhs) {
-			POI lhsPoi = lhs == null ? null : lhs.poi;
-			POI rhsPoi = rhs == null ? null : rhs.poi;
-			if (lhsPoi == null && rhsPoi == null) {
-				return ComparatorUtils.SAME;
-			}
-			if (lhsPoi == null) {
-				return ComparatorUtils.BEFORE;
-			} else if (rhsPoi == null) {
-				return ComparatorUtils.AFTER;
-			}
-			return lhsPoi.compareToAlpha(null, rhsPoi);
-		}
 	}
 
 	public interface AgencyResolver {

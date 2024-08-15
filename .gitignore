@@ -157,6 +157,8 @@ dev.properties
 /.vscode/settings.json
 /app_install_debug.sh
 /app_install_release.sh
+/app_logcat_debug.sh
+/app_logcat_release.sh
 /app_pidcat_debug.sh
 /app_pidcat_release.sh
 /app_setup.sh

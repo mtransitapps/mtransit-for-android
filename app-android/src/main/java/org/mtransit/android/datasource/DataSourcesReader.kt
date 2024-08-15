@@ -78,6 +78,7 @@ class DataSourcesReader @Inject constructor(
             // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_sherbrooke_sts_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_ste_julie_omitsju_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_via_rail_train.debug", // FIXME DEBUG
             // DEBUG
         ) else listOf(
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore

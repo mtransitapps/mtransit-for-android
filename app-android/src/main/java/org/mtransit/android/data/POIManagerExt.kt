@@ -31,6 +31,15 @@ fun POI.distanceToInMeters(other: POI): Float? {
     return LocationUtils.distanceToInMeters(this.lat, this.lng, other.lat, other.lng)
 }
 
+val POIManager.simpleDistanceString: String
+    get() = this.distance.takeIf { it >= 0f }?.let { "${it}m" } ?: "?m"
+
+val POIManager.uuidAndDistance: String
+    get() = this.poi.uuid + " " + this.simpleDistanceString
+
+val POIManager.shortUUIDAndDistance: String
+    get() = this.poi.shortUUID + " " + this.simpleDistanceString
+
 val POIManager.shortUUID: String
     get() = this.poi.shortUUID
 

@@ -10,11 +10,11 @@ import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
-import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
@@ -35,7 +35,7 @@ class PickPOIViewModel @Inject constructor(
         internal const val EXTRA_POI_UUIDS = "extra_poi_uuids"
         internal const val EXTRA_POI_AUTHORITIES = "extra_poi_authorities"
 
-        private val POI_ALPHA_COMPARATOR = FavoritesViewModel.POIAlphaComparator()
+        private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
     override fun getLogTag(): String = LOG_TAG
