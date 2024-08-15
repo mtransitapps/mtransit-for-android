@@ -240,6 +240,7 @@ class POIViewModel @Inject constructor(
         }
         // 2 - try all nearby from current agency
         if (minNotConnectionSize > 0) {
+            val connectionSize = nearbyPOIs.size
             ad = LocationUtils.getNewDefaultAroundDiff()
             while (true) {
                 val aroundDiff = ad.aroundDiff
