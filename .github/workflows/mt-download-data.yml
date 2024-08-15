@@ -2,7 +2,8 @@ name: MT download data
 on:
   workflow_dispatch: # manual
   schedule:
-    - cron: '0 18 * * 1,3,5' # At 18:00 on Monday, Wednesday, and Friday # https://crontab.guru/#0_18_*_*_1,3,5
+    # too often for LFS - cron: '0 18 * * 1,3,5' # Mondays, Wednesdays & Fridays @ 6pm # https://crontab.guru/#0_18_*_*_1,3,5
+    - cron: '0 12 * * 4' # Tuesdays @ 12pm UTC # WEEKLY # https://crontab.guru/#0_12_*_*_4
 # gh workflow run mt-download-data.yml --ref mmathieum
 # gh run list --workflow=mt-download-data.yml
 # gh run watch ; gh browse --branch mmathieum
