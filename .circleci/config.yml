@@ -11,6 +11,11 @@ workflows:
       - mt-job:
           context:
             - MT_shared_context
+          filters:
+            branches:
+                only:
+                    - master
+                    # - mmathieum
 jobs:
   mt-job:
     working_directory: ~/mtransit
