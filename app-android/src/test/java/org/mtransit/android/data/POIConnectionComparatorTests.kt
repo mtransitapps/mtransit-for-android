@@ -108,9 +108,9 @@ class POIConnectionComparatorTests {
             // 98 same route as targeted
             RouteTripStop(authority, dst, route98, trip98Pa, stopTL34417, false).toPOIM(),
         )
+        subject.targetedPOI = excludedPOI.poi
         assertEquals(true, subject.isAlmostSameLocation(poiListSortedByDistance[0], poiListSortedByDistance[1]))
 
-        subject.targetedPOI = excludedPOI.poi
         assertEquals(true, subject.isConnection(poiListSortedByDistance[4].poi))
 
         val result = poiListSortedByDistance.sortedWith(subject)
