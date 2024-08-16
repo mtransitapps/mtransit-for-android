@@ -1,7 +1,6 @@
 package org.mtransit.android.ad;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.DisplayMetrics;
@@ -147,33 +146,73 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			MTLog.w(this, "Trying to initialized w/o activity!");
 			return; // SKIP
 		}
-		if (this.initialized.getAndSet(true)) {
+		if (this.initialized.get()) {
 			MTLog.d(this, "init() > SKIP (init: %s)", this.initialized.get());
 			return; // SKIP
 		}
 		try {
-			initOnBackgroundThread(AdManager.this, activity, theActivity);
+			TaskUtils.execute(new InitTask(AdManager.this, activity));
 		} catch (Exception e) {
 			this.crashReporter.w(this, e, "Error while initializing Ads!");
 		}
 	}
 
 	@WorkerThread
-	private static void initOnBackgroundThread(@NonNull AdManager adManager, IActivity activity, Activity theActivity) {
+	private static void initOnBackgroundThread(@NonNull AdManager adManager, @NonNull IActivity activity) {
 		if (DEBUG) {
 			List<String> testDeviceIds = new ArrayList<>();
 			testDeviceIds.add(AdRequest.DEVICE_ID_EMULATOR);
-			testDeviceIds.addAll(Arrays.asList(theActivity.getResources().getStringArray(R.array.google_ads_test_devices_ids)));
+			testDeviceIds.addAll(Arrays.asList(activity.requireContext().getResources().getStringArray(R.array.google_ads_test_devices_ids)));
 			MobileAds.setRequestConfiguration(
 					new RequestConfiguration.Builder()
 							.setTestDeviceIds(testDeviceIds)
 							.build()
 			);
 		}
+		// https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk
 		MobileAds.initialize( // doing I/O #StrictMode
-				theActivity, // some adapters require activity
+				activity.requireActivity(), // some adapters require activity
 				new MTOnInitializationCompleteListener(adManager, activity)
 		);
+	}
+
+	@SuppressWarnings("deprecation")
+	private static class InitTask extends MTCancellableAsyncTask<Void, Void, Boolean> {
+
+		private static final String LOG_TAG = AdManager.class.getSimpleName() + ">" + InitTask.class.getSimpleName();
+
+		@NonNull
+		@Override
+		public String getLogTag() {
+			return LOG_TAG;
+		}
+
+		@NonNull
+		private final AdManager adManager;
+		@NonNull
+		private final WeakReference<IActivity> activityWR;
+
+		InitTask(@NonNull AdManager adManager, @NonNull IActivity activity) {
+			this.adManager = adManager;
+			this.activityWR = new WeakReference<>(activity);
+		}
+
+		@WorkerThread
+		@Override
+		protected Boolean doInBackgroundNotCancelledMT(Void... params) {
+			if (!AD_ENABLED) {
+				return false;
+			}
+			final IActivity activity = this.activityWR.get();
+			if (activity == null) {
+				return false;
+			}
+			if (this.adManager.initialized.getAndSet(true)) {
+				return false;
+			}
+			initOnBackgroundThread(this.adManager, activity);
+			return true;
+		}
 	}
 
 	private static class MTOnInitializationCompleteListener implements OnInitializationCompleteListener, MTLog.Loggable {
