@@ -111,7 +111,7 @@ jobs:
       - name: MT commit code change
         run: ./commit_code_change.sh
       - name: MT download & parse
-        timeout-minutes: 10
+        timeout-minutes: 20
         run: ./download_and_parse.sh
       - name: MT artifact > GTFS files
         uses: actions/upload-artifact@v4
