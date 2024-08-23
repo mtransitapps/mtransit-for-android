@@ -45,7 +45,7 @@ jobs:
       - name: MT commit code change
         run: ./commit_code_change.sh
       - name: MT download data
-        timeout-minutes: 10
         run: ./agency-parser/download.sh
+        timeout-minutes: 10
       - name: MT push commits
         run: ./push_commits.sh

@@ -113,6 +113,8 @@ jobs:
       - name: MT download & parse
         timeout-minutes: 20
         run: ./download_and_parse.sh
+      - name: MT push commits
+        run: ./push_commits.sh
       - name: MT artifact > GTFS files
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }} # even if tests fails
