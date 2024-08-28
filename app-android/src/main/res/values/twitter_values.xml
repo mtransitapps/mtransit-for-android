@@ -7,6 +7,9 @@
     <string-array name="twitter_screen_names">
         <item>montransit</item>
     </string-array>
+    <string-array name="twitter_screen_names_id">
+        <item>329993645</item>
+    </string-array>
     <string-array name="twitter_screen_names_lang">
         <item>@string/news_provider_language_unknown_show_all</item>
     </string-array>
