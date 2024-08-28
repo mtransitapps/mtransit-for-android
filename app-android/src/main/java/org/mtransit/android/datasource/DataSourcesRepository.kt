@@ -212,38 +212,48 @@ class DataSourcesRepository @Inject constructor(
 
     // region NEWS
 
-    private fun List<NewsProviderProperties>.filterTwitter(): List<NewsProviderProperties> {
-        return this.filter { !it.authority.contains("news.twitter") }
+    private fun List<NewsProviderProperties>.filterNewsProviders(): List<NewsProviderProperties> = this.filter(filterNewsProviders)
+
+    private fun Set<NewsProviderProperties>.filterNewsProviders(): Set<NewsProviderProperties> = this.filterTo(HashSet(), filterNewsProviders)
+
+    private val filterNewsProviders: (NewsProviderProperties) -> Boolean = {
+        MTLog.d(this@DataSourcesRepository, "filterNewsProviders() > ${it.authority}.")
+        (
+                !it.authority.contains("news.instagram")
+                        || it.authority == "org.mtransit.android.news.instagram"
+                        || it.authority == "org.mtransit.android.debug.news.instagram"
+                )
+                && (
+                !it.authority.contains("news.twitter")
+                        || it.authority == "org.mtransit.android.news.twitter"
+                        || it.authority == "org.mtransit.android.debug.news.twitter"
+                )
     }
 
-    private fun Set<NewsProviderProperties>.filterTwitter(): Set<NewsProviderProperties> {
-        return this.filterTo(HashSet()) { !it.authority.contains("news.twitter") }
-    }
-
-    fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders().filterTwitter()
+    fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
 
     fun getAllNewsProvidersEnabled() = getAllNewsProviders().filterEnabled()
 
     fun readingAllNewsProviders() = liveData {
         emit(
-            dataSourcesInMemoryCache.getAllNewsProviders().filterTwitter()
+            dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
         )
         emitSource(dataSourcesIOCache.readingAllNewsProviders().map {
-            it.toSet().filterDemoModeTargeted(demoModeManager).filterTwitter()
+            it.toSet().filterDemoModeTargeted(demoModeManager).filterNewsProviders()
         }) // #onModulesUpdated
     }.distinctUntilChanged()
 
     fun getNewsProviders(targetAuthority: String) =
-        this.dataSourcesInMemoryCache.getNewsProviders(targetAuthority).filterTwitter()
+        this.dataSourcesInMemoryCache.getNewsProviders(targetAuthority).filterNewsProviders()
 
     fun readingNewsProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
             emit(
-                dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority).filterTwitter()
+                dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority).filterNewsProviders()
             )
             emitSource(
                 dataSourcesIOCache.readingNewsProviders(providerAuthority).map {
-                    it.filterDemoModeTargeted(demoModeManager).filterTwitter()
+                    it.filterDemoModeTargeted(demoModeManager).filterNewsProviders()
                 }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
