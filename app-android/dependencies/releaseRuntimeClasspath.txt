@@ -90,7 +90,7 @@ androidx.window:window:1.0.0
 androidx.work:work-runtime:2.9.1
 com.android.billingclient:billing-ktx:7.0.0
 com.android.billingclient:billing:7.0.0
-com.applovin:applovin-sdk:12.6.0
+com.applovin:applovin-sdk:12.6.1
 com.caverock:androidsvg-aar:1.4
 com.facebook.android:audience-network-sdk:6.17.0
 com.fasterxml.jackson.core:jackson-annotations:2.12.3
@@ -106,7 +106,7 @@ com.github.chuckerteam.chucker:library-no-op:4.0.0
 com.github.scribejava:scribejava-apis:8.3.1
 com.github.scribejava:scribejava-core:8.3.1
 com.github.scribejava:scribejava-java8:8.3.1
-com.google.ads.mediation:applovin:12.6.0.0
+com.google.ads.mediation:applovin:12.6.1.0
 com.google.ads.mediation:facebook:6.17.0.0
 com.google.android.datatransport:transport-api:3.2.0
 com.google.android.datatransport:transport-backend-cct:3.3.0
@@ -187,11 +187,11 @@ org.apache.commons:commons-lang3:3.12.0
 org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:1.0.1
 org.checkerframework:checker-qual:3.43.0
 org.jacoco:org.jacoco.core:0.8.8
-org.jetbrains.kotlin:kotlin-bom:2.0.10
-org.jetbrains.kotlin:kotlin-stdlib-common:2.0.10
-org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.10
-org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.10
-org.jetbrains.kotlin:kotlin-stdlib:2.0.10
+org.jetbrains.kotlin:kotlin-bom:2.0.20
+org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20
+org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.20
+org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.20
+org.jetbrains.kotlin:kotlin-stdlib:2.0.20
 org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1
