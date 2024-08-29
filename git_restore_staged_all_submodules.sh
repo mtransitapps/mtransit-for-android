@@ -1,0 +1,1 @@
+git submodule foreach 'echo "> Restoring $sm_path..." && git -C ../ restore --staged $sm_path && echo "> Restoring $sm_path... DONE"';
