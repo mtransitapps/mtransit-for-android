@@ -168,7 +168,7 @@ class POIViewModel @Inject constructor(
         var nearbyAgencyPOIAdded = false
         // 1 - try connections only in closest nearby area
         while (true) {
-            while (maxDistanceInMeters >= LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)) {
+            if (maxDistanceInMeters >= LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)) {
                 LocationUtils.incAroundDiff(ad)
             }
             val aroundDiff = ad.aroundDiff
@@ -223,6 +223,7 @@ class POIViewModel @Inject constructor(
                 ?.let { it * 1.5f }
                 ?.coerceAtLeast(minDistance)
             if (
+                maxDistanceInMeters >= 2f * NEARBY_CONNECTIONS_MAX_COVERAGE ||
                 (significantDistance != null && maxDistanceInMeters >= significantDistance)
             ) {
                 break
