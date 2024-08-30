@@ -63,6 +63,13 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 		return PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId);
 	}
 
+	public static final long PREFS_LCL_AGENCY_LAST_OPENED_DEFAULT = PreferenceUtils.PREFS_LCL_AGENCY_LAST_OPENED_DEFAULT;
+
+	@NonNull
+	public static String getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(String authority) {
+		return PreferenceUtils.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(authority);
+	}
+
 	@Nullable
 	private SharedPreferences _prefs;
 

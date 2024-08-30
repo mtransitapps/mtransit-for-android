@@ -1,17 +1,31 @@
 package org.mtransit.android.util
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.IntDef
+import androidx.annotation.MainThread
+import androidx.core.content.edit
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.DeviceUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
+import org.mtransit.android.commons.TimeUtils
+import org.mtransit.android.commons.ui.InvisibleActivity
+import org.mtransit.android.datasource.DataSourcesRepository
 import java.net.URL
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import org.mtransit.android.commons.R as commonsR
 
 object BatteryOptimizationIssueUtils {
@@ -63,6 +77,75 @@ object BatteryOptimizationIssueUtils {
             DeviceUtils.showIgnoreBatteryOptimizationSettings(activity)
         }
     }
+
+    // region invisible activity
+
+    private val INVISIBLE_ACTIVITY_MIN_OPEN_MS = TimeUnit.DAYS.toMillis(14L) // TODO longer?
+
+    @JvmStatic
+    fun onAppResumeInvisibleActivity(
+        context: Context,
+        lifecycleOwner: LifecycleOwner,
+        dataSourceRepository: DataSourcesRepository,
+        lclPrefRepository: LocalPreferenceRepository
+    ) {
+        if (!isSamsungDevice() && !BuildConfig.DEBUG) return
+        try {
+            lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                val nowMs = TimeUtils.currentTimeMillis()
+                dataSourceRepository
+                    .getAllAgenciesEnabled()
+                    .filter { it.pkg != context.packageName }
+                    .forEach { agency ->
+                        val lastAgencyInvisibleActivityOpenedMs = lclPrefRepository.getValue( // I/O
+                            LocalPreferenceRepository.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(agency.authority),
+                            LocalPreferenceRepository.PREFS_LCL_AGENCY_LAST_OPENED_DEFAULT
+                        )
+                        if (nowMs - lastAgencyInvisibleActivityOpenedMs < INVISIBLE_ACTIVITY_MIN_OPEN_MS) {
+                            return@forEach // SKIP (too soon)
+                        }
+                        val opened = withContext(Dispatchers.Main) {
+                            return@withContext openInvisibleActivity(context, agency.pkg)
+                        }
+                        lclPrefRepository.pref.edit {
+                            putLong(
+                                LocalPreferenceRepository.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(agency.authority),
+                                nowMs
+                            )
+                        }
+                        if (opened) {
+                            return@launch // STOP
+                        }
+                    }
+            }
+        } catch (e: Exception) {
+            MTLog.w(LOG_TAG, e, "Error while finding invisible activity!")
+        }
+    }
+
+    @MainThread
+    private fun openInvisibleActivity(context: Context, pkg: String): Boolean {
+        return try {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setPackage(pkg)
+                setClassName(pkg, InvisibleActivity.CLASS_NAME)
+            }
+            if (intent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(intent)
+                true
+            } else {
+                false
+            }
+        } catch (e: ActivityNotFoundException) {
+            MTLog.d(this, "'${InvisibleActivity.CLASS_NAME}' not found in $pkg!")
+            false
+        } catch (e: Exception) {
+            MTLog.d(this, "Unexpected error while opening '${InvisibleActivity.CLASS_NAME}' not found in $pkg!")
+            false
+        }
+    }
+
+    // endregion
 
     // region Samsung
 

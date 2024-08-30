@@ -27,6 +27,7 @@ import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.common.MTContinuationJ;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -38,6 +39,7 @@ import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.search.SearchFragment;
 import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.NightModeUtils;
@@ -123,6 +125,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	IBillingManager billingManager;
 	@Inject
 	DataSourcesRepository dataSourcesRepository;
+	@Inject
+	LocalPreferenceRepository lclPrefRepository;
 	@Inject
 	StatusLoader statusLoader;
 	@Inject
@@ -283,6 +287,12 @@ public class MainActivity extends MTActivityWithLocation implements
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while updating data-sources from repository!");
 		}
+		BatteryOptimizationIssueUtils.onAppResumeInvisibleActivity(
+				this,
+				this.getLifecycleOwner(),
+				this.dataSourcesRepository,
+				this.lclPrefRepository
+		);
 	}
 
 	private boolean resumed = false;
