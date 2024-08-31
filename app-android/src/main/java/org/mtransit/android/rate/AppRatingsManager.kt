@@ -3,12 +3,14 @@ package org.mtransit.android.rate
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.core.content.edit
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.analytics.AnalyticsEvents
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider
@@ -98,10 +100,15 @@ class AppRatingsManager @Inject constructor(
     private suspend fun hasFavorites() = favoriteRepository.hasFavorites()
 
     @WorkerThread
-    fun onAppRequestDisplayedSync(trackingScreen: IAnalyticsManager.Trackable? = null) = runBlocking { onAppRequestDisplayed(trackingScreen) }
+    fun onAppRequestDisplayed(
+        lifecycleOwner: LifecycleOwner,
+        trackingScreen: IAnalyticsManager.Trackable? = null
+    ) = lifecycleOwner.lifecycleScope.launch {
+        onAppRequestDisplayed(trackingScreen)
+    }
 
     @Suppress("MemberVisibilityCanBePrivate")
-    suspend fun onAppRequestDisplayed(trackingScreen: IAnalyticsManager.Trackable? = null) = withContext(Dispatchers.IO) {
+    private suspend fun onAppRequestDisplayed(trackingScreen: IAnalyticsManager.Trackable? = null) = withContext(Dispatchers.IO) {
         val currentAppOpenCount = defaultPrefRepository.getValue(
             DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS,
             DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS_DEFAULT

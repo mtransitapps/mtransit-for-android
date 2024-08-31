@@ -180,7 +180,7 @@ public abstract class ABFragment extends MTFragmentX implements
 			}
 			AppRatingsUIManager.showAppRatingsUI(mainActivity, analyticsManager, appRatingDisplayed -> {
 				if (appRatingDisplayed) {
-					this.appRatingsManager.onAppRequestDisplayedSync(this);
+					this.appRatingsManager.onAppRequestDisplayed(this, this);
 				}
 				return Unit.INSTANCE;
 			});
