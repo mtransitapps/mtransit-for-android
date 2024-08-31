@@ -80,7 +80,8 @@ object BatteryOptimizationIssueUtils {
 
     // region invisible activity
 
-    private val INVISIBLE_ACTIVITY_MIN_OPEN_MS = TimeUnit.DAYS.toMillis(14L) // TODO longer?
+    private val INVISIBLE_ACTIVITY_MIN_OPEN_MS = if (BuildConfig.DEBUG) TimeUnit.MINUTES.toMillis(15L) else
+        TimeUnit.DAYS.toMillis(14L) // TODO longer?
 
     @JvmStatic
     fun onAppResumeInvisibleActivity(
@@ -90,9 +91,9 @@ object BatteryOptimizationIssueUtils {
         lclPrefRepository: LocalPreferenceRepository
     ) {
         if (!(BuildConfig.DEBUG
-                    || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU))
+                    || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2))
         ) {
-            return // SKIP not-debug && not-Samsung < Android 13 (ignore Android 14+ for now)
+            return // SKIP not-debug && not-Samsung < Android 12 (ignore Android 13+ for now)
         }
         try {
             lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
@@ -103,7 +104,7 @@ object BatteryOptimizationIssueUtils {
                     .forEach { agency ->
                         val lastAgencyInvisibleActivityOpenedMs = lclPrefRepository.getValue( // I/O
                             LocalPreferenceRepository.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(agency.authority),
-                            LocalPreferenceRepository.PREFS_LCL_AGENCY_LAST_OPENED_DEFAULT
+                            nowMs // not the 1st time
                         )
                         if (nowMs - lastAgencyInvisibleActivityOpenedMs < INVISIBLE_ACTIVITY_MIN_OPEN_MS) {
                             return@forEach // SKIP (too soon)
