@@ -89,7 +89,11 @@ object BatteryOptimizationIssueUtils {
         dataSourceRepository: DataSourcesRepository,
         lclPrefRepository: LocalPreferenceRepository
     ) {
-        if (!isSamsungDevice() && !BuildConfig.DEBUG) return
+        if (!(BuildConfig.DEBUG
+                    || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU))
+        ) {
+            return // SKIP not-debug && not-Samsung < Android 13 (ignore Android 14+ for now)
+        }
         try {
             lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val nowMs = TimeUtils.currentTimeMillis()
