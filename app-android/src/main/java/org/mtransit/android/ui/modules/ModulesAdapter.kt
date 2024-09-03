@@ -20,6 +20,8 @@ import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.databinding.LayoutModulesItemBinding
 import org.mtransit.android.ui.modules.ModulesAdapter.ModuleViewHolder
+import org.mtransit.android.ui.view.common.context
+import org.mtransit.android.ui.view.common.textAndVisibility
 import java.util.concurrent.TimeUnit
 
 class ModulesAdapter :
@@ -52,10 +54,9 @@ class ModulesAdapter :
         }
 
         @SuppressLint("SetTextI18n")
-        fun bind(item: AgencyProperties?) {
-            val context = binding.root.context
-            binding.nameTv.apply {
-                text = item?.let {
+        fun bind(item: AgencyProperties?) = with(binding) {
+            nameTv.apply {
+                text = item?.let { it ->
                     "${
                         if (it.updateAvailable) "(UPDATE: r${it.availableVersionCode}) " else ""
                     }${it.getShortNameAndType(context)}${
@@ -64,43 +65,39 @@ class ModulesAdapter :
                 }
                 typeface = if (item?.updateAvailable == true) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             }
-            binding.descriptionTv.apply {
-                text = item?.let {
+            descriptionTv.apply {
+                textAndVisibility = item?.let {
                     "${it.pkg.substringAfter(IAgencyProperties.PKG_COMMON)} r${it.versionCode} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}"
                 }
-                isVisible = true
             }
             item?.let {
                 when {
                     it.maxValidSec < 0 -> {
-                        binding.statusLine1.apply {
+                        statusLine1.apply {
                             text = "?"
                             setTextColor(ColorUtils.getTextColorPrimary(context))
                             typeface = Typeface.DEFAULT
                         }
-                        binding.statusLine2.apply {
-                            text = "UNKNOWN"
+                        statusLine2.apply {
+                            textAndVisibility = "UNKNOWN"
                             setTextColor(ColorUtils.getTextColorPrimary(context))
-                            isVisible = true
                         }
                     }
 
                     it.maxValidSec == 0 -> {
-                        binding.statusLine1.apply {
+                        statusLine1.apply {
                             text = "∞"
                             setTextColor(ColorUtils.getTextColorSecondary(context))
                             typeface = Typeface.DEFAULT
                         }
-                        binding.statusLine2.apply {
-                            text = "UNLIMITED"
+                        statusLine2.apply {
+                            textAndVisibility = "UNLIMITED"
                             setTextColor(ColorUtils.getTextColorSecondary(context))
-                            isVisible = true
                         }
                     }
 
                     else -> {
-                        val maxValidMs = it.maxValidSec * 1000L
-                        val diffInDays = TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()).toInt()
+                        val diffInDays = TimeUnit.MILLISECONDS.toDays(it.maxValidMs - TimeUtils.currentTimeMillis()).toInt()
                         val tf: Typeface
                         val colorInt: Int
                         when {
@@ -144,21 +141,20 @@ class ModulesAdapter :
                                 tf = Typeface.DEFAULT
                             }
                         }
-                        binding.statusLine1.apply {
+                        statusLine1.apply {
                             text = "$diffInDays ${context.resources.getQuantityText(R.plurals.days_capitalized, diffInDays)}"
                             setTextColor(colorInt)
                             typeface = tf
                         }
-                        binding.statusLine2.apply {
-                            text = FORMAT_DATE.formatThreadSafe(maxValidMs)
+                        statusLine2.apply {
+                            textAndVisibility = FORMAT_DATE.formatThreadSafe(it.maxValidMs)
                             setTextColor(colorInt)
-                            isVisible = true
                         }
                     }
                 }
-                binding.status.isVisible = true
+                status.isVisible = true
             } ?: run {
-                binding.status.isVisible = false
+                status.isVisible = false
             }
         }
     }

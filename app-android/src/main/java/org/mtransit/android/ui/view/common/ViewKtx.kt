@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view.common
 
+import android.content.Context
 import android.content.res.Resources.NotFoundException
 import android.graphics.drawable.Drawable
 import android.view.View
@@ -10,6 +11,15 @@ import androidx.annotation.Px
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
+
+val ViewBinding.context: Context get() = root.context
+
+var TextView.textAndVisibility: CharSequence?
+    get() = text
+    set(value) {
+        isVisible = !value.isNullOrBlank()
+        text = value
+    }
 
 fun TextView.setTextQuantityText(@PluralsRes resId: Int, quantity: Int) {
     this.text = this.resources.getQuantityText(resId, quantity)

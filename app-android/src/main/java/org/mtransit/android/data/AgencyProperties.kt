@@ -8,10 +8,12 @@ import androidx.room.PrimaryKey
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocaleUtils
+import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.data.IAgencyProperties.Companion.DEFAULT_LONG_VERSION_CODE
 import org.mtransit.android.data.IAgencyProperties.Companion.DEFAULT_VERSION_CODE
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 @Entity(tableName = "agency_properties")
 data class AgencyProperties(
@@ -115,12 +117,22 @@ data class AgencyProperties(
     override val updateAvailable: Boolean
         get() = this.versionCode < this.availableVersionCode
 
+    val maxValidMs: Long
+        get() = this.maxValidSec * 1000L
+
     val maxValidSecSorted: Int
         get() = if (this.maxValidSec == 0) {
             Integer.MAX_VALUE // unlimited
         } else {
             this.maxValidSec
         }
+
+    override fun shouldShowUpdateLayout(): Boolean {
+        if (TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()) < TimeUnit.DAYS.toDays(7L)) {
+            return false // SKIP (more than 7 days left of schedule)
+        }
+        return updateAvailable
+    }
 
     override fun isInArea(area: Area?): Boolean {
         return IAgencyNearbyProperties.isInArea(this, area)

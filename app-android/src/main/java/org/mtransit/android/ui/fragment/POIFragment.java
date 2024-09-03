@@ -1158,7 +1158,8 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		final IAgencyUpdatableProperties agency = getAgencyOrNull();
-		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
+		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable()
+				&& agency.shouldShowUpdateLayout();
 		if (demoModeManager.isFullDemo()) {
 			appUpdateAvailable = false; // always false (demo mode ON)
 		}
