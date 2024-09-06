@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.type.rts
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,9 @@ import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.databinding.LayoutRtsRouteItemBinding
+import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.setPadding
 import org.mtransit.android.util.UIRouteUtils
 
@@ -154,7 +155,10 @@ class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
                 binding.routeLongName.isVisible = false
             }
             // BG COLOR
-            binding.route.setBackgroundColor((if (route.hasColor()) route.colorInt else null) ?: agency.colorInt ?: Color.BLACK)
+            binding.route.setBackgroundColor( UIColorUtils.adaptBackgroundColorToLightText(
+                binding.context,
+                (if (route.hasColor()) route.colorInt else null) ?: agency.colorInt ?: UIColorUtils.DEFAULT_BACKGROUND_COLOR
+            ))
             binding.route.isVisible = true
             binding.route.apply {
                 setOnClickListener { view ->

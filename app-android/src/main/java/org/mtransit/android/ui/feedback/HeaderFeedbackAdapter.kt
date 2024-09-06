@@ -3,8 +3,13 @@ package org.mtransit.android.ui.feedback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import org.mtransit.android.commons.data.POI
 import org.mtransit.android.databinding.LayoutFeedbackItemHeaderBinding
+import org.mtransit.android.ui.view.POIViewUtils
+import org.mtransit.android.ui.view.common.context
+import org.mtransit.android.commons.R as commonsR
 
 class HeaderFeedbackAdapter(
     private val onClick: (View) -> Unit,
@@ -36,6 +41,11 @@ class HeaderFeedbackAdapter(
         }
 
         fun bind(onClick: (View) -> Unit) {
+            POIViewUtils.setupPOIExtraLayoutBackground(
+                binding.extra,
+                POI.ITEM_VIEW_TYPE_MODULE,
+                ContextCompat.getColor(binding.context, commonsR.color.ic_launcher_background)
+            )
             binding.root.setOnClickListener {
                 onClick(it)
             }

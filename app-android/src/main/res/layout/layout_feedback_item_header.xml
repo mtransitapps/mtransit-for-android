@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_view_item_height"
-    android:background="?attr/colorSurface"
+    android:background="@drawable/color_surface_rounded"
     android:clipChildren="false"
     android:minHeight="@dimen/list_view_item_height"
     android:paddingStart="@dimen/poi_padding_start_extra"
@@ -17,10 +17,10 @@
         android:layout_height="@dimen/poi_extra_height"
         android:layout_alignParentStart="true"
         android:layout_marginEnd="@dimen/poi_extra_margin_end"
-        android:background="@color/ic_launcher_background"
         android:contentDescription="@null"
         android:scaleType="fitCenter"
-        android:src="@mipmap/ic_launcher_foreground" />
+        android:src="@mipmap/ic_launcher_foreground"
+        tools:background="@color/ic_launcher_background" />
 
     <LinearLayout
         android:id="@+id/place"

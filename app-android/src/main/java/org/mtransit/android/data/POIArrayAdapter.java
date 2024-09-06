@@ -67,6 +67,7 @@ import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.common.UIColorUtils;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
@@ -76,6 +77,7 @@ import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
+import org.mtransit.android.ui.view.POIViewUtils;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
@@ -643,7 +645,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 						}
 						final Integer color = agency.getColorInt();
 						if (color != null) {
-							colors.add(color);
+							colors.add(UIColorUtils.adaptBackgroundColorToLightText(getContext(), color));
 						}
 					}
 					if (colors.size() == 1) {
@@ -1861,7 +1863,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private void updateModuleExtra(@NonNull POIManager poim, @NonNull ModuleViewHolder holder) {
 		if (this.showExtra && poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(dataSourcesRepository));
+			POIViewUtils.setupPOIExtraLayoutBackground(holder.moduleExtraTypeImg, poim, dataSourcesRepository);
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
 				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
@@ -1977,7 +1979,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 						UIDirectionUtils.decorateDirection(getContext(), rts.getTrip().getUIHeading(getContext(), true), true)
 				);
 				holder.tripHeadingBg.setVisibility(View.VISIBLE);
-				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataSourcesRepository));
+				POIViewUtils.setupPOIExtraLayoutBackground(holder.rtsExtraV, poim, dataSourcesRepository);
 				holder.rtsExtraV.setOnClickListener(view -> {
 					leaving();
 					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());

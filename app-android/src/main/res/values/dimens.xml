@@ -34,6 +34,13 @@
     <dimen name="head_sign_text_size">13sp</dimen>
     <dimen name="head_sign_text_size_short">14sp</dimen>
 
+    <dimen name="extra_radius">@dimen/platform_mtrl3_corner_radius_extra_small</dimen>
+
+    <dimen name="extra_route_trip_radius_top_left">@dimen/extra_radius</dimen>
+    <dimen name="extra_route_trip_radius_top_right">@dimen/extra_radius</dimen>
+    <dimen name="extra_route_trip_radius_bottom_left">@dimen/extra_radius</dimen>
+    <dimen name="extra_route_trip_radius_bottom_right">@dimen/extra_radius</dimen>
+
     <dimen name="touch_target_min_height">@dimen/baseline_48</dimen>
     <dimen name="touch_target_min_height_btn">36dp</dimen>
     <dimen name="touch_target_min_width">@dimen/baseline_48</dimen>

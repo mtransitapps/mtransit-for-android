@@ -23,9 +23,10 @@
     DEBUG -->
     <!-- ROUTE TRIP -->
     <LinearLayout
+        android:id="@+id/route_trip"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/route_direction_gradient"
+        android:background="@drawable/route_direction_gradient_rounded"
         android:orientation="vertical">
 
         <!-- ROUTE -->

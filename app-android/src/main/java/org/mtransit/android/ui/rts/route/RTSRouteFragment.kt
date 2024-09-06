@@ -26,6 +26,7 @@ import org.mtransit.android.databinding.FragmentRtsRouteBinding
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -145,7 +146,9 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
                     tabs.elevation = it
                 }
             }
-            attachedViewModel?.colorInt?.value?.let { routeDirectionBackground.setBackgroundColor(it) }
+            attachedViewModel?.colorInt?.value?.let {
+                routeDirectionBackground.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
+            }
             showSelectedTab()
         }
         viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->
@@ -172,16 +175,16 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
                     }
                 }
             )
-            binding?.apply {
-                attachedViewModel?.colorInt?.value?.let { routeDirectionBackground.setBackgroundColor(it) }
+            attachedViewModel?.colorInt?.value?.let {
+                binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
             }
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
         }
-        viewModel.colorInt.observe(viewLifecycleOwner) {
-            binding?.apply {
-                attachedViewModel?.colorInt?.value?.let { routeDirectionBackground.setBackgroundColor(it) }
+        viewModel.colorInt.observe(viewLifecycleOwner) { it ->
+            it?.let {
+                binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
             }
             abController?.setABBgColor(this, getABBgColor(context), true)
         }

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_view_item_height"
-    android:background="?attr/colorSurface"
+    android:background="@drawable/color_surface_rounded"
     android:clipChildren="false"
     android:minHeight="@dimen/list_view_item_height"
     android:paddingStart="@dimen/poi_padding_start_no_extra"
@@ -21,6 +21,7 @@
         android:minWidth="@dimen/list_view_item_height"
         android:orientation="vertical"
         android:visibility="invisible"
+        tools:layout_width="77dp"
         tools:visibility="visible">
 
         <TextView

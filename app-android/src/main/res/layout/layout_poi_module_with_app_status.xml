@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_view_item_height"
-    android:background="?attr/colorSurface"
+    android:background="@drawable/color_surface_rounded"
     android:clipChildren="false"
     android:minHeight="@dimen/list_view_item_height"
     android:paddingStart="@dimen/poi_padding_start_extra"

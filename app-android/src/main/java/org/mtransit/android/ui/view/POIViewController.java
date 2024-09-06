@@ -450,7 +450,7 @@ public class POIViewController implements MTLog.Loggable {
 										  @NonNull POIDataProvider dataProvider) {
 		if (poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(dataProvider.providesDataSourcesRepository()));
+			POIViewUtils.setupPOIExtraLayoutBackground(holder.moduleExtraTypeImg, poim, dataProvider.providesDataSourcesRepository());
 			final DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
 				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
@@ -643,7 +643,7 @@ public class POIViewController implements MTLog.Loggable {
 					holder.tripHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
-				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataProvider.providesDataSourcesRepository()));
+				POIViewUtils.setupPOIExtraLayoutBackground(holder.rtsExtraV, poim, dataProvider.providesDataSourcesRepository());
 				//noinspection ConstantConditions // stop always non-null?
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
 				holder.rtsExtraV.setOnClickListener(view -> {
@@ -813,7 +813,7 @@ public class POIViewController implements MTLog.Loggable {
 					null,
 					10,
 					null);
-			if (lines != null && lines.size() >= 1) {
+			if (lines != null && !lines.isEmpty()) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;
 			}

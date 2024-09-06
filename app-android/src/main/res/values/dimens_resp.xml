@@ -23,6 +23,7 @@
     <dimen name="poi_extra_width">@dimen/baseline_96</dimen>
     <dimen name="poi_extra_height">@dimen/list_view_item_height</dimen>
 
+    <dimen name="list_view_margin_horizontal">0dp</dimen>
     <dimen name="list_view_item_height">@dimen/platform_listPreferredItemHeight</dimen>
 
     <!-- override design_tab_max_width=264dp -->

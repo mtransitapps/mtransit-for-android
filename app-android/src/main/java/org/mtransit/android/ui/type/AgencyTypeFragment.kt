@@ -36,6 +36,7 @@ import org.mtransit.android.databinding.FragmentAgencyTypeBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
@@ -171,8 +172,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 showSelectedTab()
                 abBgColorInt = null // reset
                 abColorizer.setBgColors(
-                    *(agencies?.map { it.colorInt ?: defaultColor }?.toIntArray()
-                        ?: arrayOf(defaultColor).toIntArray())
+                    *(agencies?.map { UIColorUtils.adaptBackgroundColorToLightText(context, it.colorInt ?: defaultColor) }?.toIntArray()
+                        ?: arrayOf(UIColorUtils.adaptBackgroundColorToLightText(context, defaultColor)).toIntArray())
                 )
                 updateABColorNow()
             } else {
