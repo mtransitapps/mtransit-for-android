@@ -8,6 +8,5 @@
     <string-array name="google_ads_test_devices_ids">
         <item>INSERT_GOOGLE_ADS_TEST_DEVICE_ID_HERE</item>
     </string-array>
-    <string name="twitter_consumer_key">INSERT_TWITTER_CONSUMER_KEY_HERE</string>
-    <string name="twitter_consumer_secret">INSERT_TWITTER_CONSUMER_SECRET_HERE</string>
+    <string name="twitter_bearer_token">INSERT_TWITTER_BEARER_TOKEN_HERE</string>
 </resources>
