@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipToPadding="false"
+    android:divider="@drawable/list_divider_rounded"
     android:drawSelectorOnTop="true"
     android:listSelector="?android:attr/selectableItemBackground"
     android:paddingBottom="@dimen/list_view_item_height"

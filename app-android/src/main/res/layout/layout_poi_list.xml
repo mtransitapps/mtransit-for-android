@@ -4,6 +4,7 @@
     android:id="@id/list"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:divider="@drawable/list_divider_rounded"
     android:drawSelectorOnTop="true"
     android:listSelector="?android:attr/selectableItemBackground"
     android:scrollbarStyle="insideOverlay"

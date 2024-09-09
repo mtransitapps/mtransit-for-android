@@ -10,6 +10,7 @@
     <ImageView
         android:layout_width="@dimen/action_bar_size_static"
         android:layout_height="@dimen/action_bar_size_static"
+        android:contentDescription="@null"
         android:padding="8dp"
         android:scaleType="centerInside"
         android:src="@drawable/product_logo" />

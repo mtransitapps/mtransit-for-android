@@ -1172,7 +1172,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			this.manualLayout.removeAllViews(); // clear the previous list
 			for (int i = 0; i < getPoisCount(); i++) {
 				if (this.manualLayout.getChildCount() > 0) {
-					this.manualLayout.addView(this.layoutInflater.inflate(R.layout.list_view_divider, this.manualLayout, false));
+					this.manualLayout.addView(this.layoutInflater.inflate(R.layout.list_view_divider_rounded, this.manualLayout, false));
 				}
 				View itemView = getView(i, null, this.manualLayout);
 				FrameLayout frameLayout = new FrameLayout(getContext());

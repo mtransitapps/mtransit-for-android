@@ -30,7 +30,7 @@
             tools:ignore="RtlSymmetry"
             tools:text="@tools:sample/date/day_of_week" />
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/author_icon"
             android:layout_width="@dimen/baseline_16"
             android:layout_height="@dimen/baseline_16"
@@ -41,6 +41,7 @@
             android:contentDescription="@null"
             android:scaleType="fitCenter"
             android:visibility="gone"
+            app:shapeAppearance="@style/MTShapeAppearance"
             tools:src="@tools:sample/avatars"
             tools:visibility="visible" />
 
@@ -60,7 +61,7 @@
             android:textStyle="bold"
             tools:text="@tools:sample/full_names" />
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/thumbnail"
             android:layout_width="@dimen/news_article_list_item_img_width"
             android:layout_height="@dimen/news_article_list_item_img_height"
@@ -73,6 +74,7 @@
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             android:visibility="gone"
+            app:shapeAppearance="@style/MTShapeAppearance"
             tools:src="@tools:sample/backgrounds/scenic"
             tools:visibility="visible" />
 

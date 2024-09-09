@@ -5,4 +5,4 @@
     android:contentDescription="@null"
     android:gravity="fill_horizontal"
     android:scaleType="fitXY"
-    android:src="?android:attr/listDivider" />
+    android:src="@drawable/list_divider_rounded" />

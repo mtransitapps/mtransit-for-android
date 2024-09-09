@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,7 +17,7 @@
         android:layout_height="wrap_content"
         android:text="@string/battery_optimization_issue_message_1" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/battery_optimization_issue_img"
         android:layout_width="380dp"
         android:layout_height="80dp"
@@ -26,6 +27,7 @@
         android:contentDescription="@null"
         android:scaleType="fitCenter"
         android:visibility="gone"
+        app:shapeAppearance="@style/MTShapeAppearanceFull"
         tools:src="@tools:sample/backgrounds/scenic"
         tools:visibility="visible" />
 
@@ -42,8 +44,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/baseline_16"
-        tools:text="@string/battery_optimization_samsung_use_device_care"
         android:visibility="gone"
+        tools:text="@string/battery_optimization_samsung_use_device_care"
         tools:visibility="visible" />
 
 </LinearLayout>

@@ -91,6 +91,10 @@
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
     </style>
 
+    <style name="MTShapeAppearance" parent="@style/ShapeAppearance.Material3.Corner.ExtraSmall" />
+
+    <style name="MTShapeAppearanceFull" parent="" />
+
     <!-- Only required until Migration to Material 3 (M3) -->
     <style name="Widget.MaterialComponents.BottomSheet.DragHandle" parent="Widget.Material3.BottomSheet.DragHandle">
         <item name="tint">?colorOnSurface</item>
