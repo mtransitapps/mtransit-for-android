@@ -5,8 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:background="@drawable/bg_rounded"
+    tools:ignore="MergeRootFrame"
     tools:layout_height="@dimen/poi_img_height"
     tools:layout_width="@dimen/poi_img_width">
+    <!-- TODO? MergeRootFrame: <FrameLayout> can be replaced with a <merge> tag-->
 
     <LinearLayout
         android:layout_width="match_parent"
