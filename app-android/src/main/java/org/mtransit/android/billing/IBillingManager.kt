@@ -2,6 +2,8 @@ package org.mtransit.android.billing
 
 import androidx.lifecycle.LiveData
 import com.android.billingclient.api.ProductDetails
+import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.ui.view.common.IActivity
 
 interface IBillingManager {
@@ -72,6 +74,8 @@ interface IBillingManager {
 
     val hasSubscription: LiveData<Boolean?>
 
+    fun showingPaidFeatures(): Boolean
+
     fun refreshAvailableSubscriptions()
 
     fun refreshPurchases()
@@ -85,4 +89,41 @@ interface IBillingManager {
     interface OnBillingResultListener {
         fun onBillingResult(productId: String?)
     }
+}
+
+fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager) =
+    this.filterExpansiveAgencies(billingManager.showingPaidFeatures())
+
+fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures: Boolean): List<T> {
+    if (showingPaidFeatures) return this // keep all for paid users
+    return this.filterTo(ArrayList()) { agency ->
+        filterExpansiveAgencyAuthorities(agency.authority)
+    }
+}
+
+fun List<String>.filterExpansiveAgencyAuthorities(billingManager: IBillingManager) =
+    this.filterExpansiveAgencyAuthorities(billingManager.showingPaidFeatures())
+
+fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean): List<String> {
+    if (showingPaidFeatures) return this // keep all for paid users
+    return this.filterTo(ArrayList()) { authority ->
+        filterExpansiveAgencyAuthorities(authority)
+    }
+}
+
+fun List<NewsProviderProperties>.filterExpansiveNewsProviders(billingManager: IBillingManager) =
+    this.filterExpansiveNewsProviders(billingManager.showingPaidFeatures())
+
+fun List<NewsProviderProperties>.filterExpansiveNewsProviders(showingPaidFeatures: Boolean): List<NewsProviderProperties> {
+    if (showingPaidFeatures) return this // keep all for paid users
+    return this.filterTo(ArrayList()) { agency ->
+        filterExpansiveAgencyAuthorities(agency.authority)
+    }
+}
+
+private val filterExpansiveAgencyAuthorities: (String) -> Boolean = { authority ->
+    (
+            !authority.contains("news.twitter") // Twitter/X API
+                    && !authority.contains("provider.place") // Google Place Search API
+            )
 }

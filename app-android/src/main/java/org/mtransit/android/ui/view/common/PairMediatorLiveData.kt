@@ -33,3 +33,5 @@ class PairMediatorLiveData<A, B>(a: LiveData<A>, b: LiveData<B>) :
         return "${javaClass.simpleName}(${this.value?.toString()})"
     }
 }
+
+fun <A, B> LiveData<A>.with(other: LiveData<B>) = PairMediatorLiveData(this, other)

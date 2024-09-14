@@ -59,9 +59,11 @@ class MTBillingManager @Inject constructor(
 
     private val billingClient = BillingClient.newBuilder(appContext)
         .setListener(this)
-        .enablePendingPurchases(PendingPurchasesParams.newBuilder()
-            .enableOneTimeProducts()
-            .build())
+        .enablePendingPurchases(
+            PendingPurchasesParams.newBuilder()
+                .enableOneTimeProducts()
+                .build()
+        )
         .build()
 
     override val currentSubscription: LiveData<String?> by lazy {
@@ -76,6 +78,9 @@ class MTBillingManager @Inject constructor(
     override val hasSubscription: LiveData<Boolean?> by lazy {
         this.currentSubscription.map { it?.isNotBlank() }
     }
+
+    override fun showingPaidFeatures() = hasSubscription.value != false
+    // || org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG // DEBUG
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
 

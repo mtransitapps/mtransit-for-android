@@ -2,6 +2,9 @@ package org.mtransit.android.datasource
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.billing.filterExpansiveAgencies
+import org.mtransit.android.billing.filterExpansiveNewsProviders
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.AgencyProperties
@@ -25,6 +28,7 @@ import javax.inject.Singleton
 class DataSourcesInMemoryCache @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val dataSourcesCache: DataSourcesCache,
+    private val billingManager: IBillingManager,
     private val demoModeManager: DemoModeManager,
 ) : MTLog.Loggable {
 
@@ -53,13 +57,15 @@ class DataSourcesInMemoryCache @Inject constructor(
     }
 
     private fun startListeningForChangesIntoMemory() {
-        dataSourcesCache.readingAllAgencies().observeForever { // SINGLETON
-            this._agencyProperties = it
+        dataSourcesCache.readingAllAgencies().observeForever { agencies -> // SINGLETON
+            this._agencyProperties = agencies
+                .filterExpansiveAgencies(billingManager)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
-        dataSourcesCache.readingAllAgenciesBase().observeForever { // SINGLETON
-            this._agencyBaseProperties = it
+        dataSourcesCache.readingAllAgenciesBase().observeForever { agencies -> // SINGLETON
+            this._agencyBaseProperties = agencies
+                .filterExpansiveAgencies(billingManager)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
@@ -87,8 +93,9 @@ class DataSourcesInMemoryCache @Inject constructor(
                 .filterDemoModeTargeted(demoModeManager)
                 .toSet() // not sorted
         }
-        dataSourcesCache.readingAllNewsProviders().observeForever { // SINGLETON
-            this._newsProviderProperties = it
+        dataSourcesCache.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
+            this._newsProviderProperties = newsProviders
+                .filterExpansiveNewsProviders(billingManager)
                 .filterDemoModeTargeted(demoModeManager)
                 .toSet() // not sorted
         }

@@ -141,15 +141,18 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                val currentSubscription: String = viewModel.currentSubscription.value.orEmpty()
-                val hasSubscription: Boolean? = viewModel.hasSubscription.value
-                when {
-                    hasSubscription == null -> { // unknown status
+                when(viewModel.hasSubscription.value) {
+                    null -> { // unknown status
                         // DO NOTHING
                     }
 
-                    hasSubscription -> { // has subscription
-                        StoreUtils.viewSubscriptionPage(it, currentSubscription, it.packageName, it.getString(commonsR.string.google_play))
+                    true -> { // has subscription
+                        StoreUtils.viewSubscriptionPage(
+                            it,
+                            viewModel.currentSubscription.value.orEmpty(),
+                            it.packageName,
+                            it.getString(commonsR.string.google_play)
+                        )
                     }
 
                     else -> { // does NOT have subscription

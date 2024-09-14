@@ -11,6 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.mtransit.android.R
+import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.billing.filterExpansiveAgencies
+import org.mtransit.android.billing.filterExpansiveAgencyAuthorities
+import org.mtransit.android.billing.filterExpansiveNewsProviders
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.DataSourceType
@@ -38,16 +43,27 @@ class DataSourcesRepository @Inject constructor(
     private val dataSourcesIOCache: DataSourcesCache, // I/O - DB
     private val dataSourcesReader: DataSourcesReader,
     private val demoModeManager: DemoModeManager,
+    private val billingManager: IBillingManager,
     private val pm: PackageManager,
 ) : MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = DataSourcesRepository::class.java.simpleName
-
-        private const val DEFAULT_AGENCY_COUNT = 2
     }
 
     override fun getLogTag(): String = LOG_TAG
+
+    private val defaultAgencies by lazy {
+        listOf(
+            appContext.getString(R.string.module_authority),
+            appContext.getString(R.string.place_authority),
+        )
+    }
+
+    private val includedAgencyCount: Int
+        get() {
+            return defaultAgencies.filterExpansiveAgencyAuthorities(billingManager).size
+        }
 
     private val defaultAgencyComparator: Comparator<IAgencyProperties> = IAgencyProperties.SHORT_NAME_COMPARATOR
 
@@ -61,12 +77,18 @@ class DataSourcesRepository @Inject constructor(
         it.getSupportedType()
     }
 
-    fun readingAllAgencies() = this.dataSourcesIOCache.readingAllAgencies().map {
-        it.filterDemoModeAgency(demoModeManager).sortedWith(defaultAgencyComparator)
+    fun readingAllAgencies() = this.dataSourcesIOCache.readingAllAgencies().map { agencies ->
+        agencies
+            .filterExpansiveAgencies(billingManager)
+            .filterDemoModeAgency(demoModeManager)
+            .sortedWith(defaultAgencyComparator)
     }.distinctUntilChanged()
 
-    fun readingAllAgenciesBase() = this.dataSourcesIOCache.readingAllAgenciesBase().map {
-        it.filterDemoModeAgency(demoModeManager).sortedWith(defaultAgencyComparator)
+    fun readingAllAgenciesBase() = this.dataSourcesIOCache.readingAllAgenciesBase().map { agencies ->
+        agencies
+            .filterExpansiveAgencies(billingManager)
+            .filterDemoModeAgency(demoModeManager)
+            .sortedWith(defaultAgencyComparator)
     }.distinctUntilChanged()
 
     fun readingAllAgenciesEnabledCount() = readingAllAgenciesBase().map {
@@ -78,16 +100,14 @@ class DataSourcesRepository @Inject constructor(
     fun getAllAgenciesEnabledCount() = getAllAgenciesEnabled().size
 
     fun readingAllAgencyAuthorities() = readingAllAgenciesBase().map { agencyList ->
-        agencyList.map { agency ->
-            agency.authority
-        }
+        agencyList.map { agency -> agency.authority }
     }
 
     fun getAllAgenciesCount() = getAllAgencies().size
 
     fun readingAllAgenciesCount() = liveData {
         emit(dataSourcesInMemoryCache.getAllAgencies().size)
-        emitSource(dataSourcesIOCache.readingAllAgencies().map { it.filterDemoModeAgency(demoModeManager).size }) // #onModulesUpdated
+        emitSource(readingAllAgencies().map { it.size }) // #onModulesUpdated
     }
 
     fun getAgency(authority: String) = this.dataSourcesInMemoryCache.getAgency(authority)
@@ -139,16 +159,16 @@ class DataSourcesRepository @Inject constructor(
         emitSource(readingAllSupportedDataSourceTypesIO()) // #onModulesUpdated
     }.distinctUntilChanged()
 
-    fun hasAgenciesAdded() = getAllAgenciesCount() > DEFAULT_AGENCY_COUNT
+    fun hasAgenciesAdded() = getAllAgenciesCount() > includedAgencyCount
 
     fun readingHasAgenciesAdded() = readingAllAgenciesCount().map { agenciesCount ->
-        agenciesCount > DEFAULT_AGENCY_COUNT
+        agenciesCount > includedAgencyCount
     }.distinctUntilChanged()
 
-    fun hasAgenciesEnabled() = getAllAgenciesEnabledCount() > DEFAULT_AGENCY_COUNT
+    fun hasAgenciesEnabled() = getAllAgenciesEnabledCount() > includedAgencyCount
 
     fun readingHasAgenciesEnabled() = readingAllAgenciesEnabledCount().map { enabledAgenciesCount ->
-        enabledAgenciesCount > DEFAULT_AGENCY_COUNT
+        enabledAgenciesCount > includedAgencyCount
     }.distinctUntilChanged()
 
     // endregion
@@ -223,11 +243,6 @@ class DataSourcesRepository @Inject constructor(
                         || it.authority == "org.mtransit.android.news.instagram"
                         || it.authority == "org.mtransit.android.debug.news.instagram"
                 )
-                && (
-                !it.authority.contains("news.twitter")
-                        || it.authority == "org.mtransit.android.news.twitter"
-                        || it.authority == "org.mtransit.android.debug.news.twitter"
-                )
     }
 
     fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
@@ -238,8 +253,11 @@ class DataSourcesRepository @Inject constructor(
         emit(
             dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
         )
-        emitSource(dataSourcesIOCache.readingAllNewsProviders().map {
-            it.toSet().filterDemoModeTargeted(demoModeManager).filterNewsProviders()
+        emitSource(dataSourcesIOCache.readingAllNewsProviders().map { newsProviders ->
+            newsProviders
+                .filterExpansiveNewsProviders(billingManager)
+                .filterDemoModeTargeted(demoModeManager)
+                .filterNewsProviders()
         }) // #onModulesUpdated
     }.distinctUntilChanged()
 
@@ -252,8 +270,11 @@ class DataSourcesRepository @Inject constructor(
                 dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority).filterNewsProviders()
             )
             emitSource(
-                dataSourcesIOCache.readingNewsProviders(providerAuthority).map {
-                    it.filterDemoModeTargeted(demoModeManager).filterNewsProviders()
+                dataSourcesIOCache.readingNewsProviders(providerAuthority).map { newsProviders ->
+                    newsProviders
+                        .filterExpansiveNewsProviders(billingManager)
+                        .filterDemoModeTargeted(demoModeManager)
+                        .filterNewsProviders()
                 }) // #onModulesUpdated
         }
     }.distinctUntilChanged()

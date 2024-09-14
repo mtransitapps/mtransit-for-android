@@ -155,10 +155,12 @@ class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
                 binding.routeLongName.isVisible = false
             }
             // BG COLOR
-            binding.route.setBackgroundColor( UIColorUtils.adaptBackgroundColorToLightText(
-                binding.context,
-                (if (route.hasColor()) route.colorInt else null) ?: agency.colorInt ?: UIColorUtils.DEFAULT_BACKGROUND_COLOR
-            ))
+            binding.route.setBackgroundColor(
+                UIColorUtils.adaptBackgroundColorToLightText(
+                    binding.context,
+                    (if (route.hasColor()) route.colorInt else null) ?: agency.colorInt ?: UIColorUtils.DEFAULT_BACKGROUND_COLOR
+                )
+            )
             binding.route.isVisible = true
             binding.route.apply {
                 setOnClickListener { view ->
