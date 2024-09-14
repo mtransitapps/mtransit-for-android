@@ -22,7 +22,7 @@ data class POIAvailabilityStatusViewHolder(
     override val binding: LayoutPoiStatusAvailabilityPercentBinding,
 ) : POICommonStatusViewHolder<LayoutPoiStatusAvailabilityPercentBinding, AvailabilityPercent> {
 
-    override fun fetchStatus(
+    override fun fetch(
         dataProvider: POIDataProvider,
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         poim: POIManager,
@@ -32,7 +32,7 @@ data class POIAvailabilityStatusViewHolder(
         poim.getStatus(context, dataProvider.providesStatusLoader()) as? AvailabilityPercent
     } else null
 
-    override fun updateStatus(
+    override fun update(
         context: Context,
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         status: POIStatus?,

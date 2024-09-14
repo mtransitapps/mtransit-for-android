@@ -16,7 +16,7 @@ data class POIAppStatusViewHolder(
     override val binding: LayoutPoiStatusAppBinding,
 ) : POICommonStatusViewHolder<LayoutPoiStatusAppBinding, AppStatus> {
 
-    override fun fetchStatus(
+    override fun fetch(
         dataProvider: POIDataProvider,
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         poim: POIManager,
@@ -26,7 +26,7 @@ data class POIAppStatusViewHolder(
         poim.getStatus(context, dataProvider.providesStatusLoader()) as? AppStatus
     } else null
 
-    override fun updateStatus(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, status: POIStatus?, dataProvider: POIDataProvider) {
+    override fun update(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, status: POIStatus?, dataProvider: POIDataProvider) {
         if (dataProvider.isShowingStatus && statusViewHolder is POIAppStatusViewHolder) {
             statusViewHolder.bind(status as? AppStatus, dataProvider)
         } else {

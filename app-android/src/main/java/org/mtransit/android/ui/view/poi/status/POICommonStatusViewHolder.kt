@@ -36,13 +36,13 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
         statusV.visibility = View.INVISIBLE // NOT GONE!
     }
 
-    fun fetchStatus(dataProvider: POIDataProvider, statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, context: Context): STATUS?
+    fun fetch(dataProvider: POIDataProvider, statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, context: Context): STATUS?
 
-    fun updateStatus(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, status: POIStatus?, dataProvider: POIDataProvider)
+    fun update(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, status: POIStatus?, dataProvider: POIDataProvider)
 
-    fun fetchAndUpdateStatus(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIDataProvider) {
-        val status = fetchStatus(dataProvider, statusViewHolder, poim, context)
-        updateStatus(context, statusViewHolder, status, dataProvider)
+    fun fetchAndUpdate(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIDataProvider) {
+        val status = fetch(dataProvider, statusViewHolder, poim, context)
+        update(context, statusViewHolder, status, dataProvider)
     }
 
     val statusV: View
@@ -57,17 +57,17 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
         fun bindStatusV(view: View): View = view.findViewById(R.id.status)
 
         @JvmStatic
-        fun updateStatusView(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, poiStatus: POIStatus, dataProvider: POIDataProvider) {
-            statusViewHolder?.updateStatus(context, statusViewHolder, poiStatus, dataProvider)
+        fun updateView(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, poiStatus: POIStatus, dataProvider: POIDataProvider) {
+            statusViewHolder?.update(context, statusViewHolder, poiStatus, dataProvider)
         }
 
         @JvmStatic
-        fun fetchAndUpdateStatusView(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIDataProvider) {
-            statusViewHolder?.fetchAndUpdateStatus(context, statusViewHolder, poim, dataProvider)
+        fun fetchAndUpdateView(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIDataProvider) {
+            statusViewHolder?.fetchAndUpdate(context, statusViewHolder, poim, dataProvider)
         }
 
         @JvmStatic
-        fun initPOIStatusViewHolder(@ItemStatusType statusType: Int, view: View): POICommonStatusViewHolder<out ViewBinding?, out POIStatus?>? {
+        fun init(@ItemStatusType statusType: Int, view: View): POICommonStatusViewHolder<out ViewBinding?, out POIStatus?>? {
             val statusView = view.findViewById<View?>(R.id.status) ?: return null
             return when (statusType) {
                 POI.ITEM_STATUS_TYPE_NONE -> null
