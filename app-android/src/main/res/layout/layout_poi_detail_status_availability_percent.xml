@@ -10,7 +10,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
+        android:background="@drawable/color_surface_rounded"
         android:minHeight="@dimen/list_view_item_height"
         android:paddingStart="16dp"
         android:paddingTop="8dp"

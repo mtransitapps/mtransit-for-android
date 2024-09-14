@@ -122,13 +122,13 @@ com.google.errorprone:error_prone_annotations:2.28.0
 com.google.firebase:firebase-abt:21.1.1
 com.google.firebase:firebase-analytics:22.1.0
 com.google.firebase:firebase-annotations:16.2.0
-com.google.firebase:firebase-bom:33.2.0
+com.google.firebase:firebase-bom:33.3.0
 com.google.firebase:firebase-common-ktx:21.0.0
 com.google.firebase:firebase-common:21.0.0
 com.google.firebase:firebase-components:18.0.0
 com.google.firebase:firebase-config-interop:16.0.1
 com.google.firebase:firebase-config:22.0.0
-com.google.firebase:firebase-crashlytics:19.0.3
+com.google.firebase:firebase-crashlytics:19.1.0
 com.google.firebase:firebase-encoders-json:18.0.1
 com.google.firebase:firebase-encoders-proto:16.0.0
 com.google.firebase:firebase-encoders:17.0.0
@@ -136,7 +136,7 @@ com.google.firebase:firebase-installations-interop:17.2.0
 com.google.firebase:firebase-installations:18.0.0
 com.google.firebase:firebase-measurement-connector:20.0.1
 com.google.firebase:firebase-perf:21.0.1
-com.google.firebase:firebase-sessions:2.0.3
+com.google.firebase:firebase-sessions:2.0.4
 com.google.firebase:protolite-well-known-types:18.0.0
 com.google.guava:failureaccess:1.0.2
 com.google.guava:guava:33.3.0-android
