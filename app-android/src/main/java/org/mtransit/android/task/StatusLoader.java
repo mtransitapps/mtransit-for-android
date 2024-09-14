@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
 @Singleton
 public class StatusLoader implements MTLog.Loggable {
 
@@ -39,10 +41,17 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	@NonNull
+	private final Context appContext;
+
+	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
 	@Inject
-	public StatusLoader(@NonNull DataSourcesRepository dataSourcesRepository) {
+	public StatusLoader(
+			@NonNull @ApplicationContext Context appContext,
+			@NonNull DataSourcesRepository dataSourcesRepository
+	) {
+		this.appContext = appContext;
 		this.dataSourcesRepository = dataSourcesRepository;
 	}
 
@@ -89,8 +98,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findStatus(@Nullable Context context,
-							  @NonNull POIManager poim,
+	public boolean findStatus(@NonNull POIManager poim,
 							  @NonNull StatusProviderContract.Filter statusFilter,
 							  @Nullable StatusLoader.StatusLoaderListener listener,
 							  boolean skipIfBusy) {
@@ -103,8 +111,8 @@ public class StatusLoader implements MTLog.Loggable {
 				if (provider == null) {
 					continue;
 				}
-				final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);
-				task.executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
+				new StatusFetcherCallable(this.appContext, listener, provider, poim, statusFilter)
+						.executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
 			}
 		}
 		return true;

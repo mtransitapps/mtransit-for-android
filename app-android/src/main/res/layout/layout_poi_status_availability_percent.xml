@@ -22,6 +22,17 @@
         android:padding="@dimen/poi_img_padding"
         android:visibility="gone"
         app:mtPieCharPieces="3"
+        tools:background="#FFFF00"
+        tools:visibility="visible" />
+
+    <include
+        android:id="@+id/availability_layout"
+        layout="@layout/layout_availability_stacked_bar"
+        android:layout_width="@dimen/poi_img_width"
+        android:layout_height="@dimen/poi_img_height"
+        android:layout_gravity="center_horizontal"
+        android:padding="@dimen/poi_img_padding"
+        android:visibility="gone"
         tools:visibility="visible" />
 
     <TextView

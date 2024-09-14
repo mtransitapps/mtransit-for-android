@@ -60,7 +60,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private static final String LOG_TAG = POIManager.class.getSimpleName();
@@ -113,6 +113,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				']';
 	}
 
+	@SuppressWarnings("unused")
 	@NonNull
 	public String toStringSimple() {
 		return POIManager.class.getSimpleName() + '[' +//
@@ -227,18 +228,31 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.status;
 	}
 
+
 	@Nullable
-	public POIStatus getStatus(@Nullable Context context,
+	public POIStatus getStatus(@Nullable Context ignoredContext,
 							   @NonNull StatusLoader statusLoader) {
+		return getStatus(statusLoader);
+	}
+
+	@Nullable
+	public POIStatus getStatus(@NonNull StatusLoader statusLoader) {
 		if (this.status == null || this.lastFindStatusTimestampMs < 0L || this.inFocus || !this.status.isUseful()) {
-			findStatus(context, statusLoader, false);
+			findStatus(statusLoader, false);
 		}
 		return this.status;
 	}
 
-	@SuppressWarnings("UnusedReturnValue")
-	private boolean findStatus(@Nullable Context context,
+	@Deprecated
+	@SuppressWarnings({"UnusedReturnValue", "unused"})
+	private boolean findStatus(@Nullable Context ignoredContext,
 							   @NonNull StatusLoader statusLoader,
+							   @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
+		return findStatus(statusLoader, skipIfBusy);
+	}
+
+	@SuppressWarnings("UnusedReturnValue")
+	private boolean findStatus(@NonNull StatusLoader statusLoader,
 							   @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
 		long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
@@ -247,7 +261,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (filter != null) {
 				filter.setInFocus(this.inFocus);
 				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
-				isNotSkipped = statusLoader.findStatus(context, this, filter, listener, skipIfBusy);
+				isNotSkipped = statusLoader.findStatus(this, filter, listener, skipIfBusy);
 				if (isNotSkipped) {
 					this.lastFindStatusTimestampMs = findStatusTimestampMs;
 				}
@@ -321,19 +335,30 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.serviceUpdates;
 	}
 
-	public boolean isServiceUpdateWarning(@Nullable Context context,
+	@Deprecated
+	public boolean isServiceUpdateWarning(@Nullable Context ignoredContext,
 										  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
+		return isServiceUpdateWarning(serviceUpdateLoader);
+	}
+
+	public boolean isServiceUpdateWarning(@NonNull ServiceUpdateLoader serviceUpdateLoader) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
-			findServiceUpdates(context, serviceUpdateLoader, false);
+			findServiceUpdates(serviceUpdateLoader, false);
 		}
 		return ServiceUpdate.isSeverityWarning(this.serviceUpdates);
 	}
 
+	@Deprecated
 	@Nullable
-	public ArrayList<ServiceUpdate> getServiceUpdates(@Nullable Context context,
+	public ArrayList<ServiceUpdate> getServiceUpdates(@Nullable Context ignoredContext,
 													  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
+		return getServiceUpdates(serviceUpdateLoader);
+	}
+
+	@Nullable
+	public ArrayList<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
-			findServiceUpdates(context, serviceUpdateLoader, false);
+			findServiceUpdates(serviceUpdateLoader, false);
 		}
 		return this.serviceUpdates;
 	}
@@ -353,8 +378,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private long lastFindServiceUpdateTimestampMs = -1;
 
 	@SuppressWarnings("UnusedReturnValue")
-	private boolean findServiceUpdates(@Nullable Context context,
-									   @NonNull ServiceUpdateLoader serviceUpdateLoader,
+	private boolean findServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader,
 									   @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
 		long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
@@ -363,7 +387,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			filter.setInFocus(this.inFocus);
 			ServiceUpdateLoader.ServiceUpdateLoaderListener listener = //
 					this.serviceUpdateLoaderListenerWR == null ? null : this.serviceUpdateLoaderListenerWR.get();
-			isNotSkipped = serviceUpdateLoader.findServiceUpdate(context, this, filter, listener, skipIfBusy);
+			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, listener, skipIfBusy);
 			if (isNotSkipped) {
 				this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
 			}
@@ -565,6 +589,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return newColor;
 	}
 
+	@SuppressWarnings("unused")
 	@Nullable
 	@ColorInt
 	public static Integer getNewColor(@Nullable POI poi,
@@ -577,6 +602,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		);
 	}
 
+	@SuppressWarnings("unused")
 	@Nullable
 	@ColorInt
 	public static Integer getNewColor(@Nullable POI poi,
@@ -610,6 +636,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return defaultColor;
 	}
 
+	@SuppressWarnings("unused")
 	@Nullable
 	@ColorInt
 	public static Integer getNewRouteColor(@Nullable DataSourcesRepository dataSourcesRepository,
@@ -637,6 +664,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return defaultColor;
 	}
 
+	@SuppressWarnings("unused")
 	@ColorInt
 	public static int getRouteColorNN(@Nullable DataSourcesRepository dataSourcesRepository,
 									  @Nullable Route route,
@@ -674,6 +702,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return getNewOneLineDescription(poi, () -> dataSourcesRepository.getAgency(poi.getAuthority()));
 	}
 
+	@SuppressWarnings("unused")
 	@MainThread
 	@NonNull
 	public String getNewOneLineDescription(@Nullable IAgencyUIProperties agency) {

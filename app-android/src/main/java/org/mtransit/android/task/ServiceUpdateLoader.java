@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
 @Singleton
 public class ServiceUpdateLoader implements MTLog.Loggable {
 
@@ -39,10 +41,16 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	@NonNull
+	private final Context appContext;
+
+	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
 	@Inject
-	public ServiceUpdateLoader(@NonNull DataSourcesRepository dataSourcesRepository) {
+	public ServiceUpdateLoader(
+			@NonNull @ApplicationContext Context appContext,
+			@NonNull DataSourcesRepository dataSourcesRepository) {
+		this.appContext = appContext;
 		this.dataSourcesRepository = dataSourcesRepository;
 	}
 
@@ -71,8 +79,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findServiceUpdate(@Nullable Context context,
-									 @NonNull POIManager poim,
+	public boolean findServiceUpdate(@NonNull POIManager poim,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable ServiceUpdateLoaderListener listener,
 									 boolean skipIfBusy) {
@@ -82,8 +89,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		Set<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(poim.poi.getAuthority());
 		if (!providers.isEmpty()) {
 			ServiceUpdateProviderProperties firstProvider = providers.iterator().next();
-			ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);
-			task.executeOnExecutor(getFetchServiceUpdateExecutor());
+			new ServiceUpdateFetcherCallable(this.appContext, listener, firstProvider, poim, serviceUpdateFilter)
+					.executeOnExecutor(getFetchServiceUpdateExecutor());
 		}
 		return true;
 	}

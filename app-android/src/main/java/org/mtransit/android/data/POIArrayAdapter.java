@@ -1642,6 +1642,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, convertView);
 		availabilityPercentStatusViewHolder.textTv = convertView.findViewById(R.id.textTv);
 		availabilityPercentStatusViewHolder.piePercentV = convertView.findViewById(R.id.pie);
+		availabilityPercentStatusViewHolder.availabilityLayout = convertView.findViewById(R.id.availability_layout);
+		availabilityPercentStatusViewHolder.availabilityDocks = convertView.findViewById(R.id.availability_docks);
+		availabilityPercentStatusViewHolder.availabilityBikesPrimary = convertView.findViewById(R.id.availability_bikes_primary);
+		availabilityPercentStatusViewHolder.availabilityBikesSecondary = convertView.findViewById(R.id.availability_bikes_secondary);
+		availabilityPercentStatusViewHolder.availabilityDocksLowTv = convertView.findViewById(R.id.availability_docks_low);
+		availabilityPercentStatusViewHolder.availabilityBikesLowTv = convertView.findViewById(R.id.availability_bikes_low);
 		return availabilityPercentStatusViewHolder;
 	}
 
@@ -1750,41 +1756,84 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
+	@SuppressLint("KotlinPairNotCreated") // MTPieChartPercentView in Java
 	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIStatus status) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
 		if (status instanceof AvailabilityPercent) {
 			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
 			if (!availabilityPercent.isStatusOK()) {
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
+				availabilityPercentStatusViewHolder.availabilityLayout.setVisibility(View.GONE);
 				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getStatusMsg(getContext()), TextView.BufferType.SPANNABLE);
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
-			} else if (availabilityPercent.isShowingLowerValue()) {
-				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
-				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getLowerValueText(getContext()), TextView.BufferType.SPANNABLE);
-				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
 			} else {
-				availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
-				availabilityPercentStatusViewHolder.piePercentV.setPiecesColors( //
-						Arrays.asList(
-								new Pair<>(
-										availabilityPercent.getValue1SubValueDefaultColor(),
-										availabilityPercent.getValue1SubValueDefaultColorBg()),
-								new Pair<>(
-										availabilityPercent.getValue1SubValue1Color(),
-										availabilityPercent.getValue1SubValue1ColorBg()),
-								new Pair<>(
-										availabilityPercent.getValue2Color(),
-										availabilityPercent.getValue2ColorBg())
-						)
-				);
-				availabilityPercentStatusViewHolder.piePercentV.setPieces(
-						Arrays.asList(
-								availabilityPercent.getValue1SubValueDefault(),
-								availabilityPercent.getValue1SubValue1(),
-								availabilityPercent.getValue2()
-						)
-				);
-				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
+				if (!UIFeatureFlags.F_POI_STATUS_AVAILABILITY_STACK_BAR) {
+					if (availabilityPercent.isShowingLowerValue()) {
+						availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
+						availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getLowerValueText(getContext()), TextView.BufferType.SPANNABLE);
+						availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
+					} else {
+						availabilityPercentStatusViewHolder.piePercentV.setPiecesColors( //
+								Arrays.asList(
+										new Pair<>(
+												availabilityPercent.getValue1SubValueDefaultColor(),
+												availabilityPercent.getValue1SubValueDefaultColorBg()),
+										new Pair<>(
+												availabilityPercent.getValue1SubValue1Color(),
+												availabilityPercent.getValue1SubValue1ColorBg()),
+										new Pair<>(
+												availabilityPercent.getValue2Color(),
+												availabilityPercent.getValue2ColorBg())
+								)
+						);
+						availabilityPercentStatusViewHolder.piePercentV.setPieces(
+								Arrays.asList(
+										availabilityPercent.getValue1SubValueDefault(),
+										availabilityPercent.getValue1SubValue1(),
+										availabilityPercent.getValue2()
+								)
+						);
+						availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
+					}
+				} else {
+					availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
+					availabilityPercentStatusViewHolder.availabilityBikesLowTv.setTextColor(availabilityPercent.getValue1SubValueDefaultColorBg());
+					availabilityPercentStatusViewHolder.availabilityBikesPrimary.setBackgroundColor(availabilityPercent.getValue1SubValueDefaultColorBg());
+					if (availabilityPercent.getValue1SubValue1ColorBg() != null) {
+						availabilityPercentStatusViewHolder.availabilityBikesSecondary.setBackgroundColor(availabilityPercent.getValue1SubValue1ColorBg());
+					}
+					availabilityPercentStatusViewHolder.availabilityDocksLowTv.setTextColor(availabilityPercent.getValue2Color());
+					availabilityPercentStatusViewHolder.availabilityDocks.setBackgroundColor(availabilityPercent.getValue2ColorBg());
+					availabilityPercentStatusViewHolder.availabilityBikesPrimary.setLayoutParams(
+							new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
+									availabilityPercent.getValue1SubValueDefault()
+							)
+					);
+					availabilityPercentStatusViewHolder.availabilityBikesSecondary.setLayoutParams(
+							new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
+									availabilityPercent.getValue1SubValue1() == null ? 0 : availabilityPercent.getValue1SubValue1()
+							)
+					);
+					availabilityPercentStatusViewHolder.availabilityDocks.setLayoutParams(
+							new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
+									availabilityPercent.getValue2()
+							)
+					);
+					if (availabilityPercent.isShowingLowerValue()) {
+						if (availabilityPercent.getValue2() == availabilityPercent.getLowerValue()) {
+							availabilityPercentStatusViewHolder.availabilityBikesLowTv.setVisibility(View.GONE);
+
+							availabilityPercentStatusViewHolder.availabilityDocksLowTv.setText(availabilityPercent.getLowerValueText(getContext()));
+							availabilityPercentStatusViewHolder.availabilityDocksLowTv.setVisibility(View.VISIBLE);
+						} else {
+							availabilityPercentStatusViewHolder.availabilityDocksLowTv.setVisibility(View.GONE);
+
+							availabilityPercentStatusViewHolder.availabilityBikesLowTv.setText(availabilityPercent.getLowerValueText(getContext()));
+							availabilityPercentStatusViewHolder.availabilityBikesLowTv.setVisibility(View.VISIBLE);
+						}
+					}
+					availabilityPercentStatusViewHolder.availabilityLayout.setVisibility(View.VISIBLE);
+				}
 			}
 			statusViewHolder.statusV.setVisibility(View.VISIBLE);
 		} else {
@@ -2374,6 +2423,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private static class AvailabilityPercentStatusViewHolder extends CommonStatusViewHolder {
 		TextView textTv;
 		MTPieChartPercentView piePercentV;
+		View availabilityLayout;
+		View availabilityDocks;
+		View availabilityBikesPrimary;
+		View availabilityBikesSecondary;
+		TextView availabilityDocksLowTv;
+		TextView availabilityBikesLowTv;
 	}
 
 	public static class CommonStatusViewHolder {
