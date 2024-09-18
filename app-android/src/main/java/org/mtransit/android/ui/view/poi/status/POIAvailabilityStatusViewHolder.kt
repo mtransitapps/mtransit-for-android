@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.view.poi.status
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -11,32 +10,30 @@ import org.mtransit.android.commons.data.AvailabilityPercent
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.LayoutPoiStatusAvailabilityPercentBinding
-import org.mtransit.android.ui.view.POIDataProvider
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIFeatureFlags
 
 import androidx.core.util.Pair as androidXPair
 
 data class POIAvailabilityStatusViewHolder(
+    override var uuid: String,
     override val statusV: View,
     override val binding: LayoutPoiStatusAvailabilityPercentBinding,
 ) : POICommonStatusViewHolder<LayoutPoiStatusAvailabilityPercentBinding, AvailabilityPercent> {
 
     override fun fetch(
-        dataProvider: POIDataProvider,
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         poim: POIManager,
-        context: Context
+        dataProvider: POIStatusDataProvider
     ) = if (dataProvider.isShowingStatus && statusViewHolder is POIAvailabilityStatusViewHolder) {
         poim.setStatusLoaderListener(dataProvider)
-        poim.getStatus(context, dataProvider.providesStatusLoader()) as? AvailabilityPercent
+        poim.getStatus(dataProvider.providesStatusLoader()) as? AvailabilityPercent
     } else null
 
     override fun update(
-        context: Context,
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         status: POIStatus?,
-        dataProvider: POIDataProvider
+        dataProvider: POIStatusDataProvider
     ) {
         if (dataProvider.isShowingStatus && statusViewHolder is POIAvailabilityStatusViewHolder) {
             statusViewHolder.bind(status as? AvailabilityPercent, dataProvider)
@@ -46,7 +43,7 @@ data class POIAvailabilityStatusViewHolder(
     }
 
     @SuppressLint("KotlinPairNotCreated") // MTPieChartPercentView in Java
-    override fun bind(status: AvailabilityPercent?, dataProvider: POIDataProvider) {
+    override fun bind(status: AvailabilityPercent?, dataProvider: POIStatusDataProvider) {
         super.bind(status, dataProvider)
         status?.let { availabilityPercent ->
             binding.apply {
@@ -145,7 +142,8 @@ data class POIAvailabilityStatusViewHolder(
 
     companion object {
         @JvmStatic
-        fun fromStatusView(view: View) = POIAvailabilityStatusViewHolder(
+        fun fromStatusView(view: View, uuid: String) = POIAvailabilityStatusViewHolder(
+            uuid = uuid,
             statusV = POICommonStatusViewHolder.bindStatusV(view),
             binding = LayoutPoiStatusAvailabilityPercentBinding.bind(view),
         )

@@ -229,6 +229,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 
+	@Deprecated
 	@Nullable
 	public POIStatus getStatus(@Nullable Context ignoredContext,
 							   @NonNull StatusLoader statusLoader) {

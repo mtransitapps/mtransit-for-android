@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -49,8 +48,6 @@ import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.api.SupportFactory;
-import org.mtransit.android.commons.data.AppStatus;
-import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
@@ -76,11 +73,14 @@ import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
-import org.mtransit.android.ui.view.MTPieChartPercentView;
 import org.mtransit.android.ui.view.POIViewUtils;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateProvider;
+import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder;
+import org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder;
+import org.mtransit.android.ui.view.poi.status.POIStatusDataProvider;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UIDirectionUtils;
@@ -92,21 +92,19 @@ import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.TimeUnit;
 
-@SuppressLint("UnknownNullness") // FIXME
-@SuppressWarnings({"deprecation", "WeakerAccess", "unused"}) // FIXME
+@SuppressWarnings("WeakerAccess")
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSensorManager.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, MTSensorManager.SensorTaskCompleted,
-		UITimeUtils.TimeChangedReceiver.TimeChangedListener {
+		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
+		POIStatusDataProvider, POIServiceUpdateProvider {
 
 	private static final String LOG_TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -716,7 +714,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		CommonViewHolder holder = (CommonViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
-		updatePOIStatus(holder.statusViewHolder, poim);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, this);
 		return convertView;
 	}
 
@@ -749,6 +748,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private WeakReference<OnPOISelectedListener> onPoiSelectedListenerWR;
 
+	@SuppressWarnings("unused")
 	public void setOnPoiSelectedListener(OnPOISelectedListener onPoiSelectedListener) {
 		this.onPoiSelectedListenerWR = new WeakReference<>(onPoiSelectedListener);
 	}
@@ -953,10 +953,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public boolean hasClosestPOI() {
 		return this.closestPoiUuids != null && !this.closestPoiUuids.isEmpty();
 	}
 
+	@SuppressWarnings("unused")
 	public boolean isClosestPOI(int position) {
 		if (this.closestPoiUuids == null) {
 			return false;
@@ -1072,9 +1074,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@Override
 	public void onStatusLoaded(@NonNull POIStatus status) {
 		if (this.showStatus) {
-			CommonStatusViewHolder statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
-			if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.uuid)) {
-				updatePOIStatus(statusViewHolder, status);
+			final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
+			if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.getUuid())) {
+				POICommonStatusViewHolder.updateView(statusViewHolder, status, this);
 			} else {
 				notifyDataSetChanged(false);
 			}
@@ -1084,12 +1086,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@Override
 	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
 		if (this.showServiceUpdate) {
-			CommonStatusViewHolder statusViewHolder = this.poiStatusViewHoldersWR.get(targetUUID);
-			if (statusViewHolder != null && targetUUID.equals(statusViewHolder.uuid)) {
-				updateServiceUpdate(statusViewHolder,
-						ServiceUpdate.isSeverityWarning(serviceUpdates),
-						ServiceUpdate.isSeverityInfo(serviceUpdates)
-				);
+			final POIServiceUpdateViewHolder serviceUpdateViewHolder = this.poiServiceUpdateViewHoldersWR.get(targetUUID);
+			if (serviceUpdateViewHolder != null && targetUUID.equals(serviceUpdateViewHolder.getUuid())) {
+				POIServiceUpdateViewHolder.updateView(serviceUpdateViewHolder, serviceUpdates, this);
 			} else {
 				notifyDataSetChanged(false);
 			}
@@ -1194,6 +1193,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void scrollManualScrollViewTo(int x, int y) {
 		if (this.manualScrollView != null) {
 			this.manualScrollView.scrollTo(x, y);
@@ -1302,6 +1302,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.lastNotifyDataSetChanged = -1L;
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
 		this.poiStatusViewHoldersWR.clear();
+		this.poiServiceUpdateViewHoldersWR.clear();
 		TaskUtils.cancelQuietly(this.refreshFavoritesTask, true);
 		TaskUtils.cancelQuietly(this.updateDistanceWithStringTask, true);
 		this.location = null;
@@ -1312,6 +1313,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	public void onDestroyView() {
 		this.compassImgsWR.clear();
 		this.poiStatusViewHoldersWR.clear();
+		this.poiServiceUpdateViewHoldersWR.clear();
 		if (this.onClickHandledListenerWR != null) {
 			this.onClickHandledListenerWR.clear();
 		}
@@ -1590,7 +1592,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@NonNull
-	private final WeakHashMap<String, CommonStatusViewHolder> poiStatusViewHoldersWR = new WeakHashMap<>();
+	private final WeakHashMap<String, POICommonStatusViewHolder<?, ?>> poiStatusViewHoldersWR = new WeakHashMap<>();
+
+	@NonNull
+	private final WeakHashMap<String, POIServiceUpdateViewHolder> poiServiceUpdateViewHoldersWR = new WeakHashMap<>();
 
 	@NonNull
 	private View getBasicPOIView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -1598,57 +1603,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			convertView = this.layoutInflater.inflate(getBasicPOILayout(poim.getStatusType()), parent, false);
 			BasicPOIViewHolder holder = new BasicPOIViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
-			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
+			holder.statusViewHolder = POICommonStatusViewHolder.init(poim.poi, convertView);
+			holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poim.poi, convertView);
 			convertView.setTag(holder);
 		}
 		updateBasicPOIView(poim, convertView);
 		return convertView;
-	}
-
-	@Nullable
-	private CommonStatusViewHolder initPOIStatusViewHolder(int status, View convertView) {
-		switch (status) {
-		case POI.ITEM_STATUS_TYPE_NONE:
-			return null;
-		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			return initAvailabilityPercentViewHolder(convertView);
-		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			return initScheduleViewHolder(convertView);
-		case POI.ITEM_STATUS_TYPE_APP:
-			return initAppStatusViewHolder(convertView);
-		default:
-			MTLog.w(this, "Unexpected status '%s' (no view holder)!", status);
-			return null;
-		}
-	}
-
-	private CommonStatusViewHolder initScheduleViewHolder(View convertView) {
-		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
-		initCommonStatusViewHolderHolder(scheduleStatusViewHolder, convertView);
-		scheduleStatusViewHolder.dataNextLine1Tv = convertView.findViewById(R.id.data_next_line_1);
-		scheduleStatusViewHolder.dataNextLine2Tv = convertView.findViewById(R.id.data_next_line_2);
-		return scheduleStatusViewHolder;
-	}
-
-	private CommonStatusViewHolder initAppStatusViewHolder(@NonNull View convertView) {
-		AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
-		initCommonStatusViewHolderHolder(appStatusViewHolder, convertView);
-		appStatusViewHolder.textTv = convertView.findViewById(R.id.textTv);
-		return appStatusViewHolder;
-	}
-
-	private CommonStatusViewHolder initAvailabilityPercentViewHolder(@NonNull View convertView) {
-		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
-		initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, convertView);
-		availabilityPercentStatusViewHolder.textTv = convertView.findViewById(R.id.textTv);
-		availabilityPercentStatusViewHolder.piePercentV = convertView.findViewById(R.id.pie);
-		availabilityPercentStatusViewHolder.availabilityLayout = convertView.findViewById(R.id.availability_layout);
-		availabilityPercentStatusViewHolder.availabilityDocks = convertView.findViewById(R.id.availability_docks);
-		availabilityPercentStatusViewHolder.availabilityBikesPrimary = convertView.findViewById(R.id.availability_bikes_primary);
-		availabilityPercentStatusViewHolder.availabilityBikesSecondary = convertView.findViewById(R.id.availability_bikes_secondary);
-		availabilityPercentStatusViewHolder.availabilityDocksLowTv = convertView.findViewById(R.id.availability_docks_low);
-		availabilityPercentStatusViewHolder.availabilityBikesLowTv = convertView.findViewById(R.id.availability_bikes_low);
-		return availabilityPercentStatusViewHolder;
 	}
 
 	@LayoutRes
@@ -1680,165 +1640,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		holder.compassV = convertView.findViewById(R.id.compass);
 	}
 
-	private static void initCommonStatusViewHolderHolder(CommonStatusViewHolder holder, View convertView) {
-		holder.statusV = convertView.findViewById(R.id.status);
-		holder.serviceUpdateImg = convertView.findViewById(R.id.service_update_img);
-	}
-
 	@SuppressWarnings("UnusedReturnValue")
 	@NonNull
 	private View updateBasicPOIView(@NonNull POIManager poim, @NonNull View convertView) {
 		BasicPOIViewHolder holder = (BasicPOIViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
-		updatePOIStatus(holder.statusViewHolder, poim);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, this);
 		return convertView;
-	}
-
-	private void updateAppStatus(CommonStatusViewHolder statusViewHolder, POIManager poim) {
-		if (this.showStatus && poim != null && statusViewHolder instanceof AppStatusViewHolder) {
-			poim.setStatusLoaderListener(this);
-			updateAppStatus(statusViewHolder, poim.getStatus(getContext(), statusLoader));
-		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-		}
-		if (poim != null) {
-			poim.setServiceUpdateLoaderListener(this);
-			updateServiceUpdate(statusViewHolder,
-					poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader),
-					ServiceUpdate.isSeverityInfo(poim.getServiceUpdatesOrNull())
-			);
-		}
-	}
-
-	private void updateAppStatus(CommonStatusViewHolder statusViewHolder, POIStatus status) {
-		AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
-		if (status instanceof AppStatus) {
-			AppStatus appStatus = (AppStatus) status;
-			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(getContext()), TextView.BufferType.SPANNABLE);
-			appStatusViewHolder.textTv.setVisibility(View.VISIBLE);
-			statusViewHolder.statusV.setVisibility(View.VISIBLE);
-		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-		}
-	}
-
-	private void updateServiceUpdate(CommonStatusViewHolder statusViewHolder,
-									 boolean isServiceUpdateWarning,
-									 boolean isServiceUpdateInfo) {
-		if (statusViewHolder.serviceUpdateImg == null) {
-			return;
-		}
-		if (isServiceUpdateWarning) {
-			statusViewHolder.serviceUpdateImg.setImageResource(R.drawable.ic_warning_on_surface_16dp);
-			statusViewHolder.serviceUpdateImg.setVisibility(View.VISIBLE);
-		} else if (isServiceUpdateInfo) {
-			statusViewHolder.serviceUpdateImg.setImageResource(R.drawable.ic_info_outline_on_surface_16dp);
-			statusViewHolder.serviceUpdateImg.setVisibility(View.VISIBLE);
-		} else {
-			statusViewHolder.serviceUpdateImg.setImageDrawable(null);
-			statusViewHolder.serviceUpdateImg.setVisibility(View.GONE);
-		}
-	}
-
-	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIManager poim) {
-		if (this.showStatus && poim != null && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
-			poim.setStatusLoaderListener(this);
-			updateAvailabilityPercent(statusViewHolder, poim.getStatus(getContext(), statusLoader));
-		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-		}
-		if (poim != null) {
-			poim.setServiceUpdateLoaderListener(this);
-			updateServiceUpdate(statusViewHolder,
-					poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader),
-					ServiceUpdate.isSeverityInfo(poim.getServiceUpdatesOrNull())
-			);
-		}
-	}
-
-	@SuppressLint("KotlinPairNotCreated") // MTPieChartPercentView in Java
-	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIStatus status) {
-		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
-		if (status instanceof AvailabilityPercent) {
-			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
-			if (!availabilityPercent.isStatusOK()) {
-				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
-				availabilityPercentStatusViewHolder.availabilityLayout.setVisibility(View.GONE);
-				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getStatusMsg(getContext()), TextView.BufferType.SPANNABLE);
-				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
-			} else {
-				if (!UIFeatureFlags.F_POI_STATUS_AVAILABILITY_STACK_BAR) {
-					if (availabilityPercent.isShowingLowerValue()) {
-						availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
-						availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getLowerValueText(getContext()), TextView.BufferType.SPANNABLE);
-						availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
-					} else {
-						availabilityPercentStatusViewHolder.piePercentV.setPiecesColors( //
-								Arrays.asList(
-										new Pair<>(
-												availabilityPercent.getValue1SubValueDefaultColor(),
-												availabilityPercent.getValue1SubValueDefaultColorBg()),
-										new Pair<>(
-												availabilityPercent.getValue1SubValue1Color(),
-												availabilityPercent.getValue1SubValue1ColorBg()),
-										new Pair<>(
-												availabilityPercent.getValue2Color(),
-												availabilityPercent.getValue2ColorBg())
-								)
-						);
-						availabilityPercentStatusViewHolder.piePercentV.setPieces(
-								Arrays.asList(
-										availabilityPercent.getValue1SubValueDefault(),
-										availabilityPercent.getValue1SubValue1(),
-										availabilityPercent.getValue2()
-								)
-						);
-						availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
-					}
-				} else {
-					availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
-					availabilityPercentStatusViewHolder.availabilityBikesLowTv.setTextColor(availabilityPercent.getValue1SubValueDefaultColorBg());
-					availabilityPercentStatusViewHolder.availabilityBikesPrimary.setBackgroundColor(availabilityPercent.getValue1SubValueDefaultColorBg());
-					if (availabilityPercent.getValue1SubValue1ColorBg() != null) {
-						availabilityPercentStatusViewHolder.availabilityBikesSecondary.setBackgroundColor(availabilityPercent.getValue1SubValue1ColorBg());
-					}
-					availabilityPercentStatusViewHolder.availabilityDocksLowTv.setTextColor(availabilityPercent.getValue2Color());
-					availabilityPercentStatusViewHolder.availabilityDocks.setBackgroundColor(availabilityPercent.getValue2ColorBg());
-					availabilityPercentStatusViewHolder.availabilityBikesPrimary.setLayoutParams(
-							new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
-									availabilityPercent.getValue1SubValueDefault()
-							)
-					);
-					availabilityPercentStatusViewHolder.availabilityBikesSecondary.setLayoutParams(
-							new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
-									availabilityPercent.getValue1SubValue1() == null ? 0 : availabilityPercent.getValue1SubValue1()
-							)
-					);
-					availabilityPercentStatusViewHolder.availabilityDocks.setLayoutParams(
-							new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
-									availabilityPercent.getValue2()
-							)
-					);
-					if (availabilityPercent.isShowingLowerValue()) {
-						if (availabilityPercent.getValue2() == availabilityPercent.getLowerValue()) {
-							availabilityPercentStatusViewHolder.availabilityBikesLowTv.setVisibility(View.GONE);
-
-							availabilityPercentStatusViewHolder.availabilityDocksLowTv.setText(availabilityPercent.getLowerValueText(getContext()));
-							availabilityPercentStatusViewHolder.availabilityDocksLowTv.setVisibility(View.VISIBLE);
-						} else {
-							availabilityPercentStatusViewHolder.availabilityDocksLowTv.setVisibility(View.GONE);
-
-							availabilityPercentStatusViewHolder.availabilityBikesLowTv.setText(availabilityPercent.getLowerValueText(getContext()));
-							availabilityPercentStatusViewHolder.availabilityBikesLowTv.setVisibility(View.VISIBLE);
-						}
-					}
-					availabilityPercentStatusViewHolder.availabilityLayout.setVisibility(View.VISIBLE);
-				}
-			}
-			statusViewHolder.statusV.setVisibility(View.VISIBLE);
-		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-		}
 	}
 
 	@LayoutRes
@@ -1888,7 +1697,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			ModuleViewHolder holder = new ModuleViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
 			initModuleExtra(convertView, holder);
-			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
+			holder.statusViewHolder = POICommonStatusViewHolder.init(poim.poi, convertView);
+			holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poim.poi, convertView);
 			convertView.setTag(holder);
 		}
 		updateModuleView(poim, convertView);
@@ -1905,7 +1715,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		ModuleViewHolder holder = (ModuleViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		updateModuleExtra(poim, holder);
-		updatePOIStatus(holder.statusViewHolder, poim);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, this);
 		return convertView;
 	}
 
@@ -1949,7 +1760,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			RouteTripStopViewHolder holder = new RouteTripStopViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
 			initRTSExtra(convertView, holder);
-			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
+			holder.statusViewHolder = POICommonStatusViewHolder.init(poim.poi, convertView);
+			holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poim.poi, convertView);
 			convertView.setTag(holder);
 		}
 		updateRouteTripStopView(poim, convertView);
@@ -1976,7 +1788,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		RouteTripStopViewHolder holder = (RouteTripStopViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		updateRTSExtra(poim, holder);
-		updatePOIStatus(holder.statusViewHolder, poim);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, this);
 		return convertView;
 	}
 
@@ -2062,94 +1875,30 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
-	private void updatePOIStatus(CommonStatusViewHolder statusViewHolder, POIStatus status) {
-		if (!this.showStatus || status == null || statusViewHolder == null) {
-			if (statusViewHolder != null) {
-				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-			}
-			return;
-		}
-		switch (status.getType()) {
-		case POI.ITEM_STATUS_TYPE_NONE:
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-			break;
-		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			updateAvailabilityPercent(statusViewHolder, status);
-			break;
-		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			updateRTSSchedule(statusViewHolder, status);
-			break;
-		case POI.ITEM_STATUS_TYPE_APP:
-			updateAppStatus(statusViewHolder, status);
-			break;
-		default:
-			MTLog.w(this, "Unexpected status type '%s'!", status.getType());
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-		}
+	@Override
+	public boolean isShowingStatus() {
+		return this.showStatus;
 	}
 
-	private void updatePOIStatus(CommonStatusViewHolder statusViewHolder, POIManager poim) {
-		if (!this.showStatus || poim == null || statusViewHolder == null) {
-			if (statusViewHolder != null) {
-				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-			}
-			return;
-		}
-		switch (poim.getStatusType()) {
-		case POI.ITEM_STATUS_TYPE_NONE:
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-			break;
-		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			updateAvailabilityPercent(statusViewHolder, poim);
-			break;
-		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			updateRTSSchedule(statusViewHolder, poim);
-			break;
-		case POI.ITEM_STATUS_TYPE_APP:
-			updateAppStatus(statusViewHolder, poim);
-			break;
-		default:
-			MTLog.w(this, "Unexpected status type '%s'!", poim.getStatusType());
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-		}
+	@NonNull
+	@Override
+	public StatusLoader providesStatusLoader() {
+		return this.statusLoader;
 	}
 
-	private void updateRTSSchedule(CommonStatusViewHolder statusViewHolder, POIManager poim) {
-		if (this.showStatus && poim != null && statusViewHolder instanceof ScheduleStatusViewHolder) {
-			poim.setStatusLoaderListener(this);
-			updateRTSSchedule(statusViewHolder, poim.getStatus(getContext(), statusLoader));
-		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-		}
-		if (poim != null) {
-			poim.setServiceUpdateLoaderListener(this);
-			updateServiceUpdate(statusViewHolder,
-					poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader),
-					ServiceUpdate.isSeverityInfo(poim.getServiceUpdatesOrNull())
-			);
-		}
+	@Override
+	public boolean isShowingServiceUpdates() {
+		return this.showServiceUpdate;
 	}
 
-	private void updateRTSSchedule(CommonStatusViewHolder statusViewHolder, POIStatus status) {
-		CharSequence line1CS = null;
-		CharSequence line2CS = null;
-		if (status instanceof UISchedule) {
-			UISchedule schedule = (UISchedule) status;
-			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(getContext(), getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30L), null, 10,
-					null);
-			if (lines != null && !lines.isEmpty()) {
-				line1CS = lines.get(0).first;
-				line2CS = lines.get(0).second;
-			}
-		}
-		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
-		scheduleStatusViewHolder.dataNextLine1Tv.setText(line1CS, TextView.BufferType.SPANNABLE);
-		scheduleStatusViewHolder.dataNextLine2Tv.setText(line2CS, TextView.BufferType.SPANNABLE);
-		scheduleStatusViewHolder.dataNextLine2Tv.setVisibility(line2CS != null && line2CS.length() > 0 ? View.VISIBLE : View.GONE);
-		statusViewHolder.statusV.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.INVISIBLE);
+	@NonNull
+	@Override
+	public ServiceUpdateLoader providesServiceUpdateLoader() {
+		return this.serviceUpdateLoader;
 	}
 
-	private long getNowToTheMinute() {
+	@Override
+	public long getNowToTheMinute() {
 		if (this.nowToTheMinute < 0) {
 			resetNowToTheMinute();
 			enableTimeChangedReceiver();
@@ -2202,9 +1951,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		holder.uuid = poi.getUUID();
 		MTTransitions.setTransitionName(holder.view, "poi_" + poi.getUUID());
 		if (holder.statusViewHolder != null) {
-			holder.statusViewHolder.uuid = holder.uuid;
+			holder.statusViewHolder.setUuid(holder.uuid);
 		}
 		this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
+		if (holder.serviceUpdateViewHolder != null) {
+			holder.serviceUpdateViewHolder.setUuid(holder.uuid);
+		}
+		this.poiServiceUpdateViewHoldersWR.put(holder.uuid, holder.serviceUpdateViewHolder);
 		if (holder.compassV != null) {
 			holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 			this.compassImgsWR.put(holder.compassV, holder.distanceTv);
@@ -2275,6 +2028,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@Nullable
 	private RefreshFavoritesTask refreshFavoritesTask;
 
+	@SuppressWarnings("deprecation")
 	private void refreshFavorites() {
 		if (this.refreshFavoritesTask != null && this.refreshFavoritesTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) {
 			return; // skipped, last refresh still in progress so probably good enough
@@ -2283,6 +2037,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		TaskUtils.execute(this.refreshFavoritesTask);
 	}
 
+	@SuppressWarnings("deprecation")
 	private static class RefreshFavoritesTask extends MTCancellableAsyncTask<Integer, Void, List<Favorite>> {
 
 		@NonNull
@@ -2408,33 +2163,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		TextView locationTv;
 		ImageView favImg;
 		MTCompassView compassV;
-		CommonStatusViewHolder statusViewHolder;
-	}
-
-	private static class AppStatusViewHolder extends CommonStatusViewHolder {
-		TextView textTv;
-	}
-
-	private static class ScheduleStatusViewHolder extends CommonStatusViewHolder {
-		TextView dataNextLine1Tv;
-		TextView dataNextLine2Tv;
-	}
-
-	private static class AvailabilityPercentStatusViewHolder extends CommonStatusViewHolder {
-		TextView textTv;
-		MTPieChartPercentView piePercentV;
-		View availabilityLayout;
-		View availabilityDocks;
-		View availabilityBikesPrimary;
-		View availabilityBikesSecondary;
-		TextView availabilityDocksLowTv;
-		TextView availabilityBikesLowTv;
-	}
-
-	public static class CommonStatusViewHolder {
-		String uuid;
-		View statusV;
-		ImageView serviceUpdateImg;
+		@Nullable
+		POICommonStatusViewHolder<?, ?> statusViewHolder;
+		POIServiceUpdateViewHolder serviceUpdateViewHolder;
 	}
 
 	private static class FavoriteFolderHeaderViewHolder {

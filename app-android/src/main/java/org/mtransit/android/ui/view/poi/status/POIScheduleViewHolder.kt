@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.view.poi.status
 
-import android.content.Context
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
@@ -10,26 +9,25 @@ import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.databinding.LayoutPoiStatusScheduleBinding
-import org.mtransit.android.ui.view.POIDataProvider
 import org.mtransit.android.ui.view.common.context
 import java.util.concurrent.TimeUnit
 
 data class POIScheduleViewHolder(
+    override var uuid: String,
     override val statusV: View,
     override val binding: LayoutPoiStatusScheduleBinding,
 ) : POICommonStatusViewHolder<LayoutPoiStatusScheduleBinding, Schedule> {
 
     override fun fetch(
-        dataProvider: POIDataProvider,
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         poim: POIManager,
-        context: Context
+        dataProvider: POIStatusDataProvider
     ) = if (dataProvider.isShowingStatus && statusViewHolder is POIScheduleViewHolder) {
         poim.setStatusLoaderListener(dataProvider)
-        poim.getStatus(context, dataProvider.providesStatusLoader()) as? Schedule
+        poim.getStatus(dataProvider.providesStatusLoader()) as? Schedule
     } else null
 
-    override fun update(context: Context, statusViewHolder: POICommonStatusViewHolder<*, *>?, status: POIStatus?, dataProvider: POIDataProvider) {
+    override fun update(statusViewHolder: POICommonStatusViewHolder<*, *>?, status: POIStatus?, dataProvider: POIStatusDataProvider) {
         if (dataProvider.isShowingStatus && statusViewHolder is POIScheduleViewHolder) {
             statusViewHolder.bind(status as Schedule?, dataProvider)
         } else {
@@ -37,7 +35,7 @@ data class POIScheduleViewHolder(
         }
     }
 
-    override fun bind(status: Schedule?, dataProvider: POIDataProvider) {
+    override fun bind(status: Schedule?, dataProvider: POIStatusDataProvider) {
         super.bind(status, dataProvider)
         status?.let { schedule ->
             binding.apply {
@@ -52,7 +50,6 @@ data class POIScheduleViewHolder(
                         10,
                         null
                     )
-                    MTLog.d(this@POIScheduleViewHolder, "updateRTSSchedule() > lines", lines)
                     if (!lines.isNullOrEmpty()) {
                         line1CS = lines[0].first
                         line2CS = lines[0].second
@@ -68,7 +65,8 @@ data class POIScheduleViewHolder(
 
     companion object {
         @JvmStatic
-        fun fromStatusView(view: View) = POIScheduleViewHolder(
+        fun fromStatusView(view: View, uuid: String) = POIScheduleViewHolder(
+            uuid = uuid,
             statusV = POICommonStatusViewHolder.bindStatusV(view),
             binding = LayoutPoiStatusScheduleBinding.bind(view),
         )

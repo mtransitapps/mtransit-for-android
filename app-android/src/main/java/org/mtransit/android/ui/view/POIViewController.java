@@ -190,12 +190,8 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void initViewHolder(@NonNull POI poi, @NonNull View view) {
-		initViewHolder(poi.getType(), poi.getStatusType(), view);
-	}
-
-	private static void initViewHolder(int poiType, @SuppressWarnings("unused") int poiStatusType, @NonNull View view) {
 		CommonViewHolder holder;
-		switch (poiType) {
+		switch (poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			holder = initTextMessageViewHolder(view);
 			break;
@@ -209,12 +205,12 @@ public class POIViewController implements MTLog.Loggable {
 			holder = initBasicViewHolder(view);
 			break;
 		default:
-			MTLog.w(LOG_TAG, "initViewHolder() > Unknown view type for poi type %s!", poiType);
+			MTLog.w(LOG_TAG, "initViewHolder() > Unknown view type for poi type %s!", poi.getType());
 			holder = initBasicViewHolder(view);
 		}
 		initCommonViewHolder(holder, view);
-		holder.statusViewHolder = POICommonStatusViewHolder.init(poiStatusType, view);
-		holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(view);
+		holder.statusViewHolder = POICommonStatusViewHolder.init(poi, view);
+		holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poi, view);
 		view.setTag(holder);
 	}
 
@@ -263,9 +259,7 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
-			final int poiType = poi.getType();
-			final int poiStatusType = poi.getStatusType();
-			initViewHolder(poiType, poiStatusType, view);
+			initViewHolder(poi, view);
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
 		updatePOICommonView(view.getContext(), holder, poi, dataProvider);
@@ -319,14 +313,12 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
-			final int poiType = poim.poi.getType();
-			final int poiStatusType = poim.poi.getStatusType();
-			initViewHolder(poiType, poiStatusType, view);
+			initViewHolder(poim, view);
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
 		updateCommonView(view.getContext(), holder, poim, dataProvider);
 		updateExtra(view.getContext(), holder, poim, dataProvider);
-		POICommonStatusViewHolder.fetchAndUpdateView(view.getContext(), holder.statusViewHolder, poim, dataProvider);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, dataProvider);
 		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, dataProvider);
 	}
 
@@ -581,7 +573,7 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		POICommonStatusViewHolder.updateView(view.getContext(), holder.statusViewHolder, status, dataProvider);
+		POICommonStatusViewHolder.updateView(holder.statusViewHolder, status, dataProvider);
 	}
 
 	public static void updatePOIStatus(@Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
@@ -593,7 +585,7 @@ public class POIViewController implements MTLog.Loggable {
 			initViewHolder(poim, view);
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		POICommonStatusViewHolder.fetchAndUpdateView(view.getContext(), holder.statusViewHolder, poim, dataProvider);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, dataProvider);
 	}
 
 	public static void updateServiceUpdatesView(@Nullable View view,
@@ -615,9 +607,7 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
-			final int poiType = poim.poi.getType();
-			final int poiStatusType = poim.poi.getStatusType();
-			initViewHolder(poiType, poiStatusType, view);
+			initViewHolder(poim, view);
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
 		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, dataProvider);
