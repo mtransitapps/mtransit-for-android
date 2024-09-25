@@ -74,9 +74,9 @@ androidx.viewpager2:viewpager2:1.1.0
 androidx.viewpager:viewpager:1.0.0
 androidx.webkit:webkit:1.11.0-alpha02
 androidx.work:work-runtime:2.9.1
-com.android.billingclient:billing-ktx:7.0.0
-com.android.billingclient:billing:7.0.0
-com.applovin:applovin-sdk:12.6.1
+com.android.billingclient:billing-ktx:7.1.0
+com.android.billingclient:billing:7.1.0
+com.applovin:applovin-sdk:13.0.0
 com.caverock:androidsvg-aar:1.4
 com.facebook.android:audience-network-sdk:6.18.0
 com.github.bumptech.glide:annotations:4.16.0
@@ -85,7 +85,7 @@ com.github.bumptech.glide:gifdecoder:4.16.0
 com.github.bumptech.glide:glide:4.16.0
 com.github.bumptech.glide:okhttp3-integration:4.16.0
 com.github.chuckerteam.chucker:library-no-op:4.0.0
-com.google.ads.mediation:applovin:12.6.1.0
+com.google.ads.mediation:applovin:13.0.0.0
 com.google.ads.mediation:facebook:6.18.0.0
 com.google.android.datatransport:transport-api:3.2.0
 com.google.android.datatransport:transport-backend-cct:3.3.0
@@ -139,7 +139,7 @@ com.google.firebase:firebase-perf:21.0.1
 com.google.firebase:firebase-sessions:2.0.4
 com.google.firebase:protolite-well-known-types:18.0.0
 com.google.guava:failureaccess:1.0.2
-com.google.guava:guava:33.3.0-android
+com.google.guava:guava:33.3.1-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
 com.google.j2objc:j2objc-annotations:3.0.0
 com.google.maps.android:android-maps-utils:3.8.2

@@ -91,9 +91,9 @@ androidx.viewpager:viewpager:1.0.0
 androidx.webkit:webkit:1.11.0-alpha02
 androidx.window:window:1.0.0
 androidx.work:work-runtime:2.9.1
-com.android.billingclient:billing-ktx:7.0.0
-com.android.billingclient:billing:7.0.0
-com.applovin:applovin-sdk:12.6.1
+com.android.billingclient:billing-ktx:7.1.0
+com.android.billingclient:billing:7.1.0
+com.applovin:applovin-sdk:13.0.0
 com.caverock:androidsvg-aar:1.4
 com.facebook.android:audience-network-sdk:6.18.0
 com.fasterxml.jackson.core:jackson-annotations:2.12.3
@@ -109,7 +109,7 @@ com.github.chuckerteam.chucker:library:4.0.0
 com.github.scribejava:scribejava-apis:8.3.1
 com.github.scribejava:scribejava-core:8.3.1
 com.github.scribejava:scribejava-java8:8.3.1
-com.google.ads.mediation:applovin:12.6.1.0
+com.google.ads.mediation:applovin:13.0.0.0
 com.google.ads.mediation:facebook:6.18.0.0
 com.google.android.datatransport:transport-api:3.2.0
 com.google.android.datatransport:transport-backend-cct:3.3.0
@@ -166,8 +166,9 @@ com.google.firebase:firebase-perf:21.0.1
 com.google.firebase:firebase-sessions:2.0.4
 com.google.firebase:protolite-well-known-types:18.0.0
 com.google.guava:failureaccess:1.0.2
-com.google.guava:guava:33.3.0-android
+com.google.guava:guava:33.3.1-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+com.google.j2objc:j2objc-annotations:3.0.0
 com.google.maps.android:android-maps-utils:3.8.2
 com.google.maps.android:maps-ktx:5.1.1
 com.google.maps.android:maps-utils-ktx:5.1.1
