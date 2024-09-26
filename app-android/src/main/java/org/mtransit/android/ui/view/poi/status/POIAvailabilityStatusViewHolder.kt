@@ -2,8 +2,6 @@ package org.mtransit.android.ui.view.poi.status
 
 import android.annotation.SuppressLint
 import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
 import org.mtransit.android.commons.data.AvailabilityPercent
@@ -12,7 +10,6 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.LayoutPoiStatusAvailabilityPercentBinding
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIFeatureFlags
-
 import androidx.core.util.Pair as androidXPair
 
 data class POIAvailabilityStatusViewHolder(
@@ -47,18 +44,30 @@ data class POIAvailabilityStatusViewHolder(
         super.bind(status, dataProvider)
         status?.let { availabilityPercent ->
             binding.apply {
-                bindAvailabilityLayout(availabilityPercent)
                 if (!availabilityPercent.isStatusOK) {
-                    pie.isVisible = false
+                    if (UIFeatureFlags.F_POI_STATUS_AVAILABILITY_DOTS) {
+                        dots.isVisible = false
+                    } else {
+                        pie.isVisible = false
+                    }
                     textTv.setText(availabilityPercent.getStatusMsg(context), TextView.BufferType.SPANNABLE)
                     textTv.isVisible = true
                 } else {
-                    if (!UIFeatureFlags.F_POI_STATUS_AVAILABILITY_STACK_BAR) {
+                    if (UIFeatureFlags.F_POI_STATUS_AVAILABILITY_DOTS) {
+                        textTv.isVisible = false
+                        dots.setColorDots(
+                            availabilityPercent.totalValue,
+                            List(availabilityPercent.value1SubValueDefault) { availabilityPercent.value1SubValueDefaultColorBg } +
+                                    List(availabilityPercent.value1SubValue1 ?: 0) { availabilityPercent.value1SubValue1ColorBg }
+                        )
+                        dots.isVisible = true
+                    } else {
                         if (availabilityPercent.isShowingLowerValue) {
                             pie.isVisible = false
                             textTv.setText(availabilityPercent.getLowerValueText(context), TextView.BufferType.SPANNABLE)
                             textTv.isVisible = true
                         } else {
+                            textTv.isVisible = false
                             pie.setPiecesColors(
                                 listOf(
                                     androidXPair(
@@ -84,59 +93,9 @@ data class POIAvailabilityStatusViewHolder(
                             )
                             pie.isVisible = true
                         }
-                    } else {
-                        textTv.isVisible = false
                     }
                 }
             }
-        }
-    }
-
-    private fun bindAvailabilityLayout(availabilityPercent: AvailabilityPercent) = with(binding.availabilityLayout) {
-        if (!UIFeatureFlags.F_POI_STATUS_AVAILABILITY_STACK_BAR) {
-            root.isVisible = false
-            return
-        }
-        if (!availabilityPercent.isStatusOK) {
-            root.isVisible = false
-        } else {
-            availabilityBikesLow.setTextColor(availabilityPercent.value1SubValueDefaultColorBg)
-            availabilityBikesPrimary.setBackgroundColor(availabilityPercent.value1SubValueDefaultColorBg)
-            availabilityPercent.value1SubValue1ColorBg?.let { availabilityBikesSecondary.setBackgroundColor(it) }
-            availabilityDocksLow.setTextColor(availabilityPercent.value2Color)
-            availabilityDocks.setBackgroundColor(availabilityPercent.value2ColorBg)
-            availabilityBikesPrimary.setLayoutParams(
-                LinearLayout.LayoutParams(
-                    0, ViewGroup.LayoutParams.MATCH_PARENT,
-                    availabilityPercent.value1SubValueDefault.toFloat()
-                )
-            )
-            availabilityBikesSecondary.setLayoutParams(
-                LinearLayout.LayoutParams(
-                    0, ViewGroup.LayoutParams.MATCH_PARENT,
-                    (if (availabilityPercent.value1SubValue1 == null) 0 else availabilityPercent.value1SubValue1)!!.toFloat()
-                )
-            )
-            availabilityDocks.setLayoutParams(
-                LinearLayout.LayoutParams(
-                    0, ViewGroup.LayoutParams.MATCH_PARENT,
-                    availabilityPercent.value2.toFloat()
-                )
-            )
-            if (availabilityPercent.isShowingLowerValue) {
-                if (availabilityPercent.value2 == availabilityPercent.lowerValue) {
-                    availabilityBikesLow.isVisible = false
-
-                    availabilityDocksLow.text = availabilityPercent.getLowerValueText(context)
-                    availabilityDocksLow.isVisible = true
-                } else {
-                    availabilityDocksLow.isVisible = false
-
-                    availabilityBikesLow.text = availabilityPercent.getLowerValueText(context)
-                    availabilityBikesLow.isVisible = true
-                }
-            }
-            root.isVisible = true
         }
     }
 

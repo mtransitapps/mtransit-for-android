@@ -101,6 +101,7 @@ public enum DataSourceType {
 
 	public static final int MAX_ID = 1000;
 
+	@DataSourceTypeId.DataSourceType
 	private final int id;
 	private final boolean extendedType;
 

@@ -1,6 +1,5 @@
 package org.mtransit.android.ad;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.DisplayMetrics;
@@ -74,8 +73,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
  * MORE:
  * - <a href="https://developers.google.com/admob/android/test-ads">...</a>
  */
-@SuppressWarnings("WeakerAccess")
-@SuppressLint({"MissingPermission", "VisibleForTests"})
 public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private static final String LOG_TAG = AdManager.class.getSimpleName();

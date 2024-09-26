@@ -11,6 +11,8 @@
     android:minWidth="@dimen/list_view_item_height"
     android:orientation="vertical"
     android:visibility="invisible"
+    tools:background="#0000FF"
+    tools:layout_width="@dimen/list_view_item_height"
     tools:visibility="visible">
 
     <!-- PIE CHART % -->
@@ -25,14 +27,16 @@
         tools:background="#FFFF00"
         tools:visibility="visible" />
 
-    <include
-        android:id="@+id/availability_layout"
-        layout="@layout/layout_availability_stacked_bar"
+    <org.mtransit.android.ui.view.MTDotsView
+        android:id="@+id/dots"
         android:layout_width="@dimen/poi_img_width"
         android:layout_height="@dimen/poi_img_height"
         android:layout_gravity="center_horizontal"
         android:padding="@dimen/poi_img_padding"
         android:visibility="gone"
+        app:mtDotsMargin="1dp"
+        app:mtDotsSize="6dp"
+        tools:background="#FF00FF"
         tools:visibility="visible" />
 
     <TextView

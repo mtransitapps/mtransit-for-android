@@ -5,4 +5,9 @@
         <attr name="mtPieCharPieces" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="MTDots">
+        <attr name="mtDotsSize" format="dimension" />
+        <attr name="mtDotsMargin" format="dimension" />
+    </declare-styleable>
+
 </resources>
