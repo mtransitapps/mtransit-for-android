@@ -51,6 +51,7 @@ class DataSourcesReader @Inject constructor(
         private val NOT_SUPPORTED_APPS_PKG: List<String> = if (BuildConfig.DEBUG) listOf(
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
             "org.mtransit.android.ca_fort_erie_transit_bus.debug", // not supported anymore
+            "org.mtransit.android.ca_haut_st_laurent_cithsl_bus.debug", // not supported anymore
             "org.mtransit.android.ca_joliette_ctjm_bus.debug", // not supported anymore
             "org.mtransit.android.ca_lanaudiere_crtl_bus.debug", // not supported anymore
             "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus.debug", // never published
@@ -61,6 +62,7 @@ class DataSourcesReader @Inject constructor(
             "org.mtransit.android.ca_quebec_rtc_bus.debug", // migrated to v2
             "org.mtransit.android.ca_vancouver_translink_ferry.debug", // migrated to v2
             "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
+            "org.mtransit.android.us_washington_state_ferry.debug", // not supported anymore
             // DEBUG
             // "org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_gatineau_sto_bus.debug", // FIXME DEBUG
@@ -83,6 +85,7 @@ class DataSourcesReader @Inject constructor(
         ) else listOf(
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
             "org.mtransit.android.ca_fort_erie_transit_bus", // not supported anymore
+            "org.mtransit.android.ca_haut_st_laurent_cithsl_bus", // not supported anymore
             "org.mtransit.android.ca_joliette_ctjm_bus", // not supported anymore
             "org.mtransit.android.ca_lanaudiere_crtl_bus", // not supported anymore
             "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus", // never published
@@ -93,6 +96,7 @@ class DataSourcesReader @Inject constructor(
             "org.mtransit.android.ca_quebec_rtc_bus", // migrated to v2
             "org.mtransit.android.ca_vancouver_translink_ferry", // migrated to v2
             "org.mtransit.android.ca_west_coast_express_bus", // not supported anymore
+            "org.mtransit.android.us_washington_state_ferry", // not supported anymore
         )
 
         private const val PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS = "pLclAvailableVersionLastCheck"
