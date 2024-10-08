@@ -128,7 +128,7 @@ data class AgencyProperties(
         }
 
     override fun shouldShowUpdateLayout(): Boolean {
-        if (TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()) < TimeUnit.DAYS.toDays(7L)) {
+        if (TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()) > TimeUnit.DAYS.toDays(7L)) {
             return false // SKIP (more than 7 days left of schedule)
         }
         return updateAvailable
