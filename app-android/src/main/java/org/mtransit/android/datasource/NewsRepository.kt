@@ -1,6 +1,8 @@
 package org.mtransit.android.datasource
 
+import android.content.Context
 import androidx.lifecycle.liveData
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -22,6 +24,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 @Singleton
 class NewsRepository(
+    private val appContext: Context,
     val dataSourceRequestManager: DataSourceRequestManager,
     val demoModeManager: DemoModeManager,
     private val ioDispatcher: CoroutineDispatcher,
@@ -29,9 +32,11 @@ class NewsRepository(
 
     @Inject
     constructor(
+        @ApplicationContext appContext: Context,
         dataSourceRequestManager: DataSourceRequestManager,
         demoModeManager: DemoModeManager,
     ) : this(
+        appContext,
         dataSourceRequestManager,
         demoModeManager,
         Dispatchers.IO,
@@ -54,7 +59,7 @@ class NewsRepository(
         providers,
         poi?.let {
             NewsProviderContract.Filter
-                .getNewTargetFilter(poi)
+                .getNewTargetFilter(poi).appendProvidedEncryptedKeys(appContext)
                 .setMinCreatedAtInMs(
                     UITimeUtils.currentTimeMillis() -
                             if (demoModeManager.enabled) TimeUnit.DAYS.toMillis(365L)
@@ -83,9 +88,9 @@ class NewsRepository(
         },
         filter = when {
             filterUUIDs == null || filterTargets == null -> null // SKIP
-            filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs.toList())
-            filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets.toList())
-            else -> NewsProviderContract.Filter.getNewEmptyFilter()
+            filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs.toList()).appendProvidedEncryptedKeys(appContext)
+            filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets.toList()).appendProvidedEncryptedKeys(appContext)
+            else -> NewsProviderContract.Filter.getNewEmptyFilter().appendProvidedEncryptedKeys(appContext)
         },
         comparator,
         let,
@@ -138,7 +143,7 @@ class NewsRepository(
         coroutineContext: CoroutineContext = EmptyCoroutineContext,
     ) = loadingNewsArticle(
         provider,
-        uuid?.let { NewsProviderContract.Filter.getNewUUIDFilter(uuid) },
+        uuid?.let { NewsProviderContract.Filter.getNewUUIDFilter(uuid) }?.appendProvidedEncryptedKeys(appContext),
         onMissingProvider,
         onNewsLoaded,
         coroutineContext,
