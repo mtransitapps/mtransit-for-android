@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.FileUtils;
+import org.mtransit.android.commons.KeysIds;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.NetworkUtils;
@@ -38,6 +39,7 @@ import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.Place;
+import org.mtransit.android.util.KeysUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.Constants;
 import org.mtransit.commons.FeatureFlags;
@@ -132,20 +134,6 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return PROJECTION_PLACE_POI;
 	}
 
-	@Nullable
-	private static String googlePlacesApiKey = null;
-
-	/**
-	 * Override if multiple {@link PlaceProvider} implementations in same app.
-	 */
-	@NonNull
-	private static String getGOOGLE_PLACES_API_KEY(@NonNull Context context) {
-		if (googlePlacesApiKey == null) {
-			googlePlacesApiKey = context.getResources().getString(R.string.google_places_api_key);
-		}
-		return googlePlacesApiKey;
-	}
-
 	// https://developers.google.com/maps/documentation/places/web-service/search-find-place
 	// https://developers.google.com/maps/documentation/places/web-service/usage-and-billing#find-place
 	private static final String TEXT_SEARCH_URL_PART_1_BEFORE_KEY = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json" +
@@ -171,11 +159,14 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@VisibleForTesting
 	@Nullable
-	protected static String getTextSearchUrlString(@NonNull String apiKey,
+	protected static String getTextSearchUrlString(@Nullable String apiKey,
 												   @Nullable Double optLat,
 												   @Nullable Double optLng,
 												   @Nullable Integer optRadiusInMeters,
 												   @Nullable String[] searchKeywords) {
+		if (apiKey == null || apiKey.isEmpty()) {
+			return null; // no API key => no search
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append(TEXT_SEARCH_URL_PART_1_BEFORE_KEY).append(apiKey);
 		sb.append(TEXT_SEARCH_URL_PART_2_BEFORE_LANG).append(LocaleUtils.isFR() ? TEXT_SEARCH_URL_LANG_FRENCH : TEXT_SEARCH_URL_LANG_DEFAULT);
@@ -255,7 +246,11 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		final Context context = requireContextCompat();
 		final Double lat = poiFilter.getExtraDouble("lat", null);
 		final Double lng = poiFilter.getExtraDouble("lng", null);
-		final String url = getTextSearchUrlString(getGOOGLE_PLACES_API_KEY(context), lat, lng, null, poiFilter.getSearchKeywords());
+		final String url = getTextSearchUrlString(
+				KeysUtils.getKey(context, KeysIds.GOOGLE_PLACES_API_KEY),
+				lat, lng, null,
+				poiFilter.getSearchKeywords()
+		);
 		if (url == null) { // no search keyboard => no search
 			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
 		}

@@ -237,7 +237,6 @@ class DataSourcesRepository @Inject constructor(
     private fun Set<NewsProviderProperties>.filterNewsProviders(): Set<NewsProviderProperties> = this.filterTo(HashSet(), filterNewsProviders)
 
     private val filterNewsProviders: (NewsProviderProperties) -> Boolean = {
-        MTLog.d(this@DataSourcesRepository, "filterNewsProviders() > ${it.authority}.")
         (
                 !it.authority.contains("news.instagram")
                         || it.authority == "org.mtransit.android.news.instagram"
