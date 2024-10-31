@@ -6,6 +6,7 @@ import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.commons.KeysIds
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.StringUtils.EMPTY
 import org.mtransit.android.data.ITargetedProviderProperties
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,10 +24,10 @@ class KeysManager @Inject constructor(
 
         @JvmStatic
         fun getKey(context: Context, key: String) = when (key) {
-            KeysIds.TWITTER_BEARER_TOKEN -> context.resources.getStringArray(R.array.twitter_bearer_token).joinToString()
-            KeysIds.GOOGLE_PLACES_API_KEY -> context.resources.getStringArray(R.array.google_places_api_key).joinToString()
-            KeysIds.YOUTUBE_API_KEY -> context.resources.getStringArray(R.array.youtube_api_key).joinToString()
-            KeysIds.CA_WINNIPEG_TRANSIT_API -> context.resources.getStringArray(R.array.ca_winnipeg_transit_api_key).joinToString()
+            KeysIds.TWITTER_BEARER_TOKEN -> context.resources.getStringArray(R.array.twitter_bearer_token).join()
+            KeysIds.GOOGLE_PLACES_API_KEY -> context.resources.getStringArray(R.array.google_places_api_key).join()
+            KeysIds.YOUTUBE_API_KEY -> context.resources.getStringArray(R.array.youtube_api_key).join()
+            KeysIds.CA_WINNIPEG_TRANSIT_API -> context.resources.getStringArray(R.array.ca_winnipeg_transit_api_key).join()
             else -> {
                 MTLog.w(LOG_TAG, "Unexpected '$key'!")
                 null
@@ -47,8 +48,8 @@ class KeysManager @Inject constructor(
                 when (authority) {
                     "org.mtransit.android.ca_gatineau_sto_bus$debugS.gtfs.realtime" -> {
                         mapOf(
-                            KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_sto_ca).joinToString(),
-                            KeysIds.GTFS_REAL_TIME_URL_SECRET to context.resources.getStringArray(R.array.gtfs_real_time_url_secret_sto_ca).joinToString()
+                            KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_sto_ca).join(),
+                            KeysIds.GTFS_REAL_TIME_URL_SECRET to context.resources.getStringArray(R.array.gtfs_real_time_url_secret_sto_ca).join()
                         )
                     }
 
@@ -56,7 +57,7 @@ class KeysManager @Inject constructor(
                     "org.mtransit.android.ca_vancouver_translink_ferry2$debugS.gtfs.realtime",
                     "org.mtransit.android.ca_vancouver_translink_train$debugS.gtfs.realtime",
                     "org.mtransit.android.ca_west_coast_express_train$debugS.gtfs.realtime" -> {
-                        mapOf(KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_sto_ca).joinToString())
+                        mapOf(KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_translink_ca).join())
                     }
 
                     "org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus$debugS.gtfs.realtime",
@@ -71,7 +72,7 @@ class KeysManager @Inject constructor(
                     "org.mtransit.android.ca_ste_julie_omitsju_bus$debugS.gtfs.realtime",
                     "org.mtransit.android.ca_sud_ouest_citso_bus$debugS.gtfs.realtime"
                         -> {
-                        mapOf(KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_exo_quebec).joinToString())
+                        mapOf(KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_exo_quebec).join())
                     }
 
                     else -> {
@@ -102,3 +103,5 @@ class KeysManager @Inject constructor(
 
     fun getKeysMap(authority: String) = getKeysMap(appContext, authority)
 }
+
+private fun <T> Array<out T>.join() = this.joinToString(separator = EMPTY)

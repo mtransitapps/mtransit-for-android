@@ -80,7 +80,7 @@ class MTBillingManager @Inject constructor(
     }
 
     override fun showingPaidFeatures() = hasSubscription.value != false
-    // || org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG // DEBUG
+    // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
 
