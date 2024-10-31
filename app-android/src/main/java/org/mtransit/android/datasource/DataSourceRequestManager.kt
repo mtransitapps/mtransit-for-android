@@ -9,11 +9,11 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
-import org.mtransit.android.commons.data.ScheduleTimestamps
 import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.ServiceUpdateProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
@@ -21,21 +21,24 @@ import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.JPaths
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.util.KeysManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
 @Singleton
 class DataSourceRequestManager(
     private val appContext: Context,
+    private val keysManager: KeysManager,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {
 
     @Inject
     constructor(
         @ApplicationContext appContext: Context,
+        keysManager: KeysManager,
     ) : this(
         appContext,
+        keysManager,
         Dispatchers.IO,
     )
 
@@ -101,13 +104,9 @@ class DataSourceRequestManager(
         DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)
     }
 
-    suspend fun findANews(authority: String, newsFilter: NewsProviderContract.Filter? = null): News? = withContext(ioDispatcher) {
-        DataSourceManager.findANews(appContext, authority, newsFilter)
-    }
+    suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter) = findNews(newsProvider.authority, newsFilter)
 
-    suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter? = null) = findNews(newsProvider.authority, newsFilter)
-
-    suspend fun findNews(authority: String, newsFilter: NewsProviderContract.Filter? = null): List<News>? = withContext(ioDispatcher) {
-        DataSourceManager.findNews(appContext, authority, newsFilter)
+    suspend fun findNews(authority: String, newsFilter: NewsProviderContract.Filter): List<News>? = withContext(ioDispatcher) {
+        DataSourceManager.findNews(appContext, authority, newsFilter.appendProvidedKeys(keysManager.getKeysMap(authority)))
     }
 }

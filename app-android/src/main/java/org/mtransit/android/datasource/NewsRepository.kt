@@ -1,22 +1,18 @@
 package org.mtransit.android.datasource
 
-import android.content.Context
 import androidx.lifecycle.liveData
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import org.mtransit.android.commons.KeysIds
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.dev.DemoModeManager
-import org.mtransit.android.util.KeysUtils
 import org.mtransit.android.util.UITimeUtils
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -26,7 +22,6 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 @Singleton
 class NewsRepository(
-    private val appContext: Context,
     val dataSourceRequestManager: DataSourceRequestManager,
     val demoModeManager: DemoModeManager,
     private val ioDispatcher: CoroutineDispatcher,
@@ -34,11 +29,9 @@ class NewsRepository(
 
     @Inject
     constructor(
-        @ApplicationContext appContext: Context,
         dataSourceRequestManager: DataSourceRequestManager,
         demoModeManager: DemoModeManager,
     ) : this(
-        appContext,
         dataSourceRequestManager,
         demoModeManager,
         Dispatchers.IO,
@@ -49,12 +42,6 @@ class NewsRepository(
     }
 
     override fun getLogTag(): String = LOG_TAG
-
-    private fun getKeysMap() = mapOf(
-        KeysIds.TWITTER_BEARER_TOKEN to KeysUtils.getKey(appContext, KeysIds.TWITTER_BEARER_TOKEN),
-        KeysIds.YOUTUBE_API_KEY to KeysUtils.getKey(appContext, KeysIds.YOUTUBE_API_KEY),
-        KeysIds.CA_WINNIPEG_TRANSIT_API to KeysUtils.getKey(appContext, KeysIds.CA_WINNIPEG_TRANSIT_API),
-    )
 
     fun loadingNewsArticles(
         providers: List<NewsProviderProperties>?,
@@ -67,7 +54,7 @@ class NewsRepository(
         providers,
         poi?.let {
             NewsProviderContract.Filter
-                .getNewTargetFilter(poi).appendProvidedKeys(getKeysMap())
+                .getNewTargetFilter(poi)
                 .setMinCreatedAtInMs(
                     UITimeUtils.currentTimeMillis() -
                             if (demoModeManager.enabled) TimeUnit.DAYS.toMillis(365L)
@@ -96,9 +83,9 @@ class NewsRepository(
         },
         filter = when {
             filterUUIDs == null || filterTargets == null -> null // SKIP
-            filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs.toList()).appendProvidedKeys(getKeysMap())
-            filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets.toList()).appendProvidedKeys(getKeysMap())
-            else -> NewsProviderContract.Filter.getNewEmptyFilter().appendProvidedKeys(getKeysMap())
+            filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs.toList())
+            filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets.toList())
+            else -> NewsProviderContract.Filter.getNewEmptyFilter()
         },
         comparator,
         let,
@@ -151,7 +138,7 @@ class NewsRepository(
         coroutineContext: CoroutineContext = EmptyCoroutineContext,
     ) = loadingNewsArticle(
         provider,
-        uuid?.let { NewsProviderContract.Filter.getNewUUIDFilter(uuid) }?.appendProvidedKeys(getKeysMap()),
+        uuid?.let { NewsProviderContract.Filter.getNewUUIDFilter(uuid) },
         onMissingProvider,
         onNewsLoaded,
         coroutineContext,

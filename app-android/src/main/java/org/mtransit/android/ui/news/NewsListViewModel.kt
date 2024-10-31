@@ -105,11 +105,11 @@ class NewsListViewModel @Inject constructor(
         TripleMediatorLiveData(_allNewsProviders, _filters, _refreshRequestedTrigger).switchMap { (allNewsProviders, filters) ->
             _loading.value = true
             newsRepository.loadingNewsArticles(
-                allNewsProviders,
-                filters?.first,
-                filters?.second,
-                filters?.third,
-                News.NEWS_COMPARATOR,
+                allProviders = allNewsProviders,
+                targetProviderAuthorities = filters?.first,
+                filterTargets = filters?.second,
+                filterUUIDs = filters?.third,
+                comparator = News.NEWS_COMPARATOR,
                 onSuccess = {
                     _loading.postValue(false)
                 },

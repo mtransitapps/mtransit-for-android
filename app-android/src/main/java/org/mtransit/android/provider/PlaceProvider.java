@@ -39,7 +39,7 @@ import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.Place;
-import org.mtransit.android.util.KeysUtils;
+import org.mtransit.android.util.KeysManager;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.Constants;
 import org.mtransit.commons.FeatureFlags;
@@ -247,7 +247,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		final Double lat = poiFilter.getExtraDouble("lat", null);
 		final Double lng = poiFilter.getExtraDouble("lng", null);
 		final String url = getTextSearchUrlString(
-				KeysUtils.getKey(context, KeysIds.GOOGLE_PLACES_API_KEY),
+				KeysManager.getKey(context, KeysIds.GOOGLE_PLACES_API_KEY),
 				lat, lng, null,
 				poiFilter.getSearchKeywords()
 		);

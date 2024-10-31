@@ -15,6 +15,7 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ServiceUpdateProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -46,12 +47,18 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
+	@NonNull
+	private final KeysManager keysManager;
+
 	@Inject
 	public ServiceUpdateLoader(
 			@NonNull @ApplicationContext Context appContext,
-			@NonNull DataSourcesRepository dataSourcesRepository) {
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull KeysManager keysManager
+	) {
 		this.appContext = appContext;
 		this.dataSourcesRepository = dataSourcesRepository;
+		this.keysManager = keysManager;
 	}
 
 	private ThreadPoolExecutor fetchServiceUpdateExecutor;
@@ -88,9 +95,17 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 		Set<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(poim.poi.getAuthority());
 		if (!providers.isEmpty()) {
-			ServiceUpdateProviderProperties firstProvider = providers.iterator().next();
-			new ServiceUpdateFetcherCallable(this.appContext, listener, firstProvider, poim, serviceUpdateFilter)
-					.executeOnExecutor(getFetchServiceUpdateExecutor());
+			for (ServiceUpdateProviderProperties provider : providers) {
+				if (provider == null) {
+					continue;
+				}
+				new ServiceUpdateFetcherCallable(this.appContext,
+						listener,
+						provider,
+						poim,
+						serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))
+				).executeOnExecutor(getFetchServiceUpdateExecutor());
+			}
 		}
 		return true;
 	}

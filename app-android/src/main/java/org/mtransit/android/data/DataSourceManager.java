@@ -108,12 +108,6 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static News findANews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
-		ArrayList<News> news = findNews(context, authority, newsFilter);
-		return news == null || news.isEmpty() ? null : news.get(0);
-	}
-
-	@Nullable
 	public static ArrayList<News> findNews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
 		Cursor cursor = null;
 		try {

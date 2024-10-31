@@ -14,6 +14,7 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.StatusProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -46,13 +47,18 @@ public class StatusLoader implements MTLog.Loggable {
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
+	@NonNull
+	private final KeysManager keysManager;
+
 	@Inject
 	public StatusLoader(
 			@NonNull @ApplicationContext Context appContext,
-			@NonNull DataSourcesRepository dataSourcesRepository
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull KeysManager keysManager
 	) {
 		this.appContext = appContext;
 		this.dataSourcesRepository = dataSourcesRepository;
+		this.keysManager = keysManager;
 	}
 
 	@NonNull
@@ -111,8 +117,12 @@ public class StatusLoader implements MTLog.Loggable {
 				if (provider == null) {
 					continue;
 				}
-				new StatusFetcherCallable(this.appContext, listener, provider, poim, statusFilter)
-						.executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
+				new StatusFetcherCallable(this.appContext,
+						listener,
+						provider,
+						poim,
+						statusFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))
+				).executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
 			}
 		}
 		return true;

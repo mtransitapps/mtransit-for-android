@@ -10,11 +10,21 @@
     <string-array name="google_places_api_key"><!-- PROD 2024 $$$ -->
         <item>INSERT_GOOGLE_PLACES_API_KEY_HERE</item>
     </string-array>
+    <!-- NEWS -->
     <string-array name="twitter_bearer_token"><!-- PROD 2024 $$$ -->
         <item>INSERT_TWITTER_BEARER_TOKEN_HERE</item>
     </string-array>
     <string-array name="youtube_api_key"><!-- PROD 2024 -->
         <item>INSERT_YOUTUBE_API_KEY_HERE</item>
+    </string-array>
+    <!-- GTFS-RT -->
+    <string-array name="gtfs_real_time_url_token_exo_quebec">
+    </string-array>
+    <string-array name="gtfs_real_time_url_token_sto_ca">
+    </string-array>
+    <string-array name="gtfs_real_time_url_secret_sto_ca">
+    </string-array>
+    <string-array name="gtfs_real_time_url_token_translink_ca">
     </string-array>
     <!-- CUSTOM -->
     <string-array name="ca_winnipeg_transit_api_key">
