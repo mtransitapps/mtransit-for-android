@@ -14,12 +14,12 @@ androidx.collection:collection-ktx:1.4.5
 androidx.collection:collection:1.4.5
 androidx.constraintlayout:constraintlayout:2.2.0
 androidx.coordinatorlayout:coordinatorlayout:1.2.0
-androidx.core:core-ktx:1.13.1
+androidx.core:core-ktx:1.15.0
 androidx.core:core-splashscreen:1.0.1
-androidx.core:core:1.13.1
+androidx.core:core:1.15.0
 androidx.cursoradapter:cursoradapter:1.0.0
 androidx.customview:customview:1.1.0
-androidx.databinding:viewbinding:8.7.1
+androidx.databinding:viewbinding:8.7.2
 androidx.documentfile:documentfile:1.0.0
 androidx.drawerlayout:drawerlayout:1.1.1
 androidx.dynamicanimation:dynamicanimation:1.0.0
@@ -65,7 +65,7 @@ androidx.sqlite:sqlite-framework:2.4.0
 androidx.sqlite:sqlite:2.4.0
 androidx.startup:startup-runtime:1.1.1
 androidx.swiperefreshlayout:swiperefreshlayout:1.1.0
-androidx.tracing:tracing:1.0.0
+androidx.tracing:tracing:1.2.0
 androidx.transition:transition:1.5.0
 androidx.vectordrawable:vectordrawable-animated:1.1.0
 androidx.vectordrawable:vectordrawable:1.2.0
@@ -73,7 +73,7 @@ androidx.versionedparcelable:versionedparcelable:1.1.1
 androidx.viewpager2:viewpager2:1.1.0
 androidx.viewpager:viewpager:1.0.0
 androidx.webkit:webkit:1.11.0-alpha02
-androidx.work:work-runtime:2.9.1
+androidx.work:work-runtime:2.10.0
 com.android.billingclient:billing-ktx:7.1.1
 com.android.billingclient:billing:7.1.1
 com.applovin:applovin-sdk:13.0.1

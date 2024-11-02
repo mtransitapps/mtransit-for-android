@@ -1,19 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.1" type="baseline" client="gradle" dependencies="true" name="AGP (8.6.1)" variant="all" version="8.6.1">
-
-    <issue
-        id="ObsoleteLintCustomCheck"
-        message="Library lint checks reference invalid APIs; these checks **will be skipped**!&#xA;&#xA;Lint found an issue registry (`androidx.navigation.common.lint.NavigationCommonIssueRegistry`)&#xA;which contains some references to invalid API:&#xA;com.android.tools.lint.checks.infrastructure.TestFiles: com.android.tools.lint.checks.infrastructure.TestFile bytecode(java.lang.String,com.android.tools.lint.checks.infrastructure.TestFile,long,java.lang.String[])&#xA;(Referenced from androidx/navigation/lint/common/LintUtilKt.class)&#xA;&#xA;Therefore, this lint check library is **not** included&#xA;in analysis. This affects the following lint checks:&#xA;`EmptyNavDeepLink`,`WrongStartDestinationType`&#xA;&#xA;To use this lint check, upgrade to a more recent version&#xA;of the library.">
-        <location
-            file="navigation-common-2.8.1/jars/lint.jar"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLintCustomCheck"
-        message="Library lint checks reference invalid APIs; these checks **will be skipped**!&#xA;&#xA;Lint found an issue registry (`androidx.navigation.runtime.lint.NavigationRuntimeIssueRegistry`)&#xA;which contains some references to invalid API:&#xA;com.android.tools.lint.checks.infrastructure.TestFiles: com.android.tools.lint.checks.infrastructure.TestFile bytecode(java.lang.String,com.android.tools.lint.checks.infrastructure.TestFile,long,java.lang.String[])&#xA;(Referenced from androidx/navigation/lint/common/LintUtilKt.class)&#xA;&#xA;Therefore, this lint check library is **not** included&#xA;in analysis. This affects the following lint checks:&#xA;`DeepLinkInActivityDestination`,`WrongStartDestinationType`,`WrongNavigateRouteType`&#xA;&#xA;To use this lint check, upgrade to a more recent version&#xA;of the library.">
-        <location
-            file="navigation-runtime-2.8.1/jars/lint.jar"/>
-    </issue>
+<issues format="6" by="lint 8.7.2" type="baseline" client="gradle" dependencies="true" name="AGP (8.7.2)" variant="all" version="8.7.2">
 
     <issue
         id="DoNotMockPlatformTypes"
@@ -128,138 +114,6 @@
     <issue
         id="KotlinPairNotCreated"
         message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="                return AndroidXPair(null, contextView?.let { theContextView ->"
-        errorLine2="                       ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="44"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="                return AndroidXPair(null, contextView?.let { theContextView ->"
-        errorLine2="                       ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="44"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="                return AndroidXPair(null, contextView?.let { theContextView ->"
-        errorLine2="                       ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="44"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="                return AndroidXPair(null, contextView?.let { theContextView ->"
-        errorLine2="                       ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="44"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="                return AndroidXPair(null, contextView?.let { theContextView ->"
-        errorLine2="                       ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="44"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="                return AndroidXPair(null, contextView?.let { theContextView ->"
-        errorLine2="                       ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="44"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="            return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {"
-        errorLine2="                   ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="56"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="            return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {"
-        errorLine2="                   ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="56"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="            return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {"
-        errorLine2="                   ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="56"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="            return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {"
-        errorLine2="                   ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="56"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="            return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {"
-        errorLine2="                   ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="56"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="            return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {"
-        errorLine2="                   ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/inappnotification/InAppNotificationUI.kt"
-            line="56"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
         errorLine1="            return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {"
         errorLine2="                   ^">
         <location
@@ -310,72 +164,6 @@
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
             line="222"
             column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="        new Pair&lt;>("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1763"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="        new Pair&lt;>("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1766"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="        new Pair&lt;>("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1769"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="        new Pair&lt;>("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/POIViewController.java"
-            line="860"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="        new Pair&lt;>("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/POIViewController.java"
-            line="863"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="        new Pair&lt;>("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/POIViewController.java"
-            line="866"
-            column="9"/>
     </issue>
 
     <issue
@@ -743,12 +531,78 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ad.AdManager.InitTask.InitTask is deprecated; consider using an alternative."
+        errorLine1="   TaskUtils.execute(new InitTask(AdManager.this, activity));"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/AdManager.java"
+            line="205"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.AdManager.InitTask.InitTask is deprecated; consider using an alternative."
+        errorLine1="   TaskUtils.execute(new InitTask(AdManager.this, activity));"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/AdManager.java"
+            line="205"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.AdManager.InitTask.InitTask is deprecated; consider using an alternative."
+        errorLine1="   TaskUtils.execute(new InitTask(AdManager.this, activity));"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/AdManager.java"
+            line="205"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.AdManager.InitTask.InitTask is deprecated; consider using an alternative."
+        errorLine1="   TaskUtils.execute(new InitTask(AdManager.this, activity));"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/AdManager.java"
+            line="205"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.AdManager.InitTask.InitTask is deprecated; consider using an alternative."
+        errorLine1="   TaskUtils.execute(new InitTask(AdManager.this, activity));"
+        errorLine2="                                                  ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/AdManager.java"
+            line="205"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.AdManager.InitTask.InitTask is deprecated; consider using an alternative."
+        errorLine1="   TaskUtils.execute(new InitTask(AdManager.this, activity));"
+        errorLine2="                                                  ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/AdManager.java"
+            line="205"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="android.view.WindowManager.getDefaultDisplay is deprecated; consider using an alternative."
         errorLine1="  Display display = activity.requireActivity().getWindowManager().getDefaultDisplay();"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="724"
+            line="764"
             column="21"/>
     </issue>
 
@@ -759,7 +613,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="726"
+            line="766"
             column="3"/>
     </issue>
 
@@ -770,7 +624,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="800"
+            line="840"
             column="18"/>
     </issue>
 
@@ -781,7 +635,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="800"
+            line="840"
             column="18"/>
     </issue>
 
@@ -792,7 +646,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="800"
+            line="840"
             column="34"/>
     </issue>
 
@@ -803,7 +657,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="800"
+            line="840"
             column="34"/>
     </issue>
 
@@ -814,7 +668,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="800"
+            line="840"
             column="40"/>
     </issue>
 
@@ -825,7 +679,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="800"
+            line="840"
             column="40"/>
     </issue>
 
@@ -836,7 +690,7 @@
         errorLine2="                                                           ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="800"
+            line="840"
             column="60"/>
     </issue>
 
@@ -847,7 +701,7 @@
         errorLine2="                                                           ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="800"
+            line="840"
             column="60"/>
     </issue>
 
@@ -858,7 +712,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="955"
+            line="995"
             column="12"/>
     </issue>
 
@@ -869,7 +723,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/AdManager.java"
-            line="965"
+            line="1005"
             column="46"/>
     </issue>
 
@@ -1271,6 +1125,17 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="        super.onLowMemory()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
+            line="296"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.onLowMemory is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onLowMemory()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1551,7 +1416,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/datasource/DataSourcesReader.kt"
-            line="245"
+            line="250"
             column="9"/>
     </issue>
 
@@ -1652,6 +1517,72 @@
             file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingMarker.java"
             line="193"
             column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.Window.setStatusBarColor is deprecated; consider using an alternative."
+        errorLine1="    window.statusBarColor = if (transparent) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="78"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.Window.setNavigationBarColor is deprecated; consider using an alternative."
+        errorLine1="    window.navigationBarColor = if (transparent) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="98"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.Window.setStatusBarColor is deprecated; consider using an alternative."
+        errorLine1="        window.statusBarColor = transparent"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="126"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.Window.setNavigationBarColor is deprecated; consider using an alternative."
+        errorLine1="        window.navigationBarColor = transparent"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="127"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.Window.setStatusBarColor is deprecated; consider using an alternative."
+        errorLine1="        window.statusBarColor = transparent"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="142"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.Window.setNavigationBarColor is deprecated; consider using an alternative."
+        errorLine1="        window.navigationBarColor = scrim"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="143"
+            column="9"/>
     </issue>
 
     <issue
@@ -2673,7 +2604,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="372"
+            line="374"
             column="13"/>
     </issue>
 
@@ -2861,6 +2792,17 @@
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/MTBottomSheetDialogFragmentX.java"
             line="201"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="androidx.fragment.app.Fragment.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="  super.onLowMemory();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/MTBottomSheetDialogFragmentX.java"
+            line="219"
             column="3"/>
     </issue>
 
@@ -3251,6 +3193,17 @@
 
     <issue
         id="DeprecatedCall"
+        message="androidx.fragment.app.Fragment.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="  super.onLowMemory();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragmentX.java"
+            line="218"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="androidx.fragment.app.FragmentActivity.onActivityResult is deprecated; consider using an alternative."
         errorLine1="  super.onActivityResult(requestCode, resultCode, data);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -3312,6 +3265,17 @@
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
             line="133"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="androidx.fragment.app.Fragment.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="  super.onLowMemory();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
+            line="149"
             column="3"/>
     </issue>
 
@@ -3751,7 +3715,18 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.java"
-            line="491"
+            line="510"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
+        errorLine1="  super.onBackPressed();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/MainActivity.java"
+            line="510"
             column="3"/>
     </issue>
 
@@ -4280,6 +4255,17 @@
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
             line="259"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="        super.onLowMemory()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="263"
             column="9"/>
     </issue>
 
@@ -6864,7 +6850,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="271"
+            line="294"
             column="37"/>
     </issue>
 
@@ -6875,7 +6861,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="271"
+            line="294"
             column="62"/>
     </issue>
 
@@ -6886,7 +6872,7 @@
         errorLine2="                                                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="271"
+            line="294"
             column="91"/>
     </issue>
 
@@ -6897,7 +6883,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="273"
+            line="296"
             column="25"/>
     </issue>
 
@@ -6908,7 +6894,7 @@
         errorLine2="                              ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="273"
+            line="296"
             column="31"/>
     </issue>
 
@@ -6919,7 +6905,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="290"
+            line="314"
             column="25"/>
     </issue>
 
@@ -6930,7 +6916,7 @@
         errorLine2="                              ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="290"
+            line="314"
             column="31"/>
     </issue>
 
@@ -6941,7 +6927,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="332"
+            line="356"
             column="19"/>
     </issue>
 
@@ -6952,7 +6938,7 @@
         errorLine2="                                      ~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="332"
+            line="356"
             column="39"/>
     </issue>
 
@@ -6963,7 +6949,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="338"
+            line="362"
             column="29"/>
     </issue>
 
@@ -6974,7 +6960,7 @@
         errorLine2="                                                     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="338"
+            line="362"
             column="54"/>
     </issue>
 
@@ -6985,7 +6971,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="346"
+            line="370"
             column="17"/>
     </issue>
 
@@ -6996,7 +6982,7 @@
         errorLine2="                      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="346"
+            line="370"
             column="23"/>
     </issue>
 
@@ -7007,7 +6993,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="346"
+            line="370"
             column="33"/>
     </issue>
 
@@ -7018,7 +7004,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="346"
+            line="370"
             column="39"/>
     </issue>
 
@@ -7029,7 +7015,7 @@
         errorLine2="                                                       ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="346"
+            line="370"
             column="56"/>
     </issue>
 
@@ -7040,7 +7026,7 @@
         errorLine2="                                                              ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="346"
+            line="370"
             column="63"/>
     </issue>
 
@@ -7051,7 +7037,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="346"
+            line="370"
             column="70"/>
     </issue>
 
@@ -7062,7 +7048,7 @@
         errorLine2="                                                                                     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="346"
+            line="370"
             column="86"/>
     </issue>
 
@@ -7073,7 +7059,7 @@
         errorLine2="                                                                                           ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="346"
+            line="370"
             column="92"/>
     </issue>
 
@@ -7084,7 +7070,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="371"
             column="18"/>
     </issue>
 
@@ -7095,7 +7081,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="371"
             column="28"/>
     </issue>
 
@@ -7106,7 +7092,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="371"
             column="38"/>
     </issue>
 
@@ -7117,7 +7103,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="371"
             column="44"/>
     </issue>
 
@@ -7128,7 +7114,7 @@
         errorLine2="                                                            ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="371"
             column="61"/>
     </issue>
 
@@ -7139,7 +7125,7 @@
         errorLine2="                                                                   ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="371"
             column="68"/>
     </issue>
 
@@ -7150,7 +7136,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="371"
             column="75"/>
     </issue>
 
@@ -7161,7 +7147,7 @@
         errorLine2="                                                                                          ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="371"
             column="91"/>
     </issue>
 
@@ -7172,7 +7158,7 @@
         errorLine2="                                                                                                ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="371"
             column="97"/>
     </issue>
 
@@ -7618,13 +7604,24 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.datasource.DataSourcesRepository.getAllSupportedDataSourceTypes is deprecated; consider using an alternative."
-        errorLine1="  final ArrayList&lt;DataSourceType> allAgencyTypes = new ArrayList&lt;>(this.dataSourcesRepository.getAllSupportedDataSourceTypes());"
-        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.datasource.DataSourcesRepository.filterDataSourceTypes is deprecated; consider using an alternative."
+        errorLine1="    this.dataSourcesRepository.filterDataSourceTypes("
+        errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="544"
-            column="68"/>
+            line="547"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.datasource.DataSourcesRepository.getAllSupportedDataSourceTypes is deprecated; consider using an alternative."
+        errorLine1="      this.dataSourcesRepository.getAllSupportedDataSourceTypes()"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
+            line="548"
+            column="7"/>
     </issue>
 
     <issue
@@ -7634,7 +7631,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="657"
+            line="666"
             column="7"/>
     </issue>
 
@@ -7645,7 +7642,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="977"
+            line="990"
             column="40"/>
     </issue>
 
@@ -7656,7 +7653,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="977"
+            line="990"
             column="40"/>
     </issue>
 
@@ -7667,7 +7664,7 @@
         errorLine2="          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1008"
+            line="1021"
             column="11"/>
     </issue>
 
@@ -7678,7 +7675,7 @@
         errorLine2="       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1026"
+            line="1039"
             column="8"/>
     </issue>
 
@@ -7689,7 +7686,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1918"
+            line="1792"
             column="4"/>
     </issue>
 
@@ -7700,7 +7697,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1918"
+            line="1792"
             column="17"/>
     </issue>
 
@@ -7711,7 +7708,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1918"
+            line="1792"
             column="23"/>
     </issue>
 
@@ -7722,7 +7719,7 @@
         errorLine2="                                                                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1918"
+            line="1792"
             column="89"/>
     </issue>
 
@@ -7733,7 +7730,7 @@
         errorLine2="                                                                                                              ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1918"
+            line="1792"
             column="111"/>
     </issue>
 
@@ -7744,7 +7741,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2224"
+            line="2040"
             column="44"/>
     </issue>
 
@@ -7755,7 +7752,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2227"
+            line="2043"
             column="31"/>
     </issue>
 
@@ -7766,7 +7763,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2227"
+            line="2043"
             column="31"/>
     </issue>
 
@@ -7777,7 +7774,7 @@
         errorLine2="                                                       ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2227"
+            line="2043"
             column="56"/>
     </issue>
 
@@ -7788,8 +7785,129 @@
         errorLine2="                                                       ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2227"
+            line="2043"
             column="56"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
+        errorLine1="        val routeVH = Route(1L, &quot;11&quot;, &quot;Vaudreuil / Hudson&quot;, &quot;F16179&quot;)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="41"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
+        errorLine1="        val routeSH = Route(3L, &quot;13&quot;, &quot;Mont-St-Hilaire&quot;, &quot;CA5898&quot;)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="42"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
+        errorLine1="        val routeCA = Route(4L, &quot;14&quot;, &quot;Candiac&quot;, &quot;CA5898&quot;)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="43"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
+        errorLine1="        val routeMA = Route(6L, &quot;15&quot;, &quot;Mascouche&quot;, &quot;999AC6&quot;)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="44"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Stop.Stop is deprecated; consider using an alternative."
+        errorLine1="        val stopCentrale = Stop(11010, &quot;&quot;, &quot;Centrale&quot;, 45.500002, -73.566668)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="53"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Stop.Stop is deprecated; consider using an alternative."
+        errorLine1="        val stopVendome = Stop(11160, &quot;&quot;, &quot;Vendôme&quot;, 45.473771, -73.603101)"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="54"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Stop.Stop is deprecated; consider using an alternative."
+        errorLine1="        val stopStLambert = Stop(11440, &quot;&quot;, &quot;St-Lambert&quot;, 45.499634, -73.505824)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="55"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
+        errorLine1="        val route23 = Route(23L, &quot;23&quot;, &quot;Ste-Hélène / Jacques-Cartier&quot;, &quot;&quot;)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="89"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
+        errorLine1="        val route29 = Route(29L, &quot;29&quot;, &quot;Collectivité Nouvelle&quot;, &quot;&quot;)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="90"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
+        errorLine1="        val route98 = Route(98L, &quot;98&quot;, &quot;Promenades St-Bruno / St-Bruno-De-Montarville&quot;, &quot;&quot;)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="91"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.data.Stop.Stop is deprecated; consider using an alternative."
+        errorLine1="        val stopTL34417 = Stop(4417, &quot;34417&quot;, &quot;Term Longueuil&quot;, 45.5235276580726, -73.5208026778995)"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
+            line="99"
+            column="27"/>
     </issue>
 
     <issue
@@ -8063,7 +8181,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="976"
+            line="986"
             column="4"/>
     </issue>
 
@@ -8074,7 +8192,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="990"
+            line="1000"
             column="4"/>
     </issue>
 
@@ -8085,7 +8203,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="990"
+            line="1000"
             column="51"/>
     </issue>
 
@@ -8096,7 +8214,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1056"
+            line="1066"
             column="3"/>
     </issue>
 
@@ -8107,7 +8225,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1065"
+            line="1075"
             column="4"/>
     </issue>
 
@@ -8118,7 +8236,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1065"
+            line="1075"
             column="47"/>
     </issue>
 
@@ -8129,7 +8247,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1066"
+            line="1076"
             column="4"/>
     </issue>
 
@@ -8140,7 +8258,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1066"
+            line="1076"
             column="35"/>
     </issue>
 
@@ -8151,7 +8269,18 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1228"
+            line="1239"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="  super.onLowMemory();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
+            line="1515"
             column="3"/>
     </issue>
 
@@ -8162,7 +8291,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1505"
+            line="1516"
             column="3"/>
     </issue>
 
@@ -8173,7 +8302,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1514"
+            line="1525"
             column="3"/>
     </issue>
 
@@ -8184,8 +8313,19 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1520"
+            line="1531"
             column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.data.POIManager.getServiceUpdates is deprecated; consider using an alternative."
+        errorLine1="      poim.getServiceUpdates(context, dataProvider.providesServiceUpdateLoader()),"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/POIServiceUpdateViewController.java"
+            line="148"
+            column="7"/>
     </issue>
 
     <issue
@@ -8208,6 +8348,39 @@
             file="src/main/java/org/mtransit/android/ui/view/POIStatusDetailViewController.java"
             line="212"
             column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.data.POIManager.getStatus is deprecated; consider using an alternative."
+        errorLine1="   updateAppStatusView(context, statusViewHolder, poim.getStatus(context, dataProvider.providesStatusLoader()));"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/POIStatusDetailViewController.java"
+            line="340"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.data.POIManager.getStatus is deprecated; consider using an alternative."
+        errorLine1="   updateAvailabilityPercentView(context, statusViewHolder, poim.getStatus(context, dataProvider.providesStatusLoader()));"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/POIStatusDetailViewController.java"
+            line="375"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.data.POIManager.getStatus is deprecated; consider using an alternative."
+        errorLine1="   updateScheduleView(context, statusViewHolder, poim.getStatus(context, dataProvider.providesStatusLoader()), dataProvider, poim);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/POIStatusDetailViewController.java"
+            line="433"
+            column="50"/>
     </issue>
 
     <issue
@@ -9642,6 +9815,17 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="        super.onLowMemory()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
+            line="354"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.onLowMemory is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onLowMemory()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -9686,320 +9870,320 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                        ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                        ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="82"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="82"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="92"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="92"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                                                          ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="107"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                                                          ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="107"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                                                                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="113"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);"
-        errorLine2="                                                                                                                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="85"
-            column="113"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="android.os.AsyncTask.executeOnExecutor is deprecated; consider using an alternative."
-        errorLine1="   task.executeOnExecutor(getFetchServiceUpdateExecutor());"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="86"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.call is deprecated; consider using an alternative."
-        errorLine1="    return call();"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="128"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.call is deprecated; consider using an alternative."
-        errorLine1="    return call();"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="128"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                 ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                 ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                          ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                          ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                                    ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="85"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                                    ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="85"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                                              ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="95"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                                              ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="95"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="101"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);"
-        errorLine2="                                                                                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="106"
-            column="101"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.os.AsyncTask.executeOnExecutor is deprecated; consider using an alternative."
-        errorLine1="    task.executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="107"
+            line="102"
             column="5"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="102"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="102"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="102"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="102"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      listener,"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="103"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      listener,"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="103"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      provider,"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="104"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      provider,"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="104"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      poim,"
+        errorLine2="      ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="105"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      poim,"
+        errorLine2="      ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="105"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="106"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="106"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.call is deprecated; consider using an alternative."
+        errorLine1="    return call();"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="150"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.call is deprecated; consider using an alternative."
+        errorLine1="    return call();"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="150"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.os.AsyncTask.executeOnExecutor is deprecated; consider using an alternative."
+        errorLine1="    new StatusFetcherCallable(this.appContext,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="120"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="    new StatusFetcherCallable(this.appContext,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="120"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="    new StatusFetcherCallable(this.appContext,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="120"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="    new StatusFetcherCallable(this.appContext,"
+        errorLine2="                              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="120"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="    new StatusFetcherCallable(this.appContext,"
+        errorLine2="                              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="120"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      listener,"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="121"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      listener,"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="121"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      provider,"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="122"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      provider,"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="122"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      poim,"
+        errorLine2="      ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="123"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      poim,"
+        errorLine2="      ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="123"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      statusFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="124"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      statusFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="124"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.call is deprecated; consider using an alternative."
         errorLine1="    return call();"
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="150"
+            line="168"
             column="12"/>
     </issue>
 
@@ -10010,8 +10194,646 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="150"
+            line="168"
             column="12"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="43"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="44"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="45"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.previousTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="46"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="47"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="48"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextNextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="49"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4, result.nextNextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="50"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4, result.afterNextTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="51"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(5 + 1, result.afterNextTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="52"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimesEndIdx - result.previousTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="67"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="68"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="69"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.nextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="70"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="71"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextNextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="72"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextNextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="73"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.afterNextTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="74"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4 + 1, result.afterNextTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="75"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimesEndIdx - result.previousTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="89"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimeEndIdx - result.previousTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="90"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.nextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="91"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.nextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="92"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.nextNextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="93"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextNextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="94"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.afterNextTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="95"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3 + 1, result.afterNextTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="96"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="109"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="110"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="111"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.previousTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="112"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="113"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="114"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.nextNextTimeEndIdx - result.nextNextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="115"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.afterNextTimesEndIdx - result.afterNextTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="116"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="130"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="131"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="132"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.previousTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="133"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="134"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="135"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextNextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="136"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4, result.nextNextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="137"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.afterNextTimesEndIdx - result.afterNextTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="138"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="153"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="154"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="155"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.previousTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="156"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="157"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="158"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextNextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="159"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4, result.nextNextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="160"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4, result.afterNextTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="161"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4 + 1, result.afterNextTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="162"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="177"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="178"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextNextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="193"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4, result.nextNextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="194"
+            column="3"/>
     </issue>
 
     <issue
@@ -10341,6 +11163,116 @@
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="385"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="401"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="402"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="403"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="404"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.nextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="405"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="406"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextNextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="407"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextNextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="408"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.afterNextTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="409"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(5, result.afterNextTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="410"
             column="3"/>
     </issue>
 
@@ -10792,39 +11724,6 @@
 
     <issue
         id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorSurface&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_poi_basic.xml"
-            line="5"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorSurface&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_poi_basic_with_availability_percent.xml"
-            line="5"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorSurface&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_poi_basic_with_schedule.xml"
-            line="5"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
         message="Possible overdraw: Root element paints background `?android:attr/colorBackground` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
         errorLine1="    android:background=&quot;?android:attr/colorBackground&quot;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -10835,58 +11734,14 @@
     </issue>
 
     <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorSurface&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="UnusedResources"
+        message="The resource `R.drawable.bg_rounded` appears to be unused"
+        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
         <location
-            file="src/main/res/layout/layout_poi_module.xml"
-            line="5"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorSurface&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_poi_module_with_app_status.xml"
-            line="5"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorSurface&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_poi_rts.xml"
-            line="5"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorSurface&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_poi_rts_with_schedule.xml"
-            line="6"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorSurface&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_poi_service_update.xml"
-            line="8"
-            column="5"/>
+            file="src/main/res/drawable/bg_rounded.xml"
+            line="2"
+            column="1"/>
     </issue>
 
     <issue
@@ -10918,7 +11773,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/dimens.xml"
-            line="31"
+            line="33"
             column="12"/>
     </issue>
 
@@ -10929,7 +11784,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/dimens.xml"
-            line="37"
+            line="49"
             column="12"/>
     </issue>
 
@@ -10940,7 +11795,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/dimens.xml"
-            line="38"
+            line="50"
             column="12"/>
     </issue>
 
@@ -10951,7 +11806,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/dimens.xml"
-            line="39"
+            line="51"
             column="12"/>
     </issue>
 
@@ -11060,39 +11915,6 @@
         errorLine1="    &lt;ImageView"
         errorLine2="     ~~~~~~~~~">
         <location
-            file="src/main/res/layout/layout_drawer_header.xml"
-            line="10"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_drawer_header_small.xml"
-            line="8"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_news_image_item.xml"
-            line="2"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
             file="src/main/res/layout/layout_poi_base_distance_and_compass.xml"
             line="10"
             column="6"/>
@@ -11116,17 +11938,6 @@
         errorLine2=" ~~~~~~~~~">
         <location
             file="src/main/res/layout/layout_poi_module_extras.xml"
-            line="2"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/list_view_divider.xml"
             line="2"
             column="2"/>
     </issue>
