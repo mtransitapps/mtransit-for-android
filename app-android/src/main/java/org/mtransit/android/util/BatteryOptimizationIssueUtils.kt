@@ -91,9 +91,9 @@ object BatteryOptimizationIssueUtils {
         lclPrefRepository: LocalPreferenceRepository
     ) {
         if (!(BuildConfig.DEBUG
-                    || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2))
+                    || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU))
         ) {
-            return // SKIP not-debug && not-Samsung < Android 12 (ignore Android 13+ for now)
+            return // SKIP not-debug && not-Samsung < Android 13 (ignore Android 14+ for now)
         }
         try {
             lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
