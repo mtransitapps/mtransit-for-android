@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION") // TODO re-factor everything
+
 package org.mtransit.android.ui
 
 
