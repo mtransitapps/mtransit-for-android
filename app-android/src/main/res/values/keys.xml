@@ -20,6 +20,8 @@
     <!-- GTFS-RT -->
     <string-array name="gtfs_real_time_url_token_exo_quebec">
     </string-array>
+    <string-array name="gtfs_real_time_url_token_openmetrolinx_com">
+    </string-array>
     <string-array name="gtfs_real_time_url_token_sto_ca">
     </string-array>
     <string-array name="gtfs_real_time_url_secret_sto_ca">

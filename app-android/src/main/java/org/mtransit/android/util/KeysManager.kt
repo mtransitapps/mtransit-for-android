@@ -53,6 +53,12 @@ class KeysManager @Inject constructor(
                         )
                     }
 
+                    "org.mtransit.android.ca_gtha_go_transit_bus$debugS.gtfs.realtime",
+                    "org.mtransit.android.ca_gtha_go_transit_train$debugS.gtfs.realtime",
+                    "org.mtransit.android.ca_gta_up_express_train$debugS.gtfs.realtime" -> {
+                        mapOf(KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_openmetrolinx_com).join())
+                    }
+
                     "org.mtransit.android.ca_vancouver_translink_bus$debugS.gtfs.realtime",
                     "org.mtransit.android.ca_vancouver_translink_ferry2$debugS.gtfs.realtime",
                     "org.mtransit.android.ca_vancouver_translink_train$debugS.gtfs.realtime",
