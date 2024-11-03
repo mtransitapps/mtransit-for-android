@@ -87,6 +87,7 @@ com.github.bumptech.glide:okhttp3-integration:4.16.0
 com.github.chuckerteam.chucker:library-no-op:4.0.0
 com.google.ads.mediation:applovin:13.0.1.0
 com.google.ads.mediation:facebook:6.18.0.0
+com.google.ads.mediation:vungle:7.4.1.0
 com.google.android.datatransport:transport-api:3.2.0
 com.google.android.datatransport:transport-backend-cct:3.3.0
 com.google.android.datatransport:transport-runtime:3.3.0
@@ -153,6 +154,7 @@ com.squareup.okio:okio-jvm:3.6.0
 com.squareup.okio:okio:3.6.0
 com.squareup.retrofit2:converter-gson:2.11.0
 com.squareup.retrofit2:retrofit:2.11.0
+com.vungle:vungle-ads:7.4.1
 jakarta.inject:jakarta.inject-api:2.0.1
 javax.inject:javax.inject:1
 org.checkerframework:checker-qual:3.43.0
@@ -167,6 +169,10 @@ org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0
 org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0
 org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0
+org.jetbrains.kotlinx:kotlinx-serialization-bom:1.6.3
+org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.3
+org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3
+org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3
 org.jetbrains:annotations:23.0.0
 org.ow2.asm:asm-analysis:9.2
 org.ow2.asm:asm-commons:9.2

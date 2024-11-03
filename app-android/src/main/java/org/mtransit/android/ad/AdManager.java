@@ -24,6 +24,7 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.ResponseInfo;
 import com.google.android.gms.ads.initialization.AdapterStatus;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
@@ -508,8 +509,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 		@Override
 		public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
-			super.onAdLoaded(rewardedAd);
-			MTLog.d(this, "onAdLoaded() > Rewarded ad loaded.");
+			MTLog.d(this, "onAdLoaded() > Rewarded ad loaded from %s.", rewardedAd.getResponseInfo().getMediationAdapterClassName());
 			this.adManager.setRewardedAd(rewardedAd);
 			final RewardedAdListener listener = this.adManager.getRewardedAdListener();
 			if (listener != null) {
@@ -519,7 +519,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 		@Override
 		public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-			super.onAdFailedToLoad(loadAdError);
 			this.adManager.setRewardedAd(null);
 			final RewardedAdListener listener = this.adManager.getRewardedAdListener();
 			if (listener != null) {
@@ -958,7 +957,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 						final AdSize adSize = getAdSize(activity);
 						adView.setAdSize(adSize);
 					}
-					adView.setAdListener(new MTAdListener(this.adManager, this.crashReporter, activity));
+					adView.setAdListener(new MTAdListener(this.adManager, this.crashReporter, activity, adView));
 
 					adView.loadAd(this.adManager.getAdRequest(activity));
 				}
@@ -984,17 +983,19 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		private final CrashReporter crashReporter;
 		@NonNull
 		private final WeakReference<IActivity> activityWR;
+		@NonNull
+		private final WeakReference<AdView> adViewWR;
 
-		MTAdListener(@NonNull AdManager adManager, @NonNull CrashReporter crashReporter, @NonNull IActivity activity) {
+		MTAdListener(@NonNull AdManager adManager, @NonNull CrashReporter crashReporter, @NonNull IActivity activity, @NonNull AdView adView) {
 			this.adManager = adManager;
 			this.crashReporter = crashReporter;
 			this.activityWR = new WeakReference<>(activity);
+			this.adViewWR = new WeakReference<>(adView);
 		}
 
 		@Override
 		public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
 			MTLog.d(this, "onAdFailedToLoad(%s)", loadAdError);
-			super.onAdFailedToLoad(loadAdError);
 			switch (loadAdError.getCode()) {
 			case AdRequest.ERROR_CODE_APP_ID_MISSING:
 				this.crashReporter.w(this, "Failed to received ad! App ID missing: '%s' (%s).", loadAdError.getCode(), loadAdError);
@@ -1032,8 +1033,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 		@Override
 		public void onAdLoaded() {
-			super.onAdLoaded();
-			MTLog.d(this, "onAdLoaded()");
+			final AdView adView = this.adViewWR.get();
+			final ResponseInfo responseInfo = adView == null ? null : adView.getResponseInfo();
+			MTLog.d(this, "onAdLoaded() ad loaded from %s", responseInfo == null ? null : responseInfo.getMediationAdapterClassName());
 			this.adManager.adLoaded = true;
 			final IActivity activity = this.activityWR.get();
 			if (activity == null) {
@@ -1041,26 +1043,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 				return;
 			}
 			this.adManager.showAdsIfEnoughSpace(activity); // showing ads if hidden because of no-fill/network error
-		}
-
-		@Override
-		public void onAdClosed() {
-			super.onAdClosed();
-		}
-
-		@Override
-		public void onAdOpened() {
-			super.onAdOpened();
-		}
-
-		@Override
-		public void onAdClicked() {
-			super.onAdClicked();
-		}
-
-		@Override
-		public void onAdImpression() {
-			super.onAdImpression();
 		}
 	}
 }

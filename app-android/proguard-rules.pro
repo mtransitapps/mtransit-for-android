@@ -37,14 +37,6 @@
 -dontwarn org.apache.log4j.**
 -dontwarn org.slf4j.**
 
-# GOOGLE PROTOBUF - START
--dontwarn com.google.protobuf.**
-# GOOGLE PROTOBUF - END
-
-# GOOGLE TRANSIT REALTIME - START
--dontwarn com.google.transit.realtime.**
-# GOOGLE TRANSIT REALTIME - END
-
 # FACEBOOK AUDIENCE NETWORK - START
 -keep public class com.facebook.ads.** {
    public *;
@@ -125,6 +117,13 @@
 -keep class com.google.firebase.crashlytics.** { *; }
 -dontwarn com.google.firebase.crashlytics.**
 # CRASHLYTICS - END
+
+# VUNGLE - START
+-dontwarn com.vungle.ads.**
+-keepclassmembers class com.vungle.ads.** {
+  *;
+}
+# VUNGLE - END
 
 -dontwarn android.media.LoudnessCodecController$OnLoudnessCodecUpdateListener
 -dontwarn android.media.LoudnessCodecController
