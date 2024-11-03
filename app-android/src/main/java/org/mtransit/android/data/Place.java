@@ -13,6 +13,7 @@ import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.provider.PlaceProvider;
+import org.mtransit.commons.FeatureFlags;
 
 public class Place extends DefaultPOI {
 
@@ -146,6 +147,35 @@ public class Place extends DefaultPOI {
 			MTLog.w(LOG_TAG, jsone, "Error while parsing JSON '%s'!", json);
 			return null;
 		}
+	}
+
+	@NonNull
+	public Object[] getCursorRow() {
+		if (FeatureFlags.F_ACCESSIBILITY_PRODUCER) {
+			return new Object[]{ //
+					getUUID(), //
+					getDataSourceTypeId(), //
+					getId(),//
+					getName(), //
+					getLat(),//
+					getLng(), //
+					getAccessible(), //
+					getType(), getStatusType(), getActionsType(), //
+					getScore(), //
+					getProviderId(), getLang(), getReadAtInMs() //
+			};
+		}
+		return new Object[]{ //
+				getUUID(), //
+				getDataSourceTypeId(), //
+				getId(),//
+				getName(), //
+				getLat(),//
+				getLng(), //
+				getType(), getStatusType(), getActionsType(), //
+				getScore(), //
+				getProviderId(), getLang(), getReadAtInMs() //
+		};
 	}
 
 	@NonNull

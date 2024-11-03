@@ -24,8 +24,8 @@ class KeysManager @Inject constructor(
 
         @JvmStatic
         fun getKey(context: Context, key: String) = when (key) {
-            KeysIds.TWITTER_BEARER_TOKEN -> context.resources.getStringArray(R.array.twitter_bearer_token).join()
             KeysIds.GOOGLE_PLACES_API_KEY -> context.resources.getStringArray(R.array.google_places_api_key).join()
+            KeysIds.TWITTER_BEARER_TOKEN -> context.resources.getStringArray(R.array.twitter_bearer_token).join()
             KeysIds.YOUTUBE_API_KEY -> context.resources.getStringArray(R.array.youtube_api_key).join()
             KeysIds.CA_WINNIPEG_TRANSIT_API -> context.resources.getStringArray(R.array.ca_winnipeg_transit_api_key).join()
             else -> {
@@ -110,4 +110,7 @@ class KeysManager @Inject constructor(
     fun getKeysMap(authority: String) = getKeysMap(appContext, authority)
 }
 
+/**
+ * join to string without separator
+ */
 private fun <T> Array<out T>.join() = this.joinToString(separator = EMPTY)

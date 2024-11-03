@@ -123,8 +123,12 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return PlaceDbHelper.T_PLACE;
 	}
 
-	private static final String[] PROJECTION_PLACE = new String[]{POIProviderContract.Columns.T_POI_K_SCORE_META_OPT, //
-			PlaceColumns.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_READ_AT_IN_MS};
+	private static final String[] PROJECTION_PLACE = new String[]{
+			POIProviderContract.Columns.T_POI_K_SCORE_META_OPT,
+			PlaceColumns.T_PLACE_K_PROVIDER_ID,
+			PlaceColumns.T_PLACE_K_LANG,
+			PlaceColumns.T_PLACE_K_READ_AT_IN_MS
+	};
 
 	private static final String[] PROJECTION_PLACE_POI = ArrayUtils.addAllNonNull(POIProvider.PROJECTION_POI, PROJECTION_PLACE);
 
@@ -159,14 +163,11 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@VisibleForTesting
 	@Nullable
-	protected static String getTextSearchUrlString(@Nullable String apiKey,
+	protected static String getTextSearchUrlString(@NonNull String apiKey,
 												   @Nullable Double optLat,
 												   @Nullable Double optLng,
 												   @Nullable Integer optRadiusInMeters,
 												   @Nullable String[] searchKeywords) {
-		if (apiKey == null || apiKey.isEmpty()) {
-			return null; // no API key => no search
-		}
 		StringBuilder sb = new StringBuilder();
 		sb.append(TEXT_SEARCH_URL_PART_1_BEFORE_KEY).append(apiKey);
 		sb.append(TEXT_SEARCH_URL_PART_2_BEFORE_LANG).append(LocaleUtils.isFR() ? TEXT_SEARCH_URL_LANG_FRENCH : TEXT_SEARCH_URL_LANG_DEFAULT);
@@ -246,8 +247,13 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		final Context context = requireContextCompat();
 		final Double lat = poiFilter.getExtraDouble("lat", null);
 		final Double lng = poiFilter.getExtraDouble("lng", null);
+		final String apiKey = KeysManager.getKey(context, KeysIds.GOOGLE_PLACES_API_KEY);
+		if (apiKey == null || apiKey.isEmpty()) {
+			MTLog.d(LOG_TAG, "fetchTextSearchResults() > SKIP (no API key)");
+			return null; // no API key => no search
+		}
 		final String url = getTextSearchUrlString(
-				KeysManager.getKey(context, KeysIds.GOOGLE_PLACES_API_KEY),
+				apiKey,
 				lat, lng, null,
 				poiFilter.getSearchKeywords()
 		);
@@ -270,6 +276,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 			case HttpURLConnection.HTTP_OK:
 				long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 				String jsonString = FileUtils.getString(urlc.getInputStream());
+				MTLog.d(this, "getTextSearchResults() > jsonString: %s", jsonString);
 				String lang = LocaleUtils.isFR() ? Locale.FRENCH.getLanguage() : Locale.ENGLISH.getLanguage();
 				return parseTextSearchJson(jsonString, getAUTHORITY(context), lang, newLastUpdateInMs);
 			default:
@@ -340,15 +347,10 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@NonNull
 	private Cursor getTextSearchResults(@Nullable List<Place> places) {
-		MatrixCursor cursor = new MatrixCursor(getPOIProjection());
+		final MatrixCursor cursor = new MatrixCursor(getPOIProjection());
 		if (places != null) {
 			for (Place place : places) {
-				cursor.addRow(new Object[]{ //
-						place.getUUID(), place.getDataSourceTypeId(), place.getId(), place.getName(), place.getLat(), place.getLng(), //
-						place.getType(), place.getStatusType(), place.getActionsType(), //
-						place.getScore(), //
-						place.getProviderId(), place.getLang(), place.getReadAtInMs() //
-				});
+				cursor.addRow(place.getCursorRow());
 			}
 		}
 		return cursor;
