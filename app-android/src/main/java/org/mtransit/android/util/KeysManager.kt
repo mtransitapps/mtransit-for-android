@@ -81,8 +81,7 @@ class KeysManager @Inject constructor(
                     "$PKG_START.ca_richelieu_citvr_bus$debugS.$GTFS_RT_END",
                     "$PKG_START.ca_sorel_varennes_citsv_bus$debugS.$GTFS_RT_END",
                     "$PKG_START.ca_ste_julie_omitsju_bus$debugS.$GTFS_RT_END",
-                    "$PKG_START.ca_sud_ouest_citso_bus$debugS.$GTFS_RT_END"
-                        -> {
+                    "$PKG_START.ca_sud_ouest_citso_bus$debugS.$GTFS_RT_END" -> {
                         mapOf(KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_exo_quebec).join())
                     }
 
@@ -96,9 +95,7 @@ class KeysManager @Inject constructor(
             authority.endsWith("$debugS.$OBA_END") -> {
                 when (authority) {
                     "$PKG_START.ca_york_region_yrt_viva_bus$debugS.$OBA_END" -> {
-                        mapOf(
-                            KeysIds.ONE_BUS_AWAY_API_KEY to context.resources.getStringArray(R.array.one_bus_away_api_key_yrt_ca).join()
-                        )
+                        mapOf(KeysIds.ONE_BUS_AWAY_API_KEY to context.resources.getStringArray(R.array.one_bus_away_api_key_yrt_ca).join())
                     }
 
                     else -> {
