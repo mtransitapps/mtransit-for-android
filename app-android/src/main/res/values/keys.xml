@@ -28,8 +28,12 @@
     </string-array>
     <string-array name="gtfs_real_time_url_token_translink_ca">
     </string-array>
+    <!-- ONE BUS AWAY -->
+    <string-array name="one_bus_away_api_key_yrt_ca">
+    </string-array>
     <!-- CUSTOM -->
+    <string-array name="greater_sudbury_auth_token">
+    </string-array>
     <string-array name="ca_winnipeg_transit_api_key">
-        <item>INSERT_CA_WINNIPEG_TRANSIT_API_KEY_HERE</item>
     </string-array>
 </resources>

@@ -20,6 +20,10 @@ class KeysManager @Inject constructor(
 
         private val LOG_TAG: String = KeysManager::class.java.simpleName
 
+        private const val PKG_START = "org.mtransit.android"
+        private const val GTFS_RT_END = "gtfs.realtime"
+        private const val OBA_END = "oba"
+
         private val debugS = if (BuildConfig.DEBUG) ".debug" else ""
 
         @JvmStatic
@@ -27,7 +31,8 @@ class KeysManager @Inject constructor(
             KeysIds.GOOGLE_PLACES_API_KEY -> context.resources.getStringArray(R.array.google_places_api_key).join()
             KeysIds.TWITTER_BEARER_TOKEN -> context.resources.getStringArray(R.array.twitter_bearer_token).join()
             KeysIds.YOUTUBE_API_KEY -> context.resources.getStringArray(R.array.youtube_api_key).join()
-            KeysIds.CA_WINNIPEG_TRANSIT_API -> context.resources.getStringArray(R.array.ca_winnipeg_transit_api_key).join()
+            KeysIds.CA_SUDBURY_TRANSIT_AUTH_TOKEN -> context.resources.getStringArray(R.array.greater_sudbury_auth_token).join()
+            KeysIds.CA_WINNIPEG_TRANSIT_API_KEY -> context.resources.getStringArray(R.array.ca_winnipeg_transit_api_key).join()
             else -> {
                 MTLog.w(LOG_TAG, "Unexpected '$key'!")
                 null
@@ -44,39 +49,39 @@ class KeysManager @Inject constructor(
             authority.endsWith("$debugS.news.twitter") -> getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)?.let { mapOf(it) }
             authority.endsWith("$debugS.news.youtube") -> getKeyEntry(context, KeysIds.YOUTUBE_API_KEY)?.let { mapOf(it) }
             // GTFS
-            authority.endsWith("$debugS.gtfs.realtime") -> {
+            authority.endsWith("$debugS.$GTFS_RT_END") -> {
                 when (authority) {
-                    "org.mtransit.android.ca_gatineau_sto_bus$debugS.gtfs.realtime" -> {
+                    "$PKG_START.ca_gatineau_sto_bus$debugS.$GTFS_RT_END" -> {
                         mapOf(
                             KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_sto_ca).join(),
                             KeysIds.GTFS_REAL_TIME_URL_SECRET to context.resources.getStringArray(R.array.gtfs_real_time_url_secret_sto_ca).join()
                         )
                     }
 
-                    "org.mtransit.android.ca_gtha_go_transit_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_gtha_go_transit_train$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_gta_up_express_train$debugS.gtfs.realtime" -> {
+                    "$PKG_START.ca_gtha_go_transit_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_gtha_go_transit_train$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_gta_up_express_train$debugS.$GTFS_RT_END" -> {
                         mapOf(KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_openmetrolinx_com).join())
                     }
 
-                    "org.mtransit.android.ca_vancouver_translink_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_vancouver_translink_ferry2$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_vancouver_translink_train$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_west_coast_express_train$debugS.gtfs.realtime" -> {
+                    "$PKG_START.ca_vancouver_translink_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_vancouver_translink_ferry2$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_vancouver_translink_train$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_west_coast_express_train$debugS.$GTFS_RT_END" -> {
                         mapOf(KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_translink_ca).join())
                     }
 
-                    "org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_l_assomption_mrclasso_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_la_presqu_ile_citpi_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_laurentides_citla_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_le_richelain_citlr_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_les_moulins_mrclm_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_montreal_amt_train$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_richelieu_citvr_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_sorel_varennes_citsv_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_ste_julie_omitsju_bus$debugS.gtfs.realtime",
-                    "org.mtransit.android.ca_sud_ouest_citso_bus$debugS.gtfs.realtime"
+                    "$PKG_START.ca_chambly_richelieu_carignan_citcrc_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_l_assomption_mrclasso_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_la_presqu_ile_citpi_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_laurentides_citla_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_le_richelain_citlr_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_les_moulins_mrclm_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_montreal_amt_train$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_richelieu_citvr_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_sorel_varennes_citsv_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_ste_julie_omitsju_bus$debugS.$GTFS_RT_END",
+                    "$PKG_START.ca_sud_ouest_citso_bus$debugS.$GTFS_RT_END"
                         -> {
                         mapOf(KeysIds.GTFS_REAL_TIME_URL_TOKEN to context.resources.getStringArray(R.array.gtfs_real_time_url_token_exo_quebec).join())
                     }
@@ -87,8 +92,23 @@ class KeysManager @Inject constructor(
                     }
                 }
             }
+            // ONE BUS AWAY
+            authority.endsWith("$debugS.$OBA_END") -> {
+                when (authority) {
+                    "$PKG_START.ca_york_region_yrt_viva_bus$debugS.$OBA_END" -> {
+                        mapOf(
+                            KeysIds.ONE_BUS_AWAY_API_KEY to context.resources.getStringArray(R.array.one_bus_away_api_key_yrt_ca).join()
+                        )
+                    }
+
+                    else -> {
+                        MTLog.d(LOG_TAG, "Unexpected '$authority'!")
+                        null
+                    }
+                }
+            }
             // CUSTOM
-            authority.endsWith("$debugS.winnipeg_transit") -> getKeyEntry(context, KeysIds.CA_WINNIPEG_TRANSIT_API)?.let { mapOf(it) }
+            authority.endsWith("$debugS.winnipeg_transit") -> getKeyEntry(context, KeysIds.CA_WINNIPEG_TRANSIT_API_KEY)?.let { mapOf(it) }
             else -> {
                 MTLog.d(LOG_TAG, "Unexpected '$authority'!")
                 null
