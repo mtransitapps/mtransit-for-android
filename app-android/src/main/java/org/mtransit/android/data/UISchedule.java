@@ -353,8 +353,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		super(status, providerPrecisionInMs, noPickup);
 	}
 
-	UISchedule(@Nullable Integer id, @NonNull String targetUUID, long lastUpdateInMs, long maxValidityInMs, long readFromSourceAtInMs, long providerPrecisionInMs, boolean noPickup, boolean noData) {
-		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, noData);
+	UISchedule(@Nullable Integer id, @NonNull String targetUUID, long lastUpdateInMs, long maxValidityInMs, long readFromSourceAtInMs, long providerPrecisionInMs,
+			   boolean noPickup, @Nullable String sourceLabel, boolean noData) {
+		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, noData);
 	}
 
 	@Nullable
@@ -873,7 +874,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			return;
 		}
 		if (isNoPickup()) { // DESCENT ONLY
-			if (this.statusStrings == null || this.statusStrings.size() == 0) {
+			if (this.statusStrings == null || this.statusStrings.isEmpty()) {
 				generateStatusStringsNoPickup(context);
 			} // ELSE descent only already set
 			this.statusStringsTimestamp = after;
@@ -886,14 +887,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			return;
 		}
 		ArrayList<Timestamp> nextTimestamps = getStatusNextTimestamps(after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
-		if (nextTimestamps.size() == 0) { // NO SERVICE
+		if (nextTimestamps.isEmpty()) { // NO SERVICE
 			generateStatusStringsNoService(context);
 			this.statusStringsTimestamp = after;
 			return;
 		}
 		CollectionUtils.removeIfNN(nextTimestamps, Timestamp::isNoPickup);
-		if (nextTimestamps.size() == 0) { // DESCENT ONLY SERVICE
-			if (this.statusStrings == null || this.statusStrings.size() == 0) {
+		if (nextTimestamps.isEmpty()) { // DESCENT ONLY SERVICE
+			if (this.statusStrings == null || this.statusStrings.isEmpty()) {
 				generateStatusStringsNoPickup(context);
 			} // ELSE descent only already set
 			this.statusStringsTimestamp = after;
@@ -919,7 +920,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	static ArrayList<Timestamp> filterStatusNextTimestampsTimes(@NonNull ArrayList<Timestamp> nextTimestampList) {
 		ArrayList<Timestamp> nextTimestampsT = new ArrayList<>();
 		Long lastTimestamp = null;
-		if (nextTimestampList.size() > 0) {
+		if (!nextTimestampList.isEmpty()) {
 			for (Timestamp timestamp : nextTimestampList) {
 				if (nextTimestampsT.contains(timestamp)) {
 					continue; // skip duplicate time
@@ -943,7 +944,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 												 @Nullable Integer optMaxCount) {
 		final long usefulPastInMs = Math.max(MAX_LAST_STATUS_DIFF_IN_MS, getUIProviderPrecisionInMs());
 		ArrayList<Timestamp> nextTimestampsT = getNextTimestamps(after - usefulPastInMs, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
-		if (nextTimestampsT.size() > 0) {
+		if (!nextTimestampsT.isEmpty()) {
 			Long theNextTimestamp = null;
 			Long thePreviousTimestamp = null;
 			for (Timestamp timestamp : nextTimestampsT) {

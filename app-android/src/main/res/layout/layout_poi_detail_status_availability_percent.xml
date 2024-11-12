@@ -18,6 +18,7 @@
         android:paddingBottom="8dp"
         android:visibility="visible">
 
+        <!-- TODO Dots? -->
         <ProgressBar
             android:id="@+id/progress_bar"
             style="?android:attr/progressBarStyleHorizontal"
@@ -61,6 +62,23 @@
             android:text="@string/ellipsis"
             android:textAppearance="?android:attr/textAppearanceMedium"
             tools:text="00 docks" />
+
+        <TextView
+            android:id="@+id/source_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/progress_text1_sub_value1"
+            android:alpha="0.3"
+            android:gravity="end"
+            android:includeFontPadding="false"
+            android:paddingHorizontal="@dimen/baseline_2"
+            android:paddingTop="@dimen/baseline_4"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorTertiary"
+            android:textSize="@dimen/text_size_extra_small"
+            android:visibility="gone"
+            tools:text="Source: api.com"
+            tools:visibility="visible" />
 
     </RelativeLayout>
 

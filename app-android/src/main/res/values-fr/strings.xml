@@ -288,4 +288,10 @@
     <string name="location_permission_rationale_message">MonTransit a besoin de la position exacte de votre appareil pour afficher des informations de transport en commun pertinentes dans différents écrans :\nAccueil, À Proximité, Carte …</string>
     <string name="location_permission_rationale_ok">Ok</string>
     <string name="location_permission_rationale_cancel">Annuler</string>
+
+    <plurals name="source_label_and_sources">
+        <item quantity="one">Source : %s</item>
+        <item quantity="other">Sources : %s</item>
+        <item quantity="many">Sources : %s</item>
+    </plurals>
 </resources>

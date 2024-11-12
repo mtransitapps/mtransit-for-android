@@ -83,6 +83,9 @@ object BatteryOptimizationIssueUtils {
     private val INVISIBLE_ACTIVITY_MIN_OPEN_MS = if (BuildConfig.DEBUG) TimeUnit.MINUTES.toMillis(15L) else
         TimeUnit.DAYS.toMillis(14L) // TODO longer?
 
+    private fun isInvisibleActivityEnabled() = BuildConfig.DEBUG
+            || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU)
+
     @JvmStatic
     fun onAppResumeInvisibleActivity(
         context: Context,
@@ -90,9 +93,7 @@ object BatteryOptimizationIssueUtils {
         dataSourceRepository: DataSourcesRepository,
         lclPrefRepository: LocalPreferenceRepository
     ) {
-        if (!(BuildConfig.DEBUG
-                    || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU))
-        ) {
+        if (!isInvisibleActivityEnabled()) {
             return // SKIP not-debug && not-Samsung < Android 13 (ignore Android 14+ for now)
         }
         try {

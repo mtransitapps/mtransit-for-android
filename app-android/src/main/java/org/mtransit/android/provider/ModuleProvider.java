@@ -474,13 +474,16 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			);
 		}
 		return new AppStatus(
+				null,
 				filter.getTargetUUID(),
 				newLastUpdateInMs,
 				getStatusMaxValidityInMs(),
 				newLastUpdateInMs,
 				appInstalled,
 				appEnabled,
-				updateAvailable
+				updateAvailable,
+				context.getString(org.mtransit.android.commons.R.string.google_play),
+				false
 		);
 	}
 

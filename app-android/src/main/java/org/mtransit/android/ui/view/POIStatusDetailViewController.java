@@ -33,6 +33,7 @@ import org.mtransit.android.data.UISchedule.DetailsNextDepartures;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusAppBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusAvailabilityPercentBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
+import org.mtransit.android.ui.common.UISourceLabelUtils;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -128,6 +129,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 														  @NonNull POIDataProvider dataProvider) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
 		initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, view);
+		availabilityPercentStatusViewHolder.sourceLabelTv = view.findViewById(R.id.source_label);
 		availabilityPercentStatusViewHolder.textTv1 = view.findViewById(R.id.progress_text1);
 		availabilityPercentStatusViewHolder.textTv1SubValue1 = view.findViewById(R.id.progress_text1_sub_value1);
 		availabilityPercentStatusViewHolder.textTv2 = view.findViewById(R.id.progress_text2);
@@ -144,6 +146,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	private static void initScheduleViewHolder(@NonNull View view) {
 		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
 		initCommonStatusViewHolderHolder(scheduleStatusViewHolder, view);
+		scheduleStatusViewHolder.sourceLabelTv = view.findViewById(R.id.source_label);
 		scheduleStatusViewHolder.nextDeparturesLL = view.findViewById(R.id.next_departures_layout);
 		view.setTag(scheduleStatusViewHolder);
 	}
@@ -270,7 +273,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		updateView(view.getContext(), holder, poiStatusType, poiStatus, poi, dataProvider);
 	}
 
-	public static void updateView(@NonNull Context context,
+	private static void updateView(@NonNull Context context,
 								  @Nullable CommonStatusViewHolder statusViewHolder,
 								  int poiStatusType,
 								  @Nullable POIStatus poiStatus,
@@ -301,7 +304,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updateView(@NonNull Context context,
+	private static void updateView(@NonNull Context context,
 								  @Nullable CommonStatusViewHolder statusViewHolder,
 								  @NonNull POIManager poim,
 								  @NonNull POIDataProvider dataProvider) {
@@ -337,7 +340,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 											POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AppStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
-			updateAppStatusView(context, statusViewHolder, poim.getStatus(context, dataProvider.providesStatusLoader()));
+			updateAppStatusView(context, statusViewHolder, poim.getStatus(dataProvider.providesStatusLoader()));
 		} else {
 			setStatusView(statusViewHolder, false);
 		}
@@ -372,7 +375,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 													  @NonNull POIDataProvider dataProvider) {
 		if (dataProvider.isShowingStatus() && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
-			updateAvailabilityPercentView(context, statusViewHolder, poim.getStatus(context, dataProvider.providesStatusLoader()));
+			updateAvailabilityPercentView(context, statusViewHolder, poim.getStatus(dataProvider.providesStatusLoader()));
 		} else {
 			setStatusView(statusViewHolder, false);
 		}
@@ -422,6 +425,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		} else {
 			setStatusView(statusViewHolder, false);
 		}
+		UISourceLabelUtils.setSourceLabelTextView(availabilityPercentStatusViewHolder.sourceLabelTv, status);
 	}
 
 	private static void updateScheduleView(Context context,
@@ -430,7 +434,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 										   POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof ScheduleStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
-			updateScheduleView(context, statusViewHolder, poim.getStatus(context, dataProvider.providesStatusLoader()), dataProvider, poim);
+			updateScheduleView(context, statusViewHolder, poim.getStatus(dataProvider.providesStatusLoader()), dataProvider, poim);
 		} else {
 			setStatusView(statusViewHolder, false);
 		}
@@ -523,7 +527,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			}
 		}
 		scheduleStatusViewHolder.nextDeparturesLL.setVisibility(View.VISIBLE);
-		setStatusView(statusViewHolder, nextDeparturesList != null && nextDeparturesList.size() > 0);
+		UISourceLabelUtils.setSourceLabelTextView(scheduleStatusViewHolder.sourceLabelTv, status);
+		setStatusView(statusViewHolder, nextDeparturesList != null && !nextDeparturesList.isEmpty());
 	}
 
 	private static final RelativeSizeSpan SCHEDULE_SPACE_SIZE = SpanUtils.getNew200PercentSizeSpan();
@@ -584,6 +589,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static class AvailabilityPercentStatusViewHolder extends CommonStatusViewHolder {
+		TextView sourceLabelTv;
 		TextView textTv1;
 		TextView textTv1SubValue1;
 		TextView textTv2;
@@ -595,6 +601,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static class ScheduleStatusViewHolder extends CommonStatusViewHolder {
+		TextView sourceLabelTv;
 		LinearLayout nextDeparturesLL;
 	}
 }

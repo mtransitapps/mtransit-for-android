@@ -1,26 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <include layout="@layout/layout_poi_detail_status_schedule_title" />
 
-    <HorizontalScrollView
-        android:id="@+id/next_departures_scroll_view"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/color_surface_rounded"
-        android:minHeight="?android:attr/listPreferredItemHeightLarge"
-        android:scrollbars="none">
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/next_departures_layout"
-            android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:id="@+id/next_departures_scroll_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:scrollHorizontally="true" />
+            android:minHeight="?android:attr/listPreferredItemHeightLarge"
+            android:scrollbars="none">
 
-    </HorizontalScrollView>
+            <LinearLayout
+                android:id="@+id/next_departures_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:scrollHorizontally="true" />
+
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/source_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.3"
+            android:gravity="end"
+            android:includeFontPadding="false"
+            android:paddingHorizontal="@dimen/baseline_8"
+            android:paddingTop="@dimen/baseline_4"
+            android:paddingBottom="@dimen/baseline_4"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorTertiary"
+            android:textSize="@dimen/text_size_extra_small"
+            android:visibility="gone"
+            tools:text="Source: api.com"
+            tools:visibility="visible" />
+
+    </LinearLayout>
 
 </LinearLayout>

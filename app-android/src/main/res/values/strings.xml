@@ -280,4 +280,9 @@
     <string name="location_permission_rationale_message">MonTransit needs your precise device location to show you relevant transit information in various screens:\nHome, Nearby, Map…</string>
     <string name="location_permission_rationale_ok">OK</string>
     <string name="location_permission_rationale_cancel">Cancel</string>
+
+    <plurals name="source_label_and_sources">
+        <item quantity="one">Source: %s</item>
+        <item quantity="other">Sources: %s</item>
+    </plurals>
 </resources>

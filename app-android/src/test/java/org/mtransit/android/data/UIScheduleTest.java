@@ -197,7 +197,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetNextTimestamps() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-5L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -214,7 +214,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulLast() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L)));
@@ -231,7 +231,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetStatusNextTimestampsWithUselessLast() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-10L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L)));
@@ -248,7 +248,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetStatusNextTimestampsWithMultipleUsefulLast() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-3L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -266,7 +266,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulLastDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
@@ -286,7 +286,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulNextDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-20L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -305,7 +305,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulNearDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L) - 1L));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -325,7 +325,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulNextNearDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-10L) - 1L));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-10L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -346,7 +346,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetStatusNextTimestampsWithBusAtStop() { // fails if timestamp times are NOT to the minute
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(0L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(3L)));
@@ -366,7 +366,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetStatusNextTimestampsWithNearDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(2L)));
