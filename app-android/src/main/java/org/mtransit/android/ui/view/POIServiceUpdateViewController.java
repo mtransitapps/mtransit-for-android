@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.view;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.TextView;
@@ -18,6 +17,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.databinding.LayoutPoiServiceUpdateBinding;
+import org.mtransit.android.ui.common.UISourceLabelUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.commons.CollectionUtils;
 
@@ -48,7 +48,8 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 	public static void initViewHolder(@NonNull View view) {
 		ServiceUpdatesListViewHolder serviceUpdatesListViewHolder = new ServiceUpdatesListViewHolder();
 		serviceUpdatesListViewHolder.layout = view;
-		serviceUpdatesListViewHolder.messagesTv = (TextView) view;
+		serviceUpdatesListViewHolder.messagesTv = view.findViewById(R.id.service_update_text);
+		serviceUpdatesListViewHolder.sourceLabelTv = view.findViewById(R.id.source_label);
 		view.setTag(serviceUpdatesListViewHolder);
 	}
 
@@ -145,7 +146,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 				updateServiceUpdatesView(
 						context,
 						serviceUpdatesListViewHolder,
-						poim.getServiceUpdates(context, dataProvider.providesServiceUpdateLoader()),
+						poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader()),
 						dataProvider
 				);
 			} else {
@@ -164,10 +165,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 			StringBuilder ssb = new StringBuilder();
 			if (serviceUpdates != null) {
 				for (ServiceUpdate serviceUpdate : serviceUpdates) {
-					if (serviceUpdate.getSeverity() == ServiceUpdate.SEVERITY_NONE) {
-						continue;
-					}
-					if (TextUtils.isEmpty(serviceUpdate.getText()) && TextUtils.isEmpty(serviceUpdate.getTextHTML())) {
+					if (!serviceUpdate.shouldDisplay()) {
 						continue;
 					}
 					if (ssb.length() > 0) {
@@ -198,10 +196,12 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		} else {
 			serviceUpdatesListViewHolder.layout.setVisibility(View.VISIBLE);
 		}
+		UISourceLabelUtils.setSourceLabelTextView(serviceUpdatesListViewHolder.sourceLabelTv, serviceUpdates);
 	}
 
 	private static class ServiceUpdatesListViewHolder {
 		View layout;
 		TextView messagesTv;
+		TextView sourceLabelTv;
 	}
 }

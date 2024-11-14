@@ -1,12 +1,39 @@
 package org.mtransit.android.ui.common
 
-import org.mtransit.android.R
 import android.content.Context
 import android.widget.TextView
+import org.mtransit.android.R
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POIStatus
+import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.ui.view.common.textAndVisibility
+import java.net.URL
 
-object UISourceLabelUtils {
+object UISourceLabelUtils : MTLog.Loggable {
+
+    private val LOG_TAG: String = UISourceLabelUtils::class.java.simpleName
+
+    override fun getLogTag() = LOG_TAG
+
+    @JvmStatic
+    fun setSourceLabelTextView(textView: TextView, serviceUpdates: Iterable<ServiceUpdate>?) {
+        serviceUpdates
+            ?.filter { it.shouldDisplay() }
+            ?.map { it.sourceLabel }
+            ?.filter { isUrl(it) }
+            ?.let {
+                setSourceLabelTextView(textView, *it.toTypedArray())
+            }
+    }
+
+    // TODO remove 3 months after shipping to prod (2025-03+)
+    private fun isUrl(sourceLabel: String) = try {
+        URL(sourceLabel)
+        true
+    } catch (_: Exception) {
+        MTLog.d(this, "Source label '$sourceLabel' is not a valid URL. (expected w/ old sources)")
+        false
+    }
 
     @JvmStatic
     fun setSourceLabelTextView(textView: TextView, status: POIStatus?) = setSourceLabelTextView(textView, status?.sourceLabel)
@@ -20,6 +47,7 @@ object UISourceLabelUtils {
     fun getSourceLabelText(context: Context, vararg sourceLabels: String?) = sourceLabels
         .filter { it?.isNotBlank() == true }
         .takeIf { it.isNotEmpty() }
+        ?.distinct()
         ?.let {
             context.resources.getQuantityString(
                 R.plurals.source_label_and_sources,

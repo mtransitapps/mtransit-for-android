@@ -60,6 +60,7 @@ data class POIServiceUpdateViewHolder(
     }
 
     companion object {
+
         private val LOG_TAG: String = POIServiceUpdateViewHolder::class.java.simpleName
 
         @JvmStatic

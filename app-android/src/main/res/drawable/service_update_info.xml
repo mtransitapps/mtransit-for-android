@@ -4,11 +4,9 @@
     <item android:drawable="@drawable/color_surface_rounded" />
 
     <item
-        android:bottom="@dimen/baseline_16"
         android:drawable="@drawable/ic_info_outline_on_surface_16dp"
         android:gravity="top|left"
-        android:left="@dimen/baseline_16"
         android:right="@dimen/baseline_8"
-        android:top="20dp" />
+        android:top="@dimen/baseline_4" />
 
 </layer-list>

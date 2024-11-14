@@ -23,4 +23,5 @@
         android:visibility="visible"
         tools:text="AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY "
         tools:visibility="visible" />
+
 </LinearLayout>
