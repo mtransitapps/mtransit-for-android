@@ -79,7 +79,7 @@ class ScheduleViewModel @Inject constructor(
             dataSourceRemovedEvent.postValue(Event(true))
         })
 
-    val rts: LiveData<RouteTripStop?> = this.poim.map { it?.let { if (it.poi is RouteTripStop) it.poi else null } }
+    val rts: LiveData<RouteTripStop?> = this.poim.map { it?.poi as? RouteTripStop }
 
     private val _startsAtInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_START_AT_IN_MS)
 
@@ -119,6 +119,9 @@ class ScheduleViewModel @Inject constructor(
             }
         }
 
+    private val _sourceLabel = MutableLiveData<String?>(null)
+    val sourceLabel: LiveData<String?> = _sourceLabel
+
     private suspend fun getTimestamps(
         rts: RouteTripStop?,
         startsAtInMs: Long?,
@@ -137,10 +140,12 @@ class ScheduleViewModel @Inject constructor(
         scheduleProviders.forEach { scheduleProvider ->
             this.dataSourceRequestManager.findScheduleTimestamps(scheduleProvider.authority, scheduleFilter)?.let { scheduleTimestamps ->
                 if (scheduleTimestamps.timestampsCount > 0) {
+                    _sourceLabel.postValue(scheduleTimestamps.sourceLabel)
                     return scheduleTimestamps.timestamps
                 }
             }
         }
+        _sourceLabel.postValue(null)
         return emptyList() // loaded (not loading) == no service today
     }
 

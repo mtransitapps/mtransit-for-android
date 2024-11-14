@@ -27,6 +27,7 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparat
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleLoadingBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
+import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.Constants
@@ -242,7 +243,7 @@ class ScheduleAdapter
             val dayCal = UITimeUtils.getNewCalendar(dayBeginning)
             hourToTimes.forEach { hour, hourTimes ->
                 index++ // hour separator
-                if (hourTimes.size > 0) {
+                if (hourTimes.isNotEmpty()) {
                     dayCal[Calendar.HOUR_OF_DAY] = hour
                     thatDate = dayCal.time
                     if (date.equalOrAfter(thatDate)) {
@@ -548,7 +549,7 @@ class ScheduleAdapter
         private val deviceTimeZone = TimeZone.getDefault()
 
         val context: Context
-            get() = binding.root.context
+            get() = binding.context
 
         fun bind(
             timestamp: Schedule.Timestamp? = null,

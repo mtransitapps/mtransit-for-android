@@ -27,6 +27,7 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentScheduleInfiniteBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
@@ -138,6 +139,11 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
         viewModel.scrolledToNow.observe(viewLifecycleOwner) {
             // NOTHING
+        }
+        viewModel.sourceLabel.observe(viewLifecycleOwner) { sourceLabel ->
+            binding?.apply {
+                UISourceLabelUtils.setSourceLabelTextView(this.sourceLabel, sourceLabel)
+            }
         }
         viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
             val scrollPosition = (binding?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1

@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="false"
-    tools:background="@color/transparent"
     tools:context=".ui.MainActivity"
     tools:ignore="MergeRootFrame">
 

@@ -39,7 +39,7 @@ class KeysManager @Inject constructor(
             }
         }?.takeIf { it.isNotBlank() }
 
-        fun getKeyEntry(context: Context, key: String) = getKey(context, key)?.let { key to it }
+        private fun getKeyEntry(context: Context, key: String) = getKey(context, key)?.let { key to it }
 
         @JvmStatic
         fun getKeysMap(context: Context, authority: String): Map<String, String>? = when {
@@ -49,6 +49,8 @@ class KeysManager @Inject constructor(
             authority.endsWith("$debugS.news.twitter") -> getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)?.let { mapOf(it) }
             authority.endsWith("$debugS.news.youtube") -> getKeyEntry(context, KeysIds.YOUTUBE_API_KEY)?.let { mapOf(it) }
             // GTFS
+            authority.endsWith("$debugS.gtfs") -> null // no keys (static)
+            // GTFS-RT
             authority.endsWith("$debugS.$GTFS_RT_END") -> {
                 when (authority) {
                     "$PKG_START.ca_gatineau_sto_bus$debugS.$GTFS_RT_END" -> {

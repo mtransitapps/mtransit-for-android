@@ -2,12 +2,12 @@ package org.mtransit.android.ui.common
 
 import android.content.Context
 import android.widget.TextView
+import androidx.core.util.PatternsCompat
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.ui.view.common.textAndVisibility
-import java.net.URL
 
 object UISourceLabelUtils : MTLog.Loggable {
 
@@ -28,8 +28,7 @@ object UISourceLabelUtils : MTLog.Loggable {
 
     // TODO remove 3 months after shipping to prod (2025-03+)
     private fun isUrl(sourceLabel: String) = try {
-        URL(sourceLabel)
-        true
+        PatternsCompat.WEB_URL.matcher(sourceLabel).matches()
     } catch (_: Exception) {
         MTLog.d(this, "Source label '$sourceLabel' is not a valid URL. (expected w/ old sources)")
         false
