@@ -56,10 +56,10 @@ androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7
 androidx.lifecycle:lifecycle-viewmodel:2.8.7
 androidx.loader:loader:1.0.0
 androidx.localbroadcastmanager:localbroadcastmanager:1.0.0
-androidx.navigation:navigation-common:2.8.3
-androidx.navigation:navigation-fragment:2.8.3
-androidx.navigation:navigation-runtime:2.8.3
-androidx.navigation:navigation-ui:2.8.3
+androidx.navigation:navigation-common:2.8.4
+androidx.navigation:navigation-fragment:2.8.4
+androidx.navigation:navigation-runtime:2.8.4
+androidx.navigation:navigation-ui:2.8.4
 androidx.preference:preference-ktx:1.2.1
 androidx.preference:preference:1.2.1
 androidx.print:print:1.0.0
@@ -110,7 +110,7 @@ com.github.scribejava:scribejava-core:8.3.1
 com.github.scribejava:scribejava-java8:8.3.1
 com.google.ads.mediation:applovin:13.0.1.0
 com.google.ads.mediation:facebook:6.18.0.0
-com.google.ads.mediation:vungle:7.4.1.0
+com.google.ads.mediation:vungle:7.4.2.0
 com.google.android.datatransport:transport-api:3.2.0
 com.google.android.datatransport:transport-backend-cct:3.3.0
 com.google.android.datatransport:transport-runtime:3.3.0
@@ -182,7 +182,7 @@ com.squareup.retrofit2:converter-gson:2.11.0
 com.squareup.retrofit2:retrofit:2.11.0
 com.twitter:joauth:6.0.3
 com.twitter:twitter-api-java-sdk:2.0.3
-com.vungle:vungle-ads:7.4.1
+com.vungle:vungle-ads:7.4.2
 io.gsonfire:gson-fire:1.8.5
 io.swagger:swagger-annotations:1.6.5
 jakarta.inject:jakarta.inject-api:2.0.1
