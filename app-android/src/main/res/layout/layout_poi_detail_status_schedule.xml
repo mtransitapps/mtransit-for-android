@@ -30,6 +30,7 @@
 
         </HorizontalScrollView>
 
+        <!-- below horizontal list -->
         <TextView
             android:id="@+id/source_label"
             style="@style/MTTextSourceLabel"
@@ -37,7 +38,7 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/baseline_8"
             android:paddingTop="@dimen/baseline_2"
-            android:paddingBottom="@dimen/baseline_4"
+            android:paddingBottom="@dimen/baseline_2"
             android:visibility="gone"
             tools:text="Source: api.com"
             tools:visibility="visible" />

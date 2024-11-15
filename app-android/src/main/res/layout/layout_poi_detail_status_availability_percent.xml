@@ -13,9 +13,9 @@
         android:background="@drawable/color_surface_rounded"
         android:minHeight="@dimen/list_view_item_height"
         android:paddingStart="16dp"
-        android:paddingTop="8dp"
+        android:paddingTop="12dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
+        android:paddingBottom="0dp"
         android:visibility="visible">
 
         <!-- TODO Dots? -->
@@ -26,7 +26,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:indeterminate="true"
-            android:visibility="visible" />
+            android:visibility="visible"
+            tools:indeterminate="false"
+            tools:progress="30" />
 
         <TextView
             android:id="@+id/progress_text1"
@@ -34,7 +36,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/progress_bar"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="2dp"
             android:text="@string/ellipsis"
             android:textAppearance="?android:attr/textAppearanceMedium"
             tools:text="00 bikes" />
@@ -45,7 +46,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/progress_text1"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="2dp"
             android:text=""
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:visibility="gone"
@@ -58,19 +58,24 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/progress_bar"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="2dp"
             android:text="@string/ellipsis"
             android:textAppearance="?android:attr/textAppearanceMedium"
             tools:text="00 docks" />
 
+        <View
+            android:id="@+id/bottom_padding"
+            android:layout_width="match_parent"
+            android:layout_height="12dp"
+            android:layout_below="@id/progress_text1_sub_value1" />
+
+        <!-- ON TOP of padding -->
         <TextView
             android:id="@+id/source_label"
             style="@style/MTTextSourceLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/progress_text1_sub_value1"
-            android:paddingHorizontal="@dimen/baseline_2"
-            android:paddingTop="@dimen/baseline_2"
+            android:layout_alignTop="@id/bottom_padding"
+            android:paddingBottom="@dimen/baseline_2"
             android:visibility="gone"
             tools:text="Source: api.com"
             tools:visibility="visible" />
