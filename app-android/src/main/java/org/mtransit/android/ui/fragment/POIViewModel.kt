@@ -33,8 +33,6 @@ import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIConnectionComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
-import org.mtransit.android.data.shortUUIDAndDistance
-import org.mtransit.android.data.uuidAndDistance
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.datasource.POIRepository

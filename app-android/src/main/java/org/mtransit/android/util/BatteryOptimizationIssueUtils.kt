@@ -80,8 +80,11 @@ object BatteryOptimizationIssueUtils {
 
     // region invisible activity
 
-    private val INVISIBLE_ACTIVITY_MIN_OPEN_MS = if (BuildConfig.DEBUG) TimeUnit.MINUTES.toMillis(15L) else
-        TimeUnit.DAYS.toMillis(14L) // TODO longer?
+    private const val ANY = "any"
+
+    private val INVISIBLE_ACTIVITY_ANY_MIN_OPEN_MS = TimeUnit.HOURS.toMillis(1L)
+
+    private val INVISIBLE_ACTIVITY_MIN_OPEN_MS = TimeUnit.DAYS.toMillis(7L)
 
     private fun isInvisibleActivityEnabled() = BuildConfig.DEBUG
             || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU)
@@ -99,6 +102,16 @@ object BatteryOptimizationIssueUtils {
         try {
             lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val nowMs = TimeUtils.currentTimeMillis()
+
+                val anyLastAgencyInvisibleActivityOpenedMs = lclPrefRepository.getValue( // I/O
+                    LocalPreferenceRepository.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(ANY),
+                    nowMs // not the 1st time
+                )
+                if (nowMs - anyLastAgencyInvisibleActivityOpenedMs < INVISIBLE_ACTIVITY_ANY_MIN_OPEN_MS) {
+                    MTLog.d(LOG_TAG, "onAppResumeInvisibleActivity() > SKIP (any)")
+                    return@launch // SKIP (too soon)
+                }
+
                 dataSourceRepository
                     .getAllAgenciesEnabled()
                     .filter { it.pkg != context.packageName }
@@ -114,6 +127,10 @@ object BatteryOptimizationIssueUtils {
                             return@withContext openInvisibleActivity(context, agency.pkg)
                         }
                         lclPrefRepository.pref.edit {
+                            putLong(
+                                LocalPreferenceRepository.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(ANY),
+                                nowMs
+                            )
                             putLong(
                                 LocalPreferenceRepository.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(agency.authority),
                                 nowMs

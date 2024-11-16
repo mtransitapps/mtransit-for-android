@@ -32,7 +32,7 @@
                 android:visibility="gone"
                 app:shapeAppearance="@style/MTShapeAppearanceFull"
                 tools:src="@tools:sample/backgrounds/scenic"
-                tools:visibility="visible" />
+                tools:visibility="gone" />
 
             <org.mtransit.android.ui.view.common.NestedScrollableHost
                 android:id="@+id/thumbnails_list_container"
@@ -61,12 +61,23 @@
 
             </org.mtransit.android.ui.view.common.NestedScrollableHost>
 
+            <!-- size between landscape, square & portrait video format -->
+            <WebView
+                android:id="@+id/thumbnail_web_view"
+                android:layout_width="match_parent"
+                android:layout_height="360dp"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_below="@id/thumbnails_list_container"
+                android:visibility="gone"
+                tools:ignore="WebViewLayout"
+                tools:visibility="visible" />
+
             <View
                 android:id="@+id/no_thumbnail_space"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/baseline_16"
                 android:layout_alignWithParentIfMissing="true"
-                android:layout_below="@id/thumbnails_list_container"
+                android:layout_below="@id/thumbnail_web_view"
                 android:layout_alignParentTop="true"
                 android:visibility="gone"
                 tools:visibility="gone" />

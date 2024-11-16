@@ -1,15 +1,19 @@
 @file:JvmName("NewsDetailsFragment") // ANALYTICS
 package org.mtransit.android.ui.news.details
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.webkit.WebViewClientCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
@@ -19,6 +23,9 @@ import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
 import org.mtransit.android.data.imageUrls
+import org.mtransit.android.data.isYouTubeVideo
+import org.mtransit.android.data.makeYouTubeEmbedVideoPlayerUrl
+import org.mtransit.android.data.youTubeVideoId
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
@@ -90,6 +97,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
             Locale.getDefault()
         ).also { dateTimeFormat = it }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MTTransitions.setContainerTransformTransition(this)
@@ -120,34 +128,61 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         binding?.apply {
             newsArticle?.let { newsArticle ->
                 MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
-                when (newsArticle.imageURLsCount) {
-                    0 -> {
-                        thumbnail.isVisible = false
-                        imageManager.clear(thumbnail.context, thumbnail)
-
+                when {
+                    newsArticle.isYouTubeVideo -> {
+                        thumbnail.apply {
+                            isVisible = false
+                            imageManager.clear(context, this)
+                        }
                         thumbnailsListContainer.isVisible = false
+                        noThumbnailSpace.isVisible = false
+
+                        thumbnailWebView.apply {
+                            setupWebView(this)
+                            newsArticle.youTubeVideoId?.let { videoId ->
+                                makeYouTubeEmbedVideoPlayerUrl(videoId, false).let { newUrl ->
+                                    if (this.url != newUrl) {
+                                        // TODO ? loadUrl("about:blank")
+                                        loadUrl(newUrl)
+                                    }
+                                }
+                            }
+                            isVisible = true
+                        }
+                    }
+
+                    newsArticle.imageURLsCount == 0 -> {
+                        thumbnail.apply {
+                            isVisible = false
+                            imageManager.clear(context, this)
+                        }
+                        thumbnailsListContainer.isVisible = false
+                        thumbnailWebView.isVisible = false
 
                         noThumbnailSpace.isVisible = true
                     }
 
-                    1 -> {
+                    newsArticle.imageURLsCount == 1 -> {
                         noThumbnailSpace.isVisible = false
-
                         thumbnailsListContainer.isVisible = false
+                        thumbnailWebView.isVisible = false
 
-                        imageManager.loadInto(thumbnail.context, newsArticle.firstValidImageUrl, thumbnail)
-                        thumbnail.isVisible = true
-                        thumbnail.setOnClickListener {
-                            LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), true)
+                        thumbnail.apply {
+                            imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
+                            isVisible = true
+                            setOnClickListener { view ->
+                                LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), true)
+                            }
                         }
                     }
 
-                    else -> {
+                    else -> { // newsArticle.imageURLsCount > 1
                         noThumbnailSpace.isVisible = false
-
-                        thumbnail.isVisible = false
-                        imageManager.clear(thumbnail.context, thumbnail)
-
+                        thumbnail.apply {
+                            isVisible = false
+                            imageManager.clear(context, this)
+                        }
+                        thumbnailWebView.isVisible = false
 
                         thumbnailsListAdapter.submitList(newsArticle.imageUrls)
                         thumbnailsListContainer.isVisible = true
@@ -208,15 +243,39 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         }
     }
 
+    private var webViewSetup = false
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupWebView(webView: WebView) {
+        if (webViewSetup) return
+        webView.apply {
+            settings.apply {
+                javaScriptEnabled = true
+                setSupportZoom(false)
+                builtInZoomControls = false
+                displayZoomControls = false
+            }
+            webViewClient = object : WebViewClientCompat() {
+                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                    LinkUtils.open(view, requireActivity(), request.url.toString(), getString(commonsR.string.web_browser), true)
+                    return true // handled
+                }
+            }
+        }
+        webViewSetup = true
+    }
+
     override fun onResume() {
         super.onResume()
         updateNewsView()
         enableTimeChangedReceiver()
+        binding?.thumbnailWebView?.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         disableTimeChangedReceiver()
+        binding?.thumbnailWebView?.onPause()
     }
 
     private fun enableTimeChangedReceiver() {
@@ -242,6 +301,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding?.thumbnailWebView?.destroy()
         binding = null
     }
 }
