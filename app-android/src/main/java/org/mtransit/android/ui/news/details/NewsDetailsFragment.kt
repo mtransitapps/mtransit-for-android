@@ -141,7 +141,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                             setupWebView(this)
                             newsArticle.youTubeVideoId?.let { videoId ->
                                 makeYouTubeEmbedVideoPlayerUrl(videoId, false).let { newUrl ->
-                                    if (this.url != newUrl) {
+                                    if (url != newUrl) {
                                         // TODO ? loadUrl("about:blank")
                                         loadUrl(newUrl)
                                     }
