@@ -158,7 +158,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                         thumbnailWebView.apply {
                             setupWebView(this)
                             newsArticle.getTwitterVideoId()?.let { videoId ->
-                                makeTwitterEmbedVideoPlayerUrl(videoId, false).let { newUrl ->
+                                makeTwitterEmbedVideoPlayerUrl(videoId).let { newUrl ->
                                     if (url != newUrl) {
                                         loadUrl(newUrl)
                                     }
