@@ -3,6 +3,7 @@ package org.mtransit.android.ui.news.details
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -23,10 +24,13 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
+import org.mtransit.android.data.getTwitterVideoId
+import org.mtransit.android.data.getYouTubeVideoId
 import org.mtransit.android.data.imageUrls
+import org.mtransit.android.data.isTwitterVideo
 import org.mtransit.android.data.isYouTubeVideo
+import org.mtransit.android.data.makeTwitterEmbedVideoPlayerUrl
 import org.mtransit.android.data.makeYouTubeEmbedVideoPlayerUrl
-import org.mtransit.android.data.youTubeVideoId
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
@@ -143,6 +147,27 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
             newsArticle?.let { newsArticle ->
                 MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
                 when {
+                    newsArticle.isTwitterVideo -> {
+                        thumbnail.apply {
+                            isVisible = false
+                            imageManager.clear(context, this)
+                        }
+                        thumbnailsListContainer.isVisible = false
+                        noThumbnailSpace.isVisible = false
+
+                        thumbnailWebView.apply {
+                            setupWebView(this)
+                            newsArticle.getTwitterVideoId()?.let { videoId ->
+                                makeTwitterEmbedVideoPlayerUrl(videoId, false).let { newUrl ->
+                                    if (url != newUrl) {
+                                        loadUrl(newUrl)
+                                    }
+                                }
+                            }
+                            isVisible = true
+                        }
+                    }
+
                     newsArticle.isYouTubeVideo -> {
                         thumbnail.apply {
                             isVisible = false
@@ -153,10 +178,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
                         thumbnailWebView.apply {
                             setupWebView(this)
-                            newsArticle.youTubeVideoId?.let { videoId ->
+                            newsArticle.getYouTubeVideoId()?.let { videoId ->
                                 makeYouTubeEmbedVideoPlayerUrl(videoId, false).let { newUrl ->
                                     if (url != newUrl) {
-                                        // TODO ? loadUrl("about:blank")
                                         loadUrl(newUrl)
                                     }
                                 }
@@ -275,6 +299,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     return true // handled
                 }
             }
+            setBackgroundColor(Color.TRANSPARENT)
         }
         webViewSetup = true
     }
