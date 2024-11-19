@@ -7428,6 +7428,28 @@
 
     <issue
         id="DeprecatedCall"
+        message="android.webkit.WebView.onPause is deprecated; consider using an alternative."
+        errorLine1="                binding?.thumbnailWebView?.onPause()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/news/details/NewsDetailsFragment.kt"
+            line="134"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.webkit.WebView.onResume is deprecated; consider using an alternative."
+        errorLine1="                binding?.thumbnailWebView?.onResume()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/news/details/NewsDetailsFragment.kt"
+            line="136"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="android.webkit.WebView.getUrl is deprecated; consider using an alternative."
         errorLine1="                                    if (url != newUrl) {"
         errorLine2="                                        ~~~">
