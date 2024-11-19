@@ -10,8 +10,9 @@
 
 ## Screenshots
 
+<img width="50%" height="50%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/1.png"/>
+
 <p float="left">
-<img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/1.png"/>
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/2.png"/>
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/3.png"/>
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/4.png"/>
