@@ -134,13 +134,16 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         })
         parentViewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { authorityAndUuid ->
             if (authorityAndUuid == null) { // navigate back to list on phone
+                //noinspection DeprecatedCall
                 binding?.thumbnailWebView?.onPause()
             } else if (isResumed) {
+                //noinspection DeprecatedCall
                 binding?.thumbnailWebView?.onResume()
             }
         }
     }
 
+    @SuppressLint("DeprecatedCall")
     private fun updateNewsView(newsArticle: News? = viewModel.newsArticle.value) {
         _logTag = LOG_TAG + "-" + newsArticle?.uuid
         binding?.apply {
@@ -283,7 +286,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     private var webViewSetup = false
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled", "DeprecatedCall")
     private fun setupWebView(webView: WebView) {
         if (webViewSetup) return
         webView.apply {
@@ -308,12 +311,14 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         super.onResume()
         updateNewsView()
         enableTimeChangedReceiver()
+        //noinspection DeprecatedCall
         binding?.thumbnailWebView?.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         disableTimeChangedReceiver()
+        //noinspection DeprecatedCall
         binding?.thumbnailWebView?.onPause()
     }
 
@@ -340,6 +345,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        //noinspection DeprecatedCall
         binding?.thumbnailWebView?.destroy()
         binding = null
     }
