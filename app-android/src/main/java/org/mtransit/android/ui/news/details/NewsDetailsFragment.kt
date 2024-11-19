@@ -17,6 +17,7 @@ import androidx.webkit.WebViewClientCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.registerReceiverCompat
@@ -29,6 +30,7 @@ import org.mtransit.android.data.youTubeVideoId
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
+import org.mtransit.android.ui.news.NewsListViewModel
 import org.mtransit.android.ui.news.image.NewsImagesAdapter
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
@@ -74,12 +76,16 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         fun newInstanceArgs(authorityAndUuid: AuthorityAndUuid) = newInstanceArgs(authorityAndUuid.getAuthority().authority, authorityAndUuid.getUuid().uuid)
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    private var _logTag: String = LOG_TAG
+
+    override fun getLogTag(): String = _logTag
 
     @Inject
     lateinit var imageManager: ImageManager
 
     private val viewModel by viewModels<NewsDetailsViewModel>()
+
+    private val parentViewModel by viewModels<NewsListViewModel>({ requireParentFragment() })
 
     private var binding: FragmentNewsDetailsBinding? = null
 
@@ -122,9 +128,17 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
+        parentViewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { authorityAndUuid ->
+            if (authorityAndUuid == null) { // navigate back to list on phone
+                binding?.thumbnailWebView?.onPause()
+            } else if (isResumed) {
+                binding?.thumbnailWebView?.onResume()
+            }
+        }
     }
 
     private fun updateNewsView(newsArticle: News? = viewModel.newsArticle.value) {
+        _logTag = LOG_TAG + "-" + newsArticle?.uuid
         binding?.apply {
             newsArticle?.let { newsArticle ->
                 MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
