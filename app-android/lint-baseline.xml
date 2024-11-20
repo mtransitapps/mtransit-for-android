@@ -2731,28 +2731,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.initMap is deprecated; consider using an alternative."
-        errorLine1="  MapViewController.initMap(this);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/MTApplication.java"
-            line="63"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.initMap is deprecated; consider using an alternative."
-        errorLine1="  MapViewController.initMap(this);"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/MTApplication.java"
-            line="63"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="androidx.fragment.app.DialogFragment.onActivityCreated is deprecated; consider using an alternative."
         errorLine1="  super.onActivityCreated(savedInstanceState);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -4623,23 +4601,23 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.applyMapType is deprecated; consider using an alternative."
-        errorLine1="  applyMapType();"
-        errorLine2="  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
-            line="374"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.applyMapStyle is deprecated; consider using an alternative."
         errorLine1="  applyMapStyle();"
         errorLine2="  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
-            line="375"
+            line="354"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.applyMapType is deprecated; consider using an alternative."
+        errorLine1="  applyMapType();"
+        errorLine2="  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="355"
             column="3"/>
     </issue>
 
@@ -4931,24 +4909,35 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.getMapViewOrNull is deprecated; consider using an alternative."
-        errorLine1="  final MapView mapView = getMapViewOrNull(optView);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.view.MapViewController.getMapViewOrInit is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = optView == null ? getMapViewOrNull() : getMapViewOrInit(optView);"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
-            line="536"
-            column="27"/>
+            line="519"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.getMapViewOrInit is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = optView == null ? getMapViewOrNull() : getMapViewOrInit(optView);"
+        errorLine2="                                                                                  ~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="519"
+            column="83"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.getMapViewOrNull is deprecated; consider using an alternative."
-        errorLine1="  final MapView mapView = getMapViewOrNull(optView);"
-        errorLine2="                                           ~~~~~~~">
+        errorLine1="  final MapView mapView = optView == null ? getMapViewOrNull() : getMapViewOrInit(optView);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
-            line="536"
-            column="44"/>
+            line="519"
+            column="45"/>
     </issue>
 
     <issue
