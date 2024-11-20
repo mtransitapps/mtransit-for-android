@@ -251,7 +251,7 @@ class MapViewModel @Inject constructor(
 
     private fun loadPOIMarkers() {
         poiMarkersLoadJob?.cancel()
-        val reset: Boolean = _poiMarkersReset.value?.getContentIfNotHandled() ?: false
+        val reset: Boolean = _poiMarkersReset.value?.getContentIfNotHandled() == true
         if (reset) {
             _poiMarkers.value = null
         }

@@ -14,6 +14,9 @@
         "saturation": -100
       },
       {
+        "lightness": 50
+      },
+      {
         "visibility": "simplified"
       }
     ]
@@ -58,6 +61,14 @@
     "stylers": [
       {
         "color": "#757575"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.business",
+    "stylers": [
+      {
+        "visibility": "off"
       }
     ]
   },
@@ -125,19 +136,19 @@
     ]
   },
   {
+    "featureType": "transit",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
     "featureType": "transit.line",
     "elementType": "geometry",
     "stylers": [
       {
         "color": "#e5e5e5"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.station",
-    "stylers": [
-      {
-        "visibility": "off"
       }
     ]
   },

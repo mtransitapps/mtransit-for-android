@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.MainThread;
@@ -28,7 +27,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -71,9 +69,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("WeakerAccess")
 public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListener, ExtendedGoogleMap.OnInfoWindowClickListener,
 		ExtendedGoogleMap.OnMapLoadedCallback, ExtendedGoogleMap.OnMarkerClickListener, ExtendedGoogleMap.OnMyLocationButtonClickListener,
 		ExtendedGoogleMap.OnMapClickListener, LocationSource, OnMapReadyCallback, ViewTreeObserver.OnGlobalLayoutListener, MTLog.Loggable {
@@ -262,59 +262,39 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return this.mapView;
 	}
 
+	@MainThread
 	@Nullable
-	private MapView getMapViewOrNull(@Nullable View view) {
+	private MapView getMapViewOrInit(@NonNull View view) {
 		if (this.mapView == null) {
 			initMapViewAsync(view);
 		}
 		return this.mapView;
 	}
 
-	@AnyThread
-	public static void initMap(@NonNull Context context) {
-		MapsInitializer.initialize(context); // Initializes the Google Maps SDK for Android so that its classes are ready for use
-	}
-
-	private void initMapViewAsync(@Nullable View view) {
-		if (Boolean.TRUE.equals(this.initializingMapView)) {
+	@MainThread
+	private void initMapViewAsync(@NonNull View view) {
+		if (initializingMapView.getAndSet(true)) {
 			MTLog.d(this, "initMapViewAsync() > SKIP (already running)");
 			return;
 		}
-		if (view == null) {
-			MTLog.d(this, "initMapViewAsync() > SKIP (no view)");
-			return;
-		}
-		this.initializingMapView = true;
-		try { // Initializes the Google Maps SDK for Android so that its classes are ready for use
-			MapsInitializer.initialize(view.getContext().getApplicationContext(), MapsInitializer.Renderer.LATEST, renderer -> {
-				switch (renderer) {
-				case LATEST:
-					MTLog.d(this, "The latest version of the renderer is used.");
-					break;
-				case LEGACY:
-					MTLog.d(this, "The legacy version of the renderer is used.");
-					break;
-				}
+		try {
+			MapsInitializerUtil.initMap(view.getContext().getApplicationContext(), renderer -> {
 				applyNewMapView(view);
-				this.initializingMapView = false;
+				initializingMapView.set(false);
 			});
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while initializing map!");
-			this.initializingMapView = false;
+			initializingMapView.set(false);
 		}
 	}
 
-	@Nullable
-	private Boolean initializingMapView = null;
+	@NonNull
+	private final AtomicBoolean initializingMapView = new AtomicBoolean(false);
 
 	@MainThread
-	private void applyNewMapView(@Nullable View view) {
+	private void applyNewMapView(@NonNull View view) {
 		if (this.mapView != null) {
 			MTLog.d(this, "applyNewMapView() > SKIP (already set)");
-			return;
-		}
-		if (view == null) {
-			MTLog.d(this, "applyNewMapView() > SKIP (no view)");
 			return;
 		}
 		this.mapView = view.findViewById(R.id.map);
@@ -371,8 +351,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private void setupGoogleMap(@NonNull GoogleMap googleMap) {
 		this.extendedGoogleMap = ExtendedMapFactory.create(googleMap, getActivityOrNull());
-		applyMapType();
 		applyMapStyle();
+		applyMapType();
 		setupGoogleMapMyLocation();
 		this.extendedGoogleMap.setTrafficEnabled(this.trafficEnabled);
 		this.extendedGoogleMap.setIndoorEnabled(this.indoorEnabled);
@@ -518,6 +498,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (context == null) {
 			return;
 		}
+		// https://mapstyle.withgoogle.com/
 		map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default));
 	}
 
@@ -527,13 +508,15 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
+	@MainThread
 	public boolean showMap(@Nullable View view) {
 		this.mapVisible = true;
 		return showMapInternal(view);
 	}
 
+	@MainThread
 	private boolean showMapInternal(@Nullable View optView) {
-		final MapView mapView = getMapViewOrNull(optView);
+		final MapView mapView = optView == null ? getMapViewOrNull() : getMapViewOrInit(optView);
 		if (mapView == null) {
 			MTLog.d(this, "showMapInternal() > SKIP (no map)");
 			return false; // not shown
@@ -799,10 +782,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	public boolean zoomIn() {
 		return updateMapCamera(false, CameraUpdateFactory.zoomIn());
 	}
 
+	@SuppressWarnings("unused")
 	public boolean zoomOut() {
 		return updateMapCamera(false, CameraUpdateFactory.zoomOut());
 	}
@@ -859,6 +844,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			MTLog.d(this, "initMapMarkers() > SKIP (no map)");
 			return;
 		}
+		//noinspection deprecation
 		if (this.loadClusterItemsTask != null && this.loadClusterItemsTask.getStatus() == LoadClusterItemsTask.Status.RUNNING) {
 			MTLog.d(this, "initMapMarkers() > SKIP (already running)");
 			return;
@@ -1551,7 +1537,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.mapLayoutReady = false;
 		destroyGoogleMap();
 		this.initialMapCameraSetup = false;
-		this.initializingMapView = null;
+		this.initializingMapView.set(false);
 		TaskUtils.cancelQuietly(this.loadClusterItemsTask, true);
 		this.lastSavedInstanceState = null;
 		clearMarkers();

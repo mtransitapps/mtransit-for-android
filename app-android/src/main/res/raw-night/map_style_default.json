@@ -73,19 +73,19 @@
     ]
   },
   {
-    "featureType": "landscape.man_made",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
     "featureType": "poi",
     "elementType": "labels.text.fill",
     "stylers": [
       {
         "color": "#757575"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.business",
+    "stylers": [
+      {
+        "visibility": "off"
       }
     ]
   },
@@ -172,18 +172,18 @@
   },
   {
     "featureType": "transit",
-    "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#757575"
+        "visibility": "off"
       }
     ]
   },
   {
-    "featureType": "transit.station",
+    "featureType": "transit",
+    "elementType": "labels.text.fill",
     "stylers": [
       {
-        "visibility": "off"
+        "color": "#757575"
       }
     ]
   },
