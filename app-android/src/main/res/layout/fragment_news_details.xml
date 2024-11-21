@@ -65,7 +65,8 @@
             <WebView
                 android:id="@+id/thumbnail_web_view"
                 android:layout_width="match_parent"
-                android:layout_height="360dp"
+                android:layout_height="@dimen/news_image_height"
+                android:layout_marginBottom="@dimen/baseline_8"
                 android:layout_alignWithParentIfMissing="true"
                 android:layout_below="@id/thumbnails_list_container"
                 android:visibility="gone"
