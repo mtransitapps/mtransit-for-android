@@ -8,9 +8,12 @@
 
 [![MonTransit Downloads](https://www.appbrain.com/shield/org.mtransit.android.svg)](https://play.google.com/store/apps/details?id=org.mtransit.android)
 
-## Screenshots
+<p float="left">
+<img width="33%" height="33%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/1.png"/>
+<img width="33%" height="33%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/1.png"/>
+</p>
 
-<img width="50%" height="50%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/1.png"/>
+## Screenshots
 
 <p float="left">
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/2.png"/>
@@ -20,6 +23,15 @@
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/6.png"/>
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/7.png"/>
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/8.png"/>
+</p>
+<float="left">
+<img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/2.png"/>
+<img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/3.png"/>
+<img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/4.png"/>
+<img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/5.png"/>
+<img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/6.png"/>
+<img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/7.png"/>
+<img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/8.png"/>
 </p>
 
 ## Social

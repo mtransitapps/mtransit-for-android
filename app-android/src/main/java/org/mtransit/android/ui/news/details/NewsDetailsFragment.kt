@@ -18,7 +18,6 @@ import androidx.webkit.WebViewClientCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.registerReceiverCompat
