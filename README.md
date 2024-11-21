@@ -24,7 +24,7 @@
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/7.png"/>
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/phone-screenshots/8.png"/>
 </p>
-<float="left">
+<p float="left">
 <img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/2.png"/>
 <img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/3.png"/>
 <img width="25%" height="25%" src="app-android/src/main/play/listings/fr-FR/graphics/phone-screenshots/4.png"/>
