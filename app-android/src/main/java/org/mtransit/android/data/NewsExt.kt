@@ -15,6 +15,18 @@ val News.uuidT: Uuid
 val News.authorityAndUuidT: AuthorityAndUuid
     get() = AuthorityAndUuid(this.authorityT, this.uuidT)
 
+val News.authorWithUserName: String
+    get() = buildString {
+        append(authorName)
+        authorUsername?.takeIf { it.isNotBlank() }?.let { append(" ($it)") }
+    }
+
+val News.sourceLabelWithUserName: String
+    get() = buildString {
+        authorUsername?.takeIf { it.isNotBlank() }?.let { append("$it - ") }
+        append(sourceLabel)
+    }
+
 val News.imageUrls: List<NewsImage>
     get() = (0 until this.imageURLsCount).map {
         NewsImage(this.getImageUrl(it))

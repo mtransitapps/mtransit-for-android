@@ -30,6 +30,7 @@ import org.mtransit.android.data.isTwitterVideo
 import org.mtransit.android.data.isYouTubeVideo
 import org.mtransit.android.data.makeTwitterEmbedVideoPlayerUrl
 import org.mtransit.android.data.makeYouTubeEmbedVideoPlayerUrl
+import org.mtransit.android.data.sourceLabelWithUserName
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
@@ -240,7 +241,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     }
                 }
                 author.apply {
-                    text = newsArticle.authorOneLine
+                    text = newsArticle.authorName
                     setTextColor(
                         newsArticle.colorIntOrNull?.let {
                             ColorUtils.adaptColorToTheme(context, it)
@@ -250,7 +251,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     )
                 }
                 source.apply {
-                    text = newsArticle.sourceLabel
+                    text = newsArticle.sourceLabelWithUserName
                 }
                 newsText.apply {
                     setText(LinkUtils.linkifyHtml(newsArticle.textHTML, true), TextView.BufferType.SPANNABLE)

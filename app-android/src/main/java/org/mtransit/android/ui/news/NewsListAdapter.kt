@@ -20,6 +20,7 @@ import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.AuthorityAndUuid
+import org.mtransit.android.data.authorWithUserName
 import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.authorityT
 import org.mtransit.android.data.uuidT
@@ -371,7 +372,7 @@ class NewsListAdapter(
                 author.apply {
                     text = context.getString(
                         R.string.news_shared_on_and_author_and_source,
-                        newsArticle.authorOneLine,
+                        newsArticle.authorWithUserName,
                         newsArticle.sourceLabel
                     )
                     setTextColor(
