@@ -173,9 +173,9 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 					}
 					String thisMsgFromHtml = serviceUpdate.getTextHTML();
 					if (serviceUpdate.isSeverityWarning()) {
-						thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorSecondary(context)));
+						thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorPrimary(context)));
 					} else {
-						thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorTertiary(context)));
+						thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorSecondary(context)));
 					}
 					ssb.append(thisMsgFromHtml);
 					if (!isWarning && serviceUpdate.isSeverityWarning()) {

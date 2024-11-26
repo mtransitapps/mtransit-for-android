@@ -85,7 +85,7 @@
             android:layout_below="@id/author"
             android:layout_toStartOf="@id/thumbnail"
             android:ellipsize="end"
-            android:fontFamily="sans-serif-condensed"
+            android:fontFamily="sans-serif"
             android:maxLines="@integer/news_article_list_item_max_lines"
             android:minLines="@integer/news_article_list_item_min_lines"
             android:paddingTop="@dimen/baseline_2"
