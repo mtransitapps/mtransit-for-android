@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources,InconsistentArrays">
     <integer name="twitter_db_version">5</integer>
-    <string name="twitter_authority">org.mtransit.android.news.twitter</string>
     <string name="twitter_target_for_poi_authority" />
     <string name="twitter_color" />
     <string-array name="twitter_screen_names">
