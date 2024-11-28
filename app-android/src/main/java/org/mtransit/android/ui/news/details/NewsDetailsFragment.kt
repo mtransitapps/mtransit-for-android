@@ -30,7 +30,6 @@ import org.mtransit.android.data.isTwitterVideo
 import org.mtransit.android.data.isYouTubeVideo
 import org.mtransit.android.data.makeTwitterEmbedVideoPlayerUrl
 import org.mtransit.android.data.makeYouTubeEmbedVideoPlayerUrl
-import org.mtransit.android.data.sourceLabelWithUserName
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
@@ -144,151 +143,162 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     }
 
     @SuppressLint("DeprecatedCall")
-    private fun updateNewsView(newsArticle: News? = viewModel.newsArticle.value) {
+    private fun updateNewsView(newsArticle: News? = viewModel.newsArticle.value) = binding?.apply {
         _logTag = LOG_TAG + "-" + newsArticle?.uuid
-        binding?.apply {
-            newsArticle?.let { newsArticle ->
-                MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
-                when {
-                    newsArticle.isTwitterVideo -> {
-                        thumbnail.apply {
-                            isVisible = false
-                            imageManager.clear(context, this)
-                        }
-                        thumbnailsListContainer.isVisible = false
-                        noThumbnailSpace.isVisible = false
-
-                        thumbnailWebView.apply {
-                            setupWebView(this)
-                            newsArticle.getTwitterVideoId()?.let { videoId ->
-                                makeTwitterEmbedVideoPlayerUrl(videoId).let { newUrl ->
-                                    if (url != newUrl) {
-                                        loadUrl(newUrl)
-                                    }
-                                }
-                            }
-                            isVisible = true
-                        }
-                    }
-
-                    newsArticle.isYouTubeVideo -> {
-                        thumbnail.apply {
-                            isVisible = false
-                            imageManager.clear(context, this)
-                        }
-                        thumbnailsListContainer.isVisible = false
-                        noThumbnailSpace.isVisible = false
-
-                        thumbnailWebView.apply {
-                            setupWebView(this)
-                            newsArticle.getYouTubeVideoId()?.let { videoId ->
-                                makeYouTubeEmbedVideoPlayerUrl(videoId, false).let { newUrl ->
-                                    if (url != newUrl) {
-                                        loadUrl(newUrl)
-                                    }
-                                }
-                            }
-                            isVisible = true
-                        }
-                    }
-
-                    newsArticle.imageURLsCount == 0 -> {
-                        thumbnail.apply {
-                            isVisible = false
-                            imageManager.clear(context, this)
-                        }
-                        thumbnailsListContainer.isVisible = false
-                        thumbnailWebView.isVisible = false
-
-                        noThumbnailSpace.isVisible = true
-                    }
-
-                    newsArticle.imageURLsCount == 1 -> {
-                        noThumbnailSpace.isVisible = false
-                        thumbnailsListContainer.isVisible = false
-                        thumbnailWebView.isVisible = false
-
-                        thumbnail.apply {
-                            imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                            isVisible = true
-                            setOnClickListener { view ->
-                                LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), true)
-                            }
-                        }
-                    }
-
-                    else -> { // newsArticle.imageURLsCount > 1
-                        noThumbnailSpace.isVisible = false
-                        thumbnail.apply {
-                            isVisible = false
-                            imageManager.clear(context, this)
-                        }
-                        thumbnailWebView.isVisible = false
-
-                        thumbnailsListAdapter.submitList(newsArticle.imageUrls)
-                        thumbnailsListContainer.isVisible = true
-                    }
+        newsArticle?.let { newsArticle ->
+            MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
+            updateThumbnails(newsArticle)
+            authorIcon.apply {
+                isVisible = if (newsArticle.hasAuthorPictureURL()) {
+                    noAuthorIconSpace.isVisible = false
+                    imageManager.loadInto(context, newsArticle.authorPictureURL, this)
+                    true
+                } else {
+                    noAuthorIconSpace.isVisible = true
+                    imageManager.clear(context, this)
+                    false
                 }
-                authorIcon.apply {
-                    isVisible = if (newsArticle.hasAuthorPictureURL()) {
-                        noAuthorIconSpace.isVisible = false
-                        imageManager.loadInto(context, newsArticle.authorPictureURL, this)
-                        true
-                    } else {
-                        noAuthorIconSpace.isVisible = true
-                        imageManager.clear(context, this)
-                        false
+            }
+            author.apply {
+                text = newsArticle.authorName
+                setTextColor(
+                    newsArticle.colorIntOrNull?.let {
+                        ColorUtils.adaptColorToTheme(context, it)
+                    } ?: run {
+                        ColorUtils.getTextColorSecondary(context)
                     }
-                }
-                author.apply {
-                    text = newsArticle.authorName
-                    setTextColor(
-                        newsArticle.colorIntOrNull?.let {
-                            ColorUtils.adaptColorToTheme(context, it)
-                        } ?: run {
-                            ColorUtils.getTextColorSecondary(context)
-                        }
+                )
+            }
+            source.apply {
+                text = newsArticle.authorUsername?.let { authorUsername ->
+                    context.getString(
+                        R.string.news_shared_on_and_author_and_source,
+                        authorUsername,
+                        newsArticle.sourceLabel
                     )
+                } ?: newsArticle.sourceLabel
+            }
+            newsText.apply {
+                setText(LinkUtils.linkifyHtml(newsArticle.textHTML, true), TextView.BufferType.SPANNABLE)
+                movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
+                    LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
                 }
-                source.apply {
-                    text = newsArticle.sourceLabelWithUserName
-                }
-                newsText.apply {
-                    setText(LinkUtils.linkifyHtml(newsArticle.textHTML, true), TextView.BufferType.SPANNABLE)
-                    movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                        LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+                setLinkTextColor(
+                    newsArticle.colorIntOrNull?.let {
+                        ColorUtils.adaptColorToTheme(context, it)
+                    } ?: run {
+                        ColorUtils.getTextColorPrimary(context)
                     }
-                    setLinkTextColor(
-                        newsArticle.colorIntOrNull?.let {
-                            ColorUtils.adaptColorToTheme(context, it)
-                        } ?: run {
-                            ColorUtils.getTextColorPrimary(context)
-                        }
-                    )
+                )
+            }
+            date.apply {
+                setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
+                val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
+                setOnClickListener { view ->
+                    LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)
                 }
-                date.apply {
-                    setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
-                    val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
-                    setOnClickListener { view ->
-                        LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)
-                    }
-                }
-                dateLong.apply {
-                    setText(getDateTimeFormatter(context).formatThreadSafe(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
-                    val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
-                    setOnClickListener { view ->
-                        LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)
-                    }
+            }
+            dateLong.apply {
+                setText(getDateTimeFormatter(context).formatThreadSafe(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
+                val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
+                setOnClickListener { view ->
+                    LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)
                 }
             }
         }
     }
 
-    private var webViewSetup = false
+    private fun updateThumbnails(newsArticle: News) = binding?.apply {
+        when {
+            newsArticle.isTwitterVideo -> {
+                thumbnail.apply {
+                    isVisible = false
+                    imageManager.clear(context, this)
+                }
+                thumbnailsListContainer.isVisible = false
+                noThumbnailSpace.isVisible = false
+
+                thumbnailWebView.apply {
+                    setupWebView(this)
+                    newsArticle.getTwitterVideoId()?.let { videoId ->
+                        makeTwitterEmbedVideoPlayerUrl(videoId).let { newUrl ->
+                            if (url != newUrl) {
+                                loadUrl(newUrl)
+                            }
+                        }
+                    }
+                    isVisible = true
+                }
+            }
+
+            newsArticle.isYouTubeVideo -> {
+                thumbnail.apply {
+                    isVisible = false
+                    imageManager.clear(context, this)
+                }
+                thumbnailsListContainer.isVisible = false
+                noThumbnailSpace.isVisible = false
+
+                thumbnailWebView.apply {
+                    setupWebView(this)
+                    newsArticle.getYouTubeVideoId()?.let { videoId ->
+                        makeYouTubeEmbedVideoPlayerUrl(videoId, false).let { newUrl ->
+                            if (url != newUrl) {
+                                loadUrl(newUrl)
+                            }
+                        }
+                    }
+                    isVisible = true
+                }
+            }
+
+            newsArticle.imageURLsCount == 0 -> {
+                thumbnail.apply {
+                    isVisible = false
+                    imageManager.clear(context, this)
+                }
+                thumbnailsListContainer.isVisible = false
+                thumbnailWebView.isVisible = false
+
+                noThumbnailSpace.isVisible = true
+            }
+
+            newsArticle.imageURLsCount == 1 -> {
+                noThumbnailSpace.isVisible = false
+                thumbnailsListContainer.isVisible = false
+                thumbnailWebView.isVisible = false
+                thumbnail.apply {
+                    imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
+                    isVisible = true
+                    setOnClickListener { view ->
+                        LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), true)
+                    }
+                }
+            }
+
+            else -> { // newsArticle.imageURLsCount > 1
+                noThumbnailSpace.isVisible = false
+                thumbnail.apply {
+                    isVisible = false
+                    imageManager.clear(context, this)
+                }
+                thumbnailWebView.isVisible = false
+
+                thumbnailsListAdapter.submitList(newsArticle.imageUrls)
+                thumbnailsListContainer.isVisible = true
+            }
+        }
+    }
+
+    private val customWebViewClient = object : WebViewClientCompat() {
+        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+            LinkUtils.open(view, requireActivity(), request.url.toString(), getString(commonsR.string.web_browser), true)
+            return true // handled
+        }
+    }
 
     @SuppressLint("SetJavaScriptEnabled", "DeprecatedCall")
     private fun setupWebView(webView: WebView) {
-        if (webViewSetup) return
         webView.apply {
             settings.apply {
                 javaScriptEnabled = true
@@ -296,15 +306,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 builtInZoomControls = false
                 displayZoomControls = false
             }
-            webViewClient = object : WebViewClientCompat() {
-                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-                    LinkUtils.open(view, requireActivity(), request.url.toString(), getString(commonsR.string.web_browser), true)
-                    return true // handled
-                }
-            }
+            webViewClient = customWebViewClient
             setBackgroundColor(Color.TRANSPARENT)
         }
-        webViewSetup = true
     }
 
     override fun onResume() {
