@@ -142,7 +142,6 @@ com.google.api-client:google-api-client:2.7.0
 com.google.apis:google-api-services-youtube:v3-rev20241117-2.0.0
 com.google.auth:google-auth-library-credentials:1.23.0
 com.google.auth:google-auth-library-oauth2-http:1.23.0
-com.google.auto.value:auto-value-annotations:1.10.4
 com.google.code.findbugs:jsr305:3.0.2
 com.google.code.gson:gson:2.11.0
 com.google.dagger:dagger-lint-aar:2.52
