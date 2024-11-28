@@ -208,6 +208,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         }
     }
 
+    @SuppressLint("DeprecatedCall")
     private fun updateThumbnails(newsArticle: News) = binding?.apply {
         when {
             newsArticle.isTwitterVideo -> {
