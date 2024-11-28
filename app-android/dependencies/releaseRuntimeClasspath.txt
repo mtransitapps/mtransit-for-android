@@ -138,6 +138,11 @@ com.google.android.play:core-common:2.0.4
 com.google.android.play:review-ktx:2.0.2
 com.google.android.play:review:2.0.2
 com.google.android.ump:user-messaging-platform:3.0.0
+com.google.api-client:google-api-client:2.7.0
+com.google.apis:google-api-services-youtube:v3-rev20241117-2.0.0
+com.google.auth:google-auth-library-credentials:1.23.0
+com.google.auth:google-auth-library-oauth2-http:1.23.0
+com.google.auto.value:auto-value-annotations:1.10.4
 com.google.code.findbugs:jsr305:3.0.2
 com.google.code.gson:gson:2.11.0
 com.google.dagger:dagger-lint-aar:2.52
@@ -168,10 +173,13 @@ com.google.firebase:protolite-well-known-types:18.0.0
 com.google.guava:failureaccess:1.0.2
 com.google.guava:guava:33.3.1-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+com.google.http-client:google-http-client-gson:1.45.0
+com.google.http-client:google-http-client:1.45.0
 com.google.j2objc:j2objc-annotations:3.0.0
 com.google.maps.android:android-maps-utils:3.9.0
 com.google.maps.android:maps-ktx:5.1.1
 com.google.maps.android:maps-utils-ktx:5.1.1
+com.google.oauth-client:google-oauth-client:1.36.0
 com.google.protobuf:protobuf-javalite:3.25.5
 com.squareup.okhttp3:logging-interceptor:4.12.0
 com.squareup.okhttp3:okhttp-bom:4.12.0
@@ -183,7 +191,11 @@ com.squareup.retrofit2:retrofit:2.11.0
 com.twitter:joauth:6.0.3
 com.twitter:twitter-api-java-sdk:2.0.3
 com.vungle:vungle-ads:7.4.2
+io.grpc:grpc-api:1.66.0
+io.grpc:grpc-context:1.66.0
 io.gsonfire:gson-fire:1.8.5
+io.opencensus:opencensus-api:0.31.1
+io.opencensus:opencensus-contrib-http-util:0.31.1
 io.swagger:swagger-annotations:1.6.5
 jakarta.inject:jakarta.inject-api:2.0.1
 javax.inject:javax.inject:1
