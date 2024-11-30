@@ -219,4 +219,14 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="MTTextRouteLongName">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:includeFontPadding">true</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+        <item name="android:textColor">@color/rln_color</item>
+    </style>
+
 </resources>
