@@ -14,7 +14,7 @@ import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.ui.view.common.IActivity
 import java.lang.ref.WeakReference
 
-@Suppress("deprecation")
+@Suppress("DEPRECATION")
 class SetupBannerAdTask(
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,

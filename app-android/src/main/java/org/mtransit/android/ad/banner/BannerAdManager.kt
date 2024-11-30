@@ -15,6 +15,7 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
+import org.mtransit.android.ad.IAdScreenFragment
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.dev.CrashReporter
@@ -36,10 +37,11 @@ class BannerAdManager @Inject constructor(
 
     private var setupBannerAdTask: SetupBannerAdTask? = null
 
-    fun refreshBannerAdStatus(activity: IActivity) {
-        if (this.globalAdManager.isShowingAds()) {
-            if (!this.adBannerLoaded.get()) { // IF ad was not loaded DO
-                setupBannerAd(activity, force = false)
+    @JvmOverloads
+    fun refreshBannerAdStatus(activity: IActivity, adScreenFragment: IAdScreenFragment?, force: Boolean = false) {
+        if (this.globalAdManager.isShowingAds() && adScreenFragment?.hasAds() != true) {
+            if (!this.adBannerLoaded.get() || force) { // IF ad was not loaded DO
+                setupBannerAd(activity, force)
             }
         } else { // ELSE IF not showing ads DO
             if (this.adBannerLoaded.get()) { // IF ad was loaded DO
@@ -84,7 +86,7 @@ class BannerAdManager @Inject constructor(
 
 
     fun setupBannerAd(activity: IActivity, force: Boolean) {
-        MTLog.d(this, "setupAd(%s)", force)
+        MTLog.d(this, "setupAd($force)")
         if (!AdConstants.AD_ENABLED) {
             MTLog.d(this, "setupAd() > SKIP (AD not enabled)")
             return

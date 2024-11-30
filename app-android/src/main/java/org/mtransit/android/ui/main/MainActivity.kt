@@ -33,6 +33,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenFragment
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
@@ -203,7 +204,7 @@ class MainActivity : MTActivityWithLocation(),
         }
         viewModel.hasAgenciesEnabled.observe(this) { hasAgenciesEnabled ->
             // ad-manager does not persist activity but listen for changes itself
-            adManager.onHasAgenciesEnabledUpdated(this, hasAgenciesEnabled)
+            adManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled, this, currentFragment as? IAdScreenFragment)
         }
         viewModel.hasAgenciesAdded.observe(this) { hasAgenciesEnabled ->
             if (hasAgenciesEnabled) {
@@ -227,7 +228,7 @@ class MainActivity : MTActivityWithLocation(),
 
     override fun onBillingResult(productId: String?) {
         productId?.isNotEmpty()?.let { hasSubscription ->
-            adManager.setShowingAds(!hasSubscription, this)
+            adManager.setShowingAds(!hasSubscription, this, currentFragment as? IAdScreenFragment)
         }
     }
 

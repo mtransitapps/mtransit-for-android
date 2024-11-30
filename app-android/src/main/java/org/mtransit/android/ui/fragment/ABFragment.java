@@ -20,6 +20,7 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.ad.IAdScreenFragment;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ThemeUtils;
@@ -44,6 +45,7 @@ import kotlin.Unit;
 @AndroidEntryPoint
 public abstract class ABFragment extends MTFragmentX implements
 		AnalyticsManager.Trackable,
+		IAdScreenFragment,
 		IActivity {
 
 	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
@@ -163,11 +165,16 @@ public abstract class ABFragment extends MTFragmentX implements
 		EdgeToEdgeKt.setStatusBarColor(requireActivity(), isABStatusBarTransparent());
 	}
 
+	@Override
+	public boolean hasAds() {
+		return false; // will show main activity ads
+	}
+
 	@CallSuper
 	@Override
 	public void onResume() {
 		super.onResume();
-		adManager.onResumeScreen(this);
+		adManager.onResumeScreen(this, this);
 		analyticsManager.trackScreenView(this, this);
 		final ActionBarController abController = getAbController();
 		if (abController != null) {

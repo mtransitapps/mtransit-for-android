@@ -191,8 +191,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    private fun openNewsArticleSelected(view: View, newsArticle: News) {
+    private fun openNewsArticleSelected(@Suppress("unused") view: View, newsArticle: News) {
         viewModel.onNewsArticleSelected(newsArticle.authorityAndUuidT)
     }
 

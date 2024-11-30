@@ -71,19 +71,19 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void onHasAgenciesEnabledUpdated(@NonNull IActivity activity, @Nullable Boolean hasAgenciesEnabled) {
+	public void onHasAgenciesEnabledUpdated(@Nullable Boolean hasAgenciesEnabled, @NonNull IActivity activity, @Nullable IAdScreenFragment adScreenFragment) {
 		this.globalAdManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled);
-		onShowingAdsUpdated(activity);
+		onShowingAdsUpdated(activity, adScreenFragment);
 	}
 
 	@Override
-	public void setShowingAds(@Nullable Boolean newShowingAds, @NonNull IActivity activity) {
+	public void setShowingAds(@Nullable Boolean newShowingAds, @NonNull IActivity activity, @Nullable IAdScreenFragment adScreenFragment) {
 		this.globalAdManager.setShowingAds(newShowingAds);
-		onShowingAdsUpdated(activity);
+		onShowingAdsUpdated(activity, adScreenFragment);
 	}
 
-	private void onShowingAdsUpdated(@NonNull IActivity activity) {
-		this.bannerAdManager.refreshBannerAdStatus(activity);
+	private void onShowingAdsUpdated(@NonNull IActivity activity, @Nullable IAdScreenFragment adScreenFragment) {
+		this.bannerAdManager.refreshBannerAdStatus(activity, adScreenFragment);
 		refreshRewardedAdStatus(activity);
 	}
 
@@ -197,7 +197,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void onResumeScreen(@NonNull IActivity activity) {
-		this.bannerAdManager.setupBannerAd(activity, true);
+	public void onResumeScreen(@NonNull IActivity activity, @NonNull IAdScreenFragment adScreenFragment) {
+		this.bannerAdManager.refreshBannerAdStatus(activity, adScreenFragment, true);
 	}
 }

@@ -11,9 +11,9 @@ public interface IAdManager {
 
 	void init(@NonNull IActivity activity);
 
-	void onHasAgenciesEnabledUpdated(@NonNull IActivity activity, @Nullable Boolean hasAgenciesEnabled);
+	void onHasAgenciesEnabledUpdated(@Nullable Boolean hasAgenciesEnabled, @NonNull IActivity activity, @Nullable IAdScreenFragment adScreenFragment);
 
-	void setShowingAds(@Nullable Boolean newShowingAds, @NonNull IActivity activity);
+	void setShowingAds(@Nullable Boolean newShowingAds, @NonNull IActivity activity, @Nullable IAdScreenFragment adScreenFragment);
 
 	int getRewardedAdAmount();
 
@@ -34,7 +34,7 @@ public interface IAdManager {
 
 	void adaptToScreenSize(@NonNull IActivity activity, @Nullable Configuration configuration);
 
-	void onResumeScreen(@NonNull IActivity activity);
+	void onResumeScreen(@NonNull IActivity activity, @NonNull IAdScreenFragment adScreenFragment);
 
 	@SuppressWarnings("unused")
 	void resumeAd(@NonNull IActivity activity);

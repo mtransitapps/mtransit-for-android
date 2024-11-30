@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentManager;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.ad.IAdScreenFragment;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.billing.IBillingManager;
@@ -161,7 +162,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		this.dataSourcesRepository.readingHasAgenciesEnabled().observe(this, hasAgenciesEnabled -> {
-			this.adManager.onHasAgenciesEnabledUpdated(this, hasAgenciesEnabled); // ad-manager does not persist activity but listen for changes itself
+			this.adManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled, this, (IAdScreenFragment) getCurrentFragment()); // ad-manager does not persist activity but listen for changes itself
 			this.abController.onHasAgenciesEnabledUpdated(hasAgenciesEnabled);
 		});
 		this.dataSourcesRepository.readingHasAgenciesAdded().observe(this, hasAgenciesAdded -> {
@@ -181,7 +182,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	public void onBillingResult(@Nullable String productId) {
 		Boolean hasSubscription = productId == null ? null : !productId.isEmpty();
 		if (hasSubscription != null) {
-			this.adManager.setShowingAds(!hasSubscription, this);
+			this.adManager.setShowingAds(!hasSubscription, this, (IAdScreenFragment) getCurrentFragment());
 		}
 	}
 

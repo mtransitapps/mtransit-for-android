@@ -79,7 +79,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@ColorInt
 	public static int getDefaultDistanceAndCompassColor(@NonNull Context context) {
-		return ColorUtils.getTextColorTertiary(context);
+		return ColorUtils.getTextColorSecondary(context); // like in layout_distance_and_compass.xml
 	}
 
 	@NonNull
