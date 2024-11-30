@@ -315,6 +315,4 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
     override fun finish() {
         activity?.finish()
     }
-
-    override fun <T : View?> findViewById(id: Int): T? = view?.findViewById<T>(id)
 }

@@ -22,7 +22,4 @@ public interface IActivity extends IContext {
 	LifecycleOwner getLifecycleOwner();
 
 	void finish();
-
-	@Nullable
-	<T extends View> T findViewById(@IdRes int id);
 }

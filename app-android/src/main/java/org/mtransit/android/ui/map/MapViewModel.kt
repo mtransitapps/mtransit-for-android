@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
@@ -50,7 +50,7 @@ class MapViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
-    private val adManager: AdManager,
+    private val adManager: IAdManager,
     private val pm: PackageManager,
 ) : MTViewModelWithLocation(),
     ModuleDisabledAwareViewModel,

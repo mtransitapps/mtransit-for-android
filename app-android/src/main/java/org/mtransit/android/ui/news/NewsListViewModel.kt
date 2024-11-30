@@ -11,7 +11,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
@@ -31,7 +31,7 @@ class NewsListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val newsRepository: NewsRepository,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val adManager: AdManager,
+    private val adManager: IAdManager,
     private val pm: PackageManager,
 ) : ViewModel(),
     ModuleDisabledAwareViewModel,

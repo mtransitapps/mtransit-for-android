@@ -34,6 +34,9 @@ public interface IAdManager {
 
 	void adaptToScreenSize(@NonNull IActivity activity, @Nullable Configuration configuration);
 
+	void onResumeScreen(@NonNull IActivity activity);
+
+	@SuppressWarnings("unused")
 	void resumeAd(@NonNull IActivity activity);
 
 	void pauseAd(@NonNull IActivity activity);

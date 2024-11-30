@@ -373,6 +373,4 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
     override fun finish() {
         activity?.finish()
     }
-
-    override fun <T : View?> findViewById(id: Int): T? = view?.findViewById<T>(id)
 }

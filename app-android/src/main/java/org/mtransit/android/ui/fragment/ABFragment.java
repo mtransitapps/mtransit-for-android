@@ -19,6 +19,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ThemeUtils;
@@ -51,6 +52,8 @@ public abstract class ABFragment extends MTFragmentX implements
 
 	public static final boolean DEFAULT_SHOW_SEARCH_MENU_ITEM = true;
 
+	@Inject
+	IAdManager adManager;
 	@Inject
 	IAnalyticsManager analyticsManager;
 	@Inject
@@ -164,6 +167,7 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onResume() {
 		super.onResume();
+		adManager.onResumeScreen(this);
 		analyticsManager.trackScreenView(this, this);
 		final ActionBarController abController = getAbController();
 		if (abController != null) {
@@ -211,15 +215,6 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void finish() {
 		requireActivity().finish();
-	}
-
-	@Nullable
-	@Override
-	public <T extends View> T findViewById(int id) {
-		if (getView() == null) {
-			return null;
-		}
-		return getView().findViewById(id);
 	}
 
 	@NonNull

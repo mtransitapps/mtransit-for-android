@@ -248,6 +248,4 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     override fun finish() {
         activity?.finish()
     }
-
-    override fun <T : View?> findViewById(id: Int): T? = view?.findViewById<T>(id)
 }

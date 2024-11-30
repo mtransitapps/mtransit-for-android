@@ -175,15 +175,6 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		requireActivity().finish();
 	}
 
-	@Nullable
-	@Override
-	public <T extends View> T findViewById(int id) {
-		if (getView() == null) {
-			return null;
-		}
-		return getView().findViewById(id);
-	}
-
 	private void onRewardedAdButtonClick(@NonNull Context context) {
 		Activity activity = getActivity();
 		try {
