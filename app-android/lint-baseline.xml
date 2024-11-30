@@ -11651,34 +11651,6 @@
     </issue>
 
     <issue
-        id="TrustAllX509TrustManager"
-        message="`checkClientTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="../../../../../../../../home/mmathieum/.gradle/caches/modules-2/files-2.1/com.twitter/twitter-api-java-sdk/2.0.3/e7bf55d01048aaebeefc2f1a544b37e0d911d3f9/twitter-api-java-sdk-2.0.3.jar"/>
-    </issue>
-
-    <issue
-        id="TrustAllX509TrustManager"
-        message="`checkClientTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="../../../../../../../../home/mmathieum/.gradle/caches/modules-2/files-2.1/com.twitter/twitter-api-java-sdk/2.0.3/e7bf55d01048aaebeefc2f1a544b37e0d911d3f9/twitter-api-java-sdk-2.0.3.jar"/>
-    </issue>
-
-    <issue
-        id="TrustAllX509TrustManager"
-        message="`checkServerTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="../../../../../../../../home/mmathieum/.gradle/caches/modules-2/files-2.1/com.twitter/twitter-api-java-sdk/2.0.3/e7bf55d01048aaebeefc2f1a544b37e0d911d3f9/twitter-api-java-sdk-2.0.3.jar"/>
-    </issue>
-
-    <issue
-        id="TrustAllX509TrustManager"
-        message="`checkServerTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
-        <location
-            file="../../../../../../../../home/mmathieum/.gradle/caches/modules-2/files-2.1/com.twitter/twitter-api-java-sdk/2.0.3/e7bf55d01048aaebeefc2f1a544b37e0d911d3f9/twitter-api-java-sdk-2.0.3.jar"/>
-    </issue>
-
-    <issue
         id="MergeRootFrame"
         message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
         errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
