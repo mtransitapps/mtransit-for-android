@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/name"
-    style="?android:attr/listSeparatorTextViewStyle"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/header_height"
-    android:drawablePadding="@dimen/title_drawable_padding"
-    android:ellipsize="end"
-    android:fontFamily="sans-serif"
-    android:paddingStart="@dimen/title_padding_start"
-    android:paddingTop="@dimen/title_top_padding"
-    android:paddingEnd="@dimen/title_padding_end"
-    android:textColor="?attr/colorOnBackground"
-    app:drawableTint="?attr/colorOnBackground"
-    tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />
+    style="@style/MTLayoutSection">
+
+    <TextView
+        android:id="@+id/name"
+        style="@style/MTTextSectionTitle"
+        tools:drawableStartCompat="@drawable/ic_directions_bus_black_24dp"
+        tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />
+
+</RelativeLayout>

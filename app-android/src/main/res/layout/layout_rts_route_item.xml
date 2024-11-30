@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/route"
     android:layout_width="match_parent"
@@ -20,22 +19,9 @@
         <!-- ROUTE SHORT NAME -->
         <TextView
             android:id="@+id/route_short_name"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:maxLines="1"
-            android:padding="@dimen/baseline_1"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/rsn_color"
-            android:textStyle="bold"
+            style="@style/MTTextRouteShortName"
             android:visibility="gone"
-            app:autoSizeMaxTextSize="@dimen/route_short_name_max_text_size"
-            app:autoSizeMinTextSize="@dimen/route_short_name_min_text_size"
-            app:autoSizeTextType="uniform"
-            tools:text="RSN1234"
+            tools:text="RSN Route Short Name"
             tools:visibility="visible" />
         <!-- ROUTE TYPE IMG -->
         <org.mtransit.android.ui.view.MTJPathsView
@@ -50,17 +36,12 @@
     <!-- ROUTE LONG NAME -->
     <TextView
         android:id="@+id/route_long_name"
+        style="@style/MTTextRouteLongName"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginStart="8dp"
-        android:ellipsize="marquee"
-        android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
-        android:includeFontPadding="true"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/rln_color"
         android:visibility="gone"
         tools:text="Route Long Name Route Long Name Route Long Name"
         tools:visibility="visible" />

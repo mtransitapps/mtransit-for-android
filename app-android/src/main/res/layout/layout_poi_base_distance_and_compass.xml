@@ -32,17 +32,8 @@
         <!-- NAME -->
         <TextView
             android:id="@+id/name"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:ellipsize="marquee"
-            android:fontFamily="sans-serif"
-            android:gravity="center_vertical|start"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textStyle="normal"
-            tools:text="Place name place name place name place name" />
+            style="@style/MTTextPoiTitle"
+            tools:text="One Two Three Four Five Six Seven Eight Nine Ten" />
         <!-- DISTANCE & COMPASS -->
         <include
             layout="@layout/layout_distance_and_compass"

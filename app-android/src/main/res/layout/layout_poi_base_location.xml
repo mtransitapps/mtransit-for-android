@@ -32,32 +32,16 @@
         <!-- NAME -->
         <TextView
             android:id="@+id/name"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:ellipsize="marquee"
-            android:fontFamily="sans-serif"
-            android:gravity="center_vertical|start"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textStyle="normal"
-            tools:text="NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME" />
+            style="@style/MTTextPoiTitle"
+            tools:text="@tools:sample/cities" />
         <!-- LOCATION -->
         <TextView
             android:id="@+id/location"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:ellipsize="marquee"
-            android:fontFamily="sans-serif"
-            android:gravity="center_vertical|start"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textStyle="normal"
+            style="@style/MTTextPoiSubtitle"
             android:visibility="gone"
-            tools:text="LOCATION LOCATION LOCATION LOCATION LOCATION LOCATION LOCATION LOCATION"
+            tools:text="000 m"
             tools:visibility="visible" />
+<!--                TODO HERE NOW: continue replacing ?android:attr/textAppearanceXXX with ?attr/textAppearanceXXX-->
+<!--                Create text style for MTTextPoiSubtitle, MTTextPoiTitle to avoid duplicate...-->
     </LinearLayout>
 </RelativeLayout>

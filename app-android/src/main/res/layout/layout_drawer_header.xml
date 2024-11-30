@@ -24,7 +24,7 @@
         android:paddingStart="8dp"
         android:paddingEnd="16dp"
         android:text="@string/app_name"
-        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textAppearance="?attr/textAppearanceHeadline5"
         android:textStyle="normal" />
 
 </LinearLayout>

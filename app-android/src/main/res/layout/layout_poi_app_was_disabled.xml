@@ -9,17 +9,8 @@
 
     <TextView
         android:id="@+id/appWasDisabledBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/list_view_margin_horizontal"
-        android:background="@drawable/color_surface_rounded_ripple"
-        android:paddingStart="@dimen/baseline_16"
-        android:paddingTop="@dimen/baseline_16"
-        android:paddingEnd="@dimen/baseline_16"
-        android:paddingBottom="@dimen/baseline_16"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="visible"
-        tools:ignore="UnusedAttribute"
-        tools:text="@string/battery_optimization_samsung_use_device_care" />
+        tools:text="@string/battery_optimization_samsung_use_device_care"
+        style="@style/MTTextSurfaceBody" />
 
 </LinearLayout>

@@ -8,6 +8,6 @@
     android:gravity="center_horizontal"
     android:paddingHorizontal="@dimen/baseline_16"
     android:paddingVertical="@dimen/baseline_8"
-    android:textAppearance="?android:attr/textAppearanceSmall"
+    android:textAppearance="?attr/textAppearanceSubtitle2"
     android:textColor="?android:attr/textColorSecondary"
     tools:text="Now, Today, Yesterday" />

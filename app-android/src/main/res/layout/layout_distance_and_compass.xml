@@ -4,18 +4,12 @@
     android:id="@+id/distance_and_compass"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:showIn="@layout/layout_poi_base_distance_and_compass">
     <!-- DISTANCE -->
     <TextView
         android:id="@+id/distance"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:fontFamily="sans-serif"
-        android:gravity="center_vertical"
-        android:maxLines="1"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorSecondary"
-        android:textStyle="normal"
+        style="@style/MTTextPoiSubtitle"
         android:visibility="gone"
         tools:text="000 m"
         tools:visibility="visible" />
@@ -26,8 +20,9 @@
         android:layout_height="14sp"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
         android:layout_marginTop="2dp"
+        android:layout_marginEnd="4dp"
         android:visibility="gone"
+        tools:background="#99000000"
         tools:visibility="visible" />
 </LinearLayout>
