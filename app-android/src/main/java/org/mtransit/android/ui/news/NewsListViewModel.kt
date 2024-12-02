@@ -16,7 +16,11 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.isAppEnabled
+import org.mtransit.android.data.AUTHORITY_INVALID
 import org.mtransit.android.data.AuthorityAndUuid
+import org.mtransit.android.data.UUID_INVALID
+import org.mtransit.android.data.getAuthority
+import org.mtransit.android.data.getUuid
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
@@ -80,10 +84,7 @@ class NewsListViewModel @Inject constructor(
     val selectedNewsArticleAuthorityAndUUID = PairMediatorLiveData(_selectedNewsArticleAgencyAuthority, _selectedNewsArticleUUID).map { (authority, uuid) ->
         authority?.let {
             uuid?.let {
-                AuthorityAndUuid(
-                    org.mtransit.android.data.Authority(authority),
-                    org.mtransit.android.data.Uuid(uuid),
-                )
+                AuthorityAndUuid(authority, uuid)
             }
         }
     }.distinctUntilChanged()
@@ -123,15 +124,15 @@ class NewsListViewModel @Inject constructor(
         // 1st: make sure it's null to avoid INVALID authority+uuid pair
         val newAuthority = newAuthorityAndUuid?.getAuthority()
         val newUuid = newAuthorityAndUuid?.getUuid()
-        if (newAuthority != null && newAuthority.authority != savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY]) {
-            savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY] = org.mtransit.android.data.Authority.INVALID
+        if (newAuthority != null && newAuthority != savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY]) {
+            savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY] = AUTHORITY_INVALID
         }
-        if (newUuid != null && newUuid.uuid != savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID]) {
-            savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID] = org.mtransit.android.data.Uuid.INVALID
+        if (newUuid != null && newUuid != savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID]) {
+            savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID] = UUID_INVALID
         }
         // 2nd: set the new value
-        savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY] = newAuthority?.authority
-        savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID] = newUuid?.uuid
+        savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY] = newAuthority
+        savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID] = newUuid
         if (newAuthorityAndUuid != null) {
             this._lastReadArticleAuthorityAndUUID.value = newAuthorityAndUuid
         }

@@ -11,11 +11,11 @@ import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.ui.view.common.IActivity
 import java.lang.ref.WeakReference
 
-class BannerAdLister(
+class BannerAdListener(
     private val bannerAdManager: BannerAdManager,
     private val crashReporter: CrashReporter,
     private val activityWR: WeakReference<IActivity>,
-    private val adViewWR: WeakReference<AdView?>,
+    private val adViewWR: WeakReference<AdView>,
 ) : AdListener(), Loggable {
 
     constructor(
@@ -27,11 +27,11 @@ class BannerAdLister(
         bannerAdManager,
         crashReporter,
         WeakReference<IActivity>(activity),
-        WeakReference<AdView?>(adView)
+        WeakReference<AdView>(adView)
     )
 
     companion object {
-        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${BannerAdLister::class.java.simpleName}"
+        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${BannerAdListener::class.java.simpleName}"
     }
 
     override fun getLogTag() = LOG_TAG

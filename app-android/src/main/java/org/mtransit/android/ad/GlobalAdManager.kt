@@ -38,7 +38,7 @@ class GlobalAdManager @Inject constructor(
         }
     }
 
-    fun init(activity: IActivity, bannerAdManager: BannerAdManager) {
+    fun init(activity: IActivity, adScreenFragment: IAdScreenFragment?, bannerAdManager: BannerAdManager) {
         if (!AdConstants.AD_ENABLED) {
             return
         }
@@ -52,7 +52,7 @@ class GlobalAdManager @Inject constructor(
             return // SKIP
         }
         try {
-            TaskUtils.execute(InitTask(this, bannerAdManager, activity))
+            TaskUtils.execute(InitTask(this, bannerAdManager, activity, adScreenFragment))
         } catch (e: Exception) {
             this.crashReporter.w(this, e, "Error while initializing Ads!")
         }

@@ -101,7 +101,7 @@ class SetupBannerAdTask(
 
         adView.apply {
             setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once
-            adListener = BannerAdLister(bannerAdManager, crashReporter, activity, adView)
+            adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView)
         }
         return adView
     }

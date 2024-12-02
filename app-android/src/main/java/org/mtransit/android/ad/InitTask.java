@@ -1,6 +1,7 @@
 package org.mtransit.android.ad;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
 import com.google.android.gms.ads.AdRequest;
@@ -35,11 +36,17 @@ class InitTask extends MTCancellableAsyncTask<Void, Void, Boolean> {
 	private final BannerAdManager bannerAdManager;
 	@NonNull
 	private final WeakReference<IActivity> activityWR;
+	@NonNull
+	private final WeakReference<IAdScreenFragment> adScreenFragmentWR;
 
-	InitTask(@NonNull GlobalAdManager globalAdManager, @NonNull BannerAdManager bannerAdManager, @NonNull IActivity activity) {
+	InitTask(@NonNull GlobalAdManager globalAdManager,
+			 @NonNull BannerAdManager bannerAdManager,
+			 @NonNull IActivity activity,
+			 @Nullable IAdScreenFragment adScreenFragment) {
 		this.globalAdManager = globalAdManager;
 		this.bannerAdManager = bannerAdManager;
 		this.activityWR = new WeakReference<>(activity);
+		this.adScreenFragmentWR = new WeakReference<>(adScreenFragment);
 	}
 
 	@WorkerThread
@@ -74,7 +81,7 @@ class InitTask extends MTCancellableAsyncTask<Void, Void, Boolean> {
 		// https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk
 		MobileAds.initialize( // doing I/O #StrictMode
 				activity.requireActivity(), // some adapters require activity
-				new OnInitializationCompleteListener(this.bannerAdManager, activity)
+				new OnInitializationCompleteListener(this.bannerAdManager, activity, this.adScreenFragmentWR.get())
 		);
 	}
 }

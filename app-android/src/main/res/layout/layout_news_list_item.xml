@@ -78,16 +78,15 @@
 
         <TextView
             android:id="@+id/news_text"
+            style="@style/MTTextNewsArticle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/author"
             android:layout_toStartOf="@id/thumbnail"
-            android:fontFamily="sans-serif-condensed"
             android:ellipsize="end"
             android:maxLines="@integer/news_article_list_item_max_lines"
             android:minLines="@integer/news_article_list_item_min_lines"
             android:paddingTop="@dimen/baseline_2"
-            android:textAppearance="?attr/textAppearanceBody1"
             android:textStyle="normal"
             tools:text="@tools:sample/lorem/random" />
 

@@ -1,9 +1,7 @@
 package org.mtransit.android.ui.view.common;
 
 import android.app.Activity;
-import android.view.View;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;

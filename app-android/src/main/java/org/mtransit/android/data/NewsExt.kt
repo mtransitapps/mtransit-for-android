@@ -7,10 +7,10 @@ import org.mtransit.android.commons.provider.YouTubeNewsProvider
 import java.util.Locale
 
 val News.authorityT: Authority
-    get() = Authority(this.authority)
+    get() = this.authority
 
 val News.uuidT: Uuid
-    get() = Uuid(this.uuid)
+    get() = this.uuid
 
 val News.authorityAndUuidT: AuthorityAndUuid
     get() = AuthorityAndUuid(this.authorityT, this.uuidT)
@@ -31,6 +31,9 @@ val News.imageUrls: List<NewsImage>
     get() = (0 until this.imageURLsCount).map {
         NewsImage(this.getImageUrl(it))
     }
+
+val News.hasImagesOrVideoThumbnail: Boolean
+    get() = this.imageUrls.isNotEmpty() || isTwitterVideo || isYouTubeVideo
 
 // region Twitter
 

@@ -143,7 +143,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		EdgeToEdgeKt.setUpEdgeToEdge(this);
 		super.onCreate(savedInstanceState);
-		adManager.init(this);
+		adManager.init(this, (IAdScreenFragment) getCurrentFragment());
 		NightModeUtils.resetColorCache(); // single activity, no cache can be trusted to be from the right theme
 		this.currentUiMode = getResources().getConfiguration().uiMode;
 		LocaleUtils.onCreateActivity(this);

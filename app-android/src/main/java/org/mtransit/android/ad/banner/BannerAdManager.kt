@@ -1,16 +1,11 @@
 package org.mtransit.android.ad.banner
 
 import android.content.res.Configuration
-import android.util.DisplayMetrics
-import android.view.View
+import android.os.Build
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-import org.mtransit.android.ui.setNavigationBarColor
-import org.mtransit.android.ui.view.common.IActivity
-import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
@@ -19,9 +14,14 @@ import org.mtransit.android.ad.IAdScreenFragment
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.dev.CrashReporter
+import org.mtransit.android.ui.setNavigationBarColor
 import org.mtransit.android.ui.setUpEdgeToEdgeBottom
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.commons.FeatureFlags
+import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
+// Anchored adaptive banner
 class BannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
     private val crashReporter: CrashReporter,
@@ -39,7 +39,9 @@ class BannerAdManager @Inject constructor(
 
     @JvmOverloads
     fun refreshBannerAdStatus(activity: IActivity, adScreenFragment: IAdScreenFragment?, force: Boolean = false) {
-        if (this.globalAdManager.isShowingAds() && adScreenFragment?.hasAds() != true) {
+        if (this.globalAdManager.isShowingAds() // showing ads across the app
+            && adScreenFragment?.hasAds() == false // this specific screen doesn't include ads already
+        ) {
             if (!this.adBannerLoaded.get() || force) { // IF ad was not loaded DO
                 setupBannerAd(activity, force)
             }
@@ -85,7 +87,7 @@ class BannerAdManager @Inject constructor(
     }
 
 
-    fun setupBannerAd(activity: IActivity, force: Boolean) {
+    private fun setupBannerAd(activity: IActivity, force: Boolean) {
         MTLog.d(this, "setupAd($force)")
         if (!AdConstants.AD_ENABLED) {
             MTLog.d(this, "setupAd() > SKIP (AD not enabled)")
@@ -115,11 +117,11 @@ class BannerAdManager @Inject constructor(
         val adLayout = getAdLayout(activity)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
-            if (adView != null && adView.visibility != View.VISIBLE) {
-                adView.visibility = View.VISIBLE
+            if (adView?.isVisible != true) {
+                adView?.isVisible = true
             }
-            if (adLayout.visibility != View.VISIBLE) {
-                adLayout.visibility = View.VISIBLE
+            if (adLayout.isVisible != true) {
+                adLayout.isVisible = true
             }
             adLayout.setUpEdgeToEdgeBottom()
             activity.getActivity().setNavigationBarColor(true)
@@ -172,9 +174,7 @@ class BannerAdManager @Inject constructor(
         adLayout.findViewById(R.id.ad)
 
     fun destroyAd(activity: IActivity) {
-        MTLog.d(this, "setupAd()")
         if (!AdConstants.AD_ENABLED) {
-            MTLog.d(this, "setupAd() > SKIP (AD not enabled)")
             return
         }
         val adLayout = getAdLayout(activity)
@@ -208,23 +208,16 @@ class BannerAdManager @Inject constructor(
         return adSize.getHeightInPixels(activity.requireContext())
     }
 
-    @Suppress("DEPRECATION")
-    fun getAdSize(activity: IActivity): AdSize {
-        val display = activity.requireActivity().windowManager.defaultDisplay
-        val outMetrics = DisplayMetrics()
-        display.getMetrics(outMetrics)
-
-        val density = outMetrics.density
-
-        val adLayout = getAdLayout(activity)
-        val adWidthPixels = adLayout?.width?.toFloat() ?: 0f
-
-        val widthPixels = outMetrics.widthPixels.toFloat()
-
-        val adWidth = (if (adWidthPixels == 0f) widthPixels else adWidthPixels) / density
-
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(activity.requireContext(), adWidth.toInt())
+    fun getAdSize(activity: IActivity): AdSize = with(activity.requireActivity()) {
+        val displayMetrics = resources.displayMetrics
+        val adWidthPixels =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                this.windowManager.currentWindowMetrics.bounds.width()
+            } else {
+                displayMetrics.widthPixels
+            }
+        val density = displayMetrics.density
+        val adWidth = (adWidthPixels / density).toInt()
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
-
-
 }

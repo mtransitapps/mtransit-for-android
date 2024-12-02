@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="ad" type="id" />
+    <item name="inline_banner_ad" type="id" />
 
     <item name="map" type="id" />
 

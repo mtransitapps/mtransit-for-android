@@ -153,7 +153,7 @@ class MainActivity : MTActivityWithLocation(),
     override fun onCreate(savedInstanceState: Bundle?) {
         setUpEdgeToEdge()
         super.onCreate(savedInstanceState)
-        adManager.init(this)
+        adManager.init(this, currentFragment as? IAdScreenFragment)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)

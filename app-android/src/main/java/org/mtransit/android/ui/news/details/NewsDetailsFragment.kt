@@ -17,15 +17,23 @@ import androidx.fragment.app.viewModels
 import androidx.webkit.WebViewClientCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.IAdScreenFragment
+import org.mtransit.android.ad.inlinebanner.InlineBannerAdManager
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.HtmlUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
+import org.mtransit.android.data.getAuthority
 import org.mtransit.android.data.getTwitterVideoId
+import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.getYouTubeVideoId
+import org.mtransit.android.data.hasImagesOrVideoThumbnail
 import org.mtransit.android.data.imageUrls
+import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.data.isTwitterVideo
 import org.mtransit.android.data.isYouTubeVideo
 import org.mtransit.android.data.makeTwitterEmbedVideoPlayerUrl
@@ -36,6 +44,7 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.news.NewsListViewModel
 import org.mtransit.android.ui.news.image.NewsImagesAdapter
 import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.util.LinkUtils
@@ -45,7 +54,7 @@ import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
+class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details), IFragment {
 
     companion object {
         private val LOG_TAG = NewsDetailsFragment::class.java.simpleName
@@ -54,7 +63,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         fun newInstance(newsArticle: News): NewsDetailsFragment = newInstance(newsArticle.authority, newsArticle.uuid)
 
         @JvmStatic
-        fun newInstance(authorityAndUuid: AuthorityAndUuid) = newInstance(authorityAndUuid.getAuthority().authority, authorityAndUuid.getUuid().uuid)
+        fun newInstance(authorityAndUuid: AuthorityAndUuid) = newInstance(authorityAndUuid.getAuthority(), authorityAndUuid.getUuid())
 
         @JvmStatic
         fun newInstance(
@@ -76,7 +85,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         )
 
         @JvmStatic
-        fun newInstanceArgs(authorityAndUuid: AuthorityAndUuid) = newInstanceArgs(authorityAndUuid.getAuthority().authority, authorityAndUuid.getUuid().uuid)
+        fun newInstanceArgs(authorityAndUuid: AuthorityAndUuid) = newInstanceArgs(authorityAndUuid.getAuthority(), authorityAndUuid.getUuid())
+
+        val SPLIT_ARTICLE_REGEX = Regex(HtmlUtils.BRS_REGEX, RegexOption.IGNORE_CASE)
     }
 
     private var _logTag: String = LOG_TAG
@@ -85,6 +96,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     @Inject
     lateinit var imageManager: ImageManager
+
+    @Inject
+    lateinit var inlineBannerAdManager: InlineBannerAdManager
 
     private val viewModel by viewModels<NewsDetailsViewModel>()
 
@@ -131,13 +145,18 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
-        parentViewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { authorityAndUuid ->
-            if (authorityAndUuid == null) { // navigate back to list on phone
+        parentViewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { newAuthorityAndUuid ->
+            if (newAuthorityAndUuid?.isAuthorityAndUuidValid() == false) {
+                return@observe
+            }
+            if (newAuthorityAndUuid == null) { // navigate back to list on phone
                 //noinspection DeprecatedCall
                 binding?.thumbnailWebView?.onPause()
+                inlineBannerAdManager.onPause(this)
             } else if (isResumed) {
                 //noinspection DeprecatedCall
                 binding?.thumbnailWebView?.onResume()
+                inlineBannerAdManager.onResume(this)
             }
         }
     }
@@ -148,6 +167,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         newsArticle?.let { newsArticle ->
             MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
             updateThumbnails(newsArticle)
+            updateNewsArticleText(newsArticle)
             authorIcon.apply {
                 isVisible = if (newsArticle.hasAuthorPictureURL()) {
                     noAuthorIconSpace.isVisible = false
@@ -178,19 +198,6 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     )
                 } ?: newsArticle.sourceLabel
             }
-            newsText.apply {
-                setText(LinkUtils.linkifyHtml(newsArticle.textHTML, true), TextView.BufferType.SPANNABLE)
-                movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                    LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
-                }
-                setLinkTextColor(
-                    newsArticle.colorIntOrNull?.let {
-                        ColorUtils.adaptColorToTheme(context, it)
-                    } ?: run {
-                        ColorUtils.getTextColorPrimary(context)
-                    }
-                )
-            }
             date.apply {
                 setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
                 val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
@@ -205,6 +212,60 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)
                 }
             }
+        }
+    }
+
+    private fun updateNewsArticleText(newsArticle: News) = binding?.apply {
+        val paragraphs = newsArticle.textHTML.split(SPLIT_ARTICLE_REGEX)
+        val limit = when {
+            newsArticle.hasImagesOrVideoThumbnail -> 150
+            else -> 300
+        }
+        val textHTML1Sb = StringBuilder()
+        val textHTML2Sb = StringBuilder()
+        paragraphs.forEachIndexed { index, paragraph ->
+            if (textHTML1Sb.length < limit
+                && index != paragraphs.size - 1 && paragraphs.size > 1 // keep last paragraph for after ad break
+            ) {
+                if (textHTML1Sb.isNotBlank() && paragraph.isNotBlank()) {
+                    textHTML1Sb.append(HtmlUtils.BR)
+                }
+                textHTML1Sb.append(paragraph)
+            } else {
+                if (textHTML2Sb.isNotBlank() && paragraph.isNotBlank()) {
+                    textHTML2Sb.append(HtmlUtils.BR)
+                }
+                textHTML2Sb.append(paragraph)
+            }
+        }
+        val textHTML1 = textHTML1Sb.toString()
+        val textHTML2 = textHTML2Sb.toString()
+        newsText1.apply {
+            setText(LinkUtils.linkifyHtml(textHTML1, true), TextView.BufferType.SPANNABLE)
+            movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
+                LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+            }
+            setLinkTextColor(
+                newsArticle.colorIntOrNull?.let {
+                    ColorUtils.adaptColorToTheme(context, it)
+                } ?: run {
+                    ColorUtils.getTextColorPrimary(context)
+                }
+            )
+        }
+        inlineBannerAdManager.refreshBannerAdStatus(this@NewsDetailsFragment, parentFragment as? IAdScreenFragment)
+        newsText2.apply {
+            setText(LinkUtils.linkifyHtml(textHTML2, true), TextView.BufferType.SPANNABLE)
+            movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
+                LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+            }
+            setLinkTextColor(
+                newsArticle.colorIntOrNull?.let {
+                    ColorUtils.adaptColorToTheme(context, it)
+                } ?: run {
+                    ColorUtils.getTextColorPrimary(context)
+                }
+            )
         }
     }
 
@@ -318,6 +379,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         enableTimeChangedReceiver()
         //noinspection DeprecatedCall
         binding?.thumbnailWebView?.onResume()
+        inlineBannerAdManager.onResume(this)
     }
 
     override fun onPause() {
@@ -325,6 +387,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         disableTimeChangedReceiver()
         //noinspection DeprecatedCall
         binding?.thumbnailWebView?.onPause()
+        inlineBannerAdManager.onPause(this)
     }
 
     private fun enableTimeChangedReceiver() {
@@ -353,5 +416,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         //noinspection DeprecatedCall
         binding?.thumbnailWebView?.destroy()
         binding = null
+        inlineBannerAdManager.destroyAd(this)
     }
+
+    override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
 }

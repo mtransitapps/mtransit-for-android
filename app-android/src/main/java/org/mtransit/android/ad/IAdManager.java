@@ -9,7 +9,7 @@ import org.mtransit.android.ui.view.common.IActivity;
 
 public interface IAdManager {
 
-	void init(@NonNull IActivity activity);
+	void init(@NonNull IActivity activity, @Nullable IAdScreenFragment adScreenFragment);
 
 	void onHasAgenciesEnabledUpdated(@Nullable Boolean hasAgenciesEnabled, @NonNull IActivity activity, @Nullable IAdScreenFragment adScreenFragment);
 

@@ -44,4 +44,7 @@
     <dimen name="touch_target_min_height">@dimen/baseline_48</dimen>
     <dimen name="touch_target_min_height_btn">36dp</dimen>
     <dimen name="touch_target_min_width">@dimen/baseline_48</dimen>
+
+    <dimen name="ad_banner_inline_horizontal_margin">@dimen/baseline_0</dimen>
+    <dimen name="ad_banner_inline_vertical_margin">@dimen/baseline_16</dimen>
 </resources>

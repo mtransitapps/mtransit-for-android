@@ -98,7 +98,6 @@
     <style name="MTButton.Icon" parent="@style/MTButton">
         <item name="android:gravity">start|center_vertical</item>
         <item name="iconGravity">start</item>
-        <item name="android:textAppearance">?attr/textAppearanceBody1</item>-
     </style>
 
     <style name="MTShapeAppearance" parent="@style/ShapeAppearance.Material3.Corner.ExtraSmall" />
@@ -227,6 +226,12 @@
         <item name="android:ellipsize">marquee</item>
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
         <item name="android:textColor">@color/rln_color</item>
+    </style>
+
+    <style name="MTTextNewsArticle">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAppearance">?attr/textAppearanceBody1</item>
     </style>
 
 </resources>

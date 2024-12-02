@@ -22,6 +22,8 @@ import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorityAndUuidT
+import org.mtransit.android.data.getUuid
+import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.databinding.FragmentNewsListDetailsBinding
 import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
 import org.mtransit.android.ui.fragment.ABFragment
@@ -135,7 +137,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override fun getLogTag(): String = LOG_TAG
 
     override fun getScreenName(): String =
-        attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.uuid?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
+        attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 
     @Inject
     lateinit var imageManager: ImageManager
@@ -220,7 +222,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 )
             }
             viewPager.apply {
-                offscreenPageLimit = 3
+                offscreenPageLimit = 1 // only one because pre-fetching ads
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             }
@@ -324,7 +326,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             }
         }
         viewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { newAuthorityAndUuid ->
-            if (newAuthorityAndUuid?.isValid() == false) {
+            if (newAuthorityAndUuid?.isAuthorityAndUuidValid() == false) {
                 return@observe
             }
             listAdapter.setSelectedArticle(newAuthorityAndUuid)
@@ -358,6 +360,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             }
         }
     }
+
+    override fun hasAds() = true
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
 

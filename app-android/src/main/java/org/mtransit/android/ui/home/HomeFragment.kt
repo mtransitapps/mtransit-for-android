@@ -361,7 +361,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     }
 
     override fun getABTitle(context: Context?) =
-        if (demoModeManager.isFullDemo()) "MonTransit"
+        if (attachedViewModel?.isFullDemo() == true) "MonTransit"
         else context?.getString(R.string.app_name) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) =

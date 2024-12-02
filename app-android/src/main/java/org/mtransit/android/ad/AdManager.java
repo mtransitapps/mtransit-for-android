@@ -66,8 +66,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void init(@NonNull IActivity activity) {
-		this.globalAdManager.init(activity, this.bannerAdManager);
+	public void init(@NonNull IActivity activity, @Nullable IAdScreenFragment adScreenFragment) {
+		this.globalAdManager.init(activity, adScreenFragment, this.bannerAdManager);
 	}
 
 	@Override

@@ -1,13 +1,7 @@
 package org.mtransit.android.data
 
-@JvmInline
-value class Uuid(val uuid: String) {
+typealias Uuid = String
 
-    companion object {
-        const val INVALID = ""
-    }
+fun Uuid.isUUIDValid(): Boolean = this.isNotBlank()
 
-    fun isValid(): Boolean = this.uuid.isNotBlank()
-
-    override fun toString() = "${Uuid::class.java.simpleName}($uuid)"
-}
+const val UUID_INVALID = ""

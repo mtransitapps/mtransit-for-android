@@ -1,13 +1,7 @@
 package org.mtransit.android.data
 
-@JvmInline
-value class Authority(val authority: String) {
+typealias Authority = String
 
-    companion object {
-        const val INVALID = ""
-    }
+fun Authority.isAuthorityValid(): Boolean = this.isNotBlank()
 
-    fun isValid(): Boolean = this.authority.isNotBlank()
-
-    override fun toString() = "${Authority::class.java.simpleName}($authority)"
-}
+const val AUTHORITY_INVALID = ""

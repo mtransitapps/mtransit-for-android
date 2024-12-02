@@ -408,4 +408,6 @@ class HomeViewModel @Inject constructor(
     override val hasDisabledModule = moduleDisabled.map {
         it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
+
+    fun isFullDemo() = this.demoModeManager.isFullDemo()
 }

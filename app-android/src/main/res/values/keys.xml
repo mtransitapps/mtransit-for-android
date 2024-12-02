@@ -2,6 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,TypographyDashes,Typos,InconsistentArrays">
     <string name="google_ads_app_id">INSERT_GOOGLE_ADS_APP_ID_HERE</string>
     <string name="google_ads_banner_ad_unit_id">INSERT_GOOGLE_ADS_BANNER_AD_UNIT_ID_HERE</string>
+    <string name="google_ads_banner_inline_ad_unit_id">INSERT_GOOGLE_ADS_BANNER_INLINE_AD_UNIT_ID_HERE</string>
     <string name="google_ads_rewarded_ad_unit_id">INSERT_GOOGLE_ADS_REWARDED_AD_UNIT_ID_HERE</string>
     <string-array name="google_ads_test_devices_ids">
         <item>INSERT_GOOGLE_ADS_TEST_DEVICE_ID_HERE</item>
