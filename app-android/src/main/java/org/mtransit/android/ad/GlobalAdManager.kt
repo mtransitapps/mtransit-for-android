@@ -123,7 +123,7 @@ class GlobalAdManager @Inject constructor(
     }
 
     fun shouldSkipRewardedAd(): Boolean {
-        return this.rewardedUserManager.shouldSkipRewardedAd();
+        return this.rewardedUserManager.shouldSkipRewardedAd()
     }
 
     fun getRewardedAdAmount(): Int {

@@ -976,7 +976,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="106"
+            line="118"
             column="33"/>
     </issue>
 
@@ -987,30 +987,8 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="106"
+            line="118"
             column="33"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.view.WindowManager.getDefaultDisplay is deprecated; consider using an alternative."
-        errorLine1="        val display = activity.requireActivity().windowManager.defaultDisplay"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="211"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.view.Display.getMetrics is deprecated; consider using an alternative."
-        errorLine1="        display.getMetrics(outMetrics)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="213"
-            column="9"/>
     </issue>
 
     <issue
@@ -2413,8 +2391,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity))"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity, adScreenFragment))"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
             line="55"
@@ -2424,78 +2402,12 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity))"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity, adScreenFragment))"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
             line="55"
             column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity))"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
-            line="55"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity))"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
-            line="55"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity))"
-        errorLine2="                                             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
-            line="55"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity))"
-        errorLine2="                                             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
-            line="55"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity))"
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
-            line="55"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity))"
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
-            line="55"
-            column="63"/>
     </issue>
 
     <issue
@@ -2544,46 +2456,101 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.initOnBackgroundThread is deprecated; consider using an alternative."
-        errorLine1="  initOnBackgroundThread(activity);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.java"
-            line="58"
-            column="3"/>
+            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
+        errorLine1="    ) : this("
+        errorLine2="        ^">
+        <location
+            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
+            line="26"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
+        errorLine1="    ) : this("
+        errorLine2="        ^">
+        <location
+            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
+            line="26"
+            column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ad.InitTask.initOnBackgroundThread is deprecated; consider using an alternative."
-        errorLine1="  initOnBackgroundThread(activity);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        initOnBackgroundThread(activity)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.java"
-            line="58"
-            column="3"/>
+            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
+            line="47"
+            column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ad.InitTask.initOnBackgroundThread is deprecated; consider using an alternative."
-        errorLine1="  initOnBackgroundThread(activity);"
-        errorLine2="                         ~~~~~~~~">
+        errorLine1="        initOnBackgroundThread(activity)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.java"
-            line="58"
-            column="26"/>
+            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
+            line="47"
+            column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.initOnBackgroundThread is deprecated; consider using an alternative."
-        errorLine1="  initOnBackgroundThread(activity);"
-        errorLine2="                         ~~~~~~~~">
+        message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
+        errorLine1="        MTLog.d(this, &quot;setupBannerAd() > setupInlineBannerAdTask.isCancelled: ${getSetupInlineBannerAdTask(fragment)?.isCancelled}&quot;)"
+        errorLine2="                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.java"
-            line="58"
-            column="26"/>
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/InlineBannerAdManager.kt"
+            line="102"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.SetupInlineBannerAdTask is deprecated; consider using an alternative."
+        errorLine1="            setSetupInlineBannerAdTask(fragment, SetupInlineBannerAdTask(this.globalAdManager, this, this.crashReporter, fragment))"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/InlineBannerAdManager.kt"
+            line="105"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.SetupInlineBannerAdTask is deprecated; consider using an alternative."
+        errorLine1="            setSetupInlineBannerAdTask(fragment, SetupInlineBannerAdTask(this.globalAdManager, this, this.crashReporter, fragment))"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/InlineBannerAdManager.kt"
+            line="105"
+            column="50"/>
     </issue>
 
     <issue
@@ -3671,7 +3638,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.java"
-            line="504"
+            line="505"
             column="3"/>
     </issue>
 
@@ -3682,7 +3649,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.java"
-            line="504"
+            line="505"
             column="3"/>
     </issue>
 
@@ -7884,7 +7851,7 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="220"
+            line="219"
             column="4"/>
     </issue>
 
@@ -7893,6 +7860,17 @@
         message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
         errorLine1="     LOG_TAG,"
         errorLine2="     ~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
+            line="220"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
+        errorLine1="     this,"
+        errorLine2="     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="221"
@@ -7913,22 +7891,11 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="     this,"
-        errorLine2="     ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="223"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
         errorLine1="     null // this.dataSourcesRepository"
         errorLine2="     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="237"
+            line="236"
             column="6"/>
     </issue>
 
@@ -7939,7 +7906,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="336"
+            line="335"
             column="3"/>
     </issue>
 
@@ -7950,7 +7917,7 @@
         errorLine2="                                             ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="336"
+            line="335"
             column="46"/>
     </issue>
 
@@ -7961,7 +7928,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="337"
+            line="336"
             column="3"/>
     </issue>
 
@@ -7972,7 +7939,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="337"
+            line="336"
             column="34"/>
     </issue>
 
@@ -7983,7 +7950,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="395"
+            line="394"
             column="3"/>
     </issue>
 
@@ -7994,7 +7961,7 @@
         errorLine2="                                                ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="395"
+            line="394"
             column="49"/>
     </issue>
 
@@ -8005,7 +7972,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="446"
+            line="445"
             column="3"/>
     </issue>
 
@@ -8016,7 +7983,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="446"
+            line="445"
             column="51"/>
     </issue>
 
@@ -8027,7 +7994,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="447"
+            line="446"
             column="3"/>
     </issue>
 
@@ -8038,7 +8005,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="448"
+            line="447"
             column="3"/>
     </issue>
 
@@ -8049,7 +8016,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="448"
+            line="447"
             column="35"/>
     </issue>
 
@@ -8060,7 +8027,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="454"
+            line="453"
             column="3"/>
     </issue>
 
@@ -8071,7 +8038,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="461"
+            line="460"
             column="3"/>
     </issue>
 
@@ -8082,7 +8049,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="461"
+            line="460"
             column="35"/>
     </issue>
 
@@ -8093,7 +8060,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="505"
+            line="504"
             column="3"/>
     </issue>
 
@@ -8104,7 +8071,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="505"
+            line="504"
             column="40"/>
     </issue>
 
@@ -8115,7 +8082,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="505"
+            line="504"
             column="46"/>
     </issue>
 
@@ -8126,7 +8093,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="579"
+            line="578"
             column="3"/>
     </issue>
 
@@ -8137,7 +8104,7 @@
         errorLine2="                                             ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="579"
+            line="578"
             column="46"/>
     </issue>
 
@@ -8148,7 +8115,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="987"
+            line="986"
             column="4"/>
     </issue>
 
@@ -8159,7 +8126,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1001"
+            line="1000"
             column="4"/>
     </issue>
 
@@ -8170,7 +8137,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1001"
+            line="1000"
             column="51"/>
     </issue>
 
@@ -8181,7 +8148,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1067"
+            line="1066"
             column="3"/>
     </issue>
 
@@ -8192,7 +8159,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1076"
+            line="1075"
             column="4"/>
     </issue>
 
@@ -8203,7 +8170,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1076"
+            line="1075"
             column="47"/>
     </issue>
 
@@ -8214,7 +8181,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1077"
+            line="1076"
             column="4"/>
     </issue>
 
@@ -8225,7 +8192,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1077"
+            line="1076"
             column="35"/>
     </issue>
 
@@ -8236,7 +8203,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1241"
+            line="1240"
             column="3"/>
     </issue>
 
@@ -8247,7 +8214,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1517"
+            line="1516"
             column="3"/>
     </issue>
 
@@ -8258,7 +8225,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1518"
+            line="1517"
             column="3"/>
     </issue>
 
@@ -8269,7 +8236,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1527"
+            line="1526"
             column="3"/>
     </issue>
 
@@ -8280,7 +8247,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1533"
+            line="1532"
             column="3"/>
     </issue>
 
@@ -10030,6 +9997,94 @@
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
             line="70"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.SetupInlineBannerAdTask is deprecated; consider using an alternative."
+        errorLine1="    ) : this("
+        errorLine2="        ^">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="30"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.SetupInlineBannerAdTask is deprecated; consider using an alternative."
+        errorLine1="    ) : this("
+        errorLine2="        ^">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="30"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
+        errorLine1="        return !isCancelled &amp;&amp; this.globalAdManager.isShowingAds() // TODO can be called from any thread"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="48"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
+        errorLine1="        if (isShowingAds == true &amp;&amp; !isCancelled) { // show ads"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="58"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
+        errorLine1="                    adView = makeNewAdView(activity, adLayout)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="63"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
+        errorLine1="                    adView = makeNewAdView(activity, adLayout)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="63"
             column="30"/>
     </issue>
 
