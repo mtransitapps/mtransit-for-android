@@ -16,8 +16,8 @@ internal class OnInitializationCompleteListener(
 
     constructor(
         bannerAdManager: BannerAdManager,
-        activity: IActivity,
-        adScreenFragment: IAdScreenFragment,
+        activity: IActivity?,
+        adScreenFragment: IAdScreenFragment?,
     ) : this(
         bannerAdManager,
         WeakReference<IActivity>(activity),
