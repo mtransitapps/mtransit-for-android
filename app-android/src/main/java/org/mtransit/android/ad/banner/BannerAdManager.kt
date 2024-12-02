@@ -20,8 +20,10 @@ import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.commons.FeatureFlags
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import javax.inject.Singleton
 
 // Anchored adaptive banner
+@Singleton
 class BannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
     private val crashReporter: CrashReporter,

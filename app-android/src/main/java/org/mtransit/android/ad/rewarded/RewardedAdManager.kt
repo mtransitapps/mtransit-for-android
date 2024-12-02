@@ -13,7 +13,9 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.IActivity
 import java.lang.ref.WeakReference
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class RewardedAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
     private val defaultPrefRepository: DefaultPreferenceRepository,

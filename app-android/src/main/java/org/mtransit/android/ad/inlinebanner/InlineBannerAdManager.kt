@@ -17,7 +17,9 @@ import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.IViewFinder
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class InlineBannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
     private val crashReporter: CrashReporter,
