@@ -169,8 +169,6 @@
                 android:layout_marginStart="@dimen/baseline_16"
                 android:layout_marginTop="@dimen/baseline_16"
                 android:layout_marginEnd="@dimen/baseline_16"
-                android:ellipsize="end"
-                android:textStyle="normal"
                 tools:maxLines="3"
                 tools:text="@tools:sample/lorem/random" />
 
@@ -198,8 +196,6 @@
                 android:layout_marginStart="@dimen/baseline_16"
                 android:layout_marginTop="@dimen/baseline_16"
                 android:layout_marginEnd="@dimen/baseline_16"
-                android:ellipsize="end"
-                android:textStyle="normal"
                 tools:maxLines="13"
                 tools:text="@tools:sample/lorem/random" />
 
