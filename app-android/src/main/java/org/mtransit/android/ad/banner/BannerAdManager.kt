@@ -59,6 +59,8 @@ class BannerAdManager @Inject constructor(
             return
         }
         if (!this.globalAdManager.isShowingAds()) {
+            return
+        }
         if (activity.currentAdFragment?.hasAds() == true) {
             return
         }
@@ -87,7 +89,6 @@ class BannerAdManager @Inject constructor(
         val smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL
         return !smallScreen
     }
-
 
     private fun setupBannerAd(activity: IAdScreenActivity, force: Boolean) {
         MTLog.d(this, "setupAd($force)")
