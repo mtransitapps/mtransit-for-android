@@ -16,6 +16,8 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.ThemeUtils
@@ -36,6 +38,7 @@ import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.FragmentUtils
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -141,6 +144,9 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     @Inject
     lateinit var imageManager: ImageManager
+
+    @Inject
+    lateinit var adManager: AdManager
 
     @Inject
     lateinit var analyticsManager: AnalyticsManager
@@ -329,6 +335,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             if (newAuthorityAndUuid?.isAuthorityAndUuidValid() == false) {
                 return@observe
             }
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
             listAdapter.setSelectedArticle(newAuthorityAndUuid)
             analyticsManager.trackScreenView(this@NewsListDetailFragment)
             val authorityAndUuid = newAuthorityAndUuid ?: return@observe
@@ -361,7 +368,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
     }
 
-    override fun hasAds() = true
+    override fun hasAds() = UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
 
