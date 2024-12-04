@@ -45,13 +45,12 @@ class NewsImagesAdapter(
             }
         }
 
-        @Suppress("UNUSED_PARAMETER")
         fun bind(
             imageManager: ImageManager,
-            position: Int,
-            itemCount: Int,
+            @Suppress("unused") position: Int,
+            @Suppress("unused") itemCount: Int,
             newsImage: NewsImage,
-            horizontal: Boolean,
+            @Suppress("unused") horizontal: Boolean,
             onClick: (View, NewsImage) -> Unit,
         ) {
             val context = binding.root.context

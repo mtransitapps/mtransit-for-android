@@ -46,10 +46,4 @@ public abstract class MTActivity extends MTAppCompatActivity implements IActivit
 	public Activity requireActivity() throws IllegalStateException {
 		return this;
 	}
-
-	@NonNull
-	@Override
-	public LifecycleOwner getLifecycleOwner() {
-		return this;
-	}
 }

@@ -207,4 +207,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         listGridAdapter = null
         binding = null
     }
+
+    override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
 }

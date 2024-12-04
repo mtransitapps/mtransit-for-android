@@ -233,7 +233,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
 
     fun setSearchQuery(
         query: String?,
-        @Suppress("UNUSED_PARAMETER") alreadyInSearchView: Boolean
+        @Suppress("unused") alreadyInSearchView: Boolean
     ) {
         if (DEV_QUERY == query) {
             devEnabled = devEnabled != true // flip

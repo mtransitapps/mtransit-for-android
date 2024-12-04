@@ -12,7 +12,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -26,7 +25,7 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class NextMainViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val defaultPrefRepository: DefaultPreferenceRepository,
@@ -34,7 +33,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = "Stack-" + MainViewModel::class.java.simpleName
+        private val LOG_TAG = "Stack-" + NextMainViewModel::class.java.simpleName
 
         private const val ITEM_ID_AGENCY_TYPE_START_WITH = "agencytype-"
         private const val ITEM_ID_STATIC_START_WITH = "static-"
@@ -88,10 +87,8 @@ class MainViewModel @Inject constructor(
     }
 
     fun onAppVisible() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                dataSourcesRepository.updateLock()
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            dataSourcesRepository.updateLock()
         }
     }
 
@@ -186,7 +183,7 @@ class MainViewModel @Inject constructor(
         R.id.root_nav_module -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id
         null -> null
         else -> {
-            MTLog.w(this@MainViewModel, "Unknown item ID resource '$idRes'!")
+            MTLog.w(this@NextMainViewModel, "Unknown item ID resource '$idRes'!")
             null
         }
     }

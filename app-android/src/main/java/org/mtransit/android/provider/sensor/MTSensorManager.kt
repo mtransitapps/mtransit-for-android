@@ -3,7 +3,7 @@ package org.mtransit.android.provider.sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.location.Location
-import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.IFragment
 
 interface MTSensorManager {
 
@@ -12,7 +12,7 @@ interface MTSensorManager {
     fun unregisterSensorListener(sensorEventListener: SensorEventListener)
 
     fun checkForCompass(
-        activity: IActivity,
+        activity: IFragment,
         event: SensorEvent,
         accelerometerValues: FloatArray,
         magneticFieldValues: FloatArray,

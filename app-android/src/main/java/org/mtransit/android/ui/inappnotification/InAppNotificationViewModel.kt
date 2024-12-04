@@ -1,9 +1,9 @@
 package org.mtransit.android.ui.inappnotification
 
-import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ad.IAdScreenActivity
 
 interface InAppNotificationViewModel {
 
-    fun getAdBannerHeightInPx(activity: IActivity?): Int?
+    fun getAdBannerHeightInPx(activity: IAdScreenActivity?): Int?
 
 }

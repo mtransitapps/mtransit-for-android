@@ -41,7 +41,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
-import org.mtransit.android.ui.main.MainViewModel
+import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
@@ -172,7 +172,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     override val viewModel by viewModels<NearbyViewModel>()
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
-    private val mainViewModel by activityViewModels<MainViewModel>()
+    private val nextMainViewModel by activityViewModels<NextMainViewModel>()
 
     override fun getContextView(): View? = this.binding?.contextView ?: this.view
 
@@ -222,7 +222,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
                 tab.text = viewModel.availableTypes.value?.get(position)?.shortNamesResId?.let { viewPager.context.getString(it) }
             }.attach()
             if (FeatureFlags.F_NAVIGATION) {
-                (activity as? org.mtransit.android.ui.main.MainActivity?)?.supportActionBar?.elevation?.let {
+                (activity as? org.mtransit.android.ui.main.NextMainActivity?)?.supportActionBar?.elevation?.let {
                     tabs.elevation = it
                 }
             }
@@ -253,13 +253,13 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         viewModel.fixedOnName.observe(viewLifecycleOwner) {
             abController?.setABTitle(this, getABTitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
-                mainViewModel.setABTitle(getABTitle(context))
+                nextMainViewModel.setABTitle(getABTitle(context))
             }
         }
         viewModel.fixedOnColorInt.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
             if (FeatureFlags.F_NAVIGATION) {
-                mainViewModel.setABBgColor(getABBgColor(context))
+                nextMainViewModel.setABBgColor(getABBgColor(context))
             }
             setupTabTheme()
         }
@@ -270,7 +270,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
-                mainViewModel.setABSubtitle(getABSubtitle(context))
+                nextMainViewModel.setABSubtitle(getABSubtitle(context))
             }
             abController?.setABReady(this, isABReady, true)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
@@ -411,9 +411,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         viewModel.checkIfNetworkLocationRefreshNecessary()
         if (FeatureFlags.F_NAVIGATION) {
-            mainViewModel.setABTitle(getABTitle(context))
-            mainViewModel.setABSubtitle(getABSubtitle(context))
-            mainViewModel.setABBgColor(getABBgColor(context))
+            nextMainViewModel.setABTitle(getABTitle(context))
+            nextMainViewModel.setABSubtitle(getABSubtitle(context))
+            nextMainViewModel.setABBgColor(getABBgColor(context))
         }
     }
 

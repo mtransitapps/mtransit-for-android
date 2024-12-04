@@ -40,6 +40,7 @@ import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
+import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -161,7 +162,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 tab.text = viewModel.typeAgencies.value?.get(position)?.shortName
             }.attach()
             if (FeatureFlags.F_NAVIGATION) {
-                (activity as? org.mtransit.android.ui.main.MainActivity?)?.supportActionBar?.elevation?.let {
+                (activity as? NextMainActivity?)?.supportActionBar?.elevation?.let {
                     tabs.elevation = it
                 }
             }

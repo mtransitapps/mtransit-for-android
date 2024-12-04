@@ -78,7 +78,7 @@
         </activity>
         <!-- MAIN SCREEN -->
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name=".ui.main.NextMainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="false"
             android:launchMode="singleTask"

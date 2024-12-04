@@ -45,7 +45,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
-import org.mtransit.android.ui.main.MainViewModel
+import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.type.AgencyTypeFragment
@@ -84,7 +84,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     override val viewModel by viewModels<HomeViewModel>()
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
-    private val mainViewModel by activityViewModels<MainViewModel>()
+    private val nextMainViewModel by activityViewModels<NextMainViewModel>()
 
     override fun getContextView(): View? = this.binding?.contextView ?: this.view
 
@@ -217,7 +217,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), true)
             if (FeatureFlags.F_NAVIGATION) {
-                mainViewModel.setABSubtitle(getABSubtitle(context))
+                nextMainViewModel.setABSubtitle(getABSubtitle(context))
             }
         }
         viewModel.nearbyPOIsTriggerListener.observe(viewLifecycleOwner) {
@@ -256,7 +256,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         LocationPermissionUI.onViewCreated(this)
         NewLocationUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
-            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
                     binding?.listLayout?.list?.setSelection(0)
                 }
@@ -282,8 +282,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         viewModel.checkIfNetworkLocationRefreshNecessary()
         viewModel.refreshLocationPermissionNeeded()
         if (FeatureFlags.F_NAVIGATION) {
-            mainViewModel.setABTitle(getABTitle(context))
-            mainViewModel.setABSubtitle(getABSubtitle(context))
+            nextMainViewModel.setABTitle(getABTitle(context))
+            nextMainViewModel.setABSubtitle(getABSubtitle(context))
         }
         if (demoModeManager.isEnabledPOIScreen()) {
             val poiAuthority = demoModeManager.filterAgencyAuthority ?: throw RuntimeException("Demo mode: missing authority!")

@@ -11,8 +11,8 @@
     <dimen name="news_image_grid_item_width">@dimen/news_image_grid_item_height</dimen>
     <integer name="news_image_grid_span_count">1</integer>
 
-    <dimen name="news_article_list_item_img_width">@dimen/baseline_96</dimen>
-    <dimen name="news_article_list_item_img_height">@dimen/news_article_list_item_img_width</dimen>
+    <dimen name="news_article_list_item_img_width">@dimen/baseline_120</dimen><!-- min 120 -->
+    <dimen name="news_article_list_item_img_height">@dimen/news_article_list_item_img_width</dimen><!-- min 120 -->
     <integer name="news_article_list_item_min_lines">@integer/news_article_list_item_max_lines</integer>
     <integer name="news_article_list_item_max_lines">5</integer>
     <dimen name="news_article_horizontal_list_item_elevation">@dimen/baseline_2</dimen>

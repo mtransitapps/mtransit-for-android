@@ -4,11 +4,14 @@ import android.content.res.Configuration
 import org.mtransit.android.ui.view.common.IActivity
 
 interface IAdManager {
-    fun init(activity: IActivity, adScreenFragment: IAdScreenFragment?)
 
-    fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IActivity, adScreenFragment: IAdScreenFragment?)
+    fun init(activity: IAdScreenActivity)
 
-    fun setShowingAds(newShowingAds: Boolean?, activity: IActivity, adScreenFragment: IAdScreenFragment?)
+    fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity)
+
+    fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity)
+
+    // region Rewarded Ad
 
     fun getRewardedAdAmount(): Int
 
@@ -24,18 +27,20 @@ interface IAdManager {
 
     fun showRewardedAd(activity: IActivity): Boolean
 
-    fun getBannerHeightInPx(activity: IActivity?): Int
+    // endregion Rewarded Ad
 
-    fun adaptToScreenSize(activity: IActivity, configuration: Configuration?)
+    fun getBannerHeightInPx(activity: IAdScreenActivity?): Int
 
-    fun onResumeScreen(activity: IActivity, adScreenFragment: IAdScreenFragment)
+    fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.activity?.resources?.configuration)
+
+    fun onResumeScreen(activity: IAdScreenActivity)
 
     @Suppress("unused")
-    fun resumeAd(activity: IActivity)
+    fun resumeAd(activity: IAdScreenActivity)
 
-    fun pauseAd(activity: IActivity)
+    fun pauseAd(activity: IAdScreenActivity)
 
-    fun destroyAd(activity: IActivity)
+    fun destroyAd(activity: IAdScreenActivity)
 
     fun getRewardedUntilInMs(): Long
 

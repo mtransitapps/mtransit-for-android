@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
@@ -24,7 +25,6 @@ import org.mtransit.android.data.getUuid
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
@@ -138,7 +138,7 @@ class NewsListViewModel @Inject constructor(
         }
     }
 
-    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
+    override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
 
     override val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
         it.filter { agency -> !agency.isEnabled }

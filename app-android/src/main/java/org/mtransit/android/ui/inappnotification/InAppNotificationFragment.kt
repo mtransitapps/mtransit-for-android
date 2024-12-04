@@ -2,13 +2,10 @@ package org.mtransit.android.ui.inappnotification
 
 import android.app.Activity
 import android.view.View
-import androidx.lifecycle.LifecycleOwner
-import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.IFragment
 
-interface InAppNotificationFragment : IActivity {
+interface InAppNotificationFragment : IFragment {
 
-    fun getViewLifecycleOwner(): LifecycleOwner
-    fun getView(): View?
     fun getContextView(): View? // required to set at the fragment level (default = getView())
     fun getAnchorView(): View? = null // optional
     val viewModel: InAppNotificationViewModel

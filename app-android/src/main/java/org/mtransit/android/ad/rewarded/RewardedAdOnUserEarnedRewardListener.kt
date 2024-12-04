@@ -4,22 +4,22 @@ import com.google.android.gms.ads.OnUserEarnedRewardListener
 import com.google.android.gms.ads.rewarded.RewardItem
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
+import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.MTLog.Loggable
-import org.mtransit.android.ui.view.common.IActivity
 import java.lang.ref.WeakReference
 
 class RewardedAdOnUserEarnedRewardListener(
     private val globalAdManager: GlobalAdManager,
-    private val activityWR: WeakReference<IActivity>,
+    private val contextWR: WeakReference<IContext>,
 ) : OnUserEarnedRewardListener, Loggable {
 
     constructor(
         globalAdManager: GlobalAdManager,
-        activity: IActivity,
+        context: IContext,
     ) : this(
         globalAdManager,
-        WeakReference<IActivity>(activity),
+        WeakReference(context),
     )
 
     companion object {
@@ -30,7 +30,6 @@ class RewardedAdOnUserEarnedRewardListener(
 
     override fun onUserEarnedReward(rewardItem: RewardItem) {
         MTLog.d(this, "onUserEarnedReward() > User earned reward from ad %s.", rewardItem)
-        val activity = this.activityWR.get()
-        this.globalAdManager.rewardUser(this.globalAdManager.getRewardedAdAmountInMs(), activity)
+        this.globalAdManager.rewardUser(this.globalAdManager.getRewardedAdAmountInMs(), this.contextWR.get())
     }
 }

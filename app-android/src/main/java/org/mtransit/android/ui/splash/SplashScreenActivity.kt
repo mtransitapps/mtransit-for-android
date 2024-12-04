@@ -5,9 +5,11 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.ui.MTActivity
+import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.commons.FeatureFlags
@@ -34,7 +36,7 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        analyticsManager.trackScreenView(this, this)
+        analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
         splashScreen.setKeepOnScreenCondition { true } // Keep the splash screen visible for this Activity
         showMainActivity()
@@ -56,7 +58,7 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
         // return
         // }
         if (FeatureFlags.F_NAVIGATION) {
-            startActivity(org.mtransit.android.ui.main.MainActivity.newInstance(this))
+            startActivity(NextMainActivity.newInstance(this))
             finish()
             return
         }
@@ -64,4 +66,5 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
         finish()
     }
 
+    override val currentFragment: Fragment? = null
 }

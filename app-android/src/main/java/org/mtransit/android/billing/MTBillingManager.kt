@@ -249,7 +249,7 @@ class MTBillingManager @Inject constructor(
         )
     }
 
-    private fun isUnchangedPurchaseList(@Suppress("UNUSED_PARAMETER") purchasesList: List<Purchase>?): Boolean {
+    private fun isUnchangedPurchaseList(@Suppress("unused") purchasesList: List<Purchase>?): Boolean {
         return false // TODO optimized to avoid updates with identical data.
     }
 

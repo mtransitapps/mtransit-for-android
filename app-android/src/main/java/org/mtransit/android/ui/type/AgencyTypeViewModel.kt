@@ -12,6 +12,7 @@ import androidx.lifecycle.switchMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
@@ -22,7 +23,6 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UIFeatureFlags
@@ -87,7 +87,7 @@ class AgencyTypeViewModel @Inject constructor(
         it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
 
-    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
+    override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
 
     private val selectedTypeAgencyAuthority: LiveData<String> = _typeId.switchMap { typeId ->
         liveData {

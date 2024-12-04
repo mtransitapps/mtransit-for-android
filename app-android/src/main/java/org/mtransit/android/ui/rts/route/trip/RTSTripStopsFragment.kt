@@ -29,13 +29,12 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteViewModel
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IActivity {
+class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
 
     companion object {
         private val LOG_TAG = RTSTripStopsFragment::class.java.simpleName
@@ -368,9 +367,5 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         mapViewController.onDestroy()
     }
 
-    override fun getLifecycleOwner() = this
-
-    override fun finish() {
-        activity?.finish()
-    }
+    override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
 }

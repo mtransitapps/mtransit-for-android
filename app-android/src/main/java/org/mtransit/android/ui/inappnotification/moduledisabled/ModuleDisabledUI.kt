@@ -42,7 +42,7 @@ object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
 
     override fun onActionClick(fragment: ModuleDisabledAwareFragment) = View.OnLongClickListener {
         val attachedViewModel = fragment.attachedViewModel
-        val activity = fragment.activity ?: return@OnLongClickListener false // not handled
+        val activity = fragment.getActivity() ?: return@OnLongClickListener false // not handled
         attachedViewModel?.moduleDisabled?.value?.let { moduleDisabled ->
             if (moduleDisabled.isNotEmpty()) {
                 return@OnLongClickListener if (BuildConfig.DEBUG && BatteryOptimizationIssueUtils.isSamsungDevice()) {

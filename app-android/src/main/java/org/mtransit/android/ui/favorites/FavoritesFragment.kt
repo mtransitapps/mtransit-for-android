@@ -34,7 +34,7 @@ import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.main.MainViewModel
+import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -70,7 +70,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     override val viewModel by viewModels<FavoritesViewModel>()
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
-    private val mainViewModel by activityViewModels<MainViewModel>()
+    private val nextMainViewModel by activityViewModels<NextMainViewModel>()
 
     override fun getContextView(): View? = this.binding?.contextView ?: this.view
 
@@ -165,7 +165,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
-            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
                     binding?.listLayout?.list?.setSelection(0)
                 }
@@ -183,7 +183,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         if (FeatureFlags.F_NAVIGATION) {
-            mainViewModel.setABTitle(getABTitle(context))
+            nextMainViewModel.setABTitle(getABTitle(context))
         }
     }
 

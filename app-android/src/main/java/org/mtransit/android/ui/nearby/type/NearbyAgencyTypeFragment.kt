@@ -21,16 +21,15 @@ import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
-import org.mtransit.android.ui.main.MainViewModel
+import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.nearby.NearbyViewModel
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_type), IActivity {
+class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_type) {
 
     companion object {
         private val LOG_TAG = NearbyAgencyTypeFragment::class.java.simpleName
@@ -62,7 +61,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
-    private val mainViewModel by activityViewModels<MainViewModel>()
+    private val nextMainViewModel by activityViewModels<NextMainViewModel>()
 
     private val parentViewModel by viewModels<NearbyViewModel>({ requireParentFragment() })
     private val attachedParentViewModel
@@ -177,7 +176,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             switchView()
         }
         if (FeatureFlags.F_NAVIGATION) {
-            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner) { scrollEvent ->
+            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner) { scrollEvent ->
                 if (isResumed) { // only consumed for current tab
                     val scroll = scrollEvent.getContentIfNotHandled() == true
                     if (scroll) {
@@ -243,9 +242,5 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         this.adapter.onDestroy()
     }
 
-    override fun getLifecycleOwner() = this
-
-    override fun finish() {
-        activity?.finish()
-    }
+    override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
 }

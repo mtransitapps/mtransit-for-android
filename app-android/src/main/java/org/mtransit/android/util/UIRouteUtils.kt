@@ -10,7 +10,7 @@ object UIRouteUtils {
 
     @JvmStatic
     fun decorateRouteShortName(
-        @Suppress("UNUSED_PARAMETER", "unused") context: Context,
+        @Suppress("unused") context: Context,
         rsn: String,
     ): CharSequence {
         return SpanUtils.setAll(

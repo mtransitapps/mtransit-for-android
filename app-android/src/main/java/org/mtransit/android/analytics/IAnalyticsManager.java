@@ -5,8 +5,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Size;
 
-import org.mtransit.android.ui.view.common.IActivity;
-
 @SuppressWarnings("unused")
 public interface IAnalyticsManager {
 
@@ -19,7 +17,7 @@ public interface IAnalyticsManager {
 	void logEvent(@NonNull @Size(min = 1L, max = 40L) String name, @Nullable AnalyticsEventsParamsProvider params);
 
 	@MainThread
-	void trackScreenView(@NonNull IActivity activity, @NonNull Trackable page);
+	void trackScreenView(@NonNull Trackable page);
 
 	interface Trackable {
 		@NonNull

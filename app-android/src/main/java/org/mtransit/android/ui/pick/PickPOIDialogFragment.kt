@@ -30,15 +30,16 @@ import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
+import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
 import org.mtransit.android.ui.view.common.EventObserver
-import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), MTActivityWithLocation.DeviceLocationListener, IActivity {
+class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationListener, IFragment {
 
     companion object {
         private val LOG_TAG = PickPOIDialogFragment::class.java.simpleName
@@ -135,7 +136,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), MTActivityWithLoca
             behavior = (this as? BottomSheetDialog)?.behavior
                 ?.apply {
                     resources.getDimensionInt(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
-                        setPeekHeight(it)
+                        peekHeight = it
                     }
                 }
         }
@@ -227,9 +228,5 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), MTActivityWithLoca
         behavior = null
     }
 
-    override fun getLifecycleOwner() = this
-
-    override fun finish() {
-        activity?.finish()
-    }
+    override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
 }

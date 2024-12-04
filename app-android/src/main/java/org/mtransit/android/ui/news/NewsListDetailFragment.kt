@@ -29,7 +29,7 @@ import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.main.MainViewModel
+import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
@@ -151,7 +151,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun getContextView(): View? = this.binding?.newsContainerLayout?.newsContainerLayout ?: this.view
 
-    private val mainViewModel by activityViewModels<MainViewModel>()
+    private val nextMainViewModel by activityViewModels<NextMainViewModel>()
 
     private var binding: FragmentNewsListDetailsBinding? = null
 
@@ -272,13 +272,13 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         viewModel.subTitle.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
-                mainViewModel.setABSubtitle(getABSubtitle(context))
+                nextMainViewModel.setABSubtitle(getABSubtitle(context))
             }
         }
         viewModel.colorInt.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
             if (FeatureFlags.F_NAVIGATION) {
-                mainViewModel.setABBgColor(getABBgColor(context))
+                nextMainViewModel.setABBgColor(getABBgColor(context))
             }
         }
         viewModel.loading.observe(viewLifecycleOwner) { loading ->
@@ -330,13 +330,13 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 return@observe
             }
             listAdapter.setSelectedArticle(newAuthorityAndUuid)
-            analyticsManager.trackScreenView(this@NewsListDetailFragment, this@NewsListDetailFragment)
+            analyticsManager.trackScreenView(this@NewsListDetailFragment)
             val authorityAndUuid = newAuthorityAndUuid ?: return@observe
             selectPagerNewsArticle(authorityAndUuid)
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
-            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
                     binding?.newsContainerLayout?.newsList?.scrollToPosition(0)
                 }
@@ -373,9 +373,9 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         super.onResume()
         listAdapter.onResume(this)
         if (FeatureFlags.F_NAVIGATION) {
-            mainViewModel.setABTitle(getABTitle(context))
-            mainViewModel.setABSubtitle(getABSubtitle(context))
-            mainViewModel.setABBgColor(getABBgColor(context))
+            nextMainViewModel.setABTitle(getABTitle(context))
+            nextMainViewModel.setABSubtitle(getABSubtitle(context))
+            nextMainViewModel.setABBgColor(getABBgColor(context))
         }
     }
 

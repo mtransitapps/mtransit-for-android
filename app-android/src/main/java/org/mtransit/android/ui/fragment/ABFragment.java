@@ -15,11 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.ad.IAdScreenActivity;
 import org.mtransit.android.ad.IAdScreenFragment;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
@@ -32,7 +32,6 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI;
-import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.WeakHashMap;
@@ -45,8 +44,7 @@ import kotlin.Unit;
 @AndroidEntryPoint
 public abstract class ABFragment extends MTFragmentX implements
 		AnalyticsManager.Trackable,
-		IAdScreenFragment,
-		IActivity {
+		IAdScreenFragment {
 
 	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
 
@@ -174,8 +172,8 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onResume() {
 		super.onResume();
-		adManager.onResumeScreen(this, this);
-		analyticsManager.trackScreenView(this, this);
+		adManager.onResumeScreen((IAdScreenActivity) requireActivity());
+		analyticsManager.trackScreenView(this);
 		final ActionBarController abController = getAbController();
 		if (abController != null) {
 			abController.setAB(this);
@@ -219,15 +217,13 @@ public abstract class ABFragment extends MTFragmentX implements
 		this.inAppNotificationShown = false;
 	}
 
+	@Nullable
 	@Override
-	public void finish() {
-		requireActivity().finish();
-	}
-
-	@NonNull
-	@Override
-	public LifecycleOwner getLifecycleOwner() {
-		return this;
+	public <T extends View> T findViewById(int id) {
+		if (getView() == null) {
+			return null;
+		}
+		return getView().findViewById(id);
 	}
 
 	// region In-App Notifications

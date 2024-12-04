@@ -31,11 +31,13 @@ object LocationPermissionUI : InAppNotificationUI<LocationPermissionAwareFragmen
         context.getText(R.string.location_permission_in_app_notification_action)
 
     override fun onActionClick(fragment: LocationPermissionAwareFragment) = View.OnLongClickListener {
-        (fragment.activity as? MTActivityWithLocation)?.let { activityWithLocation ->
+        (fragment.getActivity() as? MTActivityWithLocation)?.let { activityWithLocation ->
             fragment.attachedViewModel?.let { attachedViewModel ->
                 attachedViewModel.enableLocationPermission(activityWithLocation)
                 true // handled
             }
-        } ?: false // not handled
+        } ?: run {
+            false
+        } // not handled
     }
 }

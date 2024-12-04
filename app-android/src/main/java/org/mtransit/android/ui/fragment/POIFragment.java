@@ -40,6 +40,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.ad.IAdScreenActivity;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
@@ -77,7 +78,7 @@ import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.main.MainViewModel;
+import org.mtransit.android.ui.main.NextMainViewModel;
 import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
@@ -91,6 +92,7 @@ import org.mtransit.android.ui.view.POIViewController;
 import org.mtransit.android.ui.view.common.EventObserver;
 import org.mtransit.android.ui.view.common.FragmentKtxKt;
 import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
@@ -184,7 +186,7 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	private POIViewModel viewModel;
 	@Nullable
-	private MainViewModel mainViewModel;
+	private NextMainViewModel nextMainViewModel;
 
 	@Nullable
 	private POIViewModel getAttachedViewModel() {
@@ -257,8 +259,8 @@ public class POIFragment extends ABFragment implements
 			getAbController().setABReady(this, isABReady(), true);
 		}
 		if (FeatureFlags.F_NAVIGATION) {
-			if (mainViewModel != null) {
-				mainViewModel.setABTitle(getABTitle(context));
+			if (nextMainViewModel != null) {
+				nextMainViewModel.setABTitle(getABTitle(context));
 			}
 		}
 		refreshAppUpdateLayout(getView());
@@ -487,7 +489,7 @@ public class POIFragment extends ABFragment implements
 		);
 		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
 		if (FeatureFlags.F_NAVIGATION) {
-			mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+			nextMainViewModel = new ViewModelProvider(requireActivity()).get(NextMainViewModel.class);
 		}
 		viewModel.getDataSourceRemovedEvent().observe(getViewLifecycleOwner(), new EventObserver<>(removed -> {
 			if (removed) {
@@ -621,7 +623,7 @@ public class POIFragment extends ABFragment implements
 		view.findViewById(R.id.poi_nearby_pois_list).setVisibility(View.VISIBLE);
 	}
 
-	private void initAdapters(IActivity activity) {
+	private void initAdapters(IFragment activity) {
 		this.adapter = new POIArrayAdapter(
 				activity,
 				this.sensorManager,
@@ -911,7 +913,7 @@ public class POIFragment extends ABFragment implements
 		if (view != null) {
 			view.findViewById(R.id.rewardedAdsBtn).setEnabled(false);
 		}
-		this.adManager.showRewardedAd(this);
+		this.adManager.showRewardedAd((IAdScreenActivity) activity);
 	}
 
 	@Nullable
@@ -1075,20 +1077,19 @@ public class POIFragment extends ABFragment implements
 			setupMoreNearbyButton(view);
 			setupNearbyList();
 		}
-		if (getActivity() != null) {
-			onDeviceLocationChanged(((MTActivityWithLocation) getActivity()).getDeviceLocation());
-		}
+		onDeviceLocationChanged(((MTActivityWithLocation) requireActivity()).getDeviceLocation());
 		this.adManager.setRewardedAdListener(this);
-		this.adManager.refreshRewardedAdStatus(this);
+		this.adManager.refreshRewardedAdStatus((IActivity) requireActivity());
 		refreshRewardedLayout(getView());
 		refreshAppUpdateLayout(getView());
 		if (viewModel != null) {
 			viewModel.refreshAppUpdateAvailable();
+			// viewModel.onResumeScreen(this);
 		}
 		refreshAppWasDisabledLayout(getView());
 		if (FeatureFlags.F_NAVIGATION) {
-			if (mainViewModel != null) {
-				mainViewModel.setABBgColor(getABBgColor(getContext()));
+			if (nextMainViewModel != null) {
+				nextMainViewModel.setABBgColor(getABBgColor(getContext()));
 			}
 		}
 	}

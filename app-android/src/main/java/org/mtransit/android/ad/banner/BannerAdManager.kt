@@ -10,13 +10,12 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
-import org.mtransit.android.ad.IAdScreenFragment
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.ui.setNavigationBarColor
 import org.mtransit.android.ui.setUpEdgeToEdgeBottom
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.commons.FeatureFlags
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -40,9 +39,9 @@ class BannerAdManager @Inject constructor(
     private var setupBannerAdTask: SetupBannerAdTask? = null
 
     @JvmOverloads
-    fun refreshBannerAdStatus(activity: IActivity, adScreenFragment: IAdScreenFragment?, force: Boolean = false) {
+    fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
         if (this.globalAdManager.isShowingAds() // showing ads across the app
-            && adScreenFragment?.hasAds() == false // this specific screen doesn't include ads already
+            && activity.currentAdFragment?.hasAds() == false // this specific screen doesn't include ads already
         ) {
             if (!this.adBannerLoaded.get() || force) { // IF ad was not loaded DO
                 setupBannerAd(activity, force)
@@ -55,11 +54,12 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    fun adaptToScreenSize(activity: IActivity, configuration: Configuration?) {
+    fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
         if (!AdConstants.AD_ENABLED) {
             return
         }
         if (!this.globalAdManager.isShowingAds()) {
+        if (activity.currentAdFragment?.hasAds() == true) {
             return
         }
         if (isEnoughSpaceForBanner(configuration)) {
@@ -89,7 +89,7 @@ class BannerAdManager @Inject constructor(
     }
 
 
-    private fun setupBannerAd(activity: IActivity, force: Boolean) {
+    private fun setupBannerAd(activity: IAdScreenActivity, force: Boolean) {
         MTLog.d(this, "setupAd($force)")
         if (!AdConstants.AD_ENABLED) {
             MTLog.d(this, "setupAd() > SKIP (AD not enabled)")
@@ -115,7 +115,7 @@ class BannerAdManager @Inject constructor(
         MTLog.d(this, "setupAd() > DONE")
     }
 
-    fun showBannerAd(activity: IActivity) {
+    private fun showBannerAd(activity: IAdScreenActivity) {
         val adLayout = getAdLayout(activity)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
@@ -126,11 +126,11 @@ class BannerAdManager @Inject constructor(
                 adLayout.isVisible = true
             }
             adLayout.setUpEdgeToEdgeBottom()
-            activity.getActivity().setNavigationBarColor(true)
+            activity.activity.setNavigationBarColor(true)
         }
     }
 
-    fun hideBannerAd(activity: IActivity) {
+    fun hideBannerAd(activity: IAdScreenActivity) {
         val adLayout = getAdLayout(activity)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
@@ -140,11 +140,11 @@ class BannerAdManager @Inject constructor(
             if (adView?.isVisible != false) {
                 adView?.isVisible = false
             }
-            activity.getActivity().setNavigationBarColor(true)
+            activity.activity.setNavigationBarColor(true)
         }
     }
 
-    fun resumeAd(activity: IActivity) {
+    fun resumeAd(activity: IAdScreenActivity) {
         if (!AdConstants.AD_ENABLED) {
             return
         }
@@ -155,7 +155,7 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    fun pauseAd(activity: IActivity) {
+    fun pauseAd(activity: IAdScreenActivity) {
         if (!AdConstants.AD_ENABLED) {
             return
         }
@@ -166,16 +166,16 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    fun getAdLayout(activity: IActivity): ViewGroup? =
+    fun getAdLayout(activity: IAdScreenActivity): ViewGroup? =
         activity.requireActivity().findViewById(R.id.ad_layout)
 
     @Suppress("unused")
-    fun getAdView(activity: IActivity) = getAdLayout(activity)?.let { getAdView(it) }
+    fun getAdView(activity: IAdScreenActivity) = getAdLayout(activity)?.let { getAdView(it) }
 
     fun getAdView(adLayout: ViewGroup): AdView? =
         adLayout.findViewById(R.id.ad)
 
-    fun destroyAd(activity: IActivity) {
+    fun destroyAd(activity: IAdScreenActivity) {
         if (!AdConstants.AD_ENABLED) {
             return
         }
@@ -196,7 +196,7 @@ class BannerAdManager @Inject constructor(
         setupBannerAdTask = null
     }
 
-    fun getBannerHeightInPx(activity: IActivity?): Int {
+    fun getBannerHeightInPx(activity: IAdScreenActivity?): Int {
         if (!this.adBannerLoaded.get()) {
             return 0 // ad not loaded
         }
@@ -210,7 +210,7 @@ class BannerAdManager @Inject constructor(
         return adSize.getHeightInPixels(activity.requireContext())
     }
 
-    fun getAdSize(activity: IActivity): AdSize = with(activity.requireActivity()) {
+    fun getAdSize(activity: IAdScreenActivity): AdSize = with(activity.requireActivity()) {
         val displayMetrics = resources.displayMetrics
         val adWidthPixels =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

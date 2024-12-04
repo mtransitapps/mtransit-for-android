@@ -18,7 +18,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 
 import com.android.billingclient.api.ProductDetails;
@@ -155,9 +155,15 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		return activity;
 	}
 
+	@Nullable
+	@Override
+	public androidx.fragment.app.Fragment getCurrentFragment() {
+		throw new IllegalStateException("Fragment " + this + " is NOT compatible with AndroidX!"); // NOT ANDROID X;
+	}
+
 	@NonNull
 	@Override
-	public LifecycleOwner getLifecycleOwner() {
+	public Lifecycle getLifecycle() {
 		throw new IllegalStateException("Fragment " + this + " is NOT compatible with Lifecycle!"); // NOT ANDROID X
 	}
 

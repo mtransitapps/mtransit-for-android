@@ -5,29 +5,29 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.MTLog.Loggable
 import org.mtransit.android.dev.CrashReporter
-import org.mtransit.android.ui.view.common.IActivity
 import java.lang.ref.WeakReference
 
 class BannerAdListener(
     private val bannerAdManager: BannerAdManager,
     private val crashReporter: CrashReporter,
-    private val activityWR: WeakReference<IActivity>,
+    private val activityWR: WeakReference<IAdScreenActivity>,
     private val adViewWR: WeakReference<AdView>,
 ) : AdListener(), Loggable {
 
     constructor(
         bannerAdManager: BannerAdManager,
         crashReporter: CrashReporter,
-        activity: IActivity,
+        adScreenActivity: IAdScreenActivity,
         adView: AdView,
     ) : this(
         bannerAdManager,
         crashReporter,
-        WeakReference<IActivity>(activity),
-        WeakReference<AdView>(adView)
+        WeakReference(adScreenActivity),
+        WeakReference(adView)
     )
 
     companion object {
@@ -100,7 +100,6 @@ class BannerAdListener(
         }
         this.bannerAdManager.adaptToScreenSize(
             activity,
-            activity.requireContext().resources.configuration,
         ) // showing ads if hidden because of no-fill/network error
     }
 }

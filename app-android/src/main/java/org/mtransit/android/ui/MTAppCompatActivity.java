@@ -9,6 +9,7 @@ import android.os.PersistableBundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -59,8 +60,9 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 		super.onCreate(savedInstanceState);
 	}
 
+	@CallSuper
 	@Override
-	protected void onNewIntent(@SuppressLint("UnknownNullness") Intent intent) {
+	protected void onNewIntent(@SuppressWarnings("InvalidNullabilityOverride") Intent intent) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onNewIntent(%s)", intent);
 		}

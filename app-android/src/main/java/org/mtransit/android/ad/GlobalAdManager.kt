@@ -1,28 +1,51 @@
 package org.mtransit.android.ad
 
 import androidx.annotation.AnyThread
+import androidx.annotation.WorkerThread
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.mtransit.android.R
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedUserManager
+import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
-import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GlobalAdManager @Inject constructor(
+class GlobalAdManager(
     private val dataSourcesRepository: DataSourcesRepository,
     private val crashReporter: CrashReporter,
     private val demoModeManager: DemoModeManager,
     private val rewardedUserManager: RewardedUserManager,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {
 
+    @Inject
+    constructor(
+        dataSourcesRepository: DataSourcesRepository,
+        crashReporter: CrashReporter,
+        demoModeManager: DemoModeManager,
+        rewardedUserManager: RewardedUserManager,
+    ) : this(
+        dataSourcesRepository = dataSourcesRepository,
+        crashReporter = crashReporter,
+        demoModeManager = demoModeManager,
+        rewardedUserManager = rewardedUserManager,
+        ioDispatcher = Dispatchers.IO,
+    )
+
     companion object {
-        private val LOG_TAG = AdManager.LOG_TAG + ">" + GlobalAdManager::class.java.simpleName
+        private val LOG_TAG = "${AdManager.LOG_TAG}>${GlobalAdManager::class.java.simpleName}"
     }
 
     override fun getLogTag() = LOG_TAG
@@ -38,23 +61,48 @@ class GlobalAdManager @Inject constructor(
         }
     }
 
-    fun init(activity: IActivity, adScreenFragment: IAdScreenFragment?, bannerAdManager: BannerAdManager) {
+    fun init(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
         if (!AdConstants.AD_ENABLED) {
             return
         }
-        val theActivity = activity.getActivity()
+        val theActivity = activity.activity
         if (theActivity == null) {
             MTLog.w(this, "Trying to initialized w/o activity!")
             return // SKIP
         }
-        if (this.initialized.get()) {
-            MTLog.d(this, "init() > SKIP (init: %s)", this.initialized.get())
+        if (initialized.getAndSet(true)) {
+            MTLog.d(this, "init() > SKIP (initialized: %s)", this.initialized.get())
             return // SKIP
         }
         try {
-            TaskUtils.execute(InitTask(this, bannerAdManager, activity, adScreenFragment))
+            CoroutineScope(ioDispatcher).launch {
+                initOnBackgroundThread(activity, bannerAdManager)
+            }
         } catch (e: Exception) {
             this.crashReporter.w(this, e, "Error while initializing Ads!")
+        }
+    }
+
+    @WorkerThread
+    private fun initOnBackgroundThread(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
+        if (AdConstants.DEBUG) {
+            MobileAds.setRequestConfiguration(
+                RequestConfiguration.Builder()
+                    .setTestDeviceIds(
+                        listOf(*activity.requireContext().resources.getStringArray(R.array.google_ads_test_devices_ids))
+                                + listOf(AdRequest.DEVICE_ID_EMULATOR)
+                    )
+                    .build()
+            )
+        }
+        // https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk
+        MobileAds.initialize(
+            activity.requireActivity(), // some adapters require activity
+        ) { initializationStatus ->
+            initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
+                MTLog.d(this, "Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")
+            }
+            bannerAdManager.refreshBannerAdStatus(activity, force = false)
         }
     }
 
@@ -101,9 +149,6 @@ class GlobalAdManager @Inject constructor(
         this.hasAgenciesEnabled = hasAgenciesEnabled
     }
 
-    fun getAndSetInitialized(newInitialized: Boolean) =
-        initialized.getAndSet(newInitialized)
-
     // region Rewarded
 
     fun getRewardedUntilInMs(): Long {
@@ -118,8 +163,8 @@ class GlobalAdManager @Inject constructor(
         return this.rewardedUserManager.isRewardedNow()
     }
 
-    fun rewardUser(newRewardInMs: Long, activity: IActivity?) {
-        this.rewardedUserManager.rewardUser(newRewardInMs, activity)
+    fun rewardUser(newRewardInMs: Long, context: IContext?) {
+        this.rewardedUserManager.rewardUser(newRewardInMs, context)
     }
 
     fun shouldSkipRewardedAd(): Boolean {

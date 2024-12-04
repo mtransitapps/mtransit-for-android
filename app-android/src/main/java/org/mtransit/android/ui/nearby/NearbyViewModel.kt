@@ -19,6 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsEvents
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -41,7 +42,6 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
@@ -258,7 +258,7 @@ class NearbyViewModel @Inject constructor(
         return true
     }
 
-    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
+    override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
 
     override val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
         it.filter { agency -> !agency.isEnabled }

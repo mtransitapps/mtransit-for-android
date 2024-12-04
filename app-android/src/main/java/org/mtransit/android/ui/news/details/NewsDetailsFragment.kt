@@ -2,9 +2,9 @@
 package org.mtransit.android.ui.news.details
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
@@ -22,7 +22,6 @@ import org.mtransit.android.ad.inlinebanner.InlineBannerAdManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.AuthorityAndUuid
@@ -44,17 +43,15 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.news.NewsListViewModel
 import org.mtransit.android.ui.news.image.NewsImagesAdapter
 import org.mtransit.android.ui.view.common.EventObserver
-import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
-import java.util.Locale
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details), IFragment {
+class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     companion object {
         private val LOG_TAG = NewsDetailsFragment::class.java.simpleName
@@ -68,7 +65,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details), IFragme
         @JvmStatic
         fun newInstance(
             authority: String,
-            uuid: String
+            uuid: String,
         ): NewsDetailsFragment {
             return NewsDetailsFragment().apply {
                 arguments = newInstanceArgs(authority, uuid)
@@ -111,15 +108,6 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details), IFragme
     private var timeChangedReceiverEnabled = false
 
     private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { updateNewsView() }
-
-    private var dateTimeFormat: ThreadSafeDateFormatter? = null
-
-    private fun getDateTimeFormatter(context: Context): ThreadSafeDateFormatter {
-        return dateTimeFormat ?: ThreadSafeDateFormatter(
-            (if (UITimeUtils.is24HourFormat(context)) "HH:mm" else "h:mm a") + " - EEEE, MMMM d, yyyy",
-            Locale.getDefault()
-        ).also { dateTimeFormat = it }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -206,7 +194,12 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details), IFragme
                 }
             }
             dateLong.apply {
-                setText(getDateTimeFormatter(context).formatThreadSafe(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
+                val formattedDate = DateUtils.formatDateTime(
+                    context,
+                    newsArticle.createdAtInMs,
+                    DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_WEEKDAY
+                )
+                setText(formattedDate, TextView.BufferType.SPANNABLE)
                 val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
                 setOnClickListener { view ->
                     LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)

@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils
@@ -27,7 +28,6 @@ import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.sortWithAnd
@@ -155,5 +155,5 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
+    override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
 }

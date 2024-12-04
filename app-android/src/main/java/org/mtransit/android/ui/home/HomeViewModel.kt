@@ -21,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
@@ -51,7 +52,6 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.commons.FeatureFlags
@@ -342,7 +342,7 @@ class HomeViewModel @Inject constructor(
         lat: Double,
         lng: Double,
         ad: LocationUtils.AroundDiff, // TODO latter optimize
-        @Suppress("UNUSED_PARAMETER") optLastAroundDiff: Double? = null,
+        @Suppress("unused") optLastAroundDiff: Double? = null,
         @Suppress("SameParameterValue") maxSize: Int,
         typeMinCoverageInMeters: Float,
         typeAgencies: List<IAgencyNearbyProperties>
@@ -399,7 +399,7 @@ class HomeViewModel @Inject constructor(
         return true
     }
 
-    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
+    override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
 
     override val moduleDisabled = _allAgencies.map {
         it.filter { agency -> !agency.isEnabled }

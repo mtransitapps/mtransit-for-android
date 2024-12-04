@@ -5,7 +5,7 @@
     android:id="@+id/main_activity_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.MainActivity">
+    tools:context=".ui.main.NextMainActivity">
 
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"

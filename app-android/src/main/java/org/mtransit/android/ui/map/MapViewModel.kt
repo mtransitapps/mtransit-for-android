@@ -19,6 +19,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
@@ -34,7 +35,6 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
@@ -82,7 +82,7 @@ class MapViewModel @Inject constructor(
         it != null
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
+    override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
 
     override val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
         it.filter { agency -> !agency.isEnabled }

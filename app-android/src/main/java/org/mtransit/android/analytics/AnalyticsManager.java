@@ -127,7 +127,7 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 
 	@MainThread
 	@Override
-	public void trackScreenView(@NonNull IActivity activity, @NonNull Trackable page) {
+	public void trackScreenView(@NonNull Trackable page) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}

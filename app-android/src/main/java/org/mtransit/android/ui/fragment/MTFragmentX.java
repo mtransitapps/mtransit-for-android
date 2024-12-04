@@ -23,12 +23,13 @@ import androidx.fragment.app.Fragment;
 
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.ui.view.common.IFragment;
 
 /**
  * NO LOGIC HERE, just logs.
  */
 @SuppressWarnings("deprecation")
-public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
+public abstract class MTFragmentX extends Fragment implements IFragment, MTLog.Loggable {
 
 	public MTFragmentX() {
 		super();

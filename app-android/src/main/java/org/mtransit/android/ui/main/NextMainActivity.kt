@@ -33,10 +33,11 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
-import org.mtransit.android.ad.IAdScreenFragment
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.registerReceiverCompat
@@ -51,26 +52,27 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.search.SearchFragment
 import org.mtransit.android.ui.setUpEdgeToEdge
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.NightModeUtils
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER", "unused", "MemberVisibilityCanBePrivate")
 @AndroidEntryPoint
-class MainActivity : MTActivityWithLocation(),
+class NextMainActivity : MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,
     IAnalyticsManager.Trackable,
     OnBillingResultListener,
-    IActivity,
+    IActivity, IAdScreenActivity,
     IAdManager.RewardedAdListener {
 
     companion object {
-        private val LOG_TAG = "Stack2-" + MainActivity::class.java.simpleName
+        private val LOG_TAG = "Stack2-" + NextMainActivity::class.java.simpleName
         private const val TRACKING_SCREEN_NAME = "Main"
 
         @JvmStatic
         fun newInstance(context: Context): Intent {
-            return Intent(context, MainActivity::class.java)
+            return Intent(context, NextMainActivity::class.java)
         }
     }
 
@@ -78,7 +80,7 @@ class MainActivity : MTActivityWithLocation(),
 
     override fun getScreenName() = TRACKING_SCREEN_NAME
 
-    private val viewModel by viewModels<MainViewModel>()
+    private val viewModel by viewModels<NextMainViewModel>()
 
     private lateinit var binding: ActivityMainBinding
 
@@ -141,6 +143,9 @@ class MainActivity : MTActivityWithLocation(),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var lclPrefRepository: LocalPreferenceRepository
+
+    @Inject
     lateinit var statusLoader: StatusLoader
 
     @Inject
@@ -153,7 +158,7 @@ class MainActivity : MTActivityWithLocation(),
     override fun onCreate(savedInstanceState: Bundle?) {
         setUpEdgeToEdge()
         super.onCreate(savedInstanceState)
-        adManager.init(this, currentFragment as? IAdScreenFragment)
+        adManager.init(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
@@ -204,7 +209,7 @@ class MainActivity : MTActivityWithLocation(),
         }
         viewModel.hasAgenciesEnabled.observe(this) { hasAgenciesEnabled ->
             // ad-manager does not persist activity but listen for changes itself
-            adManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled, this, currentFragment as? IAdScreenFragment)
+            adManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled, this)
         }
         viewModel.hasAgenciesAdded.observe(this) { hasAgenciesEnabled ->
             if (hasAgenciesEnabled) {
@@ -228,7 +233,7 @@ class MainActivity : MTActivityWithLocation(),
 
     override fun onBillingResult(productId: String?) {
         productId?.isNotEmpty()?.let { hasSubscription ->
-            adManager.setShowingAds(!hasSubscription, this, currentFragment as? IAdScreenFragment)
+            adManager.setShowingAds(!hasSubscription, this)
         }
     }
 
@@ -285,6 +290,12 @@ class MainActivity : MTActivityWithLocation(),
             }
         }
         viewModel.onAppVisible()
+        BatteryOptimizationIssueUtils.onAppResumeInvisibleActivity(
+            this,
+            this,
+            this.dataSourcesRepository,
+            this.lclPrefRepository
+        )
     }
 
     var isMTResumed = false
@@ -322,7 +333,7 @@ class MainActivity : MTActivityWithLocation(),
 
     override fun getLastLocationSettingsResolution() = this.locationSettingsResolution
 
-    private val currentFragment: Fragment?
+    override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment // TODO ?
 
     override fun onBackStackChanged() {

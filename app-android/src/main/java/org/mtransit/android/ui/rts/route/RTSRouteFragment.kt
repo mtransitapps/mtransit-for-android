@@ -28,6 +28,7 @@ import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
@@ -142,7 +143,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
                 }.attach()
             }
             if (FeatureFlags.F_NAVIGATION) {
-                (activity as? org.mtransit.android.ui.main.MainActivity?)?.supportActionBar?.elevation?.let {
+                (activity as? NextMainActivity?)?.supportActionBar?.elevation?.let {
                     tabs.elevation = it
                 }
             }

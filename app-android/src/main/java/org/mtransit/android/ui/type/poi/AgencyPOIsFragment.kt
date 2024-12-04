@@ -26,13 +26,12 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.MapViewController.POIMarker
-import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity {
+class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     companion object {
         private val LOG_TAG = AgencyPOIsFragment::class.java.simpleName
@@ -310,9 +309,5 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         mapViewController.onDestroy()
     }
 
-    override fun getLifecycleOwner() = this
-
-    override fun finish() {
-        activity?.finish()
-    }
+    override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
 }

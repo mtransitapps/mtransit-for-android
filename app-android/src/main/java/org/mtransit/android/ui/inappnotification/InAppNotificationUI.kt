@@ -9,6 +9,7 @@ import android.widget.PopupWindow
 import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import org.mtransit.android.R
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ToastUtils
 import androidx.core.util.Pair as AndroidXPair
 
@@ -31,7 +32,7 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
         @JvmStatic
         fun makeInAppNotification(
             context: Context?,
-            @Suppress("UNUSED_PARAMETER") view: View?,
+            view: View?,
             contextView: View?,
             anchorView: View?,
             labelText: CharSequence,
@@ -77,10 +78,10 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
         fun showInAppNotification(
             activity: Activity?,
             inAppNotification: AndroidXPair<PopupWindow?, Snackbar?>?,
-            @Suppress("UNUSED_PARAMETER") view: View?,
+            view: View?,
             contextView: View?,
-            @Suppress("UNUSED_PARAMETER") anchorView: View?,
-            additionalBottomMarginInPx: Int
+            anchorView: View?,
+            additionalBottomMarginInPx: Int,
         ): Boolean {
             if (SNACKBAR_INSTEAD_OF_TOAST) {
                 return inAppNotification?.second?.let { it.show(); true } ?: false
@@ -122,7 +123,7 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
 
     fun showInAppNotification(fragment: F): Boolean {
         val context = fragment.context ?: return false
-        val activity = fragment.activity
+        val activity = fragment.getActivity()
         val attachedViewModel = fragment.attachedViewModel
         return fragment.showInAppNotification(
             getNotificationId(fragment),
@@ -130,7 +131,7 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
             fragment.getView(),
             fragment.getContextView(),
             fragment.getAnchorView(),
-            attachedViewModel?.getAdBannerHeightInPx(fragment) ?: 0,
+            attachedViewModel?.getAdBannerHeightInPx(fragment.getActivity() as? IAdScreenActivity) ?: 0,
             getLabelText(fragment, context),
             getActionText(fragment, context),
             onActionClick(fragment)

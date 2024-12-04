@@ -28,7 +28,7 @@ object LocationSettingsUI : InAppNotificationUI<LocationSettingsAwareFragment> {
 
     override fun onActionClick(fragment: LocationSettingsAwareFragment) = View.OnLongClickListener {
         val attachedViewModel = fragment.attachedViewModel
-        val activity = fragment.activity
+        val activity = fragment.getActivity()
         attachedViewModel?.locationSettingsNeededResolution?.value?.let { pendingIntent ->
             @Suppress("DEPRECATION")
             activity?.startIntentSenderForResult(pendingIntent.intentSender, 101, null, 0, 0, 0)

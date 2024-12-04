@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -104,4 +105,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
             }
         }
     }
+
+    override val currentFragment: Fragment?
+        get() = supportFragmentManager.primaryNavigationFragment
 }

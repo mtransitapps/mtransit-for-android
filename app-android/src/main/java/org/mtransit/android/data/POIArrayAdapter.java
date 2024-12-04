@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -74,7 +73,7 @@ import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
 import org.mtransit.android.ui.view.POIViewUtils;
-import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateProvider;
@@ -137,7 +136,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private HashMap<String, Integer> favUUIDsFolderIds;
 
 	@Nullable
-	private WeakReference<IActivity> activityWR;
+	private WeakReference<IFragment> activityWR;
 
 	@Nullable
 	private Location location;
@@ -168,6 +167,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private boolean infiniteLoading = false; // infinite loading
 
+	@Nullable
 	private InfiniteLoadingListener infiniteLoadingListener;
 
 	private ViewGroup manualLayout;
@@ -205,7 +205,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private final ServiceUpdateLoader serviceUpdateLoader;
 
-	public POIArrayAdapter(@NonNull IActivity activity,
+	public POIArrayAdapter(@NonNull IFragment activity,
 						   @NonNull MTSensorManager sensorManager,
 						   @NonNull DataSourcesRepository dataSourcesRepository,
 						   @NonNull DefaultPreferenceRepository defaultPrefRepository,
@@ -225,20 +225,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.favoriteManager = favoriteManager;
 		this.statusLoader = statusLoader;
 		this.serviceUpdateLoader = serviceUpdateLoader;
-		observe(activity.getLifecycleOwner());
-	}
-
-	private void observe(@NonNull LifecycleOwner lifecycleOwner) {
-		this.dataSourcesRepository.readingAllAgencies().observe(lifecycleOwner, agencyProperties ->
+		this.dataSourcesRepository.readingAllAgencies().observe(activity, agencyProperties ->
 				resetModulesStatus()
 		);
 	}
 
-	public void setManualLayout(ViewGroup manualLayout) {
+	public void setManualLayout(@Nullable ViewGroup manualLayout) {
 		this.manualLayout = manualLayout;
 	}
 
-	public void setFavoriteUpdateListener(FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
+	public void setFavoriteUpdateListener(@NonNull FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
 		this.favoriteUpdateListener = favoriteUpdateListener;
 	}
 
@@ -272,7 +268,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.infiniteLoading = infiniteLoading;
 	}
 
-	public void setInfiniteLoadingListener(InfiniteLoadingListener infiniteLoadingListener) {
+	public void setInfiniteLoadingListener(@Nullable InfiniteLoadingListener infiniteLoadingListener) {
 		this.infiniteLoadingListener = infiniteLoadingListener;
 	}
 
@@ -741,20 +737,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	public interface OnPOISelectedListener {
-		boolean onPOISelected(POIManager poim);
+		boolean onPOISelected(@NonNull POIManager poim);
 
-		boolean onPOILongSelected(POIManager poim);
+		boolean onPOILongSelected(@NonNull POIManager poim);
 	}
 
 	private WeakReference<OnPOISelectedListener> onPoiSelectedListenerWR;
 
 	@SuppressWarnings("unused")
-	public void setOnPoiSelectedListener(OnPOISelectedListener onPoiSelectedListener) {
+	public void setOnPoiSelectedListener(@Nullable OnPOISelectedListener onPoiSelectedListener) {
 		this.onPoiSelectedListenerWR = new WeakReference<>(onPoiSelectedListener);
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
-	public boolean showPoiViewerScreen(View view, int position) {
+	public boolean showPoiViewerScreen(@NonNull View view, int position) {
 		boolean handled = false;
 		final POIManager poim = getItem(position);
 		if (poim != null) {
@@ -791,7 +787,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return getItemTypeHeader(position) == null; // is NOT separator
 	}
 
-	public boolean showPoiViewerScreen(View view, POIManager poim) {
+	public boolean showPoiViewerScreen(@NonNull View view, @Nullable POIManager poim) {
 		if (poim == null) {
 			return false;
 		}
@@ -1201,7 +1197,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@SuppressLint("ClickableViewAccessibility") // TODO Accessibility
-	public void setManualScrollView(ScrollView scrollView) {
+	public void setManualScrollView(@Nullable ScrollView scrollView) {
 		this.manualScrollView = scrollView;
 		if (scrollView == null) {
 			return;
@@ -1262,7 +1258,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return POIArrayAdapter.class.getSimpleName() + getLogTag();
 	}
 
-	public void onResume(@NonNull IActivity activity, @Nullable Location deviceLocation) {
+	public void onResume(@NonNull IFragment activity, @Nullable Location deviceLocation) {
 		setActivity(activity);
 		this.showingAccessibilityInfo = null; // force user preference check
 		this.location = null; // clear current location to force refresh
@@ -1271,13 +1267,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
 	}
 
-	public void setActivity(@NonNull IActivity activity) {
+	public void setActivity(@NonNull IFragment activity) {
 		this.activityWR = new WeakReference<>(activity);
 	}
 
 	@Nullable
 	private Activity getActivity() {
-		IActivity activity = this.activityWR == null ? null : this.activityWR.get();
+		IFragment activity = this.activityWR == null ? null : this.activityWR.get();
 		return activity == null ? null : activity.getActivity();
 	}
 
@@ -1374,7 +1370,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@Override
 	public void onSensorChanged(SensorEvent se) {
-		IActivity activity = this.activityWR == null ? null : this.activityWR.get();
+		IFragment activity = this.activityWR == null ? null : this.activityWR.get();
 		if (activity == null) {
 			return;
 		}

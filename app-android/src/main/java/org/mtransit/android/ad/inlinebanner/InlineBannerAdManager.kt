@@ -27,6 +27,9 @@ class InlineBannerAdManager @Inject constructor(
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${InlineBannerAdManager::class.java.simpleName}"
+
+        // https://developers.google.com/admob/android/banner/fixed-size
+        private const val USE_MEDIUM_RECTANGLE = true
     }
 
     override fun getLogTag() = LOG_TAG
@@ -175,6 +178,9 @@ class InlineBannerAdManager @Inject constructor(
     }
 
     fun getAdSize(fragment: IFragment): AdSize = with(fragment.requireActivity()) {
+        if (USE_MEDIUM_RECTANGLE) {
+            return@with AdSize.getCurrentOrientationInlineAdaptiveBannerAdSize(this, AdSize.MEDIUM_RECTANGLE.width) // width = 300
+        }
         val padding = resources.getDimensionPixelSize(R.dimen.ad_banner_inline_horizontal_margin)
         val displayMetrics = resources.displayMetrics
         val screenWidth =

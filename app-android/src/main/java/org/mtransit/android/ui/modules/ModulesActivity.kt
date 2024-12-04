@@ -4,6 +4,7 @@ package org.mtransit.android.ui.modules
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ui.MTActivity
@@ -28,6 +29,9 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
         setUpEdgeToEdge()
         super.onCreate(savedInstanceState)
     }
+
+    override val currentFragment: Fragment?
+        get() = supportFragmentManager.primaryNavigationFragment
 
     override fun onSupportNavigateUp(): Boolean {
         return when {

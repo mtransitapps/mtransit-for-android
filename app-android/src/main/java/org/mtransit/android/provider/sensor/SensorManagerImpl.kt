@@ -12,7 +12,7 @@ import android.widget.AbsListView
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.api.SupportFactory
-import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.IFragment
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.abs
@@ -65,7 +65,7 @@ class SensorManagerImpl @Inject constructor(
     }
 
     override fun checkForCompass(
-        activity: IActivity,
+        activity: IFragment,
         event: SensorEvent,
         accelerometerValues: FloatArray,
         magneticFieldValues: FloatArray,
@@ -123,7 +123,7 @@ class SensorManagerImpl @Inject constructor(
     }
 
     private fun calculateOrientation(
-        activity: IActivity,
+        activity: IFragment,
         accelerometerValues: FloatArray?,
         magneticFieldValues: FloatArray?
     ): Float? {
@@ -143,7 +143,7 @@ class SensorManagerImpl @Inject constructor(
         val axis = IntArray(2)
         axis[0] = SensorManager.AXIS_X
         axis[1] = SensorManager.AXIS_Y
-        val aActivity = activity.activity ?: return null
+        val aActivity = activity.getActivity() ?: return null
         val defaultDisplay = SupportFactory.get().getDefaultDisplay(aActivity)
         when (defaultDisplay?.rotation) {
             Surface.ROTATION_0 -> {
