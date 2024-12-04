@@ -2390,28 +2390,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity, adScreenFragment))"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
-            line="55"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="            TaskUtils.execute(InitTask(this, bannerAdManager, activity, adScreenFragment))"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/GlobalAdManager.kt"
-            line="55"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="com.google.android.gms.maps.GoogleMap.setOnCameraChangeListener is deprecated; consider using an alternative."
         errorLine1="  map.setOnCameraChangeListener(listener);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -2452,72 +2430,6 @@
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
             line="374"
             column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
-        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
-            line="19"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
-        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
-            line="19"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="    ) : this("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
-            line="26"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.InitTask is deprecated; consider using an alternative."
-        errorLine1="    ) : this("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
-            line="26"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.initOnBackgroundThread is deprecated; consider using an alternative."
-        errorLine1="        initOnBackgroundThread(activity)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
-            line="47"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.InitTask.initOnBackgroundThread is deprecated; consider using an alternative."
-        errorLine1="        initOnBackgroundThread(activity)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/InitTask.kt"
-            line="47"
-            column="9"/>
     </issue>
 
     <issue
@@ -3634,23 +3546,23 @@
     <issue
         id="DeprecatedCall"
         message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
-        errorLine1="  super.onBackPressed();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        super.onBackPressed()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/MainActivity.java"
-            line="505"
-            column="3"/>
+            file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
+            line="402"
+            column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
-        errorLine1="  super.onBackPressed();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        super.onBackPressed()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/MainActivity.java"
-            line="505"
-            column="3"/>
+            file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
+            line="402"
+            column="9"/>
     </issue>
 
     <issue
