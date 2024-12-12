@@ -87,7 +87,7 @@
             android:maxLines="@integer/news_article_list_item_max_lines"
             android:minHeight="@dimen/news_article_list_item_img_height"
             android:minLines="@integer/news_article_list_item_min_lines"
-            android:paddingTop="@dimen/baseline_2"
+            android:paddingTop="@dimen/baseline_8"
             tools:text="@tools:sample/lorem/random" />
 
     </RelativeLayout>
