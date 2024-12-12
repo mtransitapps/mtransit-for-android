@@ -216,19 +216,23 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         }
         val textHTML1Sb = StringBuilder()
         val textHTML2Sb = StringBuilder()
+        var text1Lines = 0
+        var text2Lines = 0
         paragraphs.forEachIndexed { index, paragraph ->
             if (textHTML1Sb.length < limit
                 && index != paragraphs.size - 1 && paragraphs.size > 1 // keep last paragraph for after ad break
             ) {
-                if (textHTML1Sb.isNotBlank() && paragraph.isNotBlank()) {
+                if (text1Lines > 0) {
                     textHTML1Sb.append(HtmlUtils.BR)
                 }
                 textHTML1Sb.append(paragraph)
+                text1Lines++
             } else {
-                if (textHTML2Sb.isNotBlank() && paragraph.isNotBlank()) {
+                if (text2Lines > 0) {
                     textHTML2Sb.append(HtmlUtils.BR)
                 }
                 textHTML2Sb.append(paragraph)
+                text2Lines++
             }
         }
         val textHTML1 = textHTML1Sb.toString()

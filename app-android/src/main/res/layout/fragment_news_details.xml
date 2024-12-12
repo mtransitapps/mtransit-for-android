@@ -180,6 +180,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginHorizontal="@dimen/ad_banner_inline_horizontal_margin"
                 android:layout_marginTop="@dimen/baseline_16"
+                android:layout_marginBottom="@dimen/baseline_16"
                 android:background="?android:attr/colorBackground"
                 android:paddingVertical="@dimen/ad_banner_inline_vertical_margin"
                 android:visibility="gone"
@@ -194,7 +195,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/inline_ad_layout"
                 android:layout_marginStart="@dimen/baseline_16"
-                android:layout_marginTop="@dimen/baseline_16"
                 android:layout_marginEnd="@dimen/baseline_16"
                 tools:maxLines="13"
                 tools:text="@tools:sample/lorem/random" />
