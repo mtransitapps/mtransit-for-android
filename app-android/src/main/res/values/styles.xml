@@ -98,7 +98,7 @@
     <style name="MTButton.Icon" parent="@style/MTButton">
         <item name="android:gravity">start|center_vertical</item>
         <item name="iconGravity">start</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">@dimen/text_size_medium</item>
         <item name="android:letterSpacing">0.0123456789</item>
     </style>
 
