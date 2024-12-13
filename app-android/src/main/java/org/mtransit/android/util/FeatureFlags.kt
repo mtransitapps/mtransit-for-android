@@ -9,5 +9,6 @@ object UIFeatureFlags {
     // const val F_POI_STATUS_AVAILABILITY_DOTS = false
     const val F_POI_STATUS_AVAILABILITY_DOTS = true // WIP
 
-    const val F_CUSTOM_ADS_IN_NEWS = true
+    const val F_CUSTOM_ADS_IN_NEWS = false
+    // const val F_CUSTOM_ADS_IN_NEWS = true // WIP
 }
