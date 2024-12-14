@@ -4557,6 +4557,28 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="   final Context context = getActivityOrNull();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="405"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="   final Context context = getActivityOrNull();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="410"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.setupGoogleMapMyLocation is deprecated; consider using an alternative."
         errorLine1="  setupGoogleMapMyLocation();"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
