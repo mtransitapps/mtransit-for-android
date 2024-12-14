@@ -12,7 +12,6 @@ import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -42,7 +41,7 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.registerReceiverCompat
-import org.mtransit.android.databinding.ActivityMainBinding
+import org.mtransit.android.databinding.ActivityMainNextBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
@@ -83,7 +82,7 @@ class NextMainActivity : MTActivityWithLocation(),
 
     private val viewModel by viewModels<NextMainViewModel>()
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainNextBinding
 
     val navHostFragment: NavHostFragment
         get() = supportFragmentManager.findFragmentById(R.id.main_content) as NavHostFragment
@@ -164,7 +163,7 @@ class NextMainActivity : MTActivityWithLocation(),
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainNextBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.abToolbar)
         navController = navHostFragment.navController

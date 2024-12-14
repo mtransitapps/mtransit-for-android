@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.modules.ModulesActivity"
+    tools:context=".ui.modules.ModulesFragment"
     tools:showIn="@layout/activity_modules">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/ab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipToPadding="false"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -37,6 +37,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/layout_modules_item"
         tools:visibility="visible" />
+
     <include
         android:id="@id/empty_layout"
         layout="@layout/layout_empty"

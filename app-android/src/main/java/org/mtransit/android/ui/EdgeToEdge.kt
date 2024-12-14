@@ -11,7 +11,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import org.mtransit.android.R
 import org.mtransit.android.util.UIFeatureFlags
@@ -39,6 +39,30 @@ fun ComponentActivity.enableEdgeToEdgeMT() {
         return
     }
     enableEdgeToEdge()
+}
+
+fun ViewGroup.setUpEdgeToEdgeClipToPadding(clipToPadding: Boolean) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    this.clipToPadding = clipToPadding
+}
+
+@Deprecated("bottom is only used with anchored banner ads and called from ads code")
+fun View.setUpEdgeToEdgeBottomAndTop() {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
+        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            leftMargin = insets.left
+            topMargin = insets.top
+            rightMargin = insets.right
+            bottomMargin = insets.bottom
+        }
+        WindowInsetsCompat.CONSUMED
+    }
 }
 
 fun View.setUpEdgeToEdgeTop() {
@@ -76,15 +100,31 @@ fun ComponentActivity.setStatusBarColor(transparent: Boolean) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    @Suppress("DEPRECATION") // not working if edge-to-edge
-    window.statusBarColor = if (transparent) {
-        ResourcesCompat.getColor(resources, android.R.color.transparent, theme)
-    } else {
-        ResourcesCompat.getColor(resources, R.color.color_primary_dark, theme)
-    }
+    findViewById<View?>(R.id.status_bar_bg)?.setStatusBarColor(transparent)
     val isDarkMode = isDarkMode(resources) // always dark top bar
     WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
-        isAppearanceLightStatusBars = transparent && !isDarkMode
+        isAppearanceLightStatusBars = UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP && transparent && !isDarkMode
+    }
+}
+
+fun View.setStatusBarColor(transparent: Boolean) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    setBackgroundColor(
+        if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP && transparent) {
+            ResourcesCompat.getColor(resources, android.R.color.transparent, context.theme)
+        } else {
+            ResourcesCompat.getColor(resources, R.color.color_primary_dark, context.theme)
+        }
+    )
+    isVisible = true
+    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
+        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
+        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            height = insets.top - insets.bottom
+        }
+        WindowInsetsCompat.CONSUMED
     }
 }
 

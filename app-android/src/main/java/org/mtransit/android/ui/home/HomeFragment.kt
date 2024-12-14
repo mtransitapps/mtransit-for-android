@@ -48,6 +48,7 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
+import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.type.AgencyTypeFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -210,6 +211,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                     }
                 }
             }
+            root.setUpEdgeToEdgeTop()
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             adapter.setLocation(it)

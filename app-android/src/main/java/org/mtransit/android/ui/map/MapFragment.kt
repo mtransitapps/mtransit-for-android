@@ -4,16 +4,19 @@ package org.mtransit.android.ui.map
 import android.app.PendingIntent
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import com.google.android.gms.maps.model.LatLng
@@ -21,6 +24,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.px
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentMapBinding
@@ -36,7 +40,9 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MapFragment : ABFragment(R.layout.fragment_map),
@@ -87,6 +93,9 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             MapViewModel.EXTRA_SELECTED_UUID to optSelectedUUID,
             MapViewModel.EXTRA_INCLUDE_TYPE_ID to (optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT),
         )
+
+        private const val TOP_PADDING_SP = 64
+        private const val BOTTOM_PADDING_SP = 0
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -141,8 +150,8 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             false,
             false,
             false,
-            64,
-            0,
+            TOP_PADDING_SP,
+            BOTTOM_PADDING_SP,
             false,
             true,
             true,
@@ -176,7 +185,21 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         )
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
-            // DO NOTHING
+            if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+                ViewCompat.setOnApplyWindowInsetsListener(this.map) { view, windowInsets ->
+                    val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                    if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+                        mapViewController.setPaddingTopSp(TOP_PADDING_SP + insets.top.px)
+                    } else {
+                        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                            topMargin = insets.top
+                        }
+                    }
+                    mapViewController.setPaddingBottomSp(BOTTOM_PADDING_SP + insets.bottom.px)
+                    mapViewController.applyPaddings()
+                    WindowInsetsCompat.CONSUMED
+                }
+            }
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
             location?.let {
@@ -323,7 +346,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         )
     }
 
-    override fun getABBgColor(context: Context?) = Color.TRANSPARENT
+    override fun isABStatusBarTransparent() = true
 
     override fun getABTitle(context: Context?): CharSequence? {
         return context?.let { makeABTitle(it) } ?: super.getABTitle(null)

@@ -642,6 +642,7 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return;
 		}
+		EdgeToEdgeKt.setUpEdgeToEdgeTop(view.findViewById(R.id.scroll_view));
 		if (this.adapter != null) {
 			this.adapter.setManualScrollView(view.findViewById(R.id.scroll_view));
 			this.adapter.setManualLayout(view.findViewById(R.id.poi_nearby_pois_list));

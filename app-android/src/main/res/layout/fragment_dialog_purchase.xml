@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:fillViewport="true"
     android:minWidth="?android:attr/listPreferredItemHeightLarge"
-    android:minHeight="?android:attr/listPreferredItemHeightLarge">
+    android:minHeight="?android:attr/listPreferredItemHeightLarge"
+    tools:context=".ui.fragment.PurchaseDialogFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

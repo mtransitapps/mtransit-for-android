@@ -29,6 +29,7 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.ActionBarController;
+import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.util.LinkUtils;
 
 import java.lang.ref.WeakReference;
@@ -143,6 +144,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (view == null) {
 			return;
 		}
+		EdgeToEdgeKt.setUpEdgeToEdgeTop(view);
 		WebView webView = view.findViewById(R.id.webView);
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setSupportZoom(true);

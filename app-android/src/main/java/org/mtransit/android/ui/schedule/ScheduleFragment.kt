@@ -29,6 +29,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.isAttached
@@ -125,6 +126,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
                     list,
                 )
             )
+            root.setUpEdgeToEdgeTop()
         }
         viewModel.startEndAt.observe(viewLifecycleOwner) { startEndAt ->
             startEndAt?.let { (startInMs, endInMs) ->

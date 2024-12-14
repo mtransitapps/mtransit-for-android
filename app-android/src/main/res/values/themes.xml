@@ -45,11 +45,6 @@
         <item name="postSplashScreenTheme">@style/MTTheme</item>
     </style>
 
-    <style name="MTTheme.Full" parent="MTTheme">
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
-    </style>
-
     <style name="MTThemePreferences" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorOnPrimary">@color/color_on_primary</item>

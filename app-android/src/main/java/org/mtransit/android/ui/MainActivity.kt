@@ -138,7 +138,7 @@ class MainActivity : MTActivityWithLocation(),
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         this.currentUiMode = getResources().configuration.uiMode
         LocaleUtils.onCreateActivity(this)
-        setContentView(R.layout.activity_main_old)
+        setContentView(R.layout.activity_main)
         this.abController = ActionBarController(this)
         this.navigationDrawerController = NavigationDrawerController(
             this,
@@ -168,7 +168,6 @@ class MainActivity : MTActivityWithLocation(),
         this.billingManager.currentSubscription.observe(this, Observer { currentSubscription: String? -> })
         MapUtils.fixScreenFlickering(findViewById<ViewGroup?>(R.id.content_frame))
         ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
-        findViewById<View?>(R.id.drawer_layout).setUpEdgeToEdgeTop()
     }
 
     override fun onBillingResult(productId: String?) {

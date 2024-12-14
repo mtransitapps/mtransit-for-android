@@ -28,6 +28,7 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteViewModel
+import org.mtransit.android.ui.setUpEdgeToEdgeBottom
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -177,6 +178,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
                 }
                 viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
             }
+            fabListMap?.setUpEdgeToEdgeBottom()
         }
         parentViewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             binding?.apply {

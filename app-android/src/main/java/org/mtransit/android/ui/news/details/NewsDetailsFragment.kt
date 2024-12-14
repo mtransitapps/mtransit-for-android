@@ -42,6 +42,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.news.NewsListViewModel
 import org.mtransit.android.ui.news.image.NewsImagesAdapter
+import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -123,6 +124,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentNewsDetailsBinding.bind(view).apply {
             thumbnailsList.adapter = thumbnailsListAdapter
+            root.setUpEdgeToEdgeTop()
         }
         viewModel.newsArticle.observe(viewLifecycleOwner) { newsArticle ->
             updateNewsView(newsArticle)

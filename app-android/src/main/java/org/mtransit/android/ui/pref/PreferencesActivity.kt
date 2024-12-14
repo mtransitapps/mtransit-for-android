@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
@@ -19,6 +19,7 @@ import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.enableEdgeToEdgeMT
+import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
 
@@ -73,6 +74,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         super.onCreate(savedInstanceState)
+        findViewById<View>(R.id.preferences_fragment).setUpEdgeToEdgeTop() // after super.onCreate()
         supportActionBar?.apply {
             setTitle(R.string.settings)
             setDisplayHomeAsUpEnabled(true)

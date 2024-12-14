@@ -24,6 +24,7 @@ import org.mtransit.android.databinding.FragmentRtsAgencyRoutesBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteFragment
+import org.mtransit.android.ui.setUpEdgeToEdgeBottom
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -105,6 +106,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
             fabListGrid.setOnClickListener {
                 viewModel.saveShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value == false) // switching
             }
+            fabListGrid.setUpEdgeToEdgeBottom()
         }
         viewModel.colorIntDistinct.observe(viewLifecycleOwner) { colorIntDistinct ->
             colorIntDistinct?.let {

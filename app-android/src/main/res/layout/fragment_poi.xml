@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".ui.fragment.POIFragment"
     tools:ignore="DuplicateIncludedIds">
 
     <ScrollView
@@ -37,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/list_view_item_height"
                 android:inflatedId="@+id/this_poi"
-                tools:layout="@layout/layout_poi_rts"
+                tools:layout="@layout/layout_poi_rts_with_schedule"
                 tools:visibility="visible" />
 
             <!-- TODO: keep view stub? (multiple layouts) -->
@@ -105,8 +106,8 @@
             <!-- scroll padding -->
             <View
                 android:layout_width="match_parent"
-                android:background="@null"
-                android:layout_height="@dimen/list_view_item_height" />
+                android:layout_height="@dimen/list_view_item_height"
+                android:background="@null" />
 
         </LinearLayout>
 

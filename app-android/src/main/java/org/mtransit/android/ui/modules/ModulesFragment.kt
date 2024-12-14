@@ -7,14 +7,10 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup.MarginLayoutParams
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -51,13 +47,6 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable, Men
                 setDisplayHomeAsUpEnabled(true)
             }
             emptyLayout.emptyText.text = "NO MODULES"
-            ViewCompat.setOnApplyWindowInsetsListener(list) { view, windowInsets ->
-                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                view.updateLayoutParams<MarginLayoutParams> {
-                    bottomMargin = insets.bottom
-                }
-                WindowInsetsCompat.CONSUMED
-            }
             list.adapter = listAdapter
         }
         viewModel.agencies.observe(viewLifecycleOwner) { newAgencies ->
@@ -79,14 +68,17 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable, Men
                 viewModel.flipSort()
                 true // handled
             }
+
             R.id.menu_refresh_available_version -> {
                 viewModel.refreshAvailableVersions()
                 true // handled
             }
+
             R.id.menu_force_refresh_available_version -> {
                 viewModel.forceRefreshAvailableVersions()
                 true // handled
             }
+
             else -> false // not handled
         }
     }

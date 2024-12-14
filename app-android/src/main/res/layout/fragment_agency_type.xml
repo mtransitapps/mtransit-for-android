@@ -5,7 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="@dimen/action_bar_size_static">
+    android:paddingTop="@dimen/action_bar_size_static"
+    tools:context=".ui.type.AgencyTypeFragment">
+
+    <View
+        android:id="@+id/tabs_status_bar_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        tools:layout_height="28dp"
+        tools:visibility="visible" />
     <!-- TABS -->
     <com.google.android.material.tabs.TabLayout
         android:id="@id/tabs"

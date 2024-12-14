@@ -31,6 +31,7 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.MTSearchView
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -134,6 +135,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
                 onItemSelectedListener = this@SearchFragment
                 adapter = typeFilterAdapter
             }
+            root.setUpEdgeToEdgeTop()
         }
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {

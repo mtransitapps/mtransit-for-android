@@ -155,8 +155,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private final boolean indoorLevelPickerEnabled;
 	private final boolean trafficEnabled;
 	private final boolean indoorEnabled;
-	private final int paddingTopSp;
-	private final int paddingBottomSp;
+	private int paddingTopSp;
+	private int paddingBottomSp;
 	private final boolean followingDevice;
 	private final boolean hasButtons;
 	private final boolean clusteringEnabled;
@@ -386,6 +386,31 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			mapListener.onMapReady();
 		}
 		showMapInternal(null);
+	}
+
+	public void setPaddingTopSp(int paddingTopSp) {
+		this.paddingTopSp = paddingTopSp;
+	}
+
+	public void setPaddingBottomSp(int paddingBottomSp) {
+		this.paddingBottomSp = paddingBottomSp;
+	}
+
+	public void applyPaddings() {
+		if (this.extendedGoogleMap == null) {
+			return; // SKIP (map not ready)
+		}
+		int paddingTopPx = 0;
+		if (this.paddingTopSp > 0) {
+			final Context context = getActivityOrNull();
+			paddingTopPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
+		}
+		int paddingBottomPx = 0;
+		if (this.paddingBottomSp > 0) {
+			final Context context = getActivityOrNull();
+			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingBottomSp); // fab
+		}
+		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
 	}
 
 	public void setLocationPermissionGranted(boolean locationPermissionGranted) {

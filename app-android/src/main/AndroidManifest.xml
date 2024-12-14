@@ -101,7 +101,7 @@
             android:name=".ui.modules.ModulesActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="false"
-            android:theme="@style/MTTheme.Full" />
+            android:theme="@style/MTTheme" />
         <!-- PER-APP LANGUAGE STORAGE -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

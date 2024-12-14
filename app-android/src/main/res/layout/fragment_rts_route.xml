@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="#0000FF">
+    tools:background="#0000FF"
+    tools:context=".ui.rts.route.RTSRouteFragment">
 
     <View
         android:id="@+id/route_direction_background"
@@ -16,13 +17,23 @@
         tools:background="#FF00FF"
         tools:ignore="UnusedAttribute" />
 
+    <View
+        android:id="@+id/tabs_status_bar_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        android:visibility="gone"
+        tools:layout_height="28dp"
+        tools:visibility="visible" />
+
     <!-- TABS -->
     <com.google.android.material.tabs.TabLayout
         android:id="@id/tabs"
         style="@style/Widget.MaterialComponents.TabLayout.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@id/tabs_status_bar_bg"
         android:layout_marginTop="@dimen/action_bar_size_static"
         android:background="@color/transparent"
         android:theme="@style/MTThemeOverlay"

@@ -9,6 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.enableEdgeToEdgeMT
+import org.mtransit.android.ui.setStatusBarColor
 
 @AndroidEntryPoint
 class ModulesActivity : MTActivity(R.layout.activity_modules) {
@@ -27,6 +28,7 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdgeMT()
+        setStatusBarColor(transparent = false)
         super.onCreate(savedInstanceState)
     }
 

@@ -154,6 +154,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return;
 		}
 		this.navigationView = mainActivity.findViewById(R.id.nav_view);
+		EdgeToEdgeKt.setUpEdgeToEdgeTop(this.navigationView);
 		this.navigationView.setNavigationItemSelectedListener(this);
 		this.drawerLayout = mainActivity.findViewById(R.id.drawer_layout);
 		try {

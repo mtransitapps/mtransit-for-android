@@ -33,6 +33,8 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
+import org.mtransit.android.ui.setUpEdgeToEdgeClipToPadding
+import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
@@ -226,6 +228,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                         newsList,
                     )
                 )
+                newsList.setUpEdgeToEdgeTop()
+                newsList.setUpEdgeToEdgeClipToPadding(false)
             }
             viewPager.apply {
                 offscreenPageLimit = 1 // only one because pre-fetching ads
