@@ -229,7 +229,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
             showSelectedTab()
             switchView()
-            tabsStatusBarBg.setStatusBarColor(isABStatusBarTransparent)
+            fragmentStatusBarBg.setStatusBarColor(isABStatusBarTransparent)
         }
         viewModel.availableTypes.observe(viewLifecycleOwner) {
             pagerAdapter?.setTypes(it)

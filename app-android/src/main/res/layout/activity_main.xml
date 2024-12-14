@@ -36,7 +36,7 @@
             android:layout_height="0dp"
             android:layout_alignParentTop="true"
             android:visibility="gone"
-            tools:background="?attr/colorPrimaryDark"
+            tools:background="#80FF00FF"
             tools:layout_height="28dp"
             tools:visibility="visible" />
 

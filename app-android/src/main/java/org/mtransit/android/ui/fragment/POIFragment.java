@@ -35,6 +35,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -101,6 +102,7 @@ import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.FeatureFlags;
 
@@ -216,6 +218,9 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	ImageManager imageManager;
 
+	private static final int TOP_PADDING_SP = 32;
+	private static final int BOTTOM_PADDING_SP = 0;
+
 	@NonNull
 	private final MapViewController mapViewController =
 			new MapViewController(
@@ -228,8 +233,8 @@ public class POIFragment extends ABFragment implements
 					false,
 					false,
 					false,
-					32,
-					0,
+					TOP_PADDING_SP,
+					BOTTOM_PADDING_SP,
 					true,
 					false,
 					true,
@@ -487,10 +492,10 @@ public class POIFragment extends ABFragment implements
 		((MenuHost) requireActivity()).addMenuProvider(
 				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
 		);
-		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
 		if (FeatureFlags.F_NAVIGATION) {
 			nextMainViewModel = new ViewModelProvider(requireActivity()).get(NextMainViewModel.class);
 		}
+		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
 		viewModel.getDataSourceRemovedEvent().observe(getViewLifecycleOwner(), new EventObserver<>(removed -> {
 			if (removed) {
 				onDataSourceRemoved();
@@ -642,7 +647,21 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return;
 		}
-		EdgeToEdgeKt.setUpEdgeToEdgeTop(view.findViewById(R.id.scroll_view));
+		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+			EdgeToEdgeKt.setStatusBarTheme(requireActivity(), true);
+			View statusBarBg = view.findViewById(R.id.fragment_status_bar_bg);
+			if (statusBarBg != null) {
+				EdgeToEdgeKt.setStatusBarHeight(statusBarBg, view.getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_size_static));
+			}
+			MapView map = view.findViewById(R.id.map);
+			if (map != null) {
+				EdgeToEdgeKt.setUpEdgeToEdgeTopMap(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
+						view.getContext().getResources().getDimensionPixelSize(R.dimen.large_header_height)
+				);
+			}
+		} else {
+			EdgeToEdgeKt.setUpEdgeToEdgeTop(view.findViewById(R.id.scroll_view));
+		}
 		if (this.adapter != null) {
 			this.adapter.setManualScrollView(view.findViewById(R.id.scroll_view));
 			this.adapter.setManualLayout(view.findViewById(R.id.poi_nearby_pois_list));
@@ -1500,6 +1519,11 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public boolean isABStatusBarTransparent() {
 		return true;
+	}
+
+	@Override
+	public boolean isABOverrideGradient() {
+		return UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP;
 	}
 
 	@Override

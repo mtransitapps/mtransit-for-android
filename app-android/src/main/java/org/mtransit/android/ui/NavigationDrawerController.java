@@ -53,6 +53,7 @@ import org.mtransit.android.ui.pref.PreferencesActivity;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
@@ -154,8 +155,16 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return;
 		}
 		this.navigationView = mainActivity.findViewById(R.id.nav_view);
-		EdgeToEdgeKt.setUpEdgeToEdgeTop(this.navigationView);
 		this.navigationView.setNavigationItemSelectedListener(this);
+		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+			View headerView = this.navigationView.getHeaderView(0);
+			View statusBarBg = headerView == null ? null : headerView.findViewById(R.id.drawer_header_status_bar_bg);
+			if (statusBarBg != null) {
+				EdgeToEdgeKt.setStatusBarHeight(statusBarBg);
+			}
+		} else {
+			EdgeToEdgeKt.setUpEdgeToEdgeTop(this.navigationView);
+		}
 		this.drawerLayout = mainActivity.findViewById(R.id.drawer_layout);
 		try {
 			this.drawerLayout.setDrawerShadow(ContextCompat.getDrawable(mainActivity, R.drawable.drawer_shadow), GravityCompat.START);

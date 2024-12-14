@@ -113,6 +113,17 @@
 
     </ScrollView>
 
+    <View
+        android:id="@+id/fragment_status_bar_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/ab_gradient"
+        android:gravity="top"
+        android:visibility="gone"
+        tools:background="#80FF00FF"
+        tools:layout_height="28dp"
+        tools:visibility="visible" />
+
     <include
         layout="@layout/layout_shadow"
         tools:visibility="gone" />

@@ -9,9 +9,10 @@
     tools:context=".ui.nearby.NearbyFragment">
 
     <View
-        android:id="@+id/tabs_status_bar_bg"
+        android:id="@+id/fragment_status_bar_bg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        tools:background="#80FF00FF"
         android:visibility="gone"
         tools:layout_height="28dp"
         tools:visibility="visible" />

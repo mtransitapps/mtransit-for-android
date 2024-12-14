@@ -23,6 +23,7 @@
             app:uiTiltGestures="true"
             app:uiZoomControls="true"
             app:uiZoomGestures="true"
+            tools:background="@drawable/map_normal"
             tools:visibility="visible" />
 
         <include
@@ -34,9 +35,20 @@
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:visibility="visible"
-            tools:visibility="visible" />
+            tools:visibility="gone" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <View
+        android:id="@+id/fragment_status_bar_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/ab_gradient"
+        android:visibility="gone"
+        tools:background="#80FF00FF"
+        tools:layout_height="28dp"
+        tools:visibility="visible" />
 
     <include layout="@layout/view_map_type_switch" />
 

@@ -1,26 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/action_bar_size_static"
+    tools:background="#0000FF"
     tools:context=".ui.type.AgencyTypeFragment">
 
     <View
-        android:id="@+id/tabs_status_bar_bg"
+        android:id="@+id/fragment_status_bar_bg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="gone"
+        tools:background="#80FF00FF"
         tools:layout_height="28dp"
         tools:visibility="visible" />
+
+    <View
+        android:id="@+id/route_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/tabs"
+        android:layout_alignParentTop="true"
+        tools:background="#00FF00"
+        tools:ignore="UnusedAttribute" />
+
     <!-- TABS -->
     <com.google.android.material.tabs.TabLayout
         android:id="@id/tabs"
         style="@style/Widget.MaterialComponents.TabLayout.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@id/fragment_status_bar_bg"
+        android:layout_marginTop="@dimen/action_bar_size_static"
+        android:background="@color/transparent"
         android:theme="@style/MTThemeOverlay"
         android:visibility="gone"
         app:tabContentStart="@dimen/tab_content_start"
@@ -34,7 +48,8 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/context_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/tabs">
         <!-- LOADING -->
         <include
             android:id="@id/loading_layout"
@@ -60,4 +75,4 @@
             android:visibility="gone"
             tools:visibility="visible" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</LinearLayout>
+</RelativeLayout>

@@ -17,4 +17,8 @@ object UIFeatureFlags {
 
     const val F_CUSTOM_ADS_IN_NEWS = false
     // const val F_CUSTOM_ADS_IN_NEWS = true // WIP
+
+    const val F_ADS_BANNER_COLLAPSIBLE = false
+    // const val F_ADS_BANNER_COLLAPSIBLE = true // WIP
+
 }

@@ -627,21 +627,25 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
-		String newSelectedUUID = null;
 		if (marker != null
 				&& !marker.isCluster()
 				&& marker.getData() != null
 				&& marker.getData() instanceof POIMarkerIds) {
 			final POIMarkerIds poiMarkerIds = marker.getData();
 			final ArrayMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
-			newSelectedUUID = uuidAndAuthority.getKey();
+			this.lastSelectedUUID = uuidAndAuthority.getKey();
+			if (this.autoClickInfoWindow) {
+				onInfoWindowClick(marker);
+			}
 		} else if (marker != null && marker.isCluster()) {
 			if (this.extendedGoogleMap != null) {
 				final float zoom = this.extendedGoogleMap.getCameraPosition().zoom + MARKER_ZOOM_INC;
 				return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoom));
 			}
+			this.lastSelectedUUID = null;
+		} else {
+			this.lastSelectedUUID = null;
 		}
-		this.lastSelectedUUID = newSelectedUUID; // marker clicked (OR cluster OR else)
 		return false; // not handled
 	}
 

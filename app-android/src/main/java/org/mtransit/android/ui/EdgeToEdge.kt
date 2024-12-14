@@ -8,12 +8,16 @@ import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import com.google.android.gms.maps.MapView
 import org.mtransit.android.R
+import org.mtransit.android.commons.px
+import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.util.UIFeatureFlags
 
 /**
@@ -101,9 +105,16 @@ fun ComponentActivity.setStatusBarColor(transparent: Boolean) {
         return
     }
     findViewById<View?>(R.id.status_bar_bg)?.setStatusBarColor(transparent)
-    val isDarkMode = isDarkMode(resources) // always dark top bar
+    val isDarkMode = isDarkMode(resources) // always dark top bar?
+    setStatusBarTheme(!(UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP && transparent && !isDarkMode))
+}
+
+fun ComponentActivity.setStatusBarTheme(isDark: Boolean) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
     WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
-        isAppearanceLightStatusBars = UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP && transparent && !isDarkMode
+        isAppearanceLightStatusBars = !isDark
     }
 }
 
@@ -118,12 +129,52 @@ fun View.setStatusBarColor(transparent: Boolean) {
             ResourcesCompat.getColor(resources, R.color.color_primary_dark, context.theme)
         }
     )
-    isVisible = true
+    setStatusBarHeight()
+}
+
+@JvmOverloads
+fun View.setStatusBarHeight(additionalHeight: Int = 0) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
     ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
         val insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
         view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            height = insets.top - insets.bottom
+            height = insets.height + additionalHeight
         }
+        WindowInsetsCompat.CONSUMED
+    }
+    isVisible = true
+}
+
+@JvmOverloads
+fun MapView.setUpEdgeToEdgeTopMap(
+    mapViewController: MapViewController,
+    topPaddingSp: Int,
+    bottomPaddingSp: Int,
+    originalHeight: Int? = null,
+) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
+        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+            mapViewController.setPaddingTopSp(topPaddingSp + insets.top.px)
+            originalHeight?.let {
+                view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    height = originalHeight + insets.height * 2 // ???
+                }
+            }
+        } else {
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top
+            }
+        }
+        if (bottomPaddingSp > 0) {
+            mapViewController.setPaddingBottomSp(bottomPaddingSp + insets.bottom.px)
+        }
+        mapViewController.applyPaddings()
         WindowInsetsCompat.CONSUMED
     }
 }
@@ -149,3 +200,6 @@ private fun isDarkMode(resources: Resources): Boolean {
     return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
 }
+
+val Insets.height: Int
+    get() = top - bottom

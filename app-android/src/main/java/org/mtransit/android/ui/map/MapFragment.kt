@@ -38,7 +38,12 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
+import org.mtransit.android.ui.setStatusBarColor
+import org.mtransit.android.ui.setStatusBarHeight
+import org.mtransit.android.ui.setStatusBarTheme
+import org.mtransit.android.ui.setUpEdgeToEdgeTopMap
 import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
@@ -159,6 +164,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             true,
             this.dataSourcesRepository
         ).apply {
+            setAutoClickInfoWindow(true)
             logTag = this@MapFragment.logTag
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
         }
@@ -185,20 +191,10 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         )
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
-            if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-                ViewCompat.setOnApplyWindowInsetsListener(this.map) { view, windowInsets ->
-                    val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                    if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-                        mapViewController.setPaddingTopSp(TOP_PADDING_SP + insets.top.px)
-                    } else {
-                        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                            topMargin = insets.top
-                        }
-                    }
-                    mapViewController.setPaddingBottomSp(BOTTOM_PADDING_SP + insets.bottom.px)
-                    mapViewController.applyPaddings()
-                    WindowInsetsCompat.CONSUMED
-                }
+            this.map.setUpEdgeToEdgeTopMap(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+                fragmentStatusBarBg.setStatusBarHeight(context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static))
+                activity?.setStatusBarTheme(true)
             }
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
@@ -347,6 +343,8 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     }
 
     override fun isABStatusBarTransparent() = true
+
+    override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP
 
     override fun getABTitle(context: Context?): CharSequence? {
         return context?.let { makeABTitle(it) } ?: super.getABTitle(null)

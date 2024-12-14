@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.ad.IAdScreenActivity;
 import org.mtransit.android.ad.IAdScreenFragment;
@@ -32,6 +33,7 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI;
+import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.WeakHashMap;
@@ -160,7 +162,11 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		EdgeToEdgeKt.setStatusBarColor(requireActivity(), isABStatusBarTransparent());
+		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+			EdgeToEdgeKt.setStatusBarHeight(requireActivity().findViewById(R.id.status_bar_bg));
+		} else {
+			EdgeToEdgeKt.setStatusBarColor(requireActivity(), isABStatusBarTransparent());
+		}
 	}
 
 	@Override
