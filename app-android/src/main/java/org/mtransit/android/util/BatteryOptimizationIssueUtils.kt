@@ -159,10 +159,10 @@ object BatteryOptimizationIssueUtils {
             } else {
                 false
             }
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             MTLog.d(this, "'${InvisibleActivity.CLASS_NAME}' not found in $pkg!")
             false
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             MTLog.d(this, "Unexpected error while opening '${InvisibleActivity.CLASS_NAME}' not found in $pkg!")
             false
         }

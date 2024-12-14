@@ -12,6 +12,7 @@ import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -49,8 +50,8 @@ import org.mtransit.android.receiver.ModulesReceiver
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
+import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.ui.search.SearchFragment
-import org.mtransit.android.ui.setUpEdgeToEdge
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.NightModeUtils
@@ -155,8 +156,9 @@ class NextMainActivity : MTActivityWithLocation(),
     lateinit var demoModeManager: DemoModeManager
 
     private var currentUiMode = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        setUpEdgeToEdge()
+        enableEdgeToEdgeMT()
         super.onCreate(savedInstanceState)
         adManager.init(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme

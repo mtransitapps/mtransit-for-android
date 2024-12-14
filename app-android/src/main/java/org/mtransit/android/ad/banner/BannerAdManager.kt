@@ -127,7 +127,7 @@ class BannerAdManager @Inject constructor(
                 adLayout.isVisible = true
             }
             adLayout.setUpEdgeToEdgeBottom()
-            activity.activity.setNavigationBarColor(true)
+            activity.activity?.setNavigationBarColor(transparent = true)
         }
     }
 
@@ -141,7 +141,7 @@ class BannerAdManager @Inject constructor(
             if (adView?.isVisible != false) {
                 adView?.isVisible = false
             }
-            activity.activity.setNavigationBarColor(true)
+            activity.activity?.setNavigationBarColor(transparent = true)
         }
     }
 

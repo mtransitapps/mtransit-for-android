@@ -14,7 +14,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.IStrictMode;
 import org.mtransit.android.dev.LeakDetector;
-import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapsInitializerUtil;
 import org.mtransit.android.util.NightModeUtils;
 import org.mtransit.commons.CommonsApp;

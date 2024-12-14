@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ui.MTActivity
-import org.mtransit.android.ui.setUpEdgeToEdge
+import org.mtransit.android.ui.enableEdgeToEdgeMT
 
 @AndroidEntryPoint
 class ModulesActivity : MTActivity(R.layout.activity_modules) {
@@ -26,7 +26,7 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
     override fun getLogTag(): String = LOG_TAG
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setUpEdgeToEdge()
+        enableEdgeToEdgeMT()
         super.onCreate(savedInstanceState)
     }
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="OptOutEdgeToEdgeEnforcement">
+        <!-- android:windowOptOutEdgeToEdgeEnforcement
+             isn't supported before SDK 35. This empty
+             style enables programmatically opting-out. -->
+    </style>
+
+</resources>

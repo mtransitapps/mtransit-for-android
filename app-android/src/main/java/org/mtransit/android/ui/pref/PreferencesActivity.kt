@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
@@ -17,7 +18,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
-import org.mtransit.android.ui.setUpEdgeToEdge
+import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
 
@@ -68,7 +69,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
     private var currentUiMode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setUpEdgeToEdge()
+        enableEdgeToEdgeMT()
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         super.onCreate(savedInstanceState)

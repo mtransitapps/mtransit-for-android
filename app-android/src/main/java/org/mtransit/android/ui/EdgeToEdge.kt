@@ -1,18 +1,12 @@
-@file:Suppress("DEPRECATION") // TODO re-factor everything
-
 package org.mtransit.android.ui
 
-
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
-import androidx.annotation.RequiresApi
-import androidx.core.app.ComponentActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -20,29 +14,35 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updateLayoutParams
 import org.mtransit.android.R
-import org.mtransit.commons.FeatureFlags
+import org.mtransit.android.util.UIFeatureFlags
 
 /**
- * https://medium.com/androiddevelopers/is-your-app-providing-a-backward-compatible-edge-to-edge-experience-2479267073a0
- * https://gist.github.com/yaraki/59f72de32d33e2c1b93f702f7fe74958#file-edgetoedge-kt
+ * - https://developer.android.com/develop/ui/views/layout/edge-to-edge
+ * - https://developer.android.com/develop/ui/views/layout/edge-to-edge-manually
+ *
+ * - https://developer.android.com/about/versions/15/behavior-changes-15#:~:text=If%20your%20app%20uses%20views,true%22%20if%20using%20AppBarLayout.
+ *
+ *  > If your app uses views and Material Components (com.google.android.material),
+ *  > most views-based Material Components such as BottomNavigationView, BottomAppBar, NavigationRailView, or NavigationView,
+ *  > handle insets and require no additional work.
+ *  > However, you need to add android:fitsSystemWindows="true" if using AppBarLayout.`
+ *
+ * - https://medium.com/androiddevelopers/is-your-app-providing-a-backward-compatible-edge-to-edge-experience-2479267073a0
+ * - https://medium.com/androiddevelopers/insets-handling-tips-for-android-15s-edge-to-edge-enforcement-872774e8839b
+ *
+ * - https://gist.github.com/yaraki/59f72de32d33e2c1b93f702f7fe74958#file-edgetoedge-kt
  */
-@SuppressLint("ObsoleteSdkInt")
-fun ComponentActivity.setUpEdgeToEdge() {
-    if (!FeatureFlags.F_EDGE_TO_EDGE) {
+fun ComponentActivity.enableEdgeToEdgeMT() {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        // Call before the DecorView is accessed in setContentView
+        theme.applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false)
         return
     }
-    val impl = if (Build.VERSION.SDK_INT >= 29) {
-        EdgeToEdgeApi29()
-    } else if (Build.VERSION.SDK_INT >= 26) {
-        EdgeToEdgeApi26()
-    } else {
-        EdgeToEdgeBase()
-    }
-    impl.setUp(window, findViewById(android.R.id.content), theme)
+    enableEdgeToEdge()
 }
 
 fun View.setUpEdgeToEdgeTop() {
-    if (!FeatureFlags.F_EDGE_TO_EDGE) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
     ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
@@ -57,7 +57,7 @@ fun View.setUpEdgeToEdgeTop() {
 }
 
 fun View.setUpEdgeToEdgeBottom() {
-    if (!FeatureFlags.F_EDGE_TO_EDGE) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
     ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
@@ -71,37 +71,36 @@ fun View.setUpEdgeToEdgeBottom() {
     }
 }
 
+// STATUS BAR = TOP BAR
 fun ComponentActivity.setStatusBarColor(transparent: Boolean) {
-    if (!FeatureFlags.F_EDGE_TO_EDGE) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
+    @Suppress("DEPRECATION") // not working if edge-to-edge
     window.statusBarColor = if (transparent) {
         ResourcesCompat.getColor(resources, android.R.color.transparent, theme)
     } else {
         ResourcesCompat.getColor(resources, R.color.color_primary_dark, theme)
     }
-    val isDarkMode = isDarkMode(resources)
-    WindowInsetsControllerCompat(window, findViewById(android.R.id.content)).apply {
+    val isDarkMode = isDarkMode(resources) // always dark top bar
+    WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
         isAppearanceLightStatusBars = transparent && !isDarkMode
     }
 }
 
-@JvmName("setNavBarColor")
-fun Activity?.setNavigationBarColor(transparent: Boolean) {
-    this?.setNavigationBarColor(transparent)
-}
-
+// NAVIGATION BAR = BOTTOM BAR
 fun Activity.setNavigationBarColor(transparent: Boolean) {
-    if (!FeatureFlags.F_EDGE_TO_EDGE) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
+    @Suppress("DEPRECATION") // not working if edge-to-edge
     window.navigationBarColor = if (transparent) {
         ResourcesCompat.getColor(resources, android.R.color.transparent, theme)
     } else {
         ResourcesCompat.getColor(resources, R.color.color_primary_dark, theme)
     }
     val isDarkMode = isDarkMode(resources)
-    WindowInsetsControllerCompat(window, findViewById(android.R.id.content)).apply {
+    WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
         isAppearanceLightNavigationBars = transparent && !isDarkMode
     }
 }
@@ -109,47 +108,4 @@ fun Activity.setNavigationBarColor(transparent: Boolean) {
 private fun isDarkMode(resources: Resources): Boolean {
     return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
-}
-
-private interface EdgeToEdgeImpl {
-    fun setUp(window: Window, view: View, theme: Resources.Theme)
-}
-
-@RequiresApi(29)
-private class EdgeToEdgeApi29 : EdgeToEdgeImpl {
-
-    override fun setUp(window: Window, view: View, theme: Resources.Theme) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        val resources = view.resources
-        val transparent = ResourcesCompat.getColor(resources, android.R.color.transparent, theme)
-        val isDarkMode = isDarkMode(resources)
-        window.statusBarColor = transparent
-        window.navigationBarColor = transparent
-        val controller = WindowInsetsControllerCompat(window, view)
-        controller.isAppearanceLightStatusBars = !isDarkMode
-        controller.isAppearanceLightNavigationBars = !isDarkMode
-    }
-}
-
-@RequiresApi(26)
-private class EdgeToEdgeApi26 : EdgeToEdgeImpl {
-
-    override fun setUp(window: Window, view: View, theme: Resources.Theme) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        val resources = view.resources
-        val transparent = ResourcesCompat.getColor(resources, android.R.color.transparent, theme)
-        val scrim = ResourcesCompat.getColor(resources, R.color.navigation_bar_scrim_light, theme)
-        window.statusBarColor = transparent
-        window.navigationBarColor = scrim
-        val controller = WindowInsetsControllerCompat(window, view)
-        controller.isAppearanceLightStatusBars = true
-        controller.isAppearanceLightNavigationBars = true
-    }
-}
-
-private class EdgeToEdgeBase : EdgeToEdgeImpl {
-
-    override fun setUp(window: Window, view: View, theme: Resources.Theme) {
-        // DO NOTHING
-    }
 }
