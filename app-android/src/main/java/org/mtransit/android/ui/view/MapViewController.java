@@ -623,6 +623,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
+	private boolean autoClickInfoWindow = false;
+
+	public void setAutoClickInfoWindow(boolean autoClickInfoWindow) {
+		this.autoClickInfoWindow = autoClickInfoWindow;
+	}
+
 	private static final float MARKER_ZOOM_INC = 2.0f;
 
 	@Override
