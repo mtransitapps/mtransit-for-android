@@ -35,6 +35,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -134,6 +135,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
+            root.setUpEdgeToEdgeTop()
         }
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
             adapter.setPois(favoritePOIS)

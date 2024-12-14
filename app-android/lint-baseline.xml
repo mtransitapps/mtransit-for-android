@@ -1345,13 +1345,35 @@
 
     <issue
         id="DeprecatedCall"
-        message="android.view.Window.setStatusBarColor is deprecated; consider using an alternative."
-        errorLine1="    window.statusBarColor = if (transparent) {"
-        errorLine2="    ^">
+        message="org.mtransit.android.ui.view.MapViewController.setPaddingTopSp is deprecated; consider using an alternative."
+        errorLine1="            mapViewController.setPaddingTopSp(topPaddingSp + insets.top.px)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
-            line="78"
-            column="5"/>
+            line="226"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.setPaddingBottomSp is deprecated; consider using an alternative."
+        errorLine1="            mapViewController.setPaddingBottomSp(bottomPaddingSp + insets.bottom.px)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="238"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.applyPaddings is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.applyPaddings()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="240"
+            column="9"/>
     </issue>
 
     <issue
@@ -1361,52 +1383,8 @@
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
-            line="98"
+            line="251"
             column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.view.Window.setStatusBarColor is deprecated; consider using an alternative."
-        errorLine1="        window.statusBarColor = transparent"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
-            line="126"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.view.Window.setNavigationBarColor is deprecated; consider using an alternative."
-        errorLine1="        window.navigationBarColor = transparent"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
-            line="127"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.view.Window.setStatusBarColor is deprecated; consider using an alternative."
-        errorLine1="        window.statusBarColor = transparent"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
-            line="142"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.view.Window.setNavigationBarColor is deprecated; consider using an alternative."
-        errorLine1="        window.navigationBarColor = scrim"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
-            line="143"
-            column="9"/>
     </issue>
 
     <issue
@@ -3693,7 +3671,18 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
-            line="151"
+            line="164"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.setAutoClickInfoWindow is deprecated; consider using an alternative."
+        errorLine1="            setAutoClickInfoWindow(true)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="166"
             column="13"/>
     </issue>
 
