@@ -42,13 +42,11 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.nearby.NearbyFragment
-import org.mtransit.android.ui.resetStatusBarColor
 import org.mtransit.android.ui.setStatusBarHeight
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
-import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
 import org.mtransit.android.commons.R as commonsR
@@ -170,9 +168,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 }
             }
             showSelectedTab()
-            if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-                activity?.resetStatusBarColor()
-            }
             fragmentStatusBarBg.setStatusBarHeight()
         }
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
@@ -302,7 +297,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             }
             abBgColorInt = getNewABBgColorInt()?.also { abBgColorInt ->
                 withContext(Dispatchers.Main) { // UI
-                    binding?.routeBackground?.setBackgroundColor(abBgColorInt)
+                    binding?.tabs?.setBackgroundColor(abBgColorInt)
                     abController?.apply {
                         setABBgColor(this@AgencyTypeFragment, abBgColorInt, false)
                         updateABBgColor()
@@ -312,9 +307,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             updateABColorJob?.cancel()
         }
     }
-
-    override fun isABStatusBarTransparent() = UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP
-    override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP
 
     override fun isABReady() = attachedViewModel?.title?.value != null
 

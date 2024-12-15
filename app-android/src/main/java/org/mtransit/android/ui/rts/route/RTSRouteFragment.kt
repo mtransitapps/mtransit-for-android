@@ -29,14 +29,11 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
-import org.mtransit.android.ui.resetStatusBarColor
-import org.mtransit.android.ui.setStatusBarColor
 import org.mtransit.android.ui.setStatusBarHeight
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
-import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
@@ -155,9 +152,6 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
                 routeDirectionBackground.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
             }
             showSelectedTab()
-            if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-                activity?.resetStatusBarColor()
-            }
             fragmentStatusBarBg.setStatusBarHeight()
         }
         viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->

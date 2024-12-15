@@ -3,11 +3,12 @@ package org.mtransit.android.ui
 import android.app.Activity
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
@@ -110,19 +111,31 @@ fun ComponentActivity.setStatusBarColor(transparent: Boolean) {
     setStatusBarTheme(!(UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP && transparent && !isDarkMode))
 }
 
-fun ComponentActivity.resetStatusBarColor() {
+fun ComponentActivity.setStatusBarColorRes(@ColorRes colorResId: Int?) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    findViewById<View?>(R.id.status_bar_bg)?.setBackgroundColor(Color.TRANSPARENT)
+    colorResId?.let {
+        setStatusBarColor(ResourcesCompat.getColor(resources, it, theme))
+    }
 }
 
-fun ComponentActivity.setStatusBarTheme(isDark: Boolean) {
+fun ComponentActivity.setStatusBarColor(@ColorInt colorInt: Int?) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    colorInt?.let {
+        findViewById<View?>(R.id.status_bar_bg)?.setBackgroundColor(colorInt)
+    }
+}
+
+@JvmOverloads
+fun ComponentActivity.setStatusBarTheme(isDark: Boolean = isDarkMode(resources)) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
     WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
-        isAppearanceLightStatusBars = !isDark || true // top bar is always dark
+        isAppearanceLightStatusBars = !isDark && false // top bar is always dark
     }
 }
 
@@ -171,7 +184,7 @@ fun MapView.setUpEdgeToEdgeTopMap(
             mapViewController.setPaddingTopSp(topPaddingSp + insets.top.px)
             originalHeight?.let {
                 view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    height = originalHeight + insets.height * 2 // ???
+                    height = originalHeight + insets.height
                 }
             }
         } else {

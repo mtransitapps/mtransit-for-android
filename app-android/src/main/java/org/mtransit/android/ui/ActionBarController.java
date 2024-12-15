@@ -352,6 +352,10 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		if (bgDrawable != null) {
 			bgDrawable.setColor(colorInt);
 		}
+		final MainActivity mainActivity = getMainActivityOrNull();
+		if (mainActivity != null) {
+			EdgeToEdgeKt.setStatusBarColor(mainActivity, colorInt);
+		}
 	}
 
 	public void updateABOverrideGradient() {

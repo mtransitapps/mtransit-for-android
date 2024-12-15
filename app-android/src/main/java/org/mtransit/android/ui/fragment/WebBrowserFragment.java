@@ -146,9 +146,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			return;
 		}
 		EdgeToEdgeKt.setUpEdgeToEdgeTop(view);
-		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-			EdgeToEdgeKt.setStatusBarColor(requireActivity(), isABStatusBarTransparent());
-		}
 		WebView webView = view.findViewById(R.id.webView);
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setSupportZoom(true);
@@ -271,6 +268,9 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Nullable
 	@Override
 	public Integer getABBgColor(@Nullable Context context) {
+		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+			return super.getABBgColor(context);
+		}
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			return Color.TRANSPARENT;
 		}
@@ -279,6 +279,9 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	@Override
 	public boolean isABStatusBarTransparent() {
+		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+			return super.isABStatusBarTransparent();
+		}
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			return true;
 		}

@@ -33,7 +33,6 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.resetStatusBarColor
 import org.mtransit.android.ui.setStatusBarHeight
 import org.mtransit.android.ui.setUpEdgeToEdgeTopMap
 import org.mtransit.android.ui.view.MapViewController
@@ -189,7 +188,6 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             this.map.setUpEdgeToEdgeTopMap(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
             if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
                 fragmentStatusBarBg.setStatusBarHeight(context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static))
-                activity?.resetStatusBarColor()
             }
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->

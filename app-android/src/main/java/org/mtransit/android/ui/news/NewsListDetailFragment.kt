@@ -286,7 +286,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             }
         }
         viewModel.colorInt.observe(viewLifecycleOwner) {
-            abController?.setABBgColor(this, getABBgColor(context), false)
+            abController?.setABBgColor(this, getABBgColor(context), true)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABBgColor(getABBgColor(context))
             }

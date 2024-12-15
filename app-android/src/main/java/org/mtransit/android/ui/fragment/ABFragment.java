@@ -98,7 +98,16 @@ public abstract class ABFragment extends MTFragmentX implements
 		if (isABStatusBarTransparent()) {
 			return Color.TRANSPARENT;
 		}
-		if (this.defaultABBgColor == null && context != null) {
+		if (context == null) {
+			return null;
+		}
+		return getDefaultABBgColor(context);
+	}
+
+	@ColorInt
+	@NonNull
+	public Integer getDefaultABBgColor(@NonNull Context context) {
+		if (this.defaultABBgColor == null) {
 			this.defaultABBgColor = ThemeUtils.resolveColorAttribute(context, android.R.attr.colorPrimary);
 		}
 		return this.defaultABBgColor;
@@ -163,6 +172,7 @@ public abstract class ABFragment extends MTFragmentX implements
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+			EdgeToEdgeKt.setStatusBarTheme(requireActivity());
 			EdgeToEdgeKt.setStatusBarHeight(requireActivity().findViewById(R.id.status_bar_bg));
 		} else {
 			EdgeToEdgeKt.setStatusBarColor(requireActivity(), isABStatusBarTransparent());

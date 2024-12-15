@@ -48,14 +48,12 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
-import org.mtransit.android.ui.setStatusBarColor
 import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.type.AgencyTypeFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
-import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
@@ -212,9 +210,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                         isRefreshing = false
                     }
                 }
-            }
-            if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-                activity?.setStatusBarColor(isABStatusBarTransparent)
             }
             root.setUpEdgeToEdgeTop()
         }

@@ -218,7 +218,7 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	ImageManager imageManager;
 
-	private static final int TOP_PADDING_SP = 32;
+	private static final int TOP_PADDING_SP = 64 - 32;
 	private static final int BOTTOM_PADDING_SP = 0;
 
 	@NonNull
@@ -487,7 +487,6 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		EdgeToEdgeKt.setStatusBarColor(requireActivity(), isABStatusBarTransparent());
 		MTTransitions.postponeEnterTransition(this);
 		((MenuHost) requireActivity()).addMenuProvider(
 				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources,InconsistentArrays,TypographyDashes">
-    <integer name="youtube_db_version">2</integer>
+    <integer name="youtube_db_version">4</integer>
     <string name="youtube_target_for_poi_authority" />
     <string name="youtube_color">0761A5</string><!-- Vancouver TransLink BLUE -->
     <string-array name="youtube_channels_username">
