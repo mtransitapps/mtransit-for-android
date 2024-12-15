@@ -30,7 +30,6 @@ import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.FragmentAgencyTypeBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
@@ -104,7 +103,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     private var updateABColorJob: Job? = null
 
-    private val defaultColor: Int by lazy { ThemeUtils.resolveColorAttribute(requireContext(), android.R.attr.colorPrimary) }
+    private val defaultColor: Int by lazy { getDefaultABBgColor(requireContext()) }
 
     private val abColorizer: SimpleActionBarColorizer by lazy { SimpleActionBarColorizer() }
 
@@ -175,8 +174,12 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 showSelectedTab()
                 abBgColorInt = null // reset
                 abColorizer.setBgColors(
-                    *(agencies?.map { UIColorUtils.adaptBackgroundColorToLightText(context, it.colorInt ?: defaultColor) }?.toIntArray()
-                        ?: arrayOf(UIColorUtils.adaptBackgroundColorToLightText(context, defaultColor)).toIntArray())
+                    *(agencies
+                        ?.filter { it.type != DataSourceType.TYPE_MODULE }
+                        ?.takeIf { it.isNotEmpty() }
+                        ?.map { UIColorUtils.adaptBackgroundColorToLightText(context, it.colorInt ?: defaultColor) }
+                        ?.toIntArray()
+                        ?: arrayOf(defaultColor).toIntArray())
                 )
                 updateABColorNow()
             } else {
