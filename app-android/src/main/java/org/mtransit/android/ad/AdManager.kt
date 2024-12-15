@@ -2,6 +2,8 @@ package org.mtransit.android.ad
 
 import android.content.Context
 import android.content.res.Configuration
+import androidx.core.os.bundleOf
+import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdInspectorError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
@@ -40,17 +42,23 @@ class AdManager @Inject internal constructor(
 
         val LOG_TAG: String = AdManager::class.java.simpleName
 
-        fun getAdRequest(context: IContext): AdRequest {
-            val adRequestBd = AdRequest.Builder()
+        fun getAdRequest(context: IContext, collapsible: Boolean = false) = AdRequest.Builder().apply {
             for (keyword in AdConstants.KEYWORDS) {
-                adRequestBd.addKeyword(keyword)
+                addKeyword(keyword)
             }
-            val adRequest = adRequestBd.build()
-            if (BuildConfig.DEBUG) {
-                MTLog.d(LOG_TAG, "getAdRequest() > test device? %s.", adRequest.isTestDevice(context.requireContext()))
+            if (collapsible) {
+                addNetworkExtrasBundle(
+                    AdMobAdapter::class.java, bundleOf(
+                        "collapsible" to "bottom"
+                    )
+                )
             }
-            return adRequest
-        }
+        }.build()
+            .also {
+                if (BuildConfig.DEBUG) {
+                    MTLog.d(LOG_TAG, "getAdRequest() > test device? %s.", it.isTestDevice(context.requireContext()))
+                }
+            }
     }
 
     override fun getLogTag() = LOG_TAG

@@ -12,6 +12,7 @@ import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.dev.CrashReporter
+import org.mtransit.android.util.UIFeatureFlags
 import java.lang.ref.WeakReference
 
 @Suppress("DEPRECATION")
@@ -64,7 +65,7 @@ class SetupBannerAdTask(
                 } else {
                 }
 
-                adView.loadAd(AdManager.getAdRequest(activity))
+                adView.loadAd(AdManager.getAdRequest(activity, collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE))
             }
         } else { // hide ads
             this.bannerAdManager.hideBannerAd(activity)

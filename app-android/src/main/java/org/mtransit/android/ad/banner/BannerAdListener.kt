@@ -91,7 +91,7 @@ class BannerAdListener(
         MTLog.d(this, "onAdLoaded()")
         val adView = this.adViewWR.get()
         val responseInfo = adView?.responseInfo
-        MTLog.d(this, "onAdLoaded() > ad loaded from %s", responseInfo?.mediationAdapterClassName)
+        MTLog.d(this, "onAdLoaded() > ad loaded from ${responseInfo?.mediationAdapterClassName} (collapsible:${adView?.isCollapsible})")
         this.bannerAdManager.adBannerLoaded.set(true)
         val activity = this.activityWR.get()
         if (activity == null) {
