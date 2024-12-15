@@ -4953,6 +4953,28 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.onInfoWindowClick is deprecated; consider using an alternative."
+        errorLine1="    onInfoWindowClick(marker);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="644"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.onInfoWindowClick is deprecated; consider using an alternative."
+        errorLine1="    onInfoWindowClick(marker);"
+        errorLine2="                      ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="644"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.updateMapCamera is deprecated; consider using an alternative."
         errorLine1="    return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoom));"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
