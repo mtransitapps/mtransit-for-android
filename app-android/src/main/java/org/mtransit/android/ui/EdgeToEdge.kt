@@ -3,6 +3,7 @@ package org.mtransit.android.ui
 import android.app.Activity
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
@@ -109,12 +110,19 @@ fun ComponentActivity.setStatusBarColor(transparent: Boolean) {
     setStatusBarTheme(!(UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP && transparent && !isDarkMode))
 }
 
+fun ComponentActivity.resetStatusBarColor() {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    findViewById<View?>(R.id.status_bar_bg)?.setBackgroundColor(Color.TRANSPARENT)
+}
+
 fun ComponentActivity.setStatusBarTheme(isDark: Boolean) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
     WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
-        isAppearanceLightStatusBars = !isDark
+        isAppearanceLightStatusBars = !isDark || true // top bar is always dark
     }
 }
 

@@ -42,6 +42,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.nearby.NearbyFragment
+import org.mtransit.android.ui.resetStatusBarColor
 import org.mtransit.android.ui.setStatusBarHeight
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -169,6 +170,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 }
             }
             showSelectedTab()
+            if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+                activity?.resetStatusBarColor()
+            }
             fragmentStatusBarBg.setStatusBarHeight()
         }
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->

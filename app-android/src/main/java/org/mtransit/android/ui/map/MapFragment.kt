@@ -10,13 +10,9 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import com.google.android.gms.maps.model.LatLng
@@ -24,7 +20,6 @@ import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.px
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentMapBinding
@@ -38,9 +33,8 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.setStatusBarColor
+import org.mtransit.android.ui.resetStatusBarColor
 import org.mtransit.android.ui.setStatusBarHeight
-import org.mtransit.android.ui.setStatusBarTheme
 import org.mtransit.android.ui.setUpEdgeToEdgeTopMap
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
@@ -191,10 +185,11 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         )
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
+            // if (UIFeatureFlags.F_EDGE_TO_EDGE) {
             this.map.setUpEdgeToEdgeTopMap(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
             if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
                 fragmentStatusBarBg.setStatusBarHeight(context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static))
-                activity?.setStatusBarTheme(true)
+                activity?.resetStatusBarColor()
             }
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->

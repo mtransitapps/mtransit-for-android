@@ -3,6 +3,7 @@ package org.mtransit.android.ui.nearby
 
 import android.app.PendingIntent
 import android.content.Context
+import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.view.Menu
@@ -25,6 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
@@ -43,11 +45,14 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFra
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
-import org.mtransit.android.ui.setStatusBarColor
+import org.mtransit.android.ui.resetStatusBarColor
+import org.mtransit.android.ui.setStatusBarHeight
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.MapUtils
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
@@ -229,7 +234,10 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
             showSelectedTab()
             switchView()
-            fragmentStatusBarBg.setStatusBarColor(isABStatusBarTransparent)
+            if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+                activity?.resetStatusBarColor()
+            }
+            fragmentStatusBarBg.setStatusBarHeight()
         }
         viewModel.availableTypes.observe(viewLifecycleOwner) {
             pagerAdapter?.setTypes(it)
@@ -263,7 +271,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABBgColor(getABBgColor(context))
             }
-            setupTabTheme()
+            setupTabTheme(abBgColor = it)
         }
         LocationSettingsUI.onViewCreated(this)
         LocationPermissionUI.onViewCreated(this)
@@ -279,12 +287,11 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         }
     }
 
-    private fun setupTabTheme(abBgColor: Int? = getABBgColor(context)) {
-        binding?.tabs?.apply {
-            abBgColor?.let {
-                setBackgroundColor(it)
-            }
-        }
+    private fun setupTabTheme(abBgColor: Int? = getABBgColor(context)) = binding?.apply {
+        nearbyBackground.setBackgroundColor(
+            abBgColor.takeUnless { it == Color.TRANSPARENT }
+                ?: ThemeUtils.resolveColorAttribute(this.context, android.R.attr.colorPrimary)
+        )
     }
 
     private fun switchView() {
@@ -389,6 +396,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             else -> false // not handled
         }
     }
+
+    override fun isABStatusBarTransparent() = UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP
+    override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP
 
     override fun getABTitle(context: Context?): CharSequence? {
         return attachedViewModel?.fixedOnName?.value

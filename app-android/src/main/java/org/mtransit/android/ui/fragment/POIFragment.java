@@ -487,7 +487,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		EdgeToEdgeKt.setStatusBarColor(requireActivity(), true);
+		EdgeToEdgeKt.setStatusBarColor(requireActivity(), isABStatusBarTransparent());
 		MTTransitions.postponeEnterTransition(this);
 		((MenuHost) requireActivity()).addMenuProvider(
 				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
@@ -648,7 +648,6 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-			EdgeToEdgeKt.setStatusBarTheme(requireActivity(), true);
 			View statusBarBg = view.findViewById(R.id.fragment_status_bar_bg);
 			if (statusBarBg != null) {
 				EdgeToEdgeKt.setStatusBarHeight(statusBarBg, view.getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_size_static));

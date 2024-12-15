@@ -35,10 +35,12 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.setStatusBarColor
 import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -134,6 +136,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             listLayout.list.let { listView ->
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
+            }
+            if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+                activity?.setStatusBarColor(isABStatusBarTransparent)
             }
             root.setUpEdgeToEdgeTop()
         }
