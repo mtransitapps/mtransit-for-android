@@ -6014,7 +6014,18 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="138"
+            line="145"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.setAutoClickInfoWindow is deprecated; consider using an alternative."
+        errorLine1="            setAutoClickInfoWindow(true)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
+            line="147"
             column="13"/>
     </issue>
 
