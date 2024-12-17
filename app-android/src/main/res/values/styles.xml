@@ -275,7 +275,9 @@
         <item name="android:divider">@drawable/list_divider_rounded</item>
         <item name="android:scrollbarStyle">insideOverlay</item>
         <item name="android:transitionGroup">true</item>
-        <item name="android:layout_marginHorizontal">@dimen/list_view_margin_horizontal</item>
+        <!-- API Level 26: <item name="android:layout_marginHorizontal">@dimen/list_view_margin_horizontal</item> -->
+        <item name="android:layout_marginStart">@dimen/list_view_margin_horizontal</item>
+        <item name="android:layout_marginEnd">@dimen/list_view_margin_horizontal</item>
     </style>
 
     <style name="MTPOIList.PaddingBottom" parent="@style/MTPOIList">

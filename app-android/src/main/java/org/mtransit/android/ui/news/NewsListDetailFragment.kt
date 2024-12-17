@@ -33,7 +33,6 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
-import org.mtransit.android.ui.setUpEdgeToEdgeBottomAndTop
 import org.mtransit.android.ui.setUpEdgeToEdgeList
 import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver

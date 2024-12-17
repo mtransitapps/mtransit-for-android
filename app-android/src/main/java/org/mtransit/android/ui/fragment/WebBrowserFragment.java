@@ -13,8 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.lifecycle.Lifecycle;
+import androidx.webkit.WebViewClientCompat;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -31,7 +32,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.util.LinkUtils;
-import org.mtransit.android.util.UIFeatureFlags;
 
 import java.lang.ref.WeakReference;
 
@@ -268,9 +268,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Nullable
 	@Override
 	public Integer getABBgColor(@Nullable Context context) {
-		if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-			return super.getABBgColor(context);
-		}
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			return Color.TRANSPARENT;
 		}
@@ -279,9 +276,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	@Override
 	public boolean isABStatusBarTransparent() {
-		if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-			return super.isABStatusBarTransparent();
-		}
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			return true;
 		}
@@ -368,7 +362,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		}
 	}
 
-	private static class MTWebViewClient extends WebViewClient implements MTLog.Loggable {
+	private static class MTWebViewClient extends WebViewClientCompat implements MTLog.Loggable {
 
 		private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName() + ">" + MTWebViewClient.class.getSimpleName();
 
@@ -386,21 +380,21 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		}
 
 		@Override
-		public boolean shouldOverrideUrlLoading(WebView webView, String url) {
+		public boolean shouldOverrideUrlLoading(@NonNull WebView webView, @NonNull WebResourceRequest request) {
 			try {
 				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
-				if (webBrowserFragment != null && webBrowserFragment.shouldOverrideUrlLoading(webView, url)) {
-					return true;
+				if (webBrowserFragment != null
+						&& webBrowserFragment.shouldOverrideUrlLoading(webView, request.getUrl().toString())) {
+					return true; // handled
 				}
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error during should override URL loading!");
 			}
-			return super.shouldOverrideUrlLoading(webView, url);
+			return super.shouldOverrideUrlLoading(webView, request);
 		}
 
 		@Override
 		public void onPageStarted(WebView webView, String url, Bitmap favicon) {
-			super.onPageStarted(webView, url, favicon);
 			try {
 				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 				if (webBrowserFragment != null) {
@@ -414,7 +408,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 		@Override
 		public void onPageFinished(WebView webView, String url) {
-			super.onPageFinished(webView, url);
 			try {
 				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 				if (webBrowserFragment != null) {

@@ -53,7 +53,6 @@ import org.mtransit.android.ui.pref.PreferencesActivity;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
-import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
 

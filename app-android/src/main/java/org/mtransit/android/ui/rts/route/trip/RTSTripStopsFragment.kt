@@ -29,7 +29,6 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteViewModel
 import org.mtransit.android.ui.setUpEdgeToEdge
-import org.mtransit.android.ui.setUpEdgeToEdgeBottom
 import org.mtransit.android.ui.setUpEdgeToEdgeList
 import org.mtransit.android.ui.setUpEdgeToEdgeTopMap
 import org.mtransit.android.ui.setUpNavBarProtection
