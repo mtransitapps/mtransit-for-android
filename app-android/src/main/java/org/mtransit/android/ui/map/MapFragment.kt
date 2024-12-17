@@ -42,6 +42,7 @@ import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
 
+@Suppress("DeprecatedCall")
 @AndroidEntryPoint
 class MapFragment : ABFragment(R.layout.fragment_map),
     DeviceLocationListener,

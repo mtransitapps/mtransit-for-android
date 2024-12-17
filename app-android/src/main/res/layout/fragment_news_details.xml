@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
-    tools:context=".ui.news.details.NewsDetailsFragment">
+    tools:context=".ui.news.details.NewsDetailsFragment"
+    tools:ignore="Overdraw">
 
     <ScrollView
         android:id="@id/scroll_view"

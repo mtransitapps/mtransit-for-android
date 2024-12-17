@@ -249,6 +249,7 @@ class MapViewModel @Inject constructor(
 
     private var poiMarkersLoadJob: Job? = null
 
+    @Suppress("DeprecatedCall")
     private fun loadPOIMarkers() {
         poiMarkersLoadJob?.cancel()
         val reset: Boolean = _poiMarkersReset.value?.getContentIfNotHandled() == true

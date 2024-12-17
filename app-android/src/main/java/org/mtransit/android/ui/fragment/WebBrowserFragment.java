@@ -35,6 +35,7 @@ import org.mtransit.android.util.LinkUtils;
 
 import java.lang.ref.WeakReference;
 
+@SuppressWarnings("DeprecatedCall")
 public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName();
