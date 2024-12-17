@@ -128,7 +128,6 @@ fun Activity.setStatusBarColor(transparent: Boolean) {
     setStatusBarTheme(!(transparent && !isDarkMode))
 }
 
-
 fun Activity.setStatusBarColor(@ColorInt colorInt: Int?) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
@@ -243,6 +242,7 @@ fun ListView.setUpEdgeToEdgeList(
             marginTopDimenRes?.let {
                 topMargin = resources.getDimensionPixelSize(it) + insets.top
             }
+        }
         view.updatePadding(
             left = insets.start,
             right = insets.end,
