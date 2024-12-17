@@ -119,6 +119,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
     }
 
+    @Suppress("DeprecatedCall")
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,

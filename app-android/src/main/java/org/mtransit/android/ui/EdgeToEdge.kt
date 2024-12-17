@@ -176,6 +176,7 @@ fun View.setStatusBarHeight(@Px additionalHeightPx: Int = 0) {
     isVisible = true
 }
 
+@Suppress("DeprecatedCall")
 @JvmOverloads
 fun MapView.setUpEdgeToEdgeTopMap(
     mapViewController: MapViewController,

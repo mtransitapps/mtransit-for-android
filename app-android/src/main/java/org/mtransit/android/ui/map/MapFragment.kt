@@ -138,6 +138,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         }
     }
 
+    @Suppress("DeprecatedCall")
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,

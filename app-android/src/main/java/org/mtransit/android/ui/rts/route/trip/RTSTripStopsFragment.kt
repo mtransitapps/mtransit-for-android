@@ -124,6 +124,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
     }
 
+    @Suppress("DeprecatedCall")
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,

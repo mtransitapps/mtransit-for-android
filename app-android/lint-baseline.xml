@@ -531,72 +531,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="        MapViewController("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="116"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="            logTag,"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="117"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="            mapMarkerProvider,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="118"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="            null, // DO NOTHING (map click, camera change)"
-        errorLine2="            ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="119"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="            this.dataSourcesRepository"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="133"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
-        errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="135"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1341,39 +1275,6 @@
             file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingMarker.java"
             line="193"
             column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setPaddingTopSp is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.setPaddingTopSp(topPaddingSp + insets.top.dpToPx)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
-            line="239"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setPaddingBottomSp is deprecated; consider using an alternative."
-        errorLine1="                mapViewController.setPaddingBottomSp(it + insets.bottom.dpToPx)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
-            line="255"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.applyPaddings is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.applyPaddings()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
-            line="261"
-            column="9"/>
     </issue>
 
     <issue
@@ -5965,83 +5866,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="        MapViewController("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="121"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="            logTag,"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="122"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="            mapMarkerProvider,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="123"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="            null, // DO NOTHING (map click, camera change)"
-        errorLine2="            ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="124"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="            this.dataSourcesRepository"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="145"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setAutoClickInfoWindow is deprecated; consider using an alternative."
-        errorLine1="            setAutoClickInfoWindow(true)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="147"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
-        errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="140"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -8095,50 +7919,6 @@
             file="src/main/res/layout/layout_poi_rts_extras.xml"
             line="2"
             column="1"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorSurface` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorSurface&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_news_details.xml"
-            line="7"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/black` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;@color/black&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_ad.xml"
-            line="9"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/colorPrimary` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?attr/colorPrimary&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_drawer_header.xml"
-            line="5"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/colorBackground` with a theme that also paints a background (inferred theme is `@style/MTTheme`)"
-        errorLine1="    android:background=&quot;?android:attr/colorBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/layout_poi_detail_status_schedule_day_separator.xml"
-            line="7"
-            column="5"/>
     </issue>
 
     <issue
