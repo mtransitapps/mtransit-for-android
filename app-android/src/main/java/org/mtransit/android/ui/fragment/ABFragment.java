@@ -33,7 +33,6 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI;
-import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.WeakHashMap;
@@ -121,6 +120,10 @@ public abstract class ABFragment extends MTFragmentX implements
 		return false;
 	}
 
+	public boolean isNavBarProtected() {
+		return true;
+	}
+
 	@Nullable
 	public View getABCustomView() {
 		return null;
@@ -171,12 +174,10 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-			EdgeToEdgeKt.setStatusBarTheme(requireActivity());
-			EdgeToEdgeKt.setStatusBarHeight(requireActivity().findViewById(R.id.status_bar_bg));
-		} else {
-			EdgeToEdgeKt.setStatusBarColor(requireActivity(), isABStatusBarTransparent());
-		}
+		EdgeToEdgeKt.setStatusBarTheme(requireActivity());
+		EdgeToEdgeKt.setStatusBarHeight(requireActivity().findViewById(R.id.status_bar_bg));
+		EdgeToEdgeKt.setNavBarTheme(requireActivity());
+		EdgeToEdgeKt.setUpNavBarProtection(requireActivity(), isNavBarProtected());
 	}
 
 	@Override

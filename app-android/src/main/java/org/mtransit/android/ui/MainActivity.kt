@@ -139,6 +139,7 @@ class MainActivity : MTActivityWithLocation(),
         this.currentUiMode = getResources().configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         setContentView(R.layout.activity_main)
+        findViewById<View>(R.id.main_content).setUpEdgeToEdgeBottom()
         this.abController = ActionBarController(this)
         this.navigationDrawerController = NavigationDrawerController(
             this,
@@ -372,7 +373,7 @@ class MainActivity : MTActivityWithLocation(),
     fun isCurrentFragmentVisible(fragment: Fragment?): Boolean {
         return FragmentUtils.isCurrentFragmentVisible(this, R.id.content_frame, fragment)
     }
-    
+
     override val currentFragment: Fragment?
         get() = FragmentUtils.getFragment(this, R.id.content_frame)
 

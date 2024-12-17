@@ -48,7 +48,7 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
-import org.mtransit.android.ui.setUpEdgeToEdgeTop
+import org.mtransit.android.ui.setUpEdgeToEdgeList
 import org.mtransit.android.ui.type.AgencyTypeFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -155,7 +155,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
-    private val adapter: POIArrayAdapter by lazy {
+    private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
             this.sensorManager,
@@ -168,7 +168,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this.serviceUpdateLoader
         ).apply {
             logTag = this@HomeFragment.logTag
-            setFavoriteUpdateListener { adapter.onFavoriteUpdated() }
+            setFavoriteUpdateListener { listAdapter.onFavoriteUpdated() }
             setShowBrowseHeaderSection(true)
             setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE)
             setShowTypeHeaderNearby(true)
@@ -195,10 +195,14 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
         binding = FragmentHomeBinding.bind(view).apply {
-            listLayout.list.let { listView ->
-                swipeRefresh.setListViewWR(listView)
-                listView.isVisible = adapter.isInitialized
-                adapter.setListView(listView)
+            listLayout.list.apply {
+                swipeRefresh.setListViewWR(this)
+                isVisible = listAdapter.isInitialized
+                listAdapter.setListView(this)
+                setUpEdgeToEdgeList(
+                    marginTopDimenRes = R.dimen.action_bar_size_static,
+                    marginBottomDimenRes = null,
+                )
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this@HomeFragment)
             }
             swipeRefresh.apply {
@@ -211,10 +215,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                     }
                 }
             }
-            root.setUpEdgeToEdgeTop()
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
-            adapter.setLocation(it)
+            listAdapter.setLocation(it)
         }
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), true)
@@ -227,20 +230,20 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
         viewModel.nearbyPOIsTrigger.observe(viewLifecycleOwner, EventObserver { triggered ->
             if (triggered) {
-                adapter.clear()
+                listAdapter.clear()
             }
         })
         viewModel.nearbyPOIs.observe(viewLifecycleOwner) {
             it?.let {
-                val scrollToTop = adapter.poisCount <= 0
-                adapter.appendPois(it)
+                val scrollToTop = listAdapter.poisCount <= 0
+                listAdapter.appendPois(it)
                 if (scrollToTop) {
                     binding?.listLayout?.list?.setSelection(0)
                 }
                 if (isResumed) {
-                    adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+                    listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
                 } else {
-                    adapter.onPause()
+                    listAdapter.onPause()
                 }
                 switchView()
             }
@@ -276,7 +279,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onResume() {
         super.onResume()
-        this.adapter.onResume(this, viewModel.deviceLocation.value)
+        this.listAdapter.onResume(this, viewModel.deviceLocation.value)
         switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.checkLocationSettings()
@@ -321,7 +324,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onPause() {
         super.onPause()
-        this.adapter.onPause()
+        this.listAdapter.onPause()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
@@ -371,7 +374,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        adapter.onDestroyView()
+        listAdapter.onDestroyView()
         binding?.swipeRefresh?.apply {
             onDestroyView()
             setOnRefreshListener(null)
@@ -381,6 +384,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onDestroy() {
         super.onDestroy()
-        this.adapter.onDestroy()
+        this.listAdapter.onDestroy()
     }
 }

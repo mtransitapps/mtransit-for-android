@@ -268,7 +268,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Nullable
 	@Override
 	public Integer getABBgColor(@Nullable Context context) {
-		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+		if (UIFeatureFlags.F_EDGE_TO_EDGE) {
 			return super.getABBgColor(context);
 		}
 		if (FileUtils.isImageURL(this.initialUrl)) {
@@ -279,7 +279,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	@Override
 	public boolean isABStatusBarTransparent() {
-		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
+		if (UIFeatureFlags.F_EDGE_TO_EDGE) {
 			return super.isABStatusBarTransparent();
 		}
 		if (FileUtils.isImageURL(this.initialUrl)) {

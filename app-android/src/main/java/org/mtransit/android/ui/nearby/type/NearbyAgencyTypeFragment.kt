@@ -23,6 +23,7 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.nearby.NearbyViewModel
+import org.mtransit.android.ui.setUpEdgeToEdgeList
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
@@ -101,7 +102,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         override fun showingDone() = true
     }
 
-    private val adapter: POIArrayAdapter by lazy {
+    private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
             this.sensorManager,
@@ -124,10 +125,14 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentNearbyAgencyTypeBinding.bind(view).apply {
-            listLayout.list.let { listView ->
-                swipeRefresh.setListViewWR(listView)
-                listView.isVisible = adapter.isInitialized
-                adapter.setListView(listView)
+            listLayout.list.apply {
+                swipeRefresh.setListViewWR(this)
+                isVisible = listAdapter.isInitialized
+                listAdapter.setListView(this)
+                setUpEdgeToEdgeList(
+                    marginTopDimenRes = null,
+                    marginBottomDimenRes = null,
+                )
             }
             swipeRefresh.apply {
                 setColorSchemeColors(
@@ -152,26 +157,26 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         }
         viewModel.typeId.observe(viewLifecycleOwner) { typeId -> // REQUIRED FOR PARAMS
             theLogTag = typeId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-            adapter.logTag = this@NearbyAgencyTypeFragment.logTag
+            listAdapter.logTag = this@NearbyAgencyTypeFragment.logTag
         }
         parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
-            adapter.setLocation(deviceLocation)
+            listAdapter.setLocation(deviceLocation)
         }
         parentViewModel.nearbyLocationForceReset.observe(viewLifecycleOwner) { resetEvent ->
             if (resetEvent.peekContent()) { // event used in view model, do not mark has handled
-                adapter.clear()
+                listAdapter.clear()
             }
         }
         viewModel.nearbyPOIs.observe(viewLifecycleOwner) { poiList ->
-            val scrollToTop = adapter.poisCount <= 0
-            adapter.appendPois(poiList)
+            val scrollToTop = listAdapter.poisCount <= 0
+            listAdapter.appendPois(poiList)
             if (scrollToTop) {
                 binding?.listLayout?.list?.setSelection(0)
             }
             if (isResumed) {
-                adapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
+                listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             } else {
-                adapter.onPause()
+                listAdapter.onPause()
             }
             switchView()
         }
@@ -190,7 +195,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     private fun switchView() {
         binding?.apply {
             when {
-                !adapter.isInitialized -> {
+                !listAdapter.isInitialized -> {
                     emptyLayout.isVisible = false
                     listLayout.isVisible = false
                     swipeRefresh.setLoadingViewWR(loadingLayout.root)
@@ -198,7 +203,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                     loadingLayout.isVisible = true
                 }
 
-                adapter.poisCount == 0 -> {
+                listAdapter.poisCount == 0 -> {
                     loadingLayout.isVisible = false
                     swipeRefresh.isRefreshing = false
                     listLayout.isVisible = false
@@ -218,18 +223,18 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
 
     override fun onResume() {
         super.onResume()
-        this.adapter.onResume(this, parentViewModel.deviceLocation.value)
+        this.listAdapter.onResume(this, parentViewModel.deviceLocation.value)
         switchView()
     }
 
     override fun onPause() {
         super.onPause()
-        this.adapter.onPause()
+        this.listAdapter.onPause()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        adapter.onDestroyView()
+        listAdapter.onDestroyView()
         binding?.swipeRefresh?.apply {
             onDestroyView()
             setOnRefreshListener(null)
@@ -239,7 +244,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
 
     override fun onDestroy() {
         super.onDestroy()
-        this.adapter.onDestroy()
+        this.listAdapter.onDestroy()
     }
 
     override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)

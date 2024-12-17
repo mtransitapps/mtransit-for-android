@@ -29,12 +29,14 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.setUpEdgeToEdgeTop
+import org.mtransit.android.ui.setUpEdgeToEdgeBottom
+import org.mtransit.android.ui.setUpEdgeToEdgeList
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.scrollToPositionWithOffset
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.FeatureFlags
 
@@ -56,7 +58,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         fun newInstance(
             uuid: String,
             authority: String,
-            optColor: String? = null
+            optColor: String? = null,
         ): ScheduleFragment {
             return ScheduleFragment().apply {
                 arguments = newInstanceArgs(uuid, authority, optColor)
@@ -73,7 +75,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         fun newInstanceArgs(
             uuid: String,
             authority: String,
-            optColor: String? = null
+            optColor: String? = null,
         ) = bundleOf(
             ScheduleViewModel.EXTRA_POI_UUID to uuid,
             ScheduleViewModel.EXTRA_AUTHORITY to authority,
@@ -118,15 +120,15 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
         binding = FragmentScheduleInfiniteBinding.bind(view).apply {
-            list.adapter = listAdapter
-            list.addOnScrollListener(onScrollListener)
-            list.addItemDecoration(
-                StickyHeaderItemDecorator(
-                    listAdapter,
-                    list,
-                )
-            )
-            root.setUpEdgeToEdgeTop()
+            list.apply {
+                adapter = listAdapter
+                addOnScrollListener(onScrollListener)
+                addItemDecoration(StickyHeaderItemDecorator(listAdapter, this))
+                setUpEdgeToEdgeList(marginTopDimenRes = R.dimen.action_bar_size_static)
+            }
+            if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
+                sourceLabel.setUpEdgeToEdgeBottom()
+            }
         }
         viewModel.startEndAt.observe(viewLifecycleOwner) { startEndAt ->
             startEndAt?.let { (startInMs, endInMs) ->

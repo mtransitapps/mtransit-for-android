@@ -25,7 +25,7 @@
         android:visibility="gone"
         app:mtPieCharPieces="3"
         tools:background="#FFFF00"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
 
     <org.mtransit.android.ui.view.MTDotsView
         android:id="@+id/dots"

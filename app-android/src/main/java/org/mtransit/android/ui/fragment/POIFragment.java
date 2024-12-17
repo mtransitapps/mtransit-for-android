@@ -646,19 +646,15 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return;
 		}
-		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-			View statusBarBg = view.findViewById(R.id.fragment_status_bar_bg);
-			if (statusBarBg != null) {
-				EdgeToEdgeKt.setStatusBarHeight(statusBarBg, view.getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_size_static));
-			}
-			MapView map = view.findViewById(R.id.map);
-			if (map != null) {
-				EdgeToEdgeKt.setUpEdgeToEdgeTopMap(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
-						view.getContext().getResources().getDimensionPixelSize(R.dimen.large_header_height)
-				);
-			}
-		} else {
-			EdgeToEdgeKt.setUpEdgeToEdgeTop(view.findViewById(R.id.scroll_view));
+		View statusBarBg = view.findViewById(R.id.fragment_status_bar_bg);
+		if (statusBarBg != null) {
+			EdgeToEdgeKt.setStatusBarHeight(statusBarBg, view.getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_size_static));
+		}
+		MapView map = view.findViewById(R.id.map);
+		if (map != null) {
+			EdgeToEdgeKt.setUpEdgeToEdgeTopMap(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
+					view.getContext().getResources().getDimensionPixelSize(R.dimen.large_header_height)
+			);
 		}
 		if (this.adapter != null) {
 			this.adapter.setManualScrollView(view.findViewById(R.id.scroll_view));
@@ -1521,7 +1517,7 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean isABOverrideGradient() {
-		return UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP;
+		return UIFeatureFlags.F_EDGE_TO_EDGE;
 	}
 
 	@Override

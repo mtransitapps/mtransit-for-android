@@ -14,8 +14,6 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.dev.CrashReporter
-import org.mtransit.android.ui.setNavigationBarColor
-import org.mtransit.android.ui.setUpEdgeToEdgeBottom
 import org.mtransit.commons.FeatureFlags
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -126,8 +124,6 @@ class BannerAdManager @Inject constructor(
             if (adLayout.isVisible != true) {
                 adLayout.isVisible = true
             }
-            adLayout.setUpEdgeToEdgeBottom()
-            activity.activity?.setNavigationBarColor(transparent = true)
         }
     }
 
@@ -141,7 +137,6 @@ class BannerAdManager @Inject constructor(
             if (adView?.isVisible != false) {
                 adView?.isVisible = false
             }
-            activity.activity?.setNavigationBarColor(transparent = true)
         }
     }
 

@@ -185,10 +185,10 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
             // if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-            this.map.setUpEdgeToEdgeTopMap(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
-            if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-                fragmentStatusBarBg.setStatusBarHeight(context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static))
-            }
+            map.setUpEdgeToEdgeTopMap(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            fragmentStatusBarBg.setStatusBarHeight(
+                additionalHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
+            )
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
             location?.let {
@@ -335,9 +335,11 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         )
     }
 
+    override fun isNavBarProtected() = false
+
     override fun isABStatusBarTransparent() = true
 
-    override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP
+    override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE
 
     override fun getABTitle(context: Context?): CharSequence? {
         return context?.let { makeABTitle(it) } ?: super.getABTitle(null)

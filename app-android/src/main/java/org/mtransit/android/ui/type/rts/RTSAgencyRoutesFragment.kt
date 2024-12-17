@@ -24,6 +24,7 @@ import org.mtransit.android.databinding.FragmentRtsAgencyRoutesBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteFragment
+import org.mtransit.android.ui.setUpEdgeToEdge
 import org.mtransit.android.ui.setUpEdgeToEdgeBottom
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
@@ -39,7 +40,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         @JvmStatic
         fun newInstance(
             agencyAuthority: String,
-            optColorInt: Int? = null
+            optColorInt: Int? = null,
         ): RTSAgencyRoutesFragment {
             return RTSAgencyRoutesFragment().apply {
                 arguments = bundleOf(
@@ -103,10 +104,12 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentRtsAgencyRoutesBinding.bind(view).apply {
             listGrid.adapter = listGridAdapter ?: makeListGridAdapter().also { listGridAdapter = it } // must null in destroyView() to avoid memory leak
-            fabListGrid.setOnClickListener {
-                viewModel.saveShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value == false) // switching
+            fabListGrid.apply {
+                setOnClickListener {
+                    viewModel.saveShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value == false) // switching
+                }
+                setUpEdgeToEdge()
             }
-            fabListGrid.setUpEdgeToEdgeBottom()
         }
         viewModel.colorIntDistinct.observe(viewLifecycleOwner) { colorIntDistinct ->
             colorIntDistinct?.let {
@@ -184,11 +187,13 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
                     listGrid.isVisible = false
                     loadingLayout.isVisible = true
                 }
+
                 listGridAdapter?.itemCount == 0 -> {
                     loadingLayout.isVisible = false
                     listGrid.isVisible = false
                     emptyLayout.isVisible = true
                 }
+
                 else -> {
                     emptyLayout.isVisible = false
                     loadingLayout.isVisible = false

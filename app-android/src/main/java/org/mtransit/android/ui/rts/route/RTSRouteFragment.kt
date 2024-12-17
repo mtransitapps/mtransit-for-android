@@ -58,7 +58,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
             authority: String,
             routeId: Long,
             optSelectedTripId: Long? = null,
-            optSelectedStopId: Int? = null
+            optSelectedStopId: Int? = null,
         ): RTSRouteFragment {
             return RTSRouteFragment().apply {
                 arguments = newInstanceArgs(authority, routeId, optSelectedTripId, optSelectedStopId)
@@ -234,29 +234,27 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
-    private fun switchView() {
-        binding?.apply {
-            when {
-                lastPageSelected < 0 || pagerAdapter?.isReady() != true -> { // LOADING
-                    emptyLayout.isVisible = false
-                    viewPager.isVisible = false
-                    tabs.isVisible = false
-                    loadingLayout.isVisible = true
-                }
+    private fun switchView() = binding?.apply {
+        when {
+            lastPageSelected < 0 || pagerAdapter?.isReady() != true -> { // LOADING
+                emptyLayout.isVisible = false
+                viewPager.isVisible = false
+                tabs.isVisible = false
+                loadingLayout.isVisible = true
+            }
 
-                pagerAdapter?.itemCount == 0 -> { // EMPTY
-                    loadingLayout.isVisible = false
-                    viewPager.isVisible = false
-                    tabs.isVisible = false
-                    emptyLayout.isVisible = true
-                }
+            pagerAdapter?.itemCount == 0 -> { // EMPTY
+                loadingLayout.isVisible = false
+                viewPager.isVisible = false
+                tabs.isVisible = false
+                emptyLayout.isVisible = true
+            }
 
-                else -> { // LOADED
-                    loadingLayout.isVisible = false
-                    emptyLayout.isVisible = false
-                    tabs.isVisible = true
-                    viewPager.isVisible = true
-                }
+            else -> { // LOADED
+                loadingLayout.isVisible = false
+                emptyLayout.isVisible = false
+                tabs.isVisible = true
+                viewPager.isVisible = true
             }
         }
     }
@@ -272,8 +270,10 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
         }
         val smoothScroll = this.selectedPosition >= 0
         val itemToSelect = this.lastPageSelected
-        binding?.viewPager?.doOnAttach {
-            binding?.viewPager?.setCurrentItem(itemToSelect, smoothScroll)
+        binding?.apply {
+            viewPager.doOnAttach {
+                viewPager.setCurrentItem(itemToSelect, smoothScroll)
+            }
         }
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
         switchView()

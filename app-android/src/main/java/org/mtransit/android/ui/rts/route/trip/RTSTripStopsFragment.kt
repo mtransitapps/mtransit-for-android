@@ -28,8 +28,13 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteViewModel
+import org.mtransit.android.ui.setUpEdgeToEdge
 import org.mtransit.android.ui.setUpEdgeToEdgeBottom
+import org.mtransit.android.ui.setUpEdgeToEdgeList
+import org.mtransit.android.ui.setUpEdgeToEdgeTopMap
+import org.mtransit.android.ui.setUpNavBarProtection
 import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
@@ -56,6 +61,9 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
                 )
             }
         }
+
+        private const val TOP_PADDING_SP = 0
+        private const val BOTTOM_PADDING_SP = 56
     }
 
     private var theLogTag: String = LOG_TAG
@@ -102,19 +110,19 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
         override fun getPOMarkers(): Collection<MapViewController.POIMarker>? = null
 
         override fun getPOIs(): Collection<POIManager>? {
-            if (!adapter.isInitialized) {
+            if (!listAdapter.isInitialized) {
                 return null
             }
             val pois = mutableSetOf<POIManager>()
-            for (i in 0 until adapter.poisCount) {
-                adapter.getItem(i)?.let { pois.add(it) }
+            for (i in 0 until listAdapter.poisCount) {
+                listAdapter.getItem(i)?.let { pois.add(it) }
             }
             return pois
         }
 
-        override fun getClosestPOI() = adapter.closestPOI
+        override fun getClosestPOI() = listAdapter.closestPOI
 
-        override fun getPOI(uuid: String?) = adapter.getItem(uuid)
+        override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
     }
 
     private val mapViewController: MapViewController by lazy {
@@ -128,8 +136,8 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
             false,
             false,
             false,
-            0,
-            56,
+            TOP_PADDING_SP,
+            BOTTOM_PADDING_SP,
             false,
             true,
             false,
@@ -137,11 +145,12 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
             false,
             this.dataSourcesRepository
         ).apply {
+            setAutoClickInfoWindow(true)
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
         }
     }
 
-    private val adapter: POIArrayAdapter by lazy {
+    private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
             this.sensorManager,
@@ -154,7 +163,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
             this.serviceUpdateLoader
         ).apply {
             logTag = this@RTSTripStopsFragment.logTag
-            setShowExtra(false)
+            setShowExtra(false) // show route short name & trip direction
             setLocation(attachedParentViewModel?.deviceLocation?.value)
         }
     }
@@ -168,17 +177,24 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentRtsTripStopsBinding.bind(view).apply {
-            listLayout.list.let { listView ->
-                listView.isVisible = adapter.isInitialized
-                adapter.setListView(listView)
+            listLayout.list.apply {
+                isVisible = listAdapter.isInitialized
+                listAdapter.setListView(this)
+                setUpEdgeToEdgeList(
+                    marginTopDimenRes = null,
+                    marginBottomDimenRes = R.dimen.list_view_bottom_padding,
+                )
             }
-            fabListMap?.setOnClickListener {
-                if (context?.resources?.getBoolean(R.bool.two_pane) == true) { // large screen
-                    return@setOnClickListener
+            fabListMap?.apply {
+                setOnClickListener {
+                    if (context.resources.getBoolean(R.bool.two_pane)) { // large screen
+                        return@setOnClickListener
+                    }
+                    viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
                 }
-                viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
+                setUpEdgeToEdge()
             }
-            fabListMap?.setUpEdgeToEdgeBottom()
+            map.setUpEdgeToEdgeTopMap(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
         }
         parentViewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             binding?.apply {
@@ -192,25 +208,16 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
         }
         viewModel.tripId.observe(viewLifecycleOwner) { tripId ->
             theLogTag = tripId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-            adapter.logTag = this@RTSTripStopsFragment.logTag
+            listAdapter.logTag = this@RTSTripStopsFragment.logTag
             mapViewController.logTag = this@RTSTripStopsFragment.logTag
         }
         parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             mapViewController.onDeviceLocationChanged(deviceLocation)
-            adapter.setLocation(deviceLocation)
+            listAdapter.setLocation(deviceLocation)
         }
         viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner) { showingListInsteadOfMap ->
             showingListInsteadOfMap?.let { listInsteadOfMap ->
-                binding?.fabListMap?.apply {
-                    @Suppress("LiftReturnOrAssignment")
-                    if (listInsteadOfMap) { // LIST
-                        setImageResource(R.drawable.switch_action_map_dark_16dp)
-                        contentDescription = getString(R.string.menu_action_map)
-                    } else { // MAP
-                        setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
-                        contentDescription = getString(R.string.menu_action_list)
-                    }
-                }
+                updateFabListMapUI(listInsteadOfMap)
                 if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
                     || !listInsteadOfMap // MAP
                 ) {
@@ -218,8 +225,8 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
                 } else { // LIST
                     mapViewController.onPause()
                 }
+                switchView(listInsteadOfMap)
             }
-            switchView(showingListInsteadOfMap)
         }
         viewModel.selectedTripStopId.observe(viewLifecycleOwner) {
             // DO NOTHING
@@ -242,8 +249,8 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
                 }
                 viewModel.setSelectedOrClosestStopShown()
             }
-            adapter.setPois(poiList)
-            adapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
+            listAdapter.setPois(poiList)
+            listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged(mapMarkerProvider)
             if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
                 || viewModel.showingListInsteadOfMap.value == true // LIST
@@ -254,6 +261,22 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
                 }
             }
             switchView()
+        }
+    }
+
+    private fun updateFabListMapUI(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
+        showingListInsteadOfMap ?: return
+        isResumed || return
+        binding?.fabListMap?.apply {
+            if (showingListInsteadOfMap) { // LIST
+                setImageResource(R.drawable.switch_action_map_dark_16dp)
+                contentDescription = getString(R.string.menu_action_map)
+                activity?.setUpNavBarProtection()
+            } else { // MAP
+                setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
+                contentDescription = getString(R.string.menu_action_list)
+                activity?.setUpNavBarProtection(false)
+            }
         }
     }
 
@@ -268,7 +291,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
 
     private fun findClosestPOIIndexUuid(
         pois: List<POIManager>?,
-        deviceLocation: Location? = parentViewModel.deviceLocation.value
+        deviceLocation: Location? = parentViewModel.deviceLocation.value,
     ): Pair<Int?, String?>? {
         if (deviceLocation != null && pois?.isNotEmpty() == true) {
             return pois
@@ -282,14 +305,14 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
     private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
         binding?.apply {
             when {
-                !adapter.isInitialized || showingListInsteadOfMap == null -> { // LOADING
+                !listAdapter.isInitialized || showingListInsteadOfMap == null -> { // LOADING
                     emptyLayout.isVisible = false
                     listLayout.isVisible = false
                     mapViewController.hideMap()
                     loadingLayout.isVisible = true
                 }
 
-                adapter.poisCount == 0 -> { // EMPTY
+                listAdapter.poisCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     listLayout.isVisible = false
                     mapViewController.hideMap()
@@ -299,7 +322,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
                 else -> {
                     loadingLayout.isVisible = false
                     emptyLayout.isVisible = false
-                    if (context?.resources?.getBoolean(R.bool.two_pane) == true) { // LARGE SCREEN
+                    if (context.resources.getBoolean(R.bool.two_pane)) { // LARGE SCREEN
                         listLayout.isVisible = true
                         mapViewController.showMap(view)
                     } else if (showingListInsteadOfMap) { // LIST
@@ -341,14 +364,15 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
         ) {
             mapViewController.onResume()
         }
-        adapter.onResume(this, parentViewModel.deviceLocation.value)
+        listAdapter.onResume(this, parentViewModel.deviceLocation.value)
+        updateFabListMapUI()
         switchView()
     }
 
     override fun onPause() {
         super.onPause()
         mapViewController.onPause()
-        adapter.onPause()
+        listAdapter.onPause()
     }
 
     override fun onLowMemory() {
@@ -358,14 +382,14 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        adapter.onDestroyView()
+        listAdapter.onDestroyView()
         mapViewController.onDestroyView()
         binding = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        adapter.onDestroy()
+        listAdapter.onDestroy()
         mapViewController.onDestroy()
     }
 

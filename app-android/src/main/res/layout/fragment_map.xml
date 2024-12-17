@@ -50,6 +50,8 @@
         tools:layout_height="28dp"
         tools:visibility="visible" />
 
-    <include layout="@layout/view_map_type_switch" />
+    <include
+        style="@style/MTMapTypeSwitch.AboveGoogleLogo"
+        layout="@layout/view_map_type_switch" />
 
 </RelativeLayout>

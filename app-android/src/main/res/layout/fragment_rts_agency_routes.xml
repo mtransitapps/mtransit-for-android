@@ -29,14 +29,9 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_list_grid"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_marginEnd="@dimen/baseline_8"
-        android:layout_marginBottom="@dimen/baseline_8"
+        style="@style/MTFabBottomEnd"
         android:contentDescription="@string/menu_action_list"
         android:src="@drawable/switch_action_view_headline_dark_16dp"
-        app:fabSize="mini"
         tools:backgroundTint="#FF00FF"
         tools:contentDescription="@string/menu_action_grid"
         tools:rippleColor="#00FF00"

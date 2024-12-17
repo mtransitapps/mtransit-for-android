@@ -44,6 +44,7 @@ import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.setStatusBarHeight
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
@@ -167,7 +168,10 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 }
             }
             showSelectedTab()
-            fragmentStatusBarBg.setStatusBarHeight()
+            fragmentStatusBarBg.setStatusBarHeight(
+                additionalHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
+                    .takeIf { attachedViewModel?.tabsVisible?.value == false } ?: 0
+            )
         }
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
             if (pagerAdapter?.setAgencies(agencies) == true) {
@@ -193,8 +197,14 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
         }
-        viewModel.tabsVisible.observe(viewLifecycleOwner) {
-            binding?.tabs?.isVisible = it
+        viewModel.tabsVisible.observe(viewLifecycleOwner) { tabsVisible ->
+            binding?.apply {
+                tabs.isVisible = tabsVisible
+                fragmentStatusBarBg.setStatusBarHeight(
+                    additionalHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
+                        .takeIf { attachedViewModel?.tabsVisible?.value == false } ?: 0
+                )
+            }
         }
         viewModel.selectedTypeAgencyPosition.observe(viewLifecycleOwner) { newLastPageSelected ->
             newLastPageSelected?.let {
@@ -246,8 +256,10 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         }
         val smoothScroll = this.selectedPosition >= 0
         val itemToSelect = this.lastPageSelected
-        binding?.viewPager?.doOnAttach {
-            binding?.viewPager?.setCurrentItem(itemToSelect, smoothScroll)
+        binding?.apply {
+            viewPager.doOnAttach {
+                viewPager.setCurrentItem(itemToSelect, smoothScroll)
+            }
         }
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
         updateABColorNow()

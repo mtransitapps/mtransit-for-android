@@ -31,6 +31,7 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.setUpEdgeToEdgeList
 import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.MTSearchView
 import org.mtransit.android.ui.view.common.isAttached
@@ -49,7 +50,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
         @JvmStatic
         fun newInstance(
             optQuery: String? = null,
-            optTypeIdFilter: Int? = null
+            optTypeIdFilter: Int? = null,
         ): SearchFragment {
             return SearchFragment().apply {
                 arguments = bundleOf(
@@ -99,7 +100,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
 
     private var binding: FragmentSearchBinding? = null
 
-    private val adapter: POIArrayAdapter by lazy {
+    private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
             this.sensorManager,
@@ -121,21 +122,25 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.adapter.setActivity(this)
+        this.listAdapter.setActivity(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSearchBinding.bind(view).apply {
-            listLayout.list.let { listView ->
-                listView.isVisible = adapter.isInitialized
-                adapter.setListView(listView)
+            listLayout.list.apply {
+                isVisible = listAdapter.isInitialized
+                listAdapter.setListView(this)
+                setUpEdgeToEdgeList(
+                    marginTopDimenRes = null,
+                    marginBottomDimenRes = R.dimen.list_view_bottom_padding,
+                )
             }
             typeFilters.apply {
                 onItemSelectedListener = this@SearchFragment
                 adapter = typeFilterAdapter
             }
-            root.setUpEdgeToEdgeTop()
+            root.setUpEdgeToEdgeTop(marginTopDimenRes = null)
         }
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
@@ -146,7 +151,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
                     getString(R.string.search_no_result_for_and_query, query)
                 }
                 if (query.isNullOrEmpty()) {
-                    adapter.setPois(emptyList()) // empty search = no result
+                    listAdapter.setPois(emptyList()) // empty search = no result
                     loadingLayout.isVisible = false // hide
                     listLayout.isVisible = false // hide
                     emptyLayout.isVisible = true // show
@@ -155,7 +160,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
         }
         viewModel.loading.observe(viewLifecycleOwner) { loading ->
             if (loading) {
-                adapter.clear() // mark not initialized == loading
+                listAdapter.clear() // mark not initialized == loading
                 binding?.apply {
                     listLayout.isVisible = false // hide
                     emptyLayout.isVisible = false // hide
@@ -164,8 +169,8 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
             }
         }
         viewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
-            adapter.setPois(searchResults)
-            adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+            listAdapter.setPois(searchResults)
+            listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             binding?.apply {
                 loadingLayout.isVisible = false
                 if (searchResults.isNullOrEmpty()) { // SHOW EMPTY
@@ -178,7 +183,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
             }
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
-            adapter.setLocation(deviceLocation)
+            listAdapter.setLocation(deviceLocation)
         }
         viewModel.searchableDataSourceTypes.observe(viewLifecycleOwner) { dstList ->
             typeFilterAdapter.setData(dstList)
@@ -188,7 +193,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
                 setSelection(typeFilterAdapter.getPosition(dst))
                 isVisible = dst != null
             }
-            adapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
+            listAdapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
         }
     }
 
@@ -212,7 +217,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
 
     override fun onResume() {
         super.onResume()
-        adapter.onResume(this, viewModel.deviceLocation.value)
+        listAdapter.onResume(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         viewModel.onScreenVisible()
@@ -220,7 +225,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
 
     override fun onPause() {
         super.onPause()
-        adapter.onPause()
+        listAdapter.onPause()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
@@ -235,7 +240,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
 
     fun setSearchQuery(
         query: String?,
-        @Suppress("unused") alreadyInSearchView: Boolean
+        @Suppress("unused") alreadyInSearchView: Boolean,
     ) {
         if (DEV_QUERY == query) {
             devEnabled = devEnabled != true // flip
@@ -302,13 +307,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
 
     override fun onDestroyView() {
         super.onDestroyView()
-        adapter.onDestroyView()
+        listAdapter.onDestroyView()
         binding = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        adapter.onDestroy()
+        listAdapter.onDestroy()
         searchView = null // part of the activity
     }
 }

@@ -9,8 +9,9 @@ object UIFeatureFlags {
     // const val F_EDGE_TO_EDGE = false
     const val F_EDGE_TO_EDGE = true // WIP
 
-    // const val F_EDGE_TO_EDGE_TRANSLUCENT_TOP = false
-    const val F_EDGE_TO_EDGE_TRANSLUCENT_TOP = true // WIP
+    // !!! CAN NOT DRAW BEHIND NAVIGATION BAR AS LONG AS ANCHORED BOTTOM BANNER ADS IN ACTIVITY !!!
+    const val F_EDGE_TO_EDGE_NAV_BAR_BELOW = false
+    // const val F_EDGE_TO_EDGE_NAV_BAR_BELOW = true // WIP
 
     // const val F_POI_STATUS_AVAILABILITY_DOTS = false
     const val F_POI_STATUS_AVAILABILITY_DOTS = true // WIP

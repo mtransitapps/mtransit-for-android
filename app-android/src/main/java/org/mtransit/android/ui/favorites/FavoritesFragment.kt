@@ -35,7 +35,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
-import org.mtransit.android.ui.setUpEdgeToEdgeTop
+import org.mtransit.android.ui.setUpEdgeToEdgeList
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -101,7 +101,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     private var binding: FragmentFavoritesBinding? = null
 
-    private val adapter: POIArrayAdapter by lazy {
+    private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
             this.sensorManager,
@@ -122,7 +122,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.adapter.setActivity(this)
+        this.listAdapter.setActivity(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -131,15 +131,18 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
         binding = FragmentFavoritesBinding.bind(view).apply {
-            listLayout.list.let { listView ->
-                listView.isVisible = adapter.isInitialized
-                adapter.setListView(listView)
+            listLayout.list.apply {
+                isVisible = listAdapter.isInitialized
+                listAdapter.setListView(this)
+                setUpEdgeToEdgeList(
+                    marginTopDimenRes = R.dimen.action_bar_size_static,
+                    marginBottomDimenRes = R.dimen.list_view_bottom_padding,
+                )
             }
-            root.setUpEdgeToEdgeTop()
         }
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
-            adapter.setPois(favoritePOIS)
-            adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+            listAdapter.setPois(favoritePOIS)
+            listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             binding?.apply {
                 when {
                     favoritePOIS == null -> { // LOADING
@@ -163,7 +166,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             }
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
-            adapter.setLocation(deviceLocation)
+            listAdapter.setLocation(deviceLocation)
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
@@ -181,7 +184,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onResume() {
         super.onResume()
-        adapter.onResume(this, viewModel.deviceLocation.value)
+        listAdapter.onResume(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         if (FeatureFlags.F_NAVIGATION) {
@@ -191,7 +194,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onPause() {
         super.onPause()
-        adapter.onPause()
+        listAdapter.onPause()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
@@ -221,12 +224,12 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        adapter.onDestroyView()
+        listAdapter.onDestroyView()
         binding = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        adapter.onDestroy()
+        listAdapter.onDestroy()
     }
 }

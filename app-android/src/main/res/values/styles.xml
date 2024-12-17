@@ -237,4 +237,49 @@
         <item name="android:textAppearance">?attr/textAppearanceBody1</item>
     </style>
 
+    <style name="MTMapTypeSwitch">
+        <item name="android:layout_width">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="android:layout_height">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_centerVertical">false</item>
+        <item name="android:layout_marginStart">@dimen/map_type_switch_margin_start</item>
+        <item name="android:layout_marginBottom">@dimen/map_type_switch_margin_bottom</item>
+        <item name="android:alpha">0.75</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="MTMapTypeSwitch.AboveGoogleLogo" parent="MTMapTypeSwitch">
+        <item name="android:layout_marginBottom">@dimen/map_type_switch_above_google_logo_margin_bottom</item>
+    </style>
+
+    <style name="MTFabBottomEnd">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_gravity">end|bottom</item>
+        <item name="android:layout_marginEnd">@dimen/fab_margin_end</item>
+        <item name="android:layout_marginBottom">@dimen/fab_margin_bottom</item>
+        <item name="android:contentDescription">@string/menu_action_list</item>
+
+        <item name="fabSize">mini</item>
+    </style>
+
+    <style name="MTPOIList">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+
+        <item name="android:drawSelectorOnTop">true</item>
+        <item name="android:listSelector">?android:attr/selectableItemBackground</item>
+        <item name="android:divider">@drawable/list_divider_rounded</item>
+        <item name="android:scrollbarStyle">insideOverlay</item>
+        <item name="android:transitionGroup">true</item>
+        <item name="android:layout_marginHorizontal">@dimen/list_view_margin_horizontal</item>
+    </style>
+
+    <style name="MTPOIList.PaddingBottom" parent="@style/MTPOIList">
+        <item name="android:paddingBottom">@dimen/list_view_bottom_padding</item>
+    </style>
+
 </resources>

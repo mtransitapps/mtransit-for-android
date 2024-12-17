@@ -20,35 +20,21 @@
         app:uiZoomGestures="true"
         tools:visibility="invisible" />
 
-    <include
-        layout="@layout/view_map_type_switch"
-        android:layout_width="?android:attr/listPreferredItemHeightSmall"
-        android:layout_height="?android:attr/listPreferredItemHeightSmall"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="@dimen/baseline_8"
-        android:layout_marginBottom="@dimen/baseline_8" />
+    <include layout="@layout/view_map_type_switch" />
     <!-- LIST -->
     <include
         android:id="@id/list_layout"
         layout="@layout/layout_poi_list_padding_bottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginHorizontal="@dimen/list_view_margin_horizontal"
         android:visibility="visible"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_list_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="@dimen/baseline_8"
-        android:layout_marginBottom="@dimen/baseline_8"
+        style="@style/MTFabBottomEnd"
         android:contentDescription="@string/menu_action_list"
         android:src="@drawable/switch_action_view_headline_dark_16dp"
-        app:fabSize="mini"
         tools:backgroundTint="#FF00FF"
         tools:contentDescription="@string/menu_action_map"
         tools:rippleColor="#00FF00"
@@ -60,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
     <!-- EMPTY -->
     <include
         android:id="@id/empty_layout"
@@ -68,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
 
     <include layout="@layout/layout_shadow" />
 </RelativeLayout>

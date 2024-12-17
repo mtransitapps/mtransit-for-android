@@ -33,7 +33,8 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
-import org.mtransit.android.ui.setUpEdgeToEdgeClipToPadding
+import org.mtransit.android.ui.setUpEdgeToEdgeBottomAndTop
+import org.mtransit.android.ui.setUpEdgeToEdgeList
 import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
@@ -215,33 +216,25 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 setOnRefreshListener(viewModel::onRefreshRequested)
             }
             newsContainerLayout.apply {
-                newsList.adapter = listAdapter
-                newsList.addItemDecoration(
-                    DividerItemDecoration(
-                        newsList.context,
-                        DividerItemDecoration.VERTICAL
-                    )
-                )
-                newsList.addItemDecoration(
-                    StickyHeaderItemDecorator(
-                        listAdapter,
-                        newsList,
-                    )
-                )
-                newsList.setUpEdgeToEdgeTop()
-                newsList.setUpEdgeToEdgeClipToPadding(false)
+                newsList.apply {
+                    adapter = listAdapter
+                    addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+                    addItemDecoration(StickyHeaderItemDecorator(listAdapter, this))
+                    setUpEdgeToEdgeList(marginTopDimenRes = R.dimen.action_bar_size_static)
+                }
             }
             viewPager.apply {
                 offscreenPageLimit = 1 // only one because pre-fetching ads
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
+                setUpEdgeToEdgeTop(marginTopDimenRes = R.dimen.action_bar_size_static)
             }
             mainActivity?.supportFragmentManager?.addOnBackStackChangedListener(
                 onBackStackChangedListener ?: makeOnBackStackChangedListener().also { onBackStackChangedListener = it }
             )
-            slidingPaneLayout.let { slidingPaneLayoutNN ->
+            slidingPaneLayout.apply {
                 onBackPressedCallback = TwoPaneOnBackPressedCallback(
-                    slidingPaneLayoutNN,
+                    this,
                     onPanelHandledBackPressedCallback = {
                         viewModel.cleanSelectedNewsArticle()
                     },
@@ -268,7 +261,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                         }
                     }
                 ).also { onBackPressedCallbackNN ->
-                    slidingPaneLayoutNN.doOnLayout {
+                    doOnLayout {
                         onBackPressedCallbackNN.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
                     }
                     requireActivity().onBackPressedDispatcher.addCallback(
@@ -276,7 +269,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                         onBackPressedCallbackNN,
                     )
                 }
-                slidingPaneLayoutNN.lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
+                lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
             }
         }
         viewModel.subTitle.observe(viewLifecycleOwner) {

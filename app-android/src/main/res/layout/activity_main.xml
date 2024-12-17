@@ -5,22 +5,31 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:background="#00FF00"
     tools:context=".ui.MainActivity">
 
     <RelativeLayout
+        android:id="@+id/main_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        tools:background="#FF0000">
 
         <include
             android:id="@+id/ad_layout"
-            layout="@layout/layout_ad" />
+            layout="@layout/layout_ad"
+            tools:visibility="gone" />
 
         <FrameLayout
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_alignWithParentIfMissing="true"
             android:layout_above="@id/ad_layout"
-            android:visibility="gone" />
+            android:clipToPadding="false"
+            android:visibility="gone"
+            tools:background="#00FFFF"
+            tools:visibility="visible" />
 
         <include
             android:id="@+id/content_frame_loading"
@@ -68,6 +77,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:clipToPadding="false"
         app:headerLayout="@layout/layout_drawer_header"
         app:itemIconTint="@color/navigation_item_color"
         app:itemTextColor="@color/navigation_item_color"

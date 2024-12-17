@@ -26,7 +26,6 @@
     <include
         android:id="@id/list_layout"
         layout="@layout/layout_poi_list_padding_bottom"
-        android:layout_marginHorizontal="@dimen/list_view_margin_horizontal"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:visibility="visible"
@@ -57,11 +56,8 @@
         tools:visibility="visible" />
 
     <include
+        style="@style/MTMapTypeSwitch"
         layout="@layout/view_map_type_switch"
-        android:layout_width="?android:attr/listPreferredItemHeightSmall"
-        android:layout_height="?android:attr/listPreferredItemHeightSmall"
-        android:layout_marginStart="@dimen/baseline_8"
-        android:layout_marginBottom="@dimen/baseline_8"
         app:layout_constraintBottom_toBottomOf="@id/map"
         app:layout_constraintStart_toStartOf="@id/map" />
 

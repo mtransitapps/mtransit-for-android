@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/action_bar_size_static"
-    tools:context=".ui.schedule.ScheduleFragment">
+    tools:context=".ui.schedule.ScheduleFragment"
+    tools:paddingTop="@dimen/action_bar_size_static">
 
     <!-- LOADING -->
     <include

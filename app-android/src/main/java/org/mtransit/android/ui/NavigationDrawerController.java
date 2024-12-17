@@ -156,14 +156,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		this.navigationView = mainActivity.findViewById(R.id.nav_view);
 		this.navigationView.setNavigationItemSelectedListener(this);
-		if (UIFeatureFlags.F_EDGE_TO_EDGE_TRANSLUCENT_TOP) {
-			View headerView = this.navigationView.getHeaderView(0);
-			View statusBarBg = headerView == null ? null : headerView.findViewById(R.id.drawer_header_status_bar_bg);
-			if (statusBarBg != null) {
-				EdgeToEdgeKt.setStatusBarHeight(statusBarBg);
-			}
-		} else {
-			EdgeToEdgeKt.setUpEdgeToEdgeTop(this.navigationView);
+		View headerView = this.navigationView.getHeaderView(0);
+		View statusBarBg = headerView == null ? null : headerView.findViewById(R.id.drawer_header_status_bar_bg);
+		if (statusBarBg != null) {
+			EdgeToEdgeKt.setStatusBarHeight(statusBarBg);
 		}
 		this.drawerLayout = mainActivity.findViewById(R.id.drawer_layout);
 		try {

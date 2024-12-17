@@ -4,13 +4,13 @@
     android:id="@id/swipe_refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/action_bar_size_static"
     tools:context=".ui.home.HomeFragment">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/context_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/action_bar_size_static">
         <!-- LOADING -->
         <include
             android:id="@id/loading_layout"
@@ -25,7 +25,6 @@
             layout="@layout/layout_poi_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="@dimen/list_view_margin_horizontal"
             android:visibility="visible"
             tools:visibility="visible" />
         <!-- EMPTY -->

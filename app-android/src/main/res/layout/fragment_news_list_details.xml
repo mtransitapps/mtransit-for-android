@@ -4,14 +4,14 @@
     android:id="@+id/sliding_pane_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/action_bar_size_static"
     tools:context=".ui.news.NewsListDetailFragment">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="550dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start">
+        android:layout_gravity="start"
+        android:layout_marginTop="@dimen/action_bar_size_static">
 
         <include
             android:id="@+id/news_container_layout"
@@ -23,6 +23,7 @@
         android:id="@+id/view_pager"
         android:layout_width="300dp"
         android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/action_bar_size_static"
         android:layout_weight="1"
         android:layoutDirection="ltr"
         android:orientation="horizontal"
