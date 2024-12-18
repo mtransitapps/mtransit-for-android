@@ -192,16 +192,17 @@ class HomeViewModel @Inject constructor(
     private val _nearbyPOIsTrigger = MutableLiveData<Event<Boolean>>()
     val nearbyPOIsTrigger: LiveData<Event<Boolean>> = _nearbyPOIsTrigger
 
-    val nearbyPOIsTriggerListener: LiveData<Void> = PairMediatorLiveData(_dstToHomeAgencies, _nearbyLocation).switchMap { (dstToHomeAgencies, nearbyLocation) ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            if (dstToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
-                nearbyPOIsLoadJob?.cancel()
-                nearbyPOIsLoadJob = viewModelScope.launch {
-                    getNearbyPOIs(this, dstToHomeAgencies, nearbyLocation)
+    val nearbyPOIsTriggerListener: LiveData<Void> =
+        PairMediatorLiveData(_typeToHomeAgencies, _nearbyLocation).switchMap { (typeToHomeAgencies, nearbyLocation) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                if (typeToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
+                    nearbyPOIsLoadJob?.cancel()
+                    nearbyPOIsLoadJob = viewModelScope.launch {
+                        getNearbyPOIs(this, typeToHomeAgencies, nearbyLocation)
+                    }
                 }
             }
         }
-    }
 
     private val _nearbyPOIs = MutableLiveData<List<POIManager>?>(null)
     val nearbyPOIs: LiveData<List<POIManager>?> = _nearbyPOIs
