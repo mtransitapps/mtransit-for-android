@@ -874,10 +874,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				this.poisByType = new LinkedHashMap<>();
 			}
 			for (POIManager poim : pois) {
-				List<POIManager> typePOIMs = this.poisByType.get(poim.poi.getDataSourceTypeId());
-				if (typePOIMs == null) {
-					typePOIMs = new ArrayList<>();
-				}
+				List<POIManager> typePOIMs = CollectionUtils.getOrDefault(this.poisByType, poim.poi.getDataSourceTypeId(), new ArrayList<>());
 				if (!this.poiUUID.contains(poim.poi.getUUID())) {
 					typePOIMs.add(poim);
 					this.poiUUID.add(poim.poi.getUUID());
