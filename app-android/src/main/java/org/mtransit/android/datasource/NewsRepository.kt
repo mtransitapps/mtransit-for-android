@@ -57,8 +57,11 @@ class NewsRepository(
                 .getNewTargetFilter(poi)
                 .setMinCreatedAtInMs(
                     UITimeUtils.currentTimeMillis() -
-                            if (demoModeManager.enabled) TimeUnit.DAYS.toMillis(365L)
-                            else TimeUnit.DAYS.toMillis(14L)
+                            if (demoModeManager.enabled) {
+                                TimeUnit.DAYS.toMillis(365L)
+                            } else {
+                                TimeUnit.DAYS.toMillis(100L)
+                            }
                 )
         },
         comparator,
@@ -113,7 +116,7 @@ class NewsRepository(
         filter: NewsProviderContract.Filter,
         comparator: Comparator<News>,
         let: ((List<News>) -> List<News>?) = { it },
-        coroutineContext: CoroutineContext = ioDispatcher
+        coroutineContext: CoroutineContext = ioDispatcher,
     ) = withContext(coroutineContext) {
         providers
             .map { provider ->
