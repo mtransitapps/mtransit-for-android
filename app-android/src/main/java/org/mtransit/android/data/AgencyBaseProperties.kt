@@ -1,5 +1,6 @@
 package org.mtransit.android.data
 
+import android.location.Location
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Ignore
@@ -53,5 +54,9 @@ data class AgencyBaseProperties(
 
     override fun isEntirelyInside(otherArea: Area?): Boolean {
         return IAgencyNearbyProperties.isEntirelyInside(this, area)
+    }
+
+    fun isLocationInside(location: Location): Boolean {
+        return IAgencyNearbyProperties.isLocationInside(location, area)
     }
 }

@@ -172,16 +172,19 @@ class HomeViewModel @Inject constructor(
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
-    private val _dstToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = _allAgencies.map { allAgencies ->
-        if (allAgencies.isEmpty()) {
-            null
-        } else {
-            allAgencies
-                .filter { it.getSupportedType().isHomeScreen }
-                .groupBy { it.getSupportedType() }
-                .toSortedMap(dataSourcesRepository.defaultDataSourceTypeComparator)
-        }
-    }.distinctUntilChanged()
+    private val _typeToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = PairMediatorLiveData(_allAgencies, _nearbyLocation)
+        .map { (allAgencies, nearbyLocation) ->
+            if (nearbyLocation == null || allAgencies.isNullOrEmpty()) {
+                null
+            } else {
+                val unsortedTypeToHomeAgencies = allAgencies
+                    .filter { agency -> agency.getSupportedType().isHomeScreen }
+                    .groupBy { agency -> agency.getSupportedType() }
+                unsortedTypeToHomeAgencies.toSortedMap(
+                    HomeTypeAgencyComparator(appContext, unsortedTypeToHomeAgencies, nearbyLocation)
+                )
+            }
+        }.distinctUntilChanged()
 
     private val _loadingPOIs = MutableLiveData(true)
     val loadingPOIs: LiveData<Boolean?> = _loadingPOIs
@@ -207,10 +210,10 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun getNearbyPOIs(
         scope: CoroutineScope,
-        dstToHomeAgencies: SortedMap<DataSourceType, List<AgencyBaseProperties>>?,
+        typeToHomeAgencies: SortedMap<DataSourceType, List<AgencyBaseProperties>>?,
         nearbyLocation: Location?,
     ) {
-        if (dstToHomeAgencies.isNullOrEmpty() || nearbyLocation == null) {
+        if (typeToHomeAgencies.isNullOrEmpty() || nearbyLocation == null) {
             MTLog.d(this@HomeViewModel, "loadNearbyPOIs() > SKIP (no agencies OR no location)")
             _loadingPOIs.postValue(false)
             _nearbyPOIs.postValue(null)
@@ -223,7 +226,7 @@ class HomeViewModel @Inject constructor(
             delay(333L) // debounce / throttle (agencies being updated)
         }
         val favoriteUUIDs = favoriteRepository.findFavoriteUUIDs()
-        val nbMaxByType = when (dstToHomeAgencies.keys.size) {
+        val nbMaxByType = when (typeToHomeAgencies.keys.size) {
             in 0..1 -> NB_MAX_BY_TYPE_ONE_TYPE
             2 -> NB_MAX_BY_TYPE_TWO_TYPES
             else -> NB_MAX_BY_TYPE
@@ -238,7 +241,7 @@ class HomeViewModel @Inject constructor(
         )
         val nearbyPOIs = mutableListOf<POIManager>()
         _nearbyPOIs.postValue(nearbyPOIs)
-        dstToHomeAgencies.forEach { (_, typeAgencies) ->
+        typeToHomeAgencies.forEach { (_, typeAgencies) ->
             scope.ensureActive()
             val typePOIs = getTypeNearbyPOIs(scope, typeAgencies, lat, lng, minDistanceInMeters, nbMaxByType)
             filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters, nbMaxByType)
@@ -292,7 +295,7 @@ class HomeViewModel @Inject constructor(
         typeLat: Double,
         typeLng: Double,
         typeMinCoverageInMeters: Float,
-        nbMaxByType: Int
+        nbMaxByType: Int,
     ): MutableList<POIManager> {
         var typePOIs: MutableList<POIManager>
         val typeAd = LocationUtils.getNewDefaultAroundDiff()
@@ -345,7 +348,7 @@ class HomeViewModel @Inject constructor(
         @Suppress("unused") optLastAroundDiff: Double? = null,
         @Suppress("SameParameterValue") maxSize: Int,
         typeMinCoverageInMeters: Float,
-        typeAgencies: List<IAgencyNearbyProperties>
+        typeAgencies: List<IAgencyNearbyProperties>,
     ): MutableList<POIManager> {
         val typePOIs = mutableListOf<POIManager>()
         val area = Area.getArea(lat, lng, ad.aroundDiff)
