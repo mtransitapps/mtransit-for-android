@@ -231,6 +231,16 @@
     <string name="support_pref_cat_title">Support</string>
     <string name="support_subs_pref_title">Support MonTransit</string>
     <string name="support_subs_pref_summary">Hide ads and support MonTransit development.</string>
+    <string name="support_title">Support MonTransit</string>
+    <string name="support_about">MonTransit is one of the many apps built with the open-data published by transit agencies.\nUnlike other apps who receive money from tickets, taxes or investors, MonTransit is an independent self-founded, free and open-source project.\nYour support will brings app improvements faster for everyone.</string>
+    <string name="support_basic_title">Basic</string>
+    <string name="support_basic_description">Less Ads</string>
+    <string name="support_pro_title">Pro</string>
+    <string name="support_pro_description">No Ads</string>
+    <string name="support_start">Start</string>
+    <string name="support_start_and_days_trial">Start %d-day free trial</string>
+    <string name="support_cancel_anytime">Cancel anytime.</string>
+    <string name="support_link_paid_tasks_incentive">No money? Click here to earn Google Play credit by answering quick surveys from Google.</string>
     <string name="support_subs_cancel_pref_title">Thanks for supporting MonTransit!</string>
     <string name="support_subs_cancel_pref_summary">Cancel anytime.</string>
     <string name="support_subs_default_failure_message">:(</string>

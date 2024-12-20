@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@id/scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/baseline_16"
+        tools:context=".ui.purchase.PurchaseFragment">
+
+        <ImageButton
+            android:id="@+id/closeButton"
+            android:layout_width="@dimen/baseline_48"
+            android:layout_height="@dimen/baseline_48"
+            android:layout_gravity="start"
+            android:background="@null"
+            android:contentDescription="@android:string/cancel"
+            android:gravity="start"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_cancel_24"
+            tools:layout_marginTop="@dimen/baseline_16" />
+
+        <ImageView
+            android:id="@+id/appIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/baseline_16"
+            android:contentDescription="@null"
+            android:scaleType="centerInside"
+            android:src="@drawable/product_logo" />
+
+        <TextView
+            android:id="@+id/titleTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/baseline_8"
+            android:gravity="center_horizontal"
+            android:text="@string/support_title"
+            android:textAppearance="?attr/textAppearanceHeadline4" />
+
+        <TextView
+            android:id="@+id/aboutTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/baseline_16"
+            android:text="@string/support_about"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textStyle="italic" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progressIndicator"
+            style="@style/Widget.MaterialComponents.CircularProgressIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginVertical="@dimen/baseline_32"
+            android:indeterminate="true"
+            android:visibility="visible"
+            tools:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/basicSupportSection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/basicSupportTitleTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/baseline_8"
+                android:text="@string/support_basic_title"
+                android:textAppearance="?attr/textAppearanceHeadline5" />
+
+            <TextView
+                android:id="@+id/basicSupportDescriptionTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/support_basic_description"
+                android:textAppearance="?attr/textAppearanceOverline" />
+
+        </LinearLayout>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/basicSupportToggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            app:singleLine="true"
+            tools:visibility="visible">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/basicSupportMonthly"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="1$ / month" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/basicSupportYearly"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:checked="true"
+                tools:text="10$ / year" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <LinearLayout
+            android:id="@+id/proSupportSection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/proSupportTitleTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/baseline_8"
+                android:text="@string/support_pro_title"
+                android:textAppearance="?attr/textAppearanceHeadline5" />
+
+            <TextView
+                android:id="@+id/proSupportDescriptionTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/support_pro_description"
+                android:textAppearance="?attr/textAppearanceOverline" />
+
+        </LinearLayout>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/proSupportToggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/proSupportWeekly"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="1$ / week" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/proSupportMonthly"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="3$ / month" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/proSupportYearly"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="30$ / year" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <Button
+            android:id="@+id/mainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/baseline_16"
+            android:enabled="false"
+            android:text="@string/support_start"
+            android:visibility="gone"
+            tools:enabled="true"
+            tools:text="Start 7-day free trial"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/belowButtonTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/support_cancel_anytime"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <View
+            android:id="@+id/paidTasksDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/baseline_16"
+            android:layout_marginBottom="@dimen/baseline_16"
+            android:background="?attr/colorOnSurface"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/paidTasksIncentive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="false"
+            android:text="@string/support_link_paid_tasks_incentive"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textSize="@dimen/text_size_extra_small"
+            android:textStyle="italic"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+</ScrollView>

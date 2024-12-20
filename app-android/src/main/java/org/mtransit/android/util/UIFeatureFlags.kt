@@ -22,4 +22,7 @@ object UIFeatureFlags {
     const val F_ADS_BANNER_COLLAPSIBLE = false
     // const val F_ADS_BANNER_COLLAPSIBLE = true // WIP
 
+    const val F_NEW_IN_APP_SUBS = false
+    // const val F_NEW_IN_APP_SUBS = true // WIP
+
 }

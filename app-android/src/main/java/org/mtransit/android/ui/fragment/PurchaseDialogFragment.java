@@ -269,7 +269,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				return;
 			}
 			String productId = IBillingManager.PRODUCT_ID_STARTS_WITH_F + periodCat + IBillingManager.PRODUCT_ID_SUBSCRIPTION + priceCat;
-			if (!IBillingManager.AVAILABLE_SUBSCRIPTIONS.contains(productId)) {
+			if (!IBillingManager.FLEXIBLE_SUBSCRIPTIONS.contains(productId)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected product ID: %s)", productId);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;

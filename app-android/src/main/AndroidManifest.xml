@@ -96,6 +96,12 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="false"
             android:theme="@style/MTThemePreferences" />
+        <!-- PURCHASE SCREEN -->
+        <activity
+            android:name=".ui.purchase.PurchaseActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:exported="false"
+            android:theme="@style/MTTheme" />
         <!-- MODULES SCREEN -->
         <activity
             android:name=".ui.modules.ModulesActivity"

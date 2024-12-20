@@ -20,7 +20,6 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
-import com.android.billingclient.api.QueryProductDetailsParams.Product
 import com.android.billingclient.api.QueryPurchasesParams
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
@@ -37,7 +36,7 @@ import javax.inject.Singleton
 @Singleton
 class MTBillingManager @Inject constructor(
     @ApplicationContext appContext: Context,
-    private val lclPrefRepository: LocalPreferenceRepository
+    private val lclPrefRepository: LocalPreferenceRepository,
 ) : MTLog.Loggable,
     IBillingManager,
     BillingClientStateListener, // connection to billing
@@ -114,7 +113,7 @@ class MTBillingManager @Inject constructor(
 
     override fun onPurchasesUpdated(
         billingResult: BillingResult,
-        purchases: MutableList<Purchase>?
+        purchases: MutableList<Purchase>?,
     ) {
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
@@ -161,7 +160,7 @@ class MTBillingManager @Inject constructor(
             QueryProductDetailsParams.newBuilder()
                 .setProductList(
                     IBillingManager.ALL_VALID_SUBSCRIPTIONS.map { productId ->
-                        Product.newBuilder()
+                        QueryProductDetailsParams.Product.newBuilder()
                             .setProductType(ProductType.SUBS)
                             .setProductId(productId)
                             .build()
@@ -174,15 +173,25 @@ class MTBillingManager @Inject constructor(
     override fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: MutableList<ProductDetails>) {
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
-                _productIdsWithDetails.postValue(HashMap<String, ProductDetails>()
-                    .apply {
-                        for (details in productDetailsList) {
-                            put(details.productId, details)
+                _productIdsWithDetails.postValue(
+                    productDetailsList.map { details ->
+                        if (Constants.DEBUG) {
+                            details.subscriptionOfferDetails?.forEach {
+                                MTLog.d(this, "onProductDetailsResponse() > offer details: $it")
+                                it.installmentPlanDetails.let { installmentPlanDetails ->
+                                    MTLog.d(this, "onProductDetailsResponse() > installment plan details: $installmentPlanDetails")
+                                }
+                                it.pricingPhases.pricingPhaseList.forEach { pricingPhase ->
+                                    MTLog.d(this, "onProductDetailsResponse() > pricing phase: $pricingPhase")
+                                }
+                            }
                         }
-                    }
-                    .also { postedValue ->
-                        MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")
-                    })
+                        details.productId to details
+                    }.toMap()
+                        .also { postedValue ->
+                            MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")
+                        }
+                )
             }
 
             BillingResponseCode.SERVICE_DISCONNECTED,

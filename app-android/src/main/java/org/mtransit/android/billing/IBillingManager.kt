@@ -5,6 +5,7 @@ import com.android.billingclient.api.ProductDetails
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.util.UIFeatureFlags
 
 interface IBillingManager {
 
@@ -19,6 +20,9 @@ interface IBillingManager {
 
         @JvmField
         val PRODUCT_ID_STARTS_WITH_F = "f_"
+
+        @JvmField
+        val PRODUCT_ID_STARTS_WITH_N = "n_"
 
         @JvmField
         val DEFAULT_PRICE_CAT = "1"
@@ -36,7 +40,19 @@ interface IBillingManager {
         val DEFAULT_PERIOD_CAT = MONTHLY
 
         @JvmField
-        val AVAILABLE_SUBSCRIPTIONS = arrayListOf(
+        val NEW_BASIC_SUBSCRIPTIONS = "n_basic" // TODO enable on Play console
+
+        @JvmField
+        val NEW_PRO_SUBSCRIPTIONS = "n_pro" // TODO create on play console
+
+        @JvmField
+        val NEW_SUBSCRIPTIONS = arrayListOf(
+            NEW_BASIC_SUBSCRIPTIONS,
+            NEW_PRO_SUBSCRIPTIONS
+        ).takeIf { UIFeatureFlags.F_NEW_IN_APP_SUBS } ?: emptyList()
+
+        @JvmField
+        val FLEXIBLE_SUBSCRIPTIONS = arrayListOf(
             PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "1",
             PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "2",
             PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "3",
@@ -61,11 +77,14 @@ interface IBillingManager {
         )
 
         @JvmField
-        val ALL_VALID_SUBSCRIPTIONS = AVAILABLE_SUBSCRIPTIONS + arrayListOf(
+        val ORIGINAL_SUBSCRIPTIONS = arrayListOf(
             "weekly_subscription", // Inactive
             "monthly_subscription", // Active - offered by default for months
             "yearly_subscription" // Active - never offered
         )
+
+        @JvmField
+        val ALL_VALID_SUBSCRIPTIONS = FLEXIBLE_SUBSCRIPTIONS + ORIGINAL_SUBSCRIPTIONS + NEW_SUBSCRIPTIONS
     }
 
     val productIdsWithDetails: LiveData<Map<String, ProductDetails>>

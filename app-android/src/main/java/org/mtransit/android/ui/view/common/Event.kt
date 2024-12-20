@@ -23,6 +23,8 @@ open class Event<out T>(private val content: T) {
     }
 }
 
+fun <T: Any> T.toEvent() = Event<T>(this)
+
 class EventObserver<T>(private val onEventUnhandledContent: (T) -> Unit) : Observer<Event<T>> {
     override fun onChanged(value: Event<T>) {
         value.getContentIfNotHandled()?.let {
