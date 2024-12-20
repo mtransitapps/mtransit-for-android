@@ -1,6 +1,7 @@
 package org.mtransit.android.billing
 
 import android.content.Context
+import android.provider.Settings
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -24,6 +25,7 @@ import com.android.billingclient.api.QueryPurchasesParams
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.ui.view.common.IActivity
@@ -78,7 +80,11 @@ class MTBillingManager @Inject constructor(
         this.currentSubscription.map { it?.isNotBlank() }
     }
 
-    override fun showingPaidFeatures() = hasSubscription.value != false
+    private val isUsingFirebaseTestLab: Boolean by lazy {
+        Settings.System.getString(appContext.contentResolver, "firebase.test.lab") == "true"
+    }
+
+    override fun showingPaidFeatures() = hasSubscription.value != false && !isUsingFirebaseTestLab
     // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
