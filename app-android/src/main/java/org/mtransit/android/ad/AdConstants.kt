@@ -3,7 +3,11 @@ package org.mtransit.android.ad
 object AdConstants {
 
     const val DEBUG = false
-    // private const val DEBUG = true // DEBUG
+    // const val DEBUG = true // DEBUG
+
+    val DEBUG_CONSENT_GEOGRAPHY: Int? = null
+    // val DEBUG_CONSENT_GEOGRAPHY: Int? = com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_REGULATED_US_STATE // DEBUG
+    // val DEBUG_CONSENT_GEOGRAPHY: Int? = com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA // DEBUG
 
     const val AD_ENABLED = true
     // const val AD_ENABLED = false // DEBUG

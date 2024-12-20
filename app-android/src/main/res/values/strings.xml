@@ -10,6 +10,7 @@
     <string name="settings">Settings</string>
     <string name="customer_service">Customer Service</string>
     <string name="rate_review">Review App</string>
+    <string name="privacy_setting">Privacy Settings</string>
     <string name="support">Support MonTransit</string>
     <string name="send_feedback_email">mtransit.apps@gmail.com</string>
     <string name="menu_action_nearby">Nearby</string>
@@ -219,6 +220,8 @@
     <string name="dev_mode_pref_cat_title">DEV MODE</string>
     <string name="dev_mode_pref_modules_pref_summary">MANAGE MODULES</string>
     <string name="dev_mode_pref_modules_pref_title">MODULES</string>
+    <string name="dev_mode_pref_reset_consent_pref_summary">REQUEST CONSENT AGAIN</string>
+    <string name="dev_mode_pref_reset_consent_pref_title">RESET CONSENT</string>
     <string name="dev_mode_pref_reset_rewarded_pref_summary">SHOW BANNER ADS</string>
     <string name="dev_mode_pref_reset_rewarded_pref_title">RESET REWARDED</string>
     <string name="dev_mode_pref_ad_inspector_pref_summary">INSPECT ADS</string>

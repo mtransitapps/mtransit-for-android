@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import dagger.hilt.android.lifecycle.HiltViewModel
+import org.mtransit.android.ad.AdsConsentManager
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
@@ -17,6 +18,7 @@ import javax.inject.Inject
 class MainPreferencesViewModel @Inject constructor(
     private val billingManager: IBillingManager,
     private val adManager: IAdManager,
+    private val consentManager: AdsConsentManager,
     private val languageManager: LanguageManager,
     lclPrefRepository: LocalPreferenceRepository,
     defaultPrefRepository: DefaultPreferenceRepository,
@@ -47,6 +49,7 @@ class MainPreferencesViewModel @Inject constructor(
 
         internal const val DEV_MODE_GROUP_PREF = "pDevMode"
         internal const val DEV_MODE_MODULE_PREF = "pDevModeModule"
+        internal const val DEV_MODE_CONSENT_RESET_PREF = "pDevModeConsentReset"
         internal const val DEV_MODE_REWARDED_RESET_PREF = "pDevModeRewardedReset"
         internal const val DEV_MODE_AD_INSPECTOR_PREF = "pDevModeAdInspector"
         internal const val DEV_MODE_AD_MEDIATION_TEST_PREF = "pDevModeAdMediationTest"
@@ -89,6 +92,10 @@ class MainPreferencesViewModel @Inject constructor(
     val devModeEnabled: LiveData<Boolean> = lclPrefRepository.pref.liveData(
         LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT
     ).distinctUntilChanged()
+
+    fun resetConsent() {
+        consentManager.resetConsent()
+    }
 
     fun resetRewardedAd() {
         adManager.resetRewarded()

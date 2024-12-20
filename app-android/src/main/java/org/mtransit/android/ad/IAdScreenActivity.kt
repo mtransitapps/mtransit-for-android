@@ -6,4 +6,6 @@ interface IAdScreenActivity : IActivity {
 
     val currentAdFragment: IAdScreenFragment?
         get() = currentFragment as? IAdScreenFragment
+
+    fun onPrivacyOptionsRequiredChanged()
 }

@@ -206,6 +206,12 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 true
             } ?: false
         }
+        (findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference)?.setOnPreferenceClickListener {
+            activity?.let {
+                viewModel.resetConsent()
+                true
+            } ?: false
+        }
         (findPreference(MainPreferencesViewModel.DEV_MODE_REWARDED_RESET_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
                 viewModel.resetRewardedAd()
@@ -393,22 +399,26 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         viewModel.devModeEnabled.observe(viewLifecycleOwner) { devModeEnabled ->
             val devModeGroupPref = findPreference(MainPreferencesViewModel.DEV_MODE_GROUP_PREF) as? PreferenceCategory ?: return@observe
             val devModeModulePref = findPreference(MainPreferencesViewModel.DEV_MODE_MODULE_PREF) as? Preference ?: return@observe
+            val devModeResetConsentPref = findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference ?: return@observe
             val devModeResetRewardedPref = findPreference(MainPreferencesViewModel.DEV_MODE_REWARDED_RESET_PREF) as? Preference ?: return@observe
             val devModeAdInspectorPref = findPreference(MainPreferencesViewModel.DEV_MODE_AD_INSPECTOR_PREF) as? Preference ?: return@observe
             val devModeAdMediationTestPref = findPreference(MainPreferencesViewModel.DEV_MODE_AD_MEDIATION_TEST_PREF) as? Preference ?: return@observe
             if (devModeEnabled) {
                 devModeGroupPref.isEnabled = true
                 devModeModulePref.isEnabled = true
+                devModeResetConsentPref.isEnabled = true
                 devModeResetRewardedPref.isEnabled = true
                 devModeAdInspectorPref.isEnabled = true
                 devModeAdMediationTestPref.isEnabled = true
             } else {
                 devModeGroupPref.isEnabled = false
                 devModeModulePref.isEnabled = false
+                devModeResetConsentPref.isEnabled = false
                 devModeResetRewardedPref.isEnabled = false
                 devModeAdInspectorPref.isEnabled = false
                 devModeAdMediationTestPref.isEnabled = false
                 devModeGroupPref.removePreference(devModeModulePref)
+                devModeGroupPref.removePreference(devModeResetConsentPref)
                 devModeGroupPref.removePreference(devModeResetRewardedPref)
                 devModeGroupPref.removePreference(devModeAdInspectorPref)
                 devModeGroupPref.removePreference(devModeAdMediationTestPref)

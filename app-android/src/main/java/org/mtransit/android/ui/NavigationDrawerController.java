@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -23,8 +24,11 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.ump.ConsentForm;
+import com.google.android.ump.FormError;
 
 import org.mtransit.android.R;
+import org.mtransit.android.ad.AdsConsentManager;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.BundleUtils;
@@ -91,6 +95,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	private final DataSourcesRepository dataSourcesRepository;
 	@NonNull
 	private final StatusLoader statusLoader;
+	@NonNull
+	private final AdsConsentManager consentManager;
 	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
 	private final PackageManager packageManager;
@@ -114,6 +120,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 							   @NonNull IAnalyticsManager analyticsManager,
 							   @NonNull DataSourcesRepository dataSourcesRepository,
 							   @NonNull StatusLoader statusLoader,
+							   @NonNull AdsConsentManager consentManager,
 							   @NonNull PackageManager packageManager,
 							   @NonNull ServiceUpdateLoader serviceUpdateLoader,
 							   @NonNull DemoModeManager demoModeManager) {
@@ -122,6 +129,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.analyticsManager = analyticsManager;
 		this.statusLoader = statusLoader;
+		this.consentManager = consentManager;
 		this.packageManager = packageManager;
 		this.serviceUpdateLoader = serviceUpdateLoader;
 		this.demoModeManager = demoModeManager;
@@ -336,7 +344,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		return filteredDataSourceTypes;
 	}
 
-	private void setVisibleMenuItems() {
+	public void setVisibleMenuItems() {
 		if (this.navigationView == null) {
 			MTLog.w(this, "setVisibleMenuItems() > skip (no navigation view)");
 			return;
@@ -373,6 +381,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgenciesAdded);
 		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgenciesAdded);
+		this.navigationView.getMenu().findItem(R.id.nav_privacy_setting).setVisible(this.consentManager.isPrivacyOptionsRequired());
 	}
 
 	private boolean menuUpdated = false;
@@ -443,6 +452,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.getId();
 		} else if (navItemId == R.id.nav_settings
 				|| navItemId == R.id.nav_support
+				|| navItemId == R.id.nav_privacy_setting
 				|| navItemId == R.id.nav_rate_review
 				|| navItemId == R.id.nav_send_feedback) {
 			return null;
@@ -625,6 +635,15 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(org.mtransit.android.commons.R.string.google_play));
 		} else if (navItemId == R.id.nav_support) {
 			activity.startActivity(PreferencesActivity.newInstance(activity, true));
+		} else if (navItemId == R.id.nav_privacy_setting) {
+			this.consentManager.showPrivacyOptionsForm(activity, new ConsentForm.OnConsentFormDismissedListener() {
+				@Override
+				public void onConsentFormDismissed(@Nullable FormError formError) {
+					if (formError != null) {
+						Toast.makeText(activity, formError.getMessage(), Toast.LENGTH_SHORT).show();
+					}
+				}
+			});
 		} else {
 			MTLog.w(this, "startNewScreen() > Unexpected screen nav item ID: %s", navItemId);
 		}
@@ -639,6 +658,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		if (navItemId == R.id.nav_trip_planner
 				|| navItemId == R.id.nav_support
 				|| navItemId == R.id.nav_rate_review
+				|| navItemId == R.id.nav_privacy_setting
 				|| navItemId == R.id.nav_send_feedback
 				|| navItemId == R.id.nav_settings) {
 			return false;
@@ -739,6 +759,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		navigationView.getMenu().findItem(R.id.nav_settings).setCheckable(currentSelectedScreenItemNavId == R.id.nav_settings);
 		navigationView.getMenu().findItem(R.id.nav_send_feedback).setCheckable(currentSelectedScreenItemNavId == R.id.nav_send_feedback);
 		navigationView.getMenu().findItem(R.id.nav_rate_review).setCheckable(currentSelectedScreenItemNavId == R.id.nav_rate_review);
+		navigationView.getMenu().findItem(R.id.nav_privacy_setting).setCheckable(currentSelectedScreenItemNavId == R.id.nav_privacy_setting);
 		navigationView.getMenu().findItem(R.id.nav_support).setCheckable(currentSelectedScreenItemNavId == R.id.nav_support);
 	}
 

@@ -274,15 +274,6 @@ public enum DataSourceType {
 		return null;
 	}
 
-	@SuppressWarnings("unused")
-	public static class DataSourceTypeComparator implements Comparator<DataSourceType> {
-
-		@Override
-		public int compare(@NonNull DataSourceType lType, @NonNull DataSourceType rType) {
-			return lType.id - rType.id;
-		}
-	}
-
 	public static class DataSourceTypeShortNameComparator implements Comparator<DataSourceType> {
 
 		@NonNull

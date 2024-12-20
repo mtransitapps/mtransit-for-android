@@ -274,6 +274,10 @@ class NextMainActivity : MTActivityWithLocation(),
         onLastLocationChanged(deviceLocation)
     }
 
+    override fun onPrivacyOptionsRequiredChanged() {
+        // TODO later
+    }
+
     override fun onRewardedAdStatusChanged() {
         // DO NOTHING
     }

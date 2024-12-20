@@ -28,6 +28,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdsConsentManager
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
@@ -124,6 +125,9 @@ class MainActivity : MTActivityWithLocation(),
     lateinit var statusLoader: StatusLoader
 
     @Inject
+    lateinit var consentManager: AdsConsentManager
+
+    @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
@@ -147,6 +151,7 @@ class MainActivity : MTActivityWithLocation(),
             this.analyticsManager,
             this.dataSourcesRepository,
             this.statusLoader,
+            this.consentManager,
             this.packageManager,
             this.serviceUpdateLoader,
             this.demoModeManager
@@ -221,6 +226,10 @@ class MainActivity : MTActivityWithLocation(),
         this.billingManager.addListener(this) // trigger onBillingResult() w/ current value
         this.billingManager.refreshPurchases()
         onLastLocationChanged(deviceLocation)
+    }
+
+    override fun onPrivacyOptionsRequiredChanged() {
+        this.navigationDrawerController?.setVisibleMenuItems()
     }
 
     override fun onRewardedAdStatusChanged() {

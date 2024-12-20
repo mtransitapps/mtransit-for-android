@@ -20,12 +20,14 @@ import org.mtransit.android.dev.DemoModeManager
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.google.android.ump.FormError as UMPFormError
 
 @Singleton
 class GlobalAdManager(
     private val dataSourcesRepository: DataSourcesRepository,
     private val crashReporter: CrashReporter,
     private val demoModeManager: DemoModeManager,
+    private val consentManager: AdsConsentManager,
     private val rewardedUserManager: RewardedUserManager,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {
@@ -35,11 +37,13 @@ class GlobalAdManager(
         dataSourcesRepository: DataSourcesRepository,
         crashReporter: CrashReporter,
         demoModeManager: DemoModeManager,
+        consentManager: AdsConsentManager,
         rewardedUserManager: RewardedUserManager,
     ) : this(
         dataSourcesRepository = dataSourcesRepository,
         crashReporter = crashReporter,
         demoModeManager = demoModeManager,
+        consentManager = consentManager,
         rewardedUserManager = rewardedUserManager,
         ioDispatcher = Dispatchers.IO,
     )
@@ -70,6 +74,23 @@ class GlobalAdManager(
             MTLog.w(this, "Trying to initialized w/o activity!")
             return // SKIP
         }
+        consentManager.gatherConsent(theActivity) { formError: UMPFormError? ->
+            formError?.let {
+                MTLog.d(this@GlobalAdManager, "Consent not obtained [${formError.errorCode}]: ${formError.message}.")
+            }
+            if (consentManager.canRequestAds) {
+                initWithConsent(activity, bannerAdManager)
+            }
+            if (consentManager.isPrivacyOptionsRequired) {
+                activity.onPrivacyOptionsRequiredChanged()
+            }
+        }
+        if (consentManager.canRequestAds) { // IF consent already given in previous session DO
+            initWithConsent(activity, bannerAdManager)
+        }
+    }
+
+    private fun initWithConsent(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
         if (initialized.getAndSet(true)) {
             MTLog.d(this, "init() > SKIP (initialized: %s)", this.initialized.get())
             return // SKIP
