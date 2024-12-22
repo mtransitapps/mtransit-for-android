@@ -25,4 +25,7 @@ object UIFeatureFlags {
     const val F_NEW_IN_APP_SUBS = false
     // const val F_NEW_IN_APP_SUBS = true // WIP
 
+    const val F_NEWS_THUMBNAIL_PLAY_BUTTON = false
+    // const val F_NEWS_THUMBNAIL_PLAY_BUTTON = true // WIP
+
 }

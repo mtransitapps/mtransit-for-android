@@ -46,6 +46,7 @@ import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.util.LinkUtils
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
@@ -270,44 +271,103 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     private fun updateThumbnails(newsArticle: News) = binding?.apply {
         when {
             newsArticle.isTwitterVideo -> {
-                thumbnail.apply {
-                    isVisible = false
-                    imageManager.clear(context, this)
+                if (!UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
+                    thumbnail.apply {
+                        isVisible = false
+                        imageManager.clear(context, this)
+                    }
                 }
                 thumbnailsListContainer.isVisible = false
                 noThumbnailSpace.isVisible = false
 
-                thumbnailWebView.apply {
-                    setupWebView(this)
-                    newsArticle.getTwitterVideoId()?.let { videoId ->
-                        makeTwitterEmbedVideoPlayerUrl(videoId).let { newUrl ->
-                            if (url != newUrl) {
-                                loadUrl(newUrl)
+                if (UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
+                    thumbnail.apply {
+                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
+                        isVisible = true
+                        setOnClickListener {}
+                    }
+                    thumbnailPlay.apply {
+                        isVisible = true
+                        setOnClickListener { view ->
+                            isVisible = false
+                            thumbnail.isVisible = false
+
+                            thumbnailWebView.apply {
+                                setupWebView(this)
+                                newsArticle.getTwitterVideoId()?.let { videoId ->
+                                    makeTwitterEmbedVideoPlayerUrl(videoId).let { newUrl ->
+                                        if (url != newUrl) {
+                                            loadUrl(newUrl)
+                                        }
+                                    }
+                                }
+                                isVisible = true
                             }
                         }
                     }
-                    isVisible = true
+                } else {
+                    thumbnailWebView.apply {
+                        setupWebView(this)
+                        newsArticle.getTwitterVideoId()?.let { videoId ->
+                            makeTwitterEmbedVideoPlayerUrl(videoId).let { newUrl ->
+                                if (url != newUrl) {
+                                    loadUrl(newUrl)
+                                }
+                            }
+                        }
+                        isVisible = true
+                    }
                 }
             }
 
             newsArticle.isYouTubeVideo -> {
-                thumbnail.apply {
-                    isVisible = false
-                    imageManager.clear(context, this)
+                if (!UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
+                    thumbnail.apply {
+                        isVisible = false
+                        imageManager.clear(context, this)
+                    }
                 }
                 thumbnailsListContainer.isVisible = false
                 noThumbnailSpace.isVisible = false
 
-                thumbnailWebView.apply {
-                    setupWebView(this)
-                    newsArticle.getYouTubeVideoId()?.let { videoId ->
-                        makeYouTubeEmbedVideoPlayerUrl(videoId, false).let { newUrl ->
-                            if (url != newUrl) {
-                                loadUrl(newUrl)
+                if (UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
+                    thumbnail.apply {
+                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
+                        isVisible = true
+                        setOnClickListener {}
+                    }
+                    thumbnailPlay.apply {
+                        isVisible = true
+
+                        setOnClickListener { view ->
+                            isVisible = false
+                            thumbnail.isVisible = false
+
+                            thumbnailWebView.apply {
+                                setupWebView(this)
+                                newsArticle.getYouTubeVideoId()?.let { videoId ->
+                                    makeYouTubeEmbedVideoPlayerUrl(videoId, autoPlay = true, mute = true).let { newUrl ->
+                                        if (url != newUrl) {
+                                            loadUrl(newUrl)
+                                        }
+                                    }
+                                }
+                                isVisible = true
                             }
                         }
                     }
-                    isVisible = true
+                } else {
+                    thumbnailWebView.apply {
+                        setupWebView(this)
+                        newsArticle.getYouTubeVideoId()?.let { videoId ->
+                            makeYouTubeEmbedVideoPlayerUrl(videoId, autoPlay = false).let { newUrl ->
+                                if (url != newUrl) {
+                                    loadUrl(newUrl)
+                                }
+                            }
+                        }
+                        isVisible = true
+                    }
                 }
             }
 

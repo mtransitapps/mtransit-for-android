@@ -22,6 +22,23 @@
             android:minHeight="?android:attr/listPreferredItemHeightLarge"
             android:paddingBottom="@dimen/baseline_16">
 
+            <!-- 1st - bellow thumbnail -->
+            <!-- size between landscape, square & portrait video format -->
+            <WebView
+                android:id="@+id/thumbnail_web_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/news_image_height"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_below="@id/thumbnails_list_container"
+                android:layout_alignStart="@id/thumbnail"
+                android:layout_alignTop="@id/thumbnail"
+                android:layout_alignEnd="@id/thumbnail"
+                android:layout_alignBottom="@id/thumbnail"
+                android:layout_marginBottom="@dimen/baseline_8"
+                android:visibility="gone"
+                tools:ignore="WebViewLayout"
+                tools:visibility="gone" />
+
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
@@ -37,7 +54,24 @@
                 android:visibility="gone"
                 app:shapeAppearance="@style/MTShapeAppearanceFull"
                 tools:src="@tools:sample/backgrounds/scenic"
-                tools:visibility="gone" />
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/thumbnail_play"
+                android:layout_width="@dimen/baseline_48"
+                android:layout_height="@dimen/baseline_48"
+                android:layout_alignStart="@id/thumbnail"
+                android:layout_alignTop="@id/thumbnail"
+                android:layout_alignEnd="@id/thumbnail"
+                android:layout_alignBottom="@id/thumbnail"
+                android:layout_marginHorizontal="@dimen/baseline_144"
+                android:layout_marginVertical="@dimen/baseline_96"
+                android:background="@drawable/center_gradient"
+                android:contentDescription="@string/news_video_play"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_play_circle_black_24"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <org.mtransit.android.ui.view.common.NestedScrollableHost
                 android:id="@+id/thumbnails_list_container"
@@ -65,18 +99,6 @@
                     tools:listitem="@layout/layout_news_image_item" />
 
             </org.mtransit.android.ui.view.common.NestedScrollableHost>
-
-            <!-- size between landscape, square & portrait video format -->
-            <WebView
-                android:id="@+id/thumbnail_web_view"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/news_image_height"
-                android:layout_alignWithParentIfMissing="true"
-                android:layout_below="@id/thumbnails_list_container"
-                android:layout_marginBottom="@dimen/baseline_8"
-                android:visibility="gone"
-                tools:ignore="WebViewLayout"
-                tools:visibility="visible" />
 
             <View
                 android:id="@+id/no_thumbnail_space"

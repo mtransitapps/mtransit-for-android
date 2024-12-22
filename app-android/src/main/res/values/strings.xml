@@ -298,4 +298,6 @@
         <item quantity="one">Source: %s</item>
         <item quantity="other">Sources: %s</item>
     </plurals>
+
+    <string name="news_video_play">Play</string>
 </resources>

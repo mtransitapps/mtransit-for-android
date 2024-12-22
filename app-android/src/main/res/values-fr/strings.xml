@@ -307,4 +307,6 @@
         <item quantity="other">Sources : %s</item>
         <item quantity="many">Sources : %s</item>
     </plurals>
+
+    <string name="news_video_play">Jouer</string>
 </resources>

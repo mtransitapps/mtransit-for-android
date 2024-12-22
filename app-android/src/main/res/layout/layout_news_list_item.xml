@@ -76,6 +76,34 @@
             tools:src="@tools:sample/backgrounds/scenic"
             tools:visibility="visible" />
 
+        <ImageView
+            android:id="@+id/thumbnail_gallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/thumbnail"
+            android:layout_alignBottom="@id/thumbnail"
+            android:layout_marginEnd="@dimen/baseline_8"
+            android:layout_marginBottom="@dimen/baseline_8"
+            android:background="@drawable/center_gradient"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_collections_black_24"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/thumbnail_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/thumbnail"
+            android:layout_alignBottom="@id/thumbnail"
+            android:layout_marginEnd="@dimen/baseline_8"
+            android:layout_marginBottom="@dimen/baseline_8"
+            android:background="@drawable/center_gradient"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_play_circle_black_24"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
         <TextView
             android:id="@+id/news_text"
             style="@style/MTTextNewsArticle"

@@ -32,6 +32,9 @@ val News.imageUrls: List<NewsImage>
         NewsImage(this.getImageUrl(it))
     }
 
+val News.hasVideo: Boolean
+    get() = isTwitterVideo || isYouTubeVideo
+
 val News.hasImagesOrVideoThumbnail: Boolean
     get() = this.imageUrls.isNotEmpty() || isTwitterVideo || isYouTubeVideo
 
@@ -79,7 +82,7 @@ fun News.getYouTubeVideoId(): String? = this.takeIf { it.isYouTubeVideo }?.webUR
 private const val TRUE = "1"
 private const val FALSE = "0"
 
-fun makeYouTubeEmbedVideoPlayerUrl(videoId: String, autoPlay: Boolean) = Uri.Builder().apply {
+fun makeYouTubeEmbedVideoPlayerUrl(videoId: String, autoPlay: Boolean, mute: Boolean = autoPlay) = Uri.Builder().apply {
     scheme("https")
     authority("www.youtube.com")
     appendPath("embed")
@@ -91,7 +94,7 @@ fun makeYouTubeEmbedVideoPlayerUrl(videoId: String, autoPlay: Boolean) = Uri.Bui
     appendQueryParameter("rel", FALSE) // only related videos from same channel
     appendQueryParameter("showinfo", FALSE) // deprecated (no video title)
     appendQueryParameter("disablekb", FALSE) // keyboard control
-    appendQueryParameter("mute", if (autoPlay) TRUE else FALSE) // muted by default if auto-play
+    appendQueryParameter("mute", if (mute) TRUE else FALSE) // muted by default if auto-play
     appendQueryParameter("hl", Locale.getDefault().language) // language
 }.build().toString()
 

@@ -76,6 +76,7 @@ class DataSourcesReader @Inject constructor(
             // "org.mtransit.android.ca_montreal_stm_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_stm_subway.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_quebec_a_velo_bike.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_quebec_orleans_express_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_quebec_rtc_bus2.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_sherbrooke_sts_bus.debug", // FIXME DEBUG

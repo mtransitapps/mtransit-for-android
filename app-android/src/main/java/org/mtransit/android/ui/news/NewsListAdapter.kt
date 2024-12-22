@@ -25,6 +25,7 @@ import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.authorityT
 import org.mtransit.android.data.getAuthority
 import org.mtransit.android.data.getUuid
+import org.mtransit.android.data.hasVideo
 import org.mtransit.android.data.uuidT
 import org.mtransit.android.databinding.LayoutNewListMomentSeparatorBinding
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
@@ -403,6 +404,9 @@ class NewsListAdapter(
                         false
                     }
                 }
+                thumbnailGallery.isVisible = newsArticle.imageURLsCount > 1
+                        && !newsArticle.hasVideo // UI does NOT support video + images gallery
+                thumbnailVideo.isVisible = newsArticle.hasVideo
                 date.apply {
                     text = if (horizontal || UITimeUtils.isToday(newsArticle.createdAtInMs)) {
                         UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)
