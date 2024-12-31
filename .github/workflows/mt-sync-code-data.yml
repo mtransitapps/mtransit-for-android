@@ -38,7 +38,8 @@ env:
 jobs:
   MT-SYNC-CODE-DATA-JOB:
     name: "MT Sync Code & Data"
-    timeout-minutes: 45
+    # timeout-minutes: 45
+    timeout-minutes: 90
     runs-on: ubuntu-latest
     steps:
       - name: MT check out main repository code (no submodules)
@@ -110,9 +111,20 @@ jobs:
       #       !**/*.xml
       - name: MT commit code change
         run: ./commit_code_change.sh
-      - name: MT download & parse
+#      - name: MT download & parse
+#        timeout-minutes: 40
+#        run: ./download_and_parse.sh
+      - name: MT download & prepare
+        timeout-minutes: 10
+        run: ./download_and_prepare.sh
+      - name: MT parse current
         timeout-minutes: 40
-        run: ./download_and_parse.sh
+        run: ./parse_current.sh
+      - name: MT parse next
+        timeout-minutes: 40
+        run: ./parse_next.sh
+      - name: MT parse list change
+        run: ./parse_list_change.sh
       - name: MT push commits
         run: ./push_commits.sh
       - name: MT artifact > GTFS files

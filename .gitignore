@@ -178,6 +178,7 @@ dev.properties
 /dependency_update_commit_code_change.sh
 /dependency_update_push_commits.sh
 /download_and_parse.sh
+/download_and_prepare.sh
 /download_dependencies.sh
 /gitall.sh
 /gradle.properties
@@ -186,6 +187,9 @@ dev.properties
 /gradlew
 /gradlew.bat
 /init_cache_key.sh
+/parse_current.sh
+/parse_next.sh
+/parse_list_change.sh
 /publish_app_release.sh
 /push_commits.sh
 /set_app_release_required.sh
