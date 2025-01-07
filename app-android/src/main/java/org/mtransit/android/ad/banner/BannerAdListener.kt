@@ -78,7 +78,7 @@ class BannerAdListener(
             AdRequest.ERROR_CODE_NO_FILL -> MTLog.w(this, "Failed to received ad! No fill error code: '%s' (%s).", loadAdError.code, loadAdError)
             else -> this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", loadAdError.code, loadAdError)
         }
-        this.bannerAdManager.adBannerLoaded.set(false)
+        this.bannerAdManager.setAdBannerLoaded(false)
         val activity = this.activityWR.get()
         if (activity == null) {
             MTLog.d(this, "onAdFailedToLoad() > SKIP (no activity)")
@@ -92,7 +92,7 @@ class BannerAdListener(
         val adView = this.adViewWR.get()
         val responseInfo = adView?.responseInfo
         MTLog.d(this, "onAdLoaded() > ad loaded from ${responseInfo?.mediationAdapterClassName} (collapsible:${adView?.isCollapsible})")
-        this.bannerAdManager.adBannerLoaded.set(true)
+        this.bannerAdManager.setAdBannerLoaded(true)
         val activity = this.activityWR.get()
         if (activity == null) {
             MTLog.d(this, "onAdLoaded() > SKIP (no activity)")
