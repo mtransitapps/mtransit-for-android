@@ -74,7 +74,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // no bottom anchored banner ad in this screen
+        @Suppress("DEPRECATION", "DeprecatedCall") // no bottom anchored banner ad in this screen
         findViewById<View>(R.id.preferences_fragment).setUpEdgeToEdgeBottomAndTop() // after super.onCreate()
         supportActionBar?.apply {
             setTitle(R.string.settings)
