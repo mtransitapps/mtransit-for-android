@@ -292,6 +292,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	/**
 	 * @see #getViewTypeCount()
 	 */
+	@SuppressWarnings("SwitchStatementWithTooFewBranches")
 	@Override
 	public int getItemViewType(int position) {
 		final POIManager poim = getItem(position);
@@ -831,6 +832,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@Override
 	public void onFavoriteUpdated() {
 		refreshFavorites();
+	}
+
+	public void initPOITypes(@NonNull List<DataSourceType> poiTypes) {
+		if (this.poisByType == null) {
+			this.poisByType = new LinkedHashMap<>();
+		}
+		for (DataSourceType poiType : poiTypes) {
+			if (!this.poisByType.containsKey(poiType.getId())) {
+				this.poisByType.put(poiType.getId(), new ArrayList<>());
+			}
+		}
 	}
 
 	public void setPois(@Nullable List<POIManager> pois) {
@@ -1401,7 +1413,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.typeHeaderButtonsClickListenerWR = new WeakReference<>(listener);
 	}
 
-	@SuppressWarnings("DuplicateBranchesInSwitch")
 	private void onTypeHeaderButtonClick(@NonNull View view, int buttonId, @NonNull DataSourceType type) {
 		final TypeHeaderButtonsClickListener listener = this.typeHeaderButtonsClickListenerWR == null ? null : this.typeHeaderButtonsClickListenerWR.get();
 		if (listener != null && listener.onTypeHeaderButtonClick(buttonId, type)) {
@@ -2002,6 +2013,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		} else {
 			index = -1;
 		}
+		//noinspection SwitchStatementWithTooFewBranches
 		switch (index) {
 		case 0:
 			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);

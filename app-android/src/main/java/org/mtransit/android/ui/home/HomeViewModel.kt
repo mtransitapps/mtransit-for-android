@@ -186,6 +186,10 @@ class HomeViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
+    val sortedTypeToHomeAgencies: LiveData<List<DataSourceType>?> = _typeToHomeAgencies.map {
+        it?.keys?.toList()
+    }
+
     private val _loadingPOIs = MutableLiveData(true)
     val loadingPOIs: LiveData<Boolean?> = _loadingPOIs
 

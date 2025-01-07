@@ -233,6 +233,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 listAdapter.clear()
             }
         })
+        viewModel.sortedTypeToHomeAgencies.observe(viewLifecycleOwner) {
+            listAdapter.initPOITypes(it ?: return@observe)
+        }
         viewModel.nearbyPOIs.observe(viewLifecycleOwner) {
             it?.let {
                 val scrollToTop = listAdapter.poisCount <= 0
