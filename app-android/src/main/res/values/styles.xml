@@ -119,7 +119,7 @@
         <item name="android:gravity">center_vertical|start</item>
 
         <item name="android:maxLines">1</item>
-        <item name="android:ellipsize">end</item>
+        <item name="android:ellipsize">marquee</item>
 
         <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
         <item name="android:textStyle">normal</item>
