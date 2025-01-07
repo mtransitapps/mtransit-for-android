@@ -19,7 +19,7 @@ import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.enableEdgeToEdgeMT
-import org.mtransit.android.ui.setUpEdgeToEdgeTop
+import org.mtransit.android.ui.setUpEdgeToEdgeBottomAndTop
 import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
 
@@ -74,7 +74,8 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         super.onCreate(savedInstanceState)
-        findViewById<View>(R.id.preferences_fragment).setUpEdgeToEdgeTop() // after super.onCreate()
+        @Suppress("DEPRECATION") // no bottom anchored banner ad in this screen
+        findViewById<View>(R.id.preferences_fragment).setUpEdgeToEdgeBottomAndTop() // after super.onCreate()
         supportActionBar?.apply {
             setTitle(R.string.settings)
             setDisplayHomeAsUpEnabled(true)
