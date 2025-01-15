@@ -44,8 +44,8 @@ jobs:
         run: ./commons/code_setup.sh
       - name: MT commit code change
         run: ./commit_code_change.sh
-      - name: MT download data
+      - name: MT download data (& archive)
         run: ./agency-parser/download.sh
-        timeout-minutes: 10
+        timeout-minutes: 20
       - name: MT push commits
         run: ./push_commits.sh
