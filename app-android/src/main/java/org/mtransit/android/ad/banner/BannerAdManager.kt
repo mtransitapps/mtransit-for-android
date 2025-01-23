@@ -33,7 +33,7 @@ class BannerAdManager @Inject constructor(
 
         private const val LOADED_UNKNOWN = -1L
 
-        private val MIN_DURATION_BETWEEN_FORCE_AD_REFRESH_MS = TimeUnit.SECONDS.toMillis(7L)
+        private val MIN_DURATION_BETWEEN_FORCE_AD_REFRESH_MS = TimeUnit.SECONDS.toMillis(3L)
     }
 
     override fun getLogTag() = LOG_TAG
