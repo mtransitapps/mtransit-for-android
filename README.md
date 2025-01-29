@@ -56,3 +56,5 @@ Learn more about the BETA program [here](https://github.com/mtransitapps/mtransi
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mtransitapps/mtransit-for-android/trend.png)](https://bitdeli.com/free)
 
 -->
+
+This project is tested with BrowserStack
