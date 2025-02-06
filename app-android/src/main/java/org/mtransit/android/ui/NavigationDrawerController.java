@@ -24,8 +24,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.ump.ConsentForm;
-import com.google.android.ump.FormError;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.AdsConsentManager;
@@ -615,7 +613,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				}
 			}
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
-			MapUtils.showDirection(activity, null, null, optSrcLat, optSrcLng, null);
+			MapUtils.showDirection(null, activity, null, null, optSrcLat, optSrcLng, null);
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 		} else if (navItemId == R.id.nav_send_feedback) {
@@ -636,12 +634,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} else if (navItemId == R.id.nav_support) {
 			activity.startActivity(PreferencesActivity.newInstance(activity, true));
 		} else if (navItemId == R.id.nav_privacy_setting) {
-			this.consentManager.showPrivacyOptionsForm(activity, new ConsentForm.OnConsentFormDismissedListener() {
-				@Override
-				public void onConsentFormDismissed(@Nullable FormError formError) {
-					if (formError != null) {
-						Toast.makeText(activity, formError.getMessage(), Toast.LENGTH_SHORT).show();
-					}
+			this.consentManager.showPrivacyOptionsForm(activity, formError -> {
+				if (formError != null) {
+					Toast.makeText(activity, formError.getMessage(), Toast.LENGTH_SHORT).show();
 				}
 			});
 		} else {

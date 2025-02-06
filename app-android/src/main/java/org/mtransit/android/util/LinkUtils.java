@@ -90,7 +90,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		if (intercept(activity, url)) {
 			return true;
 		}
-		if (www && view != null) {
+		if (www && (!FeatureFlags.F_NAVIGATION || view != null)) {
 			final String firebaseTestLabSetting = Settings.System.getString(activity.getContentResolver(), "firebase.test.lab");
 			final boolean isUsingFirebaseTestLab = "true".equals(firebaseTestLabSetting);
 			boolean useInternalWebBrowser = !isUsingFirebaseTestLab && PreferenceUtils.getPrefDefault(activity,

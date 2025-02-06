@@ -1475,7 +1475,13 @@ public class POIFragment extends ABFragment implements
 			POIManager poim2 = getPoimOrNull();
 			if (poim2 != null) {
 				this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
-				MapUtils.showDirection(requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), null, null, poim2.poi.getName());
+				Double optSrcLat = null;
+				Double optSrcLng = null;
+				if (this.deviceLocation != null) {
+					optSrcLat = this.deviceLocation.getLatitude();
+					optSrcLng = this.deviceLocation.getLongitude();
+				}
+				MapUtils.showDirection(getView(), requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName());
 				return true; // handled
 			}
 		}

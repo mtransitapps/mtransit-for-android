@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -152,6 +153,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		webView.getSettings().setSupportZoom(true);
 		webView.getSettings().setBuiltInZoomControls(true);
 		webView.getSettings().setDisplayZoomControls(false);
+		webView.getSettings().setGeolocationEnabled(true);
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			webView.getSettings().setUseWideViewPort(true);
 			webView.getSettings().setLoadWithOverviewMode(true);
@@ -360,6 +362,26 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error during on received title!");
 			}
+		}
+
+		@Override
+		public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+			boolean allow;
+			switch (origin) {
+			case "https://www.google.com":
+			case "https://www.google.com/":
+			case "https://www.google.com/maps":
+			case "https://www.google.com/maps/":
+			case "https://maps.google.com":
+			case "https://maps.google.com/":
+			case "https://maps.google.com/maps":
+			case "https://maps.google.com/maps/":
+				allow = true;
+				break;
+			default:
+				allow = false;
+			}
+			callback.invoke(origin, allow, false);
 		}
 	}
 

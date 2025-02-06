@@ -46,7 +46,7 @@ class BannerAdListener(
                 loadAdError
             )
 
-            AdRequest.ERROR_CODE_INTERNAL_ERROR -> this.crashReporter.w(
+            AdRequest.ERROR_CODE_INTERNAL_ERROR -> MTLog.w( // network error...
                 this,
                 "Failed to received ad! Internal error code: '%s' (%s).",
                 loadAdError.code,
