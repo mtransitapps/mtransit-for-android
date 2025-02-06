@@ -362,6 +362,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
                 locationPick?.let { location ->
                     viewModel.onShowDirectionClick()
                     MapUtils.showDirection(
+                        view,
                         requireActivity(),
                         location.latitude,
                         location.longitude,
