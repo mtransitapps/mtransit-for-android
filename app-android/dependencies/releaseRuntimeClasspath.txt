@@ -92,7 +92,7 @@ androidx.window:window:1.0.0
 androidx.work:work-runtime:2.10.0
 com.android.billingclient:billing-ktx:7.1.1
 com.android.billingclient:billing:7.1.1
-com.applovin:applovin-sdk:13.0.1
+com.applovin:applovin-sdk:13.1.0
 com.caverock:androidsvg-aar:1.4
 com.facebook.android:audience-network-sdk:6.18.0
 com.fasterxml.jackson.core:jackson-annotations:2.12.3
@@ -108,7 +108,7 @@ com.github.chuckerteam.chucker:library-no-op:4.1.0
 com.github.scribejava:scribejava-apis:8.3.1
 com.github.scribejava:scribejava-core:8.3.1
 com.github.scribejava:scribejava-java8:8.3.1
-com.google.ads.mediation:applovin:13.0.1.1
+com.google.ads.mediation:applovin:13.1.0.0
 com.google.ads.mediation:facebook:6.18.0.0
 com.google.ads.mediation:vungle:7.4.3.0
 com.google.android.datatransport:transport-api:3.2.0
@@ -138,12 +138,12 @@ com.google.android.play:core-common:2.0.4
 com.google.android.play:review-ktx:2.0.2
 com.google.android.play:review:2.0.2
 com.google.android.ump:user-messaging-platform:3.1.0
-com.google.api-client:google-api-client:2.7.1
-com.google.apis:google-api-services-youtube:v3-rev20250122-2.0.0
+com.google.api-client:google-api-client:2.7.2
+com.google.apis:google-api-services-youtube:v3-rev20250128-2.0.0
 com.google.auth:google-auth-library-credentials:1.30.0
 com.google.auth:google-auth-library-oauth2-http:1.30.0
 com.google.code.findbugs:jsr305:3.0.2
-com.google.code.gson:gson:2.12.0
+com.google.code.gson:gson:2.12.1
 com.google.dagger:dagger-lint-aar:2.55
 com.google.dagger:dagger:2.55
 com.google.dagger:hilt-android:2.55
