@@ -34,6 +34,8 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
 import org.mtransit.android.ui.setUpEdgeToEdgeList
+import org.mtransit.android.ui.setUpEdgeToEdgeSlidingPaneLayout
+import org.mtransit.android.ui.setUpEdgeToEdgeSwipeRefreshLayout
 import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
@@ -213,25 +215,27 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     ThemeUtils.resolveColorAttribute(rootView.context, android.R.attr.colorAccent)
                 )
                 setOnRefreshListener(viewModel::onRefreshRequested)
+                setUpEdgeToEdgeSwipeRefreshLayout()
             }
             newsContainerLayout.apply {
                 newsList.apply {
                     adapter = listAdapter
                     addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
                     addItemDecoration(StickyHeaderItemDecorator(listAdapter, this))
-                    setUpEdgeToEdgeList(marginTopDimenRes = R.dimen.action_bar_size_static)
+                    setUpEdgeToEdgeList()
                 }
             }
             viewPager.apply {
                 offscreenPageLimit = 1 // only one because pre-fetching ads
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-                setUpEdgeToEdgeTop(marginTopDimenRes = R.dimen.action_bar_size_static)
+                setUpEdgeToEdgeTop()
             }
             mainActivity?.supportFragmentManager?.addOnBackStackChangedListener(
                 onBackStackChangedListener ?: makeOnBackStackChangedListener().also { onBackStackChangedListener = it }
             )
             slidingPaneLayout.apply {
+                setUpEdgeToEdgeSlidingPaneLayout(paddingTopDimenRes = R.dimen.action_bar_size_static)
                 onBackPressedCallback = TwoPaneOnBackPressedCallback(
                     this,
                     onPanelHandledBackPressedCallback = {
