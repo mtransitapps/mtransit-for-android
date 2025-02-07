@@ -203,7 +203,7 @@ fun MapView.setUpEdgeToEdgeTopMap(
                 mapViewController.setPaddingBottomSp(it + insets.bottom.dpToPx)
             }
         mapViewController.applyPaddings()
-        windowInsets
+        WindowInsetsCompat.CONSUMED
     }
 }
 
@@ -225,7 +225,7 @@ fun RecyclerView.setUpEdgeToEdgeList(
             right = insets.end,
             bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0),
         )
-        windowInsets
+        WindowInsetsCompat.CONSUMED
     }
     clipToPadding = false
 }
@@ -250,7 +250,7 @@ fun ListView.setUpEdgeToEdgeList(
             bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0)
                     + (marginBottomDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0),
         )
-        windowInsets
+        WindowInsetsCompat.CONSUMED
     }
     clipToPadding = false
 }
