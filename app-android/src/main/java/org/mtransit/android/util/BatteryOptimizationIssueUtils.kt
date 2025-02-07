@@ -82,9 +82,13 @@ object BatteryOptimizationIssueUtils {
 
     private const val ANY = "any"
 
-    private val INVISIBLE_ACTIVITY_ANY_MIN_OPEN_MS = TimeUnit.HOURS.toMillis(1L)
+    private val INVISIBLE_ACTIVITY_ANY_MIN_OPEN_MS =
+        if (BuildConfig.DEBUG) TimeUnit.MINUTES.toMillis(1L) else
+            TimeUnit.HOURS.toMillis(1L)
 
-    private val INVISIBLE_ACTIVITY_MIN_OPEN_MS = TimeUnit.DAYS.toMillis(7L)
+    private val INVISIBLE_ACTIVITY_MIN_OPEN_MS =
+        if (BuildConfig.DEBUG) TimeUnit.HOURS.toMillis(1L) else
+            TimeUnit.DAYS.toMillis(7L)
 
     private fun isInvisibleActivityEnabled() = BuildConfig.DEBUG
             || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU)

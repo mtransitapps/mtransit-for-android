@@ -20,6 +20,8 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
+import androidx.slidingpanelayout.widget.SlidingPaneLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.gms.maps.MapView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.mtransit.android.R
@@ -171,9 +173,9 @@ fun View.setStatusBarHeight(@Px additionalHeightPx: Int = 0) {
         view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             height = insets.height + additionalHeightPx
         }
-        windowInsets
+        isVisible = true
+        windowInsets // do not consume
     }
-    isVisible = true
 }
 
 @Suppress("DeprecatedCall")
@@ -203,12 +205,12 @@ fun MapView.setUpEdgeToEdgeTopMap(
                 mapViewController.setPaddingBottomSp(it + insets.bottom.dpToPx)
             }
         mapViewController.applyPaddings()
-        WindowInsetsCompat.CONSUMED
+        WindowInsetsCompat.CONSUMED // stop for descendants views
     }
 }
 
 fun RecyclerView.setUpEdgeToEdgeList(
-    @DimenRes marginTopDimenRes: Int?,
+    @DimenRes marginTopDimenRes: Int? = null,
 ) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
@@ -225,14 +227,14 @@ fun RecyclerView.setUpEdgeToEdgeList(
             right = insets.end,
             bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0),
         )
-        WindowInsetsCompat.CONSUMED
+        clipToPadding = false
+        WindowInsetsCompat.CONSUMED // stop for descendants views
     }
-    clipToPadding = false
 }
 
 fun ListView.setUpEdgeToEdgeList(
     @DimenRes marginTopDimenRes: Int?,
-    @DimenRes marginBottomDimenRes: Int?,
+    @Suppress("unused") @DimenRes marginBottomDimenRes: Int?,
 ) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
@@ -244,15 +246,46 @@ fun ListView.setUpEdgeToEdgeList(
                 topMargin = resources.getDimensionPixelSize(it) + insets.top
             }
         }
+        clipToPadding = false
+        WindowInsetsCompat.CONSUMED // stop for descendants views
+    }
+}
+
+fun SwipeRefreshLayout.setUpEdgeToEdgeSwipeRefreshLayout(
+    @DimenRes paddingTopDimenRes: Int? = null,
+) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
+        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
         view.updatePadding(
             left = insets.start,
             right = insets.end,
-            bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0)
-                    + (marginBottomDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0),
+            bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0),
+            top = (paddingTopDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0) + insets.top
         )
-        WindowInsetsCompat.CONSUMED
+        clipToPadding = false
+        WindowInsetsCompat.CONSUMED // stop for descendants views
     }
-    clipToPadding = false
+}
+
+fun SlidingPaneLayout.setUpEdgeToEdgeSlidingPaneLayout(
+    paddingTopDimenRes: Int?,
+) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
+        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        view.updatePadding(
+            left = insets.start,
+            right = insets.end,
+            bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0),
+            top = (paddingTopDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0) + insets.top
+        )
+        WindowInsetsCompat.CONSUMED // stop for descendants views
+    }
 }
 
 fun FloatingActionButton.setUpEdgeToEdge() {
