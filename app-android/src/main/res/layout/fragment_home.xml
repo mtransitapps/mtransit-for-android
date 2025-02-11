@@ -4,13 +4,13 @@
     android:id="@id/swipe_refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="@dimen/action_bar_size_static"
     tools:context=".ui.home.HomeFragment">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/context_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/action_bar_size_static">
+        android:layout_height="match_parent">
         <!-- LOADING -->
         <include
             android:id="@id/loading_layout"

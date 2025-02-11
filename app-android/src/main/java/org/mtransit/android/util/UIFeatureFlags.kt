@@ -6,8 +6,8 @@ object UIFeatureFlags {
 
     const val F_HOME_SCREEN_BROWSE_COLORS_COUNT = 1
 
-    // const val F_EDGE_TO_EDGE = false
-    const val F_EDGE_TO_EDGE = true // WIP
+    const val F_EDGE_TO_EDGE = false
+    // const val F_EDGE_TO_EDGE = true // WIP
 
     // !!! CAN NOT DRAW BEHIND NAVIGATION BAR AS LONG AS ANCHORED BOTTOM BANNER ADS IN ACTIVITY !!!
     const val F_EDGE_TO_EDGE_NAV_BAR_BELOW = false
