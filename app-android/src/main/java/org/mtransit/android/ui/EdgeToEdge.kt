@@ -251,6 +251,7 @@ fun ListView.setUpEdgeToEdgeList(
     }
 }
 
+
 fun SwipeRefreshLayout.setUpEdgeToEdgeSwipeRefreshLayout(
     @DimenRes paddingTopDimenRes: Int? = null,
 ) {
@@ -268,43 +269,6 @@ fun SwipeRefreshLayout.setUpEdgeToEdgeSwipeRefreshLayout(
         clipToPadding = false
         WindowInsetsCompat.CONSUMED // stop for descendants views
     }
-}
-
-fun SlidingPaneLayout.setUpEdgeToEdgeSlidingPaneLayout(
-    paddingTopDimenRes: Int?,
-) {
-    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        return
-    }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        view.updatePadding(
-            left = insets.start,
-            right = insets.end,
-            bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0),
-            top = (paddingTopDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0) + insets.top
-        )
-        WindowInsetsCompat.CONSUMED // stop for descendants views
-    }
-}
-
-fun SwipeRefreshLayout.setUpEdgeToEdgeSwipeRefreshLayout(
-    @DimenRes paddingTopDimenRes: Int? = null,
-) {
-    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        return
-    }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        view.updatePadding(
-            left = insets.start,
-            right = insets.end,
-            bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0),
-            top = (paddingTopDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0) + insets.top
-        )
-        WindowInsetsCompat.CONSUMED // stop for descendants views
-    }
-    clipToPadding = false
 }
 
 fun SlidingPaneLayout.setUpEdgeToEdgeSlidingPaneLayout(
