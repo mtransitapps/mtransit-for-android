@@ -56,11 +56,17 @@ private const val LOG_TAG = "EdgeToEdge"
 
 fun ComponentActivity.enableEdgeToEdgeMT() {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        // Call before the DecorView is accessed in setContentView
-        theme.applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false)
         return
     }
     enableEdgeToEdge()
+}
+
+fun ComponentActivity.edgeToEdgeOptOut() {
+    if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    // Call before the DecorView is accessed in setContentView
+    theme.applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false)
 }
 
 @Deprecated("bottom is only used with anchored banner ads and called from ads code")

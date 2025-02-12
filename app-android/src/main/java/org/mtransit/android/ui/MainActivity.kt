@@ -141,6 +141,9 @@ class MainActivity : MTActivityWithLocation(),
             enableEdgeToEdgeMT()
         }
         super.onCreate(savedInstanceState)
+        if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+            edgeToEdgeOptOut()
+        }
         adManager.init(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         this.currentUiMode = getResources().configuration.uiMode
