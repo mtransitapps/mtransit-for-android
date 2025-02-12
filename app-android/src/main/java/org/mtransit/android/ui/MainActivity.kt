@@ -51,6 +51,7 @@ import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.NightModeUtils
+import org.mtransit.android.util.UIFeatureFlags
 import java.lang.Exception
 import java.util.WeakHashMap
 import javax.inject.Inject
@@ -136,14 +137,18 @@ class MainActivity : MTActivityWithLocation(),
     private var currentUiMode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdgeMT()
+        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+            enableEdgeToEdgeMT()
+        }
         super.onCreate(savedInstanceState)
         adManager.init(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         this.currentUiMode = getResources().configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         setContentView(R.layout.activity_main)
-        findViewById<View>(R.id.main_content).setUpEdgeToEdgeBottom()
+        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+            findViewById<View>(R.id.main_content)?.setUpEdgeToEdgeBottom()
+        }
         this.abController = ActionBarController(this)
         this.navigationDrawerController = NavigationDrawerController(
             this,
