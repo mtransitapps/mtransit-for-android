@@ -32,8 +32,13 @@ class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
     private val viewModel by viewModels<PurchaseViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdgeMT()
+        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+            enableEdgeToEdgeMT()
+        }
         super.onCreate(savedInstanceState)
+        if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+            edgeToEdgeOptOut()
+        }
         findViewById<View>(R.id.support_fragment).setUpEdgeToEdgeTop() // after super.onCreate()
         viewModel.closeEvent.observe(this, EventObserver { close ->
             if (close) {

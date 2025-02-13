@@ -27,9 +27,14 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
     override fun getLogTag(): String = LOG_TAG
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdgeMT()
+        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+            enableEdgeToEdgeMT()
+        }
         setStatusBarColor(transparent = false)
         super.onCreate(savedInstanceState)
+        if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+            edgeToEdgeOptOut()
+        }
     }
 
     override val currentFragment: Fragment?

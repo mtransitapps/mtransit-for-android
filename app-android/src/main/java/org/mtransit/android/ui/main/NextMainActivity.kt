@@ -157,8 +157,13 @@ class NextMainActivity : MTActivityWithLocation(),
     private var currentUiMode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdgeMT()
+        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+            enableEdgeToEdgeMT()
+        }
         super.onCreate(savedInstanceState)
+        if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+            edgeToEdgeOptOut()
+        }
         adManager.init(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         currentUiMode = resources.configuration.uiMode

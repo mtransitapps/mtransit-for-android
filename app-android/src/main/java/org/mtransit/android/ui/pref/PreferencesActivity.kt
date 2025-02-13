@@ -70,7 +70,13 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
     private var currentUiMode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdgeMT()
+        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+            enableEdgeToEdgeMT()
+        }
+        super.onCreate(savedInstanceState)
+        if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+            edgeToEdgeOptOut()
+        }
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         super.onCreate(savedInstanceState)
