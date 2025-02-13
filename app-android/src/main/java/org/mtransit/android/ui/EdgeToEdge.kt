@@ -24,6 +24,7 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.gms.maps.MapView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.ui.view.MapViewController
@@ -63,6 +64,9 @@ fun ComponentActivity.enableEdgeToEdgeMT() {
 
 fun ComponentActivity.edgeToEdgeOptOut() {
     if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    if (BuildConfig.TARGET_SDK_VERSION < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
         return
     }
     // Call before the DecorView is accessed in setContentView
