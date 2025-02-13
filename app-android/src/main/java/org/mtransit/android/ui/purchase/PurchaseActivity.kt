@@ -6,13 +6,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ui.MTActivity
+import org.mtransit.android.ui.edgeToEdgeOptOut
 import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.util.UIFeatureFlags
 import kotlin.getValue
 
 @AndroidEntryPoint

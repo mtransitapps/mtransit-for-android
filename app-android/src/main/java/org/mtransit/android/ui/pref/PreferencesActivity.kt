@@ -18,9 +18,11 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
+import org.mtransit.android.ui.edgeToEdgeOptOut
 import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.ui.setUpEdgeToEdgeBottomAndTop
 import org.mtransit.android.util.NightModeUtils
+import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -79,7 +81,6 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         }
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
-        super.onCreate(savedInstanceState)
         @Suppress("DEPRECATION", "DeprecatedCall") // no bottom anchored banner ad in this screen
         findViewById<View>(R.id.preferences_fragment).setUpEdgeToEdgeBottomAndTop() // after super.onCreate()
         supportActionBar?.apply {

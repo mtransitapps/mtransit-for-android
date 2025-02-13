@@ -49,11 +49,13 @@ import org.mtransit.android.receiver.ModulesReceiver
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
+import org.mtransit.android.ui.edgeToEdgeOptOut
 import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.ui.search.SearchFragment
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.NightModeUtils
+import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
