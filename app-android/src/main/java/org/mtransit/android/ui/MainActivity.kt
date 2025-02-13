@@ -137,6 +137,7 @@ class MainActivity : MTActivityWithLocation(),
     private var currentUiMode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.decorView // fix random crash (gesture nav back then re-open app)
         if (UIFeatureFlags.F_EDGE_TO_EDGE) {
             enableEdgeToEdgeMT()
         }
