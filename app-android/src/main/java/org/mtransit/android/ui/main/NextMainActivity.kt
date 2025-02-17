@@ -49,13 +49,11 @@ import org.mtransit.android.receiver.ModulesReceiver
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
-import org.mtransit.android.ui.edgeToEdgeOptOut
 import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.ui.search.SearchFragment
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.NightModeUtils
-import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
@@ -159,13 +157,9 @@ class NextMainActivity : MTActivityWithLocation(),
     private var currentUiMode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-            enableEdgeToEdgeMT()
-        }
+        enableEdgeToEdgeMT()
+        window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-            edgeToEdgeOptOut()
-        }
         adManager.init(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         currentUiMode = resources.configuration.uiMode

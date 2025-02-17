@@ -18,11 +18,9 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
-import org.mtransit.android.ui.edgeToEdgeOptOut
 import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.ui.setUpEdgeToEdgeBottomAndTop
 import org.mtransit.android.util.NightModeUtils
-import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -72,13 +70,9 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
     private var currentUiMode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-            enableEdgeToEdgeMT()
-        }
+        enableEdgeToEdgeMT()
+        window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-            edgeToEdgeOptOut()
-        }
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         @Suppress("DEPRECATION", "DeprecatedCall") // no bottom anchored banner ad in this screen

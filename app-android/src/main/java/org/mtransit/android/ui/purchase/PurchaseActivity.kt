@@ -9,11 +9,9 @@ import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ui.MTActivity
-import org.mtransit.android.ui.edgeToEdgeOptOut
 import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
-import org.mtransit.android.util.UIFeatureFlags
 import kotlin.getValue
 
 @AndroidEntryPoint
@@ -33,13 +31,9 @@ class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
     private val viewModel by viewModels<PurchaseViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-            enableEdgeToEdgeMT()
-        }
+        enableEdgeToEdgeMT()
+        window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-            edgeToEdgeOptOut()
-        }
         findViewById<View>(R.id.support_fragment).setUpEdgeToEdgeTop() // after super.onCreate()
         viewModel.closeEvent.observe(this, EventObserver { close ->
             if (close) {
