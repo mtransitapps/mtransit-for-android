@@ -1,6 +1,5 @@
 package org.mtransit.android.ui
 
-import android.app.Application
 import android.content.Context
 import android.os.Build
 import dagger.hilt.android.HiltAndroidApp
@@ -11,7 +10,7 @@ import org.mtransit.android.BuildConfig
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.ui.MTCommonApp
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.IStrictMode
 import org.mtransit.android.dev.LeakDetector
@@ -21,7 +20,7 @@ import org.mtransit.commons.CommonsApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class MTApplication : Application(), MTLog.Loggable {
+class MTApplication : MTCommonApp() {
 
     companion object {
         private val LOG_TAG: String = MTApplication::class.java.simpleName
