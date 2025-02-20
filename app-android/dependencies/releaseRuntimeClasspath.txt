@@ -176,7 +176,7 @@ com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
 com.google.http-client:google-http-client-gson:1.45.2
 com.google.http-client:google-http-client:1.45.2
 com.google.j2objc:j2objc-annotations:3.0.0
-com.google.maps.android:android-maps-utils:3.10.0
+com.google.maps.android:android-maps-utils:3.11.0
 com.google.maps.android:maps-ktx:5.1.1
 com.google.maps.android:maps-utils-ktx:5.1.1
 com.google.oauth-client:google-oauth-client:1.36.0
