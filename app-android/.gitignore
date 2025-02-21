@@ -38,6 +38,7 @@ proguard/
 /app-signing-debug-keystore.keystore
 /build.gradle
 /build.sh
+/dependencies/*
 /decrypt_file.sh
 /encrypt_file.sh
 /keys_cleanup.sh
