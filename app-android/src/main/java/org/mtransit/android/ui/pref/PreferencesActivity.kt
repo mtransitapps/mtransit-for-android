@@ -19,7 +19,9 @@ import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.enableEdgeToEdgeMT
-import org.mtransit.android.ui.setUpEdgeToEdgeBottomAndTop
+import org.mtransit.android.ui.setUpStatusBarBgEdgeToEdge
+import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
+import org.mtransit.android.ui.setStatusBarsThemeEdgeToEdge
 import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
 
@@ -75,8 +77,9 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         super.onCreate(savedInstanceState)
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
-        @Suppress("DEPRECATION", "DeprecatedCall") // no bottom anchored banner ad in this screen
-        findViewById<View>(R.id.preferences_fragment).setUpEdgeToEdgeBottomAndTop() // after super.onCreate()
+        setUpStatusBarBgEdgeToEdge(android.R.color.black) // good enough for Theme.MaterialComponents.DayNight.DarkActionBar
+        findViewById<View?>(R.id.status_bar_bg)?.applyStatusBarsHeightEdgeToEdge()
+        setStatusBarsThemeEdgeToEdge(isDark = true)
         supportActionBar?.apply {
             setTitle(R.string.settings)
             setDisplayHomeAsUpEnabled(true)

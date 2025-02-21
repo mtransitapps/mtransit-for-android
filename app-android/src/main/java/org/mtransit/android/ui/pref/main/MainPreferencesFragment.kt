@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePaddingRelative
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.preference.Preference
@@ -29,9 +31,11 @@ import org.mtransit.android.commons.capitalize
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTDialog
+import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.feedback.FeedbackDialog
 import org.mtransit.android.ui.modules.ModulesActivity
 import org.mtransit.android.ui.pref.PreferencesViewModel
+import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
@@ -141,7 +145,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                when(viewModel.hasSubscription.value) {
+                when (viewModel.hasSubscription.value) {
                     null -> { // unknown status
                         // DO NOTHING
                     }
@@ -324,6 +328,12 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        listView.setUpListEdgeToEdge()
+        listView.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars()) { insets ->
+            updatePaddingRelative(
+                bottom = insets.bottom
+            )
+        }
         viewModel.currentSubscription.observe(viewLifecycleOwner) {
             // do nothing
         }

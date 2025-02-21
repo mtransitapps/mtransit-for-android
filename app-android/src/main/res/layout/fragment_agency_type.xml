@@ -5,18 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="@dimen/action_bar_size_static"
     tools:background="#0000FF"
-    tools:context=".ui.type.AgencyTypeFragment"
-    tools:paddingTop="0dp">
+    tools:context=".ui.type.AgencyTypeFragment">
 
     <View
         android:id="@+id/fragment_status_bar_bg"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="gone"
+        android:layout_height="@dimen/action_bar_size_static"
+        android:visibility="visible"
         tools:background="#80FF00FF"
         tools:layout_height="28dp"
+        tools:layout_marginBottom="@dimen/action_bar_size_static"
         tools:visibility="visible" />
 
     <!-- TABS -->
@@ -34,7 +33,6 @@
         app:tabMode="scrollable"
         app:tabTextAppearance="@style/MTTabTextStyle"
         tools:background="#FF00FF"
-        tools:layout_marginTop="@dimen/action_bar_size_static"
         tools:visibility="visible" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

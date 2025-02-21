@@ -147,7 +147,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (view == null) {
 			return;
 		}
-		EdgeToEdgeKt.setUpEdgeToEdgeTop(view);
+		EdgeToEdgeKt.applyStatusBarsInsetsEdgeToEdge(view);
 		WebView webView = view.findViewById(R.id.webView);
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setSupportZoom(true);

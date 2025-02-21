@@ -31,11 +31,12 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
+import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
-import org.mtransit.android.ui.setUpEdgeToEdgeList
+import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -131,13 +132,11 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
         binding = FragmentFavoritesBinding.bind(view).apply {
+            applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             listLayout.list.apply {
                 isVisible = listAdapter.isInitialized
                 listAdapter.setListView(this)
-                setUpEdgeToEdgeList(
-                    marginTopDimenRes = R.dimen.action_bar_size_static,
-                    marginBottomDimenRes = R.dimen.list_view_bottom_padding,
-                )
+                setUpListEdgeToEdge()
             }
         }
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->

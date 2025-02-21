@@ -174,10 +174,10 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		EdgeToEdgeKt.setStatusBarTheme(requireActivity());
-		EdgeToEdgeKt.setStatusBarHeight(requireActivity().findViewById(R.id.status_bar_bg));
-		EdgeToEdgeKt.setNavBarTheme(requireActivity());
-		EdgeToEdgeKt.setUpNavBarProtection(requireActivity(), isNavBarProtected());
+		EdgeToEdgeKt.setStatusBarsThemeEdgeToEdge(requireActivity());
+		EdgeToEdgeKt.applyStatusBarsHeightEdgeToEdge(requireActivity().findViewById(R.id.status_bar_bg));
+		EdgeToEdgeKt.setNavBarThemeEdgeToEdge(requireActivity());
+		EdgeToEdgeKt.setNavBarProtectionEdgeToEdge(requireActivity(), isNavBarProtected());
 	}
 
 	@Override

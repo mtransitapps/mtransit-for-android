@@ -44,7 +44,7 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFra
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
-import org.mtransit.android.ui.setStatusBarHeight
+import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -231,7 +231,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
             showSelectedTab()
             switchView()
-            fragmentStatusBarBg.setStatusBarHeight()
+            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge()
         }
         viewModel.availableTypes.observe(viewLifecycleOwner) {
             pagerAdapter?.setTypes(it)
@@ -359,33 +359,31 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         return when (menuItem.itemId) {
             R.id.menu_show_directions -> {
                 val locationPick = viewModel.fixedOnLocation.value ?: viewModel.nearbyLocation.value ?: viewModel.deviceLocation.value
-                locationPick?.let { location ->
-                    viewModel.onShowDirectionClick()
-                    MapUtils.showDirection(
-                        view,
-                        requireActivity(),
-                        location.latitude,
-                        location.longitude,
-                        null,
-                        null,
-                        viewModel.fixedOnName.value
-                    )
-                    true // handled
-                } ?: false // not handled
+                locationPick ?: return false // not handled
+                viewModel.onShowDirectionClick()
+                MapUtils.showDirection(
+                    view,
+                    requireActivity(),
+                    locationPick.latitude,
+                    locationPick.longitude,
+                    null,
+                    null,
+                    viewModel.fixedOnName.value
+                )
+                true // handled
             }
 
             R.id.nav_map_custom -> {
                 val locationPick = viewModel.fixedOnLocation.value ?: viewModel.nearbyLocation.value ?: viewModel.deviceLocation.value
-                locationPick?.let { location ->
-                    (activity as? MainActivity)?.addFragmentToStack(
-                        MapFragment.newInstance(
-                            optInitialLocation = location,
-                            optIncludeTypeId = viewModel.selectedTypeId.value
-                        ),
-                        this
-                    )
-                    true // handled
-                } ?: false // not handled
+                locationPick ?: return false // not handled
+                (activity as? MainActivity)?.addFragmentToStack(
+                    MapFragment.newInstance(
+                        optInitialLocation = locationPick,
+                        optIncludeTypeId = viewModel.selectedTypeId.value
+                    ),
+                    this
+                )
+                true // handled
             }
 
             else -> false // not handled

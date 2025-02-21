@@ -33,8 +33,8 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.setStatusBarHeight
-import org.mtransit.android.ui.setUpEdgeToEdgeTopMap
+import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
+import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -186,10 +186,9 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         )
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
-            // if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-            map.setUpEdgeToEdgeTopMap(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
-            fragmentStatusBarBg.setStatusBarHeight(
-                additionalHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge(
+                initialHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
             )
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->

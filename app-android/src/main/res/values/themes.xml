@@ -37,7 +37,6 @@
     </style>
 
     <style name="MTTheme.Launcher" parent="Theme.SplashScreen.IconBackground">
-
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
         <item name="windowSplashScreenIconBackgroundColor">@color/ic_launcher_background</item>
         <item name="windowSplashScreenAnimationDuration">70</item>

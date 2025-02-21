@@ -646,14 +646,15 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return;
 		}
-		View statusBarBg = view.findViewById(R.id.fragment_status_bar_bg);
-		if (statusBarBg != null) {
-			EdgeToEdgeKt.setStatusBarHeight(statusBarBg, view.getContext().getResources().getDimensionPixelSize(R.dimen.action_bar_size_static));
+		final Resources resources = view.getContext().getResources();
+		final View fragmentStatusBarBg = view.findViewById(R.id.fragment_status_bar_bg);
+		if (fragmentStatusBarBg != null) {
+			EdgeToEdgeKt.applyStatusBarsHeightEdgeToEdge(fragmentStatusBarBg, resources.getDimensionPixelSize(R.dimen.action_bar_size_static));
 		}
 		MapView map = view.findViewById(R.id.map);
 		if (map != null) {
-			EdgeToEdgeKt.setUpEdgeToEdgeTopMap(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
-					view.getContext().getResources().getDimensionPixelSize(R.dimen.large_header_height)
+			EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
+					resources.getDimensionPixelSize(R.dimen.large_header_height)
 			);
 		}
 		if (this.adapter != null) {

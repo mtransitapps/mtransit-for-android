@@ -15,7 +15,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
@@ -47,11 +49,14 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.search.SearchFragment
 import org.mtransit.android.ui.search.SearchFragment.Companion.newInstance
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.end
+import org.mtransit.android.ui.view.common.endMargin
+import org.mtransit.android.ui.view.common.start
+import org.mtransit.android.ui.view.common.startMargin
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.NightModeUtils
-import org.mtransit.android.util.UIFeatureFlags
 import java.lang.Exception
 import java.util.WeakHashMap
 import javax.inject.Inject
@@ -145,8 +150,12 @@ class MainActivity : MTActivityWithLocation(),
         this.currentUiMode = getResources().configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         setContentView(R.layout.activity_main)
-        if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-            findViewById<View>(R.id.main_content)?.setUpEdgeToEdgeBottom()
+        findViewById<View>(R.id.main_content).applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
+            updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                startMargin = insets.start
+                endMargin = insets.end
+                bottomMargin = insets.bottom
+            }
         }
         this.abController = ActionBarController(this)
         this.navigationDrawerController = NavigationDrawerController(

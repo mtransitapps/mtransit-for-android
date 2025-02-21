@@ -30,9 +30,9 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.setUpEdgeToEdgeList
-import org.mtransit.android.ui.setUpEdgeToEdgeTop
+import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.MTSearchView
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -128,19 +128,16 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSearchBinding.bind(view).apply {
+            applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             listLayout.list.apply {
                 isVisible = listAdapter.isInitialized
                 listAdapter.setListView(this)
-                setUpEdgeToEdgeList(
-                    marginTopDimenRes = null,
-                    marginBottomDimenRes = R.dimen.list_view_bottom_padding,
-                )
+                setUpListEdgeToEdge()
             }
             typeFilters.apply {
                 onItemSelectedListener = this@SearchFragment
                 adapter = typeFilterAdapter
             }
-            root.setUpEdgeToEdgeTop(marginTopDimenRes = null)
         }
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {

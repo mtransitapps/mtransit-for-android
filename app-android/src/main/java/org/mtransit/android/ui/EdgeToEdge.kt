@@ -10,18 +10,17 @@ import android.widget.ListView
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.ColorInt
-import androidx.annotation.DimenRes
+import androidx.annotation.ColorRes
 import androidx.annotation.Px
-import androidx.core.content.res.ResourcesCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
-import androidx.slidingpanelayout.widget.SlidingPaneLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.viewbinding.ViewBinding
 import com.google.android.gms.maps.MapView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.mtransit.android.BuildConfig
@@ -74,84 +73,74 @@ private fun ComponentActivity.edgeToEdgeOptOut() {
     theme.applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false)
 }
 
-@Deprecated("bottom is only used with anchored banner ads and called from ads code")
-fun View.setUpEdgeToEdgeBottomAndTop(
-    @DimenRes marginTopDimenRes: Int? = null,
-    @DimenRes marginBottomDimenRes: Int? = null,
-) {
+fun ViewBinding.applyStatusBarsInsetsEdgeToEdge() {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            startMargin = insets.start
-            topMargin = insets.top + (marginTopDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0)
-            endMargin = insets.end
-            bottomMargin = insets.bottom + (marginBottomDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0)
+    root.applyStatusBarsInsetsEdgeToEdge()
+}
+
+fun View.applyStatusBarsInsetsEdgeToEdge() {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = true) { insets ->
+        updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            topMargin = insets.top
         }
-        windowInsets
     }
 }
 
-@JvmOverloads
-fun View.setUpEdgeToEdgeTop(
-    @DimenRes marginTopDimenRes: Int? = null,
+fun View.applyWindowInsetsEdgeToEdge(
+    @WindowInsetsCompat.Type.InsetsType insetsTypeMask: Int = WindowInsetsCompat.Type.systemBars(),
+    consumed: Boolean = false,
+    applyInsets: View.(insets: Insets) -> Unit,
 ) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
     ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            startMargin = insets.start
-            topMargin = insets.top + (marginTopDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0)
-            endMargin = insets.end
+        val insets = windowInsets.getInsets(insetsTypeMask)
+        applyInsets(view, insets)
+        if (consumed) {
+            WindowInsetsCompat.CONSUMED
+        } else {
+            windowInsets
         }
-        windowInsets
-    }
-}
-
-fun View.setUpEdgeToEdgeBottom(
-    @Px originalStartMargin: Int = 0,
-    @Px originalEndMargin: Int = 0,
-    @Px originalBottomMargin: Int = 0,
-) {
-    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        return
-    }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            startMargin = originalStartMargin + insets.start
-            bottomMargin = originalBottomMargin + insets.bottom
-            endMargin = originalEndMargin + insets.end
-        }
-        windowInsets
     }
 }
 
 // STATUS BAR = TOP BAR
-fun Activity.setStatusBarColor(transparent: Boolean) {
-    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        return
-    }
-    findViewById<View?>(R.id.status_bar_bg)?.setStatusBarColor(transparent)
-    val isDarkMode = isDarkMode(resources) // always dark top bar?
-    setStatusBarTheme(!(transparent && !isDarkMode))
+fun Activity.setUpStatusBarBgEdgeToEdge(transparent: Boolean = false) {
+    setUpStatusBarBgEdgeToEdge(
+        if (transparent) {
+            android.R.color.transparent
+        } else {
+            R.color.color_primary_dark
+        }
+    )
 }
 
-fun Activity.setStatusBarColor(@ColorInt colorInt: Int?) {
+fun Activity.setUpStatusBarBgEdgeToEdge(@ColorRes bgColorRes: Int) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    colorInt?.let {
-        findViewById<View?>(R.id.status_bar_bg)?.setBackgroundColor(colorInt)
+    findViewById<View?>(R.id.status_bar_bg)?.apply {
+        setBackgroundColor(ContextCompat.getColor(context, bgColorRes))
+        applyStatusBarsHeightEdgeToEdge()
     }
+    setStatusBarsThemeEdgeToEdge(isDark = bgColorRes != android.R.color.transparent || isDarkMode(resources))
+}
+
+fun Activity.setStatusBarBgColorEdgeToEdge(@ColorInt colorInt: Int) {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
+    findViewById<View?>(R.id.status_bar_bg)?.setBackgroundColor(colorInt)
 }
 
 @JvmOverloads
-fun Activity.setStatusBarTheme(isDark: Boolean = isDarkMode(resources)) {
+fun Activity.setStatusBarsThemeEdgeToEdge(isDark: Boolean = isDarkMode(resources)) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
@@ -160,38 +149,22 @@ fun Activity.setStatusBarTheme(isDark: Boolean = isDarkMode(resources)) {
     }
 }
 
-fun View.setStatusBarColor(transparent: Boolean) {
-    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        return
-    }
-    setBackgroundColor(
-        if (transparent) {
-            ResourcesCompat.getColor(resources, android.R.color.transparent, context.theme)
-        } else {
-            ResourcesCompat.getColor(resources, R.color.color_primary_dark, context.theme)
-        }
-    )
-    setStatusBarHeight()
-}
-
 @JvmOverloads
-fun View.setStatusBarHeight(@Px additionalHeightPx: Int = 0) {
+fun View.applyStatusBarsHeightEdgeToEdge(@Px initialHeightPx: Int = 0) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
-        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            height = insets.height + additionalHeightPx
+    applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = false) { insets ->
+        updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            height = initialHeightPx + insets.height
         }
         isVisible = true
-        windowInsets // do not consume
     }
 }
 
 @Suppress("DeprecatedCall")
 @JvmOverloads
-fun MapView.setUpEdgeToEdgeTopMap(
+fun MapView.setUpMapEdgeToEdge(
     mapViewController: MapViewController,
     topPaddingSp: Int?,
     bottomPaddingSp: Int?,
@@ -200,123 +173,59 @@ fun MapView.setUpEdgeToEdgeTopMap(
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        topPaddingSp?.takeIf { it > 0 }?.let {
-            mapViewController.setPaddingTopSp(topPaddingSp + insets.top.dpToPx)
+    applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.systemBars(), consumed = true) { insets ->
+        mapViewController.apply {
+            topPaddingSp?.takeIf { it > 0 }?.let {
+                setPaddingTopSp(topPaddingSp + insets.top.dpToPx)
+            }
+            bottomPaddingSp?.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW }?.let {
+                setPaddingBottomSp(it + insets.bottom.dpToPx)
+            }
+            applyPaddings()
         }
         originalHeightPx?.let {
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 height = originalHeightPx + insets.height
             }
         }
-        bottomPaddingSp
-            ?.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW }
-            ?.let {
-                mapViewController.setPaddingBottomSp(it + insets.bottom.dpToPx)
-            }
-        mapViewController.applyPaddings()
-        WindowInsetsCompat.CONSUMED // stop for descendants views
     }
 }
 
-fun RecyclerView.setUpEdgeToEdgeList(
-    @DimenRes marginTopDimenRes: Int? = null,
-) {
+fun RecyclerView.setUpListEdgeToEdge() {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            marginTopDimenRes?.let {
-                topMargin = resources.getDimensionPixelSize(it) + insets.top
-            }
-        }
-        view.updatePadding(
-            left = insets.start,
-            right = insets.end,
-            bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0),
-        )
-        clipToPadding = false
-        WindowInsetsCompat.CONSUMED // stop for descendants views
-    }
+    clipToPadding = false
 }
 
-fun ListView.setUpEdgeToEdgeList(
-    @DimenRes marginTopDimenRes: Int?,
-    @Suppress("unused") @DimenRes marginBottomDimenRes: Int?,
-) {
+fun ListView.setUpListEdgeToEdge() {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            marginTopDimenRes?.let {
-                topMargin = resources.getDimensionPixelSize(it) + insets.top
-            }
-        }
-        clipToPadding = false
-        WindowInsetsCompat.CONSUMED // stop for descendants views
-    }
+    clipToPadding = false
 }
 
-
-fun SwipeRefreshLayout.setUpEdgeToEdgeSwipeRefreshLayout(
-    @DimenRes paddingTopDimenRes: Int? = null,
-) {
-    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        return
-    }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        view.updatePadding(
-            left = insets.start,
-            right = insets.end,
-            bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0),
-            top = (paddingTopDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0) + insets.top
-        )
-        clipToPadding = false
-        WindowInsetsCompat.CONSUMED // stop for descendants views
-    }
-}
-
-fun SlidingPaneLayout.setUpEdgeToEdgeSlidingPaneLayout(
-    paddingTopDimenRes: Int?,
-) {
-    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        return
-    }
-    ViewCompat.setOnApplyWindowInsetsListener(this) { view, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        view.updatePadding(
-            left = insets.start,
-            right = insets.end,
-            bottom = (insets.bottom.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW } ?: 0),
-            top = (paddingTopDimenRes?.let { resources.getDimensionPixelSize(it) } ?: 0) + insets.top
-        )
-        WindowInsetsCompat.CONSUMED // stop for descendants views
-    }
-}
-
-fun FloatingActionButton.setUpEdgeToEdge() {
+fun FloatingActionButton.setUpFabEdgeToEdge() {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
     if (!UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
         return // !!! CAN NOT DRAW BEHIND NAVIGATION BAR AS LONG AS ANCHORED BOTTOM BANNER ADS IN ACTIVITY !!!
     }
-    setUpEdgeToEdgeBottom(
-        originalEndMargin = context.resources.getDimensionPixelSize(R.dimen.fab_margin_end),
-        originalBottomMargin = context.resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
-    )
+    // TODO? official doc recommends to use systemBars() and consumed true
+    applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
+        updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            startMargin = insets.start
+            endMargin = resources.getDimensionPixelSize(R.dimen.fab_margin_end) + insets.end
+            bottomMargin = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom) + insets.bottom
+        }
+    }
 }
 
 // NAVIGATION BAR = BOTTOM BAR
 // !!! CAN NOT DRAW BEHIND NAVIGATION BAR AS LONG AS ANCHORED BOTTOM BANNER ADS IN ACTIVITY !!!
 @JvmOverloads
-fun Activity.setNavBarTheme(isDark: Boolean = isDarkMode(resources)) {
+fun Activity.setNavBarThemeEdgeToEdge(isDark: Boolean = isDarkMode(resources)) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
@@ -331,7 +240,7 @@ fun Activity.setNavBarTheme(isDark: Boolean = isDarkMode(resources)) {
 private const val ALWAYS_DISABLE_CONTRAST = false
 // private const val ALWAYS_DISABLE_CONTRAST = true // DEBUG
 
-fun Activity.setUpNavBarProtection(contrastEnforced: Boolean = true) {
+fun Activity.setNavBarProtectionEdgeToEdge(contrastEnforced: Boolean = true) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }

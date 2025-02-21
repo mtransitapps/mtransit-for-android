@@ -4,6 +4,7 @@
     android:id="@+id/context_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="@dimen/action_bar_size_static"
     tools:context=".ui.favorites.FavoritesFragment">
     <!-- LOADING -->
     <include
@@ -19,7 +20,6 @@
         layout="@layout/layout_poi_list_padding_bottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/action_bar_size_static"
         android:visibility="visible"
         tools:visibility="visible" />
     <!-- EMPTY -->

@@ -28,10 +28,10 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteViewModel
-import org.mtransit.android.ui.setUpEdgeToEdge
-import org.mtransit.android.ui.setUpEdgeToEdgeList
-import org.mtransit.android.ui.setUpEdgeToEdgeTopMap
-import org.mtransit.android.ui.setUpNavBarProtection
+import org.mtransit.android.ui.setUpFabEdgeToEdge
+import org.mtransit.android.ui.setUpListEdgeToEdge
+import org.mtransit.android.ui.setUpMapEdgeToEdge
+import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -180,10 +180,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
             listLayout.list.apply {
                 isVisible = listAdapter.isInitialized
                 listAdapter.setListView(this)
-                setUpEdgeToEdgeList(
-                    marginTopDimenRes = null,
-                    marginBottomDimenRes = R.dimen.list_view_bottom_padding,
-                )
+                setUpListEdgeToEdge()
             }
             fabListMap?.apply {
                 setOnClickListener {
@@ -192,9 +189,9 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
                     }
                     viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
                 }
-                setUpEdgeToEdge()
+                setUpFabEdgeToEdge()
             }
-            map.setUpEdgeToEdgeTopMap(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
         }
         parentViewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             binding?.apply {
@@ -271,11 +268,11 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
             if (showingListInsteadOfMap) { // LIST
                 setImageResource(R.drawable.switch_action_map_dark_16dp)
                 contentDescription = getString(R.string.menu_action_map)
-                activity?.setUpNavBarProtection()
+                activity?.setNavBarProtectionEdgeToEdge()
             } else { // MAP
                 setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
                 contentDescription = getString(R.string.menu_action_list)
-                activity?.setUpNavBarProtection(false)
+                activity?.setNavBarProtectionEdgeToEdge(false)
             }
         }
     }

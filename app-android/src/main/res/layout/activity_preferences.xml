@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/preferences_fragment"
-    android:name="org.mtransit.android.ui.pref.main.MainPreferencesFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pref.PreferencesActivity" />
+    android:orientation="vertical"
+    tools:context=".ui.pref.PreferencesActivity">
+
+    <View
+        android:id="@+id/status_bar_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        tools:background="#80FF00FF"
+        tools:layout_height="28dp"
+        tools:visibility="visible" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/preferences_fragment"
+        android:name="org.mtransit.android.ui.pref.main.MainPreferencesFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:background="@tools:sample/backgrounds/scenic" />
+
+</LinearLayout>

@@ -4,14 +4,21 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.viewModels
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ui.MTActivity
+import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.enableEdgeToEdgeMT
-import org.mtransit.android.ui.setUpEdgeToEdgeTop
 import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.view.common.end
+import org.mtransit.android.ui.view.common.endMargin
+import org.mtransit.android.ui.view.common.start
+import org.mtransit.android.ui.view.common.startMargin
 import kotlin.getValue
 
 @AndroidEntryPoint
@@ -34,7 +41,13 @@ class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        findViewById<View>(R.id.support_fragment).setUpEdgeToEdgeTop() // after super.onCreate()
+        findViewById<View>(R.id.support_fragment).applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.systemBars(), consumed = true) { insets ->
+            updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top
+                startMargin = insets.start
+                endMargin = insets.end
+            }
+        }
         viewModel.closeEvent.observe(this, EventObserver { close ->
             if (close) {
                 finish()

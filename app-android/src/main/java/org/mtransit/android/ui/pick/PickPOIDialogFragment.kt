@@ -144,20 +144,16 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        return FragmentDialogPickPoiBinding.inflate(inflater).apply {
-            adapter.setManualScrollView(scrollView)
-            adapter.setManualLayout(list)
-            binding = this
-        }.root
+        return inflater.inflate(R.layout.fragment_dialog_pick_poi, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dialog?.apply {
-            setOnShowListener {
-                binding?.root?.apply {
-                    setBackgroundColor(ContextCompat.getColor(context, R.color.color_background))
-                }
+        binding = FragmentDialogPickPoiBinding.bind(view).apply {
+            adapter.setManualScrollView(scrollView)
+            adapter.setManualLayout(list)
+            dialog?.setOnShowListener {
+                root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->

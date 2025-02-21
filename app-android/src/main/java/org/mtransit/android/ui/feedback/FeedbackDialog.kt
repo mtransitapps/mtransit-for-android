@@ -47,23 +47,23 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
     private var behavior: BottomSheetBehavior<*>? = null
 
     private val headerAdapter by lazy {
-        HeaderFeedbackAdapter {
+        HeaderFeedbackAdapter(onClick = {
             activity?.let { activityNN ->
                 LinkUtils.sendEmail(activityNN, dataSourcesRepository)
                 behavior?.state = BottomSheetBehavior.STATE_HIDDEN
                 dismissAllowingStateLoss()
             }
-        }
+        })
     }
 
     private val agenciesAdapter by lazy {
-        AgenciesFeedbackAdapter { view, url ->
+        AgenciesFeedbackAdapter(onClick = { view, url ->
             activity?.let {
                 LinkUtils.open(view, it, url, getString(commonsR.string.web_browser), false) // force external web browser
                 behavior?.state = BottomSheetBehavior.STATE_HIDDEN
                 dismissAllowingStateLoss()
             }
-        }
+        })
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -71,7 +71,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
             behavior = (this as? BottomSheetDialog)?.behavior
                 ?.apply {
                     resources.getDimensionInt(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
-                        setPeekHeight(it)
+                        peekHeight = it
                     }
                 }
         }
@@ -79,19 +79,15 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        return FragmentDialogFeedbackBinding.inflate(inflater).apply {
-            list.adapter = ConcatAdapter(headerAdapter, agenciesAdapter)
-            binding = this
-        }.root
+        return inflater.inflate(R.layout.fragment_dialog_feedback, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dialog?.apply {
-            setOnShowListener {
-                binding?.root?.apply {
-                    setBackgroundColor(ContextCompat.getColor(context, R.color.color_background))
-                }
+        binding = FragmentDialogFeedbackBinding.bind(view).apply {
+            list.adapter = ConcatAdapter(headerAdapter, agenciesAdapter)
+            dialog?.setOnShowListener {
+                root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
         }
         viewModel.agencies.observe(this) { newAgencies ->

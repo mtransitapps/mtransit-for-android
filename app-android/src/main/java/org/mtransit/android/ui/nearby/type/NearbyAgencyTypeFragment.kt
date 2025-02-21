@@ -23,7 +23,7 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.nearby.NearbyViewModel
-import org.mtransit.android.ui.setUpEdgeToEdgeList
+import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
@@ -129,10 +129,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 swipeRefresh.setListViewWR(this)
                 isVisible = listAdapter.isInitialized
                 listAdapter.setListView(this)
-                setUpEdgeToEdgeList(
-                    marginTopDimenRes = null,
-                    marginBottomDimenRes = null,
-                )
+                setUpListEdgeToEdge()
             }
             swipeRefresh.apply {
                 setColorSchemeColors(

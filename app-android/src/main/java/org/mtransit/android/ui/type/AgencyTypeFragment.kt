@@ -41,7 +41,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.nearby.NearbyFragment
-import org.mtransit.android.ui.setStatusBarHeight
+import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
@@ -168,9 +168,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 }
             }
             showSelectedTab()
-            fragmentStatusBarBg.setStatusBarHeight(
-                additionalHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
-                    .takeIf { attachedViewModel?.tabsVisible?.value == false } ?: 0
+            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge(
+                initialHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
             )
         }
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
@@ -200,10 +199,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         viewModel.tabsVisible.observe(viewLifecycleOwner) { tabsVisible ->
             binding?.apply {
                 tabs.isVisible = tabsVisible
-                fragmentStatusBarBg.setStatusBarHeight(
-                    additionalHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
-                        .takeIf { attachedViewModel?.tabsVisible?.value == false } ?: 0
-                )
             }
         }
         viewModel.selectedTypeAgencyPosition.observe(viewLifecycleOwner) { newLastPageSelected ->

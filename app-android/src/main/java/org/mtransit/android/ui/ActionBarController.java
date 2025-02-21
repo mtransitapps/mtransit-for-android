@@ -354,7 +354,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 		final MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
-			EdgeToEdgeKt.setStatusBarColor(mainActivity, colorInt);
+			EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(mainActivity, colorInt);
 		}
 	}
 

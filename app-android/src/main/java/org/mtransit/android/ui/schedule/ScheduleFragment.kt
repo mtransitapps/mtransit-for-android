@@ -7,11 +7,14 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,15 +30,20 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentScheduleInfiniteBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
+import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.setUpEdgeToEdgeBottom
-import org.mtransit.android.ui.setUpEdgeToEdgeList
+import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
+import org.mtransit.android.ui.view.common.end
+import org.mtransit.android.ui.view.common.endMargin
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.scrollToPositionWithOffset
+import org.mtransit.android.ui.view.common.start
+import org.mtransit.android.ui.view.common.startMargin
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.FeatureFlags
@@ -120,14 +128,21 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
         binding = FragmentScheduleInfiniteBinding.bind(view).apply {
+            applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             list.apply {
                 adapter = listAdapter
                 addOnScrollListener(onScrollListener)
                 addItemDecoration(StickyHeaderItemDecorator(listAdapter, this))
-                setUpEdgeToEdgeList(marginTopDimenRes = R.dimen.action_bar_size_static)
+                setUpListEdgeToEdge()
             }
             if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
-                sourceLabel.setUpEdgeToEdgeBottom()
+                sourceLabel.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
+                    updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                        startMargin = insets.start
+                        endMargin = insets.end
+                        bottomMargin = insets.bottom
+                    }
+                }
             }
         }
         viewModel.startEndAt.observe(viewLifecycleOwner) { startEndAt ->

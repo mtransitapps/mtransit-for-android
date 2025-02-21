@@ -35,6 +35,7 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.POIFragment
 import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareFragment
@@ -48,7 +49,7 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
-import org.mtransit.android.ui.setUpEdgeToEdgeList
+import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -195,14 +196,12 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
         binding = FragmentHomeBinding.bind(view).apply {
+            applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             listLayout.list.apply {
                 swipeRefresh.setListViewWR(this)
                 isVisible = listAdapter.isInitialized
                 listAdapter.setListView(this)
-                setUpEdgeToEdgeList(
-                    marginTopDimenRes = R.dimen.action_bar_size_static,
-                    marginBottomDimenRes = null,
-                )
+                setUpListEdgeToEdge()
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this@HomeFragment)
             }
             swipeRefresh.apply {

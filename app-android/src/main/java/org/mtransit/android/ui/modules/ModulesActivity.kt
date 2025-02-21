@@ -9,7 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.enableEdgeToEdgeMT
-import org.mtransit.android.ui.setStatusBarColor
+import org.mtransit.android.ui.setUpStatusBarBgEdgeToEdge
 
 @AndroidEntryPoint
 class ModulesActivity : MTActivity(R.layout.activity_modules) {
@@ -29,7 +29,7 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
-        setStatusBarColor(transparent = false)
+        setUpStatusBarBgEdgeToEdge(transparent = false)
         super.onCreate(savedInstanceState)
     }
 
