@@ -109,137 +109,96 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_DATE_AND_TIME_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                DeviceUtils.showDateSettings(it)
-                true
-            } ?: false
+            DeviceUtils.showDateSettings(it.context)
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_LOCATION_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                DeviceUtils.showLocationSourceSettings(it)
-                true
-            } ?: false
+            DeviceUtils.showLocationSourceSettings(it.context)
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_POWER_MANAGEMENT_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                showPowerManagementDialog(it)
-                true
-            } ?: false
+            showPowerManagementDialog(
+                activity ?: return@setOnPreferenceClickListener false, // not handled
+            )
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.FEEDBACK_EMAIL_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                FragmentUtils.replaceDialogFragment(
-                    it,
-                    FragmentUtils.DIALOG_TAG,
-                    FeedbackDialog.newInstance(),
-                    null
-                )
-                true
-            } ?: false
+            FragmentUtils.replaceDialogFragment(
+                activity ?: return@setOnPreferenceClickListener false, // not handled
+                FragmentUtils.DIALOG_TAG,
+                FeedbackDialog.newInstance(),
+                null
+            )
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.FEEDBACK_STORE_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                StoreUtils.viewAppPage(it, Constants.MAIN_APP_PACKAGE_NAME, it.getString(commonsR.string.google_play))
-                true
-            } ?: false
+            StoreUtils.viewAppPage(it.context, Constants.MAIN_APP_PACKAGE_NAME, it.context.getString(commonsR.string.google_play))
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                when (viewModel.hasSubscription.value) {
-                    null -> { // unknown status
-                        // DO NOTHING
-                    }
-
-                    true -> { // has subscription
-                        StoreUtils.viewSubscriptionPage(
-                            it,
-                            viewModel.currentSubscription.value.orEmpty(),
-                            it.packageName,
-                            it.getString(commonsR.string.google_play)
-                        )
-                    }
-
-                    else -> { // does NOT have subscription
-                        BillingUtils.showPurchaseDialog(it)
-                    }
-                }
-                true
-            } ?: false
+            when (viewModel.hasSubscription.value) {
+                null -> {} // DO NOTHING
+                true -> activity?.let {
+                    StoreUtils.viewSubscriptionPage(
+                        it,
+                        viewModel.currentSubscription.value.orEmpty(),
+                        it.packageName,
+                        it.getString(commonsR.string.google_play)
+                    )
+                } ?: run { return@setOnPreferenceClickListener false } // not handled
+                false -> BillingUtils.showPurchaseDialog(
+                    activity ?: return@setOnPreferenceClickListener false // not handled
+                )
+            }
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.SOCIAL_FACEBOOK_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                LinkUtils.open(null, it, MainPreferencesViewModel.FACEBOOK_PAGE_URL, it.getString(R.string.facebook), FORCE_OPEN_IN_EXTERNAL_BROWSER)
-                true
-            } ?: false
+            val activity = activity ?: return@setOnPreferenceClickListener false // not handled
+            LinkUtils.open(null, activity, MainPreferencesViewModel.FACEBOOK_PAGE_URL, activity.getString(R.string.facebook), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.SOCIAL_TWITTER_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                LinkUtils.open(null, it, MainPreferencesViewModel.TWITTER_PAGE_URL, it.getString(R.string.twitter), FORCE_OPEN_IN_EXTERNAL_BROWSER)
-                true
-            } ?: false
+            val activity = activity ?: return@setOnPreferenceClickListener false // not handled
+            LinkUtils.open(null, activity, MainPreferencesViewModel.TWITTER_PAGE_URL, activity.getString(R.string.twitter), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.ABOUT_PRIVACY_POLICY_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.PRIVACY_POLICY_FR_PAGE_URL else MainPreferencesViewModel.PRIVACY_POLICY_PAGE_URL
-                LinkUtils.open(null, it, url, it.getString(R.string.privacy_policy), FORCE_OPEN_IN_EXTERNAL_BROWSER)
-                true
-            } ?: false
+            val activity = activity ?: return@setOnPreferenceClickListener false // not handled
+            val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.PRIVACY_POLICY_FR_PAGE_URL else MainPreferencesViewModel.PRIVACY_POLICY_PAGE_URL
+            LinkUtils.open(null, activity, url, activity.getString(R.string.privacy_policy), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.ABOUT_TERMS_OF_USE_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.TERMS_OF_USE_FR_PAGE_URL else MainPreferencesViewModel.TERMS_OF_USE_PAGE_URL
-                LinkUtils.open(null, it, url, it.getString(R.string.terms_of_use), FORCE_OPEN_IN_EXTERNAL_BROWSER)
-                true
-            } ?: false
+            val activity = activity ?: return@setOnPreferenceClickListener false // not handled
+            val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.TERMS_OF_USE_FR_PAGE_URL else MainPreferencesViewModel.TERMS_OF_USE_PAGE_URL
+            LinkUtils.open(null, activity, url, activity.getString(R.string.terms_of_use), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.THIRD_PARTY_GOOGLE_PRIVACY_POLICY_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                LinkUtils.open(null, it, MainPreferencesViewModel.GOOGLE_PRIVACY_POLICY_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
-                true
-            } ?: false
+            val activity = activity ?: return@setOnPreferenceClickListener false // not handled
+            LinkUtils.open(null, activity, MainPreferencesViewModel.GOOGLE_PRIVACY_POLICY_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.THIRD_PARTY_YOUTUBE_TERMS_OF_SERVICE_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                LinkUtils.open(null, it, MainPreferencesViewModel.YOUTUBE_TERMS_OF_SERVICE_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
-                true
-            } ?: false
+            val activity = activity ?: return@setOnPreferenceClickListener false // not handled
+            LinkUtils.open(null, activity, MainPreferencesViewModel.YOUTUBE_TERMS_OF_SERVICE_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_MODULE_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                startActivity(ModulesActivity.newInstance(it))
-                true
-            } ?: false
+            startActivity(ModulesActivity.newInstance(it.context))
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                viewModel.resetConsent()
-                true
-            } ?: false
+            viewModel.resetConsent()
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_REWARDED_RESET_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                viewModel.resetRewardedAd()
-                true
-            } ?: false
+            viewModel.resetRewardedAd()
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_AD_INSPECTOR_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                viewModel.openAdInspector()
-                true
-            } ?: false
-        }
-        (findPreference(MainPreferencesViewModel.DEV_MODE_AD_MEDIATION_TEST_PREF) as? Preference)?.setOnPreferenceClickListener {
-            @Suppress("KotlinConstantConditions")
-            activity?.let {
-                @Suppress("RedundantIf", "ConstantConditionIf")
-                if (true) { // DANGEROUS !!!! ONLY FOR MANUAL TESTING!
-                    false // not handled
-                } else {
-                    // Add tools:replace="android:supportsRtl" in AndroidManifest.xml
-                    // com.google.android.ads.mediationtestsuite.MediationTestSuite.launch(activity);  // adds WRITE_EXTERNAL_STORAGE, READ_PHONE_STATE...
-                    true // handled
-                }
-            } ?: false
+            viewModel.openAdInspector()
+            true // handled
         }
         (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_POWER_MANAGEMENT_PREF) as? Preference)?.apply {
             isEnabled = true
@@ -412,26 +371,22 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             val devModeResetConsentPref = findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference ?: return@observe
             val devModeResetRewardedPref = findPreference(MainPreferencesViewModel.DEV_MODE_REWARDED_RESET_PREF) as? Preference ?: return@observe
             val devModeAdInspectorPref = findPreference(MainPreferencesViewModel.DEV_MODE_AD_INSPECTOR_PREF) as? Preference ?: return@observe
-            val devModeAdMediationTestPref = findPreference(MainPreferencesViewModel.DEV_MODE_AD_MEDIATION_TEST_PREF) as? Preference ?: return@observe
             if (devModeEnabled) {
                 devModeGroupPref.isEnabled = true
                 devModeModulePref.isEnabled = true
                 devModeResetConsentPref.isEnabled = true
                 devModeResetRewardedPref.isEnabled = true
                 devModeAdInspectorPref.isEnabled = true
-                devModeAdMediationTestPref.isEnabled = true
             } else {
                 devModeGroupPref.isEnabled = false
                 devModeModulePref.isEnabled = false
                 devModeResetConsentPref.isEnabled = false
                 devModeResetRewardedPref.isEnabled = false
                 devModeAdInspectorPref.isEnabled = false
-                devModeAdMediationTestPref.isEnabled = false
                 devModeGroupPref.removePreference(devModeModulePref)
                 devModeGroupPref.removePreference(devModeResetConsentPref)
                 devModeGroupPref.removePreference(devModeResetRewardedPref)
                 devModeGroupPref.removePreference(devModeAdInspectorPref)
-                devModeGroupPref.removePreference(devModeAdMediationTestPref)
                 preferenceScreen.removePreference(devModeGroupPref)
             }
         }

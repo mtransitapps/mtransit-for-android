@@ -52,7 +52,6 @@ class MainPreferencesViewModel @Inject constructor(
         internal const val DEV_MODE_CONSENT_RESET_PREF = "pDevModeConsentReset"
         internal const val DEV_MODE_REWARDED_RESET_PREF = "pDevModeRewardedReset"
         internal const val DEV_MODE_AD_INSPECTOR_PREF = "pDevModeAdInspector"
-        internal const val DEV_MODE_AD_MEDIATION_TEST_PREF = "pDevModeAdMediationTest"
 
         internal const val TWITTER_PAGE_URL = "https://twitter.com/montransit"
         internal const val FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit"

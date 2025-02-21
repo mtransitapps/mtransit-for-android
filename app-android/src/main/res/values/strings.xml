@@ -226,8 +226,6 @@
     <string name="dev_mode_pref_reset_rewarded_pref_title">RESET REWARDED</string>
     <string name="dev_mode_pref_ad_inspector_pref_summary">INSPECT ADS</string>
     <string name="dev_mode_pref_ad_inspector_pref_title">AD INSPECTOR</string>
-    <string name="dev_mode_pref_ad_mediation_test_pref_summary">TEST MEDIATION ADAPTERS</string>
-    <string name="dev_mode_pref_ad_mediation_test_pref_title">MEDIATION TEST SUITE</string>
     <string name="support_pref_cat_title">Support</string>
     <string name="support_subs_pref_title">Support MonTransit</string>
     <string name="support_subs_pref_summary">Hide ads and support MonTransit development.</string>

@@ -48,7 +48,15 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
         // // ADD tools:replace="android:supportsRtl" to AndroidManifest.xml <application />
         // // USE real Google Ads app ID & unit IDs in keys.xml, not Google DEBUG one provided by Google
         // com.google.android.gms.ads.MobileAds.initialize(this) // required?
-        // com.google.android.ads.mediationtestsuite.MediationTestSuite.launch(this)
+        // com.google.android.gms.ads.MobileAds.openAdInspector(
+        // this,
+        // com.google.android.gms.ads.OnAdInspectorClosedListener { error: com.google.android.gms.ads.AdInspectorError? ->
+        // if (error == null) {
+        // org.mtransit.android.commons.MTLog.d(this, "Ad inspector closed.")
+        // } else {
+        // org.mtransit.android.commons.MTLog.w(this, "Ad inspector closed: ${error.code} > $error!")
+        // }
+        // })
         // finish()
         // return
         // }
