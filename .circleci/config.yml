@@ -38,8 +38,8 @@ jobs:
     environment: # https://circleci.com/docs/2.0/java-oom/ (-XX:MaxRAMPercentage=90.0 )
       JAVA_TOOL_OPTIONS: -Xmx5432m
       JVM_OPTS: -Xmx5432m
-      JAVA_OPTS: -Xmx5432m -Dorg.gradle.jvmargs="-Xms1g -Xmx5432m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
-      GRADLE_OPTS: -Xmx5432m -Dorg.gradle.jvmargs="-Xms1g -Xmx5432m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+      JAVA_OPTS: -Xmx5432m -Dorg.gradle.jvmargs="-Xms1g -Xmx5432m -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+      GRADLE_OPTS: -Xmx5432m -Dorg.gradle.jvmargs="-Xms1g -Xmx5432m -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
       TERM: xterm-256color
       TZ: "America/Toronto"
     steps:
