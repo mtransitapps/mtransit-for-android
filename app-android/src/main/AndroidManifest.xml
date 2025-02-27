@@ -146,13 +146,6 @@
             android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
             android:value="true" />
         -->
-        <!-- APG 8.3+ update error fix -->
-        <!-- com.google.android.gms:play-services-ads-lite:23.3.0 -->
-        <!-- com.google.android.gms:play-services-measurement-api:22.0.2 -->
-        <property
-            android:name="android.adservices.AD_SERVICES_CONFIG"
-            android:resource="@xml/gma_ad_services_config"
-            tools:replace="android:resource" />
         <!-- GOOGLE MAPS API KEY -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
