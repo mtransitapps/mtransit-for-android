@@ -28,7 +28,7 @@ class KeysManager @Inject constructor(
 
         @JvmStatic
         fun getKey(context: Context, key: String) = when (key) {
-            KeysIds.GOOGLE_PLACES_API_KEY -> context.resources.getStringArray(R.array.google_places_api_key).join()
+            KeysIds.GOOGLE_PLACES_NEW_API_KEY -> context.resources.getStringArray(R.array.google_places_new_api_key).join()
             KeysIds.TWITTER_BEARER_TOKEN -> context.resources.getStringArray(R.array.twitter_bearer_token).join()
             KeysIds.YOUTUBE_API_KEY -> context.resources.getStringArray(R.array.youtube_api_key).join()
             KeysIds.CA_SUDBURY_TRANSIT_AUTH_TOKEN -> context.resources.getStringArray(R.array.greater_sudbury_auth_token).join()
@@ -44,7 +44,7 @@ class KeysManager @Inject constructor(
         @JvmStatic
         fun getKeysMap(context: Context, authority: String): Map<String, String>? = when {
             // MAIN
-            authority.endsWith("$debugS.provider.place") -> getKeyEntry(context, KeysIds.GOOGLE_PLACES_API_KEY)?.let { mapOf(it) }
+            authority.endsWith("$debugS.provider.place") -> getKeyEntry(context, KeysIds.GOOGLE_PLACES_NEW_API_KEY)?.let { mapOf(it) }
             // NEWS
             authority.endsWith("$debugS.news.twitter") -> getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)?.let { mapOf(it) }
             authority.endsWith("$debugS.news.youtube") -> getKeyEntry(context, KeysIds.YOUTUBE_API_KEY)?.let { mapOf(it) }
