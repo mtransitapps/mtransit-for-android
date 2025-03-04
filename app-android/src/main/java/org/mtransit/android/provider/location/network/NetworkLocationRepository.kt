@@ -76,7 +76,6 @@ class NetworkLocationRepository @Inject constructor(
                         putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, lat)
                         putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, lng)
                         putLong(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, TimeUtils.currentTimeMillis())
-
                     }
                 }
             },

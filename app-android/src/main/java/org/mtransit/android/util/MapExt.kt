@@ -12,12 +12,13 @@ fun LatLngBounds?.containsEntirely(other: LatLngBounds?): Boolean {
     } ?: false
 }
 
-fun Area.toLatLngBounds(): LatLngBounds {
-    return LatLngBounds(
-        LatLng(southLat, westLng), // SW
-        LatLng(northLat, eastLng) // NE
-    )
-}
+val Area.southwest: LatLng
+    get() = LatLng(southLat, westLng)
+
+val Area.northeast: LatLng
+    get() = LatLng(northLat, eastLng)
+
+fun Area.toLatLngBounds() = LatLngBounds(southwest, northeast)
 
 fun LatLng.isInside(area: Area): Boolean {
     return Area.isInside(this.latitude, this.longitude, area)

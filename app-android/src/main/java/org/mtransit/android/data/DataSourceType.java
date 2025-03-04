@@ -168,6 +168,9 @@ public enum DataSourceType {
 
 	@NonNull
 	public CharSequence getPoiShortName(@NonNull Context context) {
+		if (this.stopType == DataSourceStopType.PLACE) {
+			return context.getString(this.stopType.getStopsStringResId());
+		}
 		return context.getString(R.string.agency_type_stops_short_name,
 				context.getString(getShortNamesResId()),
 				context.getString(this.stopType.getStopsStringResId())

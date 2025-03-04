@@ -8,8 +8,8 @@
         <item>INSERT_GOOGLE_ADS_TEST_DEVICE_ID_HERE</item>
     </string-array>
     <string name="google_maps_api_key">INSERT_GOOGLE_MAPS_API_KEY_HERE</string><!-- PROD | Android App restriction -->
-    <string-array name="google_places_api_key"><!-- PROD 2024 $$$ -->
-        <item>INSERT_GOOGLE_PLACES_API_KEY_HERE</item>
+    <string-array name="google_places_new_api_key"><!-- PROD 2025 $$$ | Android App restriction -->
+        <item>INSERT_GOOGLE_PLACES_NEW_API_KEY_HERE</item>
     </string-array>
     <!-- NEWS -->
     <string-array name="twitter_bearer_token"><!-- PROD 2024 $$$ -->
