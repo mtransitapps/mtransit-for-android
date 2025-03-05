@@ -549,13 +549,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				}
 				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_nearby_screen,
-						NearbyFragment.newFixedOnPOIInstanceArgs(this, dataSourcesRepository, true), // PLACE SEARCH RESULT
+						NearbyFragment.newFixedOnPOIInstanceArgs(this, dataSourcesRepository), // PLACE SEARCH RESULT
 						null,
 						extras
 				);
 			} else {
 				((MainActivity) activity).addFragmentToStack(
-						NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
+						NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository) // PLACE SEARCH RESULT
 				);
 			}
 			return true; // HANDLED
@@ -878,13 +878,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				}
 				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_nearby_screen,
-						NearbyFragment.newFixedOnPOIInstanceArgs(this, dataSourcesRepository, true), // PLACE SEARCH RESULT
+						NearbyFragment.newFixedOnPOIInstanceArgs(this, dataSourcesRepository), // PLACE SEARCH RESULT
 						null,
 						extras
 				);
 			} else {
 				((MainActivity) activity).addFragmentToStack(
-						NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
+						NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository) // PLACE SEARCH RESULT
 				);
 			}
 			return true; // nearby screen shown

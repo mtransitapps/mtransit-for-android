@@ -91,9 +91,9 @@ fun View.setPadding(
 }
 
 inline var ViewBinding.isVisible: Boolean
-    get() = root.visibility == View.VISIBLE
+    get() = root.isVisible
     set(value) {
-        root.visibility = if (value) View.VISIBLE else View.GONE
+        root.isVisible = value
     }
 
 inline var View.isVisibleOnce: Boolean

@@ -26,6 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
@@ -70,27 +71,31 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         fun newFixedOnPOIInstanceArgs(
             poim: POIManager,
             dataSourcesRepository: DataSourcesRepository,
-            simple: Boolean, // true = place...
         ) = newFixedOnInstanceArgs(
-            optTypeId = if (simple) null else poim.poi.dataSourceTypeId,
+            optTypeId = poim.poi.dataSourceTypeId.takeUnless { poim.poi.dataSourceTypeId == DataSourceTypeId.PLACE },
             fixedOnLat = poim.lat.toFloat(),
             fixedOnLng = poim.lng.toFloat(),
-            fixedOnName = if (simple) poim.poi.name else poim.getNewOneLineDescription(dataSourcesRepository),
-            optFixedOnColorInt = if (simple) null else poim.getColor(dataSourcesRepository)
+            fixedOnName = when (poim.poi.dataSourceTypeId) {
+                poim.poi.dataSourceTypeId -> poim.poi.name
+                else -> poim.getNewOneLineDescription(dataSourcesRepository)
+            },
+            optFixedOnColorInt = poim.getColor(dataSourcesRepository)
         )
 
         @JvmStatic
         fun newFixedOnPOIInstance(
             poim: POIManager,
             dataSourcesRepository: DataSourcesRepository,
-            simple: Boolean, // true = place...
         ): NearbyFragment {
             return newFixedOnInstance(
-                optTypeId = if (simple) null else poim.poi.dataSourceTypeId,
+                optTypeId = poim.poi.dataSourceTypeId.takeUnless { poim.poi.dataSourceTypeId == DataSourceTypeId.PLACE },
                 fixedOnLat = poim.lat.toFloat(),
                 fixedOnLng = poim.lng.toFloat(),
-                fixedOnName = if (simple) poim.poi.name else poim.getNewOneLineDescription(dataSourcesRepository),
-                optFixedOnColorInt = if (simple) null else poim.getColor(dataSourcesRepository)
+                fixedOnName = when (poim.poi.dataSourceTypeId) {
+                    poim.poi.dataSourceTypeId -> poim.poi.name
+                    else -> poim.getNewOneLineDescription(dataSourcesRepository)
+                },
+                optFixedOnColorInt = poim.getColor(dataSourcesRepository)
             )
         }
 

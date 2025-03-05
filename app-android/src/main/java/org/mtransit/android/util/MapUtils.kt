@@ -19,6 +19,7 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog.Loggable
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.ResourceUtils
+import androidx.core.net.toUri
 
 @Suppress("unused")
 object MapUtils : Loggable {
@@ -86,7 +87,7 @@ object MapUtils : Loggable {
         optDestLat: Double?, optDestLng: Double?,
         optSrcLat: Double?, optSrcLng: Double?,
         @Suppress("unused") optQuery: String?
-    ): Uri = Uri.parse(MAP_DIRECTION_URL_PART_1).buildUpon().apply {
+    ): Uri = MAP_DIRECTION_URL_PART_1.toUri().buildUpon().apply {
         if (optSrcLat != null && optSrcLng != null) {
             appendQueryParameter(MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM, "$optSrcLat,$optSrcLng")
         }

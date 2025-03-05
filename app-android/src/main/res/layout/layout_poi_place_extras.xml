@@ -10,4 +10,5 @@
     android:scaleType="fitCenter"
     tools:background="#FF00FF"
     tools:src="@drawable/ic_place_black_24dp"
-    tools:tint="@android:color/background_dark" />
+    tools:tint="@android:color/background_dark"
+    tools:ignore="ContentDescription" />

@@ -785,7 +785,7 @@ public class POIFragment extends ABFragment implements
 					}
 					NavControllerExtKt.navigateF(navController,
 							R.id.nav_to_nearby_screen,
-							NearbyFragment.newFixedOnPOIInstanceArgs(poim, dataSourcesRepository, false),
+							NearbyFragment.newFixedOnPOIInstanceArgs(poim, dataSourcesRepository),
 							null,
 							extras
 					);
@@ -795,7 +795,7 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					((MainActivity) activity).addFragmentToStack(
-							NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository, false),
+							NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository),
 							POIFragment.this
 					);
 				}

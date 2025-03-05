@@ -7,6 +7,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import androidx.core.graphics.withTranslation
 
 class StickyHeaderItemDecorator<VH : RecyclerView.ViewHolder>(
     private val adapter: StickyAdapter<VH>,
@@ -81,17 +82,15 @@ class StickyHeaderItemDecorator<VH : RecyclerView.ViewHolder>(
     }
 
     private fun drawHeader(c: Canvas) {
-        c.save()
-        c.translate(0f, 0f)
-        currentStickyHolder.itemView.draw(c)
-        c.restore()
+        c.withTranslation(0f, 0f) {
+            currentStickyHolder.itemView.draw(this)
+        }
     }
 
     private fun moveHeader(c: Canvas, nextHeader: View) {
-        c.save()
-        c.translate(0f, (nextHeader.top - nextHeader.height).toFloat())
-        currentStickyHolder.itemView.draw(c)
-        c.restore()
+        c.withTranslation(0f, (nextHeader.top - nextHeader.height).toFloat()) {
+            currentStickyHolder.itemView.draw(this)
+        }
     }
 
     private fun getChildInContact(parent: RecyclerView, contactPoint: Int): View? {
