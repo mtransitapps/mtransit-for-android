@@ -11,10 +11,14 @@ import android.widget.TextView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.viewbinding.ViewBinding;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -29,10 +33,12 @@ import org.mtransit.android.data.JPaths;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
+import org.mtransit.android.data.Place;
 import org.mtransit.android.databinding.LayoutPoiBasicBinding;
 import org.mtransit.android.databinding.LayoutPoiBasicWithAvailabilityPercentBinding;
 import org.mtransit.android.databinding.LayoutPoiModuleBinding;
 import org.mtransit.android.databinding.LayoutPoiModuleWithAppStatusBinding;
+import org.mtransit.android.databinding.LayoutPoiPlaceBinding;
 import org.mtransit.android.databinding.LayoutPoiRtsBinding;
 import org.mtransit.android.databinding.LayoutPoiRtsWithScheduleBinding;
 import org.mtransit.android.dev.DemoModeManager;
@@ -63,6 +69,8 @@ public class POIViewController implements MTLog.Loggable {
 	public static ViewBinding getLayoutViewBinding(int poiType, int poiStatusType, @NonNull ViewStub viewStub) {
 		viewStub.setLayoutResource(getLayoutResId(poiType, poiStatusType));
 		switch (poiType) {
+		case POI.ITEM_VIEW_TYPE_PLACE:
+			return LayoutPoiPlaceBinding.bind(viewStub.inflate());
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return LayoutPoiBasicBinding.bind(viewStub.inflate());
 		case POI.ITEM_VIEW_TYPE_MODULE:
@@ -86,6 +94,8 @@ public class POIViewController implements MTLog.Loggable {
 	@LayoutRes
 	public static int getLayoutResId(int poiType, int poiStatusType) {
 		switch (poiType) {
+		case POI.ITEM_VIEW_TYPE_PLACE:
+			return R.layout.layout_poi_place;
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return R.layout.layout_poi_basic;
 		case POI.ITEM_VIEW_TYPE_MODULE:
@@ -192,6 +202,9 @@ public class POIViewController implements MTLog.Loggable {
 	private static void initViewHolder(@NonNull POI poi, @NonNull View view) {
 		CommonViewHolder holder;
 		switch (poi.getType()) {
+		case POI.ITEM_VIEW_TYPE_PLACE:
+			holder = initPlaceViewHolder(view);
+			break;
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			holder = initTextMessageViewHolder(view);
 			break;
@@ -222,6 +235,12 @@ public class POIViewController implements MTLog.Loggable {
 
 	private static CommonViewHolder initTextMessageViewHolder(@SuppressWarnings("unused") @NonNull View view) {
 		return new TextMessageViewHolder();
+	}
+
+	private static CommonViewHolder initPlaceViewHolder(@NonNull View view) {
+		PlaceViewHolder placeViewHolder = new PlaceViewHolder();
+		placeViewHolder.placeIconImg = view.findViewById(R.id.extra);
+		return placeViewHolder;
 	}
 
 	private static CommonViewHolder initBasicViewHolder(@SuppressWarnings("unused") @NonNull View view) {
@@ -295,15 +314,12 @@ public class POIViewController implements MTLog.Loggable {
 			index = -1;
 		}
 		holder.compassV.setLatLng(poi.getLat(), poi.getLng());
-		switch (index) {
-		case 0:
+		if (index == 0) {
 			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
 			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-			break;
-		default:
+		} else {
 			holder.nameTv.setTypeface(Typeface.DEFAULT);
 			holder.distanceTv.setTypeface(Typeface.DEFAULT);
-			break;
 		}
 	}
 
@@ -334,11 +350,54 @@ public class POIViewController implements MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			updateModuleExtra(poim, (ModuleViewHolder) holder, dataProvider);
 			break;
+		case POI.ITEM_VIEW_TYPE_PLACE:
+			updatePlaceExtra(poim, (PlaceViewHolder) holder, dataProvider);
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			break;
 		default:
 			MTLog.w(LOG_TAG, "updateView() > Unknown view type for poi type %s!", poiType);
+		}
+	}
+
+	private static void updatePlaceExtra(@NonNull POI poi,
+										 @NonNull PlaceViewHolder holder,
+										 @NonNull POIDataProvider dataProvider) {
+		if (poi instanceof Place) {
+			final Place place = (Place) poi;
+			final RequestManager glideRequestManager;
+			if (dataProvider.getActivity() != null && dataProvider.getActivity() instanceof FragmentActivity) {
+				glideRequestManager = Glide.with((FragmentActivity) dataProvider.getActivity());
+			} else {
+				glideRequestManager = Glide.with(holder.view.getContext());
+			}
+			glideRequestManager
+					.load(place.getIconUrl())
+					.into(holder.placeIconImg);
+			holder.placeIconImg.setVisibility(View.VISIBLE);
+		} else {
+			holder.placeIconImg.setVisibility(View.GONE);
+		}
+	}
+
+	private static void updatePlaceExtra(@NonNull POIManager poim,
+										 @NonNull PlaceViewHolder holder,
+										 @NonNull POIDataProvider dataProvider) {
+		if (poim.poi instanceof Place) {
+			final Place place = (Place) poim.poi;
+			POIViewUtils.setupPOIExtraLayoutBackground(holder.placeIconImg, poim, dataProvider.providesDataSourcesRepository());
+			final RequestManager glideRequestManager;
+			if (dataProvider.getActivity() != null && dataProvider.getActivity() instanceof FragmentActivity) {
+				glideRequestManager = Glide.with((FragmentActivity) dataProvider.getActivity());
+			} else {
+				glideRequestManager = Glide.with(holder.view.getContext());
+			}
+			glideRequestManager
+					.load(place.getIconUrl())
+					.into(holder.placeIconImg);
+			holder.placeIconImg.setVisibility(View.VISIBLE);
+		} else {
+			holder.placeIconImg.setVisibility(View.GONE);
 		}
 	}
 
@@ -371,6 +430,9 @@ public class POIViewController implements MTLog.Loggable {
 			break;
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			updateModuleExtra(poi, (ModuleViewHolder) holder);
+			break;
+		case POI.ITEM_VIEW_TYPE_PLACE:
+			updatePlaceExtra(poi, (PlaceViewHolder) holder, dataProvider);
 			break;
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
@@ -681,15 +743,12 @@ public class POIViewController implements MTLog.Loggable {
 		} else {
 			index = -1;
 		}
-		switch (index) {
-		case 0:
+		if (index == 0) {
 			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
 			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-			break;
-		default:
+		} else {
 			holder.nameTv.setTypeface(Typeface.DEFAULT);
 			holder.distanceTv.setTypeface(Typeface.DEFAULT);
-			break;
 		}
 	}
 
@@ -706,6 +765,10 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static class TextMessageViewHolder extends CommonViewHolder {
+	}
+
+	private static class PlaceViewHolder extends CommonViewHolder {
+		ImageView placeIconImg;
 	}
 
 	private static class ModuleViewHolder extends CommonViewHolder {

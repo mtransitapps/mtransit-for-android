@@ -22,6 +22,7 @@ import com.google.android.libraries.places.api.model.Place.Field
 import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.net.SearchByTextRequest
 import org.mtransit.android.R
+import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
@@ -40,10 +41,8 @@ import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.Place
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.toLatLngBounds
-import org.mtransit.commons.Constants
 import org.mtransit.commons.FeatureFlags
 import java.lang.Exception
-import java.lang.IllegalArgumentException
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.Locale
@@ -122,7 +121,6 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         return getTextSearchResults(context, searchByTextRequest)
     }
 
-
     private fun getTextSearchResults(context: Context, searchByTextRequest: SearchByTextRequest): Cursor? {
         try {
             val placesClient = GooglePlacesApiProvider.getPlacesClient(context)
@@ -138,9 +136,10 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             var score = 1000
             val places: List<Place>? = searchByTextResponse?.places?.mapNotNull { place ->
                 try {
+                    val providerId = place.id ?: return@mapNotNull null
                     Place(
                         authority,
-                        place.id ?: return@mapNotNull null,
+                        providerId,
                         lang,
                         newLastUpdateInMs
                     ).apply {
@@ -148,6 +147,8 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                         this.lat = place.latLng?.latitude ?: return@mapNotNull null
                         this.lng = place.latLng?.longitude ?: return@mapNotNull null
                         this.score = score--
+                        this.iconUrl = place.iconUrl
+                        this.iconBgColor = place.iconBackgroundColor
                     }
                 } catch (e: Exception) {
                     MTLog.w(this, e, "Error while parsing result '$place'!")
@@ -155,6 +156,11 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 }
             }
             MTLog.i(this, "Loaded ${places?.size} places.")
+            if (Constants.DEBUG) {
+                places?.forEach { place ->
+                    MTLog.d(this, "- place: $place")
+                }
+            }
             return convertTextSearchResults(places)
         } catch (sslhe: SSLHandshakeException) {
             MTLog.w(this, sslhe, "SSL error!")
@@ -199,11 +205,11 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     }
 
     override fun getContactUsWeb(context: Context): String {
-        return Constants.EMPTY
+        return StringUtils.EMPTY
     }
 
     override fun getContactUsWebFr(context: Context): String {
-        return Constants.EMPTY
+        return StringUtils.EMPTY
     }
 
     override fun getExtendedTypeId(context: Context): @DataSourceTypeId.DataSourceType Int {
@@ -411,16 +417,20 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             /**
              * Override if multiple [PlaceDbHelper] in same app.
              */
-            const val DB_VERSION: Int = 3
+            const val DB_VERSION: Int = 4
 
             const val T_PLACE: String = POIProvider.POIDbHelper.T_POI
             val T_PLACE_K_PROVIDER_ID: String = POIProvider.POIDbHelper.getFkColumnName("provider_id")
             val T_PLACE_K_LANG: String = POIProvider.POIDbHelper.getFkColumnName("lang")
             val T_PLACE_K_READ_AT_IN_MS: String = POIProvider.POIDbHelper.getFkColumnName("read_at_in_ms")
-            private val T_PLACE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreateBuilder(T_PLACE) //
-                .appendColumn(T_PLACE_K_PROVIDER_ID, SqlUtils.TXT) //
-                .appendColumn(T_PLACE_K_LANG, SqlUtils.TXT) //
-                .appendColumn(T_PLACE_K_READ_AT_IN_MS, SqlUtils.INT) //
+            val T_PLACE_K_ICON_URL: String = POIProvider.POIDbHelper.getFkColumnName("icon_url")
+            val T_PLACE_K_ICON_BG_COLOR: String = POIProvider.POIDbHelper.getFkColumnName("icon_bg_url")
+            private val T_PLACE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreateBuilder(T_PLACE)
+                .appendColumn(T_PLACE_K_PROVIDER_ID, SqlUtils.TXT)
+                .appendColumn(T_PLACE_K_LANG, SqlUtils.TXT)
+                .appendColumn(T_PLACE_K_READ_AT_IN_MS, SqlUtils.INT)
+                .appendColumn(T_PLACE_K_ICON_URL, SqlUtils.TXT)
+                .appendColumn(T_PLACE_K_ICON_BG_COLOR, SqlUtils.INT) // @ColorInt
                 .build()
             private val T_PLACE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_PLACE)
 
@@ -440,6 +450,12 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
         @JvmField
         val T_PLACE_K_READ_AT_IN_MS: String = POIProviderContract.Columns.getFkColumnName("read_at_in_ms")
+
+        @JvmField
+        val T_PLACE_K_ICON_URL: String = POIProviderContract.Columns.getFkColumnName("icon_url")
+
+        @JvmField
+        val T_PLACE_K_ICON_BG_COLOR: String = POIProviderContract.Columns.getFkColumnName("icon_bg_color")
     }
 
     companion object {
@@ -455,15 +471,23 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             POIProviderContract.Columns.T_POI_K_SCORE_META_OPT,
             PlaceColumns.T_PLACE_K_PROVIDER_ID,
             PlaceColumns.T_PLACE_K_LANG,
-            PlaceColumns.T_PLACE_K_READ_AT_IN_MS
+            PlaceColumns.T_PLACE_K_READ_AT_IN_MS,
+            PlaceColumns.T_PLACE_K_ICON_URL,
+            PlaceColumns.T_PLACE_K_ICON_BG_COLOR,
         )
 
         private val PROJECTION_PLACE_POI: Array<String> = POIProvider.PROJECTION_POI + PROJECTION_PLACE
+
+        // https://developers.google.com/maps/documentation/places/android-sdk/text-search
+        // https://developers.google.com/maps/documentation/places/android-sdk/usage-and-billing#text-search-id-only-ess-sku
+        // https://developers.google.com/maps/documentation/places/android-sdk/usage-and-billing#text-search-pro-sku
 
         private val GOOGLE_PLACE_TEXT_SEARCH_FIELDS = listOf(
             Field.ID,
             Field.NAME, // DISPLAY_NAME
             Field.LAT_LNG, // LOCATION
+            Field.ICON_URL,
+            Field.ICON_BACKGROUND_COLOR,
         )
 
         @VisibleForTesting
@@ -489,9 +513,10 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 .takeIf { keywordMaxLength >= 3 } ?: return null
             MTLog.d(this, "getTextSearchRequest() > textQuery: '%s'", textQuery)
             return SearchByTextRequest.builder(textQuery, GOOGLE_PLACE_TEXT_SEARCH_FIELDS)
-                .setMaxResultCount(1) // max 20
+                // .setMaxResultCount(1) // max 20 // cost is per / request
                 .apply {
                     if (optLat != null && optLng != null) {
+                        @Suppress("KotlinConstantConditions") // doesn't work? maybe with SDK 4.0.0+ (minSDK 23)
                         setLocationRestriction(
                             CircularBounds.newInstance(LatLng(optLat, optLng), (optRadiusInMeters ?: TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT).toDouble())
                                 .takeIf { false } // doesn't work? maybe with SDK 4.0.0+ (minSDK 23)
@@ -528,6 +553,8 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_PROVIDER_ID)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_LANG)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_READ_AT_IN_MS, PlaceColumns.T_PLACE_K_READ_AT_IN_MS)
+            .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_ICON_URL, PlaceColumns.T_PLACE_K_ICON_URL)
+            .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_ICON_BG_COLOR, PlaceColumns.T_PLACE_K_ICON_BG_COLOR)
             .apply {
                 if (FeatureFlags.F_ACCESSIBILITY_PRODUCER) {
                     appendTableColumn(

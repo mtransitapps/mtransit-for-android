@@ -228,7 +228,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.status;
 	}
 
-
 	@Deprecated
 	@Nullable
 	public POIStatus getStatus(@Nullable Context ignoredContext,
@@ -628,6 +627,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				}
 			} else if (poi instanceof Module) {
 				return ((Module) poi).getColorInt();
+			} else if (poi instanceof Place) {
+				return ((Place) poi).getIconBgColor();
 			}
 			final IAgencyUIProperties agency = agencyResolver.getAgency();
 			if (agency != null) {
@@ -962,6 +963,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 								final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (this.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
+		case POI.ITEM_VIEW_TYPE_PLACE:
 			return false; // no menu
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
@@ -1019,6 +1021,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return new POIManager(Module.fromCursorStatic(cursor, authority));
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return new POIManager(TextMessage.fromCursorStatic(cursor, authority));
+		case POI.ITEM_VIEW_TYPE_PLACE:
+			return new POIManager(Place.fromCursorStatic(cursor, authority));
 		default:
 			MTLog.w(LOG_TAG, "Unexpected POI type '%s'! (using default)", DefaultPOI.getTypeFromCursor(cursor));
 			return new POIManager(DefaultPOI.fromCursorStatic(cursor, authority));

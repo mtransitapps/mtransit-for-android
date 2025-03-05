@@ -28,10 +28,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.common.primitives.Ints;
 
@@ -320,6 +323,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		final int type = poim.poi.getType();
 		final int statusType = poim.getStatusType();
 		switch (type) {
+		case POI.ITEM_VIEW_TYPE_PLACE:
+			return 8; // PLACE
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return 7; // TEXT MESSAGE
 		case POI.ITEM_VIEW_TYPE_MODULE:
@@ -491,6 +496,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return getInfiniteLoadingView(null, parent); // ignore convert view since we don't know what it was
 		}
 		switch (poim.poi.getType()) {
+		case POI.ITEM_VIEW_TYPE_PLACE:
+			return getPlaceView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return getTextMessageView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_MODULE:
@@ -1674,6 +1681,51 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return layoutRes;
 	}
 
+	private void initPlaceExtra(View convertView, PlaceViewHolder holder) {
+		holder.placeIconImg = convertView.findViewById(R.id.extra);
+	}
+
+	@NonNull
+	private View getPlaceView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
+		if (convertView == null) {
+			convertView = this.layoutInflater.inflate(R.layout.layout_poi_place, parent, false);
+			final PlaceViewHolder holder = new PlaceViewHolder();
+			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
+			initPlaceExtra(convertView, holder);
+			convertView.setTag(holder);
+		}
+		updatePlaceView(poim, convertView);
+		return convertView;
+	}
+
+	@SuppressWarnings("UnusedReturnValue")
+	@NonNull
+	private View updatePlaceView(@NonNull POIManager poim, @NonNull View convertView) {
+		final PlaceViewHolder holder = (PlaceViewHolder) convertView.getTag();
+		updateCommonView(holder, poim);
+		initPlaceExtra(poim, holder);
+		return convertView;
+	}
+
+	private void initPlaceExtra(@NonNull POIManager poim, @NonNull PlaceViewHolder holder) {
+		if (this.showExtra && poim.poi instanceof Place) {
+			final Place place = (Place) poim.poi;
+			POIViewUtils.setupPOIExtraLayoutBackground(holder.placeIconImg, poim, dataSourcesRepository);
+			final RequestManager glideRequestManager;
+			if (getActivity() != null && getActivity() instanceof FragmentActivity) {
+				glideRequestManager = Glide.with((FragmentActivity) getActivity());
+			} else {
+				glideRequestManager = Glide.with(holder.view.getContext());
+			}
+			glideRequestManager
+					.load(place.getIconUrl())
+					.into(holder.placeIconImg);
+			holder.placeIconImg.setVisibility(View.VISIBLE);
+		} else {
+			holder.placeIconImg.setVisibility(View.GONE);
+		}
+	}
+
 	@NonNull
 	private View getTextMessageView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
@@ -2158,6 +2210,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	private static class TextViewViewHolder extends CommonViewHolder {
+	}
+
+	private static class PlaceViewHolder extends CommonViewHolder {
+		ImageView placeIconImg;
 	}
 
 	public static class CommonViewHolder {

@@ -13,7 +13,9 @@ import org.mtransit.android.data.shortUUID
 data class POIServiceUpdateViewHolder(
     var uuid: String,
     val serviceUpdateImg: ImageView?
-) {
+): MTLog.Loggable {
+
+    override fun getLogTag() = LOG_TAG
 
     fun hideServiceUpdate() {
         serviceUpdateImg?.isVisible = false
