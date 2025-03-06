@@ -1,7 +1,6 @@
 package org.mtransit.android.billing
 
 import android.content.Context
-import android.provider.Settings
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -29,6 +28,7 @@ import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.util.SystemSettingManager
 import java.util.WeakHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -81,7 +81,7 @@ class MTBillingManager @Inject constructor(
     }
 
     private val isUsingFirebaseTestLab: Boolean by lazy {
-        Settings.System.getString(appContext.contentResolver, "firebase.test.lab") == "true"
+        SystemSettingManager.isUsingFirebaseTestLab(appContext)
     }
 
     override fun showingPaidFeatures() = hasSubscription.value != false && !isUsingFirebaseTestLab
@@ -180,7 +180,7 @@ class MTBillingManager @Inject constructor(
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
                 _productIdsWithDetails.postValue(
-                    productDetailsList.map { details ->
+                    productDetailsList.associate { details ->
                         if (Constants.DEBUG) {
                             details.subscriptionOfferDetails?.forEach {
                                 MTLog.d(this, "onProductDetailsResponse() > offer details: $it")
@@ -193,7 +193,7 @@ class MTBillingManager @Inject constructor(
                             }
                         }
                         details.productId to details
-                    }.toMap()
+                    }
                         .also { postedValue ->
                             MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")
                         }

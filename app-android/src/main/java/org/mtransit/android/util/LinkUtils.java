@@ -3,7 +3,6 @@ package org.mtransit.android.util;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.provider.Settings;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -91,10 +90,8 @@ public final class LinkUtils implements MTLog.Loggable {
 			return true;
 		}
 		if (www && (!FeatureFlags.F_NAVIGATION || view != null)) {
-			final String firebaseTestLabSetting = Settings.System.getString(activity.getContentResolver(), "firebase.test.lab");
-			final boolean isUsingFirebaseTestLab = "true".equals(firebaseTestLabSetting);
-			boolean useInternalWebBrowser = !isUsingFirebaseTestLab && PreferenceUtils.getPrefDefault(activity,
-					PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
+			boolean useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
+					&& PreferenceUtils.getPrefDefault(activity, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
 			if (useInternalWebBrowser) {
 				if (FeatureFlags.F_NAVIGATION) {
 					final NavController navController = Navigation.findNavController(view);

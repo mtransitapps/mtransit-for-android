@@ -1,5 +1,6 @@
 package org.mtransit.android.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -47,6 +48,7 @@ import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
 import org.mtransit.android.ui.feedback.FeedbackDialog;
 import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.ui.fragment.WebBrowserFragment;
 import org.mtransit.android.ui.home.HomeFragment;
 import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
@@ -55,6 +57,7 @@ import org.mtransit.android.ui.pref.PreferencesActivity;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.util.SystemSettingManager;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
@@ -62,6 +65,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressLint("KotlinPairNotCreated")
 class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener {
 
 	private static final String LOG_TAG = "Stack-" + NavigationDrawerController.class.getSimpleName();
@@ -349,7 +353,6 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		final boolean hasAgenciesAdded = Boolean.TRUE.equals(this.hasAgenciesAdded);
 		this.navigationView.getMenu().findItem(R.id.root_nav_map).setVisible(hasAgenciesAdded);
-		this.navigationView.getMenu().findItem(R.id.nav_trip_planner).setVisible(hasAgenciesAdded);
 		// TODO favorites? (favorite manager requires IO
 		final boolean hasNewsProviderEnabled = Boolean.TRUE.equals(this.hasNewsProviderEnabled);
 		this.navigationView.getMenu().findItem(R.id.root_nav_news).setVisible(hasNewsProviderEnabled);
@@ -416,7 +419,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	@Nullable
-	private String getScreenItemId(@Nullable Integer navItemId) {
+	private String getScreenItemId(@Nullable Integer navItemId, boolean isUsingFirebaseTestLab) {
 		if (navItemId == null) {
 			return null;
 		}
@@ -429,7 +432,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} else if (navItemId == R.id.root_nav_map) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP;
 		} else if (navItemId == R.id.nav_trip_planner) {
-			return null; // NOT ROOT SCREEN // ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER;
+			return isUsingFirebaseTestLab ? null // NOT ROOT SCREEN
+					: ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER;
 		} else if (navItemId == R.id.root_nav_news) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS;
 		} else if (navItemId == R.id.root_nav_light_rail) {
@@ -535,6 +539,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		if (mainActivity == null) {
 			return;
 		}
+		final boolean isUsingFirebaseTestLab = SystemSettingManager.isUsingFirebaseTestLab(mainActivity);
 		if (navItemId.equals(this.currentSelectedScreenItemNavId)) {
 			if (clearStack) {
 				mainActivity.clearFragmentBackStackImmediate();
@@ -545,17 +550,17 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			mainActivity.showContentFrameAsLoaded();
 			return;
 		}
-		if (!isRootScreen(navItemId)) {
+		if (!isRootScreen(navItemId, isUsingFirebaseTestLab)) {
 			startNewScreen(mainActivity, navItemId);
 			setCurrentSelectedItemChecked(true); // keep current position
 			return;
 		}
-		final ABFragment newFragment = getNewStaticFragmentAt(navItemId);
+		final ABFragment newFragment = getNewStaticFragmentAt(navItemId, mainActivity);
 		if (newFragment == null) {
 			return;
 		}
 		this.currentSelectedScreenItemNavId = navItemId;
-		this.currentSelectedScreenItemId = getScreenItemId(navItemId);
+		this.currentSelectedScreenItemId = getScreenItemId(navItemId, isUsingFirebaseTestLab);
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
 		this.statusLoader.clearAllTasks();
 		this.serviceUpdateLoader.clearAllTasks();
@@ -563,13 +568,13 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		if (demoModeManager.isFullDemo()) {
 			return; // SKIP (demo mode ON)
 		}
-		if (isRootScreen(navItemId)) {
+		if (isRootScreen(navItemId, isUsingFirebaseTestLab)) {
 			PreferenceUtils.savePrefLclAsync(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId);
 		}
 	}
 
 	@Nullable
-	private ABFragment getNewStaticFragmentAt(@Nullable Integer navItemId) {
+	private ABFragment getNewStaticFragmentAt(@Nullable Integer navItemId, @NonNull Activity activity) {
 		if (navItemId == null) {
 			MTLog.w(this, "getNewStaticFragmentAt() > skip (nav item ID null)");
 			return null;
@@ -582,6 +587,12 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return NearbyFragment.newNearbyInstance();
 		} else if (navItemId == R.id.root_nav_map) {
 			return MapFragment.newInstance();
+		} else if (navItemId == R.id.nav_trip_planner) {
+			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
+			final Pair<Double, Double> srcLatLng = getTripPlannerSrcLatLng(activity);
+			return WebBrowserFragment.newInstance(
+					MapUtils.getMapsDirectionUrl(null, null, srcLatLng.first, srcLatLng.second, null).toString()
+			);
 		} else if (navItemId == R.id.root_nav_news) {
 			return NewsListDetailFragment.newInstance();
 		}
@@ -603,17 +614,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return;
 		}
 		if (navItemId == R.id.nav_trip_planner) {
-			double optSrcLat = 0.0;
-			double optSrcLng = 0.0;
-			if (activity instanceof MainActivity) {
-				Location lastLocation = ((MainActivity) activity).getLastLocation();
-				if (lastLocation != null) {
-					optSrcLat = lastLocation.getLatitude();
-					optSrcLng = lastLocation.getLongitude();
-				}
-			}
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
-			MapUtils.showDirection(null, activity, null, null, optSrcLat, optSrcLng, null);
+			final Pair<Double, Double> srcLatLng = getTripPlannerSrcLatLng(activity);
+			MapUtils.showDirection(null, activity, null, null, srcLatLng.first, srcLatLng.second, null);
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 		} else if (navItemId == R.id.nav_send_feedback) {
@@ -644,13 +647,27 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 	}
 
-	private boolean isRootScreen(@Nullable Integer navItemId) {
+	@NonNull
+	private Pair<Double, Double> getTripPlannerSrcLatLng(Activity activity) {
+		Double optSrcLat = null;
+		Double optSrcLng = null;
+		if (activity instanceof MainActivity) {
+			Location lastLocation = ((MainActivity) activity).getLastLocation();
+			if (lastLocation != null) {
+				optSrcLat = lastLocation.getLatitude();
+				optSrcLng = lastLocation.getLongitude();
+			}
+		}
+		return new Pair<>(optSrcLat, optSrcLng);
+	}
+
+	private boolean isRootScreen(@Nullable Integer navItemId, boolean isUsingFirebaseTestLab) {
 		if (navItemId == null) {
 			MTLog.w(this, "isRootScreen() > null (return false)");
 			return false;
 		}
 		//noinspection RedundantIfStatement
-		if (navItemId == R.id.nav_trip_planner
+		if ((navItemId == R.id.nav_trip_planner && isUsingFirebaseTestLab)
 				|| navItemId == R.id.nav_support
 				|| navItemId == R.id.nav_rate_review
 				|| navItemId == R.id.nav_privacy_setting

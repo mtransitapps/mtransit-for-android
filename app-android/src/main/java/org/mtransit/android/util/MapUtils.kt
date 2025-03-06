@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
-import android.provider.Settings
 import android.util.LruCache
 import android.view.View
 import android.view.ViewGroup
@@ -62,9 +61,7 @@ object MapUtils : Loggable {
         optSrcLat: Double?, optSrcLng: Double?,
         optQuery: String?,
     ) {
-        val firebaseTestLabSetting = Settings.System.getString(activity.contentResolver, "firebase.test.lab")
-        val isUsingFirebaseTestLab = "true" == firebaseTestLabSetting
-        val useInternalWebBrowser = !isUsingFirebaseTestLab && PreferenceUtils.getPrefDefault(
+        val useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity) && PreferenceUtils.getPrefDefault(
             activity,
             PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER,
             PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
@@ -83,6 +80,7 @@ object MapUtils : Loggable {
         startMapIntent(activity, gmmIntentUri)
     }
 
+    @JvmStatic
     fun getMapsDirectionUrl(
         optDestLat: Double?, optDestLng: Double?,
         optSrcLat: Double?, optSrcLng: Double?,
