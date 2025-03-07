@@ -71,7 +71,9 @@ class NewsListViewModel @Inject constructor(
 
     private val _filterUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_UUIDS, EXTRA_FILTER_UUIDS_DEFAULT)
 
-    private val _filters = TripleMediatorLiveData(_targetAuthorities, _filterTargets, _filterUUIDs)
+    private val _filters = TripleMediatorLiveData(_targetAuthorities, _filterTargets, _filterUUIDs).map {
+        Filters(it.first?.toList(), it.second?.toList(), it.third?.toList())
+    }.distinctUntilChanged()
 
     private val _allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
 
@@ -103,14 +105,15 @@ class NewsListViewModel @Inject constructor(
     val loading: LiveData<Boolean> = _loading
 
     val newsArticles: LiveData<List<News>?> =
-        TripleMediatorLiveData(_allNewsProviders, _filters, _refreshRequestedTrigger).switchMap { (allNewsProviders, filters) ->
+        TripleMediatorLiveData(_allNewsProviders, _filters, _refreshRequestedTrigger).switchMap { (allNewsProviders, filters, trigger) ->
             _loading.value = true
             newsRepository.loadingNewsArticles(
                 allProviders = allNewsProviders,
-                targetProviderAuthorities = filters?.first,
-                filterTargets = filters?.second,
-                filterUUIDs = filters?.third,
+                targetProviderAuthorities = filters?.targetAuthorities,
+                filterTargets = filters?.filterTargets,
+                filterUUIDs = filters?.filterUUIDs,
                 comparator = News.NEWS_COMPARATOR,
+                firstLoad = newsArticles.value == null,
                 onSuccess = {
                     _loading.postValue(false)
                 },
@@ -147,4 +150,10 @@ class NewsListViewModel @Inject constructor(
     override val hasDisabledModule = moduleDisabled.map {
         it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
+
+    private data class Filters(
+        val targetAuthorities: List<String>?,
+        val filterTargets: List<String>?,
+        val filterUUIDs: List<String>?,
+    )
 }

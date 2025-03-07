@@ -303,29 +303,28 @@ class DataSourcesRepository @Inject constructor(
         }
     }
 
-    private suspend fun update(forcePkg: String? = null): Boolean {
+    private suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {
         var updated: Boolean
-        withContext(Dispatchers.IO) {
-            MTLog.i(this@DataSourcesRepository, "update() > Updating... ")
-            updated = dataSourcesReader.update(forcePkg)
-            MTLog.i(this@DataSourcesRepository, "update() > Updating...  DONE")
-        }
+        MTLog.i(this@DataSourcesRepository, "update() > Updating... ")
+        updated = dataSourcesReader.update(forcePkg)
+        MTLog.i(this@DataSourcesRepository, "update() > Updating...  DONE")
         MTLog.d(this, "update() > $updated")
-        return updated
+        updated
     }
 
-    suspend fun refreshAvailableVersions(forcePkg: String? = null, forceAppUpdateRefresh: Boolean = false): Boolean {
+    suspend fun refreshAvailableVersions(
+        forcePkg: String? = null,
+        forceAppUpdateRefresh: Boolean = false,
+    ) = withContext(Dispatchers.IO) {
         var updated = false
-        withContext(Dispatchers.IO) {
-            dataSourcesReader.refreshAvailableVersions(
-                forcePkg = forcePkg,
-                skipTimeCheck = true,
-                forceAppUpdateRefresh = forceAppUpdateRefresh,
-            ) {
-                updated = true
-            }
+        dataSourcesReader.refreshAvailableVersions(
+            forcePkg = forcePkg,
+            skipTimeCheck = true,
+            forceAppUpdateRefresh = forceAppUpdateRefresh,
+        ) {
+            updated = true
         }
-        return updated
+        updated
     }
 
     fun isAProvider(pkg: String?): Boolean {

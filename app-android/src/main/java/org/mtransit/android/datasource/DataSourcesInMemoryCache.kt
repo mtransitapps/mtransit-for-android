@@ -46,10 +46,10 @@ class DataSourcesInMemoryCache @Inject constructor(
     private var _agencyBaseProperties = listOf<AgencyBaseProperties>() // sorted
     private var _supportedDataSourceTypes = listOf<DataSourceType>() // sorted
 
-    private var _statusProviderProperties = setOf<StatusProviderProperties>() // not sorted
-    private var _scheduleProviderProperties = setOf<ScheduleProviderProperties>() // not sorted
-    private var _serviceUpdateProviderProperties = setOf<ServiceUpdateProviderProperties>() // not sorted
-    private var _newsProviderProperties = setOf<NewsProviderProperties>() // not sorted
+    private var _statusProviderProperties = listOf<StatusProviderProperties>() // sorted for stability
+    private var _scheduleProviderProperties = listOf<ScheduleProviderProperties>() // sorted for stability
+    private var _serviceUpdateProviderProperties = listOf<ServiceUpdateProviderProperties>() // sorted for stability
+    private var _newsProviderProperties = listOf<NewsProviderProperties>() // sorted for stability
 
     init {
         // START LISTENING FOR CHANGE TO FILL IN-MEMORY CACHE
@@ -81,23 +81,19 @@ class DataSourcesInMemoryCache @Inject constructor(
         dataSourcesCache.readingAllStatusProviders().observeForever { // SINGLETON
             this._statusProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
-                .toSet() // not sorted
         }
         dataSourcesCache.readingAllScheduleProviders().observeForever { // SINGLETON
             this._scheduleProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
-                .toSet() // not sorted
         }
         dataSourcesCache.readingAllServiceUpdateProviders().observeForever { // SINGLETON
             this._serviceUpdateProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
-                .toSet() // not sorted
         }
         dataSourcesCache.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
             this._newsProviderProperties = newsProviders
                 .filterExpansiveNewsProviders(billingManager)
                 .filterDemoModeTargeted(demoModeManager)
-                .toSet() // not sorted
         }
     }
 
@@ -117,7 +113,7 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     fun getAllStatusProviders() = this._statusProviderProperties
 
-    fun getStatusProviders(targetAuthority: String) = this._statusProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
+    fun getStatusProviders(targetAuthority: String) = this._statusProviderProperties.filter { it.targetAuthority == targetAuthority }
 
     fun getStatusProvider(authority: String) = this._statusProviderProperties.singleOrNull { it.authority == authority }
 
@@ -125,7 +121,7 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     fun getAllScheduleProviders() = this._scheduleProviderProperties
 
-    fun getScheduleProviders(targetAuthority: String?) = this._scheduleProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
+    fun getScheduleProviders(targetAuthority: String?) = this._scheduleProviderProperties.filter { it.targetAuthority == targetAuthority }
 
     fun getScheduleProvidersList(targetAuthority: String?) = this._scheduleProviderProperties.filter { it.targetAuthority == targetAuthority }
 
@@ -135,7 +131,7 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     fun getAllServiceUpdateProviders() = this._serviceUpdateProviderProperties
 
-    fun getServiceUpdateProviders(targetAuthority: String) = this._serviceUpdateProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
+    fun getServiceUpdateProviders(targetAuthority: String) = this._serviceUpdateProviderProperties.filter { it.targetAuthority == targetAuthority }
 
     fun getServiceUpdateProvider(authority: String) = this._serviceUpdateProviderProperties.singleOrNull { it.authority == authority }
 
@@ -143,7 +139,7 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     fun getAllNewsProviders() = this._newsProviderProperties
 
-    fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
+    fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filter { it.targetAuthority == targetAuthority }
 
     fun getNewsProvidersList(targetAuthority: String) = this._newsProviderProperties.filter { it.targetAuthority == targetAuthority }
 

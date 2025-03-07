@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -31,6 +30,7 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.location.MTLocationProvider
+import org.mtransit.android.provider.location.getNearbyLocationAddress
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -171,13 +171,10 @@ class NearbyViewModel @Inject constructor(
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
     val nearbyLocationAddress: LiveData<String?> = nearbyLocation.switchMap { nearbyLocation ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getNearbyLocationAddress(nearbyLocation))
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            emit(locationProvider.getNearbyLocationAddress(nearbyLocation))
         }
     }
-
-    @WorkerThread
-    private fun getNearbyLocationAddress(location: Location?) = location?.let { locationProvider.getLocationAddressString(it) }
 
     val fixedOnName = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
 

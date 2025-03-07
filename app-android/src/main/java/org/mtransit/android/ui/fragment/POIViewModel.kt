@@ -307,6 +307,7 @@ class POIViewModel @Inject constructor(
             newsProviders,
             poi,
             News.NEWS_SEVERITY_COMPARATOR,
+            firstLoad = latestNewsArticleList.value == null,
             { allNews ->
                 val nowInMs = UITimeUtils.currentTimeMillis()
                 val selectedNews = mutableListOf<News>()
@@ -330,7 +331,7 @@ class POIViewModel @Inject constructor(
                     }
                     noteworthiness++
                 }
-                selectedNews
+                return@loadingNewsArticles selectedNews
             },
             coroutineContext = viewModelScope.coroutineContext + Dispatchers.IO,
         )

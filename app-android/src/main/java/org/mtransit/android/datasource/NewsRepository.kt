@@ -1,12 +1,10 @@
 package org.mtransit.android.datasource
 
 import androidx.lifecycle.liveData
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
@@ -18,24 +16,12 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 @Singleton
-class NewsRepository(
+class NewsRepository @Inject constructor(
     val dataSourceRequestManager: DataSourceRequestManager,
     val demoModeManager: DemoModeManager,
-    private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
-
-    @Inject
-    constructor(
-        dataSourceRequestManager: DataSourceRequestManager,
-        demoModeManager: DemoModeManager,
-    ) : this(
-        dataSourceRequestManager,
-        demoModeManager,
-        Dispatchers.IO,
-    )
 
     companion object {
         private val LOG_TAG = NewsRepository::class.java.simpleName
@@ -47,9 +33,10 @@ class NewsRepository(
         providers: List<NewsProviderProperties>?,
         poi: POI?,
         comparator: Comparator<News>,
+        firstLoad: Boolean,
         let: ((List<News>) -> List<News>?) = { it },
         onSuccess: (() -> Unit)? = null,
-        coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        coroutineContext: CoroutineContext,
     ) = loadingNewsArticles(
         providers,
         poi?.let {
@@ -65,6 +52,7 @@ class NewsRepository(
                 )
         },
         comparator,
+        firstLoad,
         let,
         onSuccess,
         coroutineContext,
@@ -72,13 +60,14 @@ class NewsRepository(
 
     fun loadingNewsArticles(
         allProviders: Iterable<NewsProviderProperties>?,
-        targetProviderAuthorities: Array<String>?,
-        filterTargets: Array<String>?,
-        filterUUIDs: Array<String>?,
+        targetProviderAuthorities: List<String>?,
+        filterTargets: List<String>?,
+        filterUUIDs: List<String>?,
         comparator: Comparator<News>,
+        firstLoad: Boolean,
         let: ((List<News>) -> List<News>?) = { it },
         onSuccess: (() -> Unit)? = null,
-        coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        coroutineContext: CoroutineContext,
     ) = loadingNewsArticles(
         providers = allProviders?.filter {
             targetProviderAuthorities != null // SKIP
@@ -86,11 +75,12 @@ class NewsRepository(
         },
         filter = when {
             filterUUIDs == null || filterTargets == null -> null // SKIP
-            filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs.toList())
-            filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets.toList())
+            filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs)
+            filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets)
             else -> NewsProviderContract.Filter.getNewEmptyFilter()
         },
         comparator,
+        firstLoad,
         let,
         onSuccess,
         coroutineContext,
@@ -100,14 +90,20 @@ class NewsRepository(
         providers: List<NewsProviderProperties>?,
         filter: NewsProviderContract.Filter?,
         comparator: Comparator<News>,
+        firstLoad: Boolean,
         let: ((List<News>) -> List<News>?) = { it },
         onSuccess: (() -> Unit)? = null,
-        coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        coroutineContext: CoroutineContext,
     ) = liveData(coroutineContext) {
         if (providers == null || filter == null) {
             return@liveData // SKIP
         }
-        emit(loadNewsArticles(providers, filter, comparator, let, coroutineContext))
+        // 1 - cache only
+        if (firstLoad) {
+            emit(loadNewsArticles(providers, filter.setCacheOnly(true), comparator, let))
+        }
+        // 2 - look for new news
+        emit(loadNewsArticles(providers, filter.setCacheOnly(false), comparator, let))
         onSuccess?.invoke()
     }
 
@@ -116,11 +112,10 @@ class NewsRepository(
         filter: NewsProviderContract.Filter,
         comparator: Comparator<News>,
         let: ((List<News>) -> List<News>?) = { it },
-        coroutineContext: CoroutineContext = ioDispatcher,
-    ) = withContext(coroutineContext) {
+    ): List<News>? = coroutineScope {
         providers
             .map { provider ->
-                async {
+                async<List<News>?> {
                     ensureActive()
                     dataSourceRequestManager.findNews(provider, filter)
                 }
@@ -138,7 +133,7 @@ class NewsRepository(
         provider: NewsProviderProperties?,
         onMissingProvider: ((oldNews: News?) -> (Unit)) = {},
         onNewsLoaded: ((loadedNews: News?) -> (Unit)) = {},
-        coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        coroutineContext: CoroutineContext,
     ) = loadingNewsArticle(
         provider,
         uuid?.let { NewsProviderContract.Filter.getNewUUIDFilter(uuid) },
@@ -152,7 +147,7 @@ class NewsRepository(
         filter: NewsProviderContract.Filter?,
         onMissingProvider: ((oldNews: News?) -> (Unit)) = {},
         onNewsLoaded: ((loadedNews: News?) -> (Unit)) = {},
-        coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        coroutineContext: CoroutineContext,
     ) = liveData(coroutineContext) {
         if (filter == null) {
             return@liveData // SKIP
@@ -161,7 +156,7 @@ class NewsRepository(
             onMissingProvider(this.latestValue)
             return@liveData // SKIP
         }
-        val loadedNewsArticle = loadNewsArticle(provider, filter, coroutineContext)
+        val loadedNewsArticle = loadNewsArticle(provider, filter)
         onNewsLoaded(loadedNewsArticle)
         emit(loadedNewsArticle)
     }
@@ -169,8 +164,5 @@ class NewsRepository(
     private suspend fun loadNewsArticle(
         provider: NewsProviderProperties,
         filter: NewsProviderContract.Filter,
-        context: CoroutineContext = ioDispatcher,
-    ) = withContext(context) {
-        dataSourceRequestManager.findNews(provider, filter)?.firstOrNull()
-    }
+    ) = dataSourceRequestManager.findNews(provider, filter)?.firstOrNull()
 }

@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -43,6 +42,7 @@ import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.location.MTLocationProvider
+import org.mtransit.android.provider.location.getNearbyLocationAddress
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.MTActivityWithLocation
@@ -152,13 +152,10 @@ class HomeViewModel @Inject constructor(
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
     val nearbyLocationAddress: LiveData<String?> = _nearbyLocation.switchMap { nearbyLocation ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getNearbyLocationAddress(nearbyLocation))
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            emit(locationProvider.getNearbyLocationAddress(nearbyLocation))
         }
     }
-
-    @WorkerThread
-    private fun getNearbyLocationAddress(location: Location?) = location?.let { locationProvider.getLocationAddressString(it) }
 
     override val newLocationAvailable: LiveData<Boolean?> =
         PairMediatorLiveData(_nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
@@ -188,7 +185,7 @@ class HomeViewModel @Inject constructor(
 
     val sortedTypeToHomeAgencies: LiveData<List<DataSourceType>?> = _typeToHomeAgencies.map {
         it?.keys?.toList()
-    }
+    }.distinctUntilChanged()
 
     private val _loadingPOIs = MutableLiveData(true)
     val loadingPOIs: LiveData<Boolean?> = _loadingPOIs

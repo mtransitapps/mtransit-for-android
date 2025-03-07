@@ -257,7 +257,7 @@ public class GoogleLocationProvider
 				.addOnSuccessListener(this::onNewLastLocation);
 	}
 
-	private void onNewLastLocation(@SuppressWarnings("ParameterCanBeLocal") @Nullable Location lastLocation) {
+	private void onNewLastLocation(@Nullable Location lastLocation) {
 		if (FakeLocation.ENABLED) {
 			lastLocation = FakeLocation.getLocation();
 		}

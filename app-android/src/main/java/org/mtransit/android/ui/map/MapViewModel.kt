@@ -15,6 +15,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -256,7 +257,7 @@ class MapViewModel @Inject constructor(
         if (reset) {
             _poiMarkers.value = null
         }
-        poiMarkersLoadJob = viewModelScope.launch {
+        poiMarkersLoadJob = viewModelScope.launch(Dispatchers.IO) {
             val areaTypeMapAgencies: List<IAgencyNearbyUIProperties>? = areaTypeMapAgencies.value
             val loadedArea: LatLngBounds? = _loadedArea.value
             val loadingArea: LatLngBounds? = _loadingArea.value
