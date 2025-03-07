@@ -146,6 +146,7 @@ dev.properties
 
 # Shared files
 /.idea/.name
+/.idea/AndroidProjectSystem.xml
 /.idea/bashsupport_project.xml
 /.idea/codeStyles/Project.xml
 /.idea/codeStyles/codeStyleConfig.xml
