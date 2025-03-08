@@ -183,7 +183,7 @@ public class Place extends DefaultPOI {
 
 	@NonNull
 	public Object[] getCursorRow() {
-		//noinspection deprecation
+		//noinspection deprecation, DeprecatedCall
 		final int id = getId();
 		if (FeatureFlags.F_ACCESSIBILITY_PRODUCER) {
 			return new Object[]{ //
