@@ -97,7 +97,6 @@ public class Place extends DefaultPOI {
 		return Place.class.getSimpleName() + ":[" + //
 				"authority:" + getAuthority() + ',' + //
 				"providerId:" + getProviderId() + ',' + //
-				"id:" + getId() + ',' + //
 				"name:" + getName() + ',' + //
 				"icon: " + getIconUrl() + " (" + getIconBgColor() + ")" + ',' + //
 				']';
@@ -184,11 +183,13 @@ public class Place extends DefaultPOI {
 
 	@NonNull
 	public Object[] getCursorRow() {
+		//noinspection deprecation
+		final int id = getId();
 		if (FeatureFlags.F_ACCESSIBILITY_PRODUCER) {
 			return new Object[]{ //
 					getUUID(), //
 					getDataSourceTypeId(), //
-					getId(),//
+					id,//
 					getName(), //
 					getLat(),//
 					getLng(), //
@@ -202,7 +203,7 @@ public class Place extends DefaultPOI {
 		return new Object[]{ //
 				getUUID(), //
 				getDataSourceTypeId(), //
-				getId(),//
+				id,//
 				getName(), //
 				getLat(),//
 				getLng(), //
