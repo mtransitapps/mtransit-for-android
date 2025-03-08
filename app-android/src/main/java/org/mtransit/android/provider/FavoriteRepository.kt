@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
+import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.TextMessage
@@ -96,7 +97,7 @@ class FavoriteRepository(
         return favoriteManager.generateFavoriteFolderId(favoriteFolderId)
     }
 
-    fun generateFavEmptyFavPOI(textMessageId: Long): POI {
-        return TextMessage(textMessageId, appContext.getString(R.string.favorite_folder_empty))
+    fun generateFavEmptyFavPOI(textMessageId: Long, @DataSourceTypeId.DataSourceType dataSourceTypeId: Int): POI {
+        return TextMessage(textMessageId, dataSourceTypeId, appContext.getString(R.string.favorite_folder_empty))
     }
 }

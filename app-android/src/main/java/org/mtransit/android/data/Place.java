@@ -42,11 +42,20 @@ public class Place extends DefaultPOI {
 	private Integer iconBgColorInt = null;
 
 	public Place(@NonNull String authority, @NonNull String providerId, @NonNull String lang, long readAtInMs) {
-		super(authority, DataSourceTypeId.PLACE, POI.ITEM_VIEW_TYPE_PLACE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_PLACE);
+		super(authority, -1, DataSourceTypeId.PLACE, POI.ITEM_VIEW_TYPE_PLACE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_PLACE);
 		this.providerId = providerId;
 		this.lang = lang;
 		this.readAtInMs = readAtInMs;
 		resetUUID();
+	}
+
+	/**
+	 * @deprecated use {@link #getProviderId()} instead
+	 */
+	@Deprecated
+	@Override
+	public int getId() {
+		return super.getId();
 	}
 
 	@NonNull
@@ -153,7 +162,7 @@ public class Place extends DefaultPOI {
 	@Nullable
 	public static Place fromJSONStatic(@NonNull JSONObject json) {
 		try {
-			Place place = new Place( //
+			final Place place = new Place( //
 					DefaultPOI.getAuthorityFromJSON(json), //
 					json.getString(JSON_PROVIDER_ID), //
 					json.getString(JSON_LANG), //

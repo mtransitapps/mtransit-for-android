@@ -29,10 +29,18 @@ public class TextMessage extends DefaultPOI {
 
 	private final long messageId;
 
-	public TextMessage(long messageId, @NonNull String message) {
-		super(AUTHORITY, DataSourceTypeId.INVALID, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE);
+	public TextMessage(long messageId, @DataSourceTypeId.DataSourceType int dataSourceTypeId, @NonNull String message) {
+		super(AUTHORITY, -1, dataSourceTypeId, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE);
 		this.messageId = messageId;
 		setName(message);
+	}
+
+	/**
+	 * @deprecated use {@link #getMessageId()} instead
+	 */
+	@Override
+	public int getId() {
+		return super.getId();
 	}
 
 	public long getMessageId() {
@@ -51,7 +59,6 @@ public class TextMessage extends DefaultPOI {
 				"authority:" + getAuthority() + ',' + //
 				"messageId:" + getMessageId() + ',' + //
 				"message:" + getMessage() + ',' + //
-				"id:" + getId() + ',' + //
 				']';
 	}
 
@@ -104,9 +111,10 @@ public class TextMessage extends DefaultPOI {
 	@Nullable
 	public static TextMessage fromJSONStatic(@NonNull JSONObject json) {
 		try {
-			TextMessage textMessage = new TextMessage( //
-					json.getLong(JSON_MESSAGE_ID), //
-					json.getString(JSON_MESSAGE) //
+			final TextMessage textMessage = new TextMessage(
+					json.getLong(JSON_MESSAGE_ID),
+					DefaultPOI.getDSTypeIdFromJSON(json),
+					json.getString(JSON_MESSAGE)
 			);
 			DefaultPOI.fromJSON(json, textMessage);
 			return textMessage;
@@ -121,8 +129,9 @@ public class TextMessage extends DefaultPOI {
 	public static TextMessage fromSimpleJSONStatic(@NonNull JSONObject json, @NonNull String authority) {
 		try {
 			return new TextMessage( //
-					json.getLong(JSON_MESSAGE_ID), //
-					json.getString(JSON_MESSAGE) //
+					json.getLong(JSON_MESSAGE_ID),
+					DefaultPOI.getDSTypeIdFromJSON(json),
+					json.getString(JSON_MESSAGE)
 			);
 		} catch (JSONException jsone) {
 			MTLog.w(LOG_TAG, jsone, "Error while parsing simple JSON '%s'!", json);
@@ -148,9 +157,10 @@ public class TextMessage extends DefaultPOI {
 	@NonNull
 	public static TextMessage fromCursorStatic(@NonNull Cursor c,
 											   @SuppressWarnings("unused") @NonNull String authority) {
-		long messageId = c.getLong(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE_ID));
-		String message = c.getString(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE));
-		TextMessage textMessage = new TextMessage(messageId, message);
+		final long messageId = c.getLong(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE_ID));
+		final String message = c.getString(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE));
+		final int dataSourceTypeId = DefaultPOI.getDataSourceTypeIdFromCursor(c);
+		final TextMessage textMessage = new TextMessage(messageId, dataSourceTypeId, message);
 		DefaultPOI.fromCursor(c, textMessage);
 		return textMessage;
 	}

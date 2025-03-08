@@ -152,8 +152,11 @@ public class FavoriteManager implements MTLog.Loggable {
 
 	@NonNull
 	public POIManager getNewEmptyFolder(@NonNull Context context, long textMessageId, int favoriteFolderId) {
-		TextMessage textMessage = new TextMessage(textMessageId, context.getString(R.string.favorite_folder_empty));
-		textMessage.setDataSourceTypeId(generateFavoriteFolderId(favoriteFolderId));
+		final TextMessage textMessage = new TextMessage(
+				textMessageId,
+				generateFavoriteFolderId(favoriteFolderId),
+				context.getString(R.string.favorite_folder_empty)
+		);
 		return new POIManager(textMessage);
 	}
 

@@ -46,10 +46,19 @@ public class Module extends DefaultPOI {
 	private String nameFr = null;
 
 	public Module(@NonNull String authority, @NonNull String pkg, @DataSourceTypeId.DataSourceType int targetTypeId) {
-		super(authority, DataSourceTypeId.MODULE, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
+		super(authority, -1, DataSourceTypeId.MODULE, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
 		this.pkg = pkg;
 		resetUUID();
 		this.targetTypeId = targetTypeId;
+	}
+
+	/**
+	 * @deprecated use {@link #getPkg()} instead
+	 */
+	@Deprecated
+	@Override
+	public int getId() {
+		return super.getId();
 	}
 
 	@NonNull
@@ -191,7 +200,7 @@ public class Module extends DefaultPOI {
 	@Nullable
 	public static Module fromJSONStatic(@NonNull JSONObject json) {
 		try {
-			Module module = new Module( //
+			final Module module = new Module( //
 					DefaultPOI.getAuthorityFromJSON(json), //
 					json.getString(JSON_PKG), //
 					json.getInt(JSON_TARGET_TYPE_ID) //
@@ -217,9 +226,9 @@ public class Module extends DefaultPOI {
 	}
 
 	@Nullable
-	public static Module fromSimpleJSONStatic(@NonNull JSONObject json, @NonNull String authority) {
+	public static Module fromSimpleJSONStatic(@NonNull JSONObject json, @NonNull String authority, int id) {
 		try {
-			Module module = new Module( //
+			final Module module = new Module( //
 					authority, //
 					json.getString(JSON_PKG), //
 					json.getInt(JSON_TARGET_TYPE_ID) //
@@ -268,7 +277,7 @@ public class Module extends DefaultPOI {
 	public static Module fromCursorStatic(@NonNull Cursor c, @NonNull String authority) {
 		String pkg = c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_PKG));
 		int targetTypeId = c.getInt(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID));
-		Module module = new Module(authority, pkg, targetTypeId);
+		final Module module = new Module(authority, pkg, targetTypeId);
 		module.setColor(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR)));
 		module.setLocation(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION)));
 		module.setNameFr(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR)));

@@ -282,7 +282,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		boolean showingDone();
 	}
 
-	private static final int VIEW_TYPE_COUNT = 11;
+	private static final int VIEW_TYPE_COUNT = 12;
 
 	/**
 	 * @see #getItemViewType(int)
@@ -324,7 +324,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		final int statusType = poim.getStatusType();
 		switch (type) {
 		case POI.ITEM_VIEW_TYPE_PLACE:
-			return 8; // PLACE
+			return 11; // PLACE
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return 7; // TEXT MESSAGE
 		case POI.ITEM_VIEW_TYPE_MODULE:

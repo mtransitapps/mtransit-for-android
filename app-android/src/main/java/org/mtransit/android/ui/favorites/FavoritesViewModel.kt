@@ -126,9 +126,12 @@ class FavoritesViewModel @Inject constructor(
     }
 
     private fun getNewEmptyFolder(textMessageId: Long, favoriteFolderId: Int): POIManager {
-        return POIManager(this.favoriteRepository.generateFavEmptyFavPOI(textMessageId).also {
-            it.dataSourceTypeId = this.favoriteRepository.generateFavoriteFolderId(favoriteFolderId)
-        })
+        return POIManager(
+            this.favoriteRepository.generateFavEmptyFavPOI(
+                textMessageId,
+                this.favoriteRepository.generateFavoriteFolderId(favoriteFolderId)
+            )
+        )
     }
 
     class FavoriteFolderNameComparator(
