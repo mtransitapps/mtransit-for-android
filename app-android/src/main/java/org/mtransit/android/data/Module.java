@@ -45,8 +45,11 @@ public class Module extends DefaultPOI {
 	@Nullable
 	private String nameFr = null;
 
-	public Module(@NonNull String authority, @NonNull String pkg, @DataSourceTypeId.DataSourceType int targetTypeId) {
-		super(authority, -1, DataSourceTypeId.MODULE, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
+	/**
+	 * @param id useful to store in DB
+	 */
+	public Module(@NonNull String authority, int id, @NonNull String pkg, @DataSourceTypeId.DataSourceType int targetTypeId) {
+		super(authority, id, DataSourceTypeId.MODULE, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
 		this.pkg = pkg;
 		resetUUID();
 		this.targetTypeId = targetTypeId;
@@ -202,6 +205,7 @@ public class Module extends DefaultPOI {
 		try {
 			final Module module = new Module( //
 					DefaultPOI.getAuthorityFromJSON(json), //
+					DefaultPOI.getIdFromJSON(json), //
 					json.getString(JSON_PKG), //
 					json.getInt(JSON_TARGET_TYPE_ID) //
 			);
@@ -230,6 +234,7 @@ public class Module extends DefaultPOI {
 		try {
 			final Module module = new Module( //
 					authority, //
+					id, //
 					json.getString(JSON_PKG), //
 					json.getInt(JSON_TARGET_TYPE_ID) //
 			);
@@ -277,7 +282,8 @@ public class Module extends DefaultPOI {
 	public static Module fromCursorStatic(@NonNull Cursor c, @NonNull String authority) {
 		String pkg = c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_PKG));
 		int targetTypeId = c.getInt(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID));
-		final Module module = new Module(authority, pkg, targetTypeId);
+		final int id = DefaultPOI.getIdFromCursor(c);
+		final Module module = new Module(authority, id, pkg, targetTypeId);
 		module.setColor(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR)));
 		module.setLocation(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION)));
 		module.setNameFr(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR)));

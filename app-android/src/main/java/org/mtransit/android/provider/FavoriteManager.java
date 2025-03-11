@@ -46,7 +46,6 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
-@SuppressWarnings("unused")
 public class FavoriteManager implements MTLog.Loggable {
 
 	private static final String LOG_TAG = FavoriteManager.class.getSimpleName();
@@ -86,10 +85,12 @@ public class FavoriteManager implements MTLog.Loggable {
 		return this.favoriteFolders;
 	}
 
+	@SuppressWarnings("unused")
 	public boolean hasFavoriteFolders() {
 		return !this.favoriteFolders.isEmpty();
 	}
 
+	@SuppressWarnings("unused")
 	public boolean hasFavoriteFolder(int favoriteFolderId) {
 		return ArrayUtils.containsKey(this.favoriteFolders, favoriteFolderId);
 	}
@@ -150,6 +151,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return findFavorite(context, fkId) != null;
 	}
 
+	@SuppressWarnings("unused")
 	@NonNull
 	public POIManager getNewEmptyFolder(@NonNull Context context, long textMessageId, int favoriteFolderId) {
 		final TextMessage textMessage = new TextMessage(
@@ -580,7 +582,8 @@ public class FavoriteManager implements MTLog.Loggable {
 		String selectionF = SqlUtils.getWhereEquals(FavoriteColumns.T_FAVORITE_K_FOLDER_ID, favoriteFolder.getId());
 		ContentValues updateValues = new ContentValues();
 		updateValues.put(FavoriteColumns.T_FAVORITE_K_FOLDER_ID, DEFAULT_FOLDER_ID);
-		int updatedRows = context.getContentResolver().update(getFavoriteContentUri(context), updateValues, selectionF, null);
+		@SuppressWarnings("unused")
+		final int updatedRows = context.getContentResolver().update(getFavoriteContentUri(context), updateValues, selectionF, null);
 		String selection = SqlUtils.getWhereEquals(FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID, favoriteFolder.getId());
 		int deletedRows = context.getContentResolver().delete(getFolderContentUri(context), selection, null);
 		if (deletedRows > 0) {

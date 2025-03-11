@@ -36,6 +36,7 @@ public class TextMessage extends DefaultPOI {
 	}
 
 	/**
+	 * Only useful when POI needs to be stored in DB like Modules (from JSON)
 	 * @deprecated use {@link #getMessageId()} instead
 	 */
 	@Override
