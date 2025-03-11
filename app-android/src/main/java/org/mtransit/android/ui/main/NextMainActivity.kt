@@ -273,22 +273,7 @@ class NextMainActivity : MTActivityWithLocation(),
         billingManager.addListener(this) // trigger onBillingResult() w/ current value
         billingManager.refreshPurchases()
         onLastLocationChanged(deviceLocation)
-    }
 
-    override fun onPrivacyOptionsRequiredChanged() {
-        // TODO later
-    }
-
-    override fun onRewardedAdStatusChanged() {
-        // DO NOTHING
-    }
-
-    override fun skipRewardedAd(): Boolean {
-        return adManager.shouldSkipRewardedAd()
-    }
-
-    override fun onPostResume() {
-        super.onPostResume()
         isMTResumed = true
         if (currentUiMode != resources.configuration.uiMode) {
             lifecycleScope.launch {
@@ -304,8 +289,19 @@ class NextMainActivity : MTActivityWithLocation(),
         )
     }
 
+    override fun onPrivacyOptionsRequiredChanged() {
+        // TODO later
+    }
+
+    override fun onRewardedAdStatusChanged() {
+        // DO NOTHING
+    }
+
+    override fun skipRewardedAd(): Boolean {
+        return adManager.shouldSkipRewardedAd()
+    }
+
     var isMTResumed = false
-        private set
 
     override fun onPause() {
         super.onPause()

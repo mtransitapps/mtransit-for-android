@@ -1,6 +1,5 @@
 package org.mtransit.android.ui;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -11,6 +10,7 @@ import android.view.MenuItem;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
+import androidx.annotation.Discouraged;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -62,6 +62,7 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 
 	@CallSuper
 	@Override
+	@SuppressWarnings("NullableProblems")
 	protected void onNewIntent(@SuppressWarnings("InvalidNullabilityOverride") Intent intent) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onNewIntent(%s)", intent);
@@ -117,6 +118,7 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 		super.onWindowFocusChanged(hasFocus);
 	}
 
+	@Discouraged(message = "use onResume() instead")
 	@Override
 	protected void onPostResume() {
 		if (Constants.LOG_LIFECYCLE) {

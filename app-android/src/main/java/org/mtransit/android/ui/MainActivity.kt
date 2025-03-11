@@ -239,21 +239,8 @@ class MainActivity : MTActivityWithLocation(),
         this.billingManager.addListener(this) // trigger onBillingResult() w/ current value
         this.billingManager.refreshPurchases()
         onLastLocationChanged(deviceLocation)
-    }
 
-    override fun onPrivacyOptionsRequiredChanged() {
-        this.navigationDrawerController?.setVisibleMenuItems()
-    }
-
-    override fun onRewardedAdStatusChanged() {
-        // DO NOTHING
-    }
-
-    override fun skipRewardedAd() = this.adManager.shouldSkipRewardedAd()
-
-    protected override fun onPostResume() {
-        super.onPostResume()
-        this.resumed = true
+        this.isMTResumed = true
         if (this.currentUiMode != getResources().configuration.uiMode) {
             Handler(Looper.getMainLooper()).post(Runnable {
                 NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
@@ -271,15 +258,22 @@ class MainActivity : MTActivityWithLocation(),
         updateNavigationDrawerToggleIndicator()
     }
 
-    private var resumed = false
-
-    fun isMTResumed(): Boolean {
-        return this.resumed
+    override fun onPrivacyOptionsRequiredChanged() {
+        this.navigationDrawerController?.setVisibleMenuItems()
     }
+
+    override fun onRewardedAdStatusChanged() {
+        // DO NOTHING
+    }
+
+    override fun skipRewardedAd() = this.adManager.shouldSkipRewardedAd()
+
+    var isMTResumed = false
+        private set
 
     protected override fun onPause() {
         super.onPause()
-        this.resumed = false
+        this.isMTResumed = false
         this.navigationDrawerController?.onPause()
         this.billingManager.removeListener(this)
         this.adManager.pauseAd(this)

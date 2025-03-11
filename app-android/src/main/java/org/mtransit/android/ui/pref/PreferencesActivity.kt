@@ -94,8 +94,8 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         }
     }
 
-    override fun onPostResume() {
-        super.onPostResume()
+    override fun onResume() {
+        super.onResume()
         if (this.currentUiMode != resources.configuration.uiMode) {
             lifecycleScope.launch {
                 NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
