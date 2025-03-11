@@ -76,7 +76,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             fixedOnLat = poim.lat.toFloat(),
             fixedOnLng = poim.lng.toFloat(),
             fixedOnName = when (poim.poi.dataSourceTypeId) {
-                poim.poi.dataSourceTypeId -> poim.poi.name
+                DataSourceTypeId.PLACE -> poim.poi.name
                 else -> poim.getNewOneLineDescription(dataSourcesRepository)
             },
             optFixedOnColorInt = poim.getColor(dataSourcesRepository)
@@ -92,7 +92,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
                 fixedOnLat = poim.lat.toFloat(),
                 fixedOnLng = poim.lng.toFloat(),
                 fixedOnName = when (poim.poi.dataSourceTypeId) {
-                    poim.poi.dataSourceTypeId -> poim.poi.name
+                    DataSourceTypeId.PLACE -> poim.poi.name
                     else -> poim.getNewOneLineDescription(dataSourcesRepository)
                 },
                 optFixedOnColorInt = poim.getColor(dataSourcesRepository)

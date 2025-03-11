@@ -24,7 +24,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
@@ -488,7 +487,7 @@ public class POIFragment extends ABFragment implements
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		MTTransitions.postponeEnterTransition(this);
-		((MenuHost) requireActivity()).addMenuProvider(
+		requireActivity().addMenuProvider(
 				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
 		);
 		if (FeatureFlags.F_NAVIGATION) {
@@ -651,7 +650,7 @@ public class POIFragment extends ABFragment implements
 		if (fragmentStatusBarBg != null) {
 			EdgeToEdgeKt.applyStatusBarsHeightEdgeToEdge(fragmentStatusBarBg, resources.getDimensionPixelSize(R.dimen.action_bar_size_static));
 		}
-		MapView map = view.findViewById(R.id.map);
+		final MapView map = view.findViewById(R.id.map);
 		if (map != null) {
 			EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
 					resources.getDimensionPixelSize(R.dimen.large_header_height)

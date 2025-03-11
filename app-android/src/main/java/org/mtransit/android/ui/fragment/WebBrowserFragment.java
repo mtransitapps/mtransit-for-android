@@ -20,7 +20,6 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.lifecycle.Lifecycle;
 import androidx.webkit.WebViewClientCompat;
@@ -137,7 +136,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		((MenuHost) requireActivity()).addMenuProvider(
+		requireActivity().addMenuProvider(
 				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
 		);
 	}
