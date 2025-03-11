@@ -6,6 +6,15 @@ import org.mtransit.android.commons.provider.TwitterNewsProvider
 import org.mtransit.android.commons.provider.YouTubeNewsProvider
 import java.util.Locale
 
+@Suppress("KotlinConstantConditions")
+val News.uniqueId: Long
+    get() {
+        var result = 0L
+        result = 31 * result + this.authority.hashCode()
+        result = 31 * result + this.uuid.hashCode()
+        return result
+    }
+
 val News.authorityT: Authority
     get() = this.authority
 

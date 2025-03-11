@@ -2,6 +2,7 @@ package org.mtransit.android.ui.news.pager
 
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
@@ -9,6 +10,7 @@ import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorityT
 import org.mtransit.android.data.getAuthority
 import org.mtransit.android.data.getUuid
+import org.mtransit.android.data.uniqueId
 import org.mtransit.android.data.uuidT
 import org.mtransit.android.ui.news.details.NewsDetailsFragment
 
@@ -32,6 +34,10 @@ class NewsPagerAdapter(
         } ?: run {
             throw RuntimeException("No news article at position $position!")
         }
+    }
+
+    override fun getItemId(position: Int): Long {
+        return getItem(position)?.uniqueId ?: RecyclerView.NO_ID
     }
 
     fun getItem(position: Int): News? {
