@@ -19,8 +19,8 @@ object UISourceLabelUtils : MTLog.Loggable {
     fun setSourceLabelTextView(textView: TextView, serviceUpdates: Iterable<ServiceUpdate>?) {
         serviceUpdates
             ?.filter { it.shouldDisplay() }
-            ?.map { it.sourceLabel }
-            ?.filter { isUrl(it) }
+            ?.mapNotNull { it.sourceLabel }
+            ?.filter { it.isNotBlank() && isUrl(it) }
             ?.let {
                 setSourceLabelTextView(textView, *it.toTypedArray())
             }
