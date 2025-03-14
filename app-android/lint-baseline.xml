@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.3" type="baseline" client="gradle" dependencies="true" name="AGP (8.7.3)" variant="all" version="8.7.3">
+<issues format="6" by="lint 8.9.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.9.0)" variant="all" version="8.9.0">
 
     <issue
         id="DoNotMockPlatformTypes"
@@ -142,28 +142,6 @@
             file="src/main/java/org/mtransit/android/ui/view/MTJPathsView.java"
             line="162"
             column="29"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="  final Pair&lt;Integer, Integer> key = new Pair&lt;>(iconResId, color);"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/MapUtils.java"
-            line="144"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>(itemId, showDrawerLearning);"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="235"
-            column="11"/>
     </issue>
 
     <issue
@@ -351,182 +329,6 @@
             file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
             line="756"
             column="10"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use Context#getDrawableCompat() instead"
-        errorLine1="   this.drawerLayout.setDrawerShadow(ContextCompat.getDrawable(mainActivity, R.drawable.drawer_shadow), GravityCompat.START);"
-        errorLine2="                                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="173"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="runCatching has hidden issues when used with coroutines as it catches and doesn&apos;t rethrow CancellationException. This can interfere with coroutines cancellation handling! Prefer catching specific exceptions based on the current case."
-        errorLine1="        runCatching {"
-        errorLine2="        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/provider/location/network/NetworkLocationRepository.kt"
-            line="70"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="This fails to also set View#isClickable. Use View#clearOnClickListener() instead"
-        errorLine1="     headSignTv.setOnClickListener(null);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/POIStatusDetailViewController.java"
-            line="502"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.Instant or java.time.ZonedDateTime instead. There is no reason to use java.util.Date in Java 8+."
-        errorLine1="        val date = Date(item.t)"
-        errorLine2="                   ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/schedule/ScheduleAdapter.kt"
-            line="237"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.Instant or java.time.ZonedDateTime instead. There is no reason to use java.util.Date in Java 8+."
-        errorLine1="                        if (nextDate == null || date.before(nextDate)) {"
-        errorLine2="                                                     ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/schedule/ScheduleAdapter.kt"
-            line="256"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.DateTimeFormatter instead. There is no reason to use java.text.DateFormat in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="465"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.DateTimeFormatter instead. There is no reason to use java.text.DateFormat in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="465"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.DateTimeFormatter instead. There is no reason to use java.text.DateFormat in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="465"
-            column="89"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.DateTimeFormatter instead. There is no reason to use java.text.DateFormat in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                                                                          ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="465"
-            column="107"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.Instant or java.time.ZonedDateTime instead. There is no reason to use java.util.Date in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                                                                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="465"
-            column="114"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.DateTimeFormatter instead. There is no reason to use java.text.DateFormat in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="753"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.DateTimeFormatter instead. There is no reason to use java.text.DateFormat in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="753"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.DateTimeFormatter instead. There is no reason to use java.text.DateFormat in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="753"
-            column="89"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.DateTimeFormatter instead. There is no reason to use java.text.DateFormat in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                                                                          ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="753"
-            column="107"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use java.time.Instant or java.time.ZonedDateTime instead. There is no reason to use java.util.Date in Java 8+."
-        errorLine1="     ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));"
-        errorLine2="                                                                                                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="753"
-            column="114"/>
-    </issue>
-
-    <issue
-        id="DenyListedApi"
-        message="Use Context#getDrawableCompat() instead"
-        errorLine1="  Drawable drawable = ContextCompat.getDrawable(context, id);"
-        errorLine2="                                    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/UISpanUtils.java"
-            line="57"
-            column="37"/>
     </issue>
 
     <issue
@@ -3403,11 +3205,33 @@
     <issue
         id="DeprecatedCall"
         message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
+        errorLine1="            return super.onBackPressed()"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
+            line="420"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
+        errorLine1="            return super.onBackPressed()"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
+            line="420"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
         errorLine1="        super.onBackPressed()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="411"
+            line="429"
             column="9"/>
     </issue>
 
@@ -3418,7 +3242,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="411"
+            line="429"
             column="9"/>
     </issue>
 
