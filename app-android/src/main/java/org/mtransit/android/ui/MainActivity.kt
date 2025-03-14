@@ -410,6 +410,7 @@ class MainActivity : MTActivityWithLocation(),
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+            @Suppress("DEPRECATION")
             return super.onBackPressed()
         }
         if (this.navigationDrawerController?.onBackPressed() == true) {
