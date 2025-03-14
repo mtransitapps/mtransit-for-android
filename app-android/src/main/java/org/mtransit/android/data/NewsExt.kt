@@ -10,7 +10,6 @@ import java.util.Locale
 val News.uniqueId: Long
     get() {
         var result = 0L
-        result = 31 * result + this.authority.hashCode()
         result = 31 * result + this.uuid.hashCode()
         return result
     }

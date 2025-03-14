@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,6 +59,7 @@ import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.SystemSettingManager;
+import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
@@ -178,6 +180,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
 		this.drawerLayout.addDrawerListener(this.drawerToggle);
+		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+			mainActivity.getOnBackPressedDispatcher().addCallback(new InnerOnBackPressedCallback(this.drawerLayout));
+		}
 		finishSetupAsync();
 	}
 
@@ -695,11 +700,55 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	boolean onBackPressed() {
+		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+			return false;
+		}
 		if (isDrawerOpen()) {
 			closeDrawer();
 			return true; // processed
 		}
 		return false; // not processed
+	}
+
+	private static class InnerOnBackPressedCallback extends OnBackPressedCallback implements DrawerLayout.DrawerListener {
+
+		@NonNull
+		private final WeakReference<DrawerLayout> drawerLayoutWR;
+
+		InnerOnBackPressedCallback(@NonNull DrawerLayout drawerLayout) {
+			super(false);
+			this.drawerLayoutWR = new WeakReference<>(drawerLayout);
+			drawerLayout.addDrawerListener(this);
+		}
+
+		@Override
+		public void handleOnBackPressed() {
+			final DrawerLayout drawerLayout = this.drawerLayoutWR.get();
+			if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+				drawerLayout.closeDrawer(GravityCompat.START);
+			}
+		}
+
+
+		@Override
+		public void onDrawerOpened(@NonNull View drawerView) {
+			setEnabled(true);
+		}
+
+		@Override
+		public void onDrawerClosed(@NonNull View drawerView) {
+			setEnabled(false);
+		}
+
+		@Override
+		public void onDrawerStateChanged(int newState) {
+			// DO NOTHING
+		}
+
+		@Override
+		public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+			// DO NOTHING
+		}
 	}
 
 	void setDrawerToggleIndicatorEnabled(boolean enabled) {

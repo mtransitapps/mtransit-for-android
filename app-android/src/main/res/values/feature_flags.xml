@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- see UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE -->
+    <bool name="f_predictive_back_gesture">false</bool>
+    <!-- <bool name="f_predictive_back_gesture">true</bool> --><!-- WIP -->
+
+</resources>

@@ -33,6 +33,7 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI;
+import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.WeakHashMap;
@@ -214,6 +215,9 @@ public abstract class ABFragment extends MTFragmentX implements
 	}
 
 	public boolean onBackPressed() {
+		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+			return false;
+		}
 		return false; // not processed
 	}
 

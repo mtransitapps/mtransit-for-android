@@ -189,13 +189,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     private var onBackStackChangedListener: FragmentManager.OnBackStackChangedListener? = null
 
     private fun makeOnBackStackChangedListener() = FragmentManager.OnBackStackChangedListener {
-        binding?.slidingPaneLayout?.apply {
-            if (addToBackStackCalled == true
-                && mainActivity?.supportFragmentManager?.backStackEntryCount == initialBackStackEntryCount
-            ) {
-                if (isOpen) {
-                    closePane()
-                    viewModel.cleanSelectedNewsArticle()
+        binding?.apply {
+            mainActivity?.apply {
+                if (addToBackStackCalled == true
+                    && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
+                ) {
+                    if (slidingPaneLayout.isOpen) {
+                        slidingPaneLayout.closePane()
+                        viewModel.cleanSelectedNewsArticle()
+                    }
                 }
             }
         }
@@ -234,7 +236,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             slidingPaneLayout.apply {
                 onBackPressedCallback = TwoPaneOnBackPressedCallback(
                     this,
-                    onPanelHandledBackPressedCallback = {
+                    onPanelHandledBackPressedCallback = { // #onBackPressed()
                         viewModel.cleanSelectedNewsArticle()
                     },
                     onPanelOpenedCallback = {
@@ -384,10 +386,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        binding?.let { bindingNN ->
-            onBackPressedCallback?.apply {
-                isEnabled = bindingNN.slidingPaneLayout.isSlideable && bindingNN.slidingPaneLayout.isOpen
-            }
+        binding?.apply {
+            onBackPressedCallback?.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
         }
     }
 
@@ -404,11 +404,16 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     }
 
     override fun onBackPressed(): Boolean {
-        binding?.slidingPaneLayout?.apply {
-            if (mainActivity?.supportFragmentManager?.backStackEntryCount == (initialBackStackEntryCount + 1)) {
-                if (isOpen) {
-                    closePane()
-                    viewModel.cleanSelectedNewsArticle()
+        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+            return super.onBackPressed()
+        }
+        binding?.apply {
+            mainActivity?.apply {
+                if (supportFragmentManager.backStackEntryCount == (initialBackStackEntryCount + 1)) {
+                    if (slidingPaneLayout.isOpen) {
+                        slidingPaneLayout.closePane()
+                        viewModel.cleanSelectedNewsArticle()
+                    }
                 }
             }
         }
@@ -417,14 +422,16 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding?.viewPager?.unregisterOnPageChangeCallback(this.onPageChangeCallback)
-        binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
-        this.onBackStackChangedListener?.let {
-            mainActivity?.supportFragmentManager?.removeOnBackStackChangedListener(it)
+        binding?.apply {
+            viewPager.unregisterOnPageChangeCallback(onPageChangeCallback)
+            viewPager.adapter = null // cannot re-use Adapter w/ ViewPager
+            onBackStackChangedListener?.let {
+                mainActivity?.supportFragmentManager?.removeOnBackStackChangedListener(it)
+            }
+            onBackStackChangedListener = null
+            pagerAdapter = null // cannot re-use Adapter w/ ViewPager
+            refreshLayout.setOnRefreshListener(null)
         }
-        this.onBackStackChangedListener = null
-        pagerAdapter = null // cannot re-use Adapter w/ ViewPager
-        binding?.refreshLayout?.setOnRefreshListener(null)
         binding = null
     }
 

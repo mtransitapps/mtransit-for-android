@@ -57,6 +57,7 @@ import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.NightModeUtils
+import org.mtransit.android.util.UIFeatureFlags
 import java.lang.Exception
 import java.util.WeakHashMap
 import javax.inject.Inject
@@ -408,6 +409,9 @@ class MainActivity : MTActivityWithLocation(),
 
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
+        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+            return super.onBackPressed()
+        }
         if (this.navigationDrawerController?.onBackPressed() == true) {
             return
         }

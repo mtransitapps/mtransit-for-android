@@ -18,6 +18,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.MenuProvider;
@@ -32,6 +33,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.util.LinkUtils;
+import org.mtransit.android.util.UIFeatureFlags;
 
 import java.lang.ref.WeakReference;
 
@@ -139,6 +141,19 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		requireActivity().addMenuProvider(
 				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
 		);
+		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+			final OnBackPressedCallback callback = new OnBackPressedCallback(false) {
+				@Override
+				public void handleOnBackPressed() {
+					final WebView webView = view.findViewById(R.id.webView);
+					if (webView != null && webView.canGoBack()) {
+						webView.goBack();
+					}
+				}
+			};
+			onBackPressedCallback = callback;
+			requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
+		}
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
@@ -162,8 +177,14 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		webView.setWebViewClient(new MTWebViewClient(this));
 	}
 
+	@Nullable
+	private OnBackPressedCallback onBackPressedCallback = null;
+
 	@Override
 	public boolean onBackPressed() {
+		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+			return super.onBackPressed();
+		}
 		View view = getView();
 		if (view != null) {
 			WebView webView = view.findViewById(R.id.webView);
@@ -413,6 +434,18 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 				MTLog.w(this, e, "Error during should override URL loading!");
 			}
 			return super.shouldOverrideUrlLoading(webView, request);
+		}
+
+		@Override
+		public void doUpdateVisitedHistory(WebView webView, String url, boolean isReload) {
+			if (!UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+				return;
+			}
+			final WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
+			final OnBackPressedCallback onBackPressedCallback = webBrowserFragment == null ? null : webBrowserFragment.onBackPressedCallback;
+			if (onBackPressedCallback != null) {
+				onBackPressedCallback.setEnabled(webView.canGoBack());
+			}
 		}
 
 		@Override
