@@ -36,8 +36,18 @@ class NewsPagerAdapter(
         }
     }
 
+    /**
+     * When overriding, also override [containsItem]
+     */
     override fun getItemId(position: Int): Long {
         return getItem(position)?.uniqueId ?: RecyclerView.NO_ID
+    }
+
+    /**
+     * When overriding, also override [getItemId]
+     */
+    override fun containsItem(itemId: Long): Boolean {
+        return items.any { it.uniqueId == itemId }
     }
 
     fun getItem(position: Int): News? {
