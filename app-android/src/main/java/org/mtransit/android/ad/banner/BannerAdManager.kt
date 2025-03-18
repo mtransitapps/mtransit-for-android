@@ -15,6 +15,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.dev.CrashReporter
+import org.mtransit.android.provider.experiments.ExperimentsProvider
 import org.mtransit.commons.FeatureFlags
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -25,6 +26,7 @@ import javax.inject.Singleton
 @Singleton
 class BannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
+    private val experimentsProvider: ExperimentsProvider,
     private val crashReporter: CrashReporter,
 ) : MTLog.Loggable {
 
@@ -53,6 +55,14 @@ class BannerAdManager @Inject constructor(
                 else -> LOADED_UNKNOWN
             }
         )
+    }
+
+    fun onResumeScreen(activity: IAdScreenActivity) {
+        if (!experimentsProvider.getBoolean(ExperimentsProvider.EXP_AD_BANNER_LOAD_ON_SCREEN_RESUME, false)) {
+            MTLog.d(this, "onResumeScreen() > SKIP (experiments disabled)")
+            return
+        }
+        refreshBannerAdStatus(activity, force = true)
     }
 
     @JvmOverloads

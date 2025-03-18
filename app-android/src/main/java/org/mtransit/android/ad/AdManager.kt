@@ -94,7 +94,7 @@ class AdManager @Inject internal constructor(
 
     override fun destroyAd(activity: IAdScreenActivity) = this.bannerAdManager.destroyAd(activity)
 
-    override fun onResumeScreen(activity: IAdScreenActivity) = this.bannerAdManager.refreshBannerAdStatus(activity, force = true)
+    override fun onResumeScreen(activity: IAdScreenActivity) = this.bannerAdManager.onResumeScreen(activity)
 
     // endregion Banner Ads
 
