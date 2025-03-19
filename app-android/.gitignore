@@ -56,6 +56,9 @@ proguard/
 /publish_*.sh
 /src/main/play/default-language.txt
 
+# Generated files
+/src/main/AndroidManifest.xml
+
 # trigger change 1
 
 # Keys (encrypted files)
