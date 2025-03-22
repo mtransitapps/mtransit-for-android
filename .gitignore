@@ -198,5 +198,8 @@ dev.properties
 /settings.gradle
 /test.sh
 
+# Generated files
+/project_name.properties
+
 # Kotlin 2.0
 /.kotlin/
