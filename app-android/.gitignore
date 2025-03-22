@@ -58,6 +58,7 @@ proguard/
 
 # Generated files
 /src/main/AndroidManifest.xml
+/src/main/play/contact-website.txt
 
 # trigger change 1
 
