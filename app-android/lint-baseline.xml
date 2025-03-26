@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.9.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.9.0)" variant="all" version="8.9.0">
+<issues format="6" by="lint 8.9.1" type="baseline" client="gradle" dependencies="true" name="AGP (8.9.1)" variant="all" version="8.9.1">
 
     <issue
         id="DoNotMockPlatformTypes"
@@ -393,7 +393,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="205"
+            line="202"
             column="13"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="205"
+            line="202"
             column="40"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="208"
+            line="205"
             column="13"/>
     </issue>
 
@@ -426,7 +426,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="208"
+            line="205"
             column="55"/>
     </issue>
 
@@ -437,7 +437,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="217"
+            line="214"
             column="21"/>
     </issue>
 
@@ -448,7 +448,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="219"
+            line="216"
             column="21"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="227"
+            line="224"
             column="13"/>
     </issue>
 
@@ -470,7 +470,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="227"
+            line="224"
             column="51"/>
     </issue>
 
@@ -481,7 +481,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="253"
+            line="250"
             column="17"/>
     </issue>
 
@@ -492,7 +492,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="260"
+            line="257"
             column="17"/>
     </issue>
 
@@ -503,7 +503,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="269"
+            line="266"
             column="21"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="269"
+            line="266"
             column="47"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="271"
+            line="268"
             column="21"/>
     </issue>
 
@@ -536,7 +536,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="275"
+            line="272"
             column="21"/>
     </issue>
 
@@ -547,7 +547,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="275"
+            line="272"
             column="47"/>
     </issue>
 
@@ -558,7 +558,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="284"
+            line="281"
             column="13"/>
     </issue>
 
@@ -569,7 +569,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="284"
+            line="281"
             column="38"/>
     </issue>
 
@@ -580,7 +580,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="285"
+            line="282"
             column="13"/>
     </issue>
 
@@ -591,7 +591,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="285"
+            line="282"
             column="22"/>
     </issue>
 
@@ -602,7 +602,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="286"
+            line="283"
             column="13"/>
     </issue>
 
@@ -613,7 +613,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="291"
+            line="288"
             column="9"/>
     </issue>
 
@@ -624,7 +624,7 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="291"
+            line="288"
             column="47"/>
     </issue>
 
@@ -635,7 +635,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="297"
+            line="294"
             column="9"/>
     </issue>
 
@@ -646,7 +646,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="305"
+            line="302"
             column="13"/>
     </issue>
 
@@ -657,7 +657,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="314"
+            line="311"
             column="9"/>
     </issue>
 
@@ -668,7 +668,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="319"
+            line="316"
             column="9"/>
     </issue>
 
@@ -679,7 +679,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="320"
+            line="317"
             column="9"/>
     </issue>
 
@@ -690,7 +690,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="325"
+            line="322"
             column="9"/>
     </issue>
 
@@ -701,7 +701,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="333"
+            line="330"
             column="9"/>
     </issue>
 
@@ -712,7 +712,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="111"
+            line="143"
             column="33"/>
     </issue>
 
@@ -723,7 +723,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="111"
+            line="143"
             column="33"/>
     </issue>
 
@@ -976,7 +976,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/datasource/DataSourcesReader.kt"
-            line="250"
+            line="251"
             column="9"/>
     </issue>
 
@@ -2076,7 +2076,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="199"
+            line="201"
             column="17"/>
     </issue>
 
@@ -2087,7 +2087,7 @@
         errorLine2="                                           ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="199"
+            line="201"
             column="44"/>
     </issue>
 
@@ -2098,7 +2098,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="379"
+            line="381"
             column="13"/>
     </issue>
 
@@ -2131,7 +2131,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="137"
+            line="134"
             column="7"/>
     </issue>
 
@@ -2142,7 +2142,7 @@
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="137"
+            line="134"
             column="23"/>
     </issue>
 
@@ -2153,7 +2153,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="209"
+            line="206"
             column="4"/>
     </issue>
 
@@ -2164,7 +2164,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="209"
+            line="206"
             column="17"/>
     </issue>
 
@@ -2175,7 +2175,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="209"
+            line="206"
             column="26"/>
     </issue>
 
@@ -2186,7 +2186,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="209"
+            line="206"
             column="29"/>
     </issue>
 
@@ -2241,7 +2241,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MTAppCompatActivity.java"
-            line="173"
+            line="175"
             column="3"/>
     </issue>
 
@@ -3209,7 +3209,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="420"
+            line="414"
             column="20"/>
     </issue>
 
@@ -3220,7 +3220,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="420"
+            line="414"
             column="20"/>
     </issue>
 
@@ -3231,7 +3231,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="429"
+            line="423"
             column="9"/>
     </issue>
 
@@ -3242,7 +3242,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="429"
+            line="423"
             column="9"/>
     </issue>
 
@@ -3253,7 +3253,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="333"
+            line="334"
             column="19"/>
     </issue>
 
@@ -3264,7 +3264,7 @@
         errorLine2="                                      ~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="333"
+            line="334"
             column="39"/>
     </issue>
 
@@ -3275,7 +3275,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="339"
+            line="340"
             column="29"/>
     </issue>
 
@@ -3286,7 +3286,7 @@
         errorLine2="                                                     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="339"
+            line="340"
             column="54"/>
     </issue>
 
@@ -3297,7 +3297,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="348"
             column="17"/>
     </issue>
 
@@ -3308,7 +3308,7 @@
         errorLine2="                      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="348"
             column="23"/>
     </issue>
 
@@ -3319,7 +3319,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="348"
             column="33"/>
     </issue>
 
@@ -3330,7 +3330,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="348"
             column="39"/>
     </issue>
 
@@ -3341,7 +3341,7 @@
         errorLine2="                                                       ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="348"
             column="56"/>
     </issue>
 
@@ -3352,7 +3352,7 @@
         errorLine2="                                                              ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="348"
             column="63"/>
     </issue>
 
@@ -3363,7 +3363,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="348"
             column="70"/>
     </issue>
 
@@ -3374,7 +3374,7 @@
         errorLine2="                                                                                     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="348"
             column="86"/>
     </issue>
 
@@ -3385,7 +3385,7 @@
         errorLine2="                                                                                           ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="347"
+            line="348"
             column="92"/>
     </issue>
 
@@ -3396,7 +3396,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
+            line="349"
             column="18"/>
     </issue>
 
@@ -3407,7 +3407,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
+            line="349"
             column="28"/>
     </issue>
 
@@ -3418,7 +3418,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
+            line="349"
             column="38"/>
     </issue>
 
@@ -3429,7 +3429,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
+            line="349"
             column="44"/>
     </issue>
 
@@ -3440,7 +3440,7 @@
         errorLine2="                                                            ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
+            line="349"
             column="61"/>
     </issue>
 
@@ -3451,7 +3451,7 @@
         errorLine2="                                                                   ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
+            line="349"
             column="68"/>
     </issue>
 
@@ -3462,7 +3462,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
+            line="349"
             column="75"/>
     </issue>
 
@@ -3473,7 +3473,7 @@
         errorLine2="                                                                                          ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
+            line="349"
             column="91"/>
     </issue>
 
@@ -3484,7 +3484,7 @@
         errorLine2="                                                                                                ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
+            line="349"
             column="97"/>
     </issue>
 
@@ -3506,7 +3506,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="184"
+            line="191"
             column="39"/>
     </issue>
 
@@ -3517,7 +3517,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="187"
+            line="194"
             column="26"/>
     </issue>
 
@@ -3528,7 +3528,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="187"
+            line="194"
             column="26"/>
     </issue>
 
@@ -3539,7 +3539,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="233"
+            line="240"
             column="4"/>
     </issue>
 
@@ -3550,7 +3550,7 @@
         errorLine2="       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="245"
+            line="252"
             column="8"/>
     </issue>
 
@@ -3561,7 +3561,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="251"
+            line="258"
             column="4"/>
     </issue>
 
@@ -3572,7 +3572,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="251"
+            line="258"
             column="4"/>
     </issue>
 
@@ -3583,7 +3583,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="251"
+            line="258"
             column="17"/>
     </issue>
 
@@ -3594,7 +3594,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="251"
+            line="258"
             column="17"/>
     </issue>
 
@@ -3605,7 +3605,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="272"
+            line="279"
             column="4"/>
     </issue>
 
@@ -3616,7 +3616,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="272"
+            line="279"
             column="4"/>
     </issue>
 
@@ -3627,7 +3627,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="272"
+            line="279"
             column="17"/>
     </issue>
 
@@ -3638,7 +3638,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="272"
+            line="279"
             column="17"/>
     </issue>
 
@@ -3649,7 +3649,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="329"
+            line="336"
             column="53"/>
     </issue>
 
@@ -3682,7 +3682,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="141"
+            line="138"
             column="17"/>
     </issue>
 
@@ -3693,7 +3693,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="150"
+            line="147"
             column="13"/>
     </issue>
 
@@ -3704,7 +3704,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="201"
+            line="198"
             column="21"/>
     </issue>
 
@@ -3715,7 +3715,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="201"
+            line="198"
             column="51"/>
     </issue>
 
@@ -3726,7 +3726,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="211"
+            line="208"
             column="21"/>
     </issue>
 
@@ -3737,7 +3737,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="211"
+            line="208"
             column="49"/>
     </issue>
 
@@ -3748,7 +3748,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="239"
+            line="236"
             column="13"/>
     </issue>
 
@@ -3759,7 +3759,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="316"
+            line="320"
             column="4"/>
     </issue>
 
@@ -3770,7 +3770,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="316"
+            line="320"
             column="17"/>
     </issue>
 
@@ -3781,7 +3781,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="316"
+            line="320"
             column="23"/>
     </issue>
 
@@ -3792,7 +3792,7 @@
         errorLine2="                                                                ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="316"
+            line="320"
             column="65"/>
     </issue>
 
@@ -3803,7 +3803,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="346"
+            line="352"
             column="4"/>
     </issue>
 
@@ -3814,7 +3814,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="346"
+            line="352"
             column="17"/>
     </issue>
 
@@ -3825,7 +3825,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="346"
+            line="352"
             column="23"/>
     </issue>
 
@@ -3836,7 +3836,7 @@
         errorLine2="                                                                    ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="346"
+            line="352"
             column="69"/>
     </issue>
 
@@ -3847,7 +3847,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="489"
+            line="495"
             column="4"/>
     </issue>
 
@@ -3858,7 +3858,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="489"
+            line="495"
             column="17"/>
     </issue>
 
@@ -3869,7 +3869,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="489"
+            line="495"
             column="23"/>
     </issue>
 
@@ -3880,7 +3880,7 @@
         errorLine2="                                                                                       ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="489"
+            line="495"
             column="88"/>
     </issue>
 
@@ -3891,7 +3891,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="502"
+            line="510"
             column="4"/>
     </issue>
 
@@ -3902,7 +3902,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="502"
+            line="510"
             column="17"/>
     </issue>
 
@@ -3913,7 +3913,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="502"
+            line="510"
             column="23"/>
     </issue>
 
@@ -3924,7 +3924,7 @@
         errorLine2="                                                                       ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="502"
+            line="510"
             column="72"/>
     </issue>
 
@@ -3935,7 +3935,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="541"
+            line="549"
             column="5"/>
     </issue>
 
@@ -3946,7 +3946,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="542"
+            line="550"
             column="7"/>
     </issue>
 
@@ -3957,7 +3957,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="657"
+            line="665"
             column="7"/>
     </issue>
 
@@ -3968,7 +3968,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="978"
+            line="997"
             column="40"/>
     </issue>
 
@@ -3979,7 +3979,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="978"
+            line="997"
             column="40"/>
     </issue>
 
@@ -3990,7 +3990,7 @@
         errorLine2="          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1009"
+            line="1028"
             column="11"/>
     </issue>
 
@@ -4001,7 +4001,7 @@
         errorLine2="       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1027"
+            line="1046"
             column="8"/>
     </issue>
 
@@ -4012,7 +4012,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1778"
+            line="1841"
             column="4"/>
     </issue>
 
@@ -4023,7 +4023,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1778"
+            line="1841"
             column="17"/>
     </issue>
 
@@ -4034,7 +4034,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1778"
+            line="1841"
             column="23"/>
     </issue>
 
@@ -4045,7 +4045,7 @@
         errorLine2="                                                                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1778"
+            line="1841"
             column="89"/>
     </issue>
 
@@ -4056,7 +4056,7 @@
         errorLine2="                                                                                                              ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1778"
+            line="1841"
             column="111"/>
     </issue>
 
@@ -4067,7 +4067,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2026"
+            line="2090"
             column="44"/>
     </issue>
 
@@ -4078,7 +4078,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2029"
+            line="2093"
             column="31"/>
     </issue>
 
@@ -4089,7 +4089,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2029"
+            line="2093"
             column="31"/>
     </issue>
 
@@ -4100,7 +4100,7 @@
         errorLine2="                                                       ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2029"
+            line="2093"
             column="56"/>
     </issue>
 
@@ -4111,7 +4111,7 @@
         errorLine2="                                                       ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2029"
+            line="2093"
             column="56"/>
     </issue>
 
@@ -4243,7 +4243,7 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="226"
+            line="225"
             column="4"/>
     </issue>
 
@@ -4252,6 +4252,17 @@
         message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
         errorLine1="     LOG_TAG,"
         errorLine2="     ~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
+            line="226"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
+        errorLine1="     this,"
+        errorLine2="     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="227"
@@ -4272,22 +4283,11 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="     this,"
-        errorLine2="     ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="229"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
         errorLine1="     null // this.dataSourcesRepository"
         errorLine2="     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="243"
+            line="242"
             column="6"/>
     </issue>
 
@@ -4298,7 +4298,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="342"
+            line="341"
             column="3"/>
     </issue>
 
@@ -4309,7 +4309,7 @@
         errorLine2="                                             ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="342"
+            line="341"
             column="46"/>
     </issue>
 
@@ -4320,7 +4320,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="343"
+            line="342"
             column="3"/>
     </issue>
 
@@ -4331,7 +4331,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="343"
+            line="342"
             column="34"/>
     </issue>
 
@@ -4342,7 +4342,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="401"
+            line="400"
             column="3"/>
     </issue>
 
@@ -4353,7 +4353,7 @@
         errorLine2="                                                ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="401"
+            line="400"
             column="49"/>
     </issue>
 
@@ -4364,7 +4364,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="452"
+            line="451"
             column="3"/>
     </issue>
 
@@ -4375,7 +4375,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="452"
+            line="451"
             column="51"/>
     </issue>
 
@@ -4386,7 +4386,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="453"
+            line="452"
             column="3"/>
     </issue>
 
@@ -4397,7 +4397,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="454"
+            line="453"
             column="3"/>
     </issue>
 
@@ -4408,7 +4408,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="454"
+            line="453"
             column="35"/>
     </issue>
 
@@ -4419,7 +4419,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="460"
+            line="459"
             column="3"/>
     </issue>
 
@@ -4430,7 +4430,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="467"
+            line="466"
             column="3"/>
     </issue>
 
@@ -4441,7 +4441,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="467"
+            line="466"
             column="35"/>
     </issue>
 
@@ -4452,7 +4452,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="510"
+            line="509"
             column="3"/>
     </issue>
 
@@ -4463,7 +4463,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="510"
+            line="509"
             column="40"/>
     </issue>
 
@@ -4474,7 +4474,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="510"
+            line="509"
             column="46"/>
     </issue>
 
@@ -4485,7 +4485,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="584"
+            line="583"
             column="3"/>
     </issue>
 
@@ -4496,7 +4496,7 @@
         errorLine2="                                             ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="584"
+            line="583"
             column="46"/>
     </issue>
 
@@ -4606,7 +4606,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1525"
+            line="1531"
             column="3"/>
     </issue>
 
@@ -4617,7 +4617,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1526"
+            line="1532"
             column="3"/>
     </issue>
 
@@ -4628,7 +4628,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1535"
+            line="1541"
             column="3"/>
     </issue>
 
@@ -4639,7 +4639,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1541"
+            line="1547"
             column="3"/>
     </issue>
 
@@ -5739,7 +5739,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="212"
+            line="209"
             column="13"/>
     </issue>
 
@@ -5750,7 +5750,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="212"
+            line="209"
             column="40"/>
     </issue>
 
@@ -5761,7 +5761,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="215"
+            line="212"
             column="13"/>
     </issue>
 
@@ -5772,7 +5772,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="215"
+            line="212"
             column="55"/>
     </issue>
 
@@ -5783,7 +5783,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="224"
+            line="221"
             column="21"/>
     </issue>
 
@@ -5794,7 +5794,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="226"
+            line="223"
             column="21"/>
     </issue>
 
@@ -5805,7 +5805,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="254"
+            line="251"
             column="13"/>
     </issue>
 
@@ -5816,7 +5816,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="254"
+            line="251"
             column="51"/>
     </issue>
 
@@ -5827,7 +5827,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="311"
+            line="308"
             column="21"/>
     </issue>
 
@@ -5838,7 +5838,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="318"
+            line="315"
             column="21"/>
     </issue>
 
@@ -5849,7 +5849,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="327"
+            line="324"
             column="25"/>
     </issue>
 
@@ -5860,7 +5860,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="327"
+            line="324"
             column="51"/>
     </issue>
 
@@ -5871,7 +5871,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="329"
+            line="326"
             column="25"/>
     </issue>
 
@@ -5882,7 +5882,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="333"
+            line="330"
             column="25"/>
     </issue>
 
@@ -5893,7 +5893,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="333"
+            line="330"
             column="51"/>
     </issue>
 
@@ -5904,7 +5904,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="344"
+            line="341"
             column="13"/>
     </issue>
 
@@ -5915,7 +5915,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="344"
+            line="341"
             column="38"/>
     </issue>
 
@@ -5926,7 +5926,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="345"
+            line="342"
             column="13"/>
     </issue>
 
@@ -5937,7 +5937,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="345"
+            line="342"
             column="22"/>
     </issue>
 
@@ -5948,7 +5948,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="346"
+            line="343"
             column="13"/>
     </issue>
 
@@ -5959,7 +5959,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="351"
+            line="348"
             column="9"/>
     </issue>
 
@@ -5970,7 +5970,7 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="351"
+            line="348"
             column="47"/>
     </issue>
 
@@ -5981,7 +5981,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="357"
+            line="354"
             column="9"/>
     </issue>
 
@@ -5992,7 +5992,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="365"
+            line="362"
             column="13"/>
     </issue>
 
@@ -6003,7 +6003,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="374"
+            line="371"
             column="9"/>
     </issue>
 
@@ -6014,7 +6014,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="379"
+            line="376"
             column="9"/>
     </issue>
 
@@ -6025,7 +6025,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="380"
+            line="377"
             column="9"/>
     </issue>
 
@@ -6036,7 +6036,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="386"
+            line="383"
             column="9"/>
     </issue>
 
@@ -6047,7 +6047,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rts/route/trip/RTSTripStopsFragment.kt"
-            line="393"
+            line="390"
             column="9"/>
     </issue>
 
@@ -7791,17 +7791,6 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.dimen.body_horizontal_margin` appears to be unused"
-        errorLine1="    &lt;dimen name=&quot;body_horizontal_margin&quot;>@dimen/baseline_0&lt;/dimen>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/dimens_resp.xml"
-            line="6"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.no_favorites` appears to be unused"
         errorLine1="    &lt;string name=&quot;no_favorites&quot;>No favorites.&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
@@ -7818,7 +7807,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="241"
+            line="239"
             column="13"/>
     </issue>
 
