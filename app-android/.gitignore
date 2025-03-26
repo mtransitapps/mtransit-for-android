@@ -61,6 +61,7 @@ proguard/
 /src/main/play/contact-website.txt
 /src/main/play/listings/en-US/title.txt
 /src/main/play/listings/en-US/short-description.txt
+/src/main/play/listings/en-US/full-description.txt
 
 # trigger change 1
 
