@@ -64,6 +64,7 @@ proguard/
 /src/main/play/listings/en-US/full-description.txt
 /src/main/play/listings/en-US/graphics/feature-graphic/1.png
 /src/main/play/listings/en-US/graphics/icon/1.png
+/src/main/res/mipmap-*/module_app_icon.png
 
 # trigger change 1
 
