@@ -62,6 +62,7 @@ proguard/
 /src/main/play/listings/en-US/title.txt
 /src/main/play/listings/en-US/short-description.txt
 /src/main/play/listings/en-US/full-description.txt
+/src/main/play/listings/en-US/graphics/feature-graphic/1.png
 
 # trigger change 1
 
