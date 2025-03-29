@@ -1,1 +1,2 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
 git submodule foreach 'echo "> Staging $sm_path..." && git -C ../ add $sm_path && echo "> Staging $sm_path... DONE"';
