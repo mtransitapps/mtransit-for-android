@@ -65,6 +65,7 @@ proguard/
 /src/main/play/listings/en-US/graphics/feature-graphic/1.png
 # /src/main/play/listings/en-US/graphics/icon/1.png # used in README.md
 /src/main/res/mipmap-*/module_app_icon.png
+/src/main/res/values/strings.xml
 
 # trigger change 1
 
