@@ -49,7 +49,7 @@ interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
     fun readingAllNotExtendedDataSourceTypes(): LiveData<List<DataSourceType>>
 
     @Query("SELECT DISTINCT extended_type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND extended_type IS NOT NULL")
-    suspend fun getAllExtendedDataSourceTypes(): List<DataSourceType?>
+    suspend fun getAllExtendedDataSourceTypes(): List<DataSourceType>
 
     @Query("SELECT DISTINCT extended_type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND extended_type IS NOT NULL")
     fun readingAllExtendedDataSourceTypes(): LiveData<List<DataSourceType?>>
