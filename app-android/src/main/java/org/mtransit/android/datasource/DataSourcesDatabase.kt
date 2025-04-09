@@ -103,7 +103,7 @@ abstract class DataSourcesDatabase : RoomDatabase() {
                     MIGRATION_2_3,
                     MIGRATION_3_4,
                 )
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(false)
                 .build()
         }
     }
