@@ -14,6 +14,7 @@ import org.mtransit.android.commons.ui.MTCommonApp
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.IStrictMode
 import org.mtransit.android.dev.LeakDetector
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.MapsInitializerUtil
 import org.mtransit.android.util.NightModeUtils
 import org.mtransit.commons.CommonsApp
@@ -40,6 +41,9 @@ class MTApplication : MTCommonApp() {
     @Inject
     lateinit var analyticsManager: IAnalyticsManager
 
+    @Inject
+    lateinit var remoteConfigProvider: RemoteConfigProvider
+
     private val mainScope = MainScope()
 
     override fun attachBaseContext(base: Context) {
@@ -56,6 +60,7 @@ class MTApplication : MTCommonApp() {
         }
         NightModeUtils.setDefaultNightMode(this, null)
         LocaleUtils.onApplicationCreate(this)
+        this.remoteConfigProvider.init()
         this.crashReporter.setup(!BuildConfig.DEBUG)
         this.strictMode.setup() // uses crash reporter
         this.analyticsManager.setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER)
