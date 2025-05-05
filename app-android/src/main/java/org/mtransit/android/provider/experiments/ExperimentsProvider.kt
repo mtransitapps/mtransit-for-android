@@ -8,9 +8,10 @@ class ExperimentsProvider @Inject constructor(
 ) {
 
     companion object {
-        const val EXP_AD_BANNER_LOAD_ON_SCREEN_RESUME = "mt_ad_banner_load_on_screen_resume"
+        // const val EXP_AD_BANNER_LOAD_ON_SCREEN_RESUME = "mt_ad_banner_load_on_screen_resume" // -> true is outperforming Baseline by 95% after 2 weeks
     }
 
+    @Suppress("unused")
     fun getBoolean(key: String, defaultValue: Boolean): Boolean {
         return remoteConfigProvider.getBoolean(key, defaultValue)
     }
