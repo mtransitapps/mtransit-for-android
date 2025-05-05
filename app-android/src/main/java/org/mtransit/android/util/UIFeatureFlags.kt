@@ -9,8 +9,8 @@ object UIFeatureFlags {
     const val F_HOME_SCREEN_BROWSE_COLORS_COUNT = 1
 
     @JvmField
-    val F_EDGE_TO_EDGE = false && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R // WIP
-    // val F_EDGE_TO_EDGE = true && Build.VERSION.SDK_INT >= 30 // WIP
+    // val F_EDGE_TO_EDGE = false && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R // WIP
+    val F_EDGE_TO_EDGE = true && Build.VERSION.SDK_INT >= 30 // WIP
 
     // !!! CAN NOT DRAW BEHIND NAVIGATION BAR AS LONG AS ANCHORED BOTTOM BANNER ADS IN ACTIVITY !!!
     const val F_EDGE_TO_EDGE_NAV_BAR_BELOW = false
