@@ -489,7 +489,6 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this.scheduleListTimestamp = after;
 	}
 
-	@SuppressWarnings("ConditionCoveredByFurtherCondition")
 	private void generateScheduleListTimes(@NonNull Context context,
 										   long after,
 										   @NonNull List<Timestamp> timestamps,
@@ -507,7 +506,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			idx++;
 			SpannableStringBuilder headSignSSB = null;
 			SpannableStringBuilder dateSSB = null;
-			String fTime = UITimeUtils.formatTime(context, t);
+			String fTime = UITimeUtils.formatTimestamp(context, t);
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			if (t.hasHeadsign() && !Trip.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
 				headSignSSB = new SpannableStringBuilder(
@@ -730,7 +729,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	// SCHEDULE
 
-	@SuppressWarnings("unused")
+	@Deprecated // TBD
+	@SuppressWarnings({"unused", "deprecation"})
 	@Nullable
 	public CharSequence getSchedule(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 									@Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
@@ -740,7 +740,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return this.scheduleString;
 	}
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({"deprecation"})
+	@Deprecated // TBD
 	private void generateSchedule(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 								  @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
 		ArrayList<Timestamp> nextTimestamps =
@@ -775,7 +776,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this.scheduleStringTimestamp = after;
 	}
 
-	@SuppressWarnings("unused")
+	@Deprecated // TBD
 	private void generateScheduleStringsTimes(Context context, long after, ArrayList<Timestamp> nextTimestamps) {
 		SpannableStringBuilder ssb = new SpannableStringBuilder();
 		int startPreviousTimes = -1, endPreviousTimes = -1;
@@ -809,7 +810,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					startNextTime = ssb.length();
 				}
 			}
-			String fTime = UITimeUtils.formatTime(context, t);
+			String fTime = UITimeUtils.formatTimestamp(context, t);
 			ssb.append(fTime);
 			if (t.t >= after) {
 				if (endNextTime == -1) {

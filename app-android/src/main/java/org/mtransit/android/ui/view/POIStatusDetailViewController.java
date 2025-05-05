@@ -34,8 +34,10 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusAppBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusAvailabilityPercentBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
 import org.mtransit.android.ui.common.UISourceLabelUtils;
+import org.mtransit.android.util.UITimeUtils;
 
 import java.util.ArrayList;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
@@ -146,6 +148,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	private static void initScheduleViewHolder(@NonNull View view) {
 		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
 		initCommonStatusViewHolderHolder(scheduleStatusViewHolder, view);
+		scheduleStatusViewHolder.localTimeTv = view.findViewById(R.id.local_time);
 		scheduleStatusViewHolder.sourceLabelTv = view.findViewById(R.id.source_label);
 		scheduleStatusViewHolder.nextDeparturesLL = view.findViewById(R.id.next_departures_layout);
 		view.setTag(scheduleStatusViewHolder);
@@ -274,11 +277,11 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updateView(@NonNull Context context,
-								  @Nullable CommonStatusViewHolder statusViewHolder,
-								  int poiStatusType,
-								  @Nullable POIStatus poiStatus,
-								  @Nullable POI poi,
-								  @NonNull POIDataProvider dataProvider) {
+								   @Nullable CommonStatusViewHolder statusViewHolder,
+								   int poiStatusType,
+								   @Nullable POIStatus poiStatus,
+								   @Nullable POI poi,
+								   @NonNull POIDataProvider dataProvider) {
 		if (!dataProvider.isShowingStatus() || statusViewHolder == null) {
 			if (statusViewHolder != null) {
 				setStatusView(statusViewHolder, false);
@@ -305,9 +308,9 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updateView(@NonNull Context context,
-								  @Nullable CommonStatusViewHolder statusViewHolder,
-								  @NonNull POIManager poim,
-								  @NonNull POIDataProvider dataProvider) {
+								   @Nullable CommonStatusViewHolder statusViewHolder,
+								   @NonNull POIManager poim,
+								   @NonNull POIDataProvider dataProvider) {
 		if (!dataProvider.isShowingStatus() || statusViewHolder == null) {
 			if (statusViewHolder != null) {
 				setStatusView(statusViewHolder, false);
@@ -470,6 +473,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 										   @NonNull POIDataProvider dataProvider,
 										   @Nullable POI optPOI) {
 		ArrayList<DetailsNextDepartures> nextDeparturesList = null;
+		TimeZone localTimeZone = null;
 		if (status instanceof UISchedule) {
 			UISchedule schedule = (UISchedule) status;
 			final String defaultHeadSign = optPOI instanceof RouteTripStop ? ((RouteTripStop) optPOI).getTrip().getHeading(context) : null;
@@ -482,6 +486,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 					defaultHeadSign,
 					dataProvider.isShowingAccessibilityInfo()
 			);
+			localTimeZone = schedule.getTimeZone();
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		LayoutInflater layoutInflater = LayoutInflater.from(context);
@@ -528,6 +533,23 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 		scheduleStatusViewHolder.nextDeparturesLL.setVisibility(View.VISIBLE);
 		UISourceLabelUtils.setSourceLabelTextView(scheduleStatusViewHolder.sourceLabelTv, status);
+		if (localTimeZone != null) {
+			final long nowInMs = UITimeUtils.currentTimeToTheMinuteMillis();
+			final String localTime = UITimeUtils.formatTime(context, nowInMs, localTimeZone);
+			final String deviceTime = UITimeUtils.formatTime(context, nowInMs, TimeZone.getDefault());
+			if (localTime.equals(deviceTime)) {
+				scheduleStatusViewHolder.localTimeTv.setText(null);
+				scheduleStatusViewHolder.localTimeTv.setVisibility(View.GONE);
+			} else {
+				scheduleStatusViewHolder.localTimeTv.setVisibility(View.VISIBLE);
+				scheduleStatusViewHolder.localTimeTv.setText(context.getString(R.string.local_time_and_time,
+						UITimeUtils.cleanNoRealTime(false, localTime)
+				));
+			}
+		} else {
+			scheduleStatusViewHolder.localTimeTv.setText(null);
+			scheduleStatusViewHolder.localTimeTv.setVisibility(View.GONE);
+		}
 		setStatusView(statusViewHolder, nextDeparturesList != null && !nextDeparturesList.isEmpty());
 	}
 
@@ -601,6 +623,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static class ScheduleStatusViewHolder extends CommonStatusViewHolder {
+		TextView localTimeTv;
 		TextView sourceLabelTv;
 		LinearLayout nextDeparturesLL;
 	}

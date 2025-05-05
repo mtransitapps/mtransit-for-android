@@ -11,7 +11,6 @@ import androidx.annotation.IntDef
 import androidx.core.util.forEach
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
-import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
@@ -32,6 +31,11 @@ import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.Constants
 import org.mtransit.commons.FeatureFlags
+import org.mtransit.commons.beginningOfDay
+import org.mtransit.commons.date
+import org.mtransit.commons.hourOfTheDay
+import org.mtransit.commons.isSameDay
+import org.mtransit.commons.toCalendar
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -105,7 +109,7 @@ class ScheduleAdapter
         }
     }
 
-    private val dayToHourToTimes = mutableListOf<Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>>()
+    private val dayToHourToTimestamps = mutableListOf<Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>>()
 
     private var nextTimestamp: Schedule.Timestamp? = null
 
@@ -113,16 +117,56 @@ class ScheduleAdapter
 
     private var optRts: RouteTripStop? = null
 
-    private var startInMs: Long? = null
-    private var endInMs: Long? = null
+    var timestamps: List<Schedule.Timestamp>? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            updateTimes()
+        }
+
+    var localTimeZone: TimeZone? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            updateDateFormattersTimeZone() // before
+            updateStartEndTimes() // 1st
+            updateTimes() // 2nd
+        }
+
+    var startInMs: Long? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            updateStartEndTimes()
+        }
+
+    var endInMs: Long? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            updateStartEndTimes()
+        }
 
     private var hourFormatter: ThreadSafeDateFormatter? = null
 
     private fun getHourFormatter(context: Context): ThreadSafeDateFormatter {
-        return hourFormatter ?: UITimeUtils.getNewHourFormat(context, true).also { hourFormatter = it }
+        return hourFormatter ?: UITimeUtils.getNewHourFormat(context, true)
+            .apply { localTimeZone?.let { setTimeZone(it) } }
+            .also { hourFormatter = it }
     }
 
-    private val dayDateFormat by lazy { ThreadSafeDateFormatter("EEEE, MMM d, yyyy", Locale.getDefault()) }
+    private val dayDateFormat by lazy {
+        ThreadSafeDateFormatter("EEEE, MMM d, yyyy", Locale.getDefault()).apply {
+            localTimeZone?.let { setTimeZone(it) }
+        }
+    }
+
+    private fun updateDateFormattersTimeZone() {
+        localTimeZone?.let { localTimeZone ->
+            hourFormatter?.setTimeZone(localTimeZone)
+            dayDateFormat.setTimeZone(localTimeZone)
+        }
+    }
 
     fun setRTS(rts: RouteTripStop?) {
         this.optRts = rts
@@ -147,28 +191,31 @@ class ScheduleAdapter
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateStartEndTimes() {
-        if (this.startInMs == null || this.endInMs == null) {
+        if (this.startInMs == null || this.endInMs == null || this.localTimeZone == null) {
             return
         }
-        val cal = this.startInMs?.let { UITimeUtils.setBeginningOfDay(UITimeUtils.getNewCalendar(it)) } ?: return
-        val lastDayBeginning = this.endInMs?.let { UITimeUtils.setBeginningOfDay(UITimeUtils.getNewCalendar(it)).timeInMillis } ?: return
+        val startInMs = this.startInMs ?: return
+        val endInMs = this.endInMs ?: return
+        val localTimeZone = this.localTimeZone ?: return
+        val cal = startInMs.toCalendar(localTimeZone).beginningOfDay
+        val lastDayBeginning = endInMs.toCalendar(localTimeZone).beginningOfDay.timeInMillis
         var i = 0
         var dataSetChanged = false
-        while (i < this.dayToHourToTimes.size && cal.timeInMillis <= lastDayBeginning) {
-            val existingDayBeginning = this.dayToHourToTimes[i].first
+        while (i < this.dayToHourToTimestamps.size && cal.timeInMillis <= lastDayBeginning) {
+            val existingDayBeginning = this.dayToHourToTimestamps[i].first
             while (cal.timeInMillis < existingDayBeginning) {
-                this.dayToHourToTimes.add(i, Pair(cal.timeInMillis, makeDayHours()))
+                this.dayToHourToTimestamps.add(i, cal.timeInMillis to makeDayHours())
                 dataSetChanged = true
                 i++
-                cal.add(Calendar.DATE, 1)
+                cal.date++
             }
             i++
-            cal.add(Calendar.DATE, 1)
+            cal.date++
         }
         while (cal.timeInMillis < lastDayBeginning) {
-            this.dayToHourToTimes.add(Pair(cal.timeInMillis, makeDayHours()))
+            this.dayToHourToTimestamps.add(cal.timeInMillis to makeDayHours())
             dataSetChanged = true
-            cal.add(Calendar.DATE, 1)
+            cal.date++
         }
         if (dataSetChanged) {
             notifyDataSetChanged()
@@ -176,35 +223,38 @@ class ScheduleAdapter
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setTimes(times: List<Schedule.Timestamp>?) {
+    fun updateTimes() {
         val originalTimeCount = this.timesCount ?: -1
         clearTimes()
-        if (times == null) {
+        if (this.timestamps == null || this.localTimeZone == null) {
             if (originalTimeCount > 0) {
                 notifyDataSetChanged()
             }
             return
         }
+        val timestamps = this.timestamps ?: return
+        val localTimeZone = this.localTimeZone ?: return
         var newTimesCount = 0
-        var dayBeginning = -1L
-        var dayToHourToTime: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
-        for (time in times) {
-            val hourOfTheDay: Int = UITimeUtils.getHourOfTheDay(time.t)
-            if (dayBeginning < 0L || !UITimeUtils.isSameDay(dayBeginning, time.t)) {
-                dayBeginning = UITimeUtils.setBeginningOfDay(UITimeUtils.getNewCalendar(time.t)).timeInMillis
-                dayToHourToTime = dayToHourToTimes.firstOrNull { it.first == dayBeginning }
-                if (dayToHourToTime == null) {
-                    dayToHourToTime = Pair(dayBeginning, makeDayHours())
-                    dayToHourToTimes.add(dayToHourToTime)
-                    dayToHourToTime.second.forEach { _, timestamps ->
+        var dayBeginningCalendar: Calendar? = null
+        var dayToHourToTimestamp: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
+        val calendar = Calendar.getInstance(localTimeZone)
+        for (timestamp in timestamps) {
+            calendar.timeInMillis = timestamp.t
+            if (dayBeginningCalendar == null || !dayBeginningCalendar.isSameDay(calendar)) {
+                dayBeginningCalendar = calendar.beginningOfDay
+                dayToHourToTimestamp = this.dayToHourToTimestamps.firstOrNull { it.first == dayBeginningCalendar.timeInMillis }
+                if (dayToHourToTimestamp == null) {
+                    dayToHourToTimestamp = dayBeginningCalendar.timeInMillis to makeDayHours()
+                    this.dayToHourToTimestamps.add(dayToHourToTimestamp)
+                    dayToHourToTimestamp.second.forEach { _, timestamps ->
                         timestamps.clear() // do not keep old schedule from that day
                     }
                 }
             }
-            dayToHourToTime?.second?.get(hourOfTheDay)?.add(time)
+            dayToHourToTimestamp?.second?.get(calendar.hourOfTheDay)?.add(timestamp)
             newTimesCount++
-            if (this.nextTimestamp == null && time.t >= this.nowToTheMinute) {
-                this.nextTimestamp = time
+            if (this.nextTimestamp == null && timestamp.t >= this.nowToTheMinute) {
+                this.nextTimestamp = timestamp
             }
         }
         this.timesCount = newTimesCount
@@ -233,24 +283,25 @@ class ScheduleAdapter
         if (item !is Schedule.Timestamp) {
             return NO_POSITION
         }
+        val localTimeZone = this.localTimeZone ?: return NO_POSITION
         var index = 0
         val date = Date(item.t)
         var thatDate: Date
         var nextDate: Date?
         var nextHourOfTheDay: Int
-        this.dayToHourToTimes.forEach { (dayBeginning, hourToTimes) ->
+        this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
             index++ // day separator
-            val dayCal = UITimeUtils.getNewCalendar(dayBeginning)
+            val dayCal = dayBeginningMs.toCalendar(localTimeZone)
             hourToTimes.forEach { hour, hourTimes ->
                 index++ // hour separator
                 if (hourTimes.isNotEmpty()) {
-                    dayCal[Calendar.HOUR_OF_DAY] = hour
+                    dayCal.hourOfTheDay = hour
                     thatDate = dayCal.time
                     if (date.equalOrAfter(thatDate)) {
                         nextHourOfTheDay = hour + 1
                         nextDate = null
                         if (nextHourOfTheDay < hourTimes.size) {
-                            dayCal[Calendar.HOUR_OF_DAY] = nextHourOfTheDay
+                            dayCal.hourOfTheDay = nextHourOfTheDay
                             nextDate = dayCal.time
                         }
                         if (nextDate == null || date.before(nextDate)) {
@@ -273,7 +324,7 @@ class ScheduleAdapter
     }
 
     private fun clearTimes() {
-        dayToHourToTimes.forEach { (_, hourToTimes) ->
+        dayToHourToTimestamps.forEach { (_, hourToTimes) ->
             hourToTimes.forEach { _, timestamps -> timestamps.clear() }
         }
         timesCount = null
@@ -286,14 +337,14 @@ class ScheduleAdapter
         return if (!isReady()) 0
         else
             (this.timesCount ?: 0) + // times
-                    dayToHourToTimes.size + // day separator
-                    dayToHourToTimes.size * HOUR_SEPARATORS_COUNT + // time separator
+                    dayToHourToTimestamps.size + // day separator
+                    dayToHourToTimestamps.size * HOUR_SEPARATORS_COUNT + // time separator
                     1 // loading
     }
 
     private fun getTimestampItem(position: Int): Schedule.Timestamp? {
         var index = 0
-        this.dayToHourToTimes.forEach { (_, hourToTimes) ->
+        this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
             index++ // day separator
             (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
                 index++ // hour separator
@@ -310,7 +361,7 @@ class ScheduleAdapter
 
     override fun getHeaderPositionForItem(itemPosition: Int): Int {
         var index = 0
-        this.dayToHourToTimes.forEach { (_, hourToTimes) ->
+        this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
             val dayPosition = index
             val startIndex = index
             index++ // day separator
@@ -334,7 +385,8 @@ class ScheduleAdapter
         (holder as? DaySeparatorViewHolder)?.bind(
             getDayItem(headerPosition),
             nowToTheMinute,
-            this.dayDateFormat
+            this.dayDateFormat,
+            this.localTimeZone,
         )
     }
 
@@ -342,9 +394,9 @@ class ScheduleAdapter
 
     private fun getDayItem(position: Int): Long? {
         var index = 0
-        this.dayToHourToTimes.forEach { (dayBeginning, hourToTimes) ->
+        this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
             if (position == index) {
-                return dayBeginning
+                return dayBeginningMs
             }
             index++ // day separator
             (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
@@ -356,13 +408,15 @@ class ScheduleAdapter
     }
 
     private fun getHourItemTimestamp(position: Int): Long? {
+        if (position < 0) return null
+        val localTimeZone = this.localTimeZone ?: return null
         var index = 0
-        this.dayToHourToTimes.forEach { (dayBeginning, hourToTimes) ->
+        this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
             index++ // day separator
-            val cal: Calendar = UITimeUtils.getNewCalendar(dayBeginning)
+            val cal: Calendar = dayBeginningMs.toCalendar(localTimeZone)
             (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
                 if (index == position) {
-                    cal[Calendar.HOUR_OF_DAY] = hourOfTheDay
+                    cal.hourOfTheDay = hourOfTheDay
                     return cal.timeInMillis
                 }
                 index++ // hour separator
@@ -375,7 +429,7 @@ class ScheduleAdapter
     @ScheduleItemViewType
     override fun getItemViewType(position: Int): Int {
         var index = 0
-        this.dayToHourToTimes.forEach { (_, hourToTimes) ->
+        this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
             if (position == index) {
                 return ITEM_VIEW_TYPE_DAY_SEPARATORS
             }
@@ -413,7 +467,8 @@ class ScheduleAdapter
                 (holder as? DaySeparatorViewHolder)?.bind(
                     getDayItem(position),
                     nowToTheMinute,
-                    this.dayDateFormat
+                    this.dayDateFormat,
+                    this.localTimeZone,
                 )
             }
 
@@ -421,6 +476,7 @@ class ScheduleAdapter
                 (holder as? HourSeparatorViewHolder)?.bind(
                     getHourItemTimestamp(position),
                     getHourFormatter(holder.context),
+                    this.localTimeZone,
                 )
             }
 
@@ -441,12 +497,6 @@ class ScheduleAdapter
 
             else -> throw RuntimeException("Unexpected view to bind $position!")
         }
-    }
-
-    fun setStartEnd(startInMs: Long?, endInMs: Long?) {
-        this.startInMs = startInMs
-        this.endInMs = endInMs
-        updateStartEndTimes()
     }
 
     private class DaySeparatorViewHolder private constructor(
@@ -471,23 +521,24 @@ class ScheduleAdapter
             timestampInMs: Long?,
             nowToTheMinuteInMs: Long = -1L,
             dayDateFormat: ThreadSafeDateFormatter,
+            localTimeZone: TimeZone?,
         ) {
             if (timestampInMs == null) {
                 binding.day.text = null
                 return
             }
+            val cal = localTimeZone?.let { timestampInMs.toCalendar(localTimeZone) } ?: timestampInMs.toCalendar()
             val timeSb = SpannableStringBuilder(
                 UITimeUtils.getNearRelativeDay(
                     context,
                     timestampInMs,
-                    dayDateFormat.formatThreadSafe(UITimeUtils.getNewCalendar(timestampInMs).time),
+                    dayDateFormat.formatThreadSafe(cal),
                 )
             )
             if (nowToTheMinuteInMs > 0L) {
                 val compareToNow = nowToTheMinuteInMs - timestampInMs
-                val sameDay = UITimeUtils.isSameDay(nowToTheMinuteInMs, timestampInMs)
-                if (sameDay
-                ) { // now
+                val sameDay = localTimeZone?.let { nowToTheMinuteInMs.isSameDay(timestampInMs, localTimeZone) } == true
+                if (sameDay) { // now
                     SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE)
                 } else if (compareToNow > 0L) { // past
                     SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
@@ -516,13 +567,14 @@ class ScheduleAdapter
         val context: Context
             get() = binding.root.context
 
-        fun bind(hourInMs: Long?, hourFormatter: ThreadSafeDateFormatter) {
+        fun bind(hourInMs: Long?, hourFormatter: ThreadSafeDateFormatter, localTimeZone: TimeZone?) {
             if (hourInMs == null) {
                 binding.hour.text = null
             } else {
+                val cal = localTimeZone?.let { hourInMs.toCalendar(localTimeZone) } ?: hourInMs.toCalendar()
                 binding.hour.text = UITimeUtils.cleanNoRealTime(
                     false,
-                    hourFormatter.formatThreadSafe(hourInMs)
+                    hourFormatter.formatThreadSafe(cal)
                 )
             }
         }
@@ -546,8 +598,6 @@ class ScheduleAdapter
 
         }
 
-        private val deviceTimeZone = TimeZone.getDefault()
-
         val context: Context
             get() = binding.context
 
@@ -562,15 +612,8 @@ class ScheduleAdapter
                 binding.time.text = null
                 return
             }
-            val userTime: String = UITimeUtils.formatTime(context, timestamp)
-            var timeSb = SpannableStringBuilder(userTime)
-            val timestampTZ: TimeZone = TimeZone.getTimeZone(timestamp.localTimeZone)
-            if (timestamp.hasLocalTimeZone() && this.deviceTimeZone != timestampTZ) {
-                val localTime = UITimeUtils.formatTime(context, timestamp, timestampTZ)
-                if (!localTime.equals(userTime, ignoreCase = true)) {
-                    timeSb.append(P1).append(context.getString(R.string.local_time_and_time, localTime)).append(P2)
-                }
-            }
+            val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
+            var timeSb = SpannableStringBuilder(formattedTime)
             if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
                 timeSb.append(
                     UIAccessibilityUtils.decorate(
@@ -592,7 +635,7 @@ class ScheduleAdapter
                 }
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
-            timeSb = UISchedule.decorateRealTime(context, timestamp, userTime, timeSb)
+            timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
             val nextTimeInMsT = nextTimestamp?.t ?: -1L
             if (nowToTheMinuteInMs > 0L) {

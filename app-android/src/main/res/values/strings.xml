@@ -154,7 +154,7 @@
     <string name="full_schedule">Full Schedule</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="terms_of_use">Terms of Use</string>
-    <string name="local_time_and_time">%s local time</string>
+    <string name="local_time_and_time">Local time: %s</string>
     <string name="battery_optimization_issue_title">Battery optimization issues</string>
     <string name="battery_optimization_issue_message_1">Device manufacturers (Samsung, OnePlus, Huawei, Nokia, Xiaomi&#8230;) are changing the way Android works to save more battery and it\'s breaking apps.</string>
     <string name="battery_optimization_issue_message_2">Learn more at https://dontkillmyapp.com/.</string>

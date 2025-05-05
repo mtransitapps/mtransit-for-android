@@ -41,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings({"WeakerAccess", "unused", "UnusedReturnValue"})
 public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = UITimeUtils.class.getSimpleName();
@@ -184,10 +183,16 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	public static String formatTime(@NonNull Context context, @NonNull Timestamp t, @NonNull TimeZone timeZone) {
-		return cleanNoRealTime(t.isRealTime(),
-				formatTime(context, t.t, timeZone)
-		);
+	public static String formatTimestamp(@NonNull Context context, @NonNull Timestamp timestamp) {
+		if (timestamp.hasLocalTimeZone()) {
+			return cleanNoRealTime(timestamp.isRealTime(),
+					formatTime(context, timestamp.t, TimeZone.getTimeZone(timestamp.getLocalTimeZone()))
+			);
+		} else {
+			return cleanNoRealTime(timestamp.isRealTime(),
+					formatTime(context, timestamp.t)
+			);
+		}
 	}
 
 	@SuppressWarnings("WeakerAccess")
@@ -317,8 +322,13 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return timeInMs >= getBeginningOfYesterdayCal().getTimeInMillis() && timeInMs < getBeginningOfTodayCal().getTimeInMillis();
 	}
 
+	@SuppressWarnings("unused")
 	public static long getBeginningOfTodayInMs() {
-		return getBeginningOfTodayCal().getTimeInMillis();
+		return getBeginningOfTodayInMs(TimeZone.getDefault());
+	}
+
+	public static long getBeginningOfTodayInMs(@NonNull TimeZone timeZone) {
+		return getBeginningOfTodayCal(timeZone).getTimeInMillis();
 	}
 
 	@NonNull
@@ -338,6 +348,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return today;
 	}
 
+	@SuppressWarnings("unused")
 	@NonNull
 	public static Calendar getBeginningOfMonthCalRelativeToThisMonth(int nbMonths) {
 		Calendar today = getBeginningOfMonthCal();
@@ -345,6 +356,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return today;
 	}
 
+	@SuppressWarnings("unused")
 	@NonNull
 	public static Calendar getBeginningOfYearCalRelativeToThisYear(int nbYears) {
 		Calendar today = getBeginningOfYearCal();
@@ -352,9 +364,20 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return today;
 	}
 
+	@SuppressWarnings("unused")
 	public static int getHourOfTheDay(long timeInMs) {
 		Calendar time = getNewCalendar(timeInMs);
-		return time.get(Calendar.HOUR_OF_DAY);
+		return getHourOfTheDay(time);
+	}
+
+	@SuppressWarnings("unused")
+	public static int getHourOfTheDay(@NonNull Calendar cal, long timeInMs) {
+		cal.setTimeInMillis(timeInMs);
+		return getHourOfTheDay(cal);
+	}
+
+	public static int getHourOfTheDay(@NonNull Calendar cal) {
+		return cal.get(Calendar.HOUR_OF_DAY);
 	}
 
 	@NonNull
@@ -373,11 +396,17 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@NonNull
 	public static Calendar getBeginningOfTodayCal() {
+		return getBeginningOfTodayCal(TimeZone.getDefault());
+	}
+
+	@NonNull
+	public static Calendar getBeginningOfTodayCal(@NonNull TimeZone timeZone) {
 		return setBeginningOfDay(
-				getNewCalendarInstance(currentTimeMillis())
+				getNewCalendarInstance(timeZone, currentTimeMillis())
 		);
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	@NonNull
 	public static Calendar setBeginningOfHour(@NonNull Calendar day) {
 		day.set(Calendar.MINUTE, 0);
@@ -409,7 +438,12 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@NonNull
 	public static Calendar getNewCalendarInstance(long timeInMs) {
-		Calendar cal = Calendar.getInstance();
+		return getNewCalendarInstance(TimeZone.getDefault(), timeInMs);
+	}
+
+	@NonNull
+	public static Calendar getNewCalendarInstance(@NonNull TimeZone timeZone, long timeInMs) {
+		Calendar cal = Calendar.getInstance(timeZone);
 		cal.setTimeInMillis(timeInMs);
 		return cal;
 	}
@@ -426,7 +460,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		String word = input.toLowerCase(Locale.ENGLISH);
 		for (String amPm : AM_PM_LIST) {
 			for (int index = word.indexOf(amPm); index >= 0; index = word.indexOf(amPm, index + 1)) { // TODO i18n
-				if (index <= 0) {
+				if (index == 0) {
 					break;
 				}
 				if (AM.equals(amPm) || A_M_.equals(amPm) || A__M_.equals(amPm)) {

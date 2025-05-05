@@ -23,7 +23,6 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
-import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
 import org.mtransit.android.data.getAuthority
@@ -449,16 +448,20 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     private fun enableTimeChangedReceiver() {
         if (!timeChangedReceiverEnabled) {
-            activity?.registerReceiverCompat(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED)
-            timeChangedReceiverEnabled = true
-            updateNewsView() // force update to current time before next change
+            context?.let {
+                ContextCompat.registerReceiver(it, timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED)
+                timeChangedReceiverEnabled = true
+                updateNewsView() // force update to current time before next change
+            }
         }
     }
 
     private fun disableTimeChangedReceiver() {
         if (timeChangedReceiverEnabled) {
-            activity?.unregisterReceiver(timeChangedReceiver)
-            timeChangedReceiverEnabled = false
+            context?.let {
+                it.unregisterReceiver(timeChangedReceiver)
+                timeChangedReceiverEnabled = false
+            }
             updateNewsView() // mark time as not updating anymore
         }
     }

@@ -30,6 +30,9 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.beginningOfDay
+import org.mtransit.commons.toCalendar
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -51,8 +54,10 @@ class ScheduleViewModel @Inject constructor(
         internal val EXTRA_COLOR_DEFAULT: String? = null
 
         internal const val EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now"
-        internal const val EXTRA_START_AT_IN_MS = "extra_start_at_in_ms"
-        internal const val EXTRA_END_AT_IN_MS = "extra_end_at_in_ms"
+
+        private const val EXTRA_START_AT_DAYS_BEFORE = "extra_start_at_days_before"
+        private const val EXTRA_END_AT_DAYS_AFTER = "extra_end_at_days_after"
+        private const val LOCAL_TIME_ZONE_ID = "local_time_zone_id"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -81,24 +86,39 @@ class ScheduleViewModel @Inject constructor(
 
     val rts: LiveData<RouteTripStop?> = this.poim.map { it?.poi as? RouteTripStop }
 
-    private val _startsAtInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_START_AT_IN_MS)
+    private val _startsAtDaysBefore = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_START_AT_DAYS_BEFORE)
+    private val _endsAtDaysAfter = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_END_AT_DAYS_AFTER)
+    private val _localTimeZoneId = savedStateHandle.getLiveData<String?>(LOCAL_TIME_ZONE_ID)
+    private val localTimeZoneId: LiveData<String?> = _localTimeZoneId.distinctUntilChanged()
 
-    private val _endsAtInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_END_AT_IN_MS)
+    val localTimeZone: LiveData<TimeZone?> = localTimeZoneId.map { timeZoneId ->
+        timeZoneId?.let { TimeZone.getTimeZone(it) }
+    }
+
+    private val _startsAtInMs: LiveData<Long?> = PairMediatorLiveData(_startsAtDaysBefore, localTimeZone).map { (startsAtDaysBefore, localTimeZone) ->
+        startsAtDaysBefore ?: return@map null
+        val timeZone = localTimeZone ?: TimeZone.getDefault()
+        UITimeUtils.currentTimeMillis().toCalendar(timeZone).beginningOfDay.timeInMillis - TimeUnit.DAYS.toMillis(startsAtDaysBefore.toLong())
+    }.distinctUntilChanged()
+
+    private val _endsAtInMs: LiveData<Long?> = PairMediatorLiveData(_endsAtDaysAfter, localTimeZone).map { (endsAtDaysBefore, localTimeZone) ->
+        endsAtDaysBefore ?: return@map null
+        val timeZone = localTimeZone ?: TimeZone.getDefault()
+        UITimeUtils.currentTimeMillis().toCalendar(timeZone).beginningOfDay.timeInMillis + TimeUnit.DAYS.toMillis(endsAtDaysBefore.toLong())
+    }.distinctUntilChanged()
 
     val startEndAt = PairMediatorLiveData(_startsAtInMs, _endsAtInMs)
 
     fun initStartEndTimeIfNotSet() {
-        if (_startsAtInMs.value == null) {
-            val startDateInMs = UITimeUtils.getBeginningOfTodayInMs() - TimeUnit.DAYS.toMillis(7L)
-            val endDateInMs = UITimeUtils.getBeginningOfTodayInMs() + TimeUnit.DAYS.toMillis(14L)
-            savedStateHandle[EXTRA_START_AT_IN_MS] = startDateInMs
-            savedStateHandle[EXTRA_END_AT_IN_MS] = endDateInMs
+        if (_startsAtDaysBefore.value == null) {
+            savedStateHandle[EXTRA_START_AT_DAYS_BEFORE] = 7
+            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = 14
         }
     }
 
     fun increaseEndTime() {
-        _endsAtInMs.value?.let { currentEndDateInMs ->
-            savedStateHandle[EXTRA_END_AT_IN_MS] = currentEndDateInMs + TimeUnit.DAYS.toMillis(7L)
+        _endsAtDaysAfter.value?.let { currentEndDateInDays ->
+            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = currentEndDateInDays + 7
         }
     }
 
@@ -141,6 +161,9 @@ class ScheduleViewModel @Inject constructor(
             this.dataSourceRequestManager.findScheduleTimestamps(scheduleProvider.authority, scheduleFilter)?.let { scheduleTimestamps ->
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _sourceLabel.postValue(scheduleTimestamps.sourceLabel)
+                    scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZone }?.let { localTimeZoneId ->
+                        this._localTimeZoneId.postValue(localTimeZoneId)
+                    }
                     return scheduleTimestamps.timestamps
                 }
             }

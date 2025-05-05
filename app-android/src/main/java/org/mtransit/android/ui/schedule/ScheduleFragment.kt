@@ -23,9 +23,9 @@ import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.dp
-import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentScheduleInfiniteBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -37,6 +37,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
+import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
 import org.mtransit.android.ui.view.common.isAttached
@@ -47,6 +48,7 @@ import org.mtransit.android.ui.view.common.startMargin
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.FeatureFlags
+import java.util.TimeZone
 
 @AndroidEntryPoint
 class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuProvider {
@@ -107,7 +109,12 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
 
     private var timeChangedReceiverEnabled = false
 
-    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { listAdapter.onTimeChanged() }
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { onTimeChanged() }
+
+    private fun onTimeChanged() {
+        listAdapter.onTimeChanged()
+        bindLocaleTime(attachedViewModel?.localTimeZone?.value)
+    }
 
     private val onScrollListener = object : OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -145,14 +152,17 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
                 }
             }
         }
-        viewModel.startEndAt.observe(viewLifecycleOwner) { startEndAt ->
-            startEndAt?.let { (startInMs, endInMs) ->
-                val scrollPosition = (binding?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
-                listAdapter.setStartEnd(startInMs, endInMs)
-                binding?.list?.apply {
-                    if (scrollPosition > 0) {
-                        scrollToPosition(scrollPosition)
-                    }
+        viewModel.localTimeZone.observe(viewLifecycleOwner) { localTimeZone ->
+            listAdapter.localTimeZone = localTimeZone
+            bindLocaleTime(localTimeZone)
+        }
+        viewModel.startEndAt.observe(viewLifecycleOwner) { (startInMs, endInMs) ->
+            val scrollPosition = (binding?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
+            listAdapter.startInMs = startInMs
+            listAdapter.endInMs = endInMs
+            binding?.list?.apply {
+                if (scrollPosition > 0) {
+                    scrollToPosition(scrollPosition)
                 }
             }
         }
@@ -166,7 +176,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
         viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
             val scrollPosition = (binding?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
-            listAdapter.setTimes(timestamps)
+            listAdapter.timestamps = timestamps
             binding?.apply {
                 if (timestamps != null) {
                     if (viewModel.scrolledToNow.value == false) {
@@ -208,6 +218,23 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
     }
 
+    private fun bindLocaleTime(localTimeZone: TimeZone?) = binding?.apply {
+        localTimeZone?.let {
+            val nowInMs = UITimeUtils.currentTimeToTheMinuteMillis()
+            UITimeUtils.formatTime(context, nowInMs, it)
+                .takeIf {
+                    it != UITimeUtils.formatTime(context, nowInMs, TimeZone.getDefault())
+                }
+        }.let { localTimeDifferent ->
+            localTime.apply {
+                text = localTimeDifferent?.let {
+                    context.getString(R.string.local_time_and_time, UITimeUtils.cleanNoRealTime(false, it))
+                }
+                isVisible = localTimeDifferent != null
+            }
+        }
+    }
+
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_schedule, menu)
     }
@@ -246,16 +273,22 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
 
     private fun enableTimeChangedReceiver() {
         if (!timeChangedReceiverEnabled) {
-            activity?.registerReceiverCompat(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED)
-            timeChangedReceiverEnabled = true
-            listAdapter.onTimeChanged() // force update to current time before next change
+            context?.let {
+                ContextCompat.registerReceiver(it, timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED)
+                timeChangedReceiverEnabled = true
+                onTimeChanged() // force update to current time before next change
+            } ?: run {
+                MTLog.w(this, "enableTimeChangedReceiver() > SKIP (no context)")
+            }
         }
     }
 
     private fun disableTimeChangedReceiver() {
         if (timeChangedReceiverEnabled) {
-            activity?.unregisterReceiver(timeChangedReceiver)
-            timeChangedReceiverEnabled = false
+            context?.let {
+                it.unregisterReceiver(timeChangedReceiver)
+                timeChangedReceiverEnabled = false
+            }
             listAdapter.onTimeChanged(-1L) // mark time as not updating anymore
         }
     }

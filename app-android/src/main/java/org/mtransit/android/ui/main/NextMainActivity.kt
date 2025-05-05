@@ -40,7 +40,6 @@ import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.ThemeUtils
-import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.databinding.ActivityMainNextBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
@@ -230,7 +229,7 @@ class NextMainActivity : MTActivityWithLocation(),
         billingManager.currentSubscription.observe(this) {
             // do nothing
         }
-        registerReceiverCompat(ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onBillingResult(productId: String?) {

@@ -1285,9 +1285,9 @@ public class POIFragment extends ABFragment implements
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
-			this.timeChangedReceiverEnabled = true;
 			if (getContext() != null) {
 				ContextCompat.registerReceiver(getContext(), timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED);
+				this.timeChangedReceiverEnabled = true;
 			}
 		}
 	}
@@ -1296,9 +1296,9 @@ public class POIFragment extends ABFragment implements
 		if (this.timeChangedReceiverEnabled) {
 			if (getContext() != null) {
 				getContext().unregisterReceiver(this.timeChangedReceiver);
+				this.timeChangedReceiverEnabled = false;
+				this.nowToTheMinute = -1L;
 			}
-			this.timeChangedReceiverEnabled = false;
-			this.nowToTheMinute = -1L;
 		}
 	}
 

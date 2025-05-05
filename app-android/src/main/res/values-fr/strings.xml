@@ -157,7 +157,7 @@
     <string name="full_schedule">Horaire Complet</string>
     <string name="privacy_policy">Politique de confidentialité</string>
     <string name="terms_of_use">Conditions d\'Utilisations</string>
-    <string name="local_time_and_time">%s heure locale</string>
+    <string name="local_time_and_time">Heure locale : %s</string>
     <string name="battery_optimization_issue_title">Problèmes d\'optimisation de la batterie</string>
     <string name="battery_optimization_issue_message_1">Les fabricants d\'appareils (Samsung, OnePlus, Huawei, Nokia, Xiaomi&#8230;) modifient le fonctionnement d\'Android pour économiser plus de batterie et cela empêche les apps de fonctionner correctement.</string>
     <string name="battery_optimization_issue_message_2">En savoir plus (en Anglais): https://dontkillmyapp.com/.</string>
