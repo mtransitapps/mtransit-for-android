@@ -2,6 +2,7 @@ package org.mtransit.android.data;
 
 import static org.mtransit.commons.Constants.SPACE;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
