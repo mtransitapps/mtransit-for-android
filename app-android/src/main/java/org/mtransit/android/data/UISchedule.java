@@ -731,6 +731,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	@Deprecated // TBD
 	@SuppressWarnings({"unused", "deprecation"})
+	@SuppressLint("DeprecatedCall")
 	@Nullable
 	public CharSequence getSchedule(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 									@Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
@@ -741,6 +742,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@SuppressWarnings({"deprecation"})
+	@SuppressLint("DeprecatedCall")
 	@Deprecated // TBD
 	private void generateSchedule(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 								  @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
