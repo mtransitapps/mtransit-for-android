@@ -139,6 +139,7 @@ class BannerAdManager @Inject constructor(
             && this.adBannerLoadedLastInMs.get() != LOADED_UNKNOWN // state unknown
         ) {
             MTLog.d(this, "setupAd() > should we cancel?")
+            val minDurationMs = this.loadOnScreenResumeMinDurationSec.secToMs()
             if (this.adBannerLoadedLastInMs.get() + minDurationMs < TimeUtils.currentTimeMillis()) { // force refresh if ad loaded only
                 MTLog.d(this, "setupAd() > cancelling previous setup ad task...")
                 TaskUtils.cancelQuietly(setupBannerAdTask, true)
