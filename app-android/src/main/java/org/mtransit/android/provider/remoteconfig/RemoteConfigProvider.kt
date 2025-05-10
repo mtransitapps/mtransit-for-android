@@ -34,16 +34,19 @@ class RemoteConfigProvider @Inject constructor(
         remoteConfig
             .fetchAndActivate()
             .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                this.activated.set(true)
-                MTLog.d(this, "Config params updated: ${task.result}")
-            } else {
-                this.activated.set(false)
-                MTLog.d(this, "Fetch failed!")
+                if (task.isSuccessful) {
+                    this.activated.set(true)
+                    MTLog.d(this, "Config params updated: ${task.result}")
+                } else {
+                    this.activated.set(false)
+                    MTLog.d(this, "Fetch failed!")
+                }
             }
-        }
     }
 
-    fun getBoolean(key: String, defaultValue: Boolean) =
+    fun get(key: String, defaultValue: Boolean) =
         remoteConfig.takeIf { activated.get() }?.getBoolean(key) ?: defaultValue
+
+    fun get(key: String, defaultValue: Long) =
+        remoteConfig.takeIf { activated.get() }?.getLong(key) ?: defaultValue
 }
