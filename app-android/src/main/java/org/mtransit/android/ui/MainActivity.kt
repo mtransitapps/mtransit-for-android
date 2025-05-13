@@ -437,6 +437,10 @@ class MainActivity : MTActivityWithLocation(),
         return this.navigationDrawerController?.isDrawerOpen == true
     }
 
+    fun openDrawer() {
+        this.navigationDrawerController?.openDrawer()
+    }
+
     private var backStackEntryCount: Int? = null
 
     fun getBackStackEntryCount(): Int {
