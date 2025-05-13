@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "INSERT_MOBILE_SDK_APP_ID",
         "android_client_info": {
-          "package_name": "org.mtransit.android"
+          "package_name": "org.mtransit.android.debug"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "INSERT_CLIENT_ID",
           "client_type": 1,
           "android_info": {
-            "package_name": "org.mtransit.android",
+            "package_name": "org.mtransit.android.debug",
             "certificate_hash": "INSERT_CERTIFICATE_HASH"
           }
         },
