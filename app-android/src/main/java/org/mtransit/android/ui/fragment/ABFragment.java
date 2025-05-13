@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupWindow;
 
@@ -13,7 +15,9 @@ import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.util.Pair;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -72,6 +76,45 @@ public abstract class ABFragment extends MTFragmentX implements
 	@ContentView
 	public ABFragment(@LayoutRes int contentLayoutId) {
 		super(contentLayoutId);
+	}
+
+	public boolean hasToolbar() {
+		return false; // WIP: will show main activity Action Bar
+	}
+
+	public void setupScreenToolbar(@NonNull Toolbar toolbar) {
+		toolbar.setNavigationIcon(
+				getParentFragmentManager().getBackStackEntryCount() == 0 ?
+						R.drawable.ic_drawer_menu_24px :
+						R.drawable.ic_arrow_back_24
+		);
+		toolbar.setNavigationOnClickListener(v -> {
+			if (getParentFragmentManager().getBackStackEntryCount() == 0) {
+				final MainActivity mainActivity = getMainActivity();
+				if (mainActivity != null) {
+					mainActivity.openDrawer();
+				}
+				return;
+			}
+			getParentFragmentManager().popBackStack();
+		});
+		final MenuItem searchMenuItem = toolbar.getMenu().add(Menu.NONE, R.id.nav_search, 999, R.string.menu_action_search);
+		searchMenuItem.setIcon(R.drawable.ic_search_black_24dp);
+		searchMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		searchMenuItem.setVisible(isABShowSearchMenuItem());
+		toolbar.setOnMenuItemClickListener(this::onScreenToolbarMenuItemClick);
+	}
+
+	public boolean onScreenToolbarMenuItemClick(@NonNull MenuItem item) {
+		final ActionBarController abController = getAbController();
+		if (abController != null && abController.onOptionsItemSelected(item)) {
+			return true; // handled
+		}
+		//noinspection RedundantIfStatement
+		if (this instanceof MenuProvider && ((MenuProvider) this).onMenuItemSelected(item)) {
+			return true; // handled
+		}
+		return false; // not handled
 	}
 
 	public boolean isABReady() {
@@ -175,10 +218,11 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		EdgeToEdgeKt.setStatusBarsThemeEdgeToEdge(requireActivity());
-		EdgeToEdgeKt.applyStatusBarsHeightEdgeToEdge(requireActivity().findViewById(R.id.status_bar_bg));
-		EdgeToEdgeKt.setNavBarThemeEdgeToEdge(requireActivity());
-		EdgeToEdgeKt.setNavBarProtectionEdgeToEdge(requireActivity(), isNavBarProtected());
+		final FragmentActivity activity = requireActivity();
+		EdgeToEdgeKt.setStatusBarsThemeEdgeToEdge(activity);
+		EdgeToEdgeKt.applyStatusBarsHeightEdgeToEdge(activity.findViewById(R.id.status_bar_bg));
+		EdgeToEdgeKt.setNavBarThemeEdgeToEdge(activity);
+		EdgeToEdgeKt.setNavBarProtectionEdgeToEdge(activity, isNavBarProtected());
 	}
 
 	@Override
@@ -216,7 +260,7 @@ public abstract class ABFragment extends MTFragmentX implements
 
 	public boolean onBackPressed() {
 		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			return false;
+			return false; // processed
 		}
 		return false; // not processed
 	}

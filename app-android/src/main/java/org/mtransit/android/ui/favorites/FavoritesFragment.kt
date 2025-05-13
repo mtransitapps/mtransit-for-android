@@ -138,6 +138,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 listAdapter.setListView(this)
                 setUpListEdgeToEdge()
             }
+            this.abToolbarScreen.apply { setupScreenToolbar(this) }
         }
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
             listAdapter.setPois(favoritePOIS)
@@ -219,7 +220,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
     }
 
-    override fun getABTitle(context: Context?) = context?.getString(R.string.favorites) ?: super.getABTitle(context)
+    override fun hasToolbar() = true
 
     override fun onDestroyView() {
         super.onDestroyView()

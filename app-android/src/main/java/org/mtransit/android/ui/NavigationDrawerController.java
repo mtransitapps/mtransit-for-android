@@ -683,7 +683,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		return true;
 	}
 
-	private void openDrawer() {
+	public void openDrawer() {
 		if (this.drawerLayout != null && this.navigationView != null) {
 			this.drawerLayout.openDrawer(this.navigationView);
 		}

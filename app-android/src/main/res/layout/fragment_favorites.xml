@@ -1,35 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/context_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/action_bar_size_static"
     tools:context=".ui.favorites.FavoritesFragment">
-    <!-- LOADING -->
-    <include
-        android:id="@id/loading_layout"
-        layout="@layout/layout_loading_large"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:visibility="visible" />
-    <!-- LIST -->
-    <include
-        android:id="@id/list_layout"
-        layout="@layout/layout_poi_list_padding_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible"
-        tools:visibility="visible" />
-    <!-- EMPTY -->
-    <include
-        android:id="@id/empty_layout"
-        layout="@layout/layout_empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:visibility="visible" />
 
-    <include layout="@layout/layout_shadow" />
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/ab_toolbar_screen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/MTThemeOverlay"
+            app:menu="@menu/menu_favorites"
+            app:title="@string/favorites"
+            tools:navigationIcon="@drawable/ic_drawer_menu_24px" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <!-- LOADING -->
+        <include
+            android:id="@id/loading_layout"
+            layout="@layout/layout_loading_large"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible" />
+        <!-- LIST -->
+        <include
+            android:id="@id/list_layout"
+            layout="@layout/layout_poi_list_padding_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            tools:visibility="visible" />
+        <!-- EMPTY -->
+        <include
+            android:id="@id/empty_layout"
+            layout="@layout/layout_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <include layout="@layout/layout_shadow" />
+    </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -63,9 +63,12 @@
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/status_bar_bg"
             android:background="?attr/colorPrimary"
+            android:elevation="@dimen/baseline_0"
             android:theme="@style/MTThemeOverlay"
             android:visibility="invisible"
-            tools:title="@string/app_name"
+            tools:menu="@menu/menu_main"
+            tools:navigationIcon="@drawable/ic_drawer_menu_24px"
+            tools:title="Screen title"
             tools:visibility="visible" />
 
     </RelativeLayout>

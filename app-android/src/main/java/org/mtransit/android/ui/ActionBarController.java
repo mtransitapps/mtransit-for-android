@@ -25,7 +25,6 @@ import org.mtransit.android.ui.fragment.ABFragment;
 
 import java.lang.ref.WeakReference;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
 public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private static final String TAG = "Stack-" + ActionBarController.class.getSimpleName();
@@ -40,6 +39,8 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	private WeakReference<MainActivity> mainActivityWR;
 
 	private boolean fragmentReady = false;
+
+	private boolean fragmentHasToolbar = false;
 
 	private CharSequence fragmentTitle;
 
@@ -64,7 +65,8 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	@Nullable
 	private UpOnClickListener upOnClickListener;
 
-	private ColorDrawable bgDrawable;
+	@Nullable
+	private ColorDrawable bgDrawable = null;
 
 	public ActionBarController(@Nullable MainActivity mainActivity) {
 		setMainActivity(mainActivity);
@@ -105,7 +107,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	@Override
 	public void invalidateDrawable(@Nullable Drawable who) {
-		ActionBar ab = getABOrNull();
+		final ActionBar ab = getABOrNull();
 		if (ab != null) {
 			ab.setBackgroundDrawable(who);
 		}
@@ -130,17 +132,16 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			this.fragmentTitle = mainActivity.getTitle();
 			this.fragmentSubtitle = ab == null ? null : ab.getSubtitle();
 			if (ab != null) {
-				ab.setElevation(0f);
 				ab.hide();
 				ab.setDisplayHomeAsUpEnabled(this.fragmentDisplayHomeAsUpEnabled);
 				ab.setHomeButtonEnabled(true);
+				ab.setBackgroundDrawable(getBgDrawable());
 			}
-			initBgDrawable(ab);
 		}
 	}
 
 	public void setAB(@Nullable ABFragment abf) {
-		Context context = getContextOrNull();
+		final Context context = getContextOrNull();
 		if (abf != null && context != null) {
 			setAB(
 					abf.getABTitle(context),
@@ -153,22 +154,26 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 					abf.isABThemeDarkInsteadOfThemeLight(),
 					abf.isABDisplayHomeAsUpEnabled(),
 					abf.isABShowSearchMenuItem(),
-					abf.isABReady()
+					abf.isABReady(),
+					abf.hasToolbar()
 			);
 		}
 	}
 
-	private void setAB(CharSequence title,
-					   CharSequence subtitle,
-					   @ColorInt Integer bgColor,
-					   boolean overrideGradient,
-					   View customView,
-					   boolean customViewFocusable,
-					   boolean customViewRequestFocus,
-					   boolean themeDarkInsteadOfThemeLight,
-					   boolean displayHomeAsUpEnabled,
-					   boolean showSearchMenuItem,
-					   boolean fragmentReady) {
+	private void setAB(
+			CharSequence title,
+			CharSequence subtitle,
+			@ColorInt Integer bgColor,
+			boolean overrideGradient,
+			View customView,
+			boolean customViewFocusable,
+			boolean customViewRequestFocus,
+			boolean themeDarkInsteadOfThemeLight,
+			boolean displayHomeAsUpEnabled,
+			boolean showSearchMenuItem,
+			boolean fragmentReady,
+			boolean fragmentHasToolbar
+	) {
 		this.fragmentTitle = title;
 		this.fragmentSubtitle = subtitle;
 		this.fragmentBgColor = bgColor;
@@ -179,6 +184,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		this.fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
 		this.fragmentShowSearchMenuItem = showSearchMenuItem;
 		this.fragmentReady = fragmentReady;
+		this.fragmentHasToolbar = fragmentHasToolbar;
 	}
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -296,6 +302,12 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		if (ab == null) {
 			return;
 		}
+		if (this.fragmentHasToolbar) {
+			setOverrideGradient(ab, true); // hide
+			setBgColor(ab, this.fragmentBgColor);
+			ab.hide();
+			return;
+		}
 		if (!this.fragmentReady) {
 			return;
 		}
@@ -348,10 +360,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	private void setBgColor(ActionBar ab, @ColorInt int colorInt) {
-		final ColorDrawable bgDrawable = getBgDrawableOrNull(ab);
-		if (bgDrawable != null) {
-			bgDrawable.setColor(colorInt);
-		}
+		getBgDrawable().setColor(colorInt);
 		final MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
 			EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(mainActivity, colorInt);
@@ -372,19 +381,12 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	@Nullable
-	private ColorDrawable getBgDrawableOrNull(ActionBar ab) {
+	@NonNull
+	private ColorDrawable getBgDrawable() {
 		if (this.bgDrawable == null) {
-			initBgDrawable(ab);
+			this.bgDrawable = new ColorDrawable();
 		}
 		return this.bgDrawable;
-	}
-
-	private void initBgDrawable(ActionBar ab) {
-		if (ab != null) {
-			this.bgDrawable = new ColorDrawable();
-			ab.setBackgroundDrawable(this.bgDrawable);
-		}
 	}
 
 	@Nullable
