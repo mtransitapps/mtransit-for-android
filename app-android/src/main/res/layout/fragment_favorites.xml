@@ -7,22 +7,9 @@
     android:layout_height="match_parent"
     tools:context=".ui.favorites.FavoritesFragment">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/ab_toolbar_screen"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="@style/MTThemeOverlay"
-            app:menu="@menu/menu_favorites"
-            app:title="@string/favorites"
-            tools:navigationIcon="@drawable/ic_drawer_menu_24px" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+    <include
+        android:id="@+id/screen_toolbar_layout"
+        layout="@layout/layout_screen_toolbar" />
 
     <FrameLayout
         android:layout_width="match_parent"

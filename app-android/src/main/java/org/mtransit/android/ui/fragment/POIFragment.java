@@ -635,8 +635,8 @@ public class POIFragment extends ABFragment implements
 				this.localPreferenceRepository,
 				this.poiRepository,
 				this.favoriteManager,
-				this.statusLoader,
-				this.serviceUpdateLoader
+				this.sharedStatusLoader,
+				this.sharedServiceUpdateLoader
 		);
 		this.adapter.setLogTag(getLogTag());
 	}
@@ -1403,13 +1403,13 @@ public class POIFragment extends ABFragment implements
 	@NonNull
 	@Override
 	public StatusLoader providesStatusLoader() {
-		return this.statusLoader;
+		return this.sharedStatusLoader;
 	}
 
 	@NonNull
 	@Override
 	public ServiceUpdateLoader providesServiceUpdateLoader() {
-		return this.serviceUpdateLoader;
+		return this.sharedServiceUpdateLoader;
 	}
 
 	@NonNull

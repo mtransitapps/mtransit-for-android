@@ -49,7 +49,8 @@ class SetupInlineBannerAdTask(
     }
 
     @MainThread
-    override fun onPostExecuteNotCancelledMT(isShowingAds: Boolean?) {
+    override fun onPostExecuteNotCancelledMT(result: Boolean?) {
+        val isShowingAds = result
         val activity = this.fragmentWR.get()
         if (activity == null) {
             MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no activity)")

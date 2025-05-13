@@ -19,6 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -59,15 +60,15 @@ public abstract class ABFragment extends MTFragmentX implements
 	public static final boolean DEFAULT_SHOW_SEARCH_MENU_ITEM = true;
 
 	@Inject
-	IAdManager adManager;
+	IAdManager sharedAdManager;
 	@Inject
-	IAnalyticsManager analyticsManager;
+	IAnalyticsManager sharedAnalyticsManager;
 	@Inject
-	StatusLoader statusLoader;
+	StatusLoader sharedStatusLoader;
 	@Inject
-	ServiceUpdateLoader serviceUpdateLoader;
+	ServiceUpdateLoader sharedServiceUpdateLoader;
 	@Inject
-	AppRatingsManager appRatingsManager;
+	AppRatingsManager sharedAppRatingsManager;
 
 	public ABFragment() {
 		super();
@@ -98,6 +99,10 @@ public abstract class ABFragment extends MTFragmentX implements
 			}
 			getParentFragmentManager().popBackStack();
 		});
+		toolbar.setTitle(getABTitle(getContext()));
+		if (this instanceof MenuProvider) {
+			toolbar.addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+		}
 		final MenuItem searchMenuItem = toolbar.getMenu().add(Menu.NONE, R.id.nav_search, 999, R.string.menu_action_search);
 		searchMenuItem.setIcon(R.drawable.ic_search_black_24dp);
 		searchMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
@@ -234,14 +239,14 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onResume() {
 		super.onResume();
-		adManager.onResumeScreen((IAdScreenActivity) requireActivity());
-		analyticsManager.trackScreenView(this);
+		sharedAdManager.onResumeScreen((IAdScreenActivity) requireActivity());
+		sharedAnalyticsManager.trackScreenView(this);
 		final ActionBarController abController = getAbController();
 		if (abController != null) {
 			abController.setAB(this);
 			abController.updateAB();
 		}
-		appRatingsManager.getShouldShowAppRatingRequest(this).observe(this, shouldShow -> {
+		sharedAppRatingsManager.getShouldShowAppRatingRequest(this).observe(this, shouldShow -> {
 			if (!Boolean.TRUE.equals(shouldShow)) {
 				return;
 			}
@@ -249,9 +254,9 @@ public abstract class ABFragment extends MTFragmentX implements
 			if (mainActivity == null) {
 				return;
 			}
-			AppRatingsUIManager.showAppRatingsUI(mainActivity, analyticsManager, appRatingDisplayed -> {
+			AppRatingsUIManager.showAppRatingsUI(mainActivity, sharedAnalyticsManager, appRatingDisplayed -> {
 				if (appRatingDisplayed) {
-					this.appRatingsManager.onAppRequestDisplayed(this, this);
+					this.sharedAppRatingsManager.onAppRequestDisplayed(this, this);
 				}
 				return Unit.INSTANCE;
 			});
@@ -269,8 +274,8 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onPause() {
 		super.onPause();
-		this.statusLoader.clearAllTasks();
-		this.serviceUpdateLoader.clearAllTasks();
+		this.sharedStatusLoader.clearAllTasks();
+		this.sharedServiceUpdateLoader.clearAllTasks();
 		hideAllInAppNotifications();
 	}
 

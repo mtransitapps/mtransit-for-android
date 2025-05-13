@@ -128,9 +128,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
+        (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         binding = FragmentFavoritesBinding.bind(view).apply {
             applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             listLayout.list.apply {
@@ -138,7 +136,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 listAdapter.setListView(this)
                 setUpListEdgeToEdge()
             }
-            this.abToolbarScreen.apply { setupScreenToolbar(this) }
+            screenToolbarLayout.apply {
+                setupScreenToolbar(screenToolbar)
+            }
         }
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
             listAdapter.setPois(favoritePOIS)
@@ -221,6 +221,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     }
 
     override fun hasToolbar() = true
+
+    override fun getABTitle(context: Context?) = context?.getString(R.string.favorites) ?: super.getABTitle(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

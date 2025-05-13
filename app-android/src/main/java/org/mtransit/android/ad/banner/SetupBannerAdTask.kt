@@ -51,7 +51,8 @@ class SetupBannerAdTask(
     }
 
     @MainThread
-    override fun onPostExecuteNotCancelledMT(isShowingAds: Boolean?) {
+    override fun onPostExecuteNotCancelledMT(result: Boolean?) {
+        val isShowingAds = result
         val activity = this.activityWR.get()
         if (activity == null) {
             return
