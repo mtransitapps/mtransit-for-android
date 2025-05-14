@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -83,12 +84,48 @@ public abstract class ABFragment extends MTFragmentX implements
 		return false; // WIP: will show main activity Action Bar
 	}
 
-	public void setupScreenToolbar(@NonNull Toolbar toolbar) {
+	public void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar) {
+		updateScreenToolbarNavigationIcon(toolbar, getParentFragmentManager().getBackStackEntryCount());
+	}
+
+	public void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar, int backStackEntryCount) {
 		toolbar.setNavigationIcon(
-				getParentFragmentManager().getBackStackEntryCount() == 0 ?
+				backStackEntryCount <= 0 ?
 						R.drawable.ic_drawer_menu_24px :
 						R.drawable.ic_arrow_back_24
 		);
+	}
+
+	public void updateScreenToolbarTitle(@NonNull Toolbar toolbar) {
+		toolbar.setTitle(getABTitle(getContext()));
+	}
+
+	public void updateScreenToolbarSubtitle(@NonNull Toolbar toolbar) {
+		toolbar.setSubtitle(getABSubtitle(getContext()));
+	}
+
+	public void updateScreenToolbarBgColor(@NonNull Toolbar toolbar) {
+		final Integer bgColorInt = getABBgColor(getContext());
+		if (bgColorInt != null) {
+			getBgDrawable().setColor(bgColorInt);
+		}
+	}
+
+	@Nullable
+	private ColorDrawable bgDrawable = null;
+
+	@NonNull
+	private ColorDrawable getBgDrawable() {
+		if (this.bgDrawable == null) {
+			this.bgDrawable = new ColorDrawable();
+			// initBgDrawable(ab);
+		}
+		return this.bgDrawable;
+	}
+
+	public void setupScreenToolbar(@NonNull Toolbar toolbar) {
+		// setup
+		toolbar.setBackground(getBgDrawable());
 		toolbar.setNavigationOnClickListener(v -> {
 			if (getParentFragmentManager().getBackStackEntryCount() == 0) {
 				final MainActivity mainActivity = getMainActivity();
@@ -99,18 +136,27 @@ public abstract class ABFragment extends MTFragmentX implements
 			}
 			getParentFragmentManager().popBackStack();
 		});
-		toolbar.setTitle(getABTitle(getContext()));
 		if (this instanceof MenuProvider) {
 			toolbar.addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 		}
+		inflateMainMenu(toolbar);
+		toolbar.setOnMenuItemClickListener(this::onScreenToolbarMenuItemClick);
+		// initial UI
+		updateScreenToolbarNavigationIcon(toolbar);
+		updateScreenToolbarTitle(toolbar);
+		updateScreenToolbarSubtitle(toolbar);
+		updateScreenToolbarBgColor(toolbar);
+	}
+
+	// R.menu.menu_main
+	private void inflateMainMenu(@NonNull Toolbar toolbar) {
 		final MenuItem searchMenuItem = toolbar.getMenu().add(Menu.NONE, R.id.nav_search, 999, R.string.menu_action_search);
 		searchMenuItem.setIcon(R.drawable.ic_search_black_24dp);
 		searchMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		searchMenuItem.setVisible(isABShowSearchMenuItem());
-		toolbar.setOnMenuItemClickListener(this::onScreenToolbarMenuItemClick);
 	}
 
-	public boolean onScreenToolbarMenuItemClick(@NonNull MenuItem item) {
+	private boolean onScreenToolbarMenuItemClick(@NonNull MenuItem item) {
 		final ActionBarController abController = getAbController();
 		if (abController != null && abController.onOptionsItemSelected(item)) {
 			return true; // handled

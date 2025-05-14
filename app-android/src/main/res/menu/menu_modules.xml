@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.MainActivity">
+    tools:context=".ui.modules.ModulesFragment">
     <item
         android:id="@+id/menu_sort"
         android:icon="@drawable/ic_filter_list_black_24dp"

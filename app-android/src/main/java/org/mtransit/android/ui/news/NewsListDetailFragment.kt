@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
+import androidx.core.view.children
 import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
@@ -12,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.RecyclerView
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
@@ -188,16 +190,21 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private var onBackStackChangedListener: FragmentManager.OnBackStackChangedListener? = null
 
-    private fun makeOnBackStackChangedListener() = FragmentManager.OnBackStackChangedListener {
-        binding?.apply {
-            mainActivity?.apply {
-                if (addToBackStackCalled == true
-                    && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
-                ) {
-                    if (slidingPaneLayout.isOpen) {
-                        slidingPaneLayout.closePane()
-                        viewModel.cleanSelectedNewsArticle()
+    private fun makeOnBackStackChangedListener() = object : FragmentManager.OnBackStackChangedListener {
+        override fun onBackStackChanged() {
+            binding?.apply {
+                activity?.apply {
+                    if (addToBackStackCalled == true
+                        && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
+                    ) {
+                        if (slidingPaneLayout.isOpen) {
+                            slidingPaneLayout.closePane()
+                            viewModel.cleanSelectedNewsArticle()
+                        }
                     }
+                }
+                screenToolbarLayout.apply {
+                    updateScreenToolbarNavigationIcon(screenToolbar)
                 }
             }
         }
@@ -230,7 +237,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             }
-            mainActivity?.supportFragmentManager?.addOnBackStackChangedListener(
+            activity?.supportFragmentManager?.addOnBackStackChangedListener(
                 onBackStackChangedListener ?: makeOnBackStackChangedListener().also { onBackStackChangedListener = it }
             )
             slidingPaneLayout.apply {
@@ -240,7 +247,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                         viewModel.cleanSelectedNewsArticle()
                     },
                     onPanelOpenedCallback = {
-                        mainActivity?.apply {
+                        activity?.apply {
                             if (supportFragmentManager.backStackEntryCount <= initialBackStackEntryCount) {
                                 if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
                                     supportFragmentManager.commit {
@@ -252,7 +259,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                         }
                     },
                     onPanelClosedCallback = {
-                        mainActivity?.apply {
+                        activity?.apply {
                             if (supportFragmentManager.backStackEntryCount >= initialBackStackEntryCount) {
                                 if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
                                     supportFragmentManager.popBackStack(BACK_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -272,15 +279,25 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 }
                 lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
             }
+            screenToolbarLayout.apply {
+                setupScreenToolbar(screenToolbar)
+            }
+            if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
+                viewPager.children.find { it is RecyclerView }?.let {
+                    it.isNestedScrollingEnabled = false
+                }
+            }
         }
         viewModel.subTitle.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
             }
         }
         viewModel.colorInt.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), true)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarBgColor(it) }
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABBgColor(getABBgColor(context))
             }
@@ -335,6 +352,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             }
             (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
             listAdapter.setSelectedArticle(newAuthorityAndUuid)
+            if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
+                if (newAuthorityAndUuid != null) {
+                    binding?.screenToolbarLayout?.screenToolbarLayout?.setExpanded(true, false)
+                }
+            }
             analyticsManager.trackScreenView(this@NewsListDetailFragment)
             val authorityAndUuid = newAuthorityAndUuid ?: return@observe
             selectPagerNewsArticle(authorityAndUuid)
@@ -368,6 +390,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun hasAds() = UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS
 
+    override fun hasToolbar() = true
+
     override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) = attachedViewModel?.subTitle?.value ?: super.getABSubtitle(context)
@@ -398,7 +422,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        mainActivity?.apply {
+        activity?.apply {
             initialBackStackEntryCount = supportFragmentManager.backStackEntryCount
         }
     }
@@ -408,7 +432,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             return super.onBackPressed()
         }
         binding?.apply {
-            mainActivity?.apply {
+            activity?.apply {
                 if (supportFragmentManager.backStackEntryCount == (initialBackStackEntryCount + 1)) {
                     if (slidingPaneLayout.isOpen) {
                         slidingPaneLayout.closePane()
@@ -426,7 +450,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             viewPager.unregisterOnPageChangeCallback(onPageChangeCallback)
             viewPager.adapter = null // cannot re-use Adapter w/ ViewPager
             onBackStackChangedListener?.let {
-                mainActivity?.supportFragmentManager?.removeOnBackStackChangedListener(it)
+                activity?.supportFragmentManager?.removeOnBackStackChangedListener(it)
             }
             onBackStackChangedListener = null
             pagerAdapter = null // cannot re-use Adapter w/ ViewPager

@@ -16,6 +16,9 @@ object UIFeatureFlags {
     const val F_EDGE_TO_EDGE_NAV_BAR_BELOW = false
     // const val F_EDGE_TO_EDGE_NAV_BAR_BELOW = true // WIP
 
+    const val F_APP_BAR_SCROLL_BEHAVIOR = false
+    // const val F_APP_BAR_SCROLL_BEHAVIOR = true // WIP
+
     // see R.boolean.f_predictive_back_gesture
     const val F_PREDICTIVE_BACK_GESTURE = false
     // const val F_PREDICTIVE_BACK_GESTURE = true // WIP (need to move Toolbar to ABFragment)

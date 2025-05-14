@@ -17,33 +17,33 @@ package org.mtransit.android.ui.map
 //@RunWith(MockitoJUnitRunner::class)
 //class MapViewModelTest {
 //
-//    @Mock
-//    private lateinit var savedStateHandle: SavedStateHandle
+// @Mock
+// private lateinit var savedStateHandle: SavedStateHandle
 //
-//    @Mock
-//    private lateinit var dataSourcesRepository: DataSourcesRepository
+// @Mock
+// private lateinit var dataSourcesRepository: DataSourcesRepository
 //
-//    @Mock
-//    private lateinit var poiRepository: POIRepository
+// @Mock
+// private lateinit var poiRepository: POIRepository
 //
-//    @Mock
-//    private lateinit var lclPrefRepository: LocalPreferenceRepository
+// @Mock
+// private lateinit var lclPrefRepository: LocalPreferenceRepository
 //
-//    @Before
-//    fun setUp() {
-//        CommonsApp.setup(false)
-//    }
+// @Before
+// fun setUp() {
+// CommonsApp.setup(false)
+// }
 //
-//    @Test
-//    fun test_onCameraChange() {
-//        // Arrange
-//        val mapViewModel = MapViewModel(this.savedStateHandle, this.dataSourcesRepository, this.poiRepository, this.lclPrefRepository)
-//        val newVisibleArea = LatLngBounds(LatLng(-1.0, -1.0), LatLng(+1.0, +1.0))
-//        // Act
-//        val result = mapViewModel.onCameraChange(newVisibleArea, getBigCameraPosition = {
-//            null
-//        })
-//        // Assert
-//        Assert.assertEquals(true, result)
-//    }
+// @Test
+// fun test_onCameraChange() {
+// // Arrange
+// val mapViewModel = MapViewModel(this.savedStateHandle, this.dataSourcesRepository, this.poiRepository, this.lclPrefRepository)
+// val newVisibleArea = LatLngBounds(LatLng(-1.0, -1.0), LatLng(+1.0, +1.0))
+// // Act
+// val result = mapViewModel.onCameraChange(newVisibleArea, getBigCameraPosition = {
+// null
+// })
+// // Assert
+// Assert.assertEquals(true, result)
+// }
 //}

@@ -435,6 +435,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         enableTimeChangedReceiver()
         //noinspection DeprecatedCall
         binding?.thumbnailWebView?.onResume()
+        if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
+            binding?.scrollView?.fullScroll(View.FOCUS_UP)
+        }
         inlineBannerAdManager.onResume(this)
     }
 

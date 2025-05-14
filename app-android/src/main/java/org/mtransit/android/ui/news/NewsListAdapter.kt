@@ -235,8 +235,7 @@ class NewsListAdapter(
     }
 
     fun setSelectedArticle(newAuthorityAndUuid: AuthorityAndUuid?) {
-        if (this.selectedArticleAuthorityAndUuid == newAuthorityAndUuid
-        ) {
+        if (this.selectedArticleAuthorityAndUuid == newAuthorityAndUuid) {
             return // SKIP
         }
         val oldAuthorityAndUuid = this.selectedArticleAuthorityAndUuid
