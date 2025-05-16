@@ -137,7 +137,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 setUpListEdgeToEdge()
             }
             screenToolbarLayout.apply {
-                setupScreenToolbar(screenToolbar)
+                setupScreenToolbar(this)
             }
         }
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->

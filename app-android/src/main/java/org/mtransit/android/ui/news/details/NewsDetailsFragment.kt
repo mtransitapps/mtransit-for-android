@@ -115,7 +115,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     }
 
     private fun onImageClicked(view: View, newsImage: NewsImage) {
-        LinkUtils.open(view, requireActivity(), newsImage.imageUrl, getString(commonsR.string.web_browser), true)
+        val titleStatic = viewModel.newsArticle.value?.text?.take(33)
+        LinkUtils.open(view, requireActivity(), newsImage.imageUrl, getString(commonsR.string.web_browser), titleStatic, true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -188,9 +189,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
             }
             date.apply {
                 setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
-                val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
+                val newsArticleWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
                 setOnClickListener { view ->
-                    LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)
+                    LinkUtils.open(view, requireActivity(), newsArticleWebURL, getString(commonsR.string.web_browser), true)
                 }
             }
             dateLong.apply {
@@ -200,9 +201,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_WEEKDAY
                 )
                 setText(formattedDate, TextView.BufferType.SPANNABLE)
-                val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
+                val newsArticleWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
                 setOnClickListener { view ->
-                    LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)
+                    LinkUtils.open(view, requireActivity(), newsArticleWebURL, getString(commonsR.string.web_browser), true)
                 }
             }
         }
@@ -239,8 +240,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         val textHTML2 = textHTML2Sb.toString()
         newsText1.apply {
             setText(LinkUtils.linkifyHtml(textHTML1, true), TextView.BufferType.SPANNABLE)
-            movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+            movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, newTextUrl ->
+                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true)
             }
             setLinkTextColor(
                 newsArticle.colorIntOrNull?.let {
@@ -253,8 +254,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         inlineBannerAdManager.refreshBannerAdStatus(this@NewsDetailsFragment, parentFragment as? IAdScreenFragment)
         newsText2.apply {
             setText(LinkUtils.linkifyHtml(textHTML2, true), TextView.BufferType.SPANNABLE)
-            movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+            movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, newTextUrl ->
+                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true)
             }
             setLinkTextColor(
                 newsArticle.colorIntOrNull?.let {
@@ -389,7 +390,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
                     isVisible = true
                     setOnClickListener { view ->
-                        LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), true)
+                        val titleStatic = viewModel.newsArticle.value?.text?.take(33)
+                        LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), titleStatic, true)
                     }
                 }
             }
@@ -410,7 +412,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     private val customWebViewClient = object : WebViewClientCompat() {
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-            LinkUtils.open(view, requireActivity(), request.url.toString(), getString(commonsR.string.web_browser), true)
+            val webViewVideoPlayerUrl = request.url.toString()
+            LinkUtils.open(view, requireActivity(), webViewVideoPlayerUrl, getString(commonsR.string.web_browser), true)
             return true // handled
         }
     }

@@ -297,16 +297,13 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		updateABDrawerClosed();
 	}
 
-	public void updateABDrawerClosed() {
+	private void updateABDrawerClosed() {
 		final ActionBar ab = getABOrNull();
 		if (ab == null) {
 			return;
 		}
 		if (this.fragmentHasToolbar) {
 			setOverrideGradient(ab, true); // hide
-			if (this.fragmentBgColor != null) {
-				setBgColor(ab, this.fragmentBgColor);
-			}
 			ab.hide();
 			return;
 		}

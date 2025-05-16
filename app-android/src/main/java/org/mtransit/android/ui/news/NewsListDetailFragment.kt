@@ -280,7 +280,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
             }
             screenToolbarLayout.apply {
-                setupScreenToolbar(screenToolbar)
+                setupScreenToolbar(this)
             }
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
                 viewPager.children.find { it is RecyclerView }?.let {
@@ -297,7 +297,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
         viewModel.colorInt.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), true)
-            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarBgColor(it) }
+            binding?.screenToolbarLayout?.let { updateScreenToolbarBgColor(it) }
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABBgColor(getABBgColor(context))
             }

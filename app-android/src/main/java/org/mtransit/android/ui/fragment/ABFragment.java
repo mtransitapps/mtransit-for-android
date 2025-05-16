@@ -16,12 +16,14 @@ import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.mtransit.android.R;
@@ -31,6 +33,7 @@ import org.mtransit.android.ad.IAdScreenFragment;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ThemeUtils;
+import org.mtransit.android.databinding.LayoutScreenToolbarBinding;
 import org.mtransit.android.rate.AppRatingsManager;
 import org.mtransit.android.rate.AppRatingsUIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -104,11 +107,38 @@ public abstract class ABFragment extends MTFragmentX implements
 		toolbar.setSubtitle(getABSubtitle(getContext()));
 	}
 
-	public void updateScreenToolbarBgColor(@NonNull Toolbar toolbar) {
+	public void updateScreenToolbarBgColor(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
+		updateScreenToolbarBgColor(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
+	}
+
+	public void updateScreenToolbarBgColor(
+			@SuppressWarnings("unused") @NonNull AppBarLayout appBarLayout,
+			@SuppressWarnings("unused") @NonNull Toolbar toolbar) {
 		final Integer bgColorInt = getABBgColor(getContext());
 		if (bgColorInt != null) {
 			getBgDrawable().setColor(bgColorInt);
+			final MainActivity mainActivity = getMainActivity();
+			if (mainActivity != null) {
+				EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(getMainActivity(), bgColorInt);
+			}
 		}
+	}
+
+	public void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
+		updateScreenToolbarOverrideGradient(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
+	}
+
+	public void updateScreenToolbarOverrideGradient(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+		final boolean overrideGradient = isABOverrideGradient();
+		if (overrideGradient) {
+			appBarLayout.setBackground(AppCompatResources.getDrawable(appBarLayout.getContext(), R.drawable.ab_gradient));
+		} else {
+			setupScreenToolbarBgColor(appBarLayout, toolbar);
+		}
+	}
+
+	private void setupScreenToolbarBgColor(@NonNull AppBarLayout appBarLayout, @SuppressWarnings("unused") @NonNull Toolbar toolbar) {
+		appBarLayout.setBackground(getBgDrawable());
 	}
 
 	@Nullable
@@ -123,9 +153,13 @@ public abstract class ABFragment extends MTFragmentX implements
 		return this.bgDrawable;
 	}
 
-	public void setupScreenToolbar(@NonNull Toolbar toolbar) {
+	public void setupScreenToolbar(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
+		setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
+	}
+
+	public void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
 		// setup
-		toolbar.setBackground(getBgDrawable());
+		setupScreenToolbarBgColor(appBarLayout, toolbar);
 		toolbar.setNavigationOnClickListener(v -> {
 			if (getParentFragmentManager().getBackStackEntryCount() == 0) {
 				final MainActivity mainActivity = getMainActivity();
@@ -145,7 +179,8 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarNavigationIcon(toolbar);
 		updateScreenToolbarTitle(toolbar);
 		updateScreenToolbarSubtitle(toolbar);
-		updateScreenToolbarBgColor(toolbar);
+		updateScreenToolbarOverrideGradient(appBarLayout, toolbar);
+		updateScreenToolbarBgColor(appBarLayout, toolbar);
 	}
 
 	// R.menu.menu_main

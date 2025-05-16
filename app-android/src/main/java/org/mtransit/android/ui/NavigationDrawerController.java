@@ -596,7 +596,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
 			final Pair<Double, Double> srcLatLng = getTripPlannerSrcLatLng(activity);
 			return WebBrowserFragment.newInstance(
-					MapUtils.getMapsDirectionUrl(null, null, srcLatLng.first, srcLatLng.second, null).toString()
+					MapUtils.getMapsDirectionUrl(null, null, srcLatLng.first, srcLatLng.second, null).toString(),
+					activity.getString(R.string.trip_planner)
 			);
 		} else if (navItemId == R.id.root_nav_news) {
 			return NewsListDetailFragment.newInstance();
@@ -911,7 +912,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			if (abController == null) {
 				return;
 			}
-			abController.updateABDrawerClosed();
+			abController.updateAB();
 		}
 	}
 }

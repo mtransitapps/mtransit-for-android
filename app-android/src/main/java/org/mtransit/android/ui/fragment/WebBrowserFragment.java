@@ -6,12 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -21,6 +19,8 @@ import android.widget.ProgressBar;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.MenuProvider;
 import androidx.lifecycle.Lifecycle;
 import androidx.webkit.WebViewClientCompat;
@@ -30,8 +30,10 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.databinding.FragmentWebBrowserBinding;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
+import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.UIFeatureFlags;
 
@@ -59,29 +61,48 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		return TRACKING_SCREEN_NAME;
 	}
 
+	private static final String EXTRA_TITLE_STATIC = "extra_title_static";
+
 	private static final String EXTRA_URL_INITIAL = "extra_url_initial";
 
 	private static final String EXTRA_URL_CURRENT = "extra_url_current";
 
 	@NonNull
 	public static WebBrowserFragment newInstance(@NonNull String url) {
+		return newInstance(url, null);
+	}
+
+	@NonNull
+	public static WebBrowserFragment newInstance(@NonNull String url, @Nullable String titleStatic) {
 		WebBrowserFragment f = new WebBrowserFragment();
 		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
 			f.initialUrl = url;
 		}
-		f.setArguments(newInstanceArgs(url));
+		f.setArguments(newInstanceArgs(url, titleStatic));
 		return f;
 	}
 
 	@NonNull
 	public static Bundle newInstanceArgs(@NonNull String url) {
+		return newInstanceArgs(url, null);
+	}
+
+	@NonNull
+	public static Bundle newInstanceArgs(@NonNull String url, @Nullable String titleStatic) {
 		Bundle args = new Bundle();
 		args.putString(EXTRA_URL_INITIAL, url);
+		args.putString(EXTRA_TITLE_STATIC, titleStatic);
 		return args;
+	}
+
+	public WebBrowserFragment() {
+		super(R.layout.fragment_web_browser);
 	}
 
 	private String initialUrl;
 	private String currentUrl;
+	@Nullable
+	private String pageTitleStatic = null;
 	private String pageTitle;
 
 	@Override
@@ -91,20 +112,21 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
-		String newInitialUrl = BundleUtils.getString(EXTRA_URL_INITIAL, bundles);
+		final String newInitialUrl = BundleUtils.getString(EXTRA_URL_INITIAL, bundles);
 		if (newInitialUrl != null && !newInitialUrl.equals(this.initialUrl)) {
 			this.initialUrl = newInitialUrl;
 		}
-		String newCurrentUrl = BundleUtils.getString(EXTRA_URL_CURRENT, bundles);
+		final String newTitleStatic = BundleUtils.getString(EXTRA_TITLE_STATIC, bundles);
+		if (newTitleStatic != null && !newTitleStatic.equals(this.pageTitleStatic)) {
+			this.pageTitleStatic = newTitleStatic;
+		}
+		final String newCurrentUrl = BundleUtils.getString(EXTRA_URL_CURRENT, bundles);
 		if (newCurrentUrl != null && !newCurrentUrl.equals(this.currentUrl)) {
 			this.currentUrl = newCurrentUrl;
 		}
-		View view = getView();
-		if (view != null) {
-			WebView webView = view.findViewById(R.id.webView);
-			if (webView != null && bundles.length > 0) {
-				webView.restoreState(bundles[0]);
-			}
+		final WebView webView = binding == null ? null : binding.webView;
+		if (webView != null && bundles.length > 0) {
+			webView.restoreState(bundles[0]);
 		}
 	}
 
@@ -113,39 +135,32 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (!TextUtils.isEmpty(this.initialUrl)) {
 			outState.putString(EXTRA_URL_INITIAL, this.initialUrl);
 		}
+		if (!TextUtils.isEmpty(this.pageTitleStatic)) {
+			outState.putString(EXTRA_TITLE_STATIC, this.pageTitleStatic);
+		}
 		if (!TextUtils.isEmpty(this.currentUrl)) {
 			outState.putString(EXTRA_URL_CURRENT, this.currentUrl);
 		}
-		View view = getView();
-		if (view != null) {
-			WebView webView = view.findViewById(R.id.webView);
-			if (webView != null) {
-				webView.saveState(outState);
-			}
+		final WebView webView = binding == null ? null : binding.webView;
+		if (webView != null) {
+			webView.saveState(outState);
 		}
 		super.onSaveInstanceState(outState);
 	}
 
-	@Nullable
-	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		super.onCreateView(inflater, container, savedInstanceState);
-		View view = inflater.inflate(R.layout.fragment_web_browser, container, false);
-		setupView(view);
-		return view;
-	}
+	private @Nullable FragmentWebBrowserBinding binding = null;
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		requireActivity().addMenuProvider(
-				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
-		);
+		requireActivity().addMenuProvider(this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+		this.binding = FragmentWebBrowserBinding.bind(view);
+		setupView(binding);
 		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
 			final OnBackPressedCallback callback = new OnBackPressedCallback(false) {
 				@Override
 				public void handleOnBackPressed() {
-					final WebView webView = view.findViewById(R.id.webView);
+					final WebView webView = binding == null ? null : binding.webView;
 					if (webView != null && webView.canGoBack()) {
 						webView.goBack();
 					}
@@ -157,12 +172,27 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
-	private void setupView(View view) {
-		if (view == null) {
+	private void setupView(@Nullable FragmentWebBrowserBinding binding) {
+		if (binding == null) {
 			return;
 		}
+		final View view = binding.getRoot();
 		EdgeToEdgeKt.applyStatusBarsInsetsEdgeToEdge(view);
-		WebView webView = view.findViewById(R.id.webView);
+		setupScreenToolbar(binding.screenToolbarLayout);
+		updateScreenToolbarBgColor(binding.screenToolbarLayout);
+		updateScreenToolbarOverrideGradient(binding.screenToolbarLayout);
+		if (FileUtils.isImageURL(this.initialUrl)) {
+			final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) binding.screenContent.getLayoutParams();
+			params.setBehavior(null);
+			binding.screenContent.setLayoutParams(params);
+			binding.screenToolbarLayout.screenToolbarLayout.setLiftOnScroll(false);
+			binding.screenToolbarLayout.screenToolbarLayout.setOutlineProvider(null);
+			final MainActivity mainActivity = getMainActivity();
+			if (mainActivity != null) {
+				EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(getMainActivity(), getDefaultABBgColor(view.getContext()));
+			}
+		}
+		final WebView webView = binding.webView;
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setSupportZoom(true);
 		webView.getSettings().setBuiltInZoomControls(true);
@@ -185,13 +215,10 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
 			return super.onBackPressed();
 		}
-		View view = getView();
-		if (view != null) {
-			WebView webView = view.findViewById(R.id.webView);
-			if (webView != null && webView.canGoBack()) {
-				webView.goBack();
-				return true; // handled
-			}
+		final WebView webView = binding == null ? null : binding.webView;
+		if (webView != null && webView.canGoBack()) {
+			webView.goBack();
+			return true; // handled
 		}
 		return super.onBackPressed();
 	}
@@ -199,55 +226,49 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public void onResume() {
 		super.onResume();
-		View view = getView();
-		if (view != null) {
-			WebView webView = view.findViewById(R.id.webView);
-			if (webView != null) {
-				if (TextUtils.isEmpty(this.currentUrl)) {
-					webView.loadUrl(this.initialUrl);
-				} else if (!this.currentUrl.equals(webView.getUrl())) {
-					webView.loadUrl(this.currentUrl);
-				}
-				webView.onResume();
+		final WebView webView = binding == null ? null : binding.webView;
+		if (webView != null) {
+			if (TextUtils.isEmpty(this.currentUrl)) {
+				webView.loadUrl(this.initialUrl);
+			} else if (!this.currentUrl.equals(webView.getUrl())) {
+				webView.loadUrl(this.currentUrl);
 			}
+			webView.onResume();
 		}
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		View view = getView();
-		if (view != null) {
-			WebView webView = view.findViewById(R.id.webView);
-			if (webView != null) {
-				webView.onPause();
-			}
+		final WebView webView = binding == null ? null : binding.webView;
+		if (webView != null) {
+			webView.onPause();
 		}
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		this.binding = null;
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		View view = getView();
-		if (view != null) {
-			WebView webView = view.findViewById(R.id.webView);
-			if (webView != null) {
-				webView.destroy();
-			}
+		final WebView webView = binding == null ? null : binding.webView;
+		if (webView != null) {
+			webView.destroy();
 		}
 	}
 
 	private void onProgressChanged(int newProgress) {
-		View view = getView();
-		if (view != null) {
-			ProgressBar progressBar = view.findViewById(R.id.progress_bar);
-			if (progressBar != null) {
-				progressBar.setProgress(newProgress);
-				if (newProgress < 100) {
-					progressBar.setVisibility(View.VISIBLE);
-				} else {
-					progressBar.setVisibility(View.INVISIBLE);
-				}
+		final ProgressBar progressBar = binding == null ? null : binding.progressBar;
+		if (progressBar != null) {
+			progressBar.setProgress(newProgress);
+			if (newProgress < 100) {
+				progressBar.setVisibility(View.VISIBLE);
+			} else {
+				progressBar.setVisibility(View.INVISIBLE);
 			}
 		}
 	}
@@ -267,18 +288,25 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	private void onTitleChanged(String title) {
 		this.pageTitle = title;
-		ActionBarController abController = getAbController();
+		final ActionBarController abController = getAbController();
 		if (abController != null) {
 			abController.setABTitle(this, getABTitle(getContext()), true);
+		}
+		final Toolbar screenToolbar = binding == null ? null : binding.screenToolbarLayout.screenToolbar;
+		if (screenToolbar != null) {
+			updateScreenToolbarTitle(screenToolbar);
 		}
 	}
 
 	private void onURLChanged(String url) {
 		this.currentUrl = url;
-		ActionBarController abController = getAbController();
+		final ActionBarController abController = getAbController();
 		if (abController != null) {
 			abController.setABSubtitle(this, getABSubtitle(getContext()), true);
 		}
+		final Toolbar screenToolbar = binding == null ? null : binding.screenToolbarLayout.screenToolbar;
+		if (screenToolbar != null) {
+			updateScreenToolbarSubtitle(screenToolbar);
 	}
 
 	// TODO later view model
@@ -287,6 +315,11 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	// return isAttached() ? this.viewModel : null;
 	// }
 	//
+	//
+	@Override
+	public boolean hasToolbar() {
+		return true;
+	}
 
 	@Nullable
 	@Override
@@ -305,6 +338,14 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		return super.isABStatusBarTransparent();
 	}
 
+	@Override
+	public boolean isABOverrideGradient() {
+		if (FileUtils.isImageURL(this.initialUrl)) {
+			return true;
+		}
+		return super.isABOverrideGradient();
+	}
+
 	@Nullable
 	@Override
 	public CharSequence getABSubtitle(@Nullable Context context) {
@@ -317,6 +358,9 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Nullable
 	@Override
 	public CharSequence getABTitle(@Nullable Context context) {
+		if (!TextUtils.isEmpty(this.pageTitleStatic)) {
+			return this.pageTitleStatic;
+		}
 		if (!TextUtils.isEmpty(this.pageTitle)) {
 			return this.pageTitle;
 		}

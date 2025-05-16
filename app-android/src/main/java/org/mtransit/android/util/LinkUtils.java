@@ -83,6 +83,10 @@ public final class LinkUtils implements MTLog.Loggable {
 	}
 
 	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, boolean www) {
+		return open(view, activity, url, label, null, www);
+	}
+
+	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, @Nullable String titleStatic, boolean www) {
 		if (url == null || url.isEmpty()) {
 			return false;
 		}
@@ -103,7 +107,7 @@ public final class LinkUtils implements MTLog.Loggable {
 					}
 					NavControllerExtKt.navigateF(navController,
 							R.id.nav_to_web_screen,
-							WebBrowserFragment.newInstanceArgs(url),
+							WebBrowserFragment.newInstanceArgs(url, titleStatic),
 							null,
 							extras
 					);
@@ -111,7 +115,7 @@ public final class LinkUtils implements MTLog.Loggable {
 				} else {
 					if (activity instanceof MainActivity) {
 						((MainActivity) activity).addFragmentToStack(
-								WebBrowserFragment.newInstance(url)
+								WebBrowserFragment.newInstance(url, titleStatic)
 						);
 						return true;
 					}

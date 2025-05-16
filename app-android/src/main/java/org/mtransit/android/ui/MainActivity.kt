@@ -341,7 +341,7 @@ class MainActivity : MTActivityWithLocation(),
         this.abController?.apply {
             FragmentUtils.executePendingTransactions(this@MainActivity, null)
             setAB(newFragment)
-            updateABDrawerClosed()
+            updateAB()
         }
         this.navigationDrawerController?.setCurrentSelectedItemChecked(getBackStackEntryCount() == 0)
     }
@@ -401,7 +401,7 @@ class MainActivity : MTActivityWithLocation(),
         resetBackStackEntryCount()
         abController?.apply {
             setAB(currentFragment as ABFragment?)
-            updateABDrawerClosed()
+            updateAB()
         }
         this.navigationDrawerController?.onBackStackChanged(getBackStackEntryCount())
         this.adManager.adaptToScreenSize(this, getResources().configuration)
