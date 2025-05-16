@@ -307,6 +307,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		final Toolbar screenToolbar = binding == null ? null : binding.screenToolbarLayout.screenToolbar;
 		if (screenToolbar != null) {
 			updateScreenToolbarSubtitle(screenToolbar);
+		}
 	}
 
 	// TODO later view model
