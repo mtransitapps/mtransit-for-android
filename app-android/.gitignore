@@ -67,6 +67,7 @@ proguard/
 /src/main/res/mipmap-*/module_app_icon.png
 /src/main/res/values/strings.xml
 /src/main/res/values/gtfs_rts_strings.xml
+/src/main/res/values/parent_agency_values.xml
 
 # trigger change 1
 
