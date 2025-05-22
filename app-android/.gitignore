@@ -64,10 +64,17 @@ proguard/
 /src/main/play/listings/en-US/full-description.txt
 /src/main/play/listings/en-US/graphics/feature-graphic/1.png
 # /src/main/play/listings/en-US/graphics/icon/1.png # used in README.md
+/src/main/play/listings/fr-FR/title.txt
+/src/main/play/listings/fr-FR/short-description.txt
+/src/main/play/listings/fr-FR/full-description.txt
+/src/main/play/listings/fr-FR/graphics/feature-graphic/1.png
 /src/main/res/mipmap-*/module_app_icon.png
+/src/main/res/values/bike_station_strings.xml
 /src/main/res/values/strings.xml
 /src/main/res/values/gtfs_rts_strings.xml
 /src/main/res/values/parent_agency_values.xml
+/src/main/res/values-fr/bike_station_strings.xml
+/src/main/res/values-fr/strings.xml
 
 # trigger change 1
 
