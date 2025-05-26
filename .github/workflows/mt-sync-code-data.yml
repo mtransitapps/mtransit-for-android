@@ -147,6 +147,8 @@ jobs:
             agency-parser/output/next/
       - name: MT commit data change
         run: ./commit_data_change.sh
+      - name: MT set app release required (or not)
+        run: ./set_app_release_required.sh
       - name: MT assemble release (APK & ABB)
         run: ./assemble_release.sh
         env:
@@ -159,8 +161,6 @@ jobs:
           path: |
             app-android/build/outputs/apk
             app-android/build/outputs/bundle
-      - name: MT set app release required (or not)
-        run: ./set_app_release_required.sh
       - name: MT push commits
         run: ./push_commits.sh
       - name: MT Publish release (?)
