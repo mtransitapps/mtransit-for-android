@@ -102,7 +102,7 @@ class DataSourcesReader @Inject constructor(
 
         private const val PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS = "pLclAvailableVersionLastCheck"
 
-        private val MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS = TimeUnit.HOURS.toMillis(12L)
+        private val MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS = TimeUnit.HOURS.toMillis(6L)
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -205,7 +205,7 @@ class DataSourcesReader @Inject constructor(
         val shortTimeAgo = TimeUtils.currentTimeMillis() - MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
-            MTLog.d(this, "refreshAvailableVersions() > SKIP (last successful refresh too recent ($timeLapsedInHours hours)")
+            MTLog.d(this, "refreshAvailableVersions() > SKIP (last successful refresh too recent: $timeLapsedInHours hours ago)")
             return
         }
         var updated = false
@@ -236,7 +236,7 @@ class DataSourcesReader @Inject constructor(
                 }
             }
         }
-        if (!skipTimeCheck && updated) {
+        if (!skipTimeCheck || updated) {
             lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
         }
     }

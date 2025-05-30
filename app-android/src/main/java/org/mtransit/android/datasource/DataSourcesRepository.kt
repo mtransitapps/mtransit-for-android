@@ -296,7 +296,7 @@ class DataSourcesRepository @Inject constructor(
                 return false
             }
             runningUpdate = true
-            val updated: Boolean = update(forcePkg)
+            val updated = update(forcePkg)
             runningUpdate = false
             MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
             return updated
