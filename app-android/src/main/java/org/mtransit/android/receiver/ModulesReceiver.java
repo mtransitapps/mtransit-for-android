@@ -11,7 +11,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.mtransit.android.common.MTContinuationJ;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.data.DataSourceManager;
@@ -26,8 +25,11 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
+import kotlinx.coroutines.CoroutineScopeKt;
+import kotlinx.coroutines.CoroutineStart;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.future.FutureKt;
 
 @AndroidEntryPoint
 public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable {
@@ -133,24 +135,13 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			return;
 		}
 		try {
-			this.dataSourcesRepository.updateLock(new MTContinuationJ<Boolean>() {
-
-				@NonNull
-				@Override
-				public CoroutineContext getContext() {
-					return EmptyCoroutineContext.INSTANCE;
-				}
-
-				@Override
-				public void resumeWithException(@NonNull Throwable t) {
-					MTLog.w(ModulesReceiver.this, t, "Error while running update...");
-				}
-
-				@Override
-				public void resume(Boolean result) {
-					MTLog.d(ModulesReceiver.this, "Update run with result: %s", result);
-				}
-			});
+			FutureKt.future(
+					CoroutineScopeKt.CoroutineScope(EmptyCoroutineContext.INSTANCE),
+					Dispatchers.getIO(),
+					CoroutineStart.DEFAULT,
+					(scope, continuation) ->
+							this.dataSourcesRepository.updateLock(continuation)
+			).get();
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while updating data-sources from repository!");
 		}
