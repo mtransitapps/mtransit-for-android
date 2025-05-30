@@ -138,7 +138,7 @@ class DataSourcesReader @Inject constructor(
     private val serviceUpdateProviderTargetMetaData by lazy { appContext.getString(commonsR.string.service_update_provider_target) }
     private val newsProviderTargetMetaData by lazy { appContext.getString(commonsR.string.news_provider_target) }
 
-    fun isAProvider(pkg: String?): Boolean {
+    fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
         if (pkg.isNullOrBlank()) {
             return false
         }
@@ -150,6 +150,9 @@ class DataSourcesReader @Inject constructor(
             val providerMetaData: Bundle = providerInfo.metaData ?: return@forEach
             if (providerMetaData.isKeyMT(agencyProviderMetaData)) {
                 return true
+            }
+            if (agencyOnly) {
+                return false
             }
             if (providerMetaData.isKeyMT(statusProviderMetaData)) {
                 return true

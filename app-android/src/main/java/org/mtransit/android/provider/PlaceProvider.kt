@@ -274,16 +274,6 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         return _poiProjectionMap ?: getNewPoiProjectionMap(_authority).also { _poiProjectionMap = it }
     }
 
-    @MainThread
-    override fun onCreateMT(): Boolean {
-        ping()
-        return super.onCreateMT()
-    }
-
-    override fun ping() {
-        // do nothing
-    }
-
     override fun queryMT(uri: Uri, projection: Array<String?>?, selection: String?, selectionArgs: Array<String?>?, sortOrder: String?): Cursor? {
         try {
             var cursor = super.queryMT(uri, projection, selection, selectionArgs, sortOrder)

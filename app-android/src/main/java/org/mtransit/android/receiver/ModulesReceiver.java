@@ -49,13 +49,35 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			Intent.ACTION_PACKAGE_DATA_CLEARED,
 			Intent.ACTION_PACKAGE_FIRST_LAUNCH,
 			Intent.ACTION_PACKAGE_FULLY_REMOVED,
-			Intent.ACTION_PACKAGE_INSTALL,
+			Intent.ACTION_PACKAGE_INSTALL, // deprecated (never been used)
 			Intent.ACTION_PACKAGE_NEEDS_VERIFICATION,
 			Intent.ACTION_PACKAGE_REMOVED,
 			Intent.ACTION_PACKAGE_REPLACED,
 			Intent.ACTION_PACKAGE_RESTARTED,
 			Intent.ACTION_PACKAGE_VERIFIED
 	);
+
+	private boolean shouldPing(@Nullable Intent intent) {
+		if (intent == null) {
+			return false;
+		}
+		final String action = intent.getAction();
+		if (action == null) {
+			return false;
+		}
+		switch (action) {
+			case Intent.ACTION_PACKAGE_ADDED:
+				final boolean replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
+				if (replacing) {
+					return false; // will be followed by Intent.ACTION_PACKAGE_REPLACED
+				}
+				return true;
+			case Intent.ACTION_PACKAGE_REPLACED:
+				return true;
+			default:
+				return false;
+		}
+	}
 
 	@NonNull
 	public static IntentFilter getIntentFilter() {
@@ -97,12 +119,13 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		}
 		final Uri data = intent == null ? null : intent.getData();
 		final String pkg = data == null ? null : data.getSchemeSpecificPart();
-		if (this.dataSourcesRepository.isAProvider(pkg)) {
-			if (ping(context, pkg)) {
+		final boolean isAProvider = this.dataSourcesRepository.isAProvider(pkg, true);
+		if (isAProvider && shouldPing(intent)) {
+			if (ping(context, pkg)) { // TODO check if a GTFS provider?
 				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
 			}
 		}
-		final boolean canBeAProvider = this.dataSourcesRepository.isAProvider(pkg)
+		final boolean canBeAProvider = isAProvider
 				|| Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action)
 				|| Intent.ACTION_PACKAGE_REMOVED.equals(action);
 		if (!canBeAProvider) {

@@ -304,9 +304,8 @@ class DataSourcesRepository @Inject constructor(
     }
 
     private suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {
-        var updated: Boolean
         MTLog.i(this@DataSourcesRepository, "update() > Updating... ")
-        updated = dataSourcesReader.update(forcePkg)
+        val updated = dataSourcesReader.update(forcePkg)
         MTLog.i(this@DataSourcesRepository, "update() > Updating...  DONE")
         MTLog.d(this, "update() > $updated")
         updated
@@ -327,8 +326,8 @@ class DataSourcesRepository @Inject constructor(
         updated
     }
 
-    fun isAProvider(pkg: String?): Boolean {
-        return this.dataSourcesReader.isAProvider(pkg)
+    fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
+        return this.dataSourcesReader.isAProvider(pkg, agencyOnly)
     }
 
     // endregion

@@ -176,16 +176,10 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@MainThread
 	@Override
 	public boolean onCreateMT() {
-		ping();
 		dataSourcesRepository().readingAllAgencies().observeForever(agencyProperties -> { // SINGLETON
 			Executors.newSingleThreadExecutor().execute(this::deleteAllModuleStatusData);
 		});
 		return super.onCreateMT();
-	}
-
-	@Override
-	public void ping() {
-		// DO NOTHING
 	}
 
 	@WorkerThread

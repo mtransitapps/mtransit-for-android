@@ -211,7 +211,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static void ping(@NonNull Context context, @NonNull String authority) {
 		Cursor cursor = null;
 		try {
-			Uri uri = Uri.withAppendedPath(getUri(authority), ProviderContract.PING_PATH);
+			final Uri uri = Uri.withAppendedPath(getUri(authority), ProviderContract.PING_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error!");
