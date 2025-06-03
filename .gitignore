@@ -164,7 +164,9 @@ dev.properties
 /app_logcat_debug.sh
 /app_logcat_release.sh
 /app_pidcat_debug.sh
+/app_pidcat_debug_tag_mtd.sh
 /app_pidcat_release.sh
+/app_pidcat_release_tag_mt.sh
 /app_setup.sh
 /app_start_debug.sh
 /app_start_release.sh

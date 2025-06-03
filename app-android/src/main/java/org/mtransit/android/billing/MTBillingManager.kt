@@ -84,7 +84,8 @@ class MTBillingManager @Inject constructor(
         SystemSettingManager.isUsingFirebaseTestLab(appContext)
     }
 
-    override fun showingPaidFeatures() = hasSubscription.value != false && !isUsingFirebaseTestLab
+    override fun showingPaidFeatures() = hasSubscription.value == true
+            && !isUsingFirebaseTestLab
     // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
