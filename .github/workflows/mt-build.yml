@@ -4,10 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
-      - mmathieum # TO BE DELETED
-      - 'feature/**'
-      - 'hotfix/**'
+      - '**' # ALL
 # gh workflow run mt-build.yml --ref <branch>
 # gh run list --workflow=mt-build.yml
 concurrency:

@@ -26,7 +26,6 @@ jobs:
       - name: MT check out main repository code (no submodules)
         uses: actions/checkout@v4
         with:
-          ref: mmathieum
           submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
           fetch-depth: 0 # fetch all (not required util release build)

@@ -36,7 +36,6 @@ jobs:
       - name: MT check out main repository code (no submodules)
         uses: actions/checkout@v4
         with:
-          ref: mmathieum # TO BE DELETED
           submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
           fetch-depth: 0 # fetch all (not required util release build)
@@ -49,7 +48,7 @@ jobs:
       - name: MT add parser repo
         uses: actions/checkout@v4
         with:
-          ref: mmathieum # TO BE DELETED
+          ref: $MT_GIT_BRANCH
           repository: mtransitapps/parser
           path: parser
           token: ${{ secrets.MT_PAT }}
