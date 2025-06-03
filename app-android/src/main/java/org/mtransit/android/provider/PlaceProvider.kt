@@ -9,12 +9,10 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.net.Uri
 import android.util.Log
-import androidx.annotation.MainThread
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.collection.ArrayMap
-import androidx.core.content.ContentProviderCompat
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Tasks
 import com.google.android.libraries.places.api.model.CircularBounds
@@ -38,11 +36,11 @@ import org.mtransit.android.commons.provider.ContentProviderConstants
 import org.mtransit.android.commons.provider.MTSQLiteOpenHelper
 import org.mtransit.android.commons.provider.POIProvider
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.common.requiredContext
 import org.mtransit.android.data.Place
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.toLatLngBounds
 import org.mtransit.commons.FeatureFlags
-import java.lang.Exception
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.Locale
@@ -53,43 +51,25 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     override fun getLogTag() = LOG_TAG
 
-    private val _uriMatcher: UriMatcher by lazy {
-        getNewUriMatcher(_authority)
-    }
+    private val _uriMatcher: UriMatcher by lazy { getNewUriMatcher(_authority) }
 
     override fun getURI_MATCHER() = _uriMatcher
 
-    override fun getAgencyUriMatcher(): UriMatcher {
-        return getURI_MATCHER()
-    }
+    override fun getAgencyUriMatcher() = getURI_MATCHER()
 
-    override fun getSearchSuggest(query: String?): Cursor? {
-        return null // TODO implement Place/Query auto-complete
-    }
+    override fun getSearchSuggest(query: String?): Cursor? = null // TODO implement Place/Query auto-complete
 
-    override fun getSearchSuggestProjectionMap(): ArrayMap<String?, String?>? {
-        return null // TODO implement Place/Query auto-complete
-    }
+    override fun getSearchSuggestProjectionMap(): ArrayMap<String?, String?>? = null // TODO implement Place/Query auto-complete
 
-    override fun getSearchSuggestTable(): String? {
-        return null // TODO implement Place/Query auto-complete
-    }
+    override fun getSearchSuggestTable(): String? = null // TODO implement Place/Query auto-complete
 
-    override fun getPOITable(): String {
-        return PlaceDbHelper.T_PLACE
-    }
+    override fun getPOITable() = PlaceDbHelper.T_PLACE
 
-    override fun getPOIProjection(): Array<String> {
-        return PROJECTION_PLACE_POI
-    }
+    override fun getPOIProjection() = PROJECTION_PLACE_POI
 
-    override fun getPOIMaxValidityInMs(): Long {
-        return POI_MAX_VALIDITY_IN_MS
-    }
+    override fun getPOIMaxValidityInMs() = POI_MAX_VALIDITY_IN_MS
 
-    override fun getPOIValidityInMs(): Long {
-        return POI_VALIDITY_IN_MS
-    }
+    override fun getPOIValidityInMs() = POI_VALIDITY_IN_MS
 
     override fun getPOI(poiFilter: POIProviderContract.Filter?): Cursor? {
         if (poiFilter == null) {
@@ -104,7 +84,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         } else if (POIProviderContract.Filter.isSQLSelection(poiFilter)) {
             return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
         } else {
-            MTLog.w(this, "Unexpected POI filter '%s'!", poiFilter)
+            MTLog.w(this, "Unexpected POI filter '$poiFilter'!")
             return null
         }
     }
@@ -188,72 +168,42 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             }
         }
 
-    override fun getPOIFromDB(poiFilter: POIProviderContract.Filter?): Cursor? {
-        return null
-    }
+    override fun getPOIFromDB(poiFilter: POIProviderContract.Filter?): Cursor? = null
 
-    override fun getAgencyArea(context: Context): Area {
-        return Area.THE_WORLD
-    }
+    override fun getAgencyArea(context: Context) = Area.THE_WORLD
 
-    override fun getAgencyMaxValidSec(context: Context): Int {
-        return 0 // unlimited
-    }
+    override fun getAgencyMaxValidSec(context: Context) = 0 // unlimited
 
-    override fun getAvailableVersionCode(context: Context, filterS: String?): Int {
-        return 0 // main app in-app update not supported yet
-    }
+    override fun getAvailableVersionCode(context: Context, filterS: String?) = 0 // main app in-app update not supported yet
 
-    override fun getContactUsWeb(context: Context): String {
-        return StringUtils.EMPTY
-    }
+    override fun getContactUsWeb(context: Context) = StringUtils.EMPTY
 
-    override fun getContactUsWebFr(context: Context): String {
-        return StringUtils.EMPTY
-    }
+    override fun getContactUsWebFr(context: Context) = StringUtils.EMPTY
 
-    override fun getExtendedTypeId(context: Context): @DataSourceTypeId.DataSourceType Int {
-        return DataSourceTypeId.INVALID // not supported
-    }
+    override fun getExtendedTypeId(context: Context) = DataSourceTypeId.INVALID // not supported
 
-    private val _authority: String by lazy {
-        ContentProviderCompat.requireContext(this).getString(
-            R.string.place_authority
-        )
-    }
+    private val _authority: String by lazy { requiredContext.getString(R.string.place_authority) }
 
     @Suppress("unused")
-    private val _authorityUri: Uri by lazy {
-        UriUtils.newContentUri(_authority)
-    }
+    private val _authorityUri: Uri by lazy { UriUtils.newContentUri(_authority) }
 
     /**
      * Override if multiple [PlaceProvider] implementations in same app.
      */
-    override fun getAgencyColorString(context: Context): String? {
-        return null // default
-    }
+    override fun getAgencyColorString(context: Context): String? = null // default
 
     @StringRes
-    override fun getAgencyLabelResId(): Int {
-        return R.string.place_label
-    }
+    override fun getAgencyLabelResId() = R.string.place_label
 
     @StringRes
-    override fun getAgencyShortNameResId(): Int {
-        return R.string.place_short_name
-    }
+    override fun getAgencyShortNameResId() = R.string.place_short_name
 
     /**
      * Override if multiple [PlaceProvider] in same app.
      */
-    private fun getDbName(): String {
-        return PlaceDbHelper.DB_NAME
-    }
+    private fun getDbName() = PlaceDbHelper.DB_NAME
 
-    override fun isAgencyDeployed(): Boolean {
-        return SqlUtils.isDbExist(requireContextCompat(), getDbName())
-    }
+    override fun isAgencyDeployed() = SqlUtils.isDbExist(requireContextCompat(), getDbName())
 
     override fun isAgencySetupRequired(): Boolean {
         if (_currentDbVersion > 0 && _currentDbVersion != getCurrentDbVersion()) {
@@ -270,9 +220,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private var _poiProjectionMap: ArrayMap<String, String>? = null
 
-    override fun getPOIProjectionMap(): ArrayMap<String, String> {
-        return _poiProjectionMap ?: getNewPoiProjectionMap(_authority).also { _poiProjectionMap = it }
-    }
+    override fun getPOIProjectionMap() = _poiProjectionMap ?: getNewPoiProjectionMap(_authority).also { _poiProjectionMap = it }
 
     override fun queryMT(uri: Uri, projection: Array<String?>?, selection: String?, selectionArgs: Array<String?>?, sortOrder: String?): Cursor? {
         try {
@@ -284,9 +232,9 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             if (cursor != null) {
                 return cursor
             }
-            throw IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri))
+            throw IllegalArgumentException(String.format("Unknown URI (query): '$uri'"))
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while resolving query '%s'!", uri)
+            MTLog.w(this, e, "Error while resolving query '$uri'!")
             return null
         }
     }
@@ -322,19 +270,13 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         return 0
     }
 
-    private fun getDBHelper(): SQLiteOpenHelper {
-        return getDBHelper(requireContextCompat())
-    }
+    private fun getDBHelper(): SQLiteOpenHelper = getDBHelper(requireContextCompat())
 
     @WorkerThread
-    override fun getReadDB(): SQLiteDatabase {
-        return getDBHelper().readableDatabase
-    }
+    override fun getReadDB(): SQLiteDatabase = getDBHelper().readableDatabase
 
     @WorkerThread
-    override fun getWriteDB(): SQLiteDatabase {
-        return getDBHelper().writableDatabase
-    }
+    override fun getWriteDB(): SQLiteDatabase = getDBHelper().writableDatabase
 
     private var _dbHelper: PlaceDbHelper? = null
     private var _currentDbVersion: Int = -1
@@ -368,9 +310,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     /**
      * Override if multiple [PlaceProvider] implementations in same app.
      */
-    private fun getNewDbHelper(context: Context): PlaceDbHelper {
-        return PlaceDbHelper(context.applicationContext)
-    }
+    private fun getNewDbHelper(context: Context) = PlaceDbHelper(context.applicationContext)
 
     /**
      * Override if multiple [PlaceProvider] implementations in same app.
@@ -501,7 +441,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                     keyword
                 }
                 .takeIf { keywordMaxLength >= 3 } ?: return null
-            MTLog.d(this, "getTextSearchRequest() > textQuery: '%s'", textQuery)
+            MTLog.d(this, "getTextSearchRequest() > textQuery: '$textQuery'")
             return SearchByTextRequest.builder(textQuery, GOOGLE_PLACE_TEXT_SEARCH_FIELDS)
                 // .setMaxResultCount(1) // max 20 // cost is per / request
                 .apply {
@@ -518,7 +458,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 }.build()
         }
 
-        private const val TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT = 50000 // max = 50000 // 50 km
+        private const val TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT = 50_000 // max = 50_000 // 50 km
 
         private const val POI_MAX_VALIDITY_IN_MS = Long.MAX_VALUE
 
