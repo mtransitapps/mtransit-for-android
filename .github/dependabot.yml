@@ -6,6 +6,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+      time: "16:00"
+      timezone: "America/Montreal"
     target-branch: "mmathieum"
     groups:
       gh-actions:
@@ -15,7 +18,10 @@ updates:
   # - package-ecosystem: "gitsubmodule"
   #   directory: "/"
   #   schedule:
-  #     interval: "daily"
+  #     interval: "weekly"
+  #     day: "wednesday"
+  #     time: "16:00"
+  #     timezone: "America/Montreal"
   #   target-branch: "mmathieum"
   #   groups:
   #     all-git-submodules:

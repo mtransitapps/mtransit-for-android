@@ -5,12 +5,11 @@ on:
   push:
     branches:
       - master
-      - mmathieum
+      - mmathieum # TO BE DELETED
       - 'feature/**'
       - 'hotfix/**'
-# gh workflow run mt-build.yml --ref mmathieum
+# gh workflow run mt-build.yml --ref <branch>
 # gh run list --workflow=mt-build.yml
-# gh run watch ; gh browse --branch mmathieum
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.head_ref }}
   cancel-in-progress: true
@@ -60,8 +59,8 @@ jobs:
         run: ./download_dependencies.sh
       - name: MT test
         run: ./test.sh
-        env:
-          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+        # env:
+        #   MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
       - name: MT artifact > unit tests XML results
         uses: actions/upload-artifact@v4
         if: ${{ always() }} # even if tests fails

@@ -8,9 +8,9 @@ on:
   pull_request: # TO BE DELETED
 #  schedule:
 #   - cron: '0 12 * * 3' # Wednesdays @ 12pm UTC # WEEKLY https://crontab.guru/#0_12_*_*_3
-# gh workflow run mt-dependency-update.yml --ref mmathieum
+# gh workflow run mt-dependency-update.yml --ref <branch>
 # gh run list --workflow=mt-dependency-update.yml
-# gh run watch ; gh browse --repo mtransitapps/commons --branch mmathieum
+# gh run watch ; gh browse --repo mtransitapps/commons --branch <branch>
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -36,7 +36,7 @@ jobs:
       - name: MT check out main repository code (no submodules)
         uses: actions/checkout@v4
         with:
-          ref: mmathieum
+          ref: mmathieum # TO BE DELETED
           submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
           fetch-depth: 0 # fetch all (not required util release build)
@@ -49,7 +49,7 @@ jobs:
       - name: MT add parser repo
         uses: actions/checkout@v4
         with:
-          ref: mmathieum
+          ref: mmathieum # TO BE DELETED
           repository: mtransitapps/parser
           path: parser
           token: ${{ secrets.MT_PAT }}
@@ -104,8 +104,8 @@ jobs:
       - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
         name: MT test
         run: ./test.sh
-        env:
-          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+        # env:
+        #   MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
       - if: ${{ env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true' && always() }} # even if tests fails
         name: MT artifact > dependency update XML report
         uses: actions/upload-artifact@v4

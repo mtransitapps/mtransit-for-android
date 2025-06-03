@@ -15,7 +15,7 @@ workflows:
             branches:
                 only:
                     - master
-                    # - mmathieum
+                    # - TODO other branch?
 jobs:
   mt-job:
     working_directory: ~/mtransit

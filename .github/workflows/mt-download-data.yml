@@ -5,9 +5,8 @@ on:
   schedule:
     # too often for LFS - cron: '0 18 * * 1,3,5' # Mondays, Wednesdays & Fridays @ 6pm # https://crontab.guru/#0_18_*_*_1,3,5
     - cron: '0 12 * * 5' # Fridays @ 12pm UTC # WEEKLY # https://crontab.guru/#0_12_*_*_5
-# gh workflow run mt-download-data.yml --ref mmathieum
+# gh workflow run mt-download-data.yml --ref <branch>
 # gh run list --workflow=mt-download-data.yml
-# gh run watch ; gh browse --branch mmathieum
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

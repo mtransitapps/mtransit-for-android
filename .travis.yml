@@ -20,11 +20,7 @@ git:
 
 branches:
   only:
-    - master #TBR main|prod
-    - mmathieum #TBR dev|ready|pull
-    - /^hotfix/.*$/
-    - develop
-    - /^feature/.*$/
+    - master #TBR main
 
 env:
   global:

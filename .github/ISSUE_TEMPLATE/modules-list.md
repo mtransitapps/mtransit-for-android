@@ -3,7 +3,6 @@ name: Modules list
 about: List of supported modules
 title: 'Issue requiring changes in all modules'
 labels: MT
-assignees: mmathieum
 
 ---
 
