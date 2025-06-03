@@ -36,6 +36,8 @@ class NetworkLocationRepository @Inject constructor(
         private val MIN_INTERVAL_BETWEEN_IP_LOCATION_CHECK_MS = TimeUnit.HOURS.toMillis(1L)
 
         private const val NETWORK_LOCATION_ACCURACY_IN_METERS: Float = 25_000.0F
+
+        private const val PROVIDER_NAME = "ipwho.is"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -47,8 +49,10 @@ class NetworkLocationRepository @Inject constructor(
 
     val ipLocation: LiveData<Location?> = TripleMediatorLiveData(_ipLocationLat, _ipLocationLng, _hasAgenciesAdded).switchMap { (lat, lng, hasAgenciesAdded) ->
         liveData {
-            if (lat != null && lng != null && hasAgenciesAdded != null && !hasAgenciesAdded) {
-                emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS))
+            if (lat != null && lng != null && hasAgenciesAdded != null && hasAgenciesAdded == false) {
+                emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS, PROVIDER_NAME))
+            } else {
+                emit(null)
             }
         }
     }
