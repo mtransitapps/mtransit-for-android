@@ -109,7 +109,7 @@ class KeysManager @Inject constructor(
             // CUSTOM
             authority.endsWith("$debugS.winnipeg_transit") -> getKeyEntry(context, KeysIds.CA_WINNIPEG_TRANSIT_API_KEY)?.let { mapOf(it) }
             else -> {
-                MTLog.d(LOG_TAG, "Unexpected '$authority'!")
+                MTLog.d(LOG_TAG, "No key for '$authority'.")
                 null
             }
         }
