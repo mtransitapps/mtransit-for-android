@@ -103,6 +103,7 @@
 {"name":"Welland Transit","name_fr":"","location":"Welland, Port Colborne, ON, Canada","targetTypeId":"3","color":"00AAA0","lat":"42.968577","lng":"-79.257846","pkg":"org.mtransit.android.ca_welland_transit_bus"},
 {"name":"Whitehorse Transit (City of Whitehorse Transit)","name_fr":"","location":"Whitehorse, YK, Canada","targetTypeId":"3","color":"006666","lat":"60.741474","lng":"-135.078831","pkg":"org.mtransit.android.ca_whitehorse_transit_bus"},
 {"name":"Whistler Transit System (BC Transit)","name_fr":"","location":"Whistler, Pemberton, BC, Canada","targetTypeId":"3","color":"00B140","lat":"50.133830","lng":"-122.953942","pkg":"org.mtransit.android.ca_whistler_transit_system_bus"},
+{"name":"William Lake Transit (BC Transit)","name_fr":"","location":"Williams Lake, BC, Canada","targetTypeId":"3","color":"00B140","lat":"52.129693","lng":"-122.146391","pkg":"org.mtransit.android.ca_williams_lake_transit_bus"},
 {"name":"Winnipeg Transit","name_fr":"","location":"Winnipeg, MB, Canada","targetTypeId":"3","color":"3256A3","lat":"49.868090","lng":"-97.139926","pkg":"org.mtransit.android.ca_winnipeg_transit_bus"},
 {"name":"YRT Viva (York Region Transit)","name_fr":"","location":"York Region, ON, Canada","targetTypeId":"3","color":"0079C2","lat":"43.842697","lng":"-79.427891","pkg":"org.mtransit.android.ca_york_region_yrt_viva_bus"},
 {"name":"Capital Transit","name_fr":"","location":"Juneau, AK, United States","targetTypeId":"3","color":"000080","lat":"58.369763","lng":"-134.609619","pkg":"org.mtransit.android.us_juneau_capital_transit_bus"},

@@ -30,7 +30,7 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	/**
 	 * Override if multiple {@link ModuleDbHelper} in same app.
 	 */
-	public static final int DB_VERSION = 91;
+	public static final int DB_VERSION = 92;
 
 	/**
 	 * Override if multiple {@link ModuleDbHelper} implementations in same app.
