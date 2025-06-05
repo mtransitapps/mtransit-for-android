@@ -90,8 +90,6 @@ jobs:
       # Tests are run in the main repo
       # - name: MT test
       #   run: ./test.sh
-      # #   env:
-      # #     MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
       # - name: MT artifact > unit tests XML results
       #   uses: actions/upload-artifact@v4
       #   if: ${{ !cancelled() }} # even if tests fails

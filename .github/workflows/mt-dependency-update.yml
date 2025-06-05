@@ -103,8 +103,6 @@ jobs:
       - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
         name: MT test
         run: ./test.sh
-        # env:
-        #   MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
       - if: ${{ env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true' && always() }} # even if tests fails
         name: MT artifact > dependency update XML report
         uses: actions/upload-artifact@v4
