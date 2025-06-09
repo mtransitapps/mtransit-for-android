@@ -61,12 +61,18 @@ jobs:
       - run:
           name: Checkout submodules
           command: ./checkout_submodules.sh
+    #   - run:
+    #       name: commons/sync.sh permissions
+    #       command: sudo chmod +x commons/sync.sh
+    #   - run:
+    #       name: Sync files
+    #       command: ./commons/sync.sh
       - run:
-          name: commons/sync.sh permissions
-          command: sudo chmod +x commons/sync.sh
+          name: commons/code_setup.sh permissions
+          command: sudo chmod +x commons/code_setup.sh
       - run:
           name: Sync files
-          command: ./commons/sync.sh
+          command: ./commons/code_setup.sh
       - android/restore-build-cache:
           cache-prefix: android-build-cache
       # - android/restore-gradle-cache:
