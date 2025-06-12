@@ -18,8 +18,8 @@ class LanguageManager @Inject constructor(
 ) {
 
     companion object {
-        val LANG_EN = Locale("en")
-        val LANG_FR = Locale("fr")
+        val LANG_EN: Locale = Locale.forLanguageTag("en")
+        val LANG_FR: Locale = Locale.forLanguageTag("fr")
     }
 
     val langUserPref: LiveData<String> = defaultPrefRepository.pref.liveData(
