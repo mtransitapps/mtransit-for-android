@@ -105,39 +105,8 @@ jobs:
             !**/*.xml
       - name: MT commit code change
         run: ./commit_code_change.sh
-# #      - name: MT download & parse
-# #        timeout-minutes: 40
-# #        run: ./download_and_parse.sh
-#       - name: MT download & prepare
-#         timeout-minutes: 10
-#         run: ./download_and_prepare.sh
-#       - name: MT parse current
-#         timeout-minutes: 40
-#         run: ./parse_current.sh
-#       - name: MT parse next
-#         timeout-minutes: 40
-#         run: ./parse_next.sh
-#       - name: MT parse list change
-#         run: ./parse_list_change.sh
       - name: MT push commits
         run: ./push_commits.sh
-      # - name: MT artifact > GTFS files
-      #   uses: actions/upload-artifact@v4
-      #   if: ${{ !cancelled() }} # even if tests fails
-      #   with:
-      #     name: gtfs
-      #     path: |
-      #       agency-parser/input/gtfs.zip
-      #       agency-parser/input/gtfs_next.zip
-      #     retention-days: 31
-      # - name: MT artifact > GTFS validator results
-      #   uses: actions/upload-artifact@v4
-      #   if: ${{ !cancelled() }} # even if tests fails
-      #   with:
-      #     name: gtfs-validator-results
-      #     path: |
-      #       agency-parser/output/current/
-      #       agency-parser/output/next/
       - name: MT commit data change
         run: ./commit_data_change.sh
       - name: MT set app release required
@@ -158,8 +127,3 @@ jobs:
             app-android/build/outputs/bundle
       - name: MT push commits
         run: ./push_commits.sh
-      # - name: MT Publish release (?)
-      #   run: ./publish_app_release.sh
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.MT_PAT }}
-      #     MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
