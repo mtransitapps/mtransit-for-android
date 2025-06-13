@@ -11,6 +11,8 @@ fi
 
 COMMIT_MESSAGE_TITLE="";
 COMMIT_MESSAGE_BODY="";
+ONE_COMMIT_MESSAGE="";
+COMMITS=0;
 for SUBMODULE in "${SUBMODULES[@]}"; do
   SUBMODULE_CURRENT_SHA=$(git ls-tree HEAD "$SUBMODULE" | awk '{ print $3 }')
   SUBMODULE_LATEST_SHA=$(git -C "$SUBMODULE" rev-parse HEAD);
@@ -22,6 +24,8 @@ for SUBMODULE in "${SUBMODULES[@]}"; do
     for SUBMODULE_CHANGE in "${SUBMODULE_CHANGES[@]}"; do
       echo "  - '$SUBMODULE_CHANGE'";
       COMMIT_MESSAGE_BODY+="\n- $SUBMODULE: $SUBMODULE_CHANGE";
+      ONE_COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE_START from '$SUBMODULE': $SUBMODULE_CHANGE";
+      ((COMMITS++));
     done
     if [[ -z $COMMIT_MESSAGE_TITLE ]]; then
       COMMIT_MESSAGE_TITLE+="$COMMIT_MESSAGE_TITLE_START from '$SUBMODULE'";
@@ -32,15 +36,19 @@ for SUBMODULE in "${SUBMODULES[@]}"; do
   fi
 done
 
-if [[ -z $COMMIT_MESSAGE_TITLE ]]; then
-  echo "No changes to commit."
-  exit 0 # ok
+echo "$COMMITS change(s) to commit.";
+
+if [[ "${COMMITS}" -eq 1 ]]; then
+  echo "--------------------------------------------------------------------------------";
+  echo -e "$ONE_COMMIT_MESSAGE";
+  echo "--------------------------------------------------------------------------------";
+  printf "$ONE_COMMIT_MESSAGE" | git commit -F -
+elif [[ "${COMMITS}" -gt 1 ]]; then
+  COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE:\n$COMMIT_MESSAGE_BODY";
+  echo "--------------------------------------------------------------------------------";
+  echo -e "$COMMIT_MESSAGE";
+  echo "--------------------------------------------------------------------------------";
+  printf "$COMMIT_MESSAGE" | git commit -F -
+# else # 0 commits
+# do nothing
 fi
-
-COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE:\n$COMMIT_MESSAGE_BODY";
-echo "Commit message:"
-echo "--------------------------------------------------------------------------------";
-echo -e "$COMMIT_MESSAGE";
-echo "--------------------------------------------------------------------------------";
-
-printf "$COMMIT_MESSAGE" | git commit -F -
