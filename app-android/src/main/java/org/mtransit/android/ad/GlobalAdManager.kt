@@ -2,7 +2,6 @@ package org.mtransit.android.ad
 
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
-import com.bytedance.sdk.openadsdk.api.PAGConstant as PanglePAGConstant
 import com.google.ads.mediation.pangle.PangleMediationAdapter
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
@@ -22,6 +21,7 @@ import org.mtransit.android.dev.DemoModeManager
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.bytedance.sdk.openadsdk.api.PAGConstant as PanglePAGConstant
 import com.google.android.ump.FormError as UMPFormError
 
 @Singleton
