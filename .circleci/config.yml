@@ -54,7 +54,7 @@ jobs:
           java_version: 17
       - run:
           name: Update SDK
-          command: echo y | sdkmanager "build-tools;34.0.0" "platform-tools" "platforms;android-34"
+          command: echo y | sdkmanager "build-tools;36.0.0" "platform-tools" "platforms;android-36"
       - checkout
       - run:
           name: checkout_submodules.sh permissions
