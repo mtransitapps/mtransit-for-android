@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources,InconsistentArrays,TypographyDashes">
+    <integer name="rss_db_version">2</integer>
+    <string name="twitter_target_for_poi_authority" />
+    <string-array name="rss_feeds">
+        <item>https://mtransitapps.github.io/news/rss-en.xml</item>
+        <item>https://mtransitapps.github.io/news/rss-fr.xml</item>
+    </string-array>
+    <string-array name="rss_feeds_author_icon">
+        <item>https://mtransitapps.github.io/hi-res-app-icon.png</item>
+        <item>https://mtransitapps.github.io/hi-res-app-icon.png</item>
+    </string-array>
+    <string-array name="rss_feeds_author_name">
+        <item>@string/app_name</item>
+        <item>@string/app_name</item>
+    </string-array>
+    <string-array name="rss_feeds_author_url">
+        <item>https://mtransitapps.github.io/news/</item>
+        <item>https://mtransitapps.github.io/news/</item>
+    </string-array>
+    <string-array name="rss_feeds_label">
+        <item>mtransitapps.github.io</item>
+        <item>mtransitapps.github.io</item>
+    </string-array>
+    <integer-array name="rss_feeds_severity">
+        <item>@integer/news_provider_severity_none</item>
+        <item>@integer/news_provider_severity_none</item>
+    </integer-array>
+</resources>
