@@ -5,7 +5,7 @@ name: MT dependency update
 # - test manually 1st
 on:
   workflow_dispatch: # manual
-  pull_request: # TO BE DELETED
+  # pull_request: # TO BE DELETED
 #  schedule:
 #   - cron: '0 12 * * 3' # Wednesdays @ 12pm UTC # WEEKLY https://crontab.guru/#0_12_*_*_3
 # gh workflow run mt-dependency-update.yml --ref <branch>
