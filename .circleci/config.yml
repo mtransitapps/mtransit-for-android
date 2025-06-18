@@ -44,11 +44,10 @@ jobs:
       TZ: "America/Toronto"
     steps:
       - run:
-          name: APT install - gawk & inkscape & libxml2-utils
+          name: APT install - gawk & libxml2-utils
           command: |
             sudo apt-get update
             sudo apt-get install -y gawk
-            sudo apt-get install -y inkscape
             sudo apt-get install -y libxml2-utils
       - android/change_java_version:
           java_version: 17
