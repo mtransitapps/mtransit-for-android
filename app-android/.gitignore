@@ -62,12 +62,11 @@ proguard/
 /src/main/play/listings/en-US/title.txt
 /src/main/play/listings/en-US/short-description.txt
 /src/main/play/listings/en-US/full-description.txt
-/src/main/play/listings/en-US/graphics/feature-graphic/1.png
-# /src/main/play/listings/en-US/graphics/icon/1.png # used in README.md
+# /src/main/play/listings/en-US/graphics/feature-graphic/1.png # generated image optional
+# /src/main/play/listings/en-US/graphics/icon/1.png # used in README.md # generated image optional
 /src/main/play/listings/fr-FR/title.txt
 /src/main/play/listings/fr-FR/short-description.txt
 /src/main/play/listings/fr-FR/full-description.txt
-/src/main/play/listings/fr-FR/graphics/feature-graphic/1.png
 /src/main/res/mipmap-*/module_app_icon.png
 /src/main/res/values/bike_station_strings.xml
 /src/main/res/values/strings.xml
