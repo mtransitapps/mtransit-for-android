@@ -24,7 +24,6 @@ jobs:
       - name: MT check out submodules
         run: ./checkout_submodules.sh
       - name: MT setup MT_GIT_BRANCH env
-        if: github.event_name != 'pull_request'
         run: |
           MT_GIT_BRANCH=${{ github.head_ref || github.ref_name }}
           echo "MT_GIT_BRANCH=$MT_GIT_BRANCH" >> $GITHUB_ENV
