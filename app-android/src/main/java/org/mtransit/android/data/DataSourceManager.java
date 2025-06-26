@@ -39,6 +39,7 @@ import org.mtransit.android.commons.provider.ProviderContract;
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusProviderContract;
+import org.mtransit.android.commons.provider.config.news.NewsProviderConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,6 +106,21 @@ public final class DataSourceManager implements MTLog.Loggable {
 			}
 		}
 		return result;
+	}
+
+	@Nullable
+	public static NewsProviderConfig findNewsProviderConfigs(@NonNull Context context, @NonNull String authority) {
+		Cursor cursor = null;
+		try {
+			Uri uri = Uri.withAppendedPath(getUri(authority), NewsProviderContract.CONFIG_PATH);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
+			return NewsProviderConfig.fromCursor(cursor);
+		} catch (Exception e) {
+			MTLog.w(LOG_TAG, e, "Error!");
+			return null;
+		} finally {
+			SqlUtils.closeQuietly(cursor);
+		}
 	}
 
 	@Nullable
