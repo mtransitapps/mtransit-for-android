@@ -109,7 +109,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static NewsProviderConfig findNewsProviderConfigs(@NonNull Context context, @NonNull String authority) {
+public static NewsProviderConfig findNewsProviderConfig(@NonNull Context context, @NonNull String authority) {
 		Cursor cursor = null;
 		try {
 			Uri uri = Uri.withAppendedPath(getUri(authority), NewsProviderContract.CONFIG_PATH);
