@@ -38,7 +38,7 @@ import javax.inject.Singleton
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 @Singleton
 class DataSourcesRepository @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
     private val dataSourcesIOCache: DataSourcesCache, // I/O - DB
     private val dataSourcesReader: DataSourcesReader,

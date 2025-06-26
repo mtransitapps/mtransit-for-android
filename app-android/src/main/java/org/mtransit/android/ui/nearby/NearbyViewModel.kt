@@ -50,7 +50,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NearbyViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     savedStateHandle: SavedStateHandle,
     private val analyticsManager: IAnalyticsManager,
     private val adManager: IAdManager,

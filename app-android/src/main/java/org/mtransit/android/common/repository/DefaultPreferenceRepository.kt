@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @Singleton
 class DefaultPreferenceRepository @Inject constructor(
-    @ApplicationContext private val appContext: Context
+    @param:ApplicationContext private val appContext: Context
 ) : PreferenceRepository(appContext) {
 
     companion object {

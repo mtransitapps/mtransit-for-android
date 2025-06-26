@@ -17,7 +17,7 @@ import javax.inject.Singleton
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 @Singleton
 class FavoriteRepository(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val favoriteManager: FavoriteManager,
     private val demoModeManager: DemoModeManager,
     private val ioDispatcher: CoroutineDispatcher,

@@ -63,7 +63,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,

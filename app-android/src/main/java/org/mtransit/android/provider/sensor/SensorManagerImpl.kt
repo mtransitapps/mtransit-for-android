@@ -17,9 +17,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.abs
 
-
 class SensorManagerImpl @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
 ) : MTSensorManager, MTLog.Loggable {
 
     companion object {

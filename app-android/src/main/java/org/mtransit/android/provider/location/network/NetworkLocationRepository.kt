@@ -21,7 +21,7 @@ import javax.inject.Singleton
 
 @Singleton
 class NetworkLocationRepository @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val apiService: IPWhoIsApiService,
     private val lclPreferenceRepository: LocalPreferenceRepository,
     private val dataSourcesRepository: DataSourcesRepository,

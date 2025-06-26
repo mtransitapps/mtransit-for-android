@@ -36,7 +36,7 @@ import org.mtransit.android.commons.R as commonsR
 
 @Singleton
 class DataSourcesReader @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val pm: PackageManager,
     private val analyticsManager: IAnalyticsManager,
     private val dataSourcesDatabase: DataSourcesDatabase,
