@@ -32,7 +32,7 @@ import javax.inject.Inject
  * - https://developers.google.com/admob/android/test-ads
  */
 class AdManager @Inject internal constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,
     private val rewardedAdManager: RewardedAdManager,
