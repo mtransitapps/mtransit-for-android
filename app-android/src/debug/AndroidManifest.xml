@@ -17,20 +17,6 @@
                 android:name="@string/news_provider_target"
                 android:value="@string/instagram_target_for_poi_authority" />
         </provider>
-        <!-- RSS NEWS PROVIDER -->
-        <provider
-            android:name="org.mtransit.android.commons.provider.RSSNewsProvider"
-            android:authorities="@string/rss_authority"
-            android:exported="true"
-            android:readPermission="${permission_provider_read}"
-            tools:ignore="MissingRegistered">
-            <meta-data
-                android:name="@string/news_provider"
-                android:value="@string/news_provider" />
-            <meta-data
-                android:name="@string/news_provider_target"
-                android:value="@string/rss_target_for_poi_authority" />
-        </provider>
         <!-- YOUTUBE NEWS PROVIDER -->
         <provider
             android:name="org.mtransit.android.commons.provider.YouTubeNewsProvider"
