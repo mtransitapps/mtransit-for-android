@@ -112,7 +112,8 @@ jobs:
       - name: MT set app release required
         run: |
           mkdir -p .mt;
-          echo "true" > .mt/mt_app_release_required;
+          # SKIP assemble (will be done after sync w/ target branch)
+          echo "false" > .mt/mt_app_release_required;
       - name: MT assemble release (APK & ABB)
         run: ./assemble_release.sh
         env:
