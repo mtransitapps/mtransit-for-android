@@ -37,7 +37,6 @@ before_script:
   - chmod +x init_cache_key.sh
   - ./init_cache_key.sh
   - chmod +x ./gradlew
-  - ./gradlew androidDependencies --console=plain
 
 cache:
   key: ${CACHE_KEY}
