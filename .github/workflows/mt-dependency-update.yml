@@ -63,25 +63,8 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-      - name: MT cache > Gradle wrapper
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/wrapper
-          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-      - name: MT Gradle cache > Generate key
-        run: ./init_cache_key.sh
-      - name: MT cache > Gradle cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-          key: gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
-          restore-keys: |
-            gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
-            gradle-cache-
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: MT dependency update check
         run: ./dependency_update_check.sh
       - name: MT dependency update update available
@@ -97,9 +80,6 @@ jobs:
       - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
         name: MT dependency update apply
         run: ./dependency_update_apply.sh
-      - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
-        name: MT download dependencies
-        run: ./download_dependencies.sh
       - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
         name: MT test
         run: ./test.sh

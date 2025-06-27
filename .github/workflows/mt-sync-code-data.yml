@@ -66,52 +66,10 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-      - name: MT cache > Gradle wrapper
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/wrapper
-          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-      - name: MT Gradle cache > Generate key
-        run: ./init_cache_key.sh
-      - name: MT cache > Gradle cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-          key: gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
-          restore-keys: |
-            gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
-            gradle-cache-
-      - name: MT download dependencies
-        run: ./download_dependencies.sh
-      # Tests are run in the main repo
-      # - name: MT test
-      #   run: ./test.sh
-      # - name: MT artifact > unit tests XML results
-      #   uses: actions/upload-artifact@v4
-      #   if: ${{ !cancelled() }} # even if tests fails
-      #   with:
-      #     name: unit-test-xml-results
-      #     path: |
-      #       */build/test-results/**/*.xml
-      #       */build/test-results/*.xml
-      #       */build/reports/*.xml
-      # - name: MT artifact > HTML reports
-      #   uses: actions/upload-artifact@v4
-      #   if: ${{ !cancelled() }} # even if tests fails
-      #   with:
-      #     name: html-reports
-      #     path: |
-      #       */build/reports/
-      #       !**/*.xml
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: MT commit code change
         run: ./commit_code_change.sh
-#      - name: MT download & parse
-#        timeout-minutes: 40
-#        run: ./download_and_parse.sh
       - name: MT download & prepare
         timeout-minutes: 10
         run: ./download_and_prepare.sh
