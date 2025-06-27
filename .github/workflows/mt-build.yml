@@ -75,6 +75,7 @@ jobs:
             */build/reports/
             !**/*.xml
       - name: MT assemble release (APK & ABB)
+        if: github.event_name != 'pull_request'
         run: ./assemble_release.sh
         env:
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
