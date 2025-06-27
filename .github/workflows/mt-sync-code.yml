@@ -114,6 +114,7 @@ jobs:
           mkdir -p .mt;
           echo "true" > .mt/mt_app_release_required;
       - name: MT assemble release (APK & ABB)
+        if: ${{ false }} # SKIP
         run: ./assemble_release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
