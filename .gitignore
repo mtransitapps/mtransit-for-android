@@ -183,6 +183,7 @@ dev.properties
 /dependency_update_push_commits.sh
 /download_and_parse.sh
 /download_and_prepare.sh
+/download_dependencies.sh
 /gitall.sh
 /gradle.properties
 /gradle/
