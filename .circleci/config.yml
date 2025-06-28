@@ -61,6 +61,12 @@ jobs:
       - run:
           name: Checkout submodules
           command: ./checkout_submodules.sh
+    #   - run:
+    #       name: commons/sync.sh permissions
+    #       command: sudo chmod +x commons/sync.sh
+    #   - run:
+    #       name: Sync files
+    #       command: ./commons/sync.sh
       - run:
           name: commons/code_setup.sh permissions
           command: sudo chmod +x commons/code_setup.sh
