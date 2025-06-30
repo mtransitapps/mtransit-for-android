@@ -23,7 +23,7 @@ jobs:
     #   # https://circleci.com/developer/images/image/cimg/android
     #   # https://github.com/CircleCI-Public/cimg-android
     #   # https://hub.docker.com/r/cimg/android/tags
-    #   - image: cimg/android:2023.09.1
+    #   - image: cimg/android:2025.04
     #     auth:
     #       username: montransit
     #       password: $MT_DOCKER_PASSWORD
@@ -75,9 +75,6 @@ jobs:
           command: ./commons/code_setup.sh
       - android/restore_build_cache:
           cache_prefix: android-build-cache
-      # - android/restore_gradle_cache:
-      # cache_prefix: gradle-cache
-      # find_args: . -type f \( -name "*.gradle" -o -name "gradle-wrapper.properties" \)
       - restore_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - run:
@@ -87,9 +84,6 @@ jobs:
           keys:
             - gradle-cache-{{ checksum "gradle_cache_key_checksum.txt" }}
             - gradle-cache- # fallback to using the latest cache if no exact match is found
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies --no-daemon --no-parallel --no-configure-on-demand --max-workers=1 --console=plain
       - run:
           name: Build
           command: ./build.sh
@@ -103,8 +97,6 @@ jobs:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - android/save_gradle_cache:
           cache_prefix: android-build-cache
-      # - android/save-gradle-cache:
-      # cache_prefix: gradle-cache
       - store_artifacts:
           path: agency-parser/output/current
           destination: gtfs-validator-results-current

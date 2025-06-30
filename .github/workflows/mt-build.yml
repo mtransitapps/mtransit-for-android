@@ -4,7 +4,8 @@ on:
   pull_request:
   push:
     branches:
-      - '**' # ALL
+      # - '**' # ALL
+      - 'master'
 # gh workflow run mt-build.yml --ref <branch>
 # gh run list --workflow=mt-build.yml
 concurrency:
@@ -23,9 +24,9 @@ jobs:
       - name: MT check out submodules
         run: ./checkout_submodules.sh
       - name: MT setup MT_GIT_BRANCH env
-        if: github.event_name != 'pull_request'
         run: |
-          echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          MT_GIT_BRANCH=${{ github.head_ref || github.ref_name }}
+          echo "MT_GIT_BRANCH=$MT_GIT_BRANCH" >> $GITHUB_ENV
       - name: MT code setup
         run: ./commons/code_setup.sh
       - name: MT set up JDK 17
@@ -33,27 +34,8 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-      - name: MT cache > Gradle wrapper
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/wrapper
-          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-      - name: MT Gradle cache > Generate key
-        run: ./init_cache_key.sh
-      - name: MT cache > Gradle cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-          key: gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
-          restore-keys: |
-            gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
-            gradle-cache-
-      - name: MT download dependencies
-        run: ./download_dependencies.sh
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: MT test
         run: ./test.sh
       - name: MT artifact > unit tests XML results
@@ -74,6 +56,7 @@ jobs:
             */build/reports/
             !**/*.xml
       - name: MT assemble release (APK & ABB)
+        if: github.event_name != 'pull_request'
         run: ./assemble_release.sh
         env:
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
@@ -84,10 +67,3 @@ jobs:
           path: |
             app-android/build/outputs/apk
             app-android/build/outputs/bundle
-      - name: DEBUG GIT STATUS
-        run: |
-          git status -sb
-          git submodule foreach git status -sb
-      - name: DEBUG LIST FILES
-        run: |
-          ls ${{ github.workspace }}
