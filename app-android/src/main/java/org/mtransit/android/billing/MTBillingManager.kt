@@ -182,7 +182,7 @@ class MTBillingManager @Inject constructor(
         onProductDetailsResponse(billingResult, productDetailsResult.productDetailsList)
     }
 
-    private fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: MutableList<ProductDetails>) {
+private fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<ProductDetails>) {
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
                 _productIdsWithDetails.postValue(
