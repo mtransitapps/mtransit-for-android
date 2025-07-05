@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.schedule
 
+import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -11,6 +12,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -51,9 +53,16 @@ class ScheduleViewModel @Inject constructor(
         internal const val EXTRA_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_POI_UUID = "extra_poi_uuid"
         internal const val EXTRA_COLOR = "extra_color"
-        internal val EXTRA_COLOR_DEFAULT: String? = null
+        internal var EXTRA_COLOR_DEFAULT: String? = null
 
         internal const val EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now"
+
+        private const val START_AT_DAYS_BEFORE_INIT = 7
+        private const val END_AT_DAYS_AFTER_INIT = 14
+
+        private const val END_AT_DAYS_AFTER_INC = 7
+
+        private const val END_AT_DAYS_AFTER_AUTO_INC_MAX = 99
 
         private const val EXTRA_START_AT_DAYS_BEFORE = "extra_start_at_days_before"
         private const val EXTRA_END_AT_DAYS_AFTER = "extra_end_at_days_after"
@@ -109,16 +118,21 @@ class ScheduleViewModel @Inject constructor(
 
     val startEndAt = PairMediatorLiveData(_startsAtInMs, _endsAtInMs)
 
+    @MainThread
     fun initStartEndTimeIfNotSet() {
         if (_startsAtDaysBefore.value == null) {
-            savedStateHandle[EXTRA_START_AT_DAYS_BEFORE] = 7
-            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = 14
+            savedStateHandle[EXTRA_START_AT_DAYS_BEFORE] = START_AT_DAYS_BEFORE_INIT
+            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = END_AT_DAYS_AFTER_INIT
         }
     }
 
-    fun increaseEndTime() {
+    @MainThread
+    fun increaseEndTime(maxEnd: Int? = null) {
         _endsAtDaysAfter.value?.let { currentEndDateInDays ->
-            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = currentEndDateInDays + 7
+            if (maxEnd != null && currentEndDateInDays > maxEnd) {
+                return@let
+            }
+            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = currentEndDateInDays + END_AT_DAYS_AFTER_INC
         }
     }
 
@@ -157,8 +171,10 @@ class ScheduleViewModel @Inject constructor(
             startsAtInMs,
             endAtInMS
         )
+        var hasProviderTimestampsReturned = false
         scheduleProviders.forEach { scheduleProvider ->
             this.dataSourceRequestManager.findScheduleTimestamps(scheduleProvider.authority, scheduleFilter)?.let { scheduleTimestamps ->
+                hasProviderTimestampsReturned = true
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _sourceLabel.postValue(scheduleTimestamps.sourceLabel)
                     scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZone }?.let { localTimeZoneId ->
@@ -167,6 +183,12 @@ class ScheduleViewModel @Inject constructor(
                     return scheduleTimestamps.timestamps
                 }
             }
+        }
+        if (hasProviderTimestampsReturned) {
+            viewModelScope.launch(Dispatchers.Main) {
+                increaseEndTime(maxEnd = END_AT_DAYS_AFTER_AUTO_INC_MAX)
+            }
+            return null // not loaded (loading)
         }
         _sourceLabel.postValue(null)
         return emptyList() // loaded (not loading) == no service today
