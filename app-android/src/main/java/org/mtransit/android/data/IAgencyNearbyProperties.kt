@@ -64,13 +64,12 @@ interface IAgencyNearbyProperties : IAgencyProperties {
         }
 
         private fun isInside(lat: Double, lng: Double, area: LatLngBounds?): Boolean {
-            return area?.let {
-                val minLat = it.southwest.latitude.coerceAtMost(it.northeast.latitude)
-                val maxLat = it.southwest.latitude.coerceAtLeast(it.northeast.latitude)
-                val minLng = it.southwest.longitude.coerceAtMost(it.northeast.longitude)
-                val maxLng = it.southwest.longitude.coerceAtLeast(it.northeast.longitude)
-                return LocationUtils.isInside(lat, lng, minLat, maxLat, minLng, maxLng)
-            } ?: false
+            val area = area ?: return false
+            val minLat = area.southwest.latitude.coerceAtMost(area.northeast.latitude)
+            val maxLat = area.southwest.latitude.coerceAtLeast(area.northeast.latitude)
+            val minLng = area.southwest.longitude.coerceAtMost(area.northeast.longitude)
+            val maxLng = area.southwest.longitude.coerceAtLeast(area.northeast.longitude)
+            return LocationUtils.isInside(lat, lng, minLat, maxLat, minLng, maxLng)
         }
 
         private fun areCompletelyOverlapping(area1: LatLngBounds, area2: Area): Boolean {
