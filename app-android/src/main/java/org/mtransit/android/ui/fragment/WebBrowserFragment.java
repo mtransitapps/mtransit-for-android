@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.GeolocationPermissions;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -34,6 +36,7 @@ import org.mtransit.android.databinding.FragmentWebBrowserBinding;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.UIFeatureFlags;
 
@@ -517,6 +520,13 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error during on page finished!");
 			}
+		}
+
+		@SuppressLint("WebViewClientOnReceivedSslError")
+		@Override
+		public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+			CrashUtils.w(this, "SSL Error (%d) on certificate: '%s'!", error.getPrimaryError(), error.getCertificate());
+			handler.proceed();
 		}
 	}
 }
