@@ -2,6 +2,12 @@
 name: MT sync code & data # download & parse
 on:
   workflow_dispatch: # manual
+    inputs:
+      force-app-release:
+        description: 'Force app release (even if no data change and latest release recent)'
+        type: boolean
+        default: false
+        required: false
   schedule:
     - cron: '0 12 * * 2' # Tuesdays @ 12pm UTC # WEEKLY https://crontab.guru/#0_12_*_*_2
 # gh workflow run mt-sync-code-data.yml --ref <branch>
@@ -104,6 +110,16 @@ jobs:
         run: ./commit_data_change.sh
       - name: MT set app release required (or not)
         run: ./set_app_release_required.sh
+      - name: MT check if force app release
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force-app-release == 'true' }}
+        run: |
+          MT_TEMP_DIR=".mt";
+          mkdir -p $MT_TEMP_DIR;
+          MT_APP_RELEASE_REQUIRED_FILE="$MT_TEMP_DIR/mt_app_release_required";
+          MT_APP_RELEASE_REQUIRED=true;
+          echo "$MT_APP_RELEASE_REQUIRED" > $MT_APP_RELEASE_REQUIRED_FILE;
+          MT_SKIP_PUSH_COMMIT=false;
+          echo "MT_SKIP_PUSH_COMMIT=$MT_SKIP_PUSH_COMMIT" >> "$GITHUB_ENV";
       - name: MT assemble release (APK & ABB)
         run: ./assemble_release.sh
         env:
