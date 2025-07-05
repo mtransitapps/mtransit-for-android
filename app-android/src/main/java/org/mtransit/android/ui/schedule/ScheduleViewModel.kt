@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.schedule
 
-import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -53,7 +52,7 @@ class ScheduleViewModel @Inject constructor(
         internal const val EXTRA_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_POI_UUID = "extra_poi_uuid"
         internal const val EXTRA_COLOR = "extra_color"
-        internal var EXTRA_COLOR_DEFAULT: String? = null
+        internal val EXTRA_COLOR_DEFAULT: String? = null
 
         internal const val EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now"
 
@@ -118,22 +117,24 @@ class ScheduleViewModel @Inject constructor(
 
     val startEndAt = PairMediatorLiveData(_startsAtInMs, _endsAtInMs)
 
-    @MainThread
     fun initStartEndTimeIfNotSet() {
         if (_startsAtDaysBefore.value == null) {
-            savedStateHandle[EXTRA_START_AT_DAYS_BEFORE] = START_AT_DAYS_BEFORE_INIT
-            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = END_AT_DAYS_AFTER_INIT
+            viewModelScope.launch(Dispatchers.Main) {
+                savedStateHandle[EXTRA_START_AT_DAYS_BEFORE] = START_AT_DAYS_BEFORE_INIT
+                savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = END_AT_DAYS_AFTER_INIT
+            }
         }
     }
 
-    @MainThread
-    fun increaseEndTime(maxEnd: Int? = null) {
-        _endsAtDaysAfter.value?.let { currentEndDateInDays ->
-            if (maxEnd != null && currentEndDateInDays > maxEnd) {
-                return@let
-            }
-            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = currentEndDateInDays + END_AT_DAYS_AFTER_INC
-        }
+    fun increaseEndTime(maxEnd: Int? = null): Boolean {
+        return _endsAtDaysAfter.value
+            ?.takeIf { maxEnd == null || it <= maxEnd }
+            ?.let { currentEndDateInDays ->
+                viewModelScope.launch(Dispatchers.Main) {
+                    savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = currentEndDateInDays + END_AT_DAYS_AFTER_INC
+                }
+                true
+            } ?: false
     }
 
     val scrolledToNow = savedStateHandle.getLiveDataDistinct(EXTRA_SCROLLED_TO_NOW, false)
@@ -185,10 +186,9 @@ class ScheduleViewModel @Inject constructor(
             }
         }
         if (hasProviderTimestampsReturned) {
-            viewModelScope.launch(Dispatchers.Main) {
-                increaseEndTime(maxEnd = END_AT_DAYS_AFTER_AUTO_INC_MAX)
+            if (increaseEndTime(maxEnd = END_AT_DAYS_AFTER_AUTO_INC_MAX)) {
+                return null // not loaded (loading)
             }
-            return null // not loaded (loading)
         }
         _sourceLabel.postValue(null)
         return emptyList() // loaded (not loading) == no service today
