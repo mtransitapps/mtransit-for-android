@@ -11,6 +11,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -54,6 +55,13 @@ class ScheduleViewModel @Inject constructor(
         internal val EXTRA_COLOR_DEFAULT: String? = null
 
         internal const val EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now"
+
+        private const val START_AT_DAYS_BEFORE_INIT = 7
+        private const val END_AT_DAYS_AFTER_INIT = 14
+
+        private const val END_AT_DAYS_AFTER_INC = 7
+
+        private const val END_AT_DAYS_AFTER_AUTO_INC_MAX = 99
 
         private const val EXTRA_START_AT_DAYS_BEFORE = "extra_start_at_days_before"
         private const val EXTRA_END_AT_DAYS_AFTER = "extra_end_at_days_after"
@@ -111,15 +119,22 @@ class ScheduleViewModel @Inject constructor(
 
     fun initStartEndTimeIfNotSet() {
         if (_startsAtDaysBefore.value == null) {
-            savedStateHandle[EXTRA_START_AT_DAYS_BEFORE] = 7
-            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = 14
+            viewModelScope.launch(Dispatchers.Main) {
+                savedStateHandle[EXTRA_START_AT_DAYS_BEFORE] = START_AT_DAYS_BEFORE_INIT
+                savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = END_AT_DAYS_AFTER_INIT
+            }
         }
     }
 
-    fun increaseEndTime() {
-        _endsAtDaysAfter.value?.let { currentEndDateInDays ->
-            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = currentEndDateInDays + 7
-        }
+    fun increaseEndTime(maxEnd: Int? = null): Boolean {
+        return _endsAtDaysAfter.value
+            ?.takeIf { maxEnd == null || it <= maxEnd }
+            ?.let { currentEndDateInDays ->
+                viewModelScope.launch(Dispatchers.Main) {
+                    savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = currentEndDateInDays + END_AT_DAYS_AFTER_INC
+                }
+                true
+            } ?: false
     }
 
     val scrolledToNow = savedStateHandle.getLiveDataDistinct(EXTRA_SCROLLED_TO_NOW, false)
@@ -157,8 +172,10 @@ class ScheduleViewModel @Inject constructor(
             startsAtInMs,
             endAtInMS
         )
+        var hasProviderTimestampsReturned = false
         scheduleProviders.forEach { scheduleProvider ->
             this.dataSourceRequestManager.findScheduleTimestamps(scheduleProvider.authority, scheduleFilter)?.let { scheduleTimestamps ->
+                hasProviderTimestampsReturned = true
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _sourceLabel.postValue(scheduleTimestamps.sourceLabel)
                     scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZone }?.let { localTimeZoneId ->
@@ -166,6 +183,11 @@ class ScheduleViewModel @Inject constructor(
                     }
                     return scheduleTimestamps.timestamps
                 }
+            }
+        }
+        if (hasProviderTimestampsReturned) {
+            if (increaseEndTime(maxEnd = END_AT_DAYS_AFTER_AUTO_INC_MAX)) {
+                return null // not loaded (loading)
             }
         }
         _sourceLabel.postValue(null)
