@@ -526,7 +526,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 		@SuppressLint("WebViewClientOnReceivedSslError")
 		@Override
-		public void onReceivedSslError(WebView webView, SslErrorHandler handler, SslError sslError) {
+		public void onReceivedSslError(WebView webView, SslErrorHandler sslErrorHandler, SslError sslError) {
 			final String url = webView.getUrl();
 			final int primaryError = sslError.getPrimaryError();
 			final SslCertificate certificate = sslError.getCertificate();
@@ -540,9 +540,9 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			switch (primaryError) {
 			case SslError.SSL_UNTRUSTED:
 				if (urlHost != null && urlHost.endsWith("stm.info")) {
-					handler.proceed();
+					sslErrorHandler.proceed();
 				} else {
-					handler.cancel();
+					sslErrorHandler.cancel();
 				}
 				break;
 			case SslError.SSL_NOTYETVALID:
@@ -550,11 +550,11 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			case SslError.SSL_EXPIRED:
 			case SslError.SSL_IDMISMATCH:
 			case SslError.SSL_INVALID:
-				handler.cancel();
+				sslErrorHandler.cancel();
 				break;
 			default:
 				MTLog.w(this, "Unknown SSL Error (%d) on '%s' certificate: '%s'!", primaryError, urlHost, certificate);
-				handler.cancel();
+				sslErrorHandler.cancel();
 				break;
 			}
 		}
