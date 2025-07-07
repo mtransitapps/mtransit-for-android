@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
+import android.net.http.SslCertificate;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -524,9 +526,37 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 		@SuppressLint("WebViewClientOnReceivedSslError")
 		@Override
-		public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-			CrashUtils.w(this, "SSL Error (%d) on certificate: '%s'!", error.getPrimaryError(), error.getCertificate());
-			handler.proceed();
+		public void onReceivedSslError(WebView webView, SslErrorHandler sslErrorHandler, SslError sslError) {
+			final String url = webView.getUrl();
+			final int primaryError = sslError.getPrimaryError();
+			final SslCertificate certificate = sslError.getCertificate();
+			String urlHost = null;
+			try {
+				urlHost = url == null ? null : Uri.parse(url).getHost();
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while parsing URL '%s'!", url);
+			}
+			CrashUtils.w(this, "SSL Error (%d) on '%s' certificate: '%s'!", primaryError, urlHost, certificate);
+			switch (primaryError) {
+			case SslError.SSL_UNTRUSTED:
+				if (urlHost != null && urlHost.endsWith("stm.info")) {
+					sslErrorHandler.proceed();
+				} else {
+					sslErrorHandler.cancel();
+				}
+				break;
+			case SslError.SSL_NOTYETVALID:
+			case SslError.SSL_DATE_INVALID:
+			case SslError.SSL_EXPIRED:
+			case SslError.SSL_IDMISMATCH:
+			case SslError.SSL_INVALID:
+				sslErrorHandler.cancel();
+				break;
+			default:
+				MTLog.w(this, "Unknown SSL Error (%d) on '%s' certificate: '%s'!", primaryError, urlHost, certificate);
+				sslErrorHandler.cancel();
+				break;
+			}
 		}
 	}
 }
