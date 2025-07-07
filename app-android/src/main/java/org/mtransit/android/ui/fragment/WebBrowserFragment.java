@@ -537,8 +537,10 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			case SslError.SSL_UNTRUSTED:
 				if (urlHost != null && urlHost.endsWith("stm.info")) {
 					handler.proceed();
-					break;
+				} else {
+					handler.cancel();
 				}
+				break;
 			case SslError.SSL_NOTYETVALID:
 			case SslError.SSL_DATE_INVALID:
 			case SslError.SSL_EXPIRED:
@@ -547,7 +549,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 				handler.cancel();
 				break;
 			default:
-				MTLog.w(this, "Unknown SSL Error (%d) on certificate: '%s'!", error.getPrimaryError(), error.getCertificate());
+				MTLog.w(this, "Unknown SSL Error (%d) on '%s' certificate: '%s'!", error.getPrimaryError(), urlHost, error.getCertificate());
 				handler.cancel();
 				break;
 			}
