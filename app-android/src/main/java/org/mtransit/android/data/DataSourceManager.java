@@ -271,6 +271,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 					final int availableVersionCode = CursorExtKt.optIntNN(cursor, AgencyProviderContract.AVAILABLE_VERSION_CODE, -1);
 					final String contactUsWeb = CursorExtKt.optString(cursor, AgencyProviderContract.CONTACT_US_WEB, null);
 					final String contactUsWebFr = CursorExtKt.optString(cursor, AgencyProviderContract.CONTACT_US_WEB_FR, null);
+					final String faresWeb = CursorExtKt.optString(cursor, AgencyProviderContract.FARES_WEB, null);
+					final String faresWebFr = CursorExtKt.optString(cursor, AgencyProviderContract.FARES_WEB_FR, null);
 					final DataSourceType exType = DataSourceType.parseId(
 							CursorExtKt.optIntNN(cursor, AgencyProviderContract.EXTENDED_TYPE_ID, DataSourceTypeId.INVALID)
 					);
@@ -292,6 +294,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 							trigger,
 							contactUsWeb,
 							contactUsWebFr,
+							faresWeb,
+							faresWebFr,
 							exType
 					);
 				}

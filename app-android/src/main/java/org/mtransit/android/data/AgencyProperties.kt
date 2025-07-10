@@ -52,6 +52,10 @@ data class AgencyProperties(
     val contactUsWeb: String? = null,
     @ColumnInfo(name = "contact_us_web_fr")
     val contactUsWebFr: String? = null,
+    @ColumnInfo(name = "fares_web")
+    val faresWeb: String? = null,
+    @ColumnInfo(name = "fares_web_fr")
+    val faresWebFr: String? = null,
     @ColumnInfo(name = "extended_type")
     override val extendedType: DataSourceType? = null,
 ) : IAgencyNearbyUIProperties, IAgencyUpdatableProperties {
@@ -76,6 +80,8 @@ data class AgencyProperties(
         trigger: Int = 0,
         contactUsWeb: String? = null,
         contactUsWebFr: String? = null,
+        faresWeb: String? = null,
+        faresWebFr: String? = null,
         extendedType: DataSourceType? = null,
     ) : this(
         id,
@@ -95,6 +101,8 @@ data class AgencyProperties(
         trigger,
         contactUsWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
         contactUsWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
+        faresWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
+        faresWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
         extendedType,
     )
 
@@ -153,5 +161,13 @@ data class AgencyProperties(
     fun hasContactUs() = !this.contactUsWeb.isNullOrBlank()
 
     @Ignore
-    val contactUsWebForLang = if (LocaleUtils.isFR() && !this.contactUsWebFr.isNullOrBlank()) this.contactUsWebFr else this.contactUsWeb
+    val contactUsWebForLang =
+        if (LocaleUtils.isFR() && !this.contactUsWebFr.isNullOrBlank()) this.contactUsWebFr else this.contactUsWeb
+
+    @Ignore
+    val faresWebForLang =
+        if (LocaleUtils.isFR() && !this.faresWebFr.isNullOrBlank()) this.faresWebFr else this.faresWeb
+
+    @Ignore
+    val hasFaresWebForLang = !this.faresWebForLang.isNullOrBlank()
 }

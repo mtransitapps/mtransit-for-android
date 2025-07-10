@@ -605,6 +605,18 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return Constants.EMPTY;
 	}
 
+	@NonNull
+	@Override
+	public String getFaresWeb(@NonNull Context context) {
+		return Constants.EMPTY;
+	}
+
+	@NonNull
+	@Override
+	public String getFaresWebFr(@NonNull Context context) {
+		return Constants.EMPTY;
+	}
+
 	@DataSourceTypeId.DataSourceType
 	@Override
 	public int getExtendedTypeId(@NonNull Context context) {

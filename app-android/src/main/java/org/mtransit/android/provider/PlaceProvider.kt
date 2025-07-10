@@ -177,8 +177,10 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     override fun getAvailableVersionCode(context: Context, filterS: String?) = 0 // main app in-app update not supported yet
 
     override fun getContactUsWeb(context: Context) = StringUtils.EMPTY
-
     override fun getContactUsWebFr(context: Context) = StringUtils.EMPTY
+
+    override fun getFaresWeb(context: Context) = StringUtils.EMPTY
+    override fun getFaresWebFr(context: Context) = StringUtils.EMPTY
 
     override fun getExtendedTypeId(context: Context) = DataSourceTypeId.INVALID // not supported
 

@@ -122,7 +122,7 @@ public final class LinkUtils implements MTLog.Loggable {
 				}
 			}
 		}
-		return org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), label);
+		return org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), label); // Intent(ACTION_VIEW) // open external web browser
 	}
 
 	public static boolean interceptIntent(@NonNull WebView webView, @NonNull String url) {

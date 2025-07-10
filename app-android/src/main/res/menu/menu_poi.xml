@@ -4,6 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.fragment.POIFragment">
     <item
+        android:id="@+id/menu_show_fares"
+        android:icon="@drawable/ic_attach_money_black_24dp"
+        android:title="@string/menu_action_fares"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/menu_add_remove_favorite"
         android:icon="@drawable/ic_star_border_black_24dp"
         android:title="@string/menu_action_edit_favorite"
