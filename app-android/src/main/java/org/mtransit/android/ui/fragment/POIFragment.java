@@ -1431,12 +1431,16 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	private MenuItem addRemoveFavoriteMenuItem;
+	@Nullable
+	private MenuItem showFareMenuItem;
 
 	@Override
 	public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_poi, menu);
 		this.addRemoveFavoriteMenuItem = menu.findItem(R.id.menu_add_remove_favorite);
+		this.showFareMenuItem = menu.findItem(R.id.menu_show_fares);
 		updateFavMenuItem();
+		updateFaresMenuItem();
 	}
 
 	private void updateFavMenuItem() {
@@ -1464,12 +1468,28 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
+	private void updateFaresMenuItem() {
+		if (this.showFareMenuItem == null) {
+			return;
+		}
+		final AgencyProperties agency = getAgencyOrNull();
+		final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
+		this.showFareMenuItem.setVisible(!TextUtils.isEmpty(faresWebUrl));
+	}
+
 	@Override
 	public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
 		if (menuItem.getItemId() == R.id.menu_add_remove_favorite) {
 			POIManager poim = getPoimOrNull();
 			if (poim != null && poim.isFavoritable()) {
 				return this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
+			}
+		} else if (menuItem.getItemId() == R.id.menu_show_fares) {
+			final AgencyProperties agency = getAgencyOrNull();
+			final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
+			if (!TextUtils.isEmpty(faresWebUrl)) {
+				LinkUtils.open(getView(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true);
+				return true; // handled
 			}
 		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
 			POIManager poim2 = getPoimOrNull();
