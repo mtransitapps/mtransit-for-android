@@ -107,7 +107,10 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
                 setOnClickListener {
                     viewModel.saveShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value == false) // switching
                 }
-                setUpFabEdgeToEdge()
+                setUpFabEdgeToEdge(
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end,
+                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+                )
             }
         }
         viewModel.colorIntDistinct.observe(viewLifecycleOwner) { colorIntDistinct ->

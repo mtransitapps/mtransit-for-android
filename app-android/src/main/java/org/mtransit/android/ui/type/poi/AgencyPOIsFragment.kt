@@ -184,7 +184,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     }
                     viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
                 }
-                setUpFabEdgeToEdge()
+                setUpFabEdgeToEdge(
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end,
+                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+                )
             }
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
         }

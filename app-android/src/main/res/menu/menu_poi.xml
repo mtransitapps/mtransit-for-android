@@ -7,16 +7,9 @@
         android:id="@+id/menu_show_fares"
         android:icon="@drawable/ic_attach_money_black_24dp"
         android:title="@string/menu_action_fares"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/menu_add_remove_favorite"
-        android:icon="@drawable/ic_star_border_black_24dp"
-        android:title="@string/menu_action_edit_favorite"
         android:visible="false"
-        app:showAsAction="ifRoom"
-        tools:icon="@drawable/ic_star_black_24dp"
-        tools:title="@string/menu_action_remove_favorite"
-        tools:visible="true" />
+        tools:visible="true"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_show_directions"
         android:icon="@drawable/ic_directions_black_24dp"
