@@ -15,7 +15,6 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.dev.CrashReporter
-import org.mtransit.android.provider.experiments.ExperimentsProvider
 import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.secToMs
 import java.util.concurrent.atomic.AtomicLong
@@ -26,7 +25,6 @@ import javax.inject.Singleton
 @Singleton
 class BannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
-    private val experimentsProvider: ExperimentsProvider,
     private val crashReporter: CrashReporter,
 ) : MTLog.Loggable {
 
@@ -34,6 +32,8 @@ class BannerAdManager @Inject constructor(
         private val LOG_TAG = "${AdManager.LOG_TAG}>${BannerAdManager::class.java.simpleName}"
 
         private const val LOADED_UNKNOWN = -1L
+
+        private const val LOAD_ON_SCREEN_RESUMED_MIN_DURATION_SEC = 1
     }
 
     override fun getLogTag() = LOG_TAG
@@ -44,15 +44,6 @@ class BannerAdManager @Inject constructor(
         get() = this.adBannerLoadedLastInMs.get() > 0L
 
     private var setupBannerAdTask: SetupBannerAdTask? = null
-
-    private val loadOnScreenResumeMinDurationSec: Long
-        get() = experimentsProvider.get(
-            ExperimentsProvider.EXP_AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC,
-            ExperimentsProvider.EXP_AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT
-        )
-
-    private val loadOnScreenResume: Boolean
-        get() = loadOnScreenResumeMinDurationSec > 0L
 
     fun setAdBannerLoaded(loaded: Boolean?) {
         this.adBannerLoadedLastInMs.set(
@@ -65,10 +56,6 @@ class BannerAdManager @Inject constructor(
     }
 
     fun onResumeScreen(activity: IAdScreenActivity) {
-        if (!loadOnScreenResume) {
-            MTLog.d(this, "onResumeScreen() > SKIP (experiments disabled)")
-            return
-        }
         refreshBannerAdStatus(activity, force = true)
     }
 
@@ -139,7 +126,7 @@ class BannerAdManager @Inject constructor(
             && this.adBannerLoadedLastInMs.get() != LOADED_UNKNOWN // state unknown
         ) {
             MTLog.d(this, "setupAd() > should we cancel?")
-            val minDurationMs = this.loadOnScreenResumeMinDurationSec.secToMs()
+            val minDurationMs = LOAD_ON_SCREEN_RESUMED_MIN_DURATION_SEC.secToMs()
             if (this.adBannerLoadedLastInMs.get() + minDurationMs < TimeUtils.currentTimeMillis()) { // force refresh if ad loaded only
                 MTLog.d(this, "setupAd() > cancelling previous setup ad task...")
                 TaskUtils.cancelQuietly(setupBannerAdTask, true)
