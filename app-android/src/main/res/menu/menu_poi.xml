@@ -4,6 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.fragment.POIFragment">
     <item
+        android:id="@+id/menu_show_fares"
+        android:icon="@drawable/ic_attach_money_black_24dp"
+        android:title="@string/menu_action_fares"
+        android:visible="false"
+        tools:visible="true"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/menu_show_directions"
         android:icon="@drawable/ic_directions_black_24dp"
         android:title="@string/menu_action_show_directions"
