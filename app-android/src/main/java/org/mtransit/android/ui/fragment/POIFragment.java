@@ -22,8 +22,10 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
@@ -663,9 +665,9 @@ public class POIFragment extends ABFragment implements
 			this.adapter.setManualScrollView(view.findViewById(R.id.scroll_view));
 			this.adapter.setManualLayout(view.findViewById(R.id.poi_nearby_pois_list));
 		}
-		final FloatingActionButton fabAddRemoveFavorite = view.findViewById(R.id.fab_favorite);
-		if (fabAddRemoveFavorite != null) {
-			fabAddRemoveFavorite.setOnClickListener(v -> {
+		final FloatingActionButton fabFavorite = view.findViewById(R.id.fab_favorite);
+		if (fabFavorite != null) {
+			fabFavorite.setOnClickListener(v -> {
 						POIManager poim = getPoimOrNull();
 						if (poim != null && poim.isFavoritable()) {
 							this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
@@ -673,7 +675,7 @@ public class POIFragment extends ABFragment implements
 					}
 			);
 			EdgeToEdgeKt.setUpFabEdgeToEdge(
-					fabAddRemoveFavorite,
+					fabFavorite,
 					R.dimen.fab_auto_margin_end,
 					R.dimen.fab_auto_margin_bottom
 			);
@@ -1460,25 +1462,34 @@ public class POIFragment extends ABFragment implements
 
 	private void updateFabFavorite() {
 		final View view = getView();
-		final FloatingActionButton fabAddRemoveFavorite = view == null ? null : view.findViewById(R.id.fab_favorite);
-		if (fabAddRemoveFavorite == null) {
+		final FloatingActionButton fabFavorite = view == null ? null : view.findViewById(R.id.fab_favorite);
+		if (fabFavorite == null) {
 			return;
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null && poim.isFavoritable()) {
 			final boolean isFav = isFavorite();
-			fabAddRemoveFavorite.setImageResource(isFav ? R.drawable.ic_star_black_24dp : R.drawable.ic_star_border_black_24dp);
-			fabAddRemoveFavorite.setContentDescription(isFav ?
-					this.favoriteManager.isUsingFavoriteFolders() ?
-							getString(R.string.menu_action_edit_favorite)
-							: getString(R.string.menu_action_remove_favorite)
-					: getString(R.string.menu_action_add_favorite));
+			@DrawableRes int iconResId;
+			@StringRes int contentDescriptionResId;
+			if (isFav) {
+				iconResId = R.drawable.ic_star_black_24dp;
+				if (this.favoriteManager.isUsingFavoriteFolders()) {
+					contentDescriptionResId = R.string.menu_action_edit_favorite;
+				} else {
+					contentDescriptionResId = R.string.menu_action_remove_favorite;
+				}
+			} else {
+				iconResId = R.drawable.ic_star_border_black_24dp;
+				contentDescriptionResId = R.string.menu_action_add_favorite;
+			}
+			fabFavorite.setImageResource(iconResId);
+			fabFavorite.setContentDescription(getString(contentDescriptionResId));
 			final int poiColor = poim.getColor(dataSourcesRepository);
-			fabAddRemoveFavorite.setBackgroundTintList(ColorStateList.valueOf(poiColor));
-			fabAddRemoveFavorite.setRippleColor(poiColor);
-			fabAddRemoveFavorite.show();
+			fabFavorite.setBackgroundTintList(ColorStateList.valueOf(poiColor));
+			fabFavorite.setRippleColor(poiColor);
+			fabFavorite.show();
 		} else {
-			fabAddRemoveFavorite.hide();
+			fabFavorite.hide();
 		}
 	}
 
