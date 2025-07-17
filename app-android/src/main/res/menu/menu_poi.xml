@@ -4,15 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.fragment.POIFragment">
     <item
-        android:id="@+id/menu_add_remove_favorite"
-        android:icon="@drawable/ic_star_border_black_24dp"
-        android:title="@string/menu_action_edit_favorite"
-        android:visible="false"
-        app:showAsAction="ifRoom"
-        tools:icon="@drawable/ic_star_black_24dp"
-        tools:title="@string/menu_action_remove_favorite"
-        tools:visible="true" />
-    <item
         android:id="@+id/menu_show_directions"
         android:icon="@drawable/ic_directions_black_24dp"
         android:title="@string/menu_action_show_directions"

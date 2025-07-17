@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.Sensor;
@@ -21,8 +22,10 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
@@ -37,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
@@ -337,7 +341,7 @@ public class POIFragment extends ABFragment implements
 			this.adapter.clear();
 		}
 		resetFavorite();
-		View view = getView();
+		final View view = getView();
 		this.mapViewController.notifyMarkerChanged(this);
 		this.mapViewController.showMap(view);
 		POIViewController.updateView(getPOIView(view), this.poim, this);
@@ -349,9 +353,7 @@ public class POIFragment extends ABFragment implements
 		setupAppWasDisabledButton(view);
 		setupRewardedAdButton(view);
 		setupMoreNearbyButton(view);
-		if (getActivity() != null) {
-			getActivity().invalidateOptionsMenu(); // add/remove star from action bar
-		}
+		updateFabFavorite();
 		setupNearbyList();
 	}
 
@@ -660,6 +662,22 @@ public class POIFragment extends ABFragment implements
 			this.adapter.setManualScrollView(view.findViewById(R.id.scroll_view));
 			this.adapter.setManualLayout(view.findViewById(R.id.poi_nearby_pois_list));
 		}
+		final FloatingActionButton fabFavorite = view.findViewById(R.id.fab_favorite);
+		if (fabFavorite != null) {
+			fabFavorite.setOnClickListener(v -> {
+						POIManager poim = getPoimOrNull();
+						if (poim != null && poim.isFavoritable()) {
+							this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
+						}
+					}
+			);
+			EdgeToEdgeKt.setUpFabEdgeToEdge(
+					fabFavorite,
+					R.dimen.fab_auto_margin_end,
+					R.dimen.fab_auto_margin_bottom
+			);
+		}
+		updateFabFavorite();
 		setupNewsLayout(view);
 	}
 
@@ -1429,49 +1447,47 @@ public class POIFragment extends ABFragment implements
 		return this.showingAccessibilityInfo;
 	}
 
-	@Nullable
-	private MenuItem addRemoveFavoriteMenuItem;
-
 	@Override
 	public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_poi, menu);
-		this.addRemoveFavoriteMenuItem = menu.findItem(R.id.menu_add_remove_favorite);
-		updateFavMenuItem();
 	}
 
-	private void updateFavMenuItem() {
-		if (this.addRemoveFavoriteMenuItem == null) {
+	private void updateFabFavorite() {
+		final View view = getView();
+		final FloatingActionButton fabFavorite = view == null ? null : view.findViewById(R.id.fab_favorite);
+		if (fabFavorite == null) {
 			return;
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null && poim.isFavoritable()) {
 			final boolean isFav = isFavorite();
-			if (this.addRemoveFavoriteMenuItem == null) {
-				return;
+			@DrawableRes int iconResId;
+			@StringRes int contentDescriptionResId;
+			if (isFav) {
+				iconResId = R.drawable.ic_star_black_24dp;
+				if (this.favoriteManager.isUsingFavoriteFolders()) {
+					contentDescriptionResId = R.string.menu_action_edit_favorite;
+				} else {
+					contentDescriptionResId = R.string.menu_action_remove_favorite;
+				}
+			} else {
+				iconResId = R.drawable.ic_star_border_black_24dp;
+				contentDescriptionResId = R.string.menu_action_add_favorite;
 			}
-			this.addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_star_black_24dp : R.drawable.ic_star_border_black_24dp);
-			this.addRemoveFavoriteMenuItem.setTitle(isFav ? //
-					this.favoriteManager.isUsingFavoriteFolders() ? //
-							R.string.menu_action_edit_favorite //
-							: R.string.menu_action_remove_favorite //
-					: R.string.menu_action_add_favorite);
-			this.addRemoveFavoriteMenuItem.setVisible(true);
+			fabFavorite.setImageResource(iconResId);
+			fabFavorite.setContentDescription(getString(contentDescriptionResId));
+			final int poiColor = poim.getColor(dataSourcesRepository);
+			fabFavorite.setBackgroundTintList(ColorStateList.valueOf(poiColor));
+			fabFavorite.setRippleColor(poiColor);
+			fabFavorite.show();
 		} else {
-			if (this.addRemoveFavoriteMenuItem == null) {
-				return;
-			}
-			this.addRemoveFavoriteMenuItem.setVisible(false);
+			fabFavorite.hide();
 		}
 	}
 
 	@Override
 	public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-		if (menuItem.getItemId() == R.id.menu_add_remove_favorite) {
-			POIManager poim = getPoimOrNull();
-			if (poim != null && poim.isFavoritable()) {
-				return this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
-			}
-		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
+		if (menuItem.getItemId() == R.id.menu_show_directions) {
 			POIManager poim2 = getPoimOrNull();
 			if (poim2 != null) {
 				this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
@@ -1491,7 +1507,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onFavoriteUpdated() {
 		resetFavorite();
-		updateFavMenuItem();
+		updateFabFavorite();
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			POIViewController.updateView(getPOIView(getView()), poim, this);

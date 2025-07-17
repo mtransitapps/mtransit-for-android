@@ -11,6 +11,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
 import androidx.annotation.Px
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
@@ -205,7 +206,10 @@ fun ListView.setUpListEdgeToEdge() {
     clipToPadding = false
 }
 
-fun FloatingActionButton.setUpFabEdgeToEdge() {
+fun FloatingActionButton.setUpFabEdgeToEdge(
+    @DimenRes originalMarginEndDimenRes: Int,
+    @DimenRes originalMarginBottomDimenRes: Int,
+) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
@@ -216,8 +220,8 @@ fun FloatingActionButton.setUpFabEdgeToEdge() {
     applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
         updateLayoutParams<ViewGroup.MarginLayoutParams> {
             startMargin = insets.start
-            endMargin = resources.getDimensionPixelSize(R.dimen.fab_margin_end) + insets.end
-            bottomMargin = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom) + insets.bottom
+            endMargin = resources.getDimensionPixelSize(originalMarginEndDimenRes) + insets.end
+            bottomMargin = resources.getDimensionPixelSize(originalMarginBottomDimenRes) + insets.bottom
         }
     }
 }

@@ -112,6 +112,16 @@
 
     </ScrollView>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_favorite"
+        style="@style/MTFabAutoBottomEnd"
+        android:contentDescription="@string/menu_action_remove_favorite"
+        android:src="@drawable/ic_star_black_24dp"
+        tools:backgroundTint="#00FF00"
+        tools:contentDescription="@string/menu_action_add_favorite"
+        tools:rippleColor="#FF00FF"
+        tools:src="@drawable/ic_star_border_black_24dp" />
+
     <View
         android:id="@+id/fragment_status_bar_bg"
         android:layout_width="match_parent"

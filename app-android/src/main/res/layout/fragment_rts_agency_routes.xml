@@ -29,7 +29,7 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_list_grid"
-        style="@style/MTFabBottomEnd"
+        style="@style/MTFabMiniBottomEnd"
         android:contentDescription="@string/menu_action_list"
         android:src="@drawable/switch_action_view_headline_dark_16dp"
         tools:backgroundTint="#FF00FF"
