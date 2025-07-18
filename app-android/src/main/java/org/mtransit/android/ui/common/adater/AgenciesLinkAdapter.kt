@@ -47,7 +47,7 @@ class AgenciesLinkAdapter(
         ) {
             val link = when (type) {
                 AgenciesLinkType.CONTACT_US -> item?.contactUsWeb
-                AgenciesLinkType.FARES -> item?.faresWeb
+                AgenciesLinkType.FARES -> item?.faresWebForLang
             }
             binding.apply {
                 poi.apply {
