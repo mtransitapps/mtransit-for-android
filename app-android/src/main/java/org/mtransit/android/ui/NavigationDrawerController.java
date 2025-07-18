@@ -39,7 +39,6 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
-import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.NewsProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -47,6 +46,7 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.ui.fares.FaresDialog;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
 import org.mtransit.android.ui.feedback.FeedbackDialog;
 import org.mtransit.android.ui.fragment.ABFragment;
@@ -149,16 +149,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			onMenuUpdated();
 		});
 		this.dataSourcesRepository.readingAllAgencies().observe(mainActivity, agencies -> {
-			this.hasAgencyWithFaresWeb = false;
-			for (AgencyProperties agencyProperties : agencies) {
-				if (!agencyProperties.isEnabled()) {
-					continue;
-				}
-				if (agencyProperties.getHasFaresWebForLang()) {
-					this.hasAgencyWithFaresWeb = true;
-					break;
-				}
-			}
+			this.hasAgencyWithFaresWeb = agencies.stream().anyMatch(agency ->
+					agency.isEnabled() && agency.getHasFaresWebForLang()
+			);
 			setVisibleMenuItems();
 			onMenuUpdated();
 		});
@@ -647,6 +640,18 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 		} else if (navItemId == R.id.nav_fares) {
+			if (FeatureFlags.F_NAVIGATION) {
+				// TODO navigate to dialog
+			} else {
+				if (activity instanceof MainActivity) {
+					FragmentUtils.replaceDialogFragment(
+							(MainActivity) activity,
+							FragmentUtils.DIALOG_TAG,
+							FaresDialog.newInstance(),
+							null
+					);
+				}
+			}
 		} else if (navItemId == R.id.nav_send_feedback) {
 			if (FeatureFlags.F_NAVIGATION) {
 				// TODO navigate to dialog
