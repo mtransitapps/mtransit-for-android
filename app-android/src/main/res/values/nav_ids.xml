@@ -27,6 +27,7 @@
     <item name="nav_search" type="id" />
     <item name="nav_web" type="id" />
     <item name="nav_settings" type="id" />
+    <item name="nav_fares" type="id" />
     <item name="nav_send_feedback" type="id" />
     <item name="nav_rate_review" type="id" />
     <item name="nav_privacy_setting" type="id" />

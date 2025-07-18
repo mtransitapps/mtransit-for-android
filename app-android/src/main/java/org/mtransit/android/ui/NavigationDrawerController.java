@@ -39,6 +39,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
+import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.NewsProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -144,6 +145,20 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		});
 		this.dataSourcesRepository.readingHasAgenciesAdded().observe(mainActivity, newHasAgenciesAdded -> {
 			this.hasAgenciesAdded = newHasAgenciesAdded;
+			setVisibleMenuItems();
+			onMenuUpdated();
+		});
+		this.dataSourcesRepository.readingAllAgencies().observe(mainActivity, agencies -> {
+			this.hasAgencyWithFaresWeb = false;
+			for (AgencyProperties agencyProperties : agencies) {
+				if (!agencyProperties.isEnabled()) {
+					continue;
+				}
+				if (agencyProperties.getHasFaresWebForLang()) {
+					this.hasAgencyWithFaresWeb = true;
+					break;
+				}
+			}
 			setVisibleMenuItems();
 			onMenuUpdated();
 		});
@@ -309,6 +324,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	@Nullable
+	private Boolean hasAgencyWithFaresWeb = null;
+
+	@Nullable
 	private Boolean hasAgenciesAdded = null;
 
 	@Nullable
@@ -356,12 +374,13 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			MTLog.w(this, "setVisibleMenuItems() > skip (no navigation view)");
 			return;
 		}
+		final boolean hasAgencyWithFaresWeb = Boolean.TRUE.equals(this.hasAgencyWithFaresWeb);
 		final boolean hasAgenciesAdded = Boolean.TRUE.equals(this.hasAgenciesAdded);
 		this.navigationView.getMenu().findItem(R.id.root_nav_map).setVisible(hasAgenciesAdded);
 		// TODO favorites? (favorite manager requires IO
 		final boolean hasNewsProviderEnabled = Boolean.TRUE.equals(this.hasNewsProviderEnabled);
 		this.navigationView.getMenu().findItem(R.id.root_nav_news).setVisible(hasNewsProviderEnabled);
-		List<DataSourceType> allAgencyTypes = getAllAgencyTypes();
+		final List<DataSourceType> allAgencyTypes = getAllAgencyTypes();
 		for (DataSourceType dst : DataSourceType.values()) {
 			if (allAgencyTypes != null && allAgencyTypes.contains(dst)) {
 				continue;
@@ -387,6 +406,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgenciesAdded);
 		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgenciesAdded);
+		this.navigationView.getMenu().findItem(R.id.nav_fares).setVisible(hasAgencyWithFaresWeb);
 		this.navigationView.getMenu().findItem(R.id.nav_privacy_setting).setVisible(this.consentManager.isPrivacyOptionsRequired());
 	}
 
@@ -461,6 +481,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				|| navItemId == R.id.nav_support
 				|| navItemId == R.id.nav_privacy_setting
 				|| navItemId == R.id.nav_rate_review
+				|| navItemId == R.id.nav_fares
 				|| navItemId == R.id.nav_send_feedback) {
 			return null;
 		}
@@ -625,6 +646,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			MapUtils.showDirection(null, activity, null, null, srcLatLng.first, srcLatLng.second, null);
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
+		} else if (navItemId == R.id.nav_fares) {
 		} else if (navItemId == R.id.nav_send_feedback) {
 			if (FeatureFlags.F_NAVIGATION) {
 				// TODO navigate to dialog
@@ -677,6 +699,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				|| navItemId == R.id.nav_support
 				|| navItemId == R.id.nav_rate_review
 				|| navItemId == R.id.nav_privacy_setting
+				|| navItemId == R.id.nav_fares
 				|| navItemId == R.id.nav_send_feedback
 				|| navItemId == R.id.nav_settings) {
 			return false;
@@ -729,7 +752,6 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				drawerLayout.closeDrawer(GravityCompat.START);
 			}
 		}
-
 
 		@Override
 		public void onDrawerOpened(@NonNull View drawerView) {
@@ -820,6 +842,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		navigationView.getMenu().findItem(R.id.nav_settings).setCheckable(currentSelectedScreenItemNavId == R.id.nav_settings);
 		navigationView.getMenu().findItem(R.id.nav_send_feedback).setCheckable(currentSelectedScreenItemNavId == R.id.nav_send_feedback);
+		navigationView.getMenu().findItem(R.id.nav_fares).setCheckable(currentSelectedScreenItemNavId == R.id.nav_fares);
 		navigationView.getMenu().findItem(R.id.nav_rate_review).setCheckable(currentSelectedScreenItemNavId == R.id.nav_rate_review);
 		navigationView.getMenu().findItem(R.id.nav_privacy_setting).setCheckable(currentSelectedScreenItemNavId == R.id.nav_privacy_setting);
 		navigationView.getMenu().findItem(R.id.nav_support).setCheckable(currentSelectedScreenItemNavId == R.id.nav_support);
