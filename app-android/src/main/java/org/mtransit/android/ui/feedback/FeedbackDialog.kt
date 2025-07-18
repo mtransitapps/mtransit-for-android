@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -85,6 +86,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDialogFeedbackBinding.bind(view).apply {
+            list.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
             list.adapter = ConcatAdapter(headerAdapter, agenciesAdapter)
             dialog?.setOnShowListener {
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
