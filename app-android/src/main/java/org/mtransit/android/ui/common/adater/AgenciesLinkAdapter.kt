@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.feedback
+package org.mtransit.android.ui.common.adater
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -11,9 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.databinding.LayoutPoiModuleBinding
 
-class AgenciesFeedbackAdapter(
+class AgenciesLinkAdapter(
+    private val type: AgenciesLinkType,
     private val onClick: (View, String?) -> Unit,
-) : ListAdapter<AgencyProperties, AgenciesFeedbackAdapter.AgencyViewHolder>(AgenciesDiffCallback) {
+) : ListAdapter<AgencyProperties, AgenciesLinkAdapter.AgencyViewHolder>(AgenciesDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AgencyViewHolder {
         return AgencyViewHolder.from(parent)
@@ -21,7 +22,7 @@ class AgenciesFeedbackAdapter(
 
     override fun onBindViewHolder(holder: AgencyViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item, onClick)
+        holder.bind(item, type, onClick)
     }
 
     class AgencyViewHolder private constructor(
@@ -41,13 +42,17 @@ class AgenciesFeedbackAdapter(
 
         fun bind(
             item: AgencyProperties?,
+            type: AgenciesLinkType,
             onClick: (View, String?) -> Unit,
         ) {
-            val contactUs = item?.contactUsWebForLang
+            val link = when (type) {
+                AgenciesLinkType.CONTACT_US -> item?.contactUsWeb
+                AgenciesLinkType.FARES -> item?.faresWebForLang
+            }
             binding.apply {
                 poi.apply {
                     name.text = item?.shortName
-                    location.text = contactUs
+                    location.text = link
                     location.isVisible = true
                     fav.isVisible = false
                 }
@@ -58,7 +63,7 @@ class AgenciesFeedbackAdapter(
                     }
                 }
                 root.setOnClickListener {
-                    onClick(it, contactUs)
+                    onClick(it, link)
                 }
             }
         }
@@ -74,4 +79,9 @@ object AgenciesDiffCallback : DiffUtil.ItemCallback<AgencyProperties>() {
     override fun areContentsTheSame(oldItem: AgencyProperties, newItem: AgencyProperties): Boolean {
         return oldItem == newItem
     }
+}
+
+enum class AgenciesLinkType {
+    CONTACT_US,
+    FARES
 }

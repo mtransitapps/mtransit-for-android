@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.feedback
+package org.mtransit.android.ui.fares
 
 import android.app.Dialog
 import android.os.Bundle
@@ -8,14 +8,13 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.getDimensionInt
-import org.mtransit.android.databinding.FragmentDialogFeedbackBinding
+import org.mtransit.android.databinding.FragmentDialogFaresBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.common.adater.AgenciesLinkAdapter
 import org.mtransit.android.ui.common.adater.AgenciesLinkType
@@ -23,18 +22,17 @@ import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
-import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class FeedbackDialog : MTBottomSheetDialogFragmentX() {
+class FaresDialog : MTBottomSheetDialogFragmentX() {
 
     companion object {
-        private val LOG_TAG = FeedbackDialog::class.java.simpleName
+        private val LOG_TAG = FaresDialog::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
-        ): FeedbackDialog {
-            return FeedbackDialog()
+        ): FaresDialog {
+            return FaresDialog()
         }
     }
 
@@ -43,28 +41,18 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository
 
-    private val viewModel by viewModels<FeedbackViewModel>()
+    private val viewModel by viewModels<FaresViewModel>()
 
-    private var binding: FragmentDialogFeedbackBinding? = null
+    private var binding: FragmentDialogFaresBinding? = null
 
     private var behavior: BottomSheetBehavior<*>? = null
 
-    private val headerAdapter by lazy {
-        HeaderFeedbackAdapter(onClick = {
-            activity?.let { activityNN ->
-                LinkUtils.sendEmail(activityNN, dataSourcesRepository)
-                behavior?.state = BottomSheetBehavior.STATE_HIDDEN
-                dismissAllowingStateLoss()
-            }
-        })
-    }
-
     private val agenciesAdapter by lazy {
-        AgenciesLinkAdapter(AgenciesLinkType.CONTACT_US, onClick = { view, url ->
+        AgenciesLinkAdapter(AgenciesLinkType.FARES, onClick = { view, url ->
             activity?.let {
-                LinkUtils.open(view, it, url, getString(commonsR.string.web_browser), false) // force external web browser
                 behavior?.state = BottomSheetBehavior.STATE_HIDDEN
                 dismissAllowingStateLoss()
+                LinkUtils.open(view, it, url, getString(R.string.fares), true)
             }
         })
     }
@@ -82,14 +70,14 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        return inflater.inflate(R.layout.fragment_dialog_feedback, container, false)
+        return inflater.inflate(R.layout.fragment_dialog_fares, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentDialogFeedbackBinding.bind(view).apply {
+        binding = FragmentDialogFaresBinding.bind(view).apply {
             list.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-            list.adapter = ConcatAdapter(headerAdapter, agenciesAdapter)
+            list.adapter = agenciesAdapter
             dialog?.setOnShowListener {
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
