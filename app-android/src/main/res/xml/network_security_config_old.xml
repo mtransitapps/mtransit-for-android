@@ -5,6 +5,7 @@
         tools:ignore="InsecureBaseConfiguration">
         <!-- WebView may open any url -->
     </base-config>
+    <!-- trust-anchors certificates must be added to /.github/workflows/mt-update-ssl-cert.yml -->
     <!-- stm.info custom CA: required for RSS feed -->
     <domain-config>
         <domain includeSubdomains="true">stm.info</domain>
