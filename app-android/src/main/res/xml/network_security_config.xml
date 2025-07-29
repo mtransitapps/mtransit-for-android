@@ -6,6 +6,14 @@
         <!-- WebView may open any url -->
     </base-config>
     <!-- trust-anchors certificates must be added to /.github/workflows/mt-update-ssl-cert.yml -->
+    <!-- octranspo.com custom CA: used for RSS... -->
+    <domain-config>
+        <domain includeSubdomains="true">octranspo.com</domain>
+        <trust-anchors>
+            <!-- openssl s_client -connect octranspo.com:443 2>/dev/null </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > app-android/src/main/res/raw/com_octranspo_pem -->
+            <certificates src="@raw/com_octranspo_pem" />
+        </trust-anchors>
+    </domain-config>
     <!-- stm.info custom CA: required for RSS feed -->
     <domain-config>
         <domain includeSubdomains="true">stm.info</domain>

@@ -43,15 +43,18 @@ jobs:
       # Should update all <network-security-config> <trust-anchors> <certificates> in /app-android/src/main/res/xml/network_security_config.xml
       - name: MT files paths
         run: |
+          echo "COM_OCTRANSPO_PEM_FILE=app-android/src/main/res/raw/com_octranspo_pem" >> "$GITHUB_ENV"
           echo "INFO_STM_PEM_FILE=app-android/src/main/res-cert/raw/info_stm_pem" >> "$GITHUB_ENV"
       - name: MT fetch latest SSL cert
         run: |
+          openssl s_client -connect octranspo.com:443 2>/dev/null </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > "$COM_OCTRANSPO_PEM_FILE"
           openssl s_client -connect stm.info:443 2>/dev/null </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > "$INFO_STM_PEM_FILE"
       - name: MT commit change
         if: env.MT_GIT_COMMIT_ENABLED == 'true'
         run: |
-          git add $INFO_STM_PEM_FILE
-          git diff --staged --quiet || git commit -m "CI: Update stm.info SSL cert"
+          git add "$COM_OCTRANSPO_PEM_FILE"
+          git add "$INFO_STM_PEM_FILE"
+          git diff --staged --quiet || git commit -m "CI: Update all SSL cert"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
