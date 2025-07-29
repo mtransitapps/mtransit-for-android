@@ -87,7 +87,7 @@ class MTBillingManager @Inject constructor(
 
     override fun showingPaidFeatures() = (hasSubscription.value == true
             && !isUsingFirebaseTestLab)
-    // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
+            || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
 
@@ -182,7 +182,7 @@ class MTBillingManager @Inject constructor(
         onProductDetailsResponse(billingResult, productDetailsResult.productDetailsList)
     }
 
-private fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<ProductDetails>) {
+    private fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<ProductDetails>) {
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
                 _productIdsWithDetails.postValue(
