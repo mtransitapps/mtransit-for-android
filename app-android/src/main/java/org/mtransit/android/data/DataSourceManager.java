@@ -1,5 +1,6 @@
 package org.mtransit.android.data;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -47,6 +48,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+@SuppressLint("DeprecatedCall")
 @WorkerThread
 public final class DataSourceManager implements MTLog.Loggable {
 

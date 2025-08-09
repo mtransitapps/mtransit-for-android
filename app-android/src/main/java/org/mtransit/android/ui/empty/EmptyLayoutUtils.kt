@@ -6,6 +6,7 @@ import androidx.core.view.isVisible
 import org.mtransit.android.R
 import org.mtransit.android.commons.DeviceUtils
 import org.mtransit.android.commons.StoreUtils
+import org.mtransit.android.commons.getAppEnabledSetting
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
@@ -80,7 +81,7 @@ object EmptyLayoutUtils {
                     append(Build.VERSION.RELEASE)
                     pkg?.let {
                         append("\n\n")
-                        val enabledState = runCatching { context.packageManager.getApplicationEnabledSetting(pkg) }.getOrNull()
+                        val enabledState = context.packageManager.getAppEnabledSetting(pkg)
                         append(context.getString(R.string.enabled_setting))
                         append(
                             when (enabledState) {
