@@ -85,6 +85,7 @@
     <string name="re_enable_app">Activer pour résoudre problème</string>
     <string name="view_on_store">Voir sur Google Play</string>
     <string name="manage_app">Gestion de l\'App</string>
+    <string name="manage_apps">Gestion des Apps</string>
     <string name="uninstall">Désinstaller</string>
     <string name="view_details">Voire Détails</string>
     <string name="news_shared_on_and_author_and_source">%1$s sur %2$s</string>

@@ -33,7 +33,12 @@ object EmptyLayoutUtils {
                     }
                     isVisible = true
                 } ?: run {
-                    isVisible = false
+                    text = context.getString(R.string.manage_apps)
+                    setIconResource(R.drawable.ic_settings_black_24dp)
+                    setOnClickListener { v ->
+                        DeviceUtils.showAllAppsSettings(v.context)
+                    }
+                    isVisible = true
                 }
             }
             emptyButton2.apply {
@@ -73,20 +78,22 @@ object EmptyLayoutUtils {
                     append(Build.MODEL)
                     append(" - Android ")
                     append(Build.VERSION.RELEASE)
-                    append("\n\n")
-                    val enabledState = runCatching { pkg?.let { context.packageManager.getApplicationEnabledSetting(it) } }.getOrNull()
-                    append(context.getString(R.string.enabled_setting))
-                    append(
-                        when (enabledState) {
-                            0 -> context.getString(R.string.enabled_setting_0)
-                            1 -> context.getString(R.string.enabled_setting_1)
-                            2 -> context.getString(R.string.enabled_setting_2)
-                            3 -> context.getString(R.string.enabled_setting_3)
-                            4 -> context.getString(R.string.enabled_setting_4)
-                            null -> context.getString(R.string.enabled_setting_null)
-                            else -> context.getString(R.string.enabled_setting_other_and_state, enabledState)
-                        }
-                    )
+                    pkg?.let {
+                        append("\n\n")
+                        val enabledState = runCatching { context.packageManager.getApplicationEnabledSetting(pkg) }.getOrNull()
+                        append(context.getString(R.string.enabled_setting))
+                        append(
+                            when (enabledState) {
+                                0 -> context.getString(R.string.enabled_setting_0)
+                                1 -> context.getString(R.string.enabled_setting_1)
+                                2 -> context.getString(R.string.enabled_setting_2)
+                                3 -> context.getString(R.string.enabled_setting_3)
+                                4 -> context.getString(R.string.enabled_setting_4)
+                                null -> context.getString(R.string.enabled_setting_null)
+                                else -> context.getString(R.string.enabled_setting_other_and_state, enabledState)
+                            }
+                        )
+                    }
                 }
                 isVisible = true
             }

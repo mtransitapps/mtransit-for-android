@@ -205,8 +205,8 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-    private val _nearbyPOIs = MutableLiveData<List<POIManager>?>(null)
-    val nearbyPOIs: LiveData<List<POIManager>?> = _nearbyPOIs
+    private val _nearbyPOIs = MutableLiveData<List<POIManager>>(null)
+    val nearbyPOIs: LiveData<List<POIManager>> = _nearbyPOIs
 
     private var nearbyPOIsLoadJob: Job? = null
 
@@ -218,7 +218,7 @@ class HomeViewModel @Inject constructor(
         if (typeToHomeAgencies.isNullOrEmpty() || nearbyLocation == null) {
             MTLog.d(this@HomeViewModel, "loadNearbyPOIs() > SKIP (no agencies OR no location)")
             _loadingPOIs.postValue(false)
-            _nearbyPOIs.postValue(null)
+            _nearbyPOIs.postValue(emptyList())
             _nearbyPOIsTrigger.postValue(Event(true))
             return
         }
@@ -249,11 +249,11 @@ class HomeViewModel @Inject constructor(
             filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters, nbMaxByType)
             typePOIs.sortWith(POI_ALPHA_COMPARATOR)
             scope.ensureActive()
-            _nearbyPOIs.postValue(typePOIs)
+            typePOIs.takeIf { it.isNotEmpty() }?.let { _nearbyPOIs.postValue(it) }
             nearbyPOIs.addAll(typePOIs)
         }
         scope.ensureActive()
-        _nearbyPOIs.postValue(nearbyPOIs)
+        _nearbyPOIs.postValue(nearbyPOIs) // empty does NOT show empty screen in Home
         _loadingPOIs.postValue(false)
     }
 
@@ -370,14 +370,14 @@ class HomeViewModel @Inject constructor(
                 scope.ensureActive()
                 typePOIs.addAllN(
                     poiRepository.findPOIMs(agency, poiFilter)
-                        ?.removeAllAnd {
+                        .removeAllAnd {
                             if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
                                 hideBookingRequired && (it.poi as? RouteTripStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
                             } else false
                         }
-                        ?.updateDistanceM(lat, lng)
-                        ?.removeTooFar(maxDistance)
-                        ?.removeTooMuchWhenNotInCoverage(
+                        .updateDistanceM(lat, lng)
+                        .removeTooFar(maxDistance)
+                        .removeTooMuchWhenNotInCoverage(
                             typeMinCoverageInMeters,
                             if (this.demoModeManager.isFullDemo()) Int.MAX_VALUE else maxSize // keep all
                         )

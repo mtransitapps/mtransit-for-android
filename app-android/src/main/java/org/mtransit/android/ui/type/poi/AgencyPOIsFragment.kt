@@ -253,6 +253,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 emptyLayout.isVisible = false
                 listLayout.isVisible = false
                 mapViewController.hideMap()
+
                 loadingLayout.isVisible = true
             }
 
@@ -260,12 +261,14 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 loadingLayout.isVisible = false
                 listLayout.isVisible = false
                 mapViewController.hideMap()
+
                 emptyLayout.isVisible = true
             }
 
             else -> {
                 loadingLayout.isVisible = false
                 emptyLayout.isVisible = false
+
                 if (context.resources.getBoolean(R.bool.two_pane)) { // LARGE SCREEN
                     listLayout.isVisible = true
                     mapViewController.showMap(view)
