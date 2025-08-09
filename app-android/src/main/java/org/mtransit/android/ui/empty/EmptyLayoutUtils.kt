@@ -37,7 +37,7 @@ object EmptyLayoutUtils {
                 }
             }
             emptyButton2.apply {
-               pkg?.let { pkg ->
+                pkg?.let { pkg ->
                     text = context.getString(commonsR.string.google_play)
                     setIconResource(R.drawable.ic_baseline_shop_24)
                     setOnClickListener { v ->
@@ -74,7 +74,7 @@ object EmptyLayoutUtils {
                     append(" - Android ")
                     append(Build.VERSION.RELEASE)
                     append("\n\n")
-                    val enabledState = pkg?.let { context.packageManager.getApplicationEnabledSetting(it) }
+                    val enabledState = runCatching { pkg?.let { context.packageManager.getApplicationEnabledSetting(it) } }.getOrNull()
                     append(context.getString(R.string.enabled_setting))
                     append(
                         when (enabledState) {
