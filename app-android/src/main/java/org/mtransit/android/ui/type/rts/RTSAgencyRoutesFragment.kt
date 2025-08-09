@@ -3,7 +3,6 @@ package org.mtransit.android.ui.type.rts
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
@@ -19,25 +18,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.commons.DeviceUtils
-import org.mtransit.android.commons.StoreUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.databinding.FragmentRtsAgencyRoutesBinding
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
-import org.mtransit.android.util.BatteryOptimizationIssueUtils
-import org.mtransit.android.util.BatteryOptimizationIssueUtils.SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER
-import org.mtransit.android.util.BatteryOptimizationIssueUtils.installSamsungDeviceCare
-import org.mtransit.android.util.BatteryOptimizationIssueUtils.isSamsungDeviceCareInstalled
-import org.mtransit.android.util.BatteryOptimizationIssueUtils.openDeviceCare
 import org.mtransit.commons.FeatureFlags
-import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
 class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes) {
@@ -179,92 +171,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         viewModel.routes.observe(viewLifecycleOwner) { routes ->
             listGridAdapter?.setList(routes)
             switchView()
-            updateEmptyLayout(routes)
-        }
-    }
-
-    private fun updateEmptyLayout(routes: List<Route>) {
-        binding?.emptyLayout?.apply {
-            if (routes.isEmpty()) {
-                emptyTitle.apply {
-                    text = getString(R.string.sorry_about_that)
-                    isVisible = true
-                }
-                emptyText.text = getString(R.string.no_routes_found_text)
-                emptyButton1.apply {
-                    viewModel.agency.value?.pkg?.let { pkg ->
-                        text = getString(R.string.manage_app)
-                        setIconResource(R.drawable.ic_settings_black_24dp)
-                        setOnClickListener { v ->
-                            DeviceUtils.showAppDetailsSettings(v.context, pkg)
-                        }
-                        isVisible = true
-                    } ?: run {
-                        isVisible = false
-                    }
-                }
-                emptyButton2.apply {
-                    viewModel.agency.value?.pkg?.let { pkg ->
-                        text = getString(commonsR.string.google_play)
-                        setIconResource(R.drawable.ic_baseline_shop_24)
-                        setOnClickListener { v ->
-                            StoreUtils.viewAppPage(v.context, pkg, getString(commonsR.string.google_play))
-                        }
-                        isVisible = true
-                    } ?: run {
-                        isVisible = false
-                    }
-                }
-                emptyButton3.apply {
-                    if (BatteryOptimizationIssueUtils.isSamsungDevice()) {
-                        text = getString(R.string.samsung_device_care)
-                        setIconResource(R.drawable.ic_settings_black_24dp)
-                        setOnClickListener { v ->
-                            val activity = activity
-                            val samsungDeviceCareInstalled = activity != null && isSamsungDeviceCareInstalled(v.context)
-                            if (samsungDeviceCareInstalled) {
-                                openDeviceCare(activity, SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER)
-                            } else {
-                                installSamsungDeviceCare(v.context)
-                            }
-                        }
-                        isVisible = true
-                    } else {
-                        isVisible = false
-                    }
-                }
-                emptySubText.apply {
-                    text = buildString {
-                        append(Build.MANUFACTURER)
-                        append(" ")
-                        append(Build.MODEL)
-                        append(" - Android ")
-                        append(Build.VERSION.RELEASE)
-                        append("\n\n")
-                        val enabledState = viewModel.agency.value?.pkg?.let { context.packageManager.getApplicationEnabledSetting(it) }
-                        append(getString(R.string.enabled_setting))
-                        append(
-                            when (enabledState) {
-                                0 -> getString(R.string.enabled_setting_0)
-                                1 -> getString(R.string.enabled_setting_1)
-                                2 -> getString(R.string.enabled_setting_2)
-                                3 -> getString(R.string.enabled_setting_3)
-                                4 -> getString(R.string.enabled_setting_4)
-                                null -> getString(R.string.enabled_setting_null)
-                                else -> getString(R.string.enabled_setting_other_and_state, enabledState)
-                            }
-                        )
-                    }
-                    isVisible = true
-                }
-            } else {
-                emptyTitle.isVisible = false
-                emptyText.setText(R.string.no_results)
-                emptyButton1.isVisible = false
-                emptyButton2.isVisible = false
-                emptyButton3.isVisible = false
-                emptySubText.isVisible = false
-            }
+            binding?.emptyLayout?.updateEmptyLayout(routes.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
     }
 

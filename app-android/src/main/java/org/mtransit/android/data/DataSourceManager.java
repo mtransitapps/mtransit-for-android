@@ -455,17 +455,17 @@ public final class DataSourceManager implements MTLog.Loggable {
 	@Nullable
 	public static POIManager findPOI(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		final List<POIManager> pois = findPOIs(context, authority, poiFilter);
-		return pois == null || pois.isEmpty() ? null : pois.get(0);
+		return pois.isEmpty() ? null : pois.get(0);
 	}
 
-	@Nullable
+	@NonNull
 	public static List<POIManager> findPOIs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {
 			JSONObject filterJSON = POIProviderContract.Filter.toJSON(poiFilter);
 			if (filterJSON == null) {
-				MTLog.w(LOG_TAG, "Invalid POI filter!");
-				return null;
+				CrashUtils.w(LOG_TAG, "Invalid POI filter '%s'!", poiFilter); // should never happen
+				return Collections.emptyList();
 			}
 			String filterJsonString = filterJSON.toString();
 			Uri uri = getPOIUri(authority);
@@ -473,7 +473,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			return getPOIs(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error!");
-			return null;
+			return Collections.emptyList();
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}

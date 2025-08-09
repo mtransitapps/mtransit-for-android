@@ -22,11 +22,12 @@ import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
+import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
+import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.MapViewController.POIMarker
@@ -226,6 +227,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged(mapMarkerProvider)
             switchView()
+            binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
     }
 
