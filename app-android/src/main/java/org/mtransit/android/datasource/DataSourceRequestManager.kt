@@ -75,7 +75,7 @@ class DataSourceRequestManager(
         DataSourceManager.findAgencyRTSRouteLogo(appContext, agencyAuthority)
     }
 
-    suspend fun findAllRTSAgencyRoutes(agencyAuthority: String): List<Route>? = withContext(ioDispatcher) {
+    suspend fun findAllRTSAgencyRoutes(agencyAuthority: String): List<Route> = withContext(ioDispatcher) {
         DataSourceManager.findAllRTSAgencyRoutes(appContext, agencyAuthority)
     }
 
