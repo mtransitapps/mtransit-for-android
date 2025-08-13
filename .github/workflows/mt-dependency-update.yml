@@ -34,7 +34,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: exit 1000
       - name: MT check out main repository code (no submodules)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
@@ -46,7 +46,7 @@ jobs:
         run: |
           echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: MT add parser repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: $MT_GIT_BRANCH
           repository: mtransitapps/parser
