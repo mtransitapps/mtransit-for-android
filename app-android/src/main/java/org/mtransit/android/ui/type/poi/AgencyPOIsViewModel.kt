@@ -49,17 +49,11 @@ class AgencyPOIsViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    val poiList: LiveData<List<POIManager>?> = agency.switchMap { agency ->
+    val poiList: LiveData<List<POIManager>> = agency.switchMap { agency ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getPOIList(agency))
+            val agency = agency ?: return@liveData
+            emit(poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewEmptyFilter()))
         }
-    }
-
-    private suspend fun getPOIList(agency: IAgencyProperties?): List<POIManager>? {
-        if (agency == null) {
-            return null
-        }
-        return poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewEmptyFilter())
     }
 
     val showingListInsteadOfMap: LiveData<Boolean> = _authority.switchMap { authority ->

@@ -1,5 +1,7 @@
 package org.mtransit.android.util;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -8,6 +10,7 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.CrashlyticsCrashReporter;
 
 @Deprecated
+@SuppressLint("DeprecatedCall")
 @SuppressWarnings("WeakerAccess")
 public final class CrashUtils implements MTLog.Loggable {
 

@@ -53,21 +53,21 @@ class RTSAgencyRoutesViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    val routes: LiveData<List<Route>?> = this._authority.switchMap { authority ->
+    val routes: LiveData<List<Route>> = this._authority.switchMap { authority ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             authority?.let {
                 emit(
                     dataSourceRequestManager.findAllRTSAgencyRoutes(authority)
-                        ?.sortedWith(Route.SHORT_NAME_COMPARATOR)
+                        .sortedWith(Route.SHORT_NAME_COMPARATOR)
                 )
             }
         }
     }
 
-    private val _routeColorInts: LiveData<List<Int>?> = routes.map { routes ->
-        routes?.filter {
+    private val _routeColorInts: LiveData<List<Int>> = routes.map { routes ->
+        routes.filter {
             it.hasColor()
-        }?.map {
+        }.map {
             it.colorInt
         }
     }
