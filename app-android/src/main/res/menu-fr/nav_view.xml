@@ -93,6 +93,12 @@
         android:id="@+id/drawer_tertiary"
         android:checkableBehavior="none">
         <item
+            android:id="@id/nav_fares"
+            android:icon="@drawable/ic_payment_black_24"
+            android:title="@string/fares"
+            android:visible="true"
+            tools:visible="true" />
+        <item
             android:id="@id/nav_send_feedback"
             android:icon="@drawable/ic_email_black_24dp"
             android:title="@string/customer_service" />
@@ -114,7 +120,7 @@
         android:checkableBehavior="none">
         <item
             android:id="@id/nav_support"
-            android:icon="@drawable/ic_attach_money_black_24dp"
+            android:icon="@drawable/ic_volunteer_activism_black_24"
             android:title="@string/support"
             android:visible="false"
             tools:visible="true" />

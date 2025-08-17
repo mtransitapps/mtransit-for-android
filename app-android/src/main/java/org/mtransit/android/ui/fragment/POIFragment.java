@@ -276,6 +276,9 @@ public class POIFragment extends ABFragment implements
 		if (viewModel != null) {
 			viewModel.refreshAppUpdateAvailable();
 		}
+		if (getActivity() != null) {
+			getActivity().invalidateOptionsMenu(); // update menu_show_fares menu item
+		}
 	}
 
 	@Nullable
@@ -1447,9 +1450,14 @@ public class POIFragment extends ABFragment implements
 		return this.showingAccessibilityInfo;
 	}
 
+	@Nullable
+	private MenuItem showFareMenuItem;
+
 	@Override
 	public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_poi, menu);
+		this.showFareMenuItem = menu.findItem(R.id.menu_show_fares);
+		updateFaresMenuItem();
 	}
 
 	private void updateFabFavorite() {
@@ -1485,9 +1493,25 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
+	private void updateFaresMenuItem() {
+		if (this.showFareMenuItem == null) {
+			return;
+		}
+		final AgencyProperties agency = getAgencyOrNull();
+		final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
+		this.showFareMenuItem.setVisible(!TextUtils.isEmpty(faresWebUrl));
+	}
+
 	@Override
 	public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-		if (menuItem.getItemId() == R.id.menu_show_directions) {
+		if (menuItem.getItemId() == R.id.menu_show_fares) {
+			final AgencyProperties agency = getAgencyOrNull();
+			final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
+			if (!TextUtils.isEmpty(faresWebUrl)) {
+				LinkUtils.open(getView(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true);
+				return true; // handled
+			}
+		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
 			POIManager poim2 = getPoimOrNull();
 			if (poim2 != null) {
 				this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);

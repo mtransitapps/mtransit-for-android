@@ -7,6 +7,7 @@
     <string name="map">Map</string>
     <string name="trip_planner">Trip Planner</string>
     <string name="news">News</string>
+    <string name="fares">Fares</string>
     <string name="settings">Settings</string>
     <string name="customer_service">Customer Service</string>
     <string name="rate_review">Review App</string>
@@ -149,6 +150,7 @@
     <string name="menu_action_add_favorite">Add to favorites</string>
     <string name="menu_action_remove_favorite">Remove from favorites</string>
     <string name="menu_action_edit_favorite">Edit favorite</string>
+    <string name="menu_action_fares">Show fares</string>
     <string name="next_departures">Next Departures</string>
     <string name="availability">Availability</string>
     <string name="full_schedule">Full Schedule</string>
