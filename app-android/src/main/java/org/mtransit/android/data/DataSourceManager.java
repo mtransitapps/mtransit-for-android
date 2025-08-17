@@ -1,5 +1,6 @@
 package org.mtransit.android.data;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -39,16 +40,22 @@ import org.mtransit.android.commons.provider.ProviderContract;
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusProviderContract;
+import org.mtransit.android.util.CrashUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+@SuppressLint("DeprecatedCall")
 @WorkerThread
 public final class DataSourceManager implements MTLog.Loggable {
 
 	private static final String LOG_TAG = DataSourceManager.class.getSimpleName();
+
+	private static final boolean SIMULATE_NO_DATA_FROM_DISABLED_MODULE = false;
+	// private static final boolean SIMULATE_NO_DATA_FROM_DISABLED_MODULE = true; // DEBUG
 
 	@NonNull
 	@Override
@@ -87,7 +94,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
 			return getServiceUpdates(cursor);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -116,7 +123,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
 			return getNews(cursor, authority);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -147,7 +154,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJSONString, null, null);
 			return getScheduleTimestamp(cursor);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -174,7 +181,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
 			return getPOIStatus(cursor);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -214,7 +221,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final Uri uri = Uri.withAppendedPath(getUri(authority), ProviderContract.PING_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -239,7 +246,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		} catch (IllegalArgumentException iae) {
 			MTLog.d(LOG_TAG, iae, "IAE: feature not supported yet?");
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -301,7 +308,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 				}
 			}
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -321,7 +328,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 				}
 			}
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -339,7 +346,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			ArrayList<Trip> rtsTrips = getRTSTrips(cursor);
 			return rtsTrips.isEmpty() ? null : rtsTrips.get(0);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -355,7 +362,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
 			return getRTSTrips(cursor);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -386,7 +393,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			List<Route> rtsRoutes = getRTSRoutes(cursor);
 			return rtsRoutes.isEmpty() ? null : rtsRoutes.get(0);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -408,6 +415,19 @@ public final class DataSourceManager implements MTLog.Loggable {
 					(selectionArgs == null ? null : Arrays.asList(selectionArgs)),
 					sortOrder);
 		}
+		if (SIMULATE_NO_DATA_FROM_DISABLED_MODULE) { // DEBUG
+			// @formatter:off
+			final List<String> localAuthorities = Arrays.asList(
+					"org.mtransit.android.news.rss", "org.mtransit.android.debug.news.rss",
+					"org.mtransit.android.favorite", "org.mtransit.android.debug.favorite",
+					"org.mtransit.android.provider.module", "org.mtransit.android.debug.provider.module",
+					"org.mtransit.android.provider.place", "org.mtransit.android.debug.provider.place"
+			);
+			// @formatter:on
+			if (!localAuthorities.contains(uri.getAuthority())) {
+				return null; // simulate disabled / un-responsive modules
+			}
+		} // DEBUG
 		final Cursor result = contentResolver.query(uri, projection, selection, selectionArgs, sortOrder);
 		if (Constants.LOG_MT_QUERY) {
 			MTLog.d(LOG_TAG,
@@ -421,7 +441,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	@Nullable
+	@NonNull
 	public static List<Route> findAllRTSAgencyRoutes(@NonNull Context context, @NonNull String authority) {
 		Cursor cursor = null;
 		try {
@@ -429,8 +449,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, null, null, null);
 			return getRTSRoutes(cursor);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
-			return null;
+			CrashUtils.w(LOG_TAG, e, "Error!");
+			return Collections.emptyList();
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -453,25 +473,25 @@ public final class DataSourceManager implements MTLog.Loggable {
 	@Nullable
 	public static POIManager findPOI(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		final List<POIManager> pois = findPOIs(context, authority, poiFilter);
-		return pois == null || pois.isEmpty() ? null : pois.get(0);
+		return pois.isEmpty() ? null : pois.get(0);
 	}
 
-	@Nullable
+	@NonNull
 	public static List<POIManager> findPOIs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {
 			JSONObject filterJSON = POIProviderContract.Filter.toJSON(poiFilter);
 			if (filterJSON == null) {
-				MTLog.w(LOG_TAG, "Invalid POI filter!");
-				return null;
+				CrashUtils.w(LOG_TAG, "Invalid POI filter '%s'!", poiFilter); // should never happen
+				return Collections.emptyList();
 			}
 			String filterJsonString = filterJSON.toString();
 			Uri uri = getPOIUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
 			return getPOIs(cursor, authority);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
-			return null;
+			CrashUtils.w(LOG_TAG, e, "Error!");
+			return Collections.emptyList();
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -501,7 +521,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), searchSuggestUri, null, null, null, null);
 			return getSearchSuggest(cursor);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);

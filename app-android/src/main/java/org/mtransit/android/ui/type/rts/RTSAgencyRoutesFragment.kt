@@ -22,6 +22,7 @@ import org.mtransit.android.commons.data.Route
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.databinding.FragmentRtsAgencyRoutesBinding
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
@@ -168,10 +169,9 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
             }
         }
         viewModel.routes.observe(viewLifecycleOwner) { routes ->
-            routes?.let {
-                listGridAdapter?.setList(routes)
-                switchView()
-            }
+            listGridAdapter?.setList(routes)
+            switchView()
+            binding?.emptyLayout?.updateEmptyLayout(routes.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
     }
 
@@ -181,26 +181,24 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         return (screenWidthDp / columnWidthDp + 0.5f).toInt()
     }
 
-    private fun switchView() {
-        binding?.apply {
-            when {
-                listGridAdapter?.isReady() != true -> {
-                    emptyLayout.isVisible = false
-                    listGrid.isVisible = false
-                    loadingLayout.isVisible = true
-                }
+    private fun switchView() = binding?.apply {
+        when {
+            listGridAdapter?.isReady() != true -> {
+                emptyLayout.isVisible = false
+                listGrid.isVisible = false
+                loadingLayout.isVisible = true
+            }
 
-                listGridAdapter?.itemCount == 0 -> {
-                    loadingLayout.isVisible = false
-                    listGrid.isVisible = false
-                    emptyLayout.isVisible = true
-                }
+            listGridAdapter?.itemCount == 0 -> {
+                loadingLayout.isVisible = false
+                listGrid.isVisible = false
+                emptyLayout.isVisible = true
+            }
 
-                else -> {
-                    emptyLayout.isVisible = false
-                    loadingLayout.isVisible = false
-                    listGrid.isVisible = true
-                }
+            else -> {
+                emptyLayout.isVisible = false
+                loadingLayout.isVisible = false
+                listGrid.isVisible = true
             }
         }
     }

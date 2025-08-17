@@ -117,9 +117,9 @@ class POIRepository(
             ?.updateSupportedType(agency)
     }
 
-    suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? {
+    suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager> {
         return dataSourceRequestManager.findPOIMs(agency.authority, commonSetup(poiFilter))
-            ?.updateSupportedType(agency)
+            .updateSupportedType(agency)
     }
 
     fun loadingPOIMs(

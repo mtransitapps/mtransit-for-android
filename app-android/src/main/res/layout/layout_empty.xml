@@ -1,8 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/empty_text"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:focusable="false"
     android:gravity="center"
-    android:text="@string/no_results" />
+    android:orientation="vertical"
+    android:padding="@dimen/baseline_32">
+
+    <Space
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/empty_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/baseline_16"
+        android:focusable="false"
+        android:gravity="center"
+        android:maxLines="10"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        tools:text="@tools:sample/lorem" />
+
+    <TextView
+        android:id="@+id/empty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/baseline_16"
+        android:focusable="false"
+        android:gravity="center"
+        android:maxLines="10"
+        android:text="@string/no_results"
+        android:textAppearance="?attr/textAppearanceBody2"
+        tools:text="@tools:sample/lorem/random" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/empty_button_1"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/baseline_8"
+        android:visibility="gone"
+        tools:icon="@android:drawable/ic_delete"
+        tools:text="Button 1"
+        tools:visibility="visible" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/empty_button_2"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/baseline_8"
+        android:visibility="gone"
+        tools:icon="@android:drawable/ic_dialog_info"
+        tools:text="Button 2"
+        tools:visibility="visible" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/empty_button_3"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/baseline_8"
+        android:visibility="gone"
+        tools:icon="@android:drawable/ic_dialog_alert"
+        tools:text="Button 3"
+        tools:visibility="visible" />
+
+    <Space
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/empty_sub_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/baseline_8"
+        android:gravity="center_horizontal"
+        android:textAppearance="?attr/textAppearanceCaption"
+        android:visibility="gone"
+        tools:text="Samsung Galaxy S25 - Android 22\n\nEnabled setting: Disabled"
+        tools:visibility="visible" />
+
+</LinearLayout>
