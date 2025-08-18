@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:background="#0000FF"
-    tools:context=".ui.rts.route.RTSRouteFragment">
+    tools:context=".ui.rds.route.RDSRouteFragment">
 
     <View
         android:id="@+id/fragment_status_bar_bg"
@@ -64,7 +64,7 @@
         android:layout_below="@id/tabs"
         android:orientation="horizontal"
         android:visibility="visible"
-        tools:layout="@layout/fragment_rts_trip_stops"
+        tools:layout="@layout/fragment_rds_trip_stops"
         tools:visibility="visible" />
     <!-- EMPTY -->
     <include

@@ -25,7 +25,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
-import org.mtransit.android.commons.data.RouteTripStop;
+import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyUIProperties;
@@ -39,11 +39,11 @@ import org.mtransit.android.databinding.LayoutPoiBasicWithAvailabilityPercentBin
 import org.mtransit.android.databinding.LayoutPoiModuleBinding;
 import org.mtransit.android.databinding.LayoutPoiModuleWithAppStatusBinding;
 import org.mtransit.android.databinding.LayoutPoiPlaceBinding;
-import org.mtransit.android.databinding.LayoutPoiRtsBinding;
-import org.mtransit.android.databinding.LayoutPoiRtsWithScheduleBinding;
+import org.mtransit.android.databinding.LayoutPoiRdsBinding;
+import org.mtransit.android.databinding.LayoutPoiRdsWithScheduleBinding;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.rts.route.RTSRouteFragment;
+import org.mtransit.android.ui.rds.route.RDSRouteFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder;
@@ -75,8 +75,8 @@ public class POIViewController implements MTLog.Loggable {
 			return LayoutPoiBasicBinding.bind(viewStub.inflate());
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			return getModuleLayoutViewBinding(poiStatusType, viewStub);
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-			return getRTSLayoutViewBinding(poiStatusType, viewStub);
+		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
+			return getRDSLayoutViewBinding(poiStatusType, viewStub);
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			return getBasicPOILayoutViewBinding(poiStatusType, viewStub);
 		default:
@@ -100,8 +100,8 @@ public class POIViewController implements MTLog.Loggable {
 			return R.layout.layout_poi_basic;
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			return getModuleLayout(poiStatusType);
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-			return getRTSLayout(poiStatusType);
+		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
+			return getRDSLayout(poiStatusType);
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			return getBasicPOILayout(poiStatusType);
 		default:
@@ -110,31 +110,31 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static int getRTSLayout(int status) {
-		int layoutRes = R.layout.layout_poi_rts;
+	private static int getRDSLayout(int status) {
+		int layoutRes = R.layout.layout_poi_rds;
 		switch (status) {
 		case POI.ITEM_STATUS_TYPE_NONE:
 			break;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			layoutRes = R.layout.layout_poi_rts_with_schedule;
+			layoutRes = R.layout.layout_poi_rds_with_schedule;
 			break;
 		default:
-			MTLog.w(LOG_TAG, "Unexpected status '%s' (rts view w/o status)!", status);
+			MTLog.w(LOG_TAG, "Unexpected status '%s' (rds view w/o status)!", status);
 			break;
 		}
 		return layoutRes;
 	}
 
 	@NonNull
-	private static ViewBinding getRTSLayoutViewBinding(int status, @NonNull ViewStub viewStub) {
+	private static ViewBinding getRDSLayoutViewBinding(int status, @NonNull ViewStub viewStub) {
 		switch (status) {
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			return LayoutPoiRtsWithScheduleBinding.bind(viewStub.inflate());
+			return LayoutPoiRdsWithScheduleBinding.bind(viewStub.inflate());
 		case POI.ITEM_STATUS_TYPE_NONE:
-			return LayoutPoiRtsBinding.bind(viewStub.inflate());
+			return LayoutPoiRdsBinding.bind(viewStub.inflate());
 		default:
-			MTLog.w(LOG_TAG, "Unexpected status '%s' (rts view w/o status)!", status);
-			return LayoutPoiRtsBinding.bind(viewStub.inflate());
+			MTLog.w(LOG_TAG, "Unexpected status '%s' (rds view w/o status)!", status);
+			return LayoutPoiRdsBinding.bind(viewStub.inflate());
 		}
 	}
 
@@ -211,8 +211,8 @@ public class POIViewController implements MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			holder = initModuleViewHolder(view);
 			break;
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-			holder = initRTSViewHolder(view);
+		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
+			holder = initRDSViewHolder(view);
 			break;
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			holder = initBasicViewHolder(view);
@@ -247,19 +247,19 @@ public class POIViewController implements MTLog.Loggable {
 		return new BasicPOIViewHolder();
 	}
 
-	private static CommonViewHolder initRTSViewHolder(@NonNull View view) {
-		RouteTripStopViewHolder holder = new RouteTripStopViewHolder();
-		initRTSExtra(view, holder);
+	private static CommonViewHolder initRDSViewHolder(@NonNull View view) {
+		RouteDirectionStopViewHolder holder = new RouteDirectionStopViewHolder();
+		initRDSExtra(view, holder);
 		return holder;
 	}
 
-	private static void initRTSExtra(@NonNull View view, @NonNull RouteTripStopViewHolder holder) {
-		holder.rtsExtraV = view.findViewById(R.id.extra);
+	private static void initRDSExtra(@NonNull View view, @NonNull RouteDirectionStopViewHolder holder) {
+		holder.rdsExtraV = view.findViewById(R.id.extra);
 		holder.routeFL = view.findViewById(R.id.route);
 		holder.routeShortNameTv = view.findViewById(R.id.route_short_name);
 		holder.routeTypeImg = view.findViewById(R.id.route_type_img);
-		holder.tripHeadingTv = view.findViewById(R.id.trip_heading);
-		holder.tripHeadingBg = view.findViewById(R.id.trip_heading_bg);
+		holder.directionHeadingTv = view.findViewById(R.id.direction_heading);
+		holder.directionHeadingBg = view.findViewById(R.id.direction_heading_bg);
 	}
 
 	private static void initCommonViewHolder(@NonNull CommonViewHolder holder, @NonNull View view) {
@@ -344,8 +344,8 @@ public class POIViewController implements MTLog.Loggable {
 									@NonNull POIDataProvider dataProvider) {
 		final int poiType = poim.poi.getType();
 		switch (poiType) {
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-			updateRTSExtra(context, poim, (RouteTripStopViewHolder) holder, dataProvider);
+		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
+			updateRDSExtra(context, poim, (RouteDirectionStopViewHolder) holder, dataProvider);
 			break;
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			updateModuleExtra(poim, (ModuleViewHolder) holder, dataProvider);
@@ -425,8 +425,8 @@ public class POIViewController implements MTLog.Loggable {
 									@NonNull POIDataProvider dataProvider) {
 		final int poiType = poi.getType();
 		switch (poiType) {
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-			updateRTSExtra(context, poi, (RouteTripStopViewHolder) holder, dataProvider);
+		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
+			updateRDSExtra(context, poi, (RouteDirectionStopViewHolder) holder, dataProvider);
 			break;
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			updateModuleExtra(poi, (ModuleViewHolder) holder);
@@ -442,34 +442,34 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateRTSExtra(@NonNull Context context,
+	private static void updateRDSExtra(@NonNull Context context,
 									   @NonNull POI poi,
-									   @NonNull RouteTripStopViewHolder holder,
+									   @NonNull RouteDirectionStopViewHolder holder,
 									   @NonNull final POIDataProvider dataProvider) {
-		if (poi instanceof RouteTripStop) {
-			RouteTripStop rts = (RouteTripStop) poi;
+		if (poi instanceof RouteDirectionStop) {
+			RouteDirectionStop rds = (RouteDirectionStop) poi;
 			//noinspection ConstantConditions // route is always non-null?
-			if (dataProvider.isShowingExtra() && rts.getRoute() == null) {
-				if (holder.rtsExtraV != null) {
-					holder.rtsExtraV.setVisibility(View.GONE);
+			if (dataProvider.isShowingExtra() && rds.getRoute() == null) {
+				if (holder.rdsExtraV != null) {
+					holder.rdsExtraV.setVisibility(View.GONE);
 				}
 				if (holder.routeFL != null) {
 					holder.routeFL.setVisibility(View.GONE);
 				}
-				if (holder.tripHeadingBg != null) {
-					holder.tripHeadingBg.setVisibility(View.GONE);
+				if (holder.directionHeadingBg != null) {
+					holder.directionHeadingBg.setVisibility(View.GONE);
 				}
 			} else {
-				final Route route = rts.getRoute();
+				final Route route = rds.getRoute();
 				if (TextUtils.isEmpty(route.getShortName())) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					if (holder.routeTypeImg.hasPaths() && poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
 						final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
-						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
-						if (rtsRouteLogo != null) {
-							holder.routeTypeImg.setJSON(rtsRouteLogo);
+						JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
+						if (rdsRouteLogo != null) {
+							holder.routeTypeImg.setJSON(rdsRouteLogo);
 							holder.routeTypeImg.setTag(poi.getAuthority());
 							holder.routeTypeImg.setVisibility(View.VISIBLE);
 						} else {
@@ -482,22 +482,22 @@ public class POIViewController implements MTLog.Loggable {
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
-				holder.rtsExtraV.setVisibility(View.VISIBLE);
+				holder.rdsExtraV.setVisibility(View.VISIBLE);
 				//noinspection ConstantConditions // trip always non-null?
-				if (rts.getTrip() == null) {
-					holder.tripHeadingBg.setVisibility(View.GONE);
+				if (rds.getDirection() == null) {
+					holder.directionHeadingBg.setVisibility(View.GONE);
 				} else {
-					holder.tripHeadingTv.setText(
-							UIDirectionUtils.decorateDirection(context, rts.getTrip().getUIHeading(context, true), true)
+					holder.directionHeadingTv.setText(
+							UIDirectionUtils.decorateDirection(context, rds.getDirection().getUIHeading(context, true), true)
 					);
 					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
-					holder.tripHeadingTv.setSingleLine(true); // marquee forever
-					holder.tripHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
-					holder.tripHeadingBg.setVisibility(View.VISIBLE);
+					holder.directionHeadingTv.setSingleLine(true); // marquee forever
+					holder.directionHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
+					holder.directionHeadingBg.setVisibility(View.VISIBLE);
 				}
 				//noinspection ConstantConditions // stop always non-null?
-				holder.rtsExtraV.setOnClickListener(view -> {
-					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
+				holder.rdsExtraV.setOnClickListener(view -> {
+					MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
 					if (FeatureFlags.F_NAVIGATION) {
 						final NavController navController = Navigation.findNavController(view);
 						FragmentNavigator.Extras extras = null;
@@ -507,8 +507,8 @@ public class POIViewController implements MTLog.Loggable {
 									.build();
 						}
 						NavControllerExtKt.navigateF(navController,
-								R.id.nav_to_rts_route_screen,
-								RTSRouteFragment.newInstanceArgs(rts),
+								R.id.nav_to_rds_route_screen,
+								RDSRouteFragment.newInstanceArgs(rds),
 								null,
 								extras
 						);
@@ -518,7 +518,7 @@ public class POIViewController implements MTLog.Loggable {
 							return;
 						}
 						mainActivity.addFragmentToStack(
-								RTSRouteFragment.newInstance(rts),
+								RDSRouteFragment.newInstance(rds),
 								view
 						);
 					}
@@ -543,35 +543,35 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateRTSExtra(@NonNull Context context,
+	private static void updateRDSExtra(@NonNull Context context,
 									   @NonNull POIManager poim,
-									   @NonNull RouteTripStopViewHolder holder,
+									   @NonNull RouteDirectionStopViewHolder holder,
 									   @NonNull final POIDataProvider dataProvider) {
 		final POI poi = poim.poi;
-		if (poi instanceof RouteTripStop) {
-			RouteTripStop rts = (RouteTripStop) poi;
+		if (poi instanceof RouteDirectionStop) {
+			RouteDirectionStop rds = (RouteDirectionStop) poi;
 			//noinspection ConstantConditions // route is always non-null?
-			if (dataProvider.isShowingExtra() && rts.getRoute() == null) {
-				if (holder.rtsExtraV != null) {
-					holder.rtsExtraV.setVisibility(View.GONE);
+			if (dataProvider.isShowingExtra() && rds.getRoute() == null) {
+				if (holder.rdsExtraV != null) {
+					holder.rdsExtraV.setVisibility(View.GONE);
 				}
 				if (holder.routeFL != null) {
 					holder.routeFL.setVisibility(View.GONE);
 				}
-				if (holder.tripHeadingBg != null) {
-					holder.tripHeadingBg.setVisibility(View.GONE);
+				if (holder.directionHeadingBg != null) {
+					holder.directionHeadingBg.setVisibility(View.GONE);
 				}
 			} else {
-				final Route route = rts.getRoute();
+				final Route route = rds.getRoute();
 				if (TextUtils.isEmpty(route.getShortName())) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					if (holder.routeTypeImg.hasPaths() && poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
 						final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
-						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
-						if (rtsRouteLogo != null) {
-							holder.routeTypeImg.setJSON(rtsRouteLogo);
+						JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
+						if (rdsRouteLogo != null) {
+							holder.routeTypeImg.setJSON(rdsRouteLogo);
 							holder.routeTypeImg.setTag(poi.getAuthority());
 							holder.routeTypeImg.setVisibility(View.VISIBLE);
 						} else {
@@ -584,22 +584,22 @@ public class POIViewController implements MTLog.Loggable {
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
-				holder.rtsExtraV.setVisibility(View.VISIBLE);
+				holder.rdsExtraV.setVisibility(View.VISIBLE);
 				//noinspection ConstantConditions // trip always non-null?
-				if (rts.getTrip() == null) {
-					holder.tripHeadingBg.setVisibility(View.GONE);
+				if (rds.getDirection() == null) {
+					holder.directionHeadingBg.setVisibility(View.GONE);
 				} else {
-					holder.tripHeadingTv.setText(
-							UIDirectionUtils.decorateDirection(context, rts.getTrip().getUIHeading(context, true), true)
+					holder.directionHeadingTv.setText(
+							UIDirectionUtils.decorateDirection(context, rds.getDirection().getUIHeading(context, true), true)
 					);
 					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
-					holder.tripHeadingTv.setSingleLine(true); // marquee forever
-					holder.tripHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
-					holder.tripHeadingBg.setVisibility(View.VISIBLE);
+					holder.directionHeadingTv.setSingleLine(true); // marquee forever
+					holder.directionHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
+					holder.directionHeadingBg.setVisibility(View.VISIBLE);
 				}
-				POIViewUtils.setupPOIExtraLayoutBackground(holder.rtsExtraV, poim, dataProvider.providesDataSourcesRepository());
-				holder.rtsExtraV.setOnClickListener(view -> {
-					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
+				POIViewUtils.setupPOIExtraLayoutBackground(holder.rdsExtraV, poim, dataProvider.providesDataSourcesRepository());
+				holder.rdsExtraV.setOnClickListener(view -> {
+					MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
 					if (FeatureFlags.F_NAVIGATION) {
 						final NavController navController = Navigation.findNavController(view);
 						FragmentNavigator.Extras extras = null;
@@ -609,8 +609,8 @@ public class POIViewController implements MTLog.Loggable {
 									.build();
 						}
 						NavControllerExtKt.navigateF(navController,
-								R.id.nav_to_rts_route_screen,
-								RTSRouteFragment.newInstanceArgs(rts),
+								R.id.nav_to_rds_route_screen,
+								RDSRouteFragment.newInstanceArgs(rds),
 								null,
 								extras
 						);
@@ -620,7 +620,7 @@ public class POIViewController implements MTLog.Loggable {
 							return;
 						}
 						mainActivity.addFragmentToStack(
-								RTSRouteFragment.newInstance(rts),
+								RDSRouteFragment.newInstance(rds),
 								view
 						);
 					}
@@ -775,13 +775,13 @@ public class POIViewController implements MTLog.Loggable {
 		ImageView moduleExtraTypeImg;
 	}
 
-	private static class RouteTripStopViewHolder extends CommonViewHolder {
+	private static class RouteDirectionStopViewHolder extends CommonViewHolder {
 		TextView routeShortNameTv;
 		View routeFL;
-		View rtsExtraV;
+		View rdsExtraV;
 		MTJPathsView routeTypeImg;
-		TextView tripHeadingTv;
-		View tripHeadingBg;
+		TextView directionHeadingTv;
+		View directionHeadingBg;
 	}
 
 	private static class BasicPOIViewHolder extends CommonViewHolder {

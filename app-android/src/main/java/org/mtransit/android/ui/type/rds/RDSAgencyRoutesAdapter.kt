@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.type.rts
+package org.mtransit.android.ui.type.rds
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -22,12 +22,12 @@ import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.setPadding
 import org.mtransit.android.util.UIRouteUtils
 
-class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyProperties) -> Unit) :
-    ListAdapter<Route, RTSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
+class RDSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyProperties) -> Unit) :
+    ListAdapter<Route, RDSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RTSAgencyRoutesAdapter::class.java.simpleName
+        private val LOG_TAG = RDSAgencyRoutesAdapter::class.java.simpleName
     }
 
     private var theLogTag: String = LOG_TAG

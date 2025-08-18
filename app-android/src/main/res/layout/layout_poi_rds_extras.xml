@@ -57,14 +57,14 @@
         </FrameLayout>
         <!-- TRIP HEADING -->
         <FrameLayout
-            android:id="@+id/trip_heading_bg"
+            android:id="@+id/direction_heading_bg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
             tools:visibility="visible">
 
             <TextView
-                android:id="@+id/trip_heading"
+                android:id="@+id/direction_heading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

@@ -29,7 +29,7 @@ object POIViewUtils {
     ) {
         val colorInt: Int = UIColorUtils.adaptBackgroundColorToLightText(view.context, originalColorInt)
         when (poiType) {
-            POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP -> {
+            POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP -> {
                 view.setBackgroundTintList(null)
                 view.background = GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,

@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.type.rts
+package org.mtransit.android.ui.type.rds
 
 import androidx.recyclerview.widget.DiffUtil
 import org.mtransit.android.commons.data.Route

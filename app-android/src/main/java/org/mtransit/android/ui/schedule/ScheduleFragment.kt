@@ -192,8 +192,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
                 list.isVisible = listAdapter.isReady()
             }
         }
-        viewModel.rts.observe(viewLifecycleOwner) { rts ->
-            listAdapter.setRTS(rts)
+        viewModel.rds.observe(viewLifecycleOwner) { rds ->
+            listAdapter.setRDS(rds)
         }
         if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
             viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
@@ -211,7 +211,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         viewModel.agency.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
         }
-        viewModel.rts.observe(viewLifecycleOwner) {
+        viewModel.rds.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             abController?.setABReady(this, isABReady, true)
@@ -293,12 +293,12 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
     }
 
-    override fun isABReady() = attachedViewModel?.rts?.value != null
+    override fun isABReady() = attachedViewModel?.rds?.value != null
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.full_schedule) ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = attachedViewModel?.rts?.value?.let { rts ->
-        POIManager.getNewOneLineDescription(rts, attachedViewModel?.agency?.value)
+    override fun getABSubtitle(context: Context?) = attachedViewModel?.rds?.value?.let { rds ->
+        POIManager.getNewOneLineDescription(rds, attachedViewModel?.agency?.value)
     } ?: super.getABSubtitle(context)
 
     override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)

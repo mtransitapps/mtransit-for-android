@@ -43,7 +43,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.data.RouteTripStop;
+import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.POIManager;
@@ -1321,8 +1321,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				if (agency == null) {
 					continue;
 				}
-				if (mapViewController.markerLabelShowExtra && poim.poi instanceof RouteTripStop) {
-					extra = ((RouteTripStop) poim.poi).getRoute().getShortestName();
+				if (mapViewController.markerLabelShowExtra && poim.poi instanceof RouteDirectionStop) {
+					extra = ((RouteDirectionStop) poim.poi).getRoute().getShortestName();
 				}
 				agencyShortName = mapViewController.markerLabelShowExtra ? agency.getShortName() : null;
 				uuid = poim.poi.getUUID();

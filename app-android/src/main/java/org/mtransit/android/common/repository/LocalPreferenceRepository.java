@@ -42,18 +42,18 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 	public static final String PREFS_LCL_DEV_MODE_ENABLED = PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED;
 	public static final boolean PREFS_LCL_DEV_MODE_ENABLED_DEFAULT = PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT;
 
-	public static final long PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT = PreferenceUtils.PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT;
+	public static final long PREFS_LCL_RDS_ROUTE_TRIP_ID_TAB_DEFAULT = PreferenceUtils.PREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB_DEFAULT;
 
 	@NonNull
-	public static String getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(@NonNull String authority, long routeId) {
-		return PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(authority, routeId);
+	public static String getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(@NonNull String authority, long routeId) {
+		return PreferenceUtils.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(authority, routeId);
 	}
 
-	public static final boolean PREFS_LCL_RTS_TRIP_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT = PreferenceUtils.PREFS_LCL_RTS_TRIP_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT;
+	public static final boolean PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT = PreferenceUtils.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT;
 
 	@NonNull
-	public static String getPREFS_LCL_RTS_ROUTE_TRIP_ID_KEY(@NonNull String authority, long routeId, long tripId) {
-		return PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_KEY(authority, routeId, tripId);
+	public static String getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(@NonNull String authority, long routeId, long directionId) {
+		return PreferenceUtils.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(authority, routeId, directionId);
 	}
 
 	public static final String PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT = PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT;
