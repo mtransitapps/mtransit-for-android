@@ -15,7 +15,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.updateDistanceM
@@ -87,7 +87,7 @@ class DemoModeManager @Inject constructor(
             poim = this.dataSourceRequestManager.findPOIMs(agency.authority, filter)
                 ?.removeAllAnd {
                     if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
-                        (it.poi as? RouteTripStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
+                        (it.poi as? RouteDirectionStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
                     } else false
                 }
                 ?.updateDistanceM(lat, lng)
@@ -132,11 +132,11 @@ class DemoModeManager @Inject constructor(
         // @Suppress("ConstantConditionIf")
         // if (true) {
         // val debug = true
-        // val isRTS = true
-        // // val isRTS = false
+        // val isRDS = true
+        // // val isRDS = false
         // val agencyId = "ca_halifax_transit_bus"
         // // val agencyId = "ca_quebec_a_velo_bike"
-        // filterAgencyAuthority = "org.mtransit.android.${if (debug) "debug" else ""}.$agencyId${if (isRTS) ".gtfs" else ""}"
+        // filterAgencyAuthority = "org.mtransit.android.${if (debug) "debug" else ""}.$agencyId${if (isRDS) ".gtfs" else ""}"
         // filterScreen = FILTER_SCREEN_HOME
         // forceLang = "en-US"
         // }

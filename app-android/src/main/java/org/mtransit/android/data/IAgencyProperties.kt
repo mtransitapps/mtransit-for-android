@@ -46,7 +46,7 @@ interface IAgencyProperties {
 
     val pkg: String
 
-    val isRTS: Boolean
+    val isRDS: Boolean
 
     val shortName: String
 

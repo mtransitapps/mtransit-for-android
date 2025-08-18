@@ -2,9 +2,9 @@ package org.mtransit.android.data;
 
 import org.junit.Test;
 import org.mtransit.android.commons.TimeUtils;
+import org.mtransit.android.commons.data.Direction;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.Schedule.Timestamp;
-import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.data.UISchedule.TimeSections;
 
 import java.util.ArrayList;
@@ -167,7 +167,7 @@ public class UIScheduleTest {
 		// Arrange
 		List<Timestamp> timestamps = new ArrayList<>();
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-30L)));
-		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)));
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(150L)));
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(210L)));
@@ -184,7 +184,7 @@ public class UIScheduleTest {
 		List<Timestamp> timestamps = new ArrayList<>();
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-30L)));
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)));
-		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(150L)));
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(210L)));
 		// Act
@@ -390,11 +390,11 @@ public class UIScheduleTest {
 	public void testFindTimesSectionsStartEnd_All_DropOffOnly() {
 		// Arrange
 		List<Timestamp> timestamps = new ArrayList<>();
-		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-30L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
-		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
-		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
-		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(150L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
-		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(210L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-30L)).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(150L)).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(210L)).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
 		// Act
 		TimeSections result = UISchedule.findTimesSectionsStartEnd(AFTER_IN_MS - PROVIDER_PRECISION_IN_MS, timestamps);
 		// Assert

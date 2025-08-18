@@ -1,5 +1,5 @@
-@file:JvmName("RTSTripStopsFragment") // ANALYTICS
-package org.mtransit.android.ui.rts.route.trip
+@file:JvmName("RTSTripStopsFragment") // ANALYTICS // do not change to avoid breaking tracking
+package org.mtransit.android.ui.rds.route.direction
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -13,12 +13,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.findClosestPOISIdxUuid
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.databinding.FragmentRtsTripStopsBinding
+import org.mtransit.android.databinding.FragmentRdsTripStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
@@ -27,7 +27,7 @@ import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
-import org.mtransit.android.ui.rts.route.RTSRouteViewModel
+import org.mtransit.android.ui.rds.route.RDSRouteViewModel
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
@@ -39,10 +39,10 @@ import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
+class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_trip_stops) {
 
     companion object {
-        private val LOG_TAG = RTSTripStopsFragment::class.java.simpleName
+        private val LOG_TAG = RDSDirectionStopsFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
@@ -50,13 +50,13 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
             routeId: Long,
             tripId: Long,
             optSelectedStopId: Int? = null,
-        ): RTSTripStopsFragment {
-            return RTSTripStopsFragment().apply {
+        ): RDSDirectionStopsFragment {
+            return RDSDirectionStopsFragment().apply {
                 arguments = bundleOf(
-                    RTSTripStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                    RTSTripStopsViewModel.EXTRA_ROUTE_ID to routeId,
-                    RTSTripStopsViewModel.EXTRA_TRIP_ID to tripId,
-                    RTSTripStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RTSTripStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
+                    RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
+                    RDSDirectionStopsViewModel.EXTRA_ROUTE_ID to routeId,
+                    RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to tripId,
+                    RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
                 )
             }
         }
@@ -69,13 +69,13 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
 
     override fun getLogTag(): String = this.theLogTag
 
-    private val viewModel by viewModels<RTSTripStopsViewModel>()
+    private val viewModel by viewModels<RDSDirectionStopsViewModel>()
 
-    private val parentViewModel by viewModels<RTSRouteViewModel>({ requireParentFragment() })
+    private val parentViewModel by viewModels<RDSRouteViewModel>({ requireParentFragment() })
     private val attachedParentViewModel
         get() = if (isAttached()) parentViewModel else null
 
-    private var binding: FragmentRtsTripStopsBinding? = null
+    private var binding: FragmentRdsTripStopsBinding? = null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -162,7 +162,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
-            logTag = this@RTSTripStopsFragment.logTag
+            logTag = this@RDSDirectionStopsFragment.logTag
             setShowExtra(false) // show route short name & trip direction
             setLocation(attachedParentViewModel?.deviceLocation?.value)
         }
@@ -176,7 +176,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
-        binding = FragmentRtsTripStopsBinding.bind(view).apply {
+        binding = FragmentRdsTripStopsBinding.bind(view).apply {
             listLayout.list.apply {
                 isVisible = listAdapter.isInitialized
                 listAdapter.setListView(this)
@@ -208,8 +208,8 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
         }
         viewModel.tripId.observe(viewLifecycleOwner) { tripId ->
             theLogTag = tripId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-            listAdapter.logTag = this@RTSTripStopsFragment.logTag
-            mapViewController.logTag = this@RTSTripStopsFragment.logTag
+            listAdapter.logTag = this@RDSDirectionStopsFragment.logTag
+            mapViewController.logTag = this@RDSDirectionStopsFragment.logTag
         }
         parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             mapViewController.onDeviceLocationChanged(deviceLocation)
@@ -283,7 +283,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops) {
     private fun findStopIndexUuid(stopId: Int, pois: List<POIManager>?): Pair<Int?, String?>? {
         return pois
             ?.withIndex()
-            ?.firstOrNull { (it.value.poi as? RouteTripStop)?.stop?.id == stopId }
+            ?.firstOrNull { (it.value.poi as? RouteDirectionStop)?.stop?.id == stopId }
             ?.let {
                 it.index to it.value.poi.uuid
             }

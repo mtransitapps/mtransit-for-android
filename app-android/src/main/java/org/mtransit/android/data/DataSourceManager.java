@@ -23,13 +23,13 @@ import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.DataSourceTypeId;
+import org.mtransit.android.commons.data.Direction;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.AgencyProviderContract;
 import org.mtransit.android.commons.provider.GTFSProviderContract;
 import org.mtransit.android.commons.provider.NewsProviderContract;
@@ -250,7 +250,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static AgencyProperties findAgencyProperties(@NonNull Context context,
 														@NonNull String authority,
 														@NonNull DataSourceType dst,
-														boolean isRTS,
+														boolean isRDS,
 														@Nullable JPaths logo,
 														@NonNull String pkg,
 														long longVersionCode,
@@ -288,7 +288,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 							availableVersionCode,
 							true,
 							enabled,
-							isRTS,
+							isRDS,
 							logo,
 							maxValidInSec,
 							trigger,
@@ -309,7 +309,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static JPaths findAgencyRTSRouteLogo(@NonNull Context context, @NonNull String authority) {
+	public static JPaths findAgencyRDSRouteLogo(@NonNull Context context, @NonNull String authority) {
 		JPaths result = null;
 		Cursor cursor = null;
 		try {
@@ -330,14 +330,14 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@SuppressWarnings("unused")
 	@Nullable
-	public static Trip findRTSTrip(@NonNull Context context, @NonNull String authority, int tripId) {
+	public static Direction findRDSDirection(@NonNull Context context, @NonNull String authority, int directionId) {
 		Cursor cursor = null;
 		try {
-			Uri uri = getRTSTripsUri(authority);
-			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_ID, tripId);
-			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
-			ArrayList<Trip> rtsTrips = getRTSTrips(cursor);
-			return rtsTrips.isEmpty() ? null : rtsTrips.get(0);
+			Uri uri = getRDSDirectionsUri(authority);
+			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ID, directionId);
+			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
+			ArrayList<Direction> rdsDirections = getRDSDirections(cursor);
+			return rdsDirections.isEmpty() ? null : rdsDirections.get(0);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
@@ -347,13 +347,13 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static ArrayList<Trip> findRTSRouteTrips(@NonNull Context context, @NonNull String authority, long routeId) {
+	public static ArrayList<Direction> findRDSRouteDirections(@NonNull Context context, @NonNull String authority, long routeId) {
 		Cursor cursor = null;
 		try {
-			Uri uri = getRTSTripsUri(authority);
-			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_ROUTE_ID, routeId);
-			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
-			return getRTSTrips(cursor);
+			Uri uri = getRDSDirectionsUri(authority);
+			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ROUTE_ID, routeId);
+			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
+			return getRDSDirections(cursor);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
@@ -363,12 +363,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<Trip> getRTSTrips(@Nullable Cursor cursor) {
-		ArrayList<Trip> result = new ArrayList<>();
+	private static ArrayList<Direction> getRDSDirections(@Nullable Cursor cursor) {
+		ArrayList<Direction> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					Trip fromCursor = Trip.fromCursor(cursor);
+					Direction fromCursor = Direction.fromCursor(cursor);
 					result.add(fromCursor);
 				} while (cursor.moveToNext());
 			}
@@ -377,14 +377,14 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static Route findRTSRoute(@NonNull Context context, @NonNull String authority, long routeId) {
+	public static Route findRDSRoute(@NonNull Context context, @NonNull String authority, long routeId) {
 		Cursor cursor = null;
 		try {
-			Uri uri = getRTSRoutesUri(authority);
+			final Uri uri = getRDSRoutesUri(authority);
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.RouteColumns.T_ROUTE_K_ID, routeId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, selection, null, null);
-			List<Route> rtsRoutes = getRTSRoutes(cursor);
-			return rtsRoutes.isEmpty() ? null : rtsRoutes.get(0);
+			final List<Route> rdsRoutes = getRDSRoutes(cursor);
+			return rdsRoutes.isEmpty() ? null : rdsRoutes.get(0);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
@@ -422,12 +422,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static List<Route> findAllRTSAgencyRoutes(@NonNull Context context, @NonNull String authority) {
+	public static List<Route> findAllRDSAgencyRoutes(@NonNull Context context, @NonNull String authority) {
 		Cursor cursor = null;
 		try {
-			Uri uri = getRTSRoutesUri(authority);
+			Uri uri = getRDSRoutesUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, null, null, null);
-			return getRTSRoutes(cursor);
+			return getRDSRoutes(cursor);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
@@ -437,7 +437,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static List<Route> getRTSRoutes(@Nullable Cursor cursor) {
+	private static List<Route> getRDSRoutes(@Nullable Cursor cursor) {
 		final List<Route> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -529,12 +529,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static Uri getRTSRoutesUri(@NonNull String authority) {
+	private static Uri getRDSRoutesUri(@NonNull String authority) {
 		return Uri.withAppendedPath(getUri(authority), GTFSProviderContract.ROUTE_PATH);
 	}
 
 	@NonNull
-	private static Uri getRTSTripsUri(@NonNull String authority) {
-		return Uri.withAppendedPath(getUri(authority), GTFSProviderContract.TRIP_PATH);
+	private static Uri getRDSDirectionsUri(@NonNull String authority) {
+		return Uri.withAppendedPath(getUri(authority), GTFSProviderContract.DIRECTION_PATH);
 	}
 }

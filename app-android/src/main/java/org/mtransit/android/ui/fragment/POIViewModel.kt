@@ -20,7 +20,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
@@ -128,17 +128,17 @@ class POIViewModel @Inject constructor(
     private val poiAlphaComparator by lazy { POIAlphaComparator() }
 
     private val POI.isNoPickup: Boolean
-        get() = this is RouteTripStop && this.isNoPickup
+        get() = this is RouteDirectionStop && this.isNoPickup
 
     private fun POI.isSameRoute(other: POI): Boolean {
-        if (this !is RouteTripStop || other !is RouteTripStop) return false
+        if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
         return this.route.id == other.route.id
     }
 
     private fun POI.isSameRouteTrip(other: POI): Boolean {
-        if (this !is RouteTripStop || other !is RouteTripStop) return false
+        if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
         return this.route.id == other.route.id
-                && this.trip.id == other.trip.id
+                && this.direction.id == other.direction.id
     }
 
     private suspend fun getNearbyPOIs(
@@ -286,14 +286,14 @@ class POIViewModel @Inject constructor(
         val routeTripKept = mutableSetOf<String>()
         while (it.hasNext()) {
             val poim = it.next()
-            if (poim.poi is RouteTripStop) { // RTS
-                val rts = poim.poi
-                val routeTripId = "${rts.route.id}-${rts.trip.id}"
+            if (poim.poi is RouteDirectionStop) { // RDS
+                val rds: RouteDirectionStop = poim.poi
+                val routeTripId = "${rds.route.id}-${rds.direction.id}"
                 if (routeTripKept.contains(routeTripId)) {
                     it.remove()
                     continue
                 }
-                routeTripKept += "${poim.poi.route.id}-${poim.poi.trip.id}"
+                routeTripKept += "${poim.poi.route.id}-${poim.poi.direction.id}"
             }
         }
     }

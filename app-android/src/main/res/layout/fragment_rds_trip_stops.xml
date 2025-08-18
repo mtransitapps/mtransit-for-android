@@ -1,10 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.type.rts.RTSAgencyRoutesFragment">
+    tools:context=".ui.rts.route.direction.RTSTripStopsFragment">
+    <!-- MAP -->
+    <org.mtransit.android.ui.view.common.MapViewInScroll
+        android:id="@id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:mapType="none"
+        app:uiCompass="true"
+        app:uiRotateGestures="true"
+        app:uiScrollGestures="true"
+        app:uiTiltGestures="true"
+        app:uiZoomControls="true"
+        app:uiZoomGestures="true"
+        tools:visibility="invisible" />
+
+    <include layout="@layout/view_map_type_switch" />
+    <!-- LIST -->
+    <include
+        android:id="@id/list_layout"
+        layout="@layout/layout_poi_list_padding_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        tools:visibility="visible" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_list_map"
+        style="@style/MTFabMiniBottomEnd"
+        android:contentDescription="@string/menu_action_list"
+        android:src="@drawable/switch_action_view_headline_dark_16dp"
+        tools:backgroundTint="#FF00FF"
+        tools:contentDescription="@string/menu_action_map"
+        tools:rippleColor="#00FF00"
+        tools:src="@drawable/switch_action_map_dark_16dp" />
     <!-- LOADING -->
     <include
         android:id="@id/loading_layout"
@@ -13,29 +47,6 @@
         android:layout_height="match_parent"
         android:visibility="gone"
         tools:visibility="visible" />
-    <!-- LIST / GRID -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@id/list_grid"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:fastScrollAlwaysVisible="false"
-        android:fastScrollEnabled="false"
-        android:paddingBottom="@dimen/list_view_item_height"
-        android:scrollbarStyle="insideOverlay"
-        android:visibility="visible"
-        tools:listitem="@layout/layout_rts_route_item"
-        tools:visibility="visible" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_list_grid"
-        style="@style/MTFabMiniBottomEnd"
-        android:contentDescription="@string/menu_action_list"
-        android:src="@drawable/switch_action_view_headline_dark_16dp"
-        tools:backgroundTint="#FF00FF"
-        tools:contentDescription="@string/menu_action_grid"
-        tools:rippleColor="#00FF00"
-        tools:src="@drawable/switch_action_apps_dark_16dp" />
     <!-- EMPTY -->
     <include
         android:id="@id/empty_layout"
@@ -46,4 +57,4 @@
         tools:visibility="visible" />
 
     <include layout="@layout/layout_shadow" />
-</FrameLayout>
+</RelativeLayout>

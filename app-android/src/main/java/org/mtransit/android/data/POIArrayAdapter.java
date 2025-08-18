@@ -53,7 +53,7 @@ import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
-import org.mtransit.android.commons.data.RouteTripStop;
+import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
@@ -71,7 +71,7 @@ import org.mtransit.android.ui.favorites.FavoritesFragment;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
-import org.mtransit.android.ui.rts.route.RTSRouteFragment;
+import org.mtransit.android.ui.rds.route.RDSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
@@ -334,12 +334,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			default:
 				return 6; // MODULE
 			}
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
+		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
 			switch (statusType) {
 			case POI.ITEM_STATUS_TYPE_SCHEDULE:
-				return 3; // RTS & SCHEDULE
+				return 3; // RDS & SCHEDULE
 			default:
-				return 4; // RTS
+				return 4; // RDS
 			}
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			switch (statusType) {
@@ -502,7 +502,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return getTextMessageView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			return getModuleView(poim, convertView, parent);
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
+		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
 			return getRouteTripStopView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			return getBasicPOIView(poim, convertView, parent);
@@ -1662,20 +1662,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@LayoutRes
-	private int getRTSLayout(int status) {
-		int layoutRes = R.layout.layout_poi_rts;
+	private int getRDSLayout(int status) {
+		int layoutRes = R.layout.layout_poi_rds;
 		switch (status) {
 		case POI.ITEM_STATUS_TYPE_NONE:
 			break;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (this.showExtra) {
-				layoutRes = R.layout.layout_poi_rts_with_schedule;
+				layoutRes = R.layout.layout_poi_rds_with_schedule;
 			} else {
 				layoutRes = R.layout.layout_poi_basic_with_schedule;
 			}
 			break;
 		default:
-			MTLog.w(this, "Unexpected status '%s' (rts view w/o status)!", status);
+			MTLog.w(this, "Unexpected status '%s' (rds view w/o status)!", status);
 			break;
 		}
 		return layoutRes;
@@ -1812,10 +1812,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private View getRouteTripStopView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
-			convertView = this.layoutInflater.inflate(getRTSLayout(poim.getStatusType()), parent, false);
+			convertView = this.layoutInflater.inflate(getRDSLayout(poim.getStatusType()), parent, false);
 			RouteTripStopViewHolder holder = new RouteTripStopViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
-			initRTSExtra(convertView, holder);
+			initRDSExtra(convertView, holder);
 			holder.statusViewHolder = POICommonStatusViewHolder.init(poim.poi, convertView);
 			holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poim.poi, convertView);
 			convertView.setTag(holder);
@@ -1824,13 +1824,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertView;
 	}
 
-	private void initRTSExtra(@NonNull View convertView, @NonNull RouteTripStopViewHolder holder) {
-		holder.rtsExtraV = convertView.findViewById(R.id.extra);
+	private void initRDSExtra(@NonNull View convertView, @NonNull RouteTripStopViewHolder holder) {
+		holder.rdsExtraV = convertView.findViewById(R.id.extra);
 		holder.routeFL = convertView.findViewById(R.id.route);
 		holder.routeShortNameTv = convertView.findViewById(R.id.route_short_name);
 		holder.routeTypeImg = convertView.findViewById(R.id.route_type_img);
-		holder.tripHeadingTv = convertView.findViewById(R.id.trip_heading);
-		holder.tripHeadingBg = convertView.findViewById(R.id.trip_heading_bg);
+		holder.directionHeadingTv = convertView.findViewById(R.id.direction_heading);
+		holder.directionHeadingBg = convertView.findViewById(R.id.direction_heading_bg);
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
@@ -1843,7 +1843,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		RouteTripStopViewHolder holder = (RouteTripStopViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
-		updateRTSExtra(poim, holder);
+		updateRDSExtra(poim, holder);
 		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
 		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, this);
 		return convertView;
@@ -1856,30 +1856,30 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@UiThread
-	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
-		if (poim.poi instanceof RouteTripStop) {
-			RouteTripStop rts = (RouteTripStop) poim.poi;
+	private void updateRDSExtra(POIManager poim, RouteTripStopViewHolder holder) {
+		if (poim.poi instanceof RouteDirectionStop) {
+			RouteDirectionStop rds = (RouteDirectionStop) poim.poi;
 			if (!this.showExtra) {
-				if (holder.rtsExtraV != null) {
-					holder.rtsExtraV.setVisibility(View.GONE);
+				if (holder.rdsExtraV != null) {
+					holder.rdsExtraV.setVisibility(View.GONE);
 				}
 				if (holder.routeFL != null) {
 					holder.routeFL.setVisibility(View.GONE);
 				}
-				if (holder.tripHeadingBg != null) {
-					holder.tripHeadingBg.setVisibility(View.GONE);
+				if (holder.directionHeadingBg != null) {
+					holder.directionHeadingBg.setVisibility(View.GONE);
 				}
 			} else {
-				final Route route = rts.getRoute();
+				final Route route = rds.getRoute();
 				if (TextUtils.isEmpty(route.getShortName())) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					if (holder.routeTypeImg.hasPaths() && poim.poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
 						final AgencyProperties agency = this.dataSourcesRepository.getAgency(poim.poi.getAuthority());
-						final JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
-						if (rtsRouteLogo != null) {
-							holder.routeTypeImg.setJSON(rtsRouteLogo);
+						final JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
+						if (rdsRouteLogo != null) {
+							holder.routeTypeImg.setJSON(rdsRouteLogo);
 							holder.routeTypeImg.setTag(poim.poi.getAuthority());
 							holder.routeTypeImg.setVisibility(View.VISIBLE);
 						} else {
@@ -1892,15 +1892,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
-				holder.rtsExtraV.setVisibility(View.VISIBLE);
-				holder.tripHeadingTv.setText(
-						UIDirectionUtils.decorateDirection(getContext(), rts.getTrip().getUIHeading(getContext(), true), true)
+				holder.rdsExtraV.setVisibility(View.VISIBLE);
+				holder.directionHeadingTv.setText(
+						UIDirectionUtils.decorateDirection(getContext(), rds.getDirection().getUIHeading(getContext(), true), true)
 				);
-				holder.tripHeadingBg.setVisibility(View.VISIBLE);
-				POIViewUtils.setupPOIExtraLayoutBackground(holder.rtsExtraV, poim, dataSourcesRepository);
-				holder.rtsExtraV.setOnClickListener(view -> {
+				holder.directionHeadingBg.setVisibility(View.VISIBLE);
+				POIViewUtils.setupPOIExtraLayoutBackground(holder.rdsExtraV, poim, dataSourcesRepository);
+				holder.rdsExtraV.setOnClickListener(view -> {
 					leaving();
-					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
+					MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
 					if (FeatureFlags.F_NAVIGATION) {
 						final NavController navController = Navigation.findNavController(view);
 						FragmentNavigator.Extras extras = null;
@@ -1910,19 +1910,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 									.build();
 						}
 						NavControllerExtKt.navigateF(navController,
-								R.id.nav_to_rts_route_screen,
-								RTSRouteFragment.newInstanceArgs(rts),
+								R.id.nav_to_rds_route_screen,
+								RDSRouteFragment.newInstanceArgs(rds),
 								null,
 								extras
 						);
 					} else {
 						final Activity activity = POIArrayAdapter.this.getActivity();
 						if (!(activity instanceof MainActivity)) {
-							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
+							MTLog.w(POIArrayAdapter.this, "No activity available to open RDS fragment!");
 							return;
 						}
 						((MainActivity) activity).addFragmentToStack(
-								RTSRouteFragment.newInstance(rts),
+								RDSRouteFragment.newInstance(rds),
 								view
 						);
 					}
@@ -2200,10 +2200,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private static class RouteTripStopViewHolder extends CommonViewHolder {
 		TextView routeShortNameTv;
 		View routeFL;
-		View rtsExtraV;
+		View rdsExtraV;
 		MTJPathsView routeTypeImg;
-		TextView tripHeadingTv;
-		View tripHeadingBg;
+		TextView directionHeadingTv;
+		View directionHeadingBg;
 	}
 
 	private static class BasicPOIViewHolder extends CommonViewHolder {

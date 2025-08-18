@@ -61,7 +61,7 @@ import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.RouteTripStop;
+import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.NewsProviderContract;
@@ -350,7 +350,7 @@ public class POIFragment extends ABFragment implements
 		POIViewController.updateView(getPOIView(view), this.poim, this);
 		POIStatusDetailViewController.updateView(getPOIStatusView(view), this.poim, this);
 		POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), this.poim, this);
-		setupRTSFullScheduleBtn(view);
+		setupRDSFullScheduleBtn(view);
 		setupMoreNewsButton(view);
 		setupAppUpdateButton(view);
 		setupAppWasDisabledButton(view);
@@ -507,7 +507,7 @@ public class POIFragment extends ABFragment implements
 		}));
 		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
-		viewModel.getScheduleProviders().observe(getViewLifecycleOwner(), scheduleProviders -> setupRTSFullScheduleBtn(getView()));
+		viewModel.getScheduleProviders().observe(getViewLifecycleOwner(), scheduleProviders -> setupRDSFullScheduleBtn(getView()));
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
 		setupView(view);
@@ -684,21 +684,21 @@ public class POIFragment extends ABFragment implements
 		setupNewsLayout(view);
 	}
 
-	private void setupRTSFullScheduleBtn(View view) {
+	private void setupRDSFullScheduleBtn(View view) {
 		if (view == null) {
 			return;
 		}
-		View rtsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
+		View rdsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		Collection<ScheduleProviderProperties> scheduleProviders;
-		if (rtsScheduleBtn != null) {
+		if (rdsScheduleBtn != null) {
 			scheduleProviders = this.viewModel == null ? null : this.viewModel.getScheduleProviders().getValue();
 			if (scheduleProviders == null || scheduleProviders.isEmpty()) {
-				rtsScheduleBtn.setVisibility(View.GONE);
+				rdsScheduleBtn.setVisibility(View.GONE);
 			} else {
-				rtsScheduleBtn.setOnClickListener(v -> {
+				rdsScheduleBtn.setOnClickListener(v -> {
 					final POIManager poim = getPoimOrNull();
-					if (poim == null || !(poim.poi instanceof RouteTripStop)) {
-						MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
+					if (poim == null || !(poim.poi instanceof RouteDirectionStop)) {
+						MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RDS)");
 						return;
 					}
 					poiRepository.push(poim);
@@ -727,7 +727,7 @@ public class POIFragment extends ABFragment implements
 								POIFragment.this);
 					}
 				});
-				rtsScheduleBtn.setVisibility(View.VISIBLE);
+				rdsScheduleBtn.setVisibility(View.VISIBLE);
 			}
 		}
 	}
@@ -835,7 +835,7 @@ public class POIFragment extends ABFragment implements
 			if (layoutResId != null) {
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).setLayoutResource(layoutResId);
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).inflate(); // inflate
-				setupRTSFullScheduleBtn(view);
+				setupRDSFullScheduleBtn(view);
 			}
 		}
 		return view.findViewById(R.id.poi_status_detail);
@@ -1104,7 +1104,7 @@ public class POIFragment extends ABFragment implements
 			POIViewController.updateView(getPOIView(view), poim, this);
 			POIStatusDetailViewController.updateView(getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), poim, this);
-			setupRTSFullScheduleBtn(view);
+			setupRDSFullScheduleBtn(view);
 			setupMoreNewsButton(view);
 			setupAppUpdateButton(view);
 			setupAppWasDisabledButton(view);

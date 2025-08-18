@@ -23,7 +23,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
@@ -339,7 +339,7 @@ class MapViewModel @Inject constructor(
             coroutineScope.ensureActive()
             positionTrunc = POIMarker.getLatLngTrunc(poim)
             name = poim.poi.name
-            extra = (poim.poi as? RouteTripStop)?.route?.shortestName
+            extra = (poim.poi as? RouteDirectionStop)?.route?.shortestName
             uuid = poim.poi.uuid
             authority = poim.poi.authority
             color = poim.getColor(dataSourcesRepository)

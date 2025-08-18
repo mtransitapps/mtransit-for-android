@@ -131,7 +131,7 @@ class DataSourcesReader @Inject constructor(
     private val newsProviderMetaData by lazy { appContext.getString(commonsR.string.news_provider) }
 
     private val agencyProviderTypeMetaData by lazy { appContext.getString(commonsR.string.agency_provider_type) }
-    private val rtsProviderMetaData by lazy { appContext.getString(commonsR.string.rts_provider) }
+    private val rdsProviderMetaData by lazy { appContext.getString(commonsR.string.rds_provider) }
 
     private val statusProviderTargetMetaData by lazy { appContext.getString(commonsR.string.status_provider_target) }
     private val scheduleProviderTargetMetaData by lazy { appContext.getString(commonsR.string.schedule_provider_target) }
@@ -512,13 +512,13 @@ class DataSourcesReader @Inject constructor(
             }
             return
         }
-        val isRTS = providerMetaData.isKeyMT(rtsProviderMetaData)
-        val logo = if (isRTS) this.dataSourceRequestManager.findAgencyRTSRouteLogo(agencyAuthority) else null
+        val isRDS = providerMetaData.isKeyMT(rdsProviderMetaData)
+        val logo = if (isRDS) this.dataSourceRequestManager.findAgencyRDSRouteLogo(agencyAuthority) else null
         val trigger = if (triggerUpdate) agencyProperties?.let { it.trigger + 1 } ?: 0 else 0
         val newAgencyProperties = this.dataSourceRequestManager.findAgencyProperties(
             agencyAuthority,
             agencyType,
-            isRTS,
+            isRDS,
             logo,
             pkg,
             longVersionCode,

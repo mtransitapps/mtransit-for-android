@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.type.rts
+package org.mtransit.android.ui.type.rds
 
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -25,7 +25,7 @@ import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
-class RTSAgencyRoutesViewModel @Inject constructor(
+class RDSAgencyRoutesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
@@ -33,7 +33,7 @@ class RTSAgencyRoutesViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RTSAgencyRoutesViewModel::class.java.simpleName
+        private val LOG_TAG = RDSAgencyRoutesViewModel::class.java.simpleName
 
         internal const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_COLOR_INT = "extra_color_int"
@@ -57,7 +57,7 @@ class RTSAgencyRoutesViewModel @Inject constructor(
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             authority?.let {
                 emit(
-                    dataSourceRequestManager.findAllRTSAgencyRoutes(authority)
+                    dataSourceRequestManager.findAllRDSAgencyRoutes(authority)
                         ?.sortedWith(Route.SHORT_NAME_COMPARATOR)
                 )
             }
@@ -93,8 +93,8 @@ class RTSAgencyRoutesViewModel @Inject constructor(
                 authority?.let { authorityNN ->
                     emitSource(
                         defaultPrefRepository.pref.liveData(
-                            DefaultPreferenceRepository.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authorityNN),
-                            defaultPrefRepository.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routesNN.size)
+                            DefaultPreferenceRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authorityNN),
+                            defaultPrefRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routesNN.size)
                         )
                     )
                 }
@@ -105,7 +105,7 @@ class RTSAgencyRoutesViewModel @Inject constructor(
     fun saveShowingListInsteadOfGrid(showingListInsteadOfGrid: Boolean) {
         defaultPrefRepository.pref.edit {
             _authority.value?.let { authority ->
-                putBoolean(DefaultPreferenceRepository.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority), showingListInsteadOfGrid)
+                putBoolean(DefaultPreferenceRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority), showingListInsteadOfGrid)
             }
         }
     }
