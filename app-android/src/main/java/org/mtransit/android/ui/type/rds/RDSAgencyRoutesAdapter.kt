@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.type.rts
+package org.mtransit.android.ui.type.rds
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -15,19 +15,19 @@ import org.mtransit.android.commons.dp
 import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.IAgencyUIProperties
-import org.mtransit.android.databinding.LayoutRtsRouteItemBinding
+import org.mtransit.android.databinding.LayoutRdsRouteItemBinding
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.setPadding
 import org.mtransit.android.util.UIRouteUtils
 
-class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyProperties) -> Unit) :
-    ListAdapter<Route, RTSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
+class RDSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyProperties) -> Unit) :
+    ListAdapter<Route, RDSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RTSAgencyRoutesAdapter::class.java.simpleName
+        private val LOG_TAG = RDSAgencyRoutesAdapter::class.java.simpleName
     }
 
     private var theLogTag: String = LOG_TAG
@@ -88,11 +88,11 @@ class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
     }
 
     class RouteViewHolder private constructor(
-        private val binding: LayoutRtsRouteItemBinding
+        private val binding: LayoutRdsRouteItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): RouteViewHolder {
-                val binding = LayoutRtsRouteItemBinding.inflate(
+                val binding = LayoutRdsRouteItemBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false

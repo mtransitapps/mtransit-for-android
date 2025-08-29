@@ -30,7 +30,7 @@ package org.mtransit.android.ui.poi
 //import org.mtransit.android.commons.data.News
 //import org.mtransit.android.commons.data.POI
 //import org.mtransit.android.commons.data.POIStatus
-//import org.mtransit.android.commons.data.RouteTripStop
+//import org.mtransit.android.commons.data.RouteDirectionStop
 //import org.mtransit.android.commons.data.ServiceUpdate
 //import org.mtransit.android.commons.provider.NewsProviderContract
 //import org.mtransit.android.data.AgencyProperties
@@ -128,7 +128,7 @@ package org.mtransit.android.ui.poi
 //
 // private var binding: FragmentPoiBinding? = null
 // private var thisPoiBinding: ViewBinding? = null
-// private var rtsScheduleBtn: View? = null
+// private var rdsScheduleBtn: View? = null
 // private var poiStatusDetailBinding: ViewBinding? = null
 // private var poiServiceUpdateBinding: ViewBinding? = null
 // private var poiAppUpdateBinding: LayoutPoiAppUpdateBinding? = null
@@ -280,10 +280,10 @@ package org.mtransit.android.ui.poi
 // updatePOIServiceUpdatesView(poiView = inflated)
 // }
 // poiStatusDetailStub.setOnInflateListener { _, inflated ->
-// rtsScheduleBtn = inflated.findViewById<View>(R.id.fullScheduleBtn)?.apply {
+// rdsScheduleBtn = inflated.findViewById<View>(R.id.fullScheduleBtn)?.apply {
 // setOnClickListener {
 // viewModel.poimV?.let { poim ->
-// (poim.poi as? RouteTripStop)?.let {
+// (poim.poi as? RouteDirectionStop)?.let {
 // (activity as? MainActivity)?.addFragmentToStack(
 // ScheduleFragment.newInstance(poim, dataSourcesRepository),
 // this@POIFragment
@@ -291,7 +291,7 @@ package org.mtransit.android.ui.poi
 // }
 // }
 // }
-// setupRTSFullScheduleBtn(rtsScheduleBtn = this)
+// setupRDSFullScheduleBtn(rdsScheduleBtn = this)
 // }
 // updateStatusDetailView(statusDetailView = inflated)
 // updateStatusDetailColorView(statusDetailView = inflated)
@@ -470,7 +470,7 @@ package org.mtransit.android.ui.poi
 // // TODO ? updateNewsView()
 // // updateFavMenuItem(poim = poim)
 // activity?.invalidateOptionsMenu() // add/remove star from action bar
-// // setupRTSFullScheduleBtn()
+// // setupRDSFullScheduleBtn()
 // // setupMoreNewsButton()
 // // setupMoreNearbyButton()
 // // setupNearbyList()
@@ -479,7 +479,7 @@ package org.mtransit.android.ui.poi
 // viewModel.scheduleProviders.observe(viewLifecycleOwner, {
 // // val poim = viewModel.poimV
 // // getPOIStatusViewBinding(poim) as? POI
-// setupRTSFullScheduleBtn(scheduleProviders = it)
+// setupRDSFullScheduleBtn(scheduleProviders = it)
 // })
 // viewModel.poiFavorite.observe(viewLifecycleOwner, {
 // MTLog.v(this, "onChanged($it) - poiFavorite")
@@ -712,11 +712,11 @@ package org.mtransit.android.ui.poi
 // }?.also { poiNewsBinding = it }
 // }
 //
-// private fun setupRTSFullScheduleBtn(
-// rtsScheduleBtn: View? = this.rtsScheduleBtn,
+// private fun setupRDSFullScheduleBtn(
+// rdsScheduleBtn: View? = this.rdsScheduleBtn,
 // scheduleProviders: List<ScheduleProviderProperties>? = viewModel.scheduleProviders.value,
 // ) {
-// rtsScheduleBtn?.isVisible = !scheduleProviders.isNullOrEmpty()
+// rdsScheduleBtn?.isVisible = !scheduleProviders.isNullOrEmpty()
 // }
 //
 // private fun refreshAppUpdateLayout(
@@ -987,7 +987,7 @@ package org.mtransit.android.ui.poi
 // override fun onDestroyView() {
 // super.onDestroyView()
 // mapViewController.onDestroyView()
-// rtsScheduleBtn = null
+// rdsScheduleBtn = null
 // thisPoiBinding = null
 // poiStatusDetailBinding = null
 // poiRewardedAdBinding = null

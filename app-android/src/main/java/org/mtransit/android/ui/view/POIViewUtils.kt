@@ -29,17 +29,17 @@ object POIViewUtils {
     ) {
         val colorInt: Int = UIColorUtils.adaptBackgroundColorToLightText(view.context, originalColorInt)
         when (poiType) {
-            POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP -> {
+            POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP -> {
                 view.setBackgroundTintList(null)
                 view.background = GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
                     intArrayOf(colorInt, colorInt)
                 ).apply {
                     shape = GradientDrawable.RECTANGLE
-                    val topLeftRadius = view.resources.getDimension(R.dimen.extra_route_trip_radius_top_left)
-                    val topRightRadius = view.resources.getDimension(R.dimen.extra_route_trip_radius_top_right)
-                    val bottomLeftRadius = view.resources.getDimension(R.dimen.extra_route_trip_radius_bottom_left)
-                    val bottomRightRadius = view.resources.getDimension(R.dimen.extra_route_trip_radius_bottom_right)
+                    val topLeftRadius = view.resources.getDimension(R.dimen.extra_route_direction_radius_top_left)
+                    val topRightRadius = view.resources.getDimension(R.dimen.extra_route_direction_radius_top_right)
+                    val bottomLeftRadius = view.resources.getDimension(R.dimen.extra_route_direction_radius_bottom_left)
+                    val bottomRightRadius = view.resources.getDimension(R.dimen.extra_route_direction_radius_bottom_right)
                     cornerRadii = floatArrayOf(
                         topLeftRadius, topLeftRadius,
                         topRightRadius, topRightRadius,
