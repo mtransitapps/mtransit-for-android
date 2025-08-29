@@ -483,7 +483,7 @@ public class POIViewController implements MTLog.Loggable {
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rdsExtraV.setVisibility(View.VISIBLE);
-				//noinspection ConstantConditions // trip always non-null?
+				//noinspection ConstantConditions // always non-null?
 				if (rds.getDirection() == null) {
 					holder.directionHeadingBg.setVisibility(View.GONE);
 				} else {
@@ -495,7 +495,6 @@ public class POIViewController implements MTLog.Loggable {
 					holder.directionHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
 					holder.directionHeadingBg.setVisibility(View.VISIBLE);
 				}
-				//noinspection ConstantConditions // stop always non-null?
 				holder.rdsExtraV.setOnClickListener(view -> {
 					MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
 					if (FeatureFlags.F_NAVIGATION) {
@@ -585,7 +584,7 @@ public class POIViewController implements MTLog.Loggable {
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rdsExtraV.setVisibility(View.VISIBLE);
-				//noinspection ConstantConditions // trip always non-null?
+				//noinspection ConstantConditions // always non-null?
 				if (rds.getDirection() == null) {
 					holder.directionHeadingBg.setVisibility(View.GONE);
 				} else {
