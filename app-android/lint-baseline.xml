@@ -3975,8 +3975,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteTripStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
             line="1841"
@@ -3986,7 +3986,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteTripStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
+        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
@@ -3997,8 +3997,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteTripStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
             line="1841"
@@ -4008,8 +4008,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteTripStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
-        errorLine2="                                                                                        ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
+        errorLine2="                                                                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
             line="1841"
@@ -4019,8 +4019,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteTripStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
-        errorLine2="                                                                                                              ~~~~~~~~~~~">
+        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
+        errorLine2="                                                                                                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
             line="1841"
@@ -5650,7 +5650,7 @@
         errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="173"
             column="9"/>
     </issue>
@@ -5661,7 +5661,7 @@
         errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="173"
             column="41"/>
     </issue>
@@ -5672,7 +5672,7 @@
         errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="178"
             column="9"/>
     </issue>
@@ -5683,7 +5683,7 @@
         errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
         errorLine2="                                             ~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="178"
             column="46"/>
     </issue>
@@ -5694,7 +5694,7 @@
         errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="178"
             column="52"/>
     </issue>
@@ -5705,7 +5705,7 @@
         errorLine1="            mapViewController.logTag = this@RDSDirectionStopsFragment.logTag"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="212"
             column="13"/>
     </issue>
@@ -5716,7 +5716,7 @@
         errorLine1="            mapViewController.logTag = this@RDSDirectionStopsFragment.logTag"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="212"
             column="40"/>
     </issue>
@@ -5727,7 +5727,7 @@
         errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="215"
             column="13"/>
     </issue>
@@ -5738,7 +5738,7 @@
         errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
         errorLine2="                                                      ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="215"
             column="55"/>
     </issue>
@@ -5749,7 +5749,7 @@
         errorLine1="                    mapViewController.onResume()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="224"
             column="21"/>
     </issue>
@@ -5760,7 +5760,7 @@
         errorLine1="                    mapViewController.onPause()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="226"
             column="21"/>
     </issue>
@@ -5771,7 +5771,7 @@
         errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="254"
             column="13"/>
     </issue>
@@ -5782,7 +5782,7 @@
         errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="254"
             column="51"/>
     </issue>
@@ -5793,7 +5793,7 @@
         errorLine1="                    mapViewController.hideMap()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="311"
             column="21"/>
     </issue>
@@ -5804,7 +5804,7 @@
         errorLine1="                    mapViewController.hideMap()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="318"
             column="21"/>
     </issue>
@@ -5815,7 +5815,7 @@
         errorLine1="                        mapViewController.showMap(view)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="327"
             column="25"/>
     </issue>
@@ -5826,7 +5826,7 @@
         errorLine1="                        mapViewController.showMap(view)"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="327"
             column="51"/>
     </issue>
@@ -5837,7 +5837,7 @@
         errorLine1="                        mapViewController.hideMap()"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="329"
             column="25"/>
     </issue>
@@ -5848,7 +5848,7 @@
         errorLine1="                        mapViewController.showMap(view)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="333"
             column="25"/>
     </issue>
@@ -5859,7 +5859,7 @@
         errorLine1="                        mapViewController.showMap(view)"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="333"
             column="51"/>
     </issue>
@@ -5870,7 +5870,7 @@
         errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="344"
             column="13"/>
     </issue>
@@ -5881,7 +5881,7 @@
         errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="344"
             column="38"/>
     </issue>
@@ -5892,7 +5892,7 @@
         errorLine1="            onAttach(requireActivity())"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="345"
             column="13"/>
     </issue>
@@ -5903,7 +5903,7 @@
         errorLine1="            onAttach(requireActivity())"
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="345"
             column="22"/>
     </issue>
@@ -5914,7 +5914,7 @@
         errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="346"
             column="13"/>
     </issue>
@@ -5925,7 +5925,7 @@
         errorLine1="        mapViewController.onSaveInstanceState(outState)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="351"
             column="9"/>
     </issue>
@@ -5936,7 +5936,7 @@
         errorLine1="        mapViewController.onSaveInstanceState(outState)"
         errorLine2="                                              ~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="351"
             column="47"/>
     </issue>
@@ -5947,7 +5947,7 @@
         errorLine1="        this.mapViewController.onDetach()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="357"
             column="9"/>
     </issue>
@@ -5958,7 +5958,7 @@
         errorLine1="            mapViewController.onResume()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="365"
             column="13"/>
     </issue>
@@ -5969,7 +5969,7 @@
         errorLine1="        mapViewController.onPause()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="374"
             column="9"/>
     </issue>
@@ -5980,7 +5980,7 @@
         errorLine1="        super.onLowMemory()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="379"
             column="9"/>
     </issue>
@@ -5991,7 +5991,7 @@
         errorLine1="        mapViewController.onLowMemory()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="380"
             column="9"/>
     </issue>
@@ -6002,7 +6002,7 @@
         errorLine1="        mapViewController.onDestroyView()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="386"
             column="9"/>
     </issue>
@@ -6013,7 +6013,7 @@
         errorLine1="        mapViewController.onDestroy()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/RDSDirectionStopsFragment.kt"
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="393"
             column="9"/>
     </issue>
