@@ -228,7 +228,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 switchView(listInsteadOfMap)
             }
         }
-        viewModel.selectedTripStopId.observe(viewLifecycleOwner) {
+        viewModel.selectedStopId.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
         viewModel.closestPOIShown.observe(viewLifecycleOwner) {
@@ -236,7 +236,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             var currentSelectedItemIndexUuid: Pair<Int?, String?>? = null
-            val selectedStopId = viewModel.selectedTripStopId.value
+            val selectedStopId = viewModel.selectedStopId.value
             val closestPOIShow = viewModel.closestPOIShown.value
             if (selectedStopId != null || closestPOIShow != true) {
                 if (selectedStopId != null) {

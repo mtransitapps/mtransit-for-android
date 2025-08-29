@@ -64,7 +64,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     val directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
 
-    val selectedTripStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
+    val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
         .map { if (it < 0) null else it }
 
     val closestPOIShown = savedStateHandle.getLiveDataDistinct(EXTRA_CLOSEST_POI_SHOWN, EXTRA_CLOSEST_POI_SHOWN_DEFAULT)
