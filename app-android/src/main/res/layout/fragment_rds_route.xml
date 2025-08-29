@@ -64,7 +64,7 @@
         android:layout_below="@id/tabs"
         android:orientation="horizontal"
         android:visibility="visible"
-        tools:layout="@layout/fragment_rds_trip_stops"
+        tools:layout="@layout/fragment_rds_direction_stops"
         tools:visibility="visible" />
     <!-- EMPTY -->
     <include

@@ -24,7 +24,7 @@
         android:paddingBottom="@dimen/list_view_item_height"
         android:scrollbarStyle="insideOverlay"
         android:visibility="visible"
-        tools:listitem="@layout/layout_rts_route_item"
+        tools:listitem="@layout/layout_rds_route_item"
         tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -62,11 +62,11 @@ class RDSRouteDirectionPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLo
 
     override fun createFragment(position: Int): Fragment {
         val authority: String = this.authority ?: throw RuntimeException("Trying to create fragment w/ authority at $position!")
-        val trip = routeDirections?.getOrNull(position) ?: throw RuntimeException("Trying to create fragment at $position!")
+        val direction = routeDirections?.getOrNull(position) ?: throw RuntimeException("Trying to create fragment at $position!")
         return RDSDirectionStopsFragment.Companion.newInstance(
             authority,
-            trip.routeId,
-            trip.id,
+            direction.routeId,
+            direction.id,
             this.selectedStopId,
         )
     }

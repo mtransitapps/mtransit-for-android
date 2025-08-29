@@ -291,7 +291,7 @@ package org.mtransit.android.ui.poi
 // }
 // }
 // }
-// setupRTSFullScheduleBtn(rdsScheduleBtn = this)
+// setupRDSFullScheduleBtn(rdsScheduleBtn = this)
 // }
 // updateStatusDetailView(statusDetailView = inflated)
 // updateStatusDetailColorView(statusDetailView = inflated)
@@ -470,7 +470,7 @@ package org.mtransit.android.ui.poi
 // // TODO ? updateNewsView()
 // // updateFavMenuItem(poim = poim)
 // activity?.invalidateOptionsMenu() // add/remove star from action bar
-// // setupRTSFullScheduleBtn()
+// // setupRDSFullScheduleBtn()
 // // setupMoreNewsButton()
 // // setupMoreNearbyButton()
 // // setupNearbyList()
@@ -479,7 +479,7 @@ package org.mtransit.android.ui.poi
 // viewModel.scheduleProviders.observe(viewLifecycleOwner, {
 // // val poim = viewModel.poimV
 // // getPOIStatusViewBinding(poim) as? POI
-// setupRTSFullScheduleBtn(scheduleProviders = it)
+// setupRDSFullScheduleBtn(scheduleProviders = it)
 // })
 // viewModel.poiFavorite.observe(viewLifecycleOwner, {
 // MTLog.v(this, "onChanged($it) - poiFavorite")
@@ -712,7 +712,7 @@ package org.mtransit.android.ui.poi
 // }?.also { poiNewsBinding = it }
 // }
 //
-// private fun setupRTSFullScheduleBtn(
+// private fun setupRDSFullScheduleBtn(
 // rdsScheduleBtn: View? = this.rdsScheduleBtn,
 // scheduleProviders: List<ScheduleProviderProperties>? = viewModel.scheduleProviders.value,
 // ) {

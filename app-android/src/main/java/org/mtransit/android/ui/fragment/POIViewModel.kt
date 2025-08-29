@@ -135,7 +135,7 @@ class POIViewModel @Inject constructor(
         return this.route.id == other.route.id
     }
 
-    private fun POI.isSameRouteTrip(other: POI): Boolean {
+    private fun POI.isSameRouteDirection(other: POI): Boolean {
         if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
         return this.route.id == other.route.id
                 && this.direction.id == other.direction.id
@@ -198,7 +198,7 @@ class POIViewModel @Inject constructor(
                             )
                             ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
                             ?.removeAllAnd { nearbyPOIs.contains(it) }
-                            ?.removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteTrip(new.poi) } }
+                            ?.removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteDirection(new.poi) } }
                             ?.also {
                                 if (!nearbyAgencyPOIAdded
                                     && nearbyAgency.authority == agency.authority && it.isNotEmpty()
@@ -209,7 +209,7 @@ class POIViewModel @Inject constructor(
                     )
                 }
             nearbyPOIs.sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
-            removeDuplicateRouteTrip(sortedPOIMList = nearbyPOIs)
+            removeDuplicateRouteDirection(sortedPOIMList = nearbyPOIs)
             val firstRelevantDistance = nearbyPOIs.firstOrNull { it.distance > 0f && !it.poi.isSameRoute(excludedPoi) }?.distance
             val firstLastDistanceDiff = nearbyPOIs.takeIf { it.size >= 2 }?.let { it.last().distance - it.first().distance }
                 ?.takeIf { it > 0f }?.coerceAtMost(maxDistanceInMeters)
@@ -281,19 +281,19 @@ class POIViewModel @Inject constructor(
         return nearbyPOIs
     }
 
-    private fun removeDuplicateRouteTrip(sortedPOIMList: MutableList<POIManager>) {
+    private fun removeDuplicateRouteDirection(sortedPOIMList: MutableList<POIManager>) {
         val it = sortedPOIMList.iterator()
-        val routeTripKept = mutableSetOf<String>()
+        val routeDirectionKept = mutableSetOf<String>()
         while (it.hasNext()) {
             val poim = it.next()
             if (poim.poi is RouteDirectionStop) { // RDS
                 val rds: RouteDirectionStop = poim.poi
-                val routeTripId = "${rds.route.id}-${rds.direction.id}"
-                if (routeTripKept.contains(routeTripId)) {
+                val routeDirectionId = "${rds.route.id}-${rds.direction.id}"
+                if (routeDirectionKept.contains(routeDirectionId)) {
                     it.remove()
                     continue
                 }
-                routeTripKept += "${poim.poi.route.id}-${poim.poi.direction.id}"
+                routeDirectionKept += "${poim.poi.route.id}-${poim.poi.direction.id}"
             }
         }
     }

@@ -503,7 +503,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			return getModuleView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
-			return getRouteTripStopView(poim, convertView, parent);
+			return getRouteDirectionStopView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			return getBasicPOIView(poim, convertView, parent);
 		default:
@@ -1810,21 +1810,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@UiThread
 	@NonNull
-	private View getRouteTripStopView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
+	private View getRouteDirectionStopView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getRDSLayout(poim.getStatusType()), parent, false);
-			RouteTripStopViewHolder holder = new RouteTripStopViewHolder();
+			RouteDirectionStopViewHolder holder = new RouteDirectionStopViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
 			initRDSExtra(convertView, holder);
 			holder.statusViewHolder = POICommonStatusViewHolder.init(poim.poi, convertView);
 			holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poim.poi, convertView);
 			convertView.setTag(holder);
 		}
-		updateRouteTripStopView(poim, convertView);
+		updateRouteDirectionStopView(poim, convertView);
 		return convertView;
 	}
 
-	private void initRDSExtra(@NonNull View convertView, @NonNull RouteTripStopViewHolder holder) {
+	private void initRDSExtra(@NonNull View convertView, @NonNull RouteDirectionStopViewHolder holder) {
 		holder.rdsExtraV = convertView.findViewById(R.id.extra);
 		holder.routeFL = convertView.findViewById(R.id.route);
 		holder.routeShortNameTv = convertView.findViewById(R.id.route_short_name);
@@ -1836,12 +1836,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@SuppressWarnings("UnusedReturnValue")
 	@UiThread
 	@NonNull
-	private View updateRouteTripStopView(@NonNull POIManager poim, @NonNull View convertView) {
-		if (!(convertView.getTag() instanceof RouteTripStopViewHolder)) {
-			CrashUtils.w(this, "updateRouteTripStopView() > unexpected holder class '%s'! (%s)", convertView.getTag(), getLogTag());
+	private View updateRouteDirectionStopView(@NonNull POIManager poim, @NonNull View convertView) {
+		if (!(convertView.getTag() instanceof RouteDirectionStopViewHolder)) {
+			CrashUtils.w(this, "updateRouteDirectionStopView() > unexpected holder class '%s'! (%s)", convertView.getTag(), getLogTag());
 			return convertView;
 		}
-		RouteTripStopViewHolder holder = (RouteTripStopViewHolder) convertView.getTag();
+		RouteDirectionStopViewHolder holder = (RouteDirectionStopViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		updateRDSExtra(poim, holder);
 		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
@@ -1856,7 +1856,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@UiThread
-	private void updateRDSExtra(POIManager poim, RouteTripStopViewHolder holder) {
+	private void updateRDSExtra(POIManager poim, RouteDirectionStopViewHolder holder) {
 		if (poim.poi instanceof RouteDirectionStop) {
 			RouteDirectionStop rds = (RouteDirectionStop) poim.poi;
 			if (!this.showExtra) {
@@ -2197,7 +2197,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		ImageView moduleExtraTypeImg;
 	}
 
-	private static class RouteTripStopViewHolder extends CommonViewHolder {
+	private static class RouteDirectionStopViewHolder extends CommonViewHolder {
 		TextView routeShortNameTv;
 		View routeFL;
 		View rdsExtraV;

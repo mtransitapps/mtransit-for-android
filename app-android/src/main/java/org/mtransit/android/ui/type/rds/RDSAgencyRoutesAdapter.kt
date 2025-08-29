@@ -15,7 +15,7 @@ import org.mtransit.android.commons.dp
 import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.IAgencyUIProperties
-import org.mtransit.android.databinding.LayoutRtsRouteItemBinding
+import org.mtransit.android.databinding.LayoutRdsRouteItemBinding
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
@@ -88,11 +88,11 @@ class RDSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
     }
 
     class RouteViewHolder private constructor(
-        private val binding: LayoutRtsRouteItemBinding
+        private val binding: LayoutRdsRouteItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): RouteViewHolder {
-                val binding = LayoutRtsRouteItemBinding.inflate(
+                val binding = LayoutRdsRouteItemBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false

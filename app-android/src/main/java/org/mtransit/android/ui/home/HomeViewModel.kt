@@ -11,7 +11,6 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
-import com.squareup.okhttp.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -262,14 +261,14 @@ class HomeViewModel @Inject constructor(
         val it = typePOIs.iterator()
         var nbKept = 0
         var lastKeptDistance = -1f
-        val routeTripKept = mutableSetOf<String>()
+        val routeDirectionKept = mutableSetOf<String>()
         while (it.hasNext()) {
             val poim = it.next()
             if (!favoriteUUIDs.contains(poim.poi.uuid)) {
                 if (poim.poi is RouteDirectionStop) { // RDS
                     val rds: RouteDirectionStop = poim.poi
-                    val routeTripId = "${rds.route.id}-${rds.direction.id}"
-                    if (routeTripKept.contains(routeTripId)) {
+                    val routeDirectionId = "${rds.route.id}-${rds.direction.id}"
+                    if (routeDirectionKept.contains(routeDirectionId)) {
                         it.remove()
                         continue
                     }
@@ -285,7 +284,7 @@ class HomeViewModel @Inject constructor(
                 continue
             }
             if (poim.poi is RouteDirectionStop) {
-                routeTripKept += "${poim.poi.route.id}-${poim.poi.direction.id}"
+                routeDirectionKept += "${poim.poi.route.id}-${poim.poi.direction.id}"
             }
             lastKeptDistance = poim.distance
             nbKept++

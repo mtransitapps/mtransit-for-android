@@ -18,7 +18,7 @@ import org.mtransit.android.commons.findClosestPOISIdxUuid
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.databinding.FragmentRdsTripStopsBinding
+import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
@@ -39,7 +39,7 @@ import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_trip_stops) {
+class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_stops) {
 
     companion object {
         private val LOG_TAG = RDSDirectionStopsFragment::class.java.simpleName
@@ -48,14 +48,14 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_trip_stops) 
         fun newInstance(
             agencyAuthority: String,
             routeId: Long,
-            tripId: Long,
+            directionId: Long,
             optSelectedStopId: Int? = null,
         ): RDSDirectionStopsFragment {
             return RDSDirectionStopsFragment().apply {
                 arguments = bundleOf(
                     RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
                     RDSDirectionStopsViewModel.EXTRA_ROUTE_ID to routeId,
-                    RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to tripId,
+                    RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to directionId,
                     RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
                 )
             }
@@ -75,7 +75,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_trip_stops) 
     private val attachedParentViewModel
         get() = if (isAttached()) parentViewModel else null
 
-    private var binding: FragmentRdsTripStopsBinding? = null
+    private var binding: FragmentRdsDirectionStopsBinding? = null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -163,7 +163,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_trip_stops) 
             this.serviceUpdateLoader
         ).apply {
             logTag = this@RDSDirectionStopsFragment.logTag
-            setShowExtra(false) // show route short name & trip direction
+            setShowExtra(false) // show route short name & direction
             setLocation(attachedParentViewModel?.deviceLocation?.value)
         }
     }
@@ -176,7 +176,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_trip_stops) 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
-        binding = FragmentRdsTripStopsBinding.bind(view).apply {
+        binding = FragmentRdsDirectionStopsBinding.bind(view).apply {
             listLayout.list.apply {
                 isVisible = listAdapter.isInitialized
                 listAdapter.setListView(this)
@@ -206,8 +206,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_trip_stops) 
                 }
             }
         }
-        viewModel.tripId.observe(viewLifecycleOwner) { tripId ->
-            theLogTag = tripId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
+        viewModel.directionId.observe(viewLifecycleOwner) { directionId ->
+            theLogTag = directionId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             listAdapter.logTag = this@RDSDirectionStopsFragment.logTag
             mapViewController.logTag = this@RDSDirectionStopsFragment.logTag
         }

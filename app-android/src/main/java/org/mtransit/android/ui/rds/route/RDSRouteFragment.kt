@@ -107,7 +107,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
     private fun makePagerAdapter() = RDSRouteDirectionPagerAdapter(this).apply {
         setSelectedStopId(attachedViewModel?.selectedStopId?.value)
         setAuthority(attachedViewModel?.authority?.value)
-        setRouteDirections(attachedViewModel?.routeTrips?.value)
+        setRouteDirections(attachedViewModel?.routeDirections?.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -140,7 +140,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
                 TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
-                    tab.text = viewModel.routeTrips.value?.get(position)?.decorateDirection(this.context, small = false, centered = false)
+                    tab.text = viewModel.routeDirections.value?.get(position)?.decorateDirection(this.context, small = false, centered = false)
                 }.attach()
             }
             if (FeatureFlags.F_NAVIGATION) {
@@ -191,19 +191,19 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
             }
             abController?.setABBgColor(this, getABBgColor(context), true)
         }
-        viewModel.routeTrips.observe(viewLifecycleOwner) { routeTrips ->
-            if (pagerAdapter?.setRouteDirections(routeTrips) == true) {
+        viewModel.routeDirections.observe(viewLifecycleOwner) { routeDirections ->
+            if (pagerAdapter?.setRouteDirections(routeDirections) == true) {
                 showSelectedTab()
                 abController?.setABBgColor(this, getABBgColor(context), true)
             } else {
                 switchView()
             }
-            routeTrips?.let {
+            routeDirections?.let {
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
         }
-        viewModel.selectedRouteTripPosition.observe(viewLifecycleOwner) { newSelectedRouteTripPosition ->
-            newSelectedRouteTripPosition?.let {
+        viewModel.selectedRouteDirectionPosition.observe(viewLifecycleOwner) { newSelectedRouteDirectionPosition ->
+            newSelectedRouteDirectionPosition?.let {
                 if (this.lastPageSelected < 0) {
                     this.lastPageSelected = it
                     showSelectedTab()

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.rts.route.direction.RTSTripStopsFragment">
+    tools:context=".ui.rds.route.direction.RDSDirectionStopsFragment">
     <!-- MAP -->
     <org.mtransit.android.ui.view.common.MapViewInScroll
         android:id="@id/map"

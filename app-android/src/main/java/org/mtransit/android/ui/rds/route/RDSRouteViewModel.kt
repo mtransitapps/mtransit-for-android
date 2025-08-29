@@ -93,26 +93,26 @@ class RDSRouteViewModel @Inject constructor(
         route?.let { if (it.hasColor()) route.colorInt else agency?.colorInt }
     }
 
-    val routeTrips: LiveData<List<Direction>?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
+    val routeDirections: LiveData<List<Direction>?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getRouteTrips(authority, routeId))
+            emit(getRouteDirections(authority, routeId))
         }
     }
 
-    private suspend fun getRouteTrips(authority: String?, routeId: Long?): List<Direction>? {
+    private suspend fun getRouteDirections(authority: String?, routeId: Long?): List<Direction>? {
         if (authority == null || routeId == null) {
             return null
         }
-        return this.dataSourceRequestManager.findRDSRouteTrips(authority, routeId)
+        return this.dataSourceRequestManager.findRDSRouteDirections(authority, routeId)
     }
 
-    private val _selectedTripIdPref: LiveData<Long?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
+    private val _selectedDirectionIdPref: LiveData<Long?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
         if (authority == null || routeId == null) {
             MutableLiveData(null)
         } else {
             lclPrefRepository.pref.liveData(
                 LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(authority, routeId),
-                LocalPreferenceRepository.PREFS_LCL_RDS_ROUTE_TRIP_ID_TAB_DEFAULT
+                LocalPreferenceRepository.PREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB_DEFAULT
             )
         }
     }
@@ -120,16 +120,16 @@ class RDSRouteViewModel @Inject constructor(
     fun onPageSelected(position: Int) {
         this.statusLoader.clearAllTasks()
         this.serviceUpdateLoader.clearAllTasks()
-        saveSelectedRouteTripIdPosition(position)
+        saveSelectedRouteDirectionIdPosition(position)
     }
 
-    private fun saveSelectedRouteTripIdPosition(position: Int) {
-        saveSelectedRouteTripId(
-            routeTrips.value?.getOrNull(position) ?: return
+    private fun saveSelectedRouteDirectionIdPosition(position: Int) {
+        saveSelectedRouteDirectionId(
+            routeDirections.value?.getOrNull(position) ?: return
         )
     }
 
-    private fun saveSelectedRouteTripId(direction: Direction) {
+    private fun saveSelectedRouteDirectionId(direction: Direction) {
         val authority: String = this.authority.value ?: return
         val routeId: Long = this.routeId.value ?: return
         lclPrefRepository.pref.edit {
@@ -137,15 +137,15 @@ class RDSRouteViewModel @Inject constructor(
         }
     }
 
-    private val selectedTripId: LiveData<Long?> = PairMediatorLiveData(_selectedDirectionId, _selectedTripIdPref).map { (selectedTripId, selectedTripIdPref) ->
-        selectedTripId ?: selectedTripIdPref
+    private val selectedDirectionId: LiveData<Long?> = PairMediatorLiveData(_selectedDirectionId, _selectedDirectionIdPref).map { (selectedDirectionId, selectedDirectionIdPref) ->
+        selectedDirectionId ?: selectedDirectionIdPref
     }.distinctUntilChanged()
 
-    val selectedRouteTripPosition: LiveData<Int?> = PairMediatorLiveData(selectedTripId, routeTrips).map { (tripId, routeTrips) ->
-        if (tripId == null || routeTrips == null) {
+    val selectedRouteDirectionPosition: LiveData<Int?> = PairMediatorLiveData(selectedDirectionId, routeDirections).map { (directionId, routeDirections) ->
+        if (directionId == null || routeDirections == null) {
             null
         } else {
-            routeTrips.indexOfFirst { it.id == tripId }.coerceAtLeast(0)
+            routeDirections.indexOfFirst { it.id == directionId }.coerceAtLeast(0)
         }
     }
 }

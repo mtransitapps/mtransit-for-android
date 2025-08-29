@@ -605,7 +605,7 @@ class ScheduleAdapter
             timestamp: Schedule.Timestamp? = null,
             nowToTheMinuteInMs: Long = -1L,
             nextTimestamp: Schedule.Timestamp? = null,
-            optRts: RouteDirectionStop? = null,
+            optRds: RouteDirectionStop? = null,
             showingAccessibility: Boolean? = null,
         ) {
             if (timestamp == null) {
@@ -628,7 +628,7 @@ class ScheduleAdapter
             val timeOnly = timeSb.toString()
             if (timestamp.hasHeadsign()) {
                 val timestampHeading = timestamp.getHeading(context)
-                if (!Direction.isSameHeadsign(timestampHeading, optRts?.direction?.getHeading(context))) {
+                if (!Direction.isSameHeadsign(timestampHeading, optRds?.direction?.getHeading(context))) {
                     timeSb.append(P1).append(
                         timestamp.decorateDirection(context, false)
                     ).append(P2)
