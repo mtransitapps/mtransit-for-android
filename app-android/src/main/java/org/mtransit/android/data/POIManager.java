@@ -32,7 +32,7 @@ import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
-import org.mtransit.android.commons.data.RouteTripStop;
+import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
@@ -46,7 +46,7 @@ import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
-import org.mtransit.android.ui.rts.route.RTSRouteFragment;
+import org.mtransit.android.ui.rds.route.RDSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.util.LinkUtils;
@@ -280,9 +280,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_STATUS_TYPE_NONE:
 			return null;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			if (this.poi instanceof RouteTripStop) {
-				RouteTripStop rts = (RouteTripStop) this.poi;
-				ScheduleStatusFilter filter = new ScheduleStatusFilter(this.poi.getUUID(), rts);
+			if (this.poi instanceof RouteDirectionStop) {
+				RouteDirectionStop rds = (RouteDirectionStop) this.poi;
+				ScheduleStatusFilter filter = new ScheduleStatusFilter(this.poi.getUUID(), rds);
 				filter.setLookBehindInMs(UITimeUtils.RECENT_IN_MILLIS);
 				filter.setMaxDataRequests(this.scheduleMaxDataRequests);
 				return filter;
@@ -413,13 +413,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 									context.getString(R.string.remove_fav) : //
 							context.getString(R.string.add_fav) //
 			};
-		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
-			RouteTripStop rts = (RouteTripStop) this.poi;
+		case POI.ITEM_ACTION_TYPE_ROUTE_DIRECTION_STOP:
+			RouteDirectionStop rds = (RouteDirectionStop) this.poi;
 			return new CharSequence[]{ //
 					context.getString(R.string.view_stop), //
-					TextUtils.isEmpty(rts.getRoute().getShortName()) ? //
+					TextUtils.isEmpty(rds.getRoute().getShortName()) ? //
 							context.getString(R.string.view_stop_route) : //
-							context.getString(R.string.view_stop_route_and_route, rts.getRoute().getShortName()), //
+							context.getString(R.string.view_stop_route_and_route, rds.getRoute().getShortName()), //
 					favoriteManager.isFavorite(context, this.poi.getUUID()) ? //
 							favoriteManager.isUsingFavoriteFolders() ? //
 									context.getString(R.string.edit_fav) : //
@@ -477,8 +477,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return false; // NOT HANDLED
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return onActionsItemClickFavoritable(activity, favoriteManager, itemClicked, listener, onClickHandledListener);
-		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
-			return onActionsItemClickRTS(activity, view, favoriteManager, itemClicked, listener, onClickHandledListener);
+		case POI.ITEM_ACTION_TYPE_ROUTE_DIRECTION_STOP:
+			return onActionsItemClickRDS(activity, view, favoriteManager, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_APP:
 			return onActionsItemClickApp(activity, view, dataSourcesRepository, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
@@ -621,9 +621,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 									  @NonNull AgencyResolver agencyResolver,
 									  @Nullable Integer defaultColor) {
 		if (poi != null) {
-			if (poi instanceof RouteTripStop) {
-				if (((RouteTripStop) poi).getRoute().hasColor()) {
-					return ((RouteTripStop) poi).getRoute().getColorInt();
+			if (poi instanceof RouteDirectionStop) {
+				if (((RouteDirectionStop) poi).getRoute().hasColor()) {
+					return ((RouteDirectionStop) poi).getRoute().getColorInt();
 				}
 			} else if (poi instanceof Module) {
 				return ((Module) poi).getColorInt();
@@ -720,18 +720,18 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public static String getNewOneLineDescription(@NonNull POI poi, @NonNull AgencyResolver agencyResolver) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(poi.getName());
-		if (poi instanceof RouteTripStop) {
-			RouteTripStop rts = (RouteTripStop) poi;
-			if (!TextUtils.isEmpty(rts.getRoute().getShortName())) {
+		if (poi instanceof RouteDirectionStop) {
+			RouteDirectionStop rds = (RouteDirectionStop) poi;
+			if (!TextUtils.isEmpty(rds.getRoute().getShortName())) {
 				if (sb.length() > 0) {
 					sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
 				}
-				sb.append(rts.getRoute().getShortName());
-			} else if (!TextUtils.isEmpty(rts.getRoute().getLongName())) {
+				sb.append(rds.getRoute().getShortName());
+			} else if (!TextUtils.isEmpty(rds.getRoute().getLongName())) {
 				if (sb.length() > 0) {
 					sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
 				}
-				sb.append(rts.getRoute().getLongName());
+				sb.append(rds.getRoute().getLongName());
 			}
 		}
 		final IAgencyUIProperties agency = agencyResolver.getAgency();
@@ -744,7 +744,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return sb.toString();
 	}
 
-	private boolean onActionsItemClickRTS(@NonNull Activity activity,
+	private boolean onActionsItemClickRDS(@NonNull Activity activity,
 										  @NonNull View view,
 										  @NonNull FavoriteManager favoriteManager,
 										  int itemClicked,
@@ -755,7 +755,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			final RouteTripStop rts = (RouteTripStop) poi;
+			final RouteDirectionStop rds = (RouteDirectionStop) poi;
 			if (FeatureFlags.F_NAVIGATION) {
 				final NavController navController = Navigation.findNavController(view);
 				FragmentNavigator.Extras extras = null;
@@ -765,14 +765,14 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							.build();
 				}
 				NavControllerExtKt.navigateF(navController,
-						R.id.nav_to_rts_route_screen,
-						RTSRouteFragment.newInstanceArgs(rts),
+						R.id.nav_to_rds_route_screen,
+						RDSRouteFragment.newInstanceArgs(rds),
 						null,
 						extras
 				);
 			} else {
 				((MainActivity) activity).addFragmentToStack(
-						RTSRouteFragment.newInstance(rts),
+						RDSRouteFragment.newInstance(rds),
 						view
 				);
 			}
@@ -802,7 +802,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public static boolean isFavoritable(@NonNull POI poi) {
 		switch (poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
+		case POI.ITEM_ACTION_TYPE_ROUTE_DIRECTION_STOP:
 			return true;
 		case POI.ITEM_ACTION_TYPE_NONE:
 		case POI.ITEM_ACTION_TYPE_APP:
@@ -889,7 +889,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			}
 			return true; // nearby screen shown
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
+		case POI.ITEM_ACTION_TYPE_ROUTE_DIRECTION_STOP:
 		default:
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
@@ -965,7 +965,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 		case POI.ITEM_VIEW_TYPE_PLACE:
 			return false; // no menu
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
+		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			new MTDialog.Builder(activity) //
@@ -1015,8 +1015,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		switch (DefaultPOI.getTypeFromCursor(cursor)) {
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			return new POIManager(DefaultPOI.fromCursorStatic(cursor, authority));
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-			return new POIManager(RouteTripStop.fromCursorStatic(cursor, authority));
+		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
+			return new POIManager(RouteDirectionStop.fromCursorStatic(cursor, authority));
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			return new POIManager(Module.fromCursorStatic(cursor, authority));
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:

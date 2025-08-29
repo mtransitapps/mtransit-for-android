@@ -56,7 +56,7 @@ class ModulesViewModel @Inject constructor(
                                     idx,
                                     isInstalled = true,
                                     isEnabled = true,
-                                    isRTS = false,
+                                    isRDS = false,
                                     logo = null,
                                     maxValidSec = 0, // unlimited
                                     trigger = 0,

@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
@@ -92,7 +92,7 @@ class ScheduleViewModel @Inject constructor(
             dataSourceRemovedEvent.postValue(Event(true))
         })
 
-    val rts: LiveData<RouteTripStop?> = this.poim.map { it?.poi as? RouteTripStop }
+    val rds: LiveData<RouteDirectionStop?> = this.poim.map { it?.poi as? RouteDirectionStop }
 
     private val _startsAtDaysBefore = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_START_AT_DAYS_BEFORE)
     private val _endsAtDaysAfter = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_END_AT_DAYS_AFTER)
@@ -148,7 +148,7 @@ class ScheduleViewModel @Inject constructor(
     }
 
     val timestamps: LiveData<List<Schedule.Timestamp>?> =
-        QuadrupleMediatorLiveData(rts, _startsAtInMs, _endsAtInMs, _scheduleProviders).switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
+        QuadrupleMediatorLiveData(rds, _startsAtInMs, _endsAtInMs, _scheduleProviders).switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getTimestamps(rts, startsAtInMs, endsAtInMs, scheduleProviders))
             }
@@ -158,17 +158,17 @@ class ScheduleViewModel @Inject constructor(
     val sourceLabel: LiveData<String?> = _sourceLabel
 
     private suspend fun getTimestamps(
-        rts: RouteTripStop?,
+        rds: RouteDirectionStop?,
         startsAtInMs: Long?,
         endAtInMS: Long?,
         scheduleProviders: List<ScheduleProviderProperties>?
     ): List<Schedule.Timestamp>? {
-        if (rts == null || startsAtInMs == null || endAtInMS == null || scheduleProviders == null) {
-            MTLog.d(this, "getTimestamps() > SKIP (no RTS OR no start/end OR no schedule providers)")
+        if (rds == null || startsAtInMs == null || endAtInMS == null || scheduleProviders == null) {
+            MTLog.d(this, "getTimestamps() > SKIP (no RDS OR no start/end OR no schedule providers)")
             return null // not loaded (loading)
         }
         val scheduleFilter = ScheduleTimestampsProviderContract.Filter(
-            rts,
+            rds,
             startsAtInMs,
             endAtInMS
         )

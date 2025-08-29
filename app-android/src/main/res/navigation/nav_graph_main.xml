@@ -277,12 +277,12 @@
             app:argType="string"
             app:nullable="true" />
     </fragment>
-    <!-- RTS ROUTE -->
+    <!-- RDS ROUTE -->
     <fragment
-        android:id="@id/nav_rts_route"
-        android:name="org.mtransit.android.ui.rts.route.RTSRouteFragment"
+        android:id="@id/nav_rds_route"
+        android:name="org.mtransit.android.ui.rds.route.RDSRouteFragment"
         android:label="@string/ellipsis"
-        tools:layout="@layout/fragment_rts_route">
+        tools:layout="@layout/fragment_rds_route">
         <argument
             android:name="extra_authority"
             app:argType="string" />
@@ -332,7 +332,7 @@
     <action
         android:id="@+id/nav_to_map_screen"
         app:destination="@id/nav_map" />
-    <!-- TODO external trip screen <action-->
+    <!-- TODO external direction screen <action-->
     <!-- android:id="@+id/nav_to_trip_planner_screen"-->
     <!-- app:destination="@id/nav_trip_planner" />-->
     <action
@@ -354,8 +354,8 @@
         android:id="@+id/nav_to_news_detail_screen"
         app:destination="@id/nav_news_detail" />
     <action
-        android:id="@+id/nav_to_rts_route_screen"
-        app:destination="@id/nav_rts_route" />
+        android:id="@+id/nav_to_rds_route_screen"
+        app:destination="@id/nav_rds_route" />
     <action
         android:id="@+id/nav_to_web_screen"
         app:destination="@id/nav_web" />

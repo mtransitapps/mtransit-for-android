@@ -1,5 +1,5 @@
-@file:JvmName("RTSRouteFragment") // ANALYTICS
-package org.mtransit.android.ui.rts.route
+@file:JvmName("RTSRouteFragment") // ANALYTICS // do not change to avoid breaking tracking
+package org.mtransit.android.ui.rds.route
 
 import android.app.PendingIntent
 import android.content.Context
@@ -20,9 +20,9 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.Route
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.data.decorateDirection
-import org.mtransit.android.databinding.FragmentRtsRouteBinding
+import org.mtransit.android.databinding.FragmentRdsRouteBinding
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
@@ -39,19 +39,19 @@ import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocationListener {
+class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocationListener {
 
     companion object {
-        private val LOG_TAG = RTSRouteFragment::class.java.simpleName
+        private val LOG_TAG = RDSRouteFragment::class.java.simpleName
 
-        private const val TRACKING_SCREEN_NAME = "RTSRoute"
+        private const val TRACKING_SCREEN_NAME = "RTSRoute" // do not change to avoid breaking tracking
 
         private val TITLE_RSN_STYLE = SpanUtils.getNewBoldStyleSpan()
 
         private val TITLE_RLN_FONT = SpanUtils.getNewSansSerifLightTypefaceSpan()
 
         @JvmStatic
-        fun newInstance(rts: RouteTripStop) = newInstance(rts.authority, rts.route.id, rts.trip.id, rts.stop.id)
+        fun newInstance(rds: RouteDirectionStop) = newInstance(rds.authority, rds.route.id, rds.direction.id, rds.stop.id)
 
         @JvmStatic
         fun newInstance(
@@ -59,14 +59,14 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
             routeId: Long,
             optSelectedTripId: Long? = null,
             optSelectedStopId: Int? = null,
-        ): RTSRouteFragment {
-            return RTSRouteFragment().apply {
+        ): RDSRouteFragment {
+            return RDSRouteFragment().apply {
                 arguments = newInstanceArgs(authority, routeId, optSelectedTripId, optSelectedStopId)
             }
         }
 
         @JvmStatic
-        fun newInstanceArgs(rts: RouteTripStop) = newInstanceArgs(rts.authority, rts.route.id, rts.trip.id, rts.stop.id)
+        fun newInstanceArgs(rds: RouteDirectionStop) = newInstanceArgs(rds.authority, rds.route.id, rds.direction.id, rds.stop.id)
 
         @JvmStatic
         fun newInstanceArgs(
@@ -75,10 +75,10 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
             optSelectedTripId: Long? = null,
             optSelectedStopId: Int? = null,
         ) = bundleOf(
-            RTSRouteViewModel.EXTRA_AUTHORITY to authority,
-            RTSRouteViewModel.EXTRA_ROUTE_ID to routeId,
-            RTSRouteViewModel.EXTRA_SELECTED_TRIP_ID to (optSelectedTripId ?: RTSRouteViewModel.EXTRA_SELECTED_TRIP_ID_DEFAULT),
-            RTSRouteViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RTSRouteViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
+            RDSRouteViewModel.EXTRA_AUTHORITY to authority,
+            RDSRouteViewModel.EXTRA_ROUTE_ID to routeId,
+            RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID to (optSelectedTripId ?: RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID_DEFAULT),
+            RDSRouteViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSRouteViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
         )
     }
 
@@ -93,21 +93,21 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
         return TRACKING_SCREEN_NAME
     }
 
-    private val viewModel by viewModels<RTSRouteViewModel>()
+    private val viewModel by viewModels<RDSRouteViewModel>()
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
-    private var binding: FragmentRtsRouteBinding? = null
+    private var binding: FragmentRdsRouteBinding? = null
 
     private var lastPageSelected = -1
     private var selectedPosition = -1
 
-    private var pagerAdapter: RTSRouteTripPagerAdapter? = null
+    private var pagerAdapter: RDSRouteDirectionPagerAdapter? = null
 
-    private fun makePagerAdapter() = RTSRouteTripPagerAdapter(this).apply {
+    private fun makePagerAdapter() = RDSRouteDirectionPagerAdapter(this).apply {
         setSelectedStopId(attachedViewModel?.selectedStopId?.value)
         setAuthority(attachedViewModel?.authority?.value)
-        setRouteTrips(attachedViewModel?.routeTrips?.value)
+        setRouteDirections(attachedViewModel?.routeDirections?.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -134,13 +134,13 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
-        binding = FragmentRtsRouteBinding.bind(view).apply {
+        binding = FragmentRdsRouteBinding.bind(view).apply {
             viewPager.apply {
                 offscreenPageLimit = 1
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
                 TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
-                    tab.text = viewModel.routeTrips.value?.get(position)?.decorateDirection(this.context, small = false, centered = false)
+                    tab.text = viewModel.routeDirections.value?.get(position)?.decorateDirection(this.context, small = false, centered = false)
                 }.attach()
             }
             if (FeatureFlags.F_NAVIGATION) {
@@ -191,19 +191,19 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
             }
             abController?.setABBgColor(this, getABBgColor(context), true)
         }
-        viewModel.routeTrips.observe(viewLifecycleOwner) { routeTrips ->
-            if (pagerAdapter?.setRouteTrips(routeTrips) == true) {
+        viewModel.routeDirections.observe(viewLifecycleOwner) { routeDirections ->
+            if (pagerAdapter?.setRouteDirections(routeDirections) == true) {
                 showSelectedTab()
                 abController?.setABBgColor(this, getABBgColor(context), true)
             } else {
                 switchView()
             }
-            routeTrips?.let {
+            routeDirections?.let {
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
         }
-        viewModel.selectedRouteTripPosition.observe(viewLifecycleOwner) { newSelectedRouteTripPosition ->
-            newSelectedRouteTripPosition?.let {
+        viewModel.selectedRouteDirectionPosition.observe(viewLifecycleOwner) { newSelectedRouteDirectionPosition ->
+            newSelectedRouteDirectionPosition?.let {
                 if (this.lastPageSelected < 0) {
                     this.lastPageSelected = it
                     showSelectedTab()

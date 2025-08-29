@@ -40,8 +40,8 @@ data class AgencyProperties(
     val isInstalled: Boolean = true, // #onModulesUpdated
     @ColumnInfo(name = "is_enabled")
     override val isEnabled: Boolean = true, // #onModulesUpdated
-    @ColumnInfo(name = "is_rts")
-    override val isRTS: Boolean = false,
+    @ColumnInfo(name = "is_rts") // do not change to avoid breaking compat w/ old modules
+    override val isRDS: Boolean = false,
     @ColumnInfo(name = "logo")
     override val logo: JPaths? = null,
     @ColumnInfo(name = "max_valid_sec")
@@ -74,7 +74,7 @@ data class AgencyProperties(
         availableVersionCode: Int,
         isInstalled: Boolean,
         isEnabled: Boolean,
-        isRTS: Boolean = false,
+        isRDS: Boolean = false,
         logo: JPaths? = null,
         maxValidSec: Int = -1,
         trigger: Int = 0,
@@ -95,7 +95,7 @@ data class AgencyProperties(
         availableVersionCode,
         isInstalled,
         isEnabled,
-        isRTS,
+        isRDS,
         logo,
         maxValidSec,
         trigger,

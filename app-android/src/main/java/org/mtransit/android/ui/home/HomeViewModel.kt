@@ -25,7 +25,7 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
@@ -261,14 +261,14 @@ class HomeViewModel @Inject constructor(
         val it = typePOIs.iterator()
         var nbKept = 0
         var lastKeptDistance = -1f
-        val routeTripKept = mutableSetOf<String>()
+        val routeDirectionKept = mutableSetOf<String>()
         while (it.hasNext()) {
             val poim = it.next()
             if (!favoriteUUIDs.contains(poim.poi.uuid)) {
-                if (poim.poi is RouteTripStop) { // RTS
-                    val rts = poim.poi
-                    val routeTripId = "${rts.route.id}-${rts.trip.id}"
-                    if (routeTripKept.contains(routeTripId)) {
+                if (poim.poi is RouteDirectionStop) { // RDS
+                    val rds: RouteDirectionStop = poim.poi
+                    val routeDirectionId = "${rds.route.id}-${rds.direction.id}"
+                    if (routeDirectionKept.contains(routeDirectionId)) {
                         it.remove()
                         continue
                     }
@@ -283,8 +283,8 @@ class HomeViewModel @Inject constructor(
                 it.remove()
                 continue
             }
-            if (poim.poi is RouteTripStop) {
-                routeTripKept += "${poim.poi.route.id}-${poim.poi.trip.id}"
+            if (poim.poi is RouteDirectionStop) {
+                routeDirectionKept += "${poim.poi.route.id}-${poim.poi.direction.id}"
             }
             lastKeptDistance = poim.distance
             nbKept++
@@ -308,8 +308,8 @@ class HomeViewModel @Inject constructor(
             typePOIs = getAreaTypeNearbyPOIs(scope, typeLat, typeLng, typeAd, lastTypeAroundDiff, typeMaxSize, typeMinCoverageInMeters, typeAgencies)
             if (this.demoModeManager.isFullDemo()) { // filter now to get min number of POI
                 typePOIs = typePOIs.distinctBy { poim ->
-                    if (poim.poi is RouteTripStop) {
-                        "${poim.poi.route.id}-${poim.poi.trip.id}"
+                    if (poim.poi is RouteDirectionStop) {
+                        "${poim.poi.route.id}-${poim.poi.direction.id}"
                     } else {
                         poim.poi.uuid // keep all
                     }
@@ -372,7 +372,7 @@ class HomeViewModel @Inject constructor(
                     poiRepository.findPOIMs(agency, poiFilter)
                         ?.removeAllAnd {
                             if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
-                                hideBookingRequired && (it.poi as? RouteTripStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
+                                hideBookingRequired && (it.poi as? RouteDirectionStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
                             } else false
                         }
                         ?.updateDistanceM(lat, lng)

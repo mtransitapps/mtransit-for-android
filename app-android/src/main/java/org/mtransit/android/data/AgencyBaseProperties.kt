@@ -28,8 +28,8 @@ data class AgencyBaseProperties(
     val isInstalled: Boolean = true, // #onModulesUpdated
     @ColumnInfo(name = "is_enabled")
     override val isEnabled: Boolean = true, // #onModulesUpdated
-    @ColumnInfo(name = "is_rts")
-    override val isRTS: Boolean = false,
+    @ColumnInfo(name = "is_rts") // do not change to avoid breaking compat w/ old modules
+    override val isRDS: Boolean = false,
     @ColumnInfo(name = "logo")
     override val logo: JPaths? = null,
     @ColumnInfo(name = "trigger")

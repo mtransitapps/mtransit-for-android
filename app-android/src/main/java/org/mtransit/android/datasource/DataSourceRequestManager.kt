@@ -9,11 +9,10 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
-import org.mtransit.android.commons.data.Trip
+import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
-import org.mtransit.android.commons.provider.ServiceUpdateProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
@@ -71,33 +70,33 @@ class DataSourceRequestManager(
             DataSourceManager.findAgencyAvailableVersionCode(appContext, authority, forceAppUpdateRefresh, inFocus)
         }
 
-    suspend fun findAgencyRTSRouteLogo(agencyAuthority: String): JPaths? = withContext(ioDispatcher) {
-        DataSourceManager.findAgencyRTSRouteLogo(appContext, agencyAuthority)
+    suspend fun findAgencyRDSRouteLogo(agencyAuthority: String): JPaths? = withContext(ioDispatcher) {
+        DataSourceManager.findAgencyRDSRouteLogo(appContext, agencyAuthority)
     }
 
-    suspend fun findAllRTSAgencyRoutes(agencyAuthority: String): List<Route>? = withContext(ioDispatcher) {
-        DataSourceManager.findAllRTSAgencyRoutes(appContext, agencyAuthority)
+    suspend fun findAllRDSAgencyRoutes(agencyAuthority: String): List<Route>? = withContext(ioDispatcher) {
+        DataSourceManager.findAllRDSAgencyRoutes(appContext, agencyAuthority)
     }
 
-    suspend fun findRTSRoute(agencyAuthority: String, routeId: Long): Route? = withContext(ioDispatcher) {
-        DataSourceManager.findRTSRoute(appContext, agencyAuthority, routeId)
+    suspend fun findRDSRoute(agencyAuthority: String, routeId: Long): Route? = withContext(ioDispatcher) {
+        DataSourceManager.findRDSRoute(appContext, agencyAuthority, routeId)
     }
 
-    suspend fun findRTSRouteTrips(agencyAuthority: String, routeId: Long): List<Trip>? = withContext(ioDispatcher) {
-        DataSourceManager.findRTSRouteTrips(appContext, agencyAuthority, routeId)
+    suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {
+        DataSourceManager.findRDSRouteDirections(appContext, agencyAuthority, routeId)
     }
 
     suspend fun findAgencyProperties(
         agencyAuthority: String,
         agencyType: DataSourceType,
-        rts: Boolean,
+        isRDS: Boolean,
         logo: JPaths?,
         pkg: String,
         longVersionCode: Long,
         enabled: Boolean,
         trigger: Int
     ): AgencyProperties? = withContext(ioDispatcher) {
-        DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, rts, logo, pkg, longVersionCode, enabled, trigger)
+        DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, isRDS, logo, pkg, longVersionCode, enabled, trigger)
     }
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {

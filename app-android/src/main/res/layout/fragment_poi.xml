@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/list_view_item_height"
                 android:inflatedId="@+id/this_poi"
-                tools:layout="@layout/layout_poi_rts_with_schedule"
+                tools:layout="@layout/layout_poi_rds_with_schedule"
                 tools:visibility="visible" />
 
             <!-- TODO: keep view stub? (multiple layouts) -->
