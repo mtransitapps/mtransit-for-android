@@ -32,6 +32,7 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
+import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
@@ -140,9 +141,13 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 setupScreenToolbar(this)
             }
         }
+        viewModel.hasFavoritesAgencyDisabled.observe(viewLifecycleOwner) { hasFavoritesAgencyDisabled ->
+            updateEmptyLayout(hasFavoritesAgencyDisabled = hasFavoritesAgencyDisabled, empty = viewModel.favoritePOIs.value.isNullOrEmpty())
+        }
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
             listAdapter.setPois(favoritePOIS)
             listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+            updateEmptyLayout(hasFavoritesAgencyDisabled = viewModel.hasFavoritesAgencyDisabled.value == true, empty = favoritePOIS.isNullOrEmpty())
             binding?.apply {
                 when {
                     favoritePOIS == null -> { // LOADING
@@ -175,6 +180,23 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                     binding?.listLayout?.list?.setSelection(0)
                 }
             })
+        }
+    }
+
+    private fun updateEmptyLayout(hasFavoritesAgencyDisabled: Boolean, empty: Boolean) {
+        if (hasFavoritesAgencyDisabled) {
+            binding?.emptyLayout?.updateEmptyLayout(empty = empty, pkg = null, activity)
+        } else {
+            binding?.emptyLayout?.apply {
+                emptyTitle.apply {
+                    setText(R.string.no_favorites)
+                    isVisible = true
+                }
+                emptyText.apply {
+                    setText(R.string.no_favorites_details)
+                    isVisible = true
+                }
+            }
         }
     }
 

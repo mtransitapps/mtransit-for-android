@@ -56,7 +56,7 @@ interface IAgencyProperties {
         return "$shortName ${context.getString(getSupportedType().shortNameResId)}"
     }
 
-    fun isEnabled(pm: PackageManager? = null): Boolean {
-        return isEnabled && pm?.isAppEnabled(this.pkg) != false
+    fun isEnabled(pm: PackageManager): Boolean {
+        return isEnabled && pm.isAppEnabled(this.pkg)
     }
 }

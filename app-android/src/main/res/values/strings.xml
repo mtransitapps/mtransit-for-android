@@ -89,6 +89,7 @@
     <string name="no_news">No news.</string>
     <string name="latest_news">Latest News</string>
     <string name="no_favorites">No favorites.</string>
+    <string name="no_favorites_details">Browse the app or use the search 🔍 feature to find stops or stations you need to access quickly.\n\nYou can also create folders 📁 to group them together.</string>
     <string name="favorite_removed">Favorite removed.</string>
     <string name="favorite_removed_to_folder_and_folder">Favorite removed from %s.</string>
     <string name="favorite_moved">Favorite moved.</string>
@@ -158,8 +159,9 @@
     <string name="privacy_policy">Privacy Policy</string>
     <string name="terms_of_use">Terms of Use</string>
     <string name="local_time_and_time">Local time: %s</string>
-    <string name="sorry_about_that">Sorry about that</string>
-    <string name="no_routes_found_text">Unable to load data for this transit agency, please make sure the app is enabled and updates are installed.</string>
+    <string name="sorry_about_that">Sorry about that :(</string>
+    <string name="no_data_found_this_agency_text">Unable to load data for this transit agency, please make sure the app is enabled and updates are installed.</string>
+    <string name="no_data_found_any_agency_text">Unable to load data for the transit agencies, please make sure apps are enabled and updates are installed.</string>
     <string name="enabled_setting">Enabled setting:&#160;</string>
     <string name="enabled_setting_0">Default (enabled)</string>
     <string name="enabled_setting_1">Enabled</string>

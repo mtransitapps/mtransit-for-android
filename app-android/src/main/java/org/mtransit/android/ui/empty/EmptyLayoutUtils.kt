@@ -24,7 +24,8 @@ object EmptyLayoutUtils {
                 text = context.getString(R.string.sorry_about_that)
                 isVisible = true
             }
-            emptyText.text = context.getString(R.string.no_routes_found_text)
+            emptyText.text = pkg?.let { context.getString(R.string.no_data_found_this_agency_text) }
+                ?: run { context.getString(R.string.no_data_found_any_agency_text) }
             emptyButton1.apply {
                 pkg?.let { pkg ->
                     text = context.getString(R.string.manage_app)
