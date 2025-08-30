@@ -141,13 +141,16 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 setupScreenToolbar(this)
             }
         }
+        viewModel.oneAgency.observe(viewLifecycleOwner) { oneAgency ->
+            updateEmptyLayout(pkg = oneAgency?.pkg)
+        }
         viewModel.hasFavoritesAgencyDisabled.observe(viewLifecycleOwner) { hasFavoritesAgencyDisabled ->
-            updateEmptyLayout(hasFavoritesAgencyDisabled = hasFavoritesAgencyDisabled, empty = viewModel.favoritePOIs.value.isNullOrEmpty())
+            updateEmptyLayout(hasFavoritesAgencyDisabled = hasFavoritesAgencyDisabled)
         }
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
             listAdapter.setPois(favoritePOIS)
             listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
-            updateEmptyLayout(hasFavoritesAgencyDisabled = viewModel.hasFavoritesAgencyDisabled.value == true, empty = favoritePOIS.isNullOrEmpty())
+            updateEmptyLayout(empty = favoritePOIS.isNullOrEmpty())
             binding?.apply {
                 when {
                     favoritePOIS == null -> { // LOADING
@@ -183,9 +186,13 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
     }
 
-    private fun updateEmptyLayout(hasFavoritesAgencyDisabled: Boolean, empty: Boolean) {
+    private fun updateEmptyLayout(
+        hasFavoritesAgencyDisabled: Boolean = attachedViewModel?.hasFavoritesAgencyDisabled?.value == true,
+        empty: Boolean = attachedViewModel?.favoritePOIs?.value.isNullOrEmpty(),
+        pkg: String? = attachedViewModel?.oneAgency?.value?.pkg,
+    ) {
         if (hasFavoritesAgencyDisabled) {
-            binding?.emptyLayout?.updateEmptyLayout(empty = empty, pkg = null, activity)
+            binding?.emptyLayout?.updateEmptyLayout(empty = empty, pkg = pkg, activity)
         } else {
             binding?.emptyLayout?.apply {
                 emptyTitle.apply {

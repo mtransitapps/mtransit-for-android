@@ -19,6 +19,7 @@ import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparator
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.IAgencyProperties
@@ -68,6 +69,10 @@ class FavoritesViewModel @Inject constructor(
     private val _favoriteUpdatedTrigger = MutableLiveData(0)
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
+
+    val oneAgency: LiveData<AgencyBaseProperties?> = _allAgencies.map { // many users have only 1 agency installed
+        if (it.size == 1) it[0] else null
+    }.distinctUntilChanged()
 
     private val _hasFavoritesAgencyDisabled = MutableLiveData(false)
     val hasFavoritesAgencyDisabled: LiveData<Boolean> = _hasFavoritesAgencyDisabled.distinctUntilChanged()

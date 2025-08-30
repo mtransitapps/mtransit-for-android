@@ -1,10 +1,12 @@
 package org.mtransit.android.ui.nearby.type
 
+import android.content.pm.PackageManager
 import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -18,6 +20,7 @@ import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
+import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -33,6 +36,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
+    private val pm: PackageManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -61,6 +65,10 @@ class NearbyAgencyTypeViewModel @Inject constructor(
             }
         }
     }
+
+    val oneTypeAgency: LiveData<AgencyBaseProperties?> = typeAgencies.map { // many users have only 1 agency installed
+        if (it?.size == 1) it[0] else null
+    }.distinctUntilChanged()
 
     fun setNearbyLocation(newNearbyLocation: Location?) {
         val currentLocation = _params.value?.nearbyLocation
@@ -110,7 +118,11 @@ class NearbyAgencyTypeViewModel @Inject constructor(
 
     private val _params = MutableLiveData(NearbyParams())
 
+    private val _hasNearbyPOIAgencyDisabled = MutableLiveData(false)
+    val hasNearbyPOIAgencyDisabled: LiveData<Boolean> = _hasNearbyPOIAgencyDisabled.distinctUntilChanged()
+
     val nearbyPOIs: LiveData<List<POIManager>?> = _params.switchMap { params ->
+        _hasNearbyPOIAgencyDisabled.value = false
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getNearbyPOIs(params))
         }
@@ -141,11 +153,14 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         typeAgencies
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
+                if (agency.isEnabled(pm)) {
+                    _hasNearbyPOIAgencyDisabled.postValue(true)
+                }
                 nearbyPOIs.addAllN(
                     poiRepository.findPOIMs(agency, poiFilter)
-                        ?.updateDistanceM(lat, lng)
-                        ?.removeTooFar(maxDistance)
-                        ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
+                        .updateDistanceM(lat, lng)
+                        .removeTooFar(maxDistance)
+                        .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
                 )
             }
         nearbyPOIs.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)

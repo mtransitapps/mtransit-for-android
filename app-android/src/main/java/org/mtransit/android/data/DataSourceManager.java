@@ -425,7 +425,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 			);
 			// @formatter:on
 			if (!localAuthorities.contains(uri.getAuthority())) {
+				MTLog.d(LOG_TAG, "QUERY -> make DISABLED: '%s'", uri.getAuthority());
 				return null; // simulate disabled / un-responsive modules
+			} else {
+				MTLog.d(LOG_TAG, "QUERY -> keep ENABLED: '%s'", uri.getAuthority());
 			}
 		} // DEBUG
 		final Cursor result = contentResolver.query(uri, projection, selection, selectionArgs, sortOrder);
