@@ -7,6 +7,7 @@
     <string name="map">Carte</string>
     <string name="trip_planner">Itinéraires</string>
     <string name="news">Nouvelles</string>
+    <string name="fares">Tarifs</string>
     <string name="settings">Paramètres</string>
     <string name="customer_service">Service à la clientèle</string>
     <string name="rate_review">Noter l\'app</string>
@@ -152,6 +153,7 @@
     <string name="menu_action_add_favorite">Ajouter aux favoris</string>
     <string name="menu_action_remove_favorite">Supprimer des favoris</string>
     <string name="menu_action_edit_favorite">Modifier favori</string>
+    <string name="menu_action_fares">Afficher tarifs</string>
     <string name="next_departures">Prochains Départs</string>
     <string name="availability">Disponibilité</string>
     <string name="full_schedule">Horaire Complet</string>

@@ -2,7 +2,6 @@ package org.mtransit.android.ad.inlinebanner
 
 import android.os.Build
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import org.mtransit.android.R
@@ -15,6 +14,7 @@ import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.IViewFinder
+import org.mtransit.android.ui.view.common.isVisibleOnce
 import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -168,12 +168,8 @@ class InlineBannerAdManager @Inject constructor(
         val adLayout = getAdLayout(viewFinder)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
-            if (adView?.isVisible != true) {
-                adView?.isVisible = true
-            }
-            if (adLayout.isVisible != true) {
-                adLayout.isVisible = true
-            }
+            adView?.isVisibleOnce = true
+            adLayout.isVisibleOnce = true
         }
     }
 
@@ -181,12 +177,8 @@ class InlineBannerAdManager @Inject constructor(
         val adLayout = getAdLayout(viewFinder)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
-            if (adLayout.isVisible != false) {
-                adLayout.isVisible = false
-            }
-            if (adView?.isVisible != false) {
-                adView?.isVisible = false
-            }
+            adLayout.isVisibleOnce = false
+            adView?.isVisibleOnce = false
         }
     }
 

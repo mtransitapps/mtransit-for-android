@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,6 +17,8 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.databinding.FragmentDialogFeedbackBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.ui.common.adater.AgenciesLinkAdapter
+import org.mtransit.android.ui.common.adater.AgenciesLinkType
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.LinkUtils
@@ -57,7 +60,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
     }
 
     private val agenciesAdapter by lazy {
-        AgenciesFeedbackAdapter(onClick = { view, url ->
+        AgenciesLinkAdapter(AgenciesLinkType.CONTACT_US, onClick = { view, url ->
             activity?.let {
                 LinkUtils.open(view, it, url, getString(commonsR.string.web_browser), false) // force external web browser
                 behavior?.state = BottomSheetBehavior.STATE_HIDDEN
@@ -85,6 +88,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDialogFeedbackBinding.bind(view).apply {
+            list.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
             list.adapter = ConcatAdapter(headerAdapter, agenciesAdapter)
             dialog?.setOnShowListener {
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))

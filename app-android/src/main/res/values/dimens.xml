@@ -36,10 +36,10 @@
 
     <dimen name="extra_radius">@dimen/platform_mtrl3_corner_radius_extra_small</dimen>
 
-    <dimen name="extra_route_trip_radius_top_left">@dimen/extra_radius</dimen>
-    <dimen name="extra_route_trip_radius_top_right">@dimen/extra_radius</dimen>
-    <dimen name="extra_route_trip_radius_bottom_left">@dimen/extra_radius</dimen>
-    <dimen name="extra_route_trip_radius_bottom_right">@dimen/extra_radius</dimen>
+    <dimen name="extra_route_direction_radius_top_left">@dimen/extra_radius</dimen>
+    <dimen name="extra_route_direction_radius_top_right">@dimen/extra_radius</dimen>
+    <dimen name="extra_route_direction_radius_bottom_left">@dimen/extra_radius</dimen>
+    <dimen name="extra_route_direction_radius_bottom_right">@dimen/extra_radius</dimen>
 
     <dimen name="touch_target_min_height">@dimen/baseline_48</dimen>
     <dimen name="touch_target_min_height_btn">36dp</dimen>
@@ -49,8 +49,11 @@
     <dimen name="map_type_switch_above_google_logo_margin_bottom">@dimen/baseline_32</dimen>
     <dimen name="map_type_switch_margin_bottom">@dimen/baseline_8</dimen>
 
-    <dimen name="fab_margin_end">@dimen/baseline_8</dimen>
-    <dimen name="fab_margin_bottom">@dimen/baseline_8</dimen>
+    <dimen name="fab_mini_margin_end">@dimen/baseline_8</dimen>
+    <dimen name="fab_mini_margin_bottom">@dimen/baseline_8</dimen>
+
+    <dimen name="fab_auto_margin_end">@dimen/baseline_16</dimen>
+    <dimen name="fab_auto_margin_bottom">@dimen/baseline_16</dimen>
 
     <dimen name="ad_banner_inline_horizontal_margin">@dimen/baseline_0</dimen>
     <dimen name="ad_banner_inline_vertical_margin">@dimen/baseline_0</dimen>

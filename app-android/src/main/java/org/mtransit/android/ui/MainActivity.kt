@@ -101,7 +101,7 @@ class MainActivity : MTActivityWithLocation(),
 
     protected override fun attachBaseContext(newBase: Context) {
         val demoModeManager = getEntryPoint(newBase).demoModeManager()
-        var fixedBase = if (demoModeManager.isForceLang()) {
+        val fixedBase = if (demoModeManager.isForceLang()) {
             demoModeManager.fixLocale(newBase)
         } else {
             LocaleUtils.attachBaseContextActivity(newBase)
@@ -243,9 +243,9 @@ class MainActivity : MTActivityWithLocation(),
 
         this.isMTResumed = true
         if (this.currentUiMode != getResources().configuration.uiMode) {
-            Handler(Looper.getMainLooper()).post(Runnable {
+            Handler(Looper.getMainLooper()).post {
                 NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
-            })
+            }
         }
         this.lifecycleScope.launch(Dispatchers.IO) {
             dataSourcesRepository.updateLock()

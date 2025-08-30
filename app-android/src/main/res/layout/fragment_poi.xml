@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/list_view_item_height"
                 android:inflatedId="@+id/this_poi"
-                tools:layout="@layout/layout_poi_rts_with_schedule"
+                tools:layout="@layout/layout_poi_rds_with_schedule"
                 tools:visibility="visible" />
 
             <!-- TODO: keep view stub? (multiple layouts) -->
@@ -111,6 +111,16 @@
         </LinearLayout>
 
     </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_favorite"
+        style="@style/MTFabAutoBottomEnd"
+        android:contentDescription="@string/menu_action_remove_favorite"
+        android:src="@drawable/ic_star_black_24dp"
+        tools:backgroundTint="#00FF00"
+        tools:contentDescription="@string/menu_action_add_favorite"
+        tools:rippleColor="#FF00FF"
+        tools:src="@drawable/ic_star_border_black_24dp" />
 
     <View
         android:id="@+id/fragment_status_bar_bg"

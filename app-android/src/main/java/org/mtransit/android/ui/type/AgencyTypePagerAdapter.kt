@@ -6,7 +6,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.ui.type.poi.AgencyPOIsFragment
-import org.mtransit.android.ui.type.rts.RTSAgencyRoutesFragment
+import org.mtransit.android.ui.type.rds.RDSAgencyRoutesFragment
 
 class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Loggable {
 
@@ -43,8 +43,8 @@ class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Logga
 
     override fun createFragment(position: Int): Fragment {
         val agency = agencies?.getOrNull(position) ?: throw RuntimeException("Trying to create fragment at $position!")
-        if (agency.isRTS) {
-            return RTSAgencyRoutesFragment.newInstance(
+        if (agency.isRDS) {
+            return RDSAgencyRoutesFragment.newInstance(
                 agency.authority,
                 agency.colorInt
             )

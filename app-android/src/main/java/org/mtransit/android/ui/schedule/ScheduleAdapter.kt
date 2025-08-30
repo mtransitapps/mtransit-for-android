@@ -15,9 +15,9 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.Accessibility
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
-import org.mtransit.android.commons.data.Trip
+import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.equalOrAfter
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.decorateDirection
@@ -115,7 +115,7 @@ class ScheduleAdapter
 
     private var nowToTheMinute: Long = UITimeUtils.currentTimeToTheMinuteMillis()
 
-    private var optRts: RouteTripStop? = null
+    private var optRds: RouteDirectionStop? = null
 
     var timestamps: List<Schedule.Timestamp>? = null
         set(value) {
@@ -168,8 +168,8 @@ class ScheduleAdapter
         }
     }
 
-    fun setRTS(rts: RouteTripStop?) {
-        this.optRts = rts
+    fun setRDS(rds: RouteDirectionStop?) {
+        this.optRds = rds
     }
 
     var showingAccessibility: Boolean? = null
@@ -485,7 +485,7 @@ class ScheduleAdapter
                     getTimestampItem(position),
                     nowToTheMinute,
                     nextTimestamp,
-                    this.optRts,
+                    this.optRds,
                     this.showingAccessibility,
                 )
             }
@@ -605,7 +605,7 @@ class ScheduleAdapter
             timestamp: Schedule.Timestamp? = null,
             nowToTheMinuteInMs: Long = -1L,
             nextTimestamp: Schedule.Timestamp? = null,
-            optRts: RouteTripStop? = null,
+            optRds: RouteDirectionStop? = null,
             showingAccessibility: Boolean? = null,
         ) {
             if (timestamp == null) {
@@ -628,7 +628,7 @@ class ScheduleAdapter
             val timeOnly = timeSb.toString()
             if (timestamp.hasHeadsign()) {
                 val timestampHeading = timestamp.getHeading(context)
-                if (!Trip.isSameHeadsign(timestampHeading, optRts?.trip?.getHeading(context))) {
+                if (!Direction.isSameHeadsign(timestampHeading, optRds?.direction?.getHeading(context))) {
                     timeSb.append(P1).append(
                         timestamp.decorateDirection(context, false)
                     ).append(P2)

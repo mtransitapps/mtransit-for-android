@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.Sensor;
@@ -21,8 +22,10 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
@@ -37,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
@@ -57,7 +61,7 @@ import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.RouteTripStop;
+import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.NewsProviderContract;
@@ -272,6 +276,9 @@ public class POIFragment extends ABFragment implements
 		if (viewModel != null) {
 			viewModel.refreshAppUpdateAvailable();
 		}
+		if (getActivity() != null) {
+			getActivity().invalidateOptionsMenu(); // update menu_show_fares menu item
+		}
 	}
 
 	@Nullable
@@ -337,21 +344,19 @@ public class POIFragment extends ABFragment implements
 			this.adapter.clear();
 		}
 		resetFavorite();
-		View view = getView();
+		final View view = getView();
 		this.mapViewController.notifyMarkerChanged(this);
 		this.mapViewController.showMap(view);
 		POIViewController.updateView(getPOIView(view), this.poim, this);
 		POIStatusDetailViewController.updateView(getPOIStatusView(view), this.poim, this);
 		POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), this.poim, this);
-		setupRTSFullScheduleBtn(view);
+		setupRDSFullScheduleBtn(view);
 		setupMoreNewsButton(view);
 		setupAppUpdateButton(view);
 		setupAppWasDisabledButton(view);
 		setupRewardedAdButton(view);
 		setupMoreNearbyButton(view);
-		if (getActivity() != null) {
-			getActivity().invalidateOptionsMenu(); // add/remove star from action bar
-		}
+		updateFabFavorite();
 		setupNearbyList();
 	}
 
@@ -502,7 +507,7 @@ public class POIFragment extends ABFragment implements
 		}));
 		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
-		viewModel.getScheduleProviders().observe(getViewLifecycleOwner(), scheduleProviders -> setupRTSFullScheduleBtn(getView()));
+		viewModel.getScheduleProviders().observe(getViewLifecycleOwner(), scheduleProviders -> setupRDSFullScheduleBtn(getView()));
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
 		setupView(view);
@@ -660,24 +665,40 @@ public class POIFragment extends ABFragment implements
 			this.adapter.setManualScrollView(view.findViewById(R.id.scroll_view));
 			this.adapter.setManualLayout(view.findViewById(R.id.poi_nearby_pois_list));
 		}
+		final FloatingActionButton fabFavorite = view.findViewById(R.id.fab_favorite);
+		if (fabFavorite != null) {
+			fabFavorite.setOnClickListener(v -> {
+						POIManager poim = getPoimOrNull();
+						if (poim != null && poim.isFavoritable()) {
+							this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
+						}
+					}
+			);
+			EdgeToEdgeKt.setUpFabEdgeToEdge(
+					fabFavorite,
+					R.dimen.fab_auto_margin_end,
+					R.dimen.fab_auto_margin_bottom
+			);
+		}
+		updateFabFavorite();
 		setupNewsLayout(view);
 	}
 
-	private void setupRTSFullScheduleBtn(View view) {
+	private void setupRDSFullScheduleBtn(View view) {
 		if (view == null) {
 			return;
 		}
-		View rtsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
+		View rdsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		Collection<ScheduleProviderProperties> scheduleProviders;
-		if (rtsScheduleBtn != null) {
+		if (rdsScheduleBtn != null) {
 			scheduleProviders = this.viewModel == null ? null : this.viewModel.getScheduleProviders().getValue();
 			if (scheduleProviders == null || scheduleProviders.isEmpty()) {
-				rtsScheduleBtn.setVisibility(View.GONE);
+				rdsScheduleBtn.setVisibility(View.GONE);
 			} else {
-				rtsScheduleBtn.setOnClickListener(v -> {
+				rdsScheduleBtn.setOnClickListener(v -> {
 					final POIManager poim = getPoimOrNull();
-					if (poim == null || !(poim.poi instanceof RouteTripStop)) {
-						MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
+					if (poim == null || !(poim.poi instanceof RouteDirectionStop)) {
+						MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RDS)");
 						return;
 					}
 					poiRepository.push(poim);
@@ -706,7 +727,7 @@ public class POIFragment extends ABFragment implements
 								POIFragment.this);
 					}
 				});
-				rtsScheduleBtn.setVisibility(View.VISIBLE);
+				rdsScheduleBtn.setVisibility(View.VISIBLE);
 			}
 		}
 	}
@@ -814,7 +835,7 @@ public class POIFragment extends ABFragment implements
 			if (layoutResId != null) {
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).setLayoutResource(layoutResId);
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).inflate(); // inflate
-				setupRTSFullScheduleBtn(view);
+				setupRDSFullScheduleBtn(view);
 			}
 		}
 		return view.findViewById(R.id.poi_status_detail);
@@ -1083,7 +1104,7 @@ public class POIFragment extends ABFragment implements
 			POIViewController.updateView(getPOIView(view), poim, this);
 			POIStatusDetailViewController.updateView(getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), poim, this);
-			setupRTSFullScheduleBtn(view);
+			setupRDSFullScheduleBtn(view);
 			setupMoreNewsButton(view);
 			setupAppUpdateButton(view);
 			setupAppWasDisabledButton(view);
@@ -1430,46 +1451,65 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private MenuItem addRemoveFavoriteMenuItem;
+	private MenuItem showFareMenuItem;
 
 	@Override
 	public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_poi, menu);
-		this.addRemoveFavoriteMenuItem = menu.findItem(R.id.menu_add_remove_favorite);
-		updateFavMenuItem();
+		this.showFareMenuItem = menu.findItem(R.id.menu_show_fares);
+		updateFaresMenuItem();
 	}
 
-	private void updateFavMenuItem() {
-		if (this.addRemoveFavoriteMenuItem == null) {
+	private void updateFabFavorite() {
+		final View view = getView();
+		final FloatingActionButton fabFavorite = view == null ? null : view.findViewById(R.id.fab_favorite);
+		if (fabFavorite == null) {
 			return;
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null && poim.isFavoritable()) {
 			final boolean isFav = isFavorite();
-			if (this.addRemoveFavoriteMenuItem == null) {
-				return;
+			@DrawableRes int iconResId;
+			@StringRes int contentDescriptionResId;
+			if (isFav) {
+				iconResId = R.drawable.ic_star_black_24dp;
+				if (this.favoriteManager.isUsingFavoriteFolders()) {
+					contentDescriptionResId = R.string.menu_action_edit_favorite;
+				} else {
+					contentDescriptionResId = R.string.menu_action_remove_favorite;
+				}
+			} else {
+				iconResId = R.drawable.ic_star_border_black_24dp;
+				contentDescriptionResId = R.string.menu_action_add_favorite;
 			}
-			this.addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_star_black_24dp : R.drawable.ic_star_border_black_24dp);
-			this.addRemoveFavoriteMenuItem.setTitle(isFav ? //
-					this.favoriteManager.isUsingFavoriteFolders() ? //
-							R.string.menu_action_edit_favorite //
-							: R.string.menu_action_remove_favorite //
-					: R.string.menu_action_add_favorite);
-			this.addRemoveFavoriteMenuItem.setVisible(true);
+			fabFavorite.setImageResource(iconResId);
+			fabFavorite.setContentDescription(getString(contentDescriptionResId));
+			final int poiColor = poim.getColor(dataSourcesRepository);
+			fabFavorite.setBackgroundTintList(ColorStateList.valueOf(poiColor));
+			fabFavorite.setRippleColor(poiColor);
+			fabFavorite.show();
 		} else {
-			if (this.addRemoveFavoriteMenuItem == null) {
-				return;
-			}
-			this.addRemoveFavoriteMenuItem.setVisible(false);
+			fabFavorite.hide();
 		}
+	}
+
+	private void updateFaresMenuItem() {
+		if (this.showFareMenuItem == null) {
+			return;
+		}
+		final AgencyProperties agency = getAgencyOrNull();
+		final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
+		this.showFareMenuItem.setVisible(!TextUtils.isEmpty(faresWebUrl));
 	}
 
 	@Override
 	public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-		if (menuItem.getItemId() == R.id.menu_add_remove_favorite) {
-			POIManager poim = getPoimOrNull();
-			if (poim != null && poim.isFavoritable()) {
-				return this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
+		if (menuItem.getItemId() == R.id.menu_show_fares) {
+			final AgencyProperties agency = getAgencyOrNull();
+			final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
+			if (!TextUtils.isEmpty(faresWebUrl)) {
+				LinkUtils.open(getView(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true);
+				return true; // handled
 			}
 		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
 			POIManager poim2 = getPoimOrNull();
@@ -1491,7 +1531,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onFavoriteUpdated() {
 		resetFavorite();
-		updateFavMenuItem();
+		updateFabFavorite();
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			POIViewController.updateView(getPOIView(getView()), poim, this);

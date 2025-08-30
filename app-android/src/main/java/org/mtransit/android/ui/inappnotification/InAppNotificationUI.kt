@@ -27,7 +27,7 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
         // private const val SNACKBAR_INSTEAD_OF_TOAST = false // TOAST (old)
         private const val SNACKBAR_INSTEAD_OF_TOAST = true // SNACKBAR (default)
 
-        @SuppressLint("ClickableViewAccessibility")
+        @SuppressLint("ClickableViewAccessibility", "KotlinPairNotCreated")
         @JvmOverloads
         @JvmStatic
         fun makeInAppNotification(

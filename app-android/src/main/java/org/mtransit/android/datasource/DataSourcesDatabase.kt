@@ -23,7 +23,7 @@ import org.mtransit.commons.sql.SQLUtils
         ServiceUpdateProviderProperties::class,
         NewsProviderProperties::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(DataSourcesConverters::class)
@@ -78,6 +78,19 @@ abstract class DataSourcesDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                MTLog.i(LOG_TAG, "DB migration from version 4 to 5...")
+                db.execSQL(
+                    "ALTER TABLE agency_properties ADD COLUMN fares_web ${SQLUtils.TXT} DEFAULT null"
+                )
+                db.execSQL(
+                    "ALTER TABLE agency_properties ADD COLUMN fares_web_fr ${SQLUtils.TXT} DEFAULT null"
+                )
+                MTLog.i(LOG_TAG, "DB migration from version 4 to 5... DONE")
+            }
+        }
+
         @Volatile
         private var instance: DataSourcesDatabase? = null
 
@@ -102,6 +115,7 @@ abstract class DataSourcesDatabase : RoomDatabase() {
                     MIGRATION_1_2,
                     MIGRATION_2_3,
                     MIGRATION_3_4,
+                    MIGRATION_4_5,
                 )
                 .fallbackToDestructiveMigration(false)
                 .build()
