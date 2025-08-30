@@ -1,5 +1,5 @@
-@file:JvmName("RTSAgencyRoutesFragment") // ANALYTICS
-package org.mtransit.android.ui.type.rts
+@file:JvmName("RTSAgencyRoutesFragment") // ANALYTICS // do not change to avoid breaking tracking
+package org.mtransit.android.ui.type.rds
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -20,11 +20,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.data.IAgencyProperties
-import org.mtransit.android.databinding.FragmentRtsAgencyRoutesBinding
+import org.mtransit.android.databinding.FragmentRdsAgencyRoutesBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
-import org.mtransit.android.ui.rts.route.RTSRouteFragment
+import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
@@ -32,20 +32,20 @@ import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
-class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes) {
+class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes) {
 
     companion object {
-        private val LOG_TAG = RTSAgencyRoutesFragment::class.java.simpleName
+        private val LOG_TAG = RDSAgencyRoutesFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
             agencyAuthority: String,
             optColorInt: Int? = null,
-        ): RTSAgencyRoutesFragment {
-            return RTSAgencyRoutesFragment().apply {
+        ): RDSAgencyRoutesFragment {
+            return RDSAgencyRoutesFragment().apply {
                 arguments = bundleOf(
-                    RTSAgencyRoutesViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                    RTSAgencyRoutesViewModel.EXTRA_COLOR_INT to optColorInt,
+                    RDSAgencyRoutesViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
+                    RDSAgencyRoutesViewModel.EXTRA_COLOR_INT to optColorInt,
                 )
             }
         }
@@ -55,19 +55,19 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     override fun getLogTag(): String = this.theLogTag
 
-    private val viewModel by viewModels<RTSAgencyRoutesViewModel>()
+    private val viewModel by viewModels<RDSAgencyRoutesViewModel>()
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
-    private var binding: FragmentRtsAgencyRoutesBinding? = null
+    private var binding: FragmentRdsAgencyRoutesBinding? = null
 
     private val listItemDecoration: ItemDecoration by lazy { DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL) }
 
     private val gridItemDecoration: ItemDecoration by lazy { SpacesItemDecoration(requireContext(), R.dimen.grid_view_spacing) }
 
-    private var listGridAdapter: RTSAgencyRoutesAdapter? = null
+    private var listGridAdapter: RDSAgencyRoutesAdapter? = null
 
-    private fun makeListGridAdapter() = RTSAgencyRoutesAdapter(this::openRouteScreen).apply {
+    private fun makeListGridAdapter() = RDSAgencyRoutesAdapter(this::openRouteScreen).apply {
         setAgency(attachedViewModel?.agency?.value)
         setShowingListInsteadOfGrid(attachedViewModel?.showingListInsteadOfGrid?.value)
         submitList(attachedViewModel?.routes?.value)
@@ -80,8 +80,8 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
                 extras = FragmentNavigatorExtras(view to view.transitionName)
             }
             findNavController().navigate(
-                R.id.nav_to_rts_route_screen,
-                RTSRouteFragment.newInstanceArgs(
+                R.id.nav_to_rds_route_screen,
+                RDSRouteFragment.newInstanceArgs(
                     agency.authority,
                     route.id,
                 ),
@@ -90,7 +90,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
             )
         } else {
             (activity as? MainActivity)?.addFragmentToStack(
-                RTSRouteFragment.newInstance(
+                RDSRouteFragment.newInstance(
                     agency.authority,
                     route.id,
                 ),
@@ -102,7 +102,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentRtsAgencyRoutesBinding.bind(view).apply {
+        binding = FragmentRdsAgencyRoutesBinding.bind(view).apply {
             listGrid.adapter = listGridAdapter ?: makeListGridAdapter().also { listGridAdapter = it } // must null in destroyView() to avoid memory leak
             fabListGrid.apply {
                 setOnClickListener {

@@ -9,8 +9,8 @@
         android:type="linear"
         android:useLevel="false" />
     <corners
-        android:bottomLeftRadius="@dimen/extra_route_trip_radius_bottom_left"
-        android:bottomRightRadius="@dimen/extra_route_trip_radius_bottom_right"
-        android:topLeftRadius="@dimen/extra_route_trip_radius_top_left"
-        android:topRightRadius="@dimen/extra_route_trip_radius_top_right" />
+        android:bottomLeftRadius="@dimen/extra_route_direction_radius_bottom_left"
+        android:bottomRightRadius="@dimen/extra_route_direction_radius_bottom_right"
+        android:topLeftRadius="@dimen/extra_route_direction_radius_top_left"
+        android:topRightRadius="@dimen/extra_route_direction_radius_top_right" />
 </shape>

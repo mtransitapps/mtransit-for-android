@@ -20,7 +20,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
@@ -128,17 +128,17 @@ class POIViewModel @Inject constructor(
     private val poiAlphaComparator by lazy { POIAlphaComparator() }
 
     private val POI.isNoPickup: Boolean
-        get() = this is RouteTripStop && this.isNoPickup
+        get() = this is RouteDirectionStop && this.isNoPickup
 
     private fun POI.isSameRoute(other: POI): Boolean {
-        if (this !is RouteTripStop || other !is RouteTripStop) return false
+        if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
         return this.route.id == other.route.id
     }
 
-    private fun POI.isSameRouteTrip(other: POI): Boolean {
-        if (this !is RouteTripStop || other !is RouteTripStop) return false
+    private fun POI.isSameRouteDirection(other: POI): Boolean {
+        if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
         return this.route.id == other.route.id
-                && this.trip.id == other.trip.id
+                && this.direction.id == other.direction.id
     }
 
     private suspend fun getNearbyPOIs(
@@ -198,7 +198,7 @@ class POIViewModel @Inject constructor(
                             )
                             ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
                             ?.removeAllAnd { nearbyPOIs.contains(it) }
-                            ?.removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteTrip(new.poi) } }
+                            ?.removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteDirection(new.poi) } }
                             ?.also {
                                 if (!nearbyAgencyPOIAdded
                                     && nearbyAgency.authority == agency.authority && it.isNotEmpty()
@@ -209,7 +209,7 @@ class POIViewModel @Inject constructor(
                     )
                 }
             nearbyPOIs.sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
-            removeDuplicateRouteTrip(sortedPOIMList = nearbyPOIs)
+            removeDuplicateRouteDirection(sortedPOIMList = nearbyPOIs)
             val firstRelevantDistance = nearbyPOIs.firstOrNull { it.distance > 0f && !it.poi.isSameRoute(excludedPoi) }?.distance
             val firstLastDistanceDiff = nearbyPOIs.takeIf { it.size >= 2 }?.let { it.last().distance - it.first().distance }
                 ?.takeIf { it > 0f }?.coerceAtMost(maxDistanceInMeters)
@@ -281,19 +281,19 @@ class POIViewModel @Inject constructor(
         return nearbyPOIs
     }
 
-    private fun removeDuplicateRouteTrip(sortedPOIMList: MutableList<POIManager>) {
+    private fun removeDuplicateRouteDirection(sortedPOIMList: MutableList<POIManager>) {
         val it = sortedPOIMList.iterator()
-        val routeTripKept = mutableSetOf<String>()
+        val routeDirectionKept = mutableSetOf<String>()
         while (it.hasNext()) {
             val poim = it.next()
-            if (poim.poi is RouteTripStop) { // RTS
-                val rts = poim.poi
-                val routeTripId = "${rts.route.id}-${rts.trip.id}"
-                if (routeTripKept.contains(routeTripId)) {
+            if (poim.poi is RouteDirectionStop) { // RDS
+                val rds: RouteDirectionStop = poim.poi
+                val routeDirectionId = "${rds.route.id}-${rds.direction.id}"
+                if (routeDirectionKept.contains(routeDirectionId)) {
                     it.remove()
                     continue
                 }
-                routeTripKept += "${poim.poi.route.id}-${poim.poi.trip.id}"
+                routeDirectionKept += "${poim.poi.route.id}-${poim.poi.direction.id}"
             }
         }
     }
