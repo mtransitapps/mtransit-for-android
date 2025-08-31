@@ -60,7 +60,6 @@ object EmptyLayoutUtils {
                     text = context.getString(R.string.samsung_device_care)
                     setIconResource(R.drawable.ic_settings_black_24dp)
                     setOnClickListener { v ->
-                        val activity = activity
                         val samsungDeviceCareInstalled = activity != null && isSamsungDeviceCareInstalled(v.context)
                         if (samsungDeviceCareInstalled) {
                             openDeviceCare(activity, SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER)
