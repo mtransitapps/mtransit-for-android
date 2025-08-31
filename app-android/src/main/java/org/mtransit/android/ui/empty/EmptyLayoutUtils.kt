@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.empty
 
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.view.isVisible
 import org.mtransit.android.R
@@ -85,11 +86,11 @@ object EmptyLayoutUtils {
                         append(context.getString(R.string.enabled_setting))
                         append(
                             when (enabledState) {
-                                0 -> context.getString(R.string.enabled_setting_0)
-                                1 -> context.getString(R.string.enabled_setting_1)
-                                2 -> context.getString(R.string.enabled_setting_2)
-                                3 -> context.getString(R.string.enabled_setting_3)
-                                4 -> context.getString(R.string.enabled_setting_4)
+                                PackageManager.COMPONENT_ENABLED_STATE_DEFAULT -> context.getString(R.string.enabled_setting_0)
+                                PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> context.getString(R.string.enabled_setting_1)
+                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> context.getString(R.string.enabled_setting_2)
+                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER -> context.getString(R.string.enabled_setting_3)
+                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED -> context.getString(R.string.enabled_setting_4)
                                 null -> context.getString(R.string.enabled_setting_null)
                                 else -> context.getString(R.string.enabled_setting_other_and_state, enabledState)
                             }
