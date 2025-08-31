@@ -153,7 +153,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         typeAgencies
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
-                if (agency.isEnabled(pm)) {
+                if (!agency.isEnabled(pm)) {
                     _hasNearbyPOIAgencyDisabled.postValue(true)
                 }
                 nearbyPOIs.addAllN(

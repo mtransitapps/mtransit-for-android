@@ -55,7 +55,7 @@ class DataSourceRequestManager(
         DataSourceManager.findPOI(appContext, authority, poiFilter)
     }
 
-    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? = withContext(ioDispatcher) {
+    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI> = withContext(ioDispatcher) {
         DataSourceManager.findPOIs(appContext, authority, poiFilter).map { it.poi }
     }
 

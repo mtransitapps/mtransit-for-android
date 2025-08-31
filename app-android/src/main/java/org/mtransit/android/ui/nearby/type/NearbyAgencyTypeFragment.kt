@@ -166,7 +166,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             }
         }
         viewModel.hasNearbyPOIAgencyDisabled.observe(viewLifecycleOwner) { hasNearbyPOIAgencyDisabled ->
-            updateEmptyLayout(hasNearbyPOIAgencyDisabled = hasNearbyPOIAgencyDisabled, )
+            updateEmptyLayout(hasNearbyPOIAgencyDisabled = hasNearbyPOIAgencyDisabled)
         }
         viewModel.oneTypeAgency.observe(viewLifecycleOwner) { oneTypeAgency ->
             updateEmptyLayout(pkg = oneTypeAgency?.pkg)
@@ -202,20 +202,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         empty: Boolean = attachedViewModel?.nearbyPOIs?.value.isNullOrEmpty(),
         pkg: String? = attachedViewModel?.oneTypeAgency?.value?.pkg,
     ) {
-        if (hasNearbyPOIAgencyDisabled) {
-            binding?.emptyLayout?.updateEmptyLayout(empty = empty, pkg = pkg, activity)
-        } else {
-            binding?.emptyLayout?.apply {
-                emptyTitle.apply {
-                    setText(R.string.no_favorites)
-                    isVisible = true
-                }
-                emptyText.apply {
-                    setText(R.string.no_favorites_details)
-                    isVisible = true
-                }
-            }
-        }
+        binding?.emptyLayout?.updateEmptyLayout(empty = hasNearbyPOIAgencyDisabled && empty, pkg = pkg, activity)
     }
 
     private fun switchView() {

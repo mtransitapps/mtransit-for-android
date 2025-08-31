@@ -94,7 +94,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
 			return getServiceUpdates(cursor);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' service updates from '%s'!", serviceUpdateFilter, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -123,7 +123,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
 			return getNews(cursor, authority);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' news from '%s'!", newsFilter, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -154,7 +154,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJSONString, null, null);
 			return getScheduleTimestamp(cursor);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' schedule timestamps from '%s'!", scheduleTimestampsFilter, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -181,7 +181,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
 			return getPOIStatus(cursor);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' status from '%s'!", statusFilter, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -221,7 +221,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final Uri uri = Uri.withAppendedPath(getUri(authority), ProviderContract.PING_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while pinging '%s'!", authority);
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -246,7 +246,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		} catch (IllegalArgumentException iae) {
 			MTLog.d(LOG_TAG, iae, "IAE: feature not supported yet?");
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading 'force:%s|focus:%s' available version code from '%s'!", forceAppUpdateRefresh, inFocus, authority);
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -308,7 +308,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 				}
 			}
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading agency properties from '%s'!", authority);
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -328,7 +328,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 				}
 			}
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading agency route logo from '%s'!", authority);
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
@@ -346,7 +346,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			ArrayList<Direction> rdsDirections = getRDSDirections(cursor);
 			return rdsDirections.isEmpty() ? null : rdsDirections.get(0);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading route direction '%d' from '%s'!", directionId, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -362,7 +362,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
 			return getRDSDirections(cursor);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading route '%s' directions from '%s'!", routeId, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -393,7 +393,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final List<Route> rdsRoutes = getRDSRoutes(cursor);
 			return rdsRoutes.isEmpty() ? null : rdsRoutes.get(0);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading route '%s' from '%s'!", routeId, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -452,7 +452,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, null, null, null);
 			return getRDSRoutes(cursor);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading agency routes from '%s'!", authority);
 			return Collections.emptyList();
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -493,7 +493,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
 			return getPOIs(cursor, authority);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' POIs from '%s'!", poiFilter, authority);
 			return Collections.emptyList();
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -524,7 +524,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), searchSuggestUri, null, null, null, null);
 			return getSearchSuggest(cursor);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error!");
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' search suggestions from '%s'!", query, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);

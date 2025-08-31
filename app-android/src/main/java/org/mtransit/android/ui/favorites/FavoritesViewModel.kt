@@ -100,7 +100,7 @@ class FavoritesViewModel @Inject constructor(
             .filterValues { it.isNotEmpty() }
             .forEach { (authority, authorityUUIDs) ->
                 val agency = allAgencies.singleOrNull { it.authority == authority } ?: return@forEach
-                if (agency.isEnabled(pm)) {
+                if (!agency.isEnabled(pm)) {
                     _hasFavoritesAgencyDisabled.postValue(true)
                 }
                 this.poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
