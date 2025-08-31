@@ -82,7 +82,7 @@ object EmptyLayoutUtils {
                     append(Build.VERSION.RELEASE)
                     pkg?.let {
                         append("\n\n")
-                        val enabledState = context.packageManager.getAppEnabledSetting(pkg)
+                        val enabledState = activity?.packageManager?.getAppEnabledSetting(pkg)
                         append(context.getString(R.string.enabled_setting))
                         append(
                             when (enabledState) {

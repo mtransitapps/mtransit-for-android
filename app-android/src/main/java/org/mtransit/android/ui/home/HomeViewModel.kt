@@ -243,10 +243,13 @@ class HomeViewModel @Inject constructor(
         )
         val nearbyPOIs = mutableListOf<POIManager>()
         _nearbyPOIs.postValue(nearbyPOIs)
-        typeToHomeAgencies.forEach { (_, typeAgencies) ->
+        typeToHomeAgencies.forEach { (type, typeAgencies) ->
             scope.ensureActive()
-            val typePOIs = getTypeNearbyPOIs(scope, typeAgencies, lat, lng, minDistanceInMeters, nbMaxByType)
-            filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters, nbMaxByType)
+            val typeMaxByType = nbMaxByType
+                .takeUnless { type == DataSourceType.TYPE_MODULE && hasDisabledModule.value ?: false }
+                ?: NB_MAX_BY_TYPE_ONE_TYPE // show more disabled modules
+            val typePOIs = getTypeNearbyPOIs(scope, typeAgencies, lat, lng, minDistanceInMeters, typeMaxByType)
+            filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters, typeMaxByType)
             typePOIs.sortWith(POI_ALPHA_COMPARATOR)
             scope.ensureActive()
             typePOIs.takeIf { it.isNotEmpty() }?.let { _nearbyPOIs.postValue(it) }
