@@ -25,24 +25,24 @@ object EmptyLayoutUtils {
                 text = context.getString(R.string.sorry_about_that)
                 isVisible = true
             }
-            emptyText.text = pkg?.let { context.getString(R.string.no_data_found_this_agency_text) }
-                ?: run { context.getString(R.string.no_data_found_any_agency_text) }
+            emptyText.text = context.getString(
+                pkg?.let { R.string.no_data_found_this_agency_text }
+                    ?: run { R.string.no_data_found_any_agency_text }
+            )
             emptyButton1.apply {
+                setIconResource(R.drawable.ic_settings_black_24dp)
                 pkg?.let { pkg ->
                     text = context.getString(R.string.manage_app)
-                    setIconResource(R.drawable.ic_settings_black_24dp)
                     setOnClickListener { v ->
                         DeviceUtils.showAppDetailsSettings(v.context, pkg)
                     }
-                    isVisible = true
                 } ?: run {
                     text = context.getString(R.string.manage_apps)
-                    setIconResource(R.drawable.ic_settings_black_24dp)
                     setOnClickListener { v ->
                         DeviceUtils.showAllAppsSettings(v.context)
                     }
-                    isVisible = true
                 }
+                isVisible = true
             }
             emptyButton2.apply {
                 pkg?.let { pkg ->
