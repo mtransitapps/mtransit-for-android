@@ -190,11 +190,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         hasFavoritesAgencyDisabled: Boolean = attachedViewModel?.hasFavoritesAgencyDisabled?.value == true,
         empty: Boolean = attachedViewModel?.favoritePOIs?.value.isNullOrEmpty(),
         pkg: String? = attachedViewModel?.oneAgency?.value?.pkg,
-    ) {
-        if (hasFavoritesAgencyDisabled) {
-            binding?.emptyLayout?.updateEmptyLayout(empty = empty, pkg = pkg, activity)
-        } else {
-            binding?.emptyLayout?.apply {
+    ) = binding?.apply {
+        emptyLayout.updateEmptyLayout(empty = hasFavoritesAgencyDisabled && empty, pkg = pkg, activity)
+        if (!hasFavoritesAgencyDisabled) {
+            emptyLayout.apply {
                 emptyTitle.apply {
                     setText(R.string.no_favorites)
                     isVisible = true

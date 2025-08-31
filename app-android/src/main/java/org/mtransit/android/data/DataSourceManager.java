@@ -57,6 +57,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 	private static final boolean SIMULATE_NO_DATA_FROM_DISABLED_MODULE = false;
 	// private static final boolean SIMULATE_NO_DATA_FROM_DISABLED_MODULE = true; // DEBUG
 
+	// @formatter:off
+	private static final List<String> LOCAL_AUTHORITIES = Arrays.asList(
+			"org.mtransit.android.news.rss", "org.mtransit.android.debug.news.rss",
+			"org.mtransit.android.favorite", "org.mtransit.android.debug.favorite",
+			"org.mtransit.android.provider.module", "org.mtransit.android.debug.provider.module",
+			"org.mtransit.android.provider.place", "org.mtransit.android.debug.provider.place"
+	);
+	// @formatter:on
+
 	@NonNull
 	@Override
 	public String getLogTag() {
@@ -416,15 +425,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 					sortOrder);
 		}
 		if (SIMULATE_NO_DATA_FROM_DISABLED_MODULE) { // DEBUG
-			// @formatter:off
-			final List<String> localAuthorities = Arrays.asList(
-					"org.mtransit.android.news.rss", "org.mtransit.android.debug.news.rss",
-					"org.mtransit.android.favorite", "org.mtransit.android.debug.favorite",
-					"org.mtransit.android.provider.module", "org.mtransit.android.debug.provider.module",
-					"org.mtransit.android.provider.place", "org.mtransit.android.debug.provider.place"
-			);
-			// @formatter:on
-			if (!localAuthorities.contains(uri.getAuthority())) {
+			if (!LOCAL_AUTHORITIES.contains(uri.getAuthority())) {
 				MTLog.d(LOG_TAG, "QUERY -> make DISABLED: '%s'", uri.getAuthority());
 				return null; // simulate disabled / un-responsive modules
 			} else {

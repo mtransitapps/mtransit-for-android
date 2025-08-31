@@ -201,8 +201,8 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         hasNearbyPOIAgencyDisabled: Boolean = attachedViewModel?.hasNearbyPOIAgencyDisabled?.value == true,
         empty: Boolean = attachedViewModel?.nearbyPOIs?.value.isNullOrEmpty(),
         pkg: String? = attachedViewModel?.oneTypeAgency?.value?.pkg,
-    ) {
-        binding?.emptyLayout?.updateEmptyLayout(empty = hasNearbyPOIAgencyDisabled && empty, pkg = pkg, activity)
+    ) = binding?.apply {
+        emptyLayout.updateEmptyLayout(empty = hasNearbyPOIAgencyDisabled && empty, pkg = pkg, activity)
     }
 
     private fun switchView() {
