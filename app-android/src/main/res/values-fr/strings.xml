@@ -163,8 +163,8 @@
     <string name="terms_of_use">Conditions d\'Utilisations</string>
     <string name="local_time_and_time">Heure locale : %s</string>
     <string name="sorry_about_that">Désolé pour cela :(</string>
-    <string name="no_data_found_this_agency_text">Impossible de charger les données pour cette agence de transport, veuillez vous assurer que l\'application est activée et les mises à jour installées.</string>
-    <string name="no_data_found_any_agency_text">Impossible de charger les données pour les agences de transport, veuillez vous assurer que les applications sont activées et les mises à jour installées.</string>
+    <string name="no_data_found_this_agency_text">Impossible de charger les données pour cette agence de transport, veuillez vous assurer que l\'application est activée et les mises à jour sont installées.</string>
+    <string name="no_data_found_any_agency_text">Impossible de charger les données pour les agences de transport, veuillez vous assurer que les applications sont activées et les mises à jour sont installées.</string>
     <string name="enabled_setting">Paramètre activé :&#160;</string>
     <string name="enabled_setting_0">Par défaut (activé)</string>
     <string name="enabled_setting_1">Activé</string>
