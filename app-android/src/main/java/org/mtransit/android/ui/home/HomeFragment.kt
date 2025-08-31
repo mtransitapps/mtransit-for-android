@@ -122,9 +122,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     private var binding: FragmentHomeBinding? = null
 
     private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
-        override fun isLoadingMore(): Boolean {
-            return attachedViewModel?.loadingPOIs?.value == true
-        }
+        override fun isLoadingMore() = attachedViewModel?.loadingPOIs?.value == true
 
         override fun showingDone() = false
     }
@@ -235,25 +233,23 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         viewModel.sortedTypeToHomeAgencies.observe(viewLifecycleOwner) {
             listAdapter.initPOITypes(it ?: return@observe)
         }
-        viewModel.nearbyPOIs.observe(viewLifecycleOwner) {
-            it?.let {
-                val scrollToTop = listAdapter.poisCount <= 0
-                listAdapter.appendPois(it)
-                if (scrollToTop) {
-                    binding?.listLayout?.list?.setSelection(0)
-                }
-                if (isResumed) {
-                    listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
-                } else {
-                    listAdapter.onPause()
-                }
-                switchView()
+        viewModel.nearbyPOIs.observe(viewLifecycleOwner) { nearbyPOIs ->
+            val scrollToTop = listAdapter.poisCount <= 0
+            listAdapter.appendPois(nearbyPOIs)
+            if (scrollToTop) {
+                binding?.listLayout?.list?.setSelection(0)
             }
+            if (isResumed) {
+                listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+            } else {
+                listAdapter.onPause()
+            }
+            switchView()
         }
-        viewModel.loadingPOIs.observe(viewLifecycleOwner) {
-            if (it == false) {
+        viewModel.loadingPOIs.observe(viewLifecycleOwner) { loading ->
+            if (loading == false) {
                 binding?.swipeRefresh?.isRefreshing = false
-            }
+            } // else do nothing
         }
         viewModel.hasAgenciesAdded.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(hasAgenciesAdded = it)
@@ -271,12 +267,11 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
-    private fun switchView() {
-        binding?.apply {
-            loadingLayout.isVisible = false
-            emptyLayout.isVisible = false
-            listLayout.isVisible = true
-        }
+    private fun switchView() = binding?.apply {
+        loadingLayout.isVisible = false
+        emptyLayout.isVisible = false
+
+        listLayout.isVisible = true // list layout header w/ buttons always shown
     }
 
     override fun onResume() {

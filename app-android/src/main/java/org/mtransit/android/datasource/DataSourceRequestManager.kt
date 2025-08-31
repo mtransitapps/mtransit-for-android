@@ -55,13 +55,13 @@ class DataSourceRequestManager(
         DataSourceManager.findPOI(appContext, authority, poiFilter)
     }
 
-    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? = withContext(ioDispatcher) {
-        DataSourceManager.findPOIs(appContext, authority, poiFilter)?.map { it.poi }
+    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI> = withContext(ioDispatcher) {
+        DataSourceManager.findPOIs(appContext, authority, poiFilter).map { it.poi }
     }
 
     suspend fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
 
-    suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? = withContext(ioDispatcher) {
+    suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager> = withContext(ioDispatcher) {
         DataSourceManager.findPOIs(appContext, authority, poiFilter)
     }
 
@@ -74,7 +74,7 @@ class DataSourceRequestManager(
         DataSourceManager.findAgencyRDSRouteLogo(appContext, agencyAuthority)
     }
 
-    suspend fun findAllRDSAgencyRoutes(agencyAuthority: String): List<Route>? = withContext(ioDispatcher) {
+    suspend fun findAllRDSAgencyRoutes(agencyAuthority: String): List<Route> = withContext(ioDispatcher) {
         DataSourceManager.findAllRDSAgencyRoutes(appContext, agencyAuthority)
     }
 
