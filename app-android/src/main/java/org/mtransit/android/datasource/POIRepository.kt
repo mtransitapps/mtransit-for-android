@@ -112,14 +112,14 @@ class POIRepository(
         }
     }.distinctUntilChanged()
 
-    suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI>? {
+    suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI> {
         return dataSourceRequestManager.findPOIs(agency.authority, commonSetup(poiFilter))
-            ?.updateSupportedType(agency)
+            .updateSupportedType(agency)
     }
 
-    suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? {
+    suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager> {
         return dataSourceRequestManager.findPOIMs(agency.authority, commonSetup(poiFilter))
-            ?.updateSupportedType(agency)
+            .updateSupportedType(agency)
     }
 
     fun loadingPOIMs(
@@ -193,11 +193,10 @@ class POIRepository(
                 async {
                     ensureActive()
                     findPOIMs(provider, filter)
-                        ?.updateDistance(deviceLocation)
+                        .updateDistance(deviceLocation)
                 }
             }
             .awaitAll()
-            .filterNotNull()
             .flatten()
             .sortedWith(comparator)
             .let { let.invoke(it) }
@@ -208,6 +207,6 @@ class POIRepository(
         poiFilter: POIProviderContract.Filter,
         context: CoroutineContext = ioDispatcher
     ) = withContext(context) {
-        findPOIMs(agency, poiFilter).orEmpty()
+        findPOIMs(agency, poiFilter)
     }
 }

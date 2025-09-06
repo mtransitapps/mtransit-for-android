@@ -20,6 +20,7 @@ import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
+import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.nearby.NearbyViewModel
@@ -164,7 +165,14 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 listAdapter.clear()
             }
         }
+        viewModel.hasNearbyPOIAgencyDisabled.observe(viewLifecycleOwner) { hasNearbyPOIAgencyDisabled ->
+            updateEmptyLayout(hasNearbyPOIAgencyDisabled = hasNearbyPOIAgencyDisabled)
+        }
+        viewModel.oneTypeAgency.observe(viewLifecycleOwner) { oneTypeAgency ->
+            updateEmptyLayout(pkg = oneTypeAgency?.pkg)
+        }
         viewModel.nearbyPOIs.observe(viewLifecycleOwner) { poiList ->
+            updateEmptyLayout(empty = poiList.isNullOrEmpty())
             val scrollToTop = listAdapter.poisCount <= 0
             listAdapter.appendPois(poiList)
             if (scrollToTop) {
@@ -187,6 +195,14 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 }
             }
         }
+    }
+
+    private fun updateEmptyLayout(
+        hasNearbyPOIAgencyDisabled: Boolean = attachedViewModel?.hasNearbyPOIAgencyDisabled?.value == true,
+        empty: Boolean = attachedViewModel?.nearbyPOIs?.value.isNullOrEmpty(),
+        pkg: String? = attachedViewModel?.oneTypeAgency?.value?.pkg,
+    ) = binding?.apply {
+        emptyLayout.updateEmptyLayout(empty = hasNearbyPOIAgencyDisabled && empty, pkg = pkg, activity)
     }
 
     private fun switchView() {

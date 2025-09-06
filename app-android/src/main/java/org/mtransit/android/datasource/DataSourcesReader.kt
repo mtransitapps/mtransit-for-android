@@ -131,7 +131,7 @@ class DataSourcesReader @Inject constructor(
     private val newsProviderMetaData by lazy { appContext.getString(commonsR.string.news_provider) }
 
     private val agencyProviderTypeMetaData by lazy { appContext.getString(commonsR.string.agency_provider_type) }
-    private val rdsProviderMetaData by lazy { appContext.getString(commonsR.string.rds_provider) }
+    private val rdsProviderMetaData by lazy { appContext.getString(commonsR.string.rts_provider) }
 
     private val statusProviderTargetMetaData by lazy { appContext.getString(commonsR.string.status_provider_target) }
     private val scheduleProviderTargetMetaData by lazy { appContext.getString(commonsR.string.schedule_provider_target) }

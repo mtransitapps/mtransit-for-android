@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.favorites
 
 import android.content.pm.PackageManager
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -18,6 +19,7 @@ import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparator
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.IAgencyProperties
@@ -66,38 +68,48 @@ class FavoritesViewModel @Inject constructor(
 
     private val _favoriteUpdatedTrigger = MutableLiveData(0)
 
-    private val _agencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
+    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
+
+    val oneAgency: LiveData<AgencyBaseProperties?> = _allAgencies.map { // many users have only 1 agency installed
+        if (it.size == 1) it[0] else null
+    }.distinctUntilChanged()
+
+    private val _hasFavoritesAgencyDisabled = MutableLiveData(false)
+    val hasFavoritesAgencyDisabled: LiveData<Boolean> = _hasFavoritesAgencyDisabled.distinctUntilChanged()
 
     val favoritePOIs: LiveData<List<POIManager>?> =
-        PairMediatorLiveData(_favoriteUpdatedTrigger, _agencies).switchMap { (_, agencies) ->
+        PairMediatorLiveData(_favoriteUpdatedTrigger, _allAgencies).switchMap { (_, allAgencies) ->
+            _hasFavoritesAgencyDisabled.value = false
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                emit(getFavorites(agencies))
+                allAgencies ?: return@liveData
+                emit(getFavorites(allAgencies))
             }
         }
 
-    private suspend fun getFavorites(agencies: List<IAgencyProperties>?): List<POIManager>? {
-        if (agencies.isNullOrEmpty()) {
-            MTLog.d(this, "getFavorites() > SKIP (no agencies)")
-            return null // loading
-        }
+    @WorkerThread
+    private suspend fun getFavorites(allAgencies: List<IAgencyProperties>): List<POIManager>? {
         val favorites = this.favoriteRepository.findFavorites()
         if (favorites.isEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no favorites)")
             return emptyList() // empty (no favorites)
         }
         val pois = mutableListOf<POIManager>()
-        val authorityToUUIDs = favorites.groupBy({ POI.POIUtils.extractAuthorityFromUUID(it.fkId).orEmpty() }, { it.fkId })
+        val authorityToUUIDs = favorites.groupBy({ it.authority.orEmpty() }, { it.fkId })
         authorityToUUIDs
-            .filterKeys { authority -> authority.isNotEmpty() && agencies.any { it.authority == authority } }
+            .filterKeys { authority -> authority.isNotEmpty() && allAgencies.any { it.authority == authority } }
             .filterValues { it.isNotEmpty() }
             .forEach { (authority, authorityUUIDs) ->
-                val agency = agencies.singleOrNull { it.authority == authority } ?: return@forEach
+                val agency = allAgencies.singleOrNull { it.authority == authority } ?: return@forEach
+                if (!agency.isEnabled(pm)) {
+                    _hasFavoritesAgencyDisabled.postValue(true)
+                }
                 this.poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
-                    .takeIf { !it.isNullOrEmpty() }
-                    ?.let { agencyPOIs ->
-                        pois.addAll(
-                            agencyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
-                        )
+                    .let { agencyPOIs ->
+                        if (agencyPOIs.isNotEmpty()) {
+                            pois.addAll(
+                                agencyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
+                            )
+                        }
                     }
             }
         if (pois.isNotEmpty()) {
@@ -159,4 +171,7 @@ class FavoritesViewModel @Inject constructor(
     }
 
     override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
+
+    private val Favorite.authority: String?
+        get() = POI.POIUtils.extractAuthorityFromUUID(fkId)
 }

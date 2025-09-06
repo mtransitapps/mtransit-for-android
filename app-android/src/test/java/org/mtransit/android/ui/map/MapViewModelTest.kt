@@ -6,28 +6,21 @@ package org.mtransit.android.ui.map
 //import org.junit.Assert
 //import org.junit.Before
 //import org.junit.Test
-//import org.junit.runner.RunWith
-//import org.mockito.Mock
-//import org.mockito.junit.MockitoJUnitRunner
+//import org.mockito.Mockito.mock
 //import org.mtransit.android.common.repository.LocalPreferenceRepository
 //import org.mtransit.android.datasource.DataSourcesRepository
 //import org.mtransit.android.datasource.POIRepository
 //import org.mtransit.commons.CommonsApp
 //
-//@RunWith(MockitoJUnitRunner::class)
 //class MapViewModelTest {
 //
-// @Mock
-// private lateinit var savedStateHandle: SavedStateHandle
+// private val savedStateHandle: SavedStateHandle = mock()
 //
-// @Mock
-// private lateinit var dataSourcesRepository: DataSourcesRepository
+// private val dataSourcesRepository: DataSourcesRepository = mock()
 //
-// @Mock
-// private lateinit var poiRepository: POIRepository
+// private val poiRepository: POIRepository = mock()
 //
-// @Mock
-// private lateinit var lclPrefRepository: LocalPreferenceRepository
+// private val lclPrefRepository: LocalPreferenceRepository = mock()
 //
 // @Before
 // fun setUp() {

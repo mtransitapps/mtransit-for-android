@@ -1,0 +1,111 @@
+package org.mtransit.android.ui.empty
+
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.view.isVisible
+import org.mtransit.android.R
+import org.mtransit.android.commons.DeviceUtils
+import org.mtransit.android.commons.StoreUtils
+import org.mtransit.android.commons.getAppEnabledSetting
+import org.mtransit.android.databinding.LayoutEmptyBinding
+import org.mtransit.android.ui.view.common.context
+import org.mtransit.android.util.BatteryOptimizationIssueUtils
+import org.mtransit.android.util.BatteryOptimizationIssueUtils.SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER
+import org.mtransit.android.util.BatteryOptimizationIssueUtils.installSamsungDeviceCare
+import org.mtransit.android.util.BatteryOptimizationIssueUtils.isSamsungDeviceCareInstalled
+import org.mtransit.android.util.BatteryOptimizationIssueUtils.openDeviceCare
+import org.mtransit.android.commons.R as commonsR
+
+object EmptyLayoutUtils {
+
+    fun LayoutEmptyBinding.updateEmptyLayout(empty: Boolean, pkg: String?, activity: Activity?) {
+        if (empty) {
+            emptyTitle.apply {
+                text = context.getString(R.string.sorry_about_that)
+                isVisible = true
+            }
+            emptyText.text = context.getString(
+                pkg?.let { R.string.no_data_found_this_agency_text }
+                    ?: run { R.string.no_data_found_any_agency_text }
+            )
+            emptyButton1.apply {
+                setIconResource(R.drawable.ic_settings_black_24dp)
+                pkg?.let { pkg ->
+                    text = context.getString(R.string.manage_app)
+                    setOnClickListener { v ->
+                        DeviceUtils.showAppDetailsSettings(v.context, pkg)
+                    }
+                } ?: run {
+                    text = context.getString(R.string.manage_apps)
+                    setOnClickListener { v ->
+                        DeviceUtils.showAllAppsSettings(v.context)
+                    }
+                }
+                isVisible = true
+            }
+            emptyButton2.apply {
+                pkg?.let { pkg ->
+                    text = context.getString(commonsR.string.google_play)
+                    setIconResource(R.drawable.ic_baseline_shop_24)
+                    setOnClickListener { v ->
+                        StoreUtils.viewAppPage(v.context, pkg, context.getString(commonsR.string.google_play))
+                    }
+                    isVisible = true
+                } ?: run {
+                    isVisible = false
+                }
+            }
+            emptyButton3.apply {
+                if (BatteryOptimizationIssueUtils.isSamsungDevice()) {
+                    text = context.getString(R.string.samsung_device_care)
+                    setIconResource(R.drawable.ic_settings_black_24dp)
+                    setOnClickListener { v ->
+                        val samsungDeviceCareInstalled = activity != null && isSamsungDeviceCareInstalled(v.context)
+                        if (samsungDeviceCareInstalled) {
+                            openDeviceCare(activity, SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER)
+                        } else {
+                            installSamsungDeviceCare(v.context)
+                        }
+                    }
+                    isVisible = true
+                } else {
+                    isVisible = false
+                }
+            }
+            emptySubText.apply {
+                text = buildString {
+                    append(Build.MANUFACTURER)
+                    append(" ")
+                    append(Build.MODEL)
+                    append(" - Android ")
+                    append(Build.VERSION.RELEASE)
+                    pkg?.let {
+                        append("\n\n")
+                        val enabledState = activity?.packageManager?.getAppEnabledSetting(pkg)
+                        append(context.getString(R.string.enabled_setting))
+                        append(
+                            when (enabledState) {
+                                PackageManager.COMPONENT_ENABLED_STATE_DEFAULT -> context.getString(R.string.enabled_setting_0)
+                                PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> context.getString(R.string.enabled_setting_1)
+                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> context.getString(R.string.enabled_setting_2)
+                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER -> context.getString(R.string.enabled_setting_3)
+                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED -> context.getString(R.string.enabled_setting_4)
+                                null -> context.getString(R.string.enabled_setting_null)
+                                else -> context.getString(R.string.enabled_setting_other_and_state, enabledState)
+                            }
+                        )
+                    }
+                }
+                isVisible = true
+            }
+        } else {
+            emptyTitle.isVisible = false
+            emptyText.setText(R.string.no_results)
+            emptyButton1.isVisible = false
+            emptyButton2.isVisible = false
+            emptyButton3.isVisible = false
+            emptySubText.isVisible = false
+        }
+    }
+}

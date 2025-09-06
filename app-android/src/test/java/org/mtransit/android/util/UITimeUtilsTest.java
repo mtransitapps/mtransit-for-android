@@ -11,8 +11,6 @@ import android.text.style.RelativeSizeSpan;
 import androidx.core.util.Pair;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.data.Direction;
 import org.mtransit.android.commons.data.Schedule;
@@ -27,7 +25,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class UITimeUtilsTest {
 
 	@Test
