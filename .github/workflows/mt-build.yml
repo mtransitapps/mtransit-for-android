@@ -23,6 +23,13 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT check out submodules
         run: ./checkout_submodules.sh
+      - name: MT check out all git submodule closest branch
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Checking out submodules closest branch, '$MT_BRANCH_NAME' or '$MT_TARGET_BRANCH_NAME':"
+          git submodule foreach 'git checkout $MT_BRANCH_NAME || git checkout $MT_TARGET_BRANCH_NAME'
+          echo "Showing submodules current branch:"
+          git submodule foreach 'git branch --show-current'
       - name: MT setup MT_GIT_BRANCH env
         run: |
           MT_GIT_BRANCH=${{ github.head_ref || github.ref_name }}
