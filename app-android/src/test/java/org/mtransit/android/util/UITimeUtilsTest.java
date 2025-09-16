@@ -11,11 +11,9 @@ import android.text.style.RelativeSizeSpan;
 import androidx.core.util.Pair;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mtransit.android.R;
+import org.mtransit.android.commons.data.Direction;
 import org.mtransit.android.commons.data.Schedule;
-import org.mtransit.android.commons.data.Trip;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +25,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class UITimeUtilsTest {
 
 	@Test
@@ -115,7 +112,7 @@ public class UITimeUtilsTest {
 		ArrayList<Schedule.Timestamp> timestamps = new ArrayList<>();
 		long providerFSMinDurationInMs = TimeUnit.MINUTES.toMillis(15L);
 		long providerFSTimeSpanInMs = TimeUnit.MINUTES.toMillis(3L);
-		timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
 		//noinspection ConstantConditions,PointlessArithmeticExpression
 		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs));
 		//noinspection PointlessArithmeticExpression
@@ -138,7 +135,7 @@ public class UITimeUtilsTest {
 		long providerFSTimeSpanInMs = TimeUnit.MINUTES.toMillis(3L);
 		timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs));
 		//noinspection ConstantConditions,PointlessArithmeticExpression
-		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
 		//noinspection PointlessArithmeticExpression
 		timestamps.add(new Schedule.Timestamp(now + 1L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 2L * providerFSTimeSpanInMs));
@@ -161,7 +158,7 @@ public class UITimeUtilsTest {
 		//noinspection ConstantConditions,PointlessArithmeticExpression
 		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs - 1L));
 		//noinspection ConstantConditions,PointlessArithmeticExpression
-		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
 		//noinspection ConstantConditions,PointlessArithmeticExpression
 		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs + 1L));
 		//noinspection PointlessArithmeticExpression
@@ -189,7 +186,7 @@ public class UITimeUtilsTest {
 		timestamps.add(new Schedule.Timestamp(now + 1L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 2L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 3L * providerFSTimeSpanInMs));
-		timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
 		// Act
 		boolean result = UITimeUtils.isFrequentService(timestamps, providerFSMinDurationInMs, providerFSTimeSpanInMs);
 		// Assert
@@ -211,7 +208,7 @@ public class UITimeUtilsTest {
 		timestamps.add(new Schedule.Timestamp(now + 2L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 3L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs));
-		timestamps.add(new Schedule.Timestamp(now + 5L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Schedule.Timestamp(now + 5L * providerFSTimeSpanInMs).setHeadsign(Direction.HEADSIGN_TYPE_NO_PICKUP, null));
 		// Act
 		boolean result = UITimeUtils.isFrequentService(timestamps, providerFSMinDurationInMs, providerFSTimeSpanInMs);
 		// Assert

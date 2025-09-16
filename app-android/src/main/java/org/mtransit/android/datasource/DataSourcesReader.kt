@@ -36,7 +36,7 @@ import org.mtransit.android.commons.R as commonsR
 
 @Singleton
 class DataSourcesReader @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val pm: PackageManager,
     private val analyticsManager: IAnalyticsManager,
     private val dataSourcesDatabase: DataSourcesDatabase,
@@ -131,7 +131,7 @@ class DataSourcesReader @Inject constructor(
     private val newsProviderMetaData by lazy { appContext.getString(commonsR.string.news_provider) }
 
     private val agencyProviderTypeMetaData by lazy { appContext.getString(commonsR.string.agency_provider_type) }
-    private val rtsProviderMetaData by lazy { appContext.getString(commonsR.string.rts_provider) }
+    private val rdsProviderMetaData by lazy { appContext.getString(commonsR.string.rts_provider) }
 
     private val statusProviderTargetMetaData by lazy { appContext.getString(commonsR.string.status_provider_target) }
     private val scheduleProviderTargetMetaData by lazy { appContext.getString(commonsR.string.schedule_provider_target) }
@@ -282,9 +282,12 @@ class DataSourcesReader @Inject constructor(
                 if (providerMetaData.isKeyMT(statusProviderMetaData)) {
                     if (knownStatusProviderProperties.none { it.authority == providerAuthority }) {
                         providerMetaData.getString(statusProviderTargetMetaData)?.let { targetAuthority ->
-                            MTLog.d(this, "Status provider '${providerAuthority}' added.")
+                            val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
+                                ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
+                                    .orEmpty() // will never be visible!
+                            MTLog.d(this, "Status provider '${providerAuthority}' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.statusProviderPropertiesDao().insert(
-                                StatusProviderProperties(providerAuthority, targetAuthority, pkg)
+                                StatusProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
                             markUpdated()
                         }
@@ -294,9 +297,12 @@ class DataSourcesReader @Inject constructor(
                 if (providerMetaData.isKeyMT(scheduleProviderMetaData)) {
                     if (knownScheduleProviderProperties.none { it.authority == providerAuthority }) {
                         providerMetaData.getString(scheduleProviderTargetMetaData)?.let { targetAuthority ->
-                            MTLog.d(this, "Schedule provider '${providerAuthority}' added.")
+                            val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
+                                ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
+                                    .orEmpty() // will never be visible!
+                            MTLog.d(this, "Schedule provider '${providerAuthority}' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.scheduleProviderPropertiesDao().insert(
-                                ScheduleProviderProperties(providerAuthority, targetAuthority, pkg)
+                                ScheduleProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
                             markUpdated()
                         }
@@ -306,9 +312,12 @@ class DataSourcesReader @Inject constructor(
                 if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
                     if (knownServiceUpdateProviderProperties.none { it.authority == providerAuthority }) {
                         providerMetaData.getString(serviceUpdateProviderTargetMetaData)?.let { targetAuthority ->
-                            MTLog.d(this, "Service Update provider '${providerAuthority}' added.")
+                            val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
+                                ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
+                                    .orEmpty() // will never be visible!
+                            MTLog.d(this, "Service Update provider '${providerAuthority}' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().insert(
-                                ServiceUpdateProviderProperties(providerAuthority, targetAuthority, pkg)
+                                ServiceUpdateProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
                             markUpdated()
                         }
@@ -318,9 +327,11 @@ class DataSourcesReader @Inject constructor(
                 if (providerMetaData.isKeyMT(newsProviderMetaData)) {
                     if (knownNewsProviderProperties.none { it.authority == providerAuthority }) {
                         providerMetaData.getString(newsProviderTargetMetaData)?.let { targetAuthority ->
-                            MTLog.d(this, "News provider '${providerAuthority}' added.")
+                            val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
+                                ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
+                                    .orEmpty() // will only be visible in News screen
                             dataSourcesDatabase.newsProviderPropertiesDao().insert(
-                                NewsProviderProperties(providerAuthority, targetAuthority, pkg)
+                                NewsProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
                             markUpdated()
                         }
@@ -501,13 +512,13 @@ class DataSourcesReader @Inject constructor(
             }
             return
         }
-        val isRTS = providerMetaData.isKeyMT(rtsProviderMetaData)
-        val logo = if (isRTS) this.dataSourceRequestManager.findAgencyRTSRouteLogo(agencyAuthority) else null
+        val isRDS = providerMetaData.isKeyMT(rdsProviderMetaData)
+        val logo = if (isRDS) this.dataSourceRequestManager.findAgencyRDSRouteLogo(agencyAuthority) else null
         val trigger = if (triggerUpdate) agencyProperties?.let { it.trigger + 1 } ?: 0 else 0
         val newAgencyProperties = this.dataSourceRequestManager.findAgencyProperties(
             agencyAuthority,
             agencyType,
-            isRTS,
+            isRDS,
             logo,
             pkg,
             longVersionCode,

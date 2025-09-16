@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @Singleton
 class KeysManager @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
 ) {
 
     companion object {

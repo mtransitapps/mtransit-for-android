@@ -259,11 +259,18 @@
         <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:layout_gravity">end|bottom</item>
-        <item name="android:layout_marginEnd">@dimen/fab_margin_end</item>
-        <item name="android:layout_marginBottom">@dimen/fab_margin_bottom</item>
-        <item name="android:contentDescription">@string/menu_action_list</item>
+    </style>
 
+    <style name="MTFabMiniBottomEnd" parent="@style/MTFabBottomEnd">
         <item name="fabSize">mini</item>
+        <item name="android:layout_marginEnd">@dimen/fab_mini_margin_end</item>
+        <item name="android:layout_marginBottom">@dimen/fab_mini_margin_bottom</item>
+    </style>
+
+    <style name="MTFabAutoBottomEnd" parent="@style/MTFabBottomEnd">
+        <item name="fabSize">auto</item>
+        <item name="android:layout_marginEnd">@dimen/fab_auto_margin_end</item>
+        <item name="android:layout_marginBottom">@dimen/fab_auto_margin_bottom</item>
     </style>
 
     <style name="MTPOIList">

@@ -1,8 +1,8 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.MTLog
 import java.util.concurrent.atomic.AtomicBoolean

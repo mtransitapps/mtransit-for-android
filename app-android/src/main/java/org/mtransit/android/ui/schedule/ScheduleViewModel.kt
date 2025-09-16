@@ -11,10 +11,11 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
@@ -55,6 +56,13 @@ class ScheduleViewModel @Inject constructor(
 
         internal const val EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now"
 
+        private const val START_AT_DAYS_BEFORE_INIT = 7
+        private const val END_AT_DAYS_AFTER_INIT = 14
+
+        private const val END_AT_DAYS_AFTER_INC = 7
+
+        private const val END_AT_DAYS_AFTER_AUTO_INC_MAX = 99
+
         private const val EXTRA_START_AT_DAYS_BEFORE = "extra_start_at_days_before"
         private const val EXTRA_END_AT_DAYS_AFTER = "extra_end_at_days_after"
         private const val LOCAL_TIME_ZONE_ID = "local_time_zone_id"
@@ -84,7 +92,7 @@ class ScheduleViewModel @Inject constructor(
             dataSourceRemovedEvent.postValue(Event(true))
         })
 
-    val rts: LiveData<RouteTripStop?> = this.poim.map { it?.poi as? RouteTripStop }
+    val rds: LiveData<RouteDirectionStop?> = this.poim.map { it?.poi as? RouteDirectionStop }
 
     private val _startsAtDaysBefore = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_START_AT_DAYS_BEFORE)
     private val _endsAtDaysAfter = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_END_AT_DAYS_AFTER)
@@ -111,15 +119,22 @@ class ScheduleViewModel @Inject constructor(
 
     fun initStartEndTimeIfNotSet() {
         if (_startsAtDaysBefore.value == null) {
-            savedStateHandle[EXTRA_START_AT_DAYS_BEFORE] = 7
-            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = 14
+            viewModelScope.launch(Dispatchers.Main) {
+                savedStateHandle[EXTRA_START_AT_DAYS_BEFORE] = START_AT_DAYS_BEFORE_INIT
+                savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = END_AT_DAYS_AFTER_INIT
+            }
         }
     }
 
-    fun increaseEndTime() {
-        _endsAtDaysAfter.value?.let { currentEndDateInDays ->
-            savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = currentEndDateInDays + 7
-        }
+    fun increaseEndTime(maxEnd: Int? = null): Boolean {
+        return _endsAtDaysAfter.value
+            ?.takeIf { maxEnd == null || it <= maxEnd }
+            ?.let { currentEndDateInDays ->
+                viewModelScope.launch(Dispatchers.Main) {
+                    savedStateHandle[EXTRA_END_AT_DAYS_AFTER] = currentEndDateInDays + END_AT_DAYS_AFTER_INC
+                }
+                true
+            } ?: false
     }
 
     val scrolledToNow = savedStateHandle.getLiveDataDistinct(EXTRA_SCROLLED_TO_NOW, false)
@@ -133,7 +148,7 @@ class ScheduleViewModel @Inject constructor(
     }
 
     val timestamps: LiveData<List<Schedule.Timestamp>?> =
-        QuadrupleMediatorLiveData(rts, _startsAtInMs, _endsAtInMs, _scheduleProviders).switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
+        QuadrupleMediatorLiveData(rds, _startsAtInMs, _endsAtInMs, _scheduleProviders).switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getTimestamps(rts, startsAtInMs, endsAtInMs, scheduleProviders))
             }
@@ -143,22 +158,24 @@ class ScheduleViewModel @Inject constructor(
     val sourceLabel: LiveData<String?> = _sourceLabel
 
     private suspend fun getTimestamps(
-        rts: RouteTripStop?,
+        rds: RouteDirectionStop?,
         startsAtInMs: Long?,
         endAtInMS: Long?,
         scheduleProviders: List<ScheduleProviderProperties>?
     ): List<Schedule.Timestamp>? {
-        if (rts == null || startsAtInMs == null || endAtInMS == null || scheduleProviders == null) {
-            MTLog.d(this, "getTimestamps() > SKIP (no RTS OR no start/end OR no schedule providers)")
+        if (rds == null || startsAtInMs == null || endAtInMS == null || scheduleProviders == null) {
+            MTLog.d(this, "getTimestamps() > SKIP (no RDS OR no start/end OR no schedule providers)")
             return null // not loaded (loading)
         }
         val scheduleFilter = ScheduleTimestampsProviderContract.Filter(
-            rts,
+            rds,
             startsAtInMs,
             endAtInMS
         )
+        var hasProviderTimestampsReturned = false
         scheduleProviders.forEach { scheduleProvider ->
             this.dataSourceRequestManager.findScheduleTimestamps(scheduleProvider.authority, scheduleFilter)?.let { scheduleTimestamps ->
+                hasProviderTimestampsReturned = true
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _sourceLabel.postValue(scheduleTimestamps.sourceLabel)
                     scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZone }?.let { localTimeZoneId ->
@@ -166,6 +183,11 @@ class ScheduleViewModel @Inject constructor(
                     }
                     return scheduleTimestamps.timestamps
                 }
+            }
+        }
+        if (hasProviderTimestampsReturned) {
+            if (increaseEndTime(maxEnd = END_AT_DAYS_AFTER_AUTO_INC_MAX)) {
+                return null // not loaded (loading)
             }
         }
         _sourceLabel.postValue(null)

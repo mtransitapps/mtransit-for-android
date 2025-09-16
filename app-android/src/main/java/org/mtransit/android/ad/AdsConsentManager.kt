@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AdsConsentManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : MTLog.Loggable {
 
     companion object {

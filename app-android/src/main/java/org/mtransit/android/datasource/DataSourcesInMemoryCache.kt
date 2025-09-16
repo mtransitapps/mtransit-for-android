@@ -26,7 +26,7 @@ import javax.inject.Singleton
 @Suppress("MemberVisibilityCanBePrivate")
 @Singleton
 class DataSourcesInMemoryCache @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val dataSourcesCache: DataSourcesCache,
     private val billingManager: IBillingManager,
     private val demoModeManager: DemoModeManager,

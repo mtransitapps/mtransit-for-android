@@ -4,7 +4,7 @@
 version: 2.1
 orbs:
   # https://circleci.com/developer/orbs/orb/circleci/android
-  android: circleci/android@2.5.0
+  android: circleci/android@3.1.0
 workflows:
   mt-workflow:
     jobs:
@@ -15,6 +15,7 @@ workflows:
             branches:
                 only:
                     - master
+                    - /^mm\/.*/ # starts with "mm/"
                     # - TODO other branch?
 jobs:
   mt-job:
@@ -23,18 +24,18 @@ jobs:
     #   # https://circleci.com/developer/images/image/cimg/android
     #   # https://github.com/CircleCI-Public/cimg-android
     #   # https://hub.docker.com/r/cimg/android/tags
-    #   - image: cimg/android:2023.09.1
+    #   - image: cimg/android:2025.04
     #     auth:
     #       username: montransit
     #       password: $MT_DOCKER_PASSWORD
     executor:
-      name: android/android-machine
+      name: android/android_machine
       tag: default
       # https://circleci.com/docs/configuration-reference/#linuxvm-execution-environment
-      # resource-class: medium # small, medium (default), medium+, large, xlarge
-      # resource-class: medium # (vCPU: 2 | RAM: 4GB) (DEFAULT)
-      resource-class: medium # (vCPU: 2 | RAM: 7.5GB)
-      # resource-class: large # (vCPU: 4 | RAM: 8GB) (large is maxiumum for free plan)
+      # resource_class: medium # small, medium (default), medium+, large, xlarge
+      # resource_class: medium # (vCPU: 2 | RAM: 4GB) (DEFAULT)
+      resource_class: medium # (vCPU: 2 | RAM: 7.5GB)
+      # resource_class: large # (vCPU: 4 | RAM: 8GB) (large is maxiumum for free plan)
     environment: # https://circleci.com/docs/2.0/java-oom/ (-XX:MaxRAMPercentage=90.0 )
       JAVA_TOOL_OPTIONS: -Xmx5432m -XX:+UseParallelGC
       JVM_OPTS: -Xmx5432m -XX:+UseParallelGC
@@ -44,17 +45,16 @@ jobs:
       TZ: "America/Toronto"
     steps:
       - run:
-          name: APT install - gawk & inkscape & libxml2-utils
+          name: APT install - gawk & libxml2-utils
           command: |
             sudo apt-get update
             sudo apt-get install -y gawk
-            sudo apt-get install -y inkscape
             sudo apt-get install -y libxml2-utils
-      - android/change-java-version:
-          java-version: 17
+      - android/change_java_version:
+          java_version: 17
       - run:
           name: Update SDK
-          command: echo y | sdkmanager "build-tools;34.0.0" "platform-tools" "platforms;android-34"
+          command: echo y | sdkmanager "build-tools;36.0.0" "platform-tools" "platforms;android-36"
       - checkout
       - run:
           name: checkout_submodules.sh permissions
@@ -74,11 +74,8 @@ jobs:
       - run:
           name: Sync files
           command: ./commons/code_setup.sh
-      - android/restore-build-cache:
-          cache-prefix: android-build-cache
-      # - android/restore-gradle-cache:
-      # cache-prefix: gradle-cache
-      # find-args: . -type f \( -name "*.gradle" -o -name "gradle-wrapper.properties" \)
+      - android/restore_build_cache:
+          cache_prefix: android-build-cache
       - restore_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - run:
@@ -88,9 +85,6 @@ jobs:
           keys:
             - gradle-cache-{{ checksum "gradle_cache_key_checksum.txt" }}
             - gradle-cache- # fallback to using the latest cache if no exact match is found
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies --no-daemon --no-parallel --no-configure-on-demand --max-workers=1 --console=plain
       - run:
           name: Build
           command: ./build.sh
@@ -102,10 +96,8 @@ jobs:
           paths:
             - ~/.gradle/wrapper/
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-      - android/save-build-cache:
-          cache-prefix: android-build-cache
-      # - android/save-gradle-cache:
-      # cache-prefix: gradle-cache
+      - android/save_gradle_cache:
+          cache_prefix: android-build-cache
       - store_artifacts:
           path: agency-parser/output/current
           destination: gtfs-validator-results-current

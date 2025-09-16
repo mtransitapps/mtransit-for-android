@@ -40,8 +40,8 @@ data class AgencyProperties(
     val isInstalled: Boolean = true, // #onModulesUpdated
     @ColumnInfo(name = "is_enabled")
     override val isEnabled: Boolean = true, // #onModulesUpdated
-    @ColumnInfo(name = "is_rts")
-    override val isRTS: Boolean = false,
+    @ColumnInfo(name = "is_rts") // do not change to avoid breaking compat w/ old modules
+    override val isRDS: Boolean = false,
     @ColumnInfo(name = "logo")
     override val logo: JPaths? = null,
     @ColumnInfo(name = "max_valid_sec")
@@ -52,6 +52,10 @@ data class AgencyProperties(
     val contactUsWeb: String? = null,
     @ColumnInfo(name = "contact_us_web_fr")
     val contactUsWebFr: String? = null,
+    @ColumnInfo(name = "fares_web")
+    val faresWeb: String? = null,
+    @ColumnInfo(name = "fares_web_fr")
+    val faresWebFr: String? = null,
     @ColumnInfo(name = "extended_type")
     override val extendedType: DataSourceType? = null,
 ) : IAgencyNearbyUIProperties, IAgencyUpdatableProperties {
@@ -70,12 +74,14 @@ data class AgencyProperties(
         availableVersionCode: Int,
         isInstalled: Boolean,
         isEnabled: Boolean,
-        isRTS: Boolean = false,
+        isRDS: Boolean = false,
         logo: JPaths? = null,
         maxValidSec: Int = -1,
         trigger: Int = 0,
         contactUsWeb: String? = null,
         contactUsWebFr: String? = null,
+        faresWeb: String? = null,
+        faresWebFr: String? = null,
         extendedType: DataSourceType? = null,
     ) : this(
         id,
@@ -89,12 +95,14 @@ data class AgencyProperties(
         availableVersionCode,
         isInstalled,
         isEnabled,
-        isRTS,
+        isRDS,
         logo,
         maxValidSec,
         trigger,
         contactUsWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
         contactUsWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
+        faresWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
+        faresWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
         extendedType,
     )
 
@@ -153,5 +161,13 @@ data class AgencyProperties(
     fun hasContactUs() = !this.contactUsWeb.isNullOrBlank()
 
     @Ignore
-    val contactUsWebForLang = if (LocaleUtils.isFR() && !this.contactUsWebFr.isNullOrBlank()) this.contactUsWebFr else this.contactUsWeb
+    val contactUsWebForLang =
+        if (LocaleUtils.isFR() && !this.contactUsWebFr.isNullOrBlank()) this.contactUsWebFr else this.contactUsWeb
+
+    @Ignore
+    val faresWebForLang =
+        if (LocaleUtils.isFR() && !this.faresWebFr.isNullOrBlank()) this.faresWebFr else this.faresWeb
+
+    @Ignore
+    val hasFaresWebForLang = !this.faresWebForLang.isNullOrBlank()
 }

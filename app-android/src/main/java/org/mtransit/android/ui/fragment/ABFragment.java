@@ -2,8 +2,8 @@ package org.mtransit.android.ui.fragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +24,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.mtransit.android.R;
@@ -91,7 +92,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarNavigationIcon(toolbar, getParentFragmentManager().getBackStackEntryCount());
 	}
 
-	public void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar, int backStackEntryCount) {
+	private void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar, int backStackEntryCount) {
 		toolbar.setNavigationIcon(
 				backStackEntryCount <= 0 ?
 						R.drawable.ic_drawer_menu_24px :
@@ -99,7 +100,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		);
 	}
 
-	public void updateScreenToolbarTitle(@NonNull Toolbar toolbar) {
+	void updateScreenToolbarTitle(@NonNull Toolbar toolbar) {
 		toolbar.setTitle(getABTitle(getContext()));
 	}
 
@@ -111,12 +112,12 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarBgColor(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
-	public void updateScreenToolbarBgColor(
+	private void updateScreenToolbarBgColor(
 			@SuppressWarnings("unused") @NonNull AppBarLayout appBarLayout,
 			@SuppressWarnings("unused") @NonNull Toolbar toolbar) {
 		final Integer bgColorInt = getABBgColor(getContext());
 		if (bgColorInt != null) {
-			getBgDrawable().setColor(bgColorInt);
+			getBgDrawable().setFillColor(ColorStateList.valueOf(bgColorInt));
 			final MainActivity mainActivity = getMainActivity();
 			if (mainActivity != null) {
 				EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(getMainActivity(), bgColorInt);
@@ -124,11 +125,11 @@ public abstract class ABFragment extends MTFragmentX implements
 		}
 	}
 
-	public void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
+	void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
 		updateScreenToolbarOverrideGradient(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
-	public void updateScreenToolbarOverrideGradient(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+	private void updateScreenToolbarOverrideGradient(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
 		final boolean overrideGradient = isABOverrideGradient();
 		if (overrideGradient) {
 			appBarLayout.setBackground(AppCompatResources.getDrawable(appBarLayout.getContext(), R.drawable.ab_gradient));
@@ -142,13 +143,12 @@ public abstract class ABFragment extends MTFragmentX implements
 	}
 
 	@Nullable
-	private ColorDrawable bgDrawable = null;
+	private MaterialShapeDrawable bgDrawable = null;
 
 	@NonNull
-	private ColorDrawable getBgDrawable() {
+	private MaterialShapeDrawable getBgDrawable() {
 		if (this.bgDrawable == null) {
-			this.bgDrawable = new ColorDrawable();
-			// initBgDrawable(ab);
+			this.bgDrawable = new MaterialShapeDrawable();
 		}
 		return this.bgDrawable;
 	}
@@ -157,7 +157,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
-	public void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+	private void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
 		// setup
 		setupScreenToolbarBgColor(appBarLayout, toolbar);
 		toolbar.setNavigationOnClickListener(v -> {
@@ -292,7 +292,7 @@ public abstract class ABFragment extends MTFragmentX implements
 	}
 
 	@Nullable
-	public MainActivity getMainActivity() {
+	MainActivity getMainActivity() {
 		final FragmentActivity activity = getActivity();
 		if (!(activity instanceof MainActivity)) {
 			return null;
@@ -328,7 +328,7 @@ public abstract class ABFragment extends MTFragmentX implements
 			abController.updateAB();
 		}
 		sharedAppRatingsManager.getShouldShowAppRatingRequest(this).observe(this, shouldShow -> {
-			if (!Boolean.TRUE.equals(shouldShow)) {
+			if (!shouldShow) {
 				return;
 			}
 			final MainActivity mainActivity = getMainActivity();
@@ -345,6 +345,7 @@ public abstract class ABFragment extends MTFragmentX implements
 	}
 
 	public boolean onBackPressed() {
+		//noinspection IfStatementWithIdenticalBranches
 		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
 			return false; // processed
 		}

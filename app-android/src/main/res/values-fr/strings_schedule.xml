@@ -53,9 +53,9 @@
     <string name="next_year">L\'Année Prochaine</string>
     <string name="next_year_part_1">L\'Année</string>
     <string name="next_year_part_2">Prochaine</string>
-    <string name="this_month">Ce Mois</string>
+    <string name="this_month">Ce Mois-ci</string>
     <string name="this_month_part_1">Ce</string>
-    <string name="this_month_part_2">Mois</string>
+    <string name="this_month_part_2">Mois-ci</string>
     <string name="now_short_and_loud">ICI</string>
     <string name="zero_capitalized">Zéro</string>
     <string name="one_capitalized">Un</string>

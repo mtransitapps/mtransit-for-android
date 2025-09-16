@@ -5,7 +5,7 @@ name: MT dependency update
 # - test manually 1st
 on:
   workflow_dispatch: # manual
-  pull_request: # TO BE DELETED
+  # pull_request: # TO BE DELETED
 #  schedule:
 #   - cron: '0 12 * * 3' # Wednesdays @ 12pm UTC # WEEKLY https://crontab.guru/#0_12_*_*_3
 # gh workflow run mt-dependency-update.yml --ref <branch>
@@ -34,7 +34,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: exit 1000
       - name: MT check out main repository code (no submodules)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
@@ -46,7 +46,7 @@ jobs:
         run: |
           echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: MT add parser repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: $MT_GIT_BRANCH
           repository: mtransitapps/parser
@@ -59,29 +59,12 @@ jobs:
       - name: MT code setup
         run: ./commons/code_setup.sh
       - name: MT set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '17'
-      - name: MT cache > Gradle wrapper
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/wrapper
-          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-      - name: MT Gradle cache > Generate key
-        run: ./init_cache_key.sh
-      - name: MT cache > Gradle cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-          key: gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
-          restore-keys: |
-            gradle-cache-${{ hashFiles('gradle_cache_key_checksum.txt') }}
-            gradle-cache-
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: MT dependency update check
         run: ./dependency_update_check.sh
       - name: MT dependency update update available
@@ -97,9 +80,6 @@ jobs:
       - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
         name: MT dependency update apply
         run: ./dependency_update_apply.sh
-      - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
-        name: MT download dependencies
-        run: ./download_dependencies.sh
       - if: env.MT_DEPENDENCY_UPDATE_AVAILABLE == 'true'
         name: MT test
         run: ./test.sh

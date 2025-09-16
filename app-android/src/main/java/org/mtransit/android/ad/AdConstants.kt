@@ -13,7 +13,7 @@ object AdConstants {
     // const val AD_ENABLED = false // DEBUG
 
     const val IGNORE_REWARD_HIDING_BANNER = false
-    // private const val IGNORE_REWARD_HIDING_BANNER = true // DEBUG
+    // const val IGNORE_REWARD_HIDING_BANNER = true // DEBUG
 
     @JvmField
     val KEYWORDS = listOf(

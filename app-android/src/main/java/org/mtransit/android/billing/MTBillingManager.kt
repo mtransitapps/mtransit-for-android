@@ -20,6 +20,7 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
+import com.android.billingclient.api.QueryProductDetailsResult
 import com.android.billingclient.api.QueryPurchasesParams
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
@@ -84,9 +85,9 @@ class MTBillingManager @Inject constructor(
         SystemSettingManager.isUsingFirebaseTestLab(appContext)
     }
 
-    override fun showingPaidFeatures() = hasSubscription.value == true
-            && !isUsingFirebaseTestLab
-    // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
+    override fun showingPaidFeatures() = (hasSubscription.value == true
+            && !isUsingFirebaseTestLab)
+            || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
 
@@ -177,11 +178,15 @@ class MTBillingManager @Inject constructor(
         )
     }
 
-    override fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: MutableList<ProductDetails>) {
+    override fun onProductDetailsResponse(billingResult: BillingResult, productDetailsResult: QueryProductDetailsResult) {
+        onProductDetailsResponse(billingResult, productDetailsResult.productDetailsList)
+    }
+
+    private fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<ProductDetails>) {
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
                 _productIdsWithDetails.postValue(
-                    productDetailsList.associate { details ->
+                    productDetailsList.associateBy { details ->
                         if (Constants.DEBUG) {
                             details.subscriptionOfferDetails?.forEach {
                                 MTLog.d(this, "onProductDetailsResponse() > offer details: $it")
@@ -193,7 +198,7 @@ class MTBillingManager @Inject constructor(
                                 }
                             }
                         }
-                        details.productId to details
+                        details.productId
                     }
                         .also { postedValue ->
                             MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")

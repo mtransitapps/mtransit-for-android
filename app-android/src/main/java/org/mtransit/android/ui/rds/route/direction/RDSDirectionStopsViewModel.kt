@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.rts.route.trip
+package org.mtransit.android.ui.rds.route.direction
 
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -30,7 +30,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class RTSTripStopsViewModel @Inject constructor(
+class RDSDirectionStopsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val poiRepository: POIRepository,
     private val dataSourcesRepository: DataSourcesRepository,
@@ -39,12 +39,12 @@ class RTSTripStopsViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RTSTripStopsViewModel::class.java.simpleName
+        private val LOG_TAG = RDSDirectionStopsViewModel::class.java.simpleName
 
         internal const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_ROUTE_ID = "extra_route_id"
-        internal const val EXTRA_TRIP_ID = "extra_trip_id"
-        internal const val EXTRA_SELECTED_STOP_ID = "extra_trip_stop_id"
+        internal const val EXTRA_DIRECTION_ID = "extra_direction_id"
+        internal const val EXTRA_SELECTED_STOP_ID = "extra_direction_stop_id"
         internal const val EXTRA_SELECTED_STOP_ID_DEFAULT: Int = -1
 
         internal const val EXTRA_CLOSEST_POI_SHOWN = "extra_closest_poi_shown"
@@ -52,7 +52,7 @@ class RTSTripStopsViewModel @Inject constructor(
 
     }
 
-    override fun getLogTag(): String = tripId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
+    override fun getLogTag(): String = directionId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
     private val _authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
 
@@ -62,9 +62,9 @@ class RTSTripStopsViewModel @Inject constructor(
 
     private val _routeId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_ROUTE_ID)
 
-    val tripId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_TRIP_ID)
+    val directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
 
-    val selectedTripStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
+    val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
         .map { if (it < 0) null else it }
 
     val closestPOIShown = savedStateHandle.getLiveDataDistinct(EXTRA_CLOSEST_POI_SHOWN, EXTRA_CLOSEST_POI_SHOWN_DEFAULT)
@@ -74,32 +74,32 @@ class RTSTripStopsViewModel @Inject constructor(
         savedStateHandle[EXTRA_CLOSEST_POI_SHOWN] = true
     }
 
-    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_agency, tripId).switchMap { (agency, tripId) ->
+    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_agency, directionId).switchMap { (agency, directionId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getPOIList(agency, tripId))
+            emit(getPOIList(agency, directionId))
         }
     }
 
-    private suspend fun getPOIList(agency: IAgencyProperties?, tripId: Long?): List<POIManager>? {
-        if (agency == null || tripId == null) {
+    private suspend fun getPOIList(agency: IAgencyProperties?, directionId: Long?): List<POIManager>? {
+        if (agency == null || directionId == null) {
             return null
         }
         val poiFilter = POIProviderContract.Filter.getNewSqlSelectionFilter(
             SqlUtils.getWhereEquals(
-                GTFSProviderContract.RouteTripStopColumns.T_TRIP_K_ID, tripId
+                GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, directionId
             )
         ).apply {
             addExtra(
                 POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
-                SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE)
+                SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
             )
         }
         return this.poiRepository.findPOIMs(agency, poiFilter)
     }
 
-    val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(_authority, _routeId, tripId).switchMap { (authority, routeId, tripId) ->
+    val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
         liveData {
-            if (authority == null || routeId == null || tripId == null) {
+            if (authority == null || routeId == null || directionId == null) {
                 return@liveData // SKIP
             }
             if (demoModeManager.isFullDemo()) {
@@ -108,8 +108,8 @@ class RTSTripStopsViewModel @Inject constructor(
             }
             emitSource(
                 lclPrefRepository.pref.liveData(
-                    LocalPreferenceRepository.getPREFS_LCL_RTS_ROUTE_TRIP_ID_KEY(authority, routeId, tripId),
-                    LocalPreferenceRepository.PREFS_LCL_RTS_TRIP_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+                    LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(authority, routeId, directionId),
+                    LocalPreferenceRepository.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
                 )
             )
         }
@@ -122,9 +122,9 @@ class RTSTripStopsViewModel @Inject constructor(
         lclPrefRepository.pref.edit {
             val authority = _authority.value ?: return
             val routeId = _routeId.value ?: return
-            val tripId = tripId.value ?: return
+            val directionId = directionId.value ?: return
             putBoolean(
-                LocalPreferenceRepository.getPREFS_LCL_RTS_ROUTE_TRIP_ID_KEY(authority, routeId, tripId),
+                LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(authority, routeId, directionId),
                 showingListInsteadOfMap
             )
         }

@@ -22,11 +22,12 @@ import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
+import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
+import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.MapViewController.POIMarker
@@ -184,7 +185,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     }
                     viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
                 }
-                setUpFabEdgeToEdge()
+                setUpFabEdgeToEdge(
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end,
+                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+                )
             }
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
         }
@@ -223,6 +227,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged(mapMarkerProvider)
             switchView()
+            binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
     }
 
@@ -248,6 +253,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 emptyLayout.isVisible = false
                 listLayout.isVisible = false
                 mapViewController.hideMap()
+
                 loadingLayout.isVisible = true
             }
 
@@ -255,12 +261,14 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 loadingLayout.isVisible = false
                 listLayout.isVisible = false
                 mapViewController.hideMap()
+
                 emptyLayout.isVisible = true
             }
 
             else -> {
                 loadingLayout.isVisible = false
                 emptyLayout.isVisible = false
+
                 if (context.resources.getBoolean(R.bool.two_pane)) { // LARGE SCREEN
                     listLayout.isVisible = true
                     mapViewController.showMap(view)

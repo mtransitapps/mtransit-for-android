@@ -6,8 +6,8 @@ import org.mtransit.android.R
 @Suppress("unused")
 enum class DataSourceStopType(
     val id: Int,
-    @StringRes val stopStringResId: Int,
-    @StringRes val stopsStringResId: Int,
+    @param:StringRes val stopStringResId: Int,
+    @param:StringRes val stopsStringResId: Int,
 ) {
 
     STOP(1, R.string.agency_stop_type_stop, R.string.agency_stop_type_stops),
