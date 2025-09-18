@@ -4,7 +4,6 @@ import android.os.Build
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
 import org.mtransit.android.BuildConfig
-import org.mtransit.android.commons.Constants
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
@@ -14,7 +13,7 @@ class StrictModeImpl @Inject constructor(
 ) : IStrictMode {
 
     override fun setup() {
-        if (Constants.FORCE_STRICT_MODE_OFF) {
+        if (BuildConfig.STRICT_MODE_OFF) {
             return
         }
         if (!BuildConfig.DEBUG) {
