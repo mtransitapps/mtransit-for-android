@@ -161,6 +161,7 @@ dev.properties
 /.idea/vcs.xml
 /.vscode/settings.json
 /app_clear_data_debug.sh
+/app_grant_post_notifications_debug.sh
 /app_install_debug.sh
 /app_install_release.sh
 /app_logcat_debug.sh
