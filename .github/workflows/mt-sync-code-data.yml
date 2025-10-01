@@ -73,7 +73,7 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
       - name: MT commit code change
         run: ./commit_code_change.sh
       - name: MT download & prepare
