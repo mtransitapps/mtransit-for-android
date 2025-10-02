@@ -94,7 +94,7 @@
         android:checkableBehavior="none">
         <item
             android:id="@id/nav_fares"
-            android:icon="@drawable/ic_payment_black_24"
+            android:icon="@drawable/ic_payments_black_24"
             android:title="@string/fares"
             android:visible="true"
             tools:visible="true" />
