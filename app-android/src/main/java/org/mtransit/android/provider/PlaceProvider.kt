@@ -416,9 +416,9 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
         private val GOOGLE_PLACE_TEXT_SEARCH_FIELDS = listOf(
             Field.ID,
-            Field_DISPLAY_NAME,
-            Field_LOCATION,
-            Field_ICON_MASK_URL,
+            Field.DISPLAY_NAME,
+            Field.LOCATION,
+            Field.ICON_MASK_URL,
             Field.ICON_BACKGROUND_COLOR,
         )
 
