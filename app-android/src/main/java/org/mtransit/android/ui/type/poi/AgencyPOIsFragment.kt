@@ -34,6 +34,7 @@ import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -194,9 +195,15 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         }
         viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             colorInt?.let {
-                binding?.fabListMap?.apply {
-                    rippleColor = colorInt
-                    backgroundTintList = ColorStateList.valueOf(colorInt)
+                binding?.apply {
+                    fabListMap?.apply {
+                        rippleColor = colorInt
+                        backgroundTintList = ColorStateList.valueOf(colorInt)
+                    }
+                    fabFares.apply {
+                        rippleColor = colorInt
+                        backgroundTintList = ColorStateList.valueOf(colorInt)
+                    }
                 }
             }
         }
@@ -204,6 +211,19 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             listAdapter.logTag = this@AgencyPOIsFragment.logTag
             mapViewController.logTag = this@AgencyPOIsFragment.logTag
+            binding?.fabFares?.apply {
+                agency?.faresWebForLang?.let { url ->
+                    isVisible = true
+                    setOnClickListener {
+                        activity?.let { activity ->
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
+                        }
+                    }
+                } ?: run {
+                    isVisible = false
+                    setOnClickListener(null)
+                }
+            }
         }
         parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             mapViewController.onDeviceLocationChanged(deviceLocation)

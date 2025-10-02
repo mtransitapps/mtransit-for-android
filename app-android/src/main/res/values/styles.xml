@@ -259,6 +259,8 @@
         <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:layout_gravity">end|bottom</item>
+        <item name="layout_constraintBottom_toBottomOf">parent</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
     </style>
 
     <style name="MTFabMiniBottomEnd" parent="@style/MTFabBottomEnd">

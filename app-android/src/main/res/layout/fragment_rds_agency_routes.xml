@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -25,6 +24,17 @@
         android:scrollbarStyle="insideOverlay"
         android:visibility="visible"
         tools:listitem="@layout/layout_rds_route_item"
+        tools:visibility="visible" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_fares"
+        style="@style/MTFabMiniBottomEnd"
+        android:layout_marginEnd="@dimen/fab_mini_margin_end_above_fab"
+        android:contentDescription="@string/menu_action_fares"
+        android:src="@drawable/ic_payments_black_24"
+        android:visibility="gone"
+        tools:backgroundTint="#FF00FF"
+        tools:rippleColor="#00FF00"
         tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -29,6 +29,7 @@ import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.util.LinkUtils
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
@@ -116,9 +117,15 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         }
         viewModel.colorIntDistinct.observe(viewLifecycleOwner) { colorIntDistinct ->
             colorIntDistinct?.let {
-                binding?.fabListGrid?.apply {
-                    rippleColor = colorIntDistinct
-                    backgroundTintList = ColorStateList.valueOf(colorIntDistinct)
+                binding?.apply {
+                    fabFares.apply {
+                        rippleColor = colorIntDistinct
+                        backgroundTintList = ColorStateList.valueOf(colorIntDistinct)
+                    }
+                    fabListGrid.apply {
+                        rippleColor = colorIntDistinct
+                        backgroundTintList = ColorStateList.valueOf(colorIntDistinct)
+                    }
                 }
             }
         }
@@ -129,6 +136,19 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             agency?.let {
                 listGridAdapter?.setAgency(agency)
                 switchView()
+            }
+            binding?.fabFares?.apply {
+                agency?.faresWebForLang?.let { url ->
+                    isVisible = true
+                    setOnClickListener {
+                        activity?.let { activity ->
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
+                        }
+                    }
+                } ?: run {
+                    isVisible = false
+                    setOnClickListener(null)
+                }
             }
         }
         viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner) { showingListInsteadOfGrid ->
