@@ -123,11 +123,11 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                         lang,
                         newLastUpdateInMs
                     ).apply {
-                        this.name = place.name ?: return@mapNotNull null
-                        this.lat = place.latLng?.latitude ?: return@mapNotNull null
-                        this.lng = place.latLng?.longitude ?: return@mapNotNull null
+                        this.name = place.displayName ?: return@mapNotNull null
+                        this.lat = place.location?.latitude ?: return@mapNotNull null
+                        this.lng = place.location?.longitude ?: return@mapNotNull null
                         this.score = score--
-                        this.iconUrl = place.iconUrl
+                        this.iconUrl = place.iconMaskUrl
                         this.iconBgColor = place.iconBackgroundColor
                     }
                 } catch (e: Exception) {
@@ -416,9 +416,9 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
         private val GOOGLE_PLACE_TEXT_SEARCH_FIELDS = listOf(
             Field.ID,
-            Field.NAME, // DISPLAY_NAME
-            Field.LAT_LNG, // LOCATION
-            Field.ICON_URL,
+            Field.DISPLAY_NAME, // NAME
+            Field.LOCATION, // LAT_LNG
+            Field.ICON_MASK_URL, // ICON_URL
             Field.ICON_BACKGROUND_COLOR,
         )
 
