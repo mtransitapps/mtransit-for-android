@@ -137,20 +137,17 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                 listGridAdapter?.setAgency(agency)
                 switchView()
             }
-            binding?.apply {
-                fabFares.apply {
-                    val url = agency?.faresWebForLang
-                    if (url == null) {
-                        setOnClickListener(null)
-                        isVisible = false
-                    } else {
-                        setOnClickListener {
-                            activity?.let {
-                                LinkUtils.open(view, it, url, getString(R.string.fares), true)
-                            }
+            binding?.fabFares?.apply {
+                agency?.faresWebForLang?.let { url ->
+                    isVisible = true
+                    setOnClickListener {
+                        activity?.let { activity ->
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
                         }
-                        isVisible = true
                     }
+                } ?: run {
+                    isVisible = false
+                    setOnClickListener(null)
                 }
             }
         }
