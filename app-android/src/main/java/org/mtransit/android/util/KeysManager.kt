@@ -29,6 +29,7 @@ class KeysManager @Inject constructor(
         @JvmStatic
         fun getKey(context: Context, key: String) = when (key) {
             KeysIds.GOOGLE_PLACES_NEW_API_KEY -> context.resources.getStringArray(R.array.google_places_new_api_key).join()
+            KeysIds.TWITTER_CACHED_API_URL -> context.resources.getStringArray(R.array.twitter_cached_api_url).join()
             KeysIds.TWITTER_BEARER_TOKEN -> context.resources.getStringArray(R.array.twitter_bearer_token).join()
             KeysIds.YOUTUBE_API_KEY -> context.resources.getStringArray(R.array.youtube_api_key).join()
             KeysIds.CA_SUDBURY_TRANSIT_AUTH_TOKEN -> context.resources.getStringArray(R.array.greater_sudbury_auth_token).join()
@@ -46,7 +47,16 @@ class KeysManager @Inject constructor(
             // MAIN
             authority.endsWith("$debugS.provider.place") -> getKeyEntry(context, KeysIds.GOOGLE_PLACES_NEW_API_KEY)?.let { mapOf(it) }
             // NEWS
-            authority.endsWith("$debugS.news.twitter") -> getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)?.let { mapOf(it) }
+            authority.endsWith("$debugS.news.twitter") -> {
+                buildMap {
+                    getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)?.let { (key, value) ->
+                        put(key, value)
+                    }
+                    getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)?.let { (key, value) ->
+                        put(key, value)
+                    }
+                }.takeIf { it.isNotEmpty() }
+            }
             authority.endsWith("$debugS.news.youtube") -> getKeyEntry(context, KeysIds.YOUTUBE_API_KEY)?.let { mapOf(it) }
             // GTFS
             authority.endsWith("$debugS.gtfs") -> null // no keys (static)

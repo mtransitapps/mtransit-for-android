@@ -12,6 +12,7 @@
         <item>INSERT_GOOGLE_PLACES_NEW_API_KEY_HERE</item>
     </string-array>
     <!-- NEWS -->
+    <string-array name="twitter_cached_api_url" />
     <string-array name="twitter_bearer_token"><!-- PROD 2024 $$$ -->
         <item>INSERT_TWITTER_BEARER_TOKEN_HERE</item>
     </string-array>
