@@ -67,8 +67,12 @@ class DataSourcesReader @Inject constructor(
             // "org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_gatineau_sto_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_l_assomption_mrclasso_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_la_presqu_ile_citpi_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_laurentides_citla_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_laval_stl_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_le_richelain_citlr_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_les_moulins_mrclm_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_longueuil_rtl_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_amt_train.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_bixi_bike.debug", // FIXME DEBUG
@@ -80,7 +84,9 @@ class DataSourcesReader @Inject constructor(
             // "org.mtransit.android.ca_quebec_rtc_bus2.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_sherbrooke_sts_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_sorel_varennes_citsv_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_ste_julie_omitsju_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_sud_ouest_citso_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_via_rail_train.debug", // FIXME DEBUG
             // DEBUG
         ) else listOf(
