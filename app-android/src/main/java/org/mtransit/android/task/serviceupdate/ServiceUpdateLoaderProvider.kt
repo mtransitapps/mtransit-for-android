@@ -1,8 +1,8 @@
-package org.mtransit.android.ui.view.poi.serviceupdate
+package org.mtransit.android.task.serviceupdate
 
 import org.mtransit.android.task.ServiceUpdateLoader
 
-interface POIServiceUpdateProvider : ServiceUpdateLoader.ServiceUpdateLoaderListener {
+interface ServiceUpdateLoaderProvider : ServiceUpdateLoader.ServiceUpdateLoaderListener {
     val isShowingServiceUpdates: Boolean
     fun providesServiceUpdateLoader(): ServiceUpdateLoader
 }

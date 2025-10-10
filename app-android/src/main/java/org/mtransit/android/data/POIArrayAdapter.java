@@ -65,6 +65,7 @@ import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.common.UIColorUtils;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
@@ -79,7 +80,6 @@ import org.mtransit.android.ui.view.POIViewUtils;
 import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
-import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateProvider;
 import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder;
 import org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder;
 import org.mtransit.android.ui.view.poi.status.POIStatusDataProvider;
@@ -106,7 +106,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, MTSensorManager.SensorTaskCompleted,
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
-		POIStatusDataProvider, POIServiceUpdateProvider {
+		POIStatusDataProvider, ServiceUpdateLoaderProvider {
 
 	private static final String LOG_TAG = POIArrayAdapter.class.getSimpleName();
 

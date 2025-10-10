@@ -16,9 +16,10 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.RouteManager
+import org.mtransit.android.data.toRouteM
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
@@ -54,18 +55,26 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated
     }
 
-    val routes: LiveData<List<Route>> = this._authority.switchMap { authority ->
+    private val _routes: LiveData<List<Route>> = this._authority.switchMap { authority ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            authority?.let {
-                emit(
-                    dataSourceRequestManager.findAllRDSAgencyRoutes(authority)
-                        .sortedWith(Route.SHORT_NAME_COMPARATOR)
-                )
+            authority ?: return@liveData
+            val newRoutes = dataSourceRequestManager.findAllRDSAgencyRoutes(authority)
+                .sortedWith(Route.SHORT_NAME_COMPARATOR)
+            if (newRoutes != _routes.value) { // do not
+                emit(newRoutes)
             }
+        }
+    }.distinctUntilChanged()
+
+    val routesM: LiveData<List<RouteManager>> = PairMediatorLiveData(agency, _routes).switchMap { (agency, routes) ->
+        liveData(viewModelScope.coroutineContext) {
+            agency ?: return@liveData
+            routes ?: return@liveData
+            emit(routes.map { it.toRouteM(agency.authority) })
         }
     }
 
-    private val _routeColorInts: LiveData<List<Int>> = routes.map { routes ->
+    private val _routeColorInts: LiveData<List<Int>> = _routes.map { routes ->
         routes.filter {
             it.hasColor()
         }.map {
@@ -88,18 +97,16 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         }
     }
 
-    val showingListInsteadOfGrid: LiveData<Boolean> = PairMediatorLiveData(_authority, routes).switchMap { (authority, routes) ->
-        liveData {
-            routes?.let { routesNN ->
-                authority?.let { authorityNN ->
-                    emitSource(
-                        defaultPrefRepository.pref.liveData(
-                            DefaultPreferenceRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authorityNN),
-                            defaultPrefRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routesNN.size)
-                        )
-                    )
-                }
-            }
+    val showingListInsteadOfGrid: LiveData<Boolean> = PairMediatorLiveData(_authority, _routes).switchMap { (authority, routes) ->
+        liveData(viewModelScope.coroutineContext) { // emit source Live Data = stay Main Thread
+            routes ?: return@liveData
+            authority ?: return@liveData
+            emitSource(
+                defaultPrefRepository.pref.liveData(
+                    DefaultPreferenceRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority),
+                    defaultPrefRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routes.size)
+                )
+            )
         }
     }.distinctUntilChanged()
 

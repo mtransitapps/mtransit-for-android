@@ -13,6 +13,7 @@ import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.RouteManager;
 import org.mtransit.android.data.ServiceUpdateProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.util.KeysManager;
@@ -90,10 +91,42 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable ServiceUpdateLoaderListener listener,
 									 boolean skipIfBusy) {
+
+		return findServiceUpdate(
+				poim.poi.getAuthority(),
+				poim.poi.getUUID(),
+				poim,
+				serviceUpdateFilter,
+				listener,
+				skipIfBusy
+		);
+	}
+
+	public boolean findServiceUpdate(@NonNull RouteManager routeM,
+									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
+									 @Nullable ServiceUpdateLoaderListener listener,
+									 boolean skipIfBusy) {
+
+		return findServiceUpdate(
+				routeM.getAuthority(),
+				routeM.getUuid(),
+				routeM,
+				serviceUpdateFilter,
+				listener,
+				skipIfBusy
+		);
+	}
+
+	public boolean findServiceUpdate(@NonNull String authority,
+									 @NonNull String targetUUID,
+									 @NonNull ServiceUpdateLoaderListener mainListener,
+									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
+									 @Nullable ServiceUpdateLoaderListener listener,
+									 boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		final Collection<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(poim.poi.getAuthority());
+		final Collection<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(authority);
 		if (!providers.isEmpty()) {
 			for (ServiceUpdateProviderProperties provider : providers) {
 				if (provider == null) {
@@ -102,7 +135,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				new ServiceUpdateFetcherCallable(this.appContext,
 						listener,
 						provider,
-						poim,
+						targetUUID,
+						mainListener,
 						serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))
 				).executeOnExecutor(getFetchServiceUpdateExecutor());
 			}
@@ -126,7 +160,9 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		@NonNull
 		private final ServiceUpdateProviderProperties serviceUpdateProvider;
 		@NonNull
-		private final WeakReference<POIManager> poiWR;
+		private final String targetUUID;
+		@NonNull
+		private final WeakReference<ServiceUpdateLoaderListener> mainListenerWR;
 		@NonNull
 		private final WeakReference<ServiceUpdateLoader.ServiceUpdateLoaderListener> listenerWR;
 		@NonNull
@@ -135,12 +171,15 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		ServiceUpdateFetcherCallable(@Nullable Context context,
 									 @Nullable ServiceUpdateLoader.ServiceUpdateLoaderListener listener,
 									 @NonNull ServiceUpdateProviderProperties serviceUpdateProvider,
-									 @Nullable POIManager poim,
+									 // @Nullable POIManager poim,
+									 @NonNull String targetUUID,
+									 @Nullable ServiceUpdateLoaderListener mainListener,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 			this.contextWR = new WeakReference<>(context);
 			this.listenerWR = new WeakReference<>(listener);
 			this.serviceUpdateProvider = serviceUpdateProvider;
-			this.poiWR = new WeakReference<>(poim);
+			this.targetUUID = targetUUID;
+			this.mainListenerWR = new WeakReference<>(mainListener);
 			this.serviceUpdateFilter = serviceUpdateFilter;
 		}
 
@@ -159,16 +198,16 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			if (result == null) {
 				return;
 			}
-			final POIManager poim = this.poiWR.get();
-			if (poim == null) {
+			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
+			if (mainListener == null) {
 				return;
 			}
-			poim.setServiceUpdates(result);
+			mainListener.onServiceUpdatesLoaded(targetUUID, result);
 			final ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.listenerWR.get();
 			if (listener == null) {
 				return;
 			}
-			listener.onServiceUpdatesLoaded(poim.poi.getUUID(), poim.getServiceUpdatesOrNull());
+			listener.onServiceUpdatesLoaded(targetUUID, result);
 		}
 
 		@Nullable
@@ -177,8 +216,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			if (context == null) {
 				return null;
 			}
-			final POIManager poim = this.poiWR.get();
-			if (poim == null) {
+			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
+			if (mainListener == null) {
 				return null;
 			}
 			return DataSourceManager.findServiceUpdates(context, this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter);
