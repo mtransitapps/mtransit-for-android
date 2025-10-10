@@ -6,23 +6,37 @@ import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.text.buildSpannedString
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
+import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.data.RouteManager
 import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.FragmentRdsRouteBinding
+import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
@@ -36,10 +50,13 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
+import javax.inject.Inject
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocationListener {
+class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
+    DeviceLocationListener,
+    MenuProvider {
 
     companion object {
         private val LOG_TAG = RDSRouteFragment::class.java.simpleName
@@ -97,6 +114,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
+    @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
     private var binding: FragmentRdsRouteBinding? = null
 
     private var lastPageSelected = -1
@@ -134,6 +154,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
+        (requireActivity() as MenuHost).addMenuProvider(
+            this, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
         binding = FragmentRdsRouteBinding.bind(view).apply {
             viewPager.apply {
                 offscreenPageLimit = 1
@@ -163,16 +186,17 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
             MTTransitions.setTransitionName(
                 view,
                 authority?.let {
-                    viewModel.route.value?.id?.let { routeId ->
+                    viewModel.routeM.value?.route?.id?.let { routeId ->
                         "r_" + authority + "_" + routeId
                     }
                 }
             )
         }
-        viewModel.route.observe(viewLifecycleOwner) { route ->
+        viewModel.routeM.observe(viewLifecycleOwner) { routeM ->
+            MTLog.d(this, "routeM.onChange(${routeM?.route?.id})")
             MTTransitions.setTransitionName(
                 view,
-                route?.id?.let { routeId ->
+                routeM?.route?.id?.let { routeId ->
                     viewModel.authority.value?.let { authority ->
                         "r_" + authority + "_" + routeId
                     }
@@ -184,7 +208,11 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
+            updateServiceUpdateImg(routeM = routeM)
         }
+        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { triggered ->
+            updateServiceUpdateImg()
+        })
         viewModel.colorInt.observe(viewLifecycleOwner) { it ->
             it?.let {
                 binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
@@ -216,6 +244,55 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
+    }
+
+    private var serviceUpdateImg: MenuItem? = null
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_rds_route, menu)
+        this.serviceUpdateImg = menu.findItem(R.id.menu_service_update_img)
+        updateServiceUpdateImg(serviceUpdateImg = this.serviceUpdateImg)
+    }
+
+    private fun updateServiceUpdateImg(
+        routeM: RouteManager? = attachedViewModel?.routeM?.value,
+        serviceUpdateImg: MenuItem? = this.serviceUpdateImg,
+    ) {
+        serviceUpdateImg?.apply {
+            routeM ?: run { isVisible = false; return }
+            val (isWarning, isInfo) = routeM.getServiceUpdates(serviceUpdateLoader)
+                .let {
+                    ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
+                }
+            if (isWarning) {
+                setIcon(R.drawable.ic_warning_black_24dp)
+                isVisible = true
+            } else if (isInfo) {
+                setIcon(R.drawable.ic_info_outline_black_24dp)
+                isVisible = true
+            } else {
+                icon = null
+                isVisible = false
+            }
+        }
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.menu_service_update_img) {
+            val serviceUpdates = attachedViewModel?.routeM?.value?.getServiceUpdates(serviceUpdateLoader)
+                ?.takeUnless { it.isEmpty() }
+                ?: return true // handled
+            val text = buildSpannedString {
+                serviceUpdates.forEach {
+                    if (isNotEmpty()) {
+                        append(HtmlUtils.BR)
+                    }
+                    append(HtmlUtils.fromHtml(it.textHTML))
+                }
+            }
+            return true // handled
+        }
+        return false // not handled
     }
 
     override fun onResume() {
@@ -279,14 +356,14 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
         switchView()
     }
 
-    override fun isABReady() = attachedViewModel?.route?.value != null
+    override fun isABReady() = attachedViewModel?.routeM?.value != null
 
     override fun isABStatusBarTransparent() = true
 
     override fun isABOverrideGradient() = true
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return attachedViewModel?.route?.value?.let { makeABTitle(it) }
+        return attachedViewModel?.routeM?.value?.let { makeABTitle(it.route) }
             ?: super.getABTitle(context)
     }
 

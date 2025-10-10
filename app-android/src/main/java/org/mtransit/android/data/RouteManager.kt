@@ -27,7 +27,6 @@ data class RouteManager(
 
     private var serviceUpdateLoaderListenerWR: WeakReference<ServiceUpdateLoaderListener>? = null
 
-    @Suppress("unused")
     fun setServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
         this.serviceUpdateLoaderListenerWR = WeakReference<ServiceUpdateLoaderListener>(serviceUpdateLoaderListener)
     }

@@ -2,6 +2,7 @@ package org.mtransit.android.ui.type.rds
 
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
@@ -11,6 +12,9 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -22,6 +26,8 @@ import org.mtransit.android.data.RouteManager
 import org.mtransit.android.data.toRouteM
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
@@ -70,7 +76,25 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         liveData(viewModelScope.coroutineContext) {
             agency ?: return@liveData
             routes ?: return@liveData
-            emit(routes.map { it.toRouteM(agency.authority) })
+            emit(routes.map { route ->
+                route.toRouteM(agency.authority)
+                    .apply {
+                        setServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                    }
+            })
+        }
+    }
+
+    private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
+    val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
+
+    private var serviceUpdateLoadedJob: Job? = null
+
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+        serviceUpdateLoadedJob?.cancel()
+        serviceUpdateLoadedJob = viewModelScope.launch {
+            delay(333L) // wait for 0.333 seconds
+            _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
         }
     }
 

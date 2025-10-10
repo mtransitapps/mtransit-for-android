@@ -76,6 +76,11 @@ class RDSAgencyRoutesAdapter(
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun onServiceUpdatesLoaded() {
+        notifyDataSetChanged()
+    }
+
     fun isReady() = _agency != null && _showingListInsteadOfGrid != null && _listSet != null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteViewHolder {
