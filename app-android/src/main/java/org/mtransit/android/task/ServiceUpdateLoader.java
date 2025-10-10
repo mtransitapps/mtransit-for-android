@@ -109,7 +109,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 		return findServiceUpdate(
 				routeM.getAuthority(),
-				routeM.getUuid(),
+				routeM.getRoute().getUUID(),
 				routeM,
 				serviceUpdateFilter,
 				listener,

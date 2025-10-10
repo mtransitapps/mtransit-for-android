@@ -1,7 +1,6 @@
 package org.mtransit.android.data
 
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract
@@ -17,7 +16,7 @@ data class RouteManager(
     val route: Route,
     private val serviceUpdates: MutableList<ServiceUpdate> = mutableListOf(),
     private var lastFindServiceUpdateTimestampMs: Long = -1L,
-    private var inFocus: Boolean = false,
+    private var inFocus: Boolean = false, // TODO?
 ) : ServiceUpdateLoaderListener, MTLog.Loggable {
 
     companion object {
@@ -26,11 +25,9 @@ data class RouteManager(
 
     override fun getLogTag() = LOG_TAG
 
-    val uuid: String
-        get() = POI.POIUtils.getUUID(authority, route.id)
-
     private var serviceUpdateLoaderListenerWR: WeakReference<ServiceUpdateLoaderListener>? = null
 
+    @Suppress("unused")
     fun setServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
         this.serviceUpdateLoaderListenerWR = WeakReference<ServiceUpdateLoaderListener>(serviceUpdateLoaderListener)
     }
