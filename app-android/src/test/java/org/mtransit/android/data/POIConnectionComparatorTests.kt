@@ -38,10 +38,10 @@ class POIConnectionComparatorTests {
 
     @Test
     fun `test POISameRouteComparator - same stop`() {
-        val routeVH = Route(1L, "11", "Vaudreuil / Hudson", "F16179")
-        val routeSH = Route(3L, "13", "Mont-St-Hilaire", "CA5898")
-        val routeCA = Route(4L, "14", "Candiac", "CA5898")
-        val routeMA = Route(6L, "15", "Mascouche", "999AC6")
+        val routeVH= Route(authority, 1L, "11", "Vaudreuil / Hudson", "F16179")
+        val routeSH= Route(authority, 3L, "13", "Mont-St-Hilaire", "CA5898")
+        val routeCA= Route(authority, 4L, "14", "Candiac", "CA5898")
+        val routeMA= Route(authority, 6L, "15", "Mascouche", "999AC6")
         val directionVhVe = Direction(100L, Direction.HEADSIGN_TYPE_STRING, "Vendôme", routeVH.id)
         val directionVhVh = Direction(101L, Direction.HEADSIGN_TYPE_STRING, "Hudson", routeVH.id)
         val directionShCt = Direction(300L, Direction.HEADSIGN_TYPE_STRING, "Centrale", routeSH.id)
@@ -86,9 +86,9 @@ class POIConnectionComparatorTests {
 
     @Test
     fun `test POISameRouteComparator - same terminal - different stop`() {
-        val route23 = Route(23L, "23", "Ste-Hélène / Jacques-Cartier", "")
-        val route29 = Route(29L, "29", "Collectivité Nouvelle", "")
-        val route98 = Route(98L, "98", "Promenades St-Bruno / St-Bruno-De-Montarville", "")
+        val route23= Route(authority, 23L, "23", "Ste-Hélène / Jacques-Cartier", "")
+        val route29= Route(authority, 29L, "29", "Collectivité Nouvelle", "")
+        val route98= Route(authority, 98L, "98", "Promenades St-Bruno / St-Bruno-De-Montarville", "")
 
         val direction23Tr = Direction(2300L, Direction.HEADSIGN_TYPE_STRING, "Tremblay", route23.id)
         val direction23TL = Direction(2301L, Direction.HEADSIGN_TYPE_STRING, "Term Longueuil", route23.id)
