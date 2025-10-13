@@ -2,8 +2,6 @@ package org.mtransit.android.data
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.POI
@@ -18,10 +16,7 @@ class POIConnectionComparatorTests {
     private val dst = DataSourceTypeId.RAIL
     private val authority = "a"
 
-    private val computeDistance: (POI, POI) -> Float? = mock {
-        on { invoke(any(), any()) }.thenAnswer {
-            val poi1 = it.arguments[0] as POI? ?: return@thenAnswer null
-            val poi2 = it.arguments[1] as POI? ?: return@thenAnswer null
+    private val computeDistance: (POI, POI) -> Float? = { poi1, poi2 ->
             if (abs(poi1.lat - poi2.lat) < 0.0001
                 && abs(poi1.lng - poi2.lng) < 0.0001
             ) {
@@ -29,7 +24,6 @@ class POIConnectionComparatorTests {
             } else {
                 100f
             }
-        }
     }
 
     private val subject = POIConnectionComparator(

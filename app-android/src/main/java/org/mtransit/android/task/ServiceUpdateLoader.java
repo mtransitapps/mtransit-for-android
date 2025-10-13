@@ -117,12 +117,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		);
 	}
 
-	public boolean findServiceUpdate(@NonNull String authority,
-									 @NonNull String targetUUID,
-									 @NonNull ServiceUpdateLoaderListener mainListener,
-									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									 @Nullable ServiceUpdateLoaderListener listener,
-									 boolean skipIfBusy) {
+	private boolean findServiceUpdate(@NonNull String authority,
+									  @NonNull String targetUUID,
+									  @NonNull ServiceUpdateLoaderListener mainListener,
+									  @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
+									  @Nullable ServiceUpdateLoaderListener listener,
+									  boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
