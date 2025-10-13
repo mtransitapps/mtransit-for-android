@@ -17,6 +17,7 @@
     android:scaleType="fitCenter"
     android:visibility="gone"
     app:tint="@color/rsn_color"
+    tools:ignore="ObsoleteLayoutParam"
     tools:showIn="@layout/layout_rds_route_item"
     tools:srcCompat="@drawable/ic_warning_on_surface_16dp"
     tools:visibility="visible" />
