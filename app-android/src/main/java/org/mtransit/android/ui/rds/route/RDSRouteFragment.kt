@@ -11,9 +11,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
-import androidx.core.text.buildSpannedString
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
@@ -21,15 +19,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
-import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.ServiceUpdate
@@ -40,14 +35,16 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
+import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -279,18 +276,19 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.menu_service_update_img) {
-            val serviceUpdates = attachedViewModel?.routeM?.value?.getServiceUpdates(serviceUpdateLoader)
-                ?.takeUnless { it.isEmpty() }
-                ?: return true // handled
-            val text = buildSpannedString {
-                serviceUpdates.forEach {
-                    if (isNotEmpty()) {
-                        append(HtmlUtils.BR)
-                    }
-                    append(HtmlUtils.fromHtml(it.textHTML))
-                }
+            val authority = viewModel.authority.value ?: return false
+            val routeId = viewModel.routeM.value?.route?.id ?: return false
+            if (FeatureFlags.F_NAVIGATION) {
+                // TODO navigate to dialog
+            } else {
+                FragmentUtils.replaceDialogFragment(
+                    activity ?: return false,
+                    FragmentUtils.DIALOG_TAG,
+                    ServiceUpdatesDialog.newInstance(authority, routeId),
+                    null
+                )
+                return true // handled
             }
-            return true // handled
         }
         return false // not handled
     }

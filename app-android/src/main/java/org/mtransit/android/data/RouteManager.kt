@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference
 import kotlin.collections.orEmpty
 
 data class RouteManager(
-    val authority: Authority,
+    val authority: String,
     val route: Route,
     private val serviceUpdates: MutableList<ServiceUpdate> = mutableListOf(),
     private var lastFindServiceUpdateTimestampMs: Long = -1L,
@@ -84,5 +84,5 @@ data class RouteManager(
     }
 }
 
-fun Route.toRouteM(authority: Authority, serviceUpdates: List<ServiceUpdate>? = null) =
+fun Route.toRouteM(authority: String, serviceUpdates: List<ServiceUpdate>? = null) =
     RouteManager(authority, this, serviceUpdates.orEmpty().toMutableList())
