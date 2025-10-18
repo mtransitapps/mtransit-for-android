@@ -46,19 +46,14 @@ data class RouteManager(
     }
 
     fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader): List<ServiceUpdate> {
-        if (this.serviceUpdates.isNotEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
+        if (this.serviceUpdates.isEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
             findServiceUpdates(serviceUpdateLoader, skipIfBusy = false)
         }
         return this.serviceUpdates
     }
 
     private fun areServiceUpdatesUseful(): Boolean {
-        for (serviceUpdate in this.serviceUpdates) {
-            if (serviceUpdate.isUseful) {
-                return true
-            }
-        }
-        return false
+        return serviceUpdates.any { it.isUseful }
     }
 
     private fun findServiceUpdates(

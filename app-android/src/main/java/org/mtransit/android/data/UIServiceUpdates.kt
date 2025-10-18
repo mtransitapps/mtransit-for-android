@@ -19,12 +19,11 @@ object UIServiceUpdates {
             if (isNotEmpty()) {
                 append(HtmlUtils.BR).append(HtmlUtils.BR)
             }
-            val thisMsgFromHtml = serviceUpdate.getTextHTML().apply {
-                if (serviceUpdate.isSeverityWarning) {
-                    HtmlUtils.applyFontColor(this, ColorUtils.toRGBColor(ColorUtils.getTextColorPrimary(context)))
-                } else {
-                    HtmlUtils.applyFontColor(this, ColorUtils.toRGBColor(ColorUtils.getTextColorSecondary(context)))
-                }
+            val originalHtml = serviceUpdate.getTextHTML()
+            val thisMsgFromHtml = if (serviceUpdate.isSeverityWarning) {
+                HtmlUtils.applyFontColor(originalHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorPrimary(context)))
+            } else {
+                HtmlUtils.applyFontColor(originalHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorSecondary(context)))
             }
             append(thisMsgFromHtml)
         }
