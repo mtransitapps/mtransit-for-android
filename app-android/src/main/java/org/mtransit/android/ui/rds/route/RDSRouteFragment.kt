@@ -60,6 +60,8 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
         private const val TRACKING_SCREEN_NAME = "RTSRoute" // do not change to avoid breaking tracking
 
+        private const val SHOW_SERVICE_UPDATE_IN_TOOLBAR = false
+
         private val TITLE_RSN_STYLE = SpanUtils.getNewBoldStyleSpan()
 
         private val TITLE_RLN_FONT = SpanUtils.getNewSansSerifLightTypefaceSpan()
@@ -263,10 +265,10 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                 }
             if (isWarning) {
                 setIcon(R.drawable.ic_warning_black_24dp)
-                isVisible = true
+                isVisible = SHOW_SERVICE_UPDATE_IN_TOOLBAR
             } else if (isInfo) {
                 setIcon(R.drawable.ic_info_outline_black_24dp)
-                isVisible = true
+                isVisible = SHOW_SERVICE_UPDATE_IN_TOOLBAR
             } else {
                 icon = null
                 isVisible = false
