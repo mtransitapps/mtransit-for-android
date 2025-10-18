@@ -82,7 +82,7 @@ class RDSRouteViewModel @Inject constructor(
             emit(
                 route.toRouteM(authority)
                     .apply {
- setServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        setServiceUpdateLoaderListener(serviceUpdateLoaderListener)
                     }
             )
         }
