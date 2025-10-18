@@ -138,6 +138,7 @@
     <string name="add_fav">Add to favorites</string>
     <string name="remove_fav">Remove from favorites</string>
     <string name="edit_fav">Move/Remove favorite</string>
+    <string name="menu_action_show_service_updates">Service Updates</string>
     <string name="menu_action_list">List</string>
     <string name="menu_action_grid">Grid</string>
     <string name="menu_action_map">Map</string>

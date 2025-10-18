@@ -399,7 +399,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final Uri uri = getRDSRoutesUri(authority);
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.RouteColumns.T_ROUTE_K_ID, routeId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, selection, null, null);
-			final List<Route> rdsRoutes = getRDSRoutes(cursor);
+			final List<Route> rdsRoutes = getRDSRoutes(cursor, authority);
 			return rdsRoutes.isEmpty() ? null : rdsRoutes.get(0);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading route '%s' from '%s'!", routeId, authority);
@@ -451,7 +451,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		try {
 			Uri uri = getRDSRoutesUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, null, null, null);
-			return getRDSRoutes(cursor);
+			return getRDSRoutes(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading agency routes from '%s'!", authority);
 			return Collections.emptyList();
@@ -461,12 +461,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static List<Route> getRDSRoutes(@Nullable Cursor cursor) {
+	private static List<Route> getRDSRoutes(@Nullable Cursor cursor, @NonNull String authority) {
 		final List<Route> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					final Route fromCursor = Route.fromCursor(cursor);
+					final Route fromCursor = Route.fromCursor(cursor, authority);
 					result.add(fromCursor);
 				} while (cursor.moveToNext());
 			}

@@ -61,7 +61,9 @@ import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings({"WeakerAccess"})
-public class POIManager implements LocationPOI, MTLog.Loggable {
+public class POIManager implements LocationPOI,
+		ServiceUpdateLoader.ServiceUpdateLoaderListener,
+		MTLog.Loggable {
 
 	private static final String LOG_TAG = POIManager.class.getSimpleName();
 
@@ -119,7 +121,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return POIManager.class.getSimpleName() + '[' +//
 				"poi:" + this.poi.getUUID() + ',' + //
 				"status:" + this.hasStatus() + ',' + //
-				"service updated:" + this.hasServiceUpdates() + ',' + //
+				"service updated:" + (this.serviceUpdates == null ? null : this.serviceUpdates.size()) + ',' + //
 				']';
 	}
 
@@ -313,9 +315,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		this.serviceUpdateLoaderListenerWR = new WeakReference<>(serviceUpdateLoaderListener);
 	}
 
-	@SuppressWarnings("unused")
-	public boolean hasServiceUpdates() {
-		return CollectionUtils.getSize(this.serviceUpdates) != 0;
+	@Override
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
+		setServiceUpdates(serviceUpdates);
 	}
 
 	public void setServiceUpdates(@Nullable Collection<ServiceUpdate> newServiceUpdates) {
@@ -328,31 +330,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			this.serviceUpdates.addAll(newServiceUpdates);
 			CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
 		}
-	}
-
-	@Nullable
-	public List<ServiceUpdate> getServiceUpdatesOrNull() {
-		return this.serviceUpdates;
-	}
-
-	@Deprecated
-	public boolean isServiceUpdateWarning(@Nullable Context ignoredContext,
-										  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
-		return isServiceUpdateWarning(serviceUpdateLoader);
-	}
-
-	public boolean isServiceUpdateWarning(@NonNull ServiceUpdateLoader serviceUpdateLoader) {
-		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
-			findServiceUpdates(serviceUpdateLoader, false);
-		}
-		return ServiceUpdate.isSeverityWarning(this.serviceUpdates);
-	}
-
-	@Deprecated
-	@Nullable
-	public ArrayList<ServiceUpdate> getServiceUpdates(@Nullable Context ignoredContext,
-													  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
-		return getServiceUpdates(serviceUpdateLoader);
 	}
 
 	@Nullable
@@ -375,7 +352,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false;
 	}
 
-	private long lastFindServiceUpdateTimestampMs = -1;
+	private long lastFindServiceUpdateTimestampMs = -1L;
 
 	@SuppressWarnings("UnusedReturnValue")
 	private boolean findServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader,

@@ -85,14 +85,14 @@ class DemoModeManager @Inject constructor(
             val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).apply {
             }
             poim = this.dataSourceRequestManager.findPOIMs(agency.authority, filter)
-                ?.removeAllAnd {
+                .removeAllAnd {
                     if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
                         (it.poi as? RouteDirectionStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
                     } else false
                 }
-                ?.updateDistanceM(lat, lng)
-                ?.removeTooFar(LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff))
-                ?.firstOrNull()
+                .updateDistanceM(lat, lng)
+                .removeTooFar(LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff))
+                .firstOrNull()
             if (poim != null) {
                 break
             } else if (LocationUtils.searchComplete(lat, lng, ad.aroundDiff)) {

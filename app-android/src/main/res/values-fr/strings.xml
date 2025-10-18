@@ -141,6 +141,7 @@
     <string name="add_fav">Ajouter aux favoris</string>
     <string name="remove_fav">Supprimer des favoris</string>
     <string name="edit_fav">Déplacer/Supprimer le favori</string>
+    <string name="menu_action_show_service_updates">Mises à jour de service</string>
     <string name="menu_action_list">Liste</string>
     <string name="menu_action_grid">Grille</string>
     <string name="menu_action_map">Carte</string>

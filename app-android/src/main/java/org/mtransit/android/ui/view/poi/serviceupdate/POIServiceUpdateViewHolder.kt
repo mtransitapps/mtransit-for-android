@@ -8,7 +8,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.shortUUID
+import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
 
 data class POIServiceUpdateViewHolder(
     var uuid: String,
@@ -21,14 +21,14 @@ data class POIServiceUpdateViewHolder(
         serviceUpdateImg?.isVisible = false
     }
 
-    fun fetchAndUpdate(poim: POIManager, dataProvider: POIServiceUpdateProvider) {
+    fun fetchAndUpdate(poim: POIManager, dataProvider: ServiceUpdateLoaderProvider) {
         val serviceUpdates = fetch(dataProvider, poim)
         update(serviceUpdates, dataProvider)
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun fetch(
-        dataProvider: POIServiceUpdateProvider,
+        dataProvider: ServiceUpdateLoaderProvider,
         poim: POIManager
     ): List<ServiceUpdate>? {
         return if (dataProvider.isShowingServiceUpdates && serviceUpdateImg != null) {
@@ -37,7 +37,7 @@ data class POIServiceUpdateViewHolder(
         } else null
     }
 
-    fun update(serviceUpdates: List<ServiceUpdate>?, dataProvider: POIServiceUpdateProvider) {
+    fun update(serviceUpdates: List<ServiceUpdate>?, dataProvider: ServiceUpdateLoaderProvider) {
         if (serviceUpdateImg == null) {
             return
         }
@@ -72,12 +72,12 @@ data class POIServiceUpdateViewHolder(
         )
 
         @JvmStatic
-        fun updateView(serviceUpdateViewHolder: POIServiceUpdateViewHolder?, serviceUpdates: List<ServiceUpdate>?, dataProvider: POIServiceUpdateProvider) {
+        fun updateView(serviceUpdateViewHolder: POIServiceUpdateViewHolder?, serviceUpdates: List<ServiceUpdate>?, dataProvider: ServiceUpdateLoaderProvider) {
             serviceUpdateViewHolder?.update(serviceUpdates, dataProvider)
         }
 
         @JvmStatic
-        fun fetchAndUpdateView(serviceUpdateViewHolder: POIServiceUpdateViewHolder?, poim: POIManager, dataProvider: POIServiceUpdateProvider) {
+        fun fetchAndUpdateView(serviceUpdateViewHolder: POIServiceUpdateViewHolder?, poim: POIManager, dataProvider: ServiceUpdateLoaderProvider) {
             serviceUpdateViewHolder?.fetchAndUpdate(poim, dataProvider)
         }
     }
