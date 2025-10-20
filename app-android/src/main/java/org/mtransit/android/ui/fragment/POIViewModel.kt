@@ -285,15 +285,13 @@ class POIViewModel @Inject constructor(
         val it = sortedPOIMList.iterator()
         val routeDirectionKept = mutableSetOf<String>()
         while (it.hasNext()) {
-            val poim = it.next()
-            if (poim.poi is RouteDirectionStop) { // RDS
-                val rds: RouteDirectionStop = poim.poi
+            (it.next().poi as? RouteDirectionStop)?.let { rds ->
                 val routeDirectionId = "${rds.route.id}-${rds.direction.id}"
                 if (routeDirectionKept.contains(routeDirectionId)) {
                     it.remove()
                     continue
                 }
-                routeDirectionKept += "${poim.poi.route.id}-${poim.poi.direction.id}"
+                routeDirectionKept += "${rds.route.id}-${rds.direction.id}"
             }
         }
     }
