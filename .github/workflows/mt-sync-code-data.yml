@@ -82,6 +82,7 @@ jobs:
       - name: MT download data (& archive)
         if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
         timeout-minutes: 10
+        continue-on-error: true #optional
         run: ./download_only.sh
       - name: MT select archive
         if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
