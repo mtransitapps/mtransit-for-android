@@ -13,7 +13,7 @@ import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
 data class POIServiceUpdateViewHolder(
     var uuid: String,
     val serviceUpdateImg: ImageView?
-): MTLog.Loggable {
+) : MTLog.Loggable {
 
     override fun getLogTag() = LOG_TAG
 
@@ -33,7 +33,7 @@ data class POIServiceUpdateViewHolder(
     ): List<ServiceUpdate>? {
         return if (dataProvider.isShowingServiceUpdates && serviceUpdateImg != null) {
             poim.setServiceUpdateLoaderListener(dataProvider)
-            poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader())
+            poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader(), dataProvider.ignoredTargetUUIDs)
         } else null
     }
 
@@ -45,7 +45,9 @@ data class POIServiceUpdateViewHolder(
             serviceUpdateImg.isVisible = false
             return
         }
-        val (isWarning, isInfo) = serviceUpdates
+        val filteredServiceUpdate = serviceUpdates
+            ?.filter { dataProvider.ignoredTargetUUIDs?.contains(it.targetUUID) != true }
+        val (isWarning, isInfo) = filteredServiceUpdate
             .let {
                 ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
             }

@@ -1433,6 +1433,11 @@ public class POIFragment extends ABFragment implements
 		return this.sharedServiceUpdateLoader;
 	}
 
+	@Override
+	public @Nullable Collection<String> getIgnoredTargetUUIDs() {
+		return Collections.emptyList(); // empty = ready = no filter
+	}
+
 	@NonNull
 	@Override
 	public DemoModeManager providesDemoModeManager() {

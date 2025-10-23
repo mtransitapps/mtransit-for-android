@@ -333,11 +333,16 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Nullable
-	public ArrayList<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader) {
+	public List<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDs) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(serviceUpdateLoader, false);
 		}
-		return this.serviceUpdates;
+		if (ignoredUUIDs == null) { // IF filter not ready DO
+			return null; // wait for filter
+		}
+		return CollectionUtils.filterN(this.serviceUpdates, serviceUpdate ->
+				!ignoredUUIDs.contains(serviceUpdate.getTargetUUID())
+		);
 	}
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")

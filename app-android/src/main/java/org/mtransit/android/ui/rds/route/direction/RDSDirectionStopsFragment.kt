@@ -27,6 +27,7 @@ import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
+import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.rds.route.RDSRouteViewModel
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
@@ -165,6 +166,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             logTag = this@RDSDirectionStopsFragment.logTag
             setShowExtra(false) // show route short name & direction
             setLocation(attachedParentViewModel?.deviceLocation?.value)
+            if (RDSRouteFragment.SHOW_SERVICE_UPDATE_IN_TOOLBAR) {
+                attachedParentViewModel?.routeM?.value?.let { setIgnoredTargetUUIDs(it.route.allUUIDs) }
+            }
         }
     }
 
@@ -195,6 +199,13 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 )
             }
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+        }
+        parentViewModel.routeM.observe(viewLifecycleOwner) {
+            if (RDSRouteFragment.SHOW_SERVICE_UPDATE_IN_TOOLBAR) {
+                if (listAdapter.setIgnoredTargetUUIDs(it.route.allUUIDs)) {
+                    listAdapter.notifyDataSetChanged(true)
+                }
+            }
         }
         parentViewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             binding?.apply {

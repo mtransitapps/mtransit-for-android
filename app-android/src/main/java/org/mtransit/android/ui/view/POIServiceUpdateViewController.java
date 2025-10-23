@@ -19,7 +19,6 @@ import org.mtransit.android.data.UIServiceUpdates;
 import org.mtransit.android.databinding.LayoutPoiServiceUpdateBinding;
 import org.mtransit.android.ui.common.UISourceLabelUtils;
 import org.mtransit.android.util.LinkUtils;
-import org.mtransit.commons.CollectionUtils;
 
 import java.util.List;
 
@@ -146,7 +145,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 				updateServiceUpdatesView(
 						context,
 						serviceUpdatesListViewHolder,
-						poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader()),
+						poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader(), dataProvider.getIgnoredTargetUUIDs()),
 						dataProvider
 				);
 			} else {

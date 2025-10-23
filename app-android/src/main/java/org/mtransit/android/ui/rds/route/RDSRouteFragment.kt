@@ -60,8 +60,8 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
         private const val TRACKING_SCREEN_NAME = "RTSRoute" // do not change to avoid breaking tracking
 
-        private const val SHOW_SERVICE_UPDATE_IN_TOOLBAR = false
-        // private const val SHOW_SERVICE_UPDATE_IN_TOOLBAR = true // TODO when we can only show stop specific in list
+        // internal const val SHOW_SERVICE_UPDATE_IN_TOOLBAR = false
+        internal const val SHOW_SERVICE_UPDATE_IN_TOOLBAR = true // ON to filter alerts in stop feed to avoid duplicates warnings signs
 
         private val TITLE_RSN_STYLE = SpanUtils.getNewBoldStyleSpan()
 
@@ -193,7 +193,6 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             )
         }
         viewModel.routeM.observe(viewLifecycleOwner) { routeM ->
-            MTLog.d(this, "routeM.onChange(${routeM?.route?.id})")
             MTTransitions.setTransitionName(
                 view,
                 routeM?.route?.id?.let { routeId ->

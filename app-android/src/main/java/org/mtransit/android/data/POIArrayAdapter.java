@@ -94,11 +94,13 @@ import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 @SuppressWarnings("WeakerAccess")
@@ -1951,6 +1953,28 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@Override
 	public ServiceUpdateLoader providesServiceUpdateLoader() {
 		return this.serviceUpdateLoader;
+	}
+
+	@Nullable
+	private Set<String> ignoredTargetUUIDs = null; // null == unknown
+
+	public boolean setIgnoredTargetUUIDs(@NonNull Collection<String> ignoredTargetUUIDs) {
+		boolean changed = false;
+		if (this.ignoredTargetUUIDs == null) {
+			this.ignoredTargetUUIDs = new HashSet<>(ignoredTargetUUIDs);
+			changed = true;
+		} else if (!CollectionUtils.equalsCollectionContent(ignoredTargetUUIDs, this.ignoredTargetUUIDs)) {
+			this.ignoredTargetUUIDs.clear();
+			this.ignoredTargetUUIDs.addAll(ignoredTargetUUIDs);
+			changed = true;
+		}
+		return changed;
+	}
+
+	@Nullable
+	@Override
+	public Collection<String> getIgnoredTargetUUIDs() {
+		return this.ignoredTargetUUIDs;
 	}
 
 	@Override
