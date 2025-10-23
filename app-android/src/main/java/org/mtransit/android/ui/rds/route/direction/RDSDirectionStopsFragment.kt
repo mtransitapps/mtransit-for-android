@@ -167,7 +167,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             setShowExtra(false) // show route short name & direction
             setLocation(attachedParentViewModel?.deviceLocation?.value)
             if (RDSRouteFragment.SHOW_SERVICE_UPDATE_IN_TOOLBAR) {
-                attachedParentViewModel?.routeM?.value?.let { setIgnoredTargetUUIDs(it.route.allUUIDs) }
+                setIgnoredTargetUUIDs(attachedParentViewModel?.routeM?.value?.route?.allUUIDs)
             }
         }
     }

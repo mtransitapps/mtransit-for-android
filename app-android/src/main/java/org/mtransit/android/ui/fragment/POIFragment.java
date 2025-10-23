@@ -1434,7 +1434,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public @Nullable Collection<String> getIgnoredTargetUUIDs() {
+	public @Nullable Collection<String> getIgnoredTargetUUIDsOrUnknown() {
 		return Collections.emptyList(); // empty = ready = no filter
 	}
 

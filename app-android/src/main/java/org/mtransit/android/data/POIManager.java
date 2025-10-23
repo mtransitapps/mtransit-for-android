@@ -333,15 +333,15 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Nullable
-	public List<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDs) {
+	public List<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(serviceUpdateLoader, false);
 		}
-		if (ignoredUUIDs == null) { // IF filter not ready DO
+		if (ignoredUUIDsOrUnknown == null) { // IF filter not ready DO
 			return null; // wait for filter
 		}
 		return CollectionUtils.filterN(this.serviceUpdates, serviceUpdate ->
-				!ignoredUUIDs.contains(serviceUpdate.getTargetUUID())
+				!ignoredUUIDsOrUnknown.contains(serviceUpdate.getTargetUUID())
 		);
 	}
 

@@ -1956,16 +1956,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@Nullable
-	private Set<String> ignoredTargetUUIDs = null; // null == unknown
+	private Set<String> ignoredTargetUUIDsOrUnknown = new HashSet<>(); // null == unknown
 
-	public boolean setIgnoredTargetUUIDs(@NonNull Collection<String> ignoredTargetUUIDs) {
+	public boolean setIgnoredTargetUUIDs(@Nullable Collection<String> ignoredTargetUUIDs) {
 		boolean changed = false;
-		if (this.ignoredTargetUUIDs == null) {
-			this.ignoredTargetUUIDs = new HashSet<>(ignoredTargetUUIDs);
+		if (ignoredTargetUUIDs == null) {
+			if (this.ignoredTargetUUIDsOrUnknown != null) {
+				this.ignoredTargetUUIDsOrUnknown = null;
+				changed = true;
+			}
+		} else if (this.ignoredTargetUUIDsOrUnknown == null) {
+			this.ignoredTargetUUIDsOrUnknown = new HashSet<>(ignoredTargetUUIDs);
 			changed = true;
-		} else if (!CollectionUtils.equalsCollectionContent(ignoredTargetUUIDs, this.ignoredTargetUUIDs)) {
-			this.ignoredTargetUUIDs.clear();
-			this.ignoredTargetUUIDs.addAll(ignoredTargetUUIDs);
+		} else if (!CollectionUtils.equalsCollectionContent(ignoredTargetUUIDs, this.ignoredTargetUUIDsOrUnknown)) {
+			this.ignoredTargetUUIDsOrUnknown.clear();
+			this.ignoredTargetUUIDsOrUnknown.addAll(ignoredTargetUUIDs);
 			changed = true;
 		}
 		return changed;
@@ -1973,8 +1978,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@Nullable
 	@Override
-	public Collection<String> getIgnoredTargetUUIDs() {
-		return this.ignoredTargetUUIDs;
+	public Collection<String> getIgnoredTargetUUIDsOrUnknown() {
+		return this.ignoredTargetUUIDsOrUnknown;
 	}
 
 	@Override

@@ -33,7 +33,7 @@ data class POIServiceUpdateViewHolder(
     ): List<ServiceUpdate>? {
         return if (dataProvider.isShowingServiceUpdates && serviceUpdateImg != null) {
             poim.setServiceUpdateLoaderListener(dataProvider)
-            poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader(), dataProvider.ignoredTargetUUIDs)
+            poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader(), dataProvider.ignoredTargetUUIDsOrUnknown)
         } else null
     }
 
@@ -46,7 +46,7 @@ data class POIServiceUpdateViewHolder(
             return
         }
         val filteredServiceUpdate = serviceUpdates
-            ?.filter { dataProvider.ignoredTargetUUIDs?.contains(it.targetUUID) != true }
+            ?.filter { dataProvider.ignoredTargetUUIDsOrUnknown?.contains(it.targetUUID) != true }
         val (isWarning, isInfo) = filteredServiceUpdate
             .let {
                 ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
