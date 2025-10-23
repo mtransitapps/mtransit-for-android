@@ -186,6 +186,7 @@ dev.properties
 /dependency_update_push_commits.sh
 /download_and_parse.sh
 /download_and_prepare.sh
+/download_only.sh
 /download_dependencies.sh
 /gitall.sh
 /gradle.properties
@@ -197,6 +198,7 @@ dev.properties
 /parse_current.sh
 /parse_next.sh
 /parse_list_change.sh
+/prepare_only.sh
 /publish_app_release.sh
 /push_commits.sh
 /set_app_release_required.sh

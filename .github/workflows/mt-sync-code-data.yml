@@ -76,9 +76,17 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
       - name: MT commit code change
         run: ./commit_code_change.sh
-      - name: MT download & prepare
+      # - name: MT download & prepare
+      #   timeout-minutes: 10
+      #   run: ./download_and_prepare.sh
+      - name: MT download data (& archive)
+        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
         timeout-minutes: 10
-        run: ./download_and_prepare.sh
+        continue-on-error: true #optional
+        run: ./download_only.sh
+      - name: MT select archive
+        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+        run: ./prepare_only.sh
       - name: MT parse current
         timeout-minutes: 40
         run: ./parse_current.sh
