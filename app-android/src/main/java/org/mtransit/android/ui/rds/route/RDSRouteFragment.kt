@@ -111,8 +111,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     }
 
     private val viewModel by viewModels<RDSRouteViewModel>()
-    private val attachedViewModel
-        get() = if (isAttached()) viewModel else null
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
@@ -259,10 +258,12 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     ) {
         serviceUpdateImg?.apply {
             routeM ?: run { isVisible = false; return }
-            val (isWarning, isInfo) = routeM.getServiceUpdates(serviceUpdateLoader)
-                .let {
-                    ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
-                }
+            val (isWarning, isInfo) = routeM.getServiceUpdates(
+                serviceUpdateLoader,
+                emptyList()
+            ).let {
+                ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
+            }
             if (isWarning) {
                 setIcon(R.drawable.ic_warning_black_24dp)
                 isVisible = SHOW_SERVICE_UPDATE_IN_TOOLBAR

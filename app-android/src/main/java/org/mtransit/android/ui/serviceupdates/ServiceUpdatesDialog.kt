@@ -20,9 +20,11 @@ import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.UIServiceUpdates
 import org.mtransit.android.databinding.FragmentDialogServiceUpdatesBinding
 import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.ui.common.UISourceLabelUtils.setSourceLabelTextView
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
 import org.mtransit.android.ui.view.common.context
+import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
@@ -38,9 +40,10 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
         fun newInstance(
             authority: String,
             routeId: Long,
+            directionId: Long? = null,
         ): ServiceUpdatesDialog {
             return ServiceUpdatesDialog().apply {
-                arguments = newInstanceArgs(authority, routeId)
+                arguments = newInstanceArgs(authority, routeId, directionId)
             }
         }
 
@@ -48,15 +51,18 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
         fun newInstanceArgs(
             authority: String,
             routeId: Long,
+            directionId: Long? = null,
         ) = bundleOf(
             ServiceUpdatesViewModel.EXTRA_AUTHORITY to authority,
             ServiceUpdatesViewModel.EXTRA_ROUTE_ID to routeId,
+            ServiceUpdatesViewModel.EXTRA_DIRECTION_ID to directionId,
         )
     }
 
     override fun getLogTag() = LOG_TAG
 
     private val viewModel by viewModels<ServiceUpdatesViewModel>()
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
@@ -88,17 +94,21 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
         }
-        viewModel.routeM.observe(this) {
-            updateServiceUpdatesView(it?.getServiceUpdates(serviceUpdateLoader))
+        viewModel.holder.observe(viewLifecycleOwner) { holder ->
+            updateServiceUpdatesView(holder)
         }
-        viewModel.serviceUpdateLoadedEvent.observe(this) {
-            updateServiceUpdatesView(viewModel.routeM.value?.getServiceUpdates(serviceUpdateLoader))
+        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner) {
+            updateServiceUpdatesView()
         }
     }
 
     private fun updateServiceUpdatesView(
-        serviceUpdates: List<ServiceUpdate>?,
+        holder: ServiceUpdatesHolder? = attachedViewModel?.holder?.value,
     ) = binding?.apply {
+        val serviceUpdates: List<ServiceUpdate>? = holder?.getServiceUpdates(
+            serviceUpdateLoader,
+            emptyList() // TODO?
+        )
         serviceUpdates ?: run {
             emptyLayout.isVisible = false
             poiServiceUpdate.isVisible = false

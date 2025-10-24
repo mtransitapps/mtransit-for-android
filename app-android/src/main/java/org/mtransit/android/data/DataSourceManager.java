@@ -344,9 +344,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	@SuppressWarnings("unused")
 	@Nullable
-	public static Direction findRDSDirection(@NonNull Context context, @NonNull String authority, int directionId) {
+	public static Direction findRDSDirection(@NonNull Context context, @NonNull String authority, long directionId) {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRDSDirectionsUri(authority);
@@ -366,8 +365,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static ArrayList<Direction> findRDSRouteDirections(@NonNull Context context, @NonNull String authority, long routeId) {
 		Cursor cursor = null;
 		try {
-			Uri uri = getRDSDirectionsUri(authority);
-			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ROUTE_ID, routeId);
+			final Uri uri = getRDSDirectionsUri(authority);
+			final String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ROUTE_ID, routeId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
 			return getRDSDirections(cursor);
 		} catch (Exception e) {
@@ -380,11 +379,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@NonNull
 	private static ArrayList<Direction> getRDSDirections(@Nullable Cursor cursor) {
-		ArrayList<Direction> result = new ArrayList<>();
+		final ArrayList<Direction> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					Direction fromCursor = Direction.fromCursor(cursor);
+					final Direction fromCursor = Direction.fromCursor(cursor);
 					result.add(fromCursor);
 				} while (cursor.moveToNext());
 			}

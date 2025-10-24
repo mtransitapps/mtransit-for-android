@@ -33,7 +33,10 @@ data class POIServiceUpdateViewHolder(
     ): List<ServiceUpdate>? {
         return if (dataProvider.isShowingServiceUpdates && serviceUpdateImg != null) {
             poim.setServiceUpdateLoaderListener(dataProvider)
-            poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader(), dataProvider.ignoredTargetUUIDsOrUnknown)
+            poim.getServiceUpdates(
+                dataProvider.providesServiceUpdateLoader(),
+                dataProvider.ignoredTargetUUIDsOrUnknown
+            )
         } else null
     }
 

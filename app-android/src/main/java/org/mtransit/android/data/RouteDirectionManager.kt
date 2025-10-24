@@ -1,7 +1,7 @@
 package org.mtransit.android.data
 
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.Route
+import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -12,16 +12,16 @@ import org.mtransit.commons.CollectionUtils
 import java.lang.ref.WeakReference
 import kotlin.collections.orEmpty
 
-data class RouteManager(
+data class RouteDirectionManager(
     val authority: String,
-    val route: Route,
+    val routeDirection: RouteDirection,
     private val serviceUpdates: MutableList<ServiceUpdate> = mutableListOf(),
     private var lastFindServiceUpdateTimestampMs: Long = -1L,
     private var inFocus: Boolean = false, // TODO?
 ) : ServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG: String = RouteManager::class.java.simpleName
+        private val LOG_TAG: String = RouteDirectionManager::class.java.simpleName
     }
 
     override fun getLogTag() = LOG_TAG
@@ -67,7 +67,7 @@ data class RouteManager(
         if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
             isNotSkipped = serviceUpdateLoader.findServiceUpdate(
                 this,
-                ServiceUpdateProviderContract.Filter(this.authority, this.route).apply {
+                ServiceUpdateProviderContract.Filter(this.authority, this.routeDirection).apply {
                     setInFocus(inFocus)
                 },
                 this.serviceUpdateLoaderListenerWR?.get(),
@@ -81,5 +81,5 @@ data class RouteManager(
     }
 }
 
-fun Route.toRouteM(authority: String, serviceUpdates: List<ServiceUpdate>? = null) =
-    RouteManager(authority, this, serviceUpdates.orEmpty().toMutableList())
+fun RouteDirection.toRouteDirectionM(authority: String, serviceUpdates: List<ServiceUpdate>? = null) =
+    RouteDirectionManager(authority, this, serviceUpdates.orEmpty().toMutableList())

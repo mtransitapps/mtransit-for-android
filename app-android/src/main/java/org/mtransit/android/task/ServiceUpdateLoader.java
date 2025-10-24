@@ -13,6 +13,7 @@ import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.RouteDirectionManager;
 import org.mtransit.android.data.RouteManager;
 import org.mtransit.android.data.ServiceUpdateProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -96,6 +97,21 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				poim.poi.getAuthority(),
 				poim.poi.getUUID(),
 				poim,
+				serviceUpdateFilter,
+				listener,
+				skipIfBusy
+		);
+	}
+
+	public boolean findServiceUpdate(@NonNull RouteDirectionManager routeDirectionM,
+									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
+									 @Nullable ServiceUpdateLoaderListener listener,
+									 boolean skipIfBusy) {
+
+		return findServiceUpdate(
+				routeDirectionM.getAuthority(),
+				routeDirectionM.getRouteDirection().getUUID(),
+				routeDirectionM,
 				serviceUpdateFilter,
 				listener,
 				skipIfBusy

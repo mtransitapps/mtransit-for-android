@@ -12,13 +12,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
-import org.mtransit.android.data.RouteManager
+import org.mtransit.android.commons.data.RouteDirection
+import org.mtransit.android.data.toRouteDirectionM
 import org.mtransit.android.data.toRouteM
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -32,12 +36,15 @@ class ServiceUpdatesViewModel @Inject constructor(
 
         internal const val EXTRA_AUTHORITY = "extra_authority"
         internal const val EXTRA_ROUTE_ID = "extra_route_id"
+        internal const val EXTRA_DIRECTION_ID = "extra_direction_id"
     }
 
     override fun getLogTag() = LOG_TAG
 
     private val _authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
     private val _routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)
+
+    private val _directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
 
     private val _route: LiveData<Route?> = PairMediatorLiveData(_authority, _routeId).switchMap { (authority, routeId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
@@ -47,15 +54,26 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    val routeM: LiveData<RouteManager> = PairMediatorLiveData(_authority, _route).switchMap { (authority, route) ->
+    private val _direction: LiveData<Direction?> = PairMediatorLiveData(_authority, _directionId).switchMap { (authority, directionId) ->
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            authority ?: return@liveData
+            directionId ?: return@liveData
+            emit(dataSourceRequestManager.findRDSDirection(authority, directionId))
+        }
+    }
+
+    val holder: LiveData<ServiceUpdatesHolder> = TripleMediatorLiveData(_authority, _route, _direction).switchMap { (authority, route, direction) ->
         liveData(viewModelScope.coroutineContext) {
             authority ?: return@liveData
             route ?: return@liveData
+            val holder: ServiceUpdatesHolder = direction?.let {
+                RouteDirection(route, it).toRouteDirectionM(authority)
+            } ?: route.toRouteM(authority)
             emit(
-                route.toRouteM(authority)
-                .apply {
-                    setServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                }
+                holder
+                    .apply {
+                        setServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                    }
             )
         }
     }

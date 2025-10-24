@@ -147,10 +147,12 @@ class RDSAgencyRoutesAdapter(
             }
 
             serviceUpdateLayout.serviceUpdateImg.apply {
-                val (isWarning, isInfo) = routeM.getServiceUpdates(serviceUpdateLoader)
-                    .let {
-                        ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
-                    }
+                val (isWarning, isInfo) = routeM.getServiceUpdates(
+                    serviceUpdateLoader,
+                    emptyList() // TODO agency-level UI?
+                ).let {
+                    ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
+                }
                 if (isWarning) {
                     setImageResource(R.drawable.ic_warning_on_surface_16dp)
                     isVisible = true

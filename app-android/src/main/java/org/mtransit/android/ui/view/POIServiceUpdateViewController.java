@@ -145,7 +145,10 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 				updateServiceUpdatesView(
 						context,
 						serviceUpdatesListViewHolder,
-						poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader(), dataProvider.getIgnoredTargetUUIDsOrUnknown()),
+						poim.getServiceUpdates(
+								dataProvider.providesServiceUpdateLoader(),
+								dataProvider.getIgnoredTargetUUIDsOrUnknown()
+						),
 						dataProvider
 				);
 			} else {
