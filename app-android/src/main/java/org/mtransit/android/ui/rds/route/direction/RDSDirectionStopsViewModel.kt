@@ -166,6 +166,8 @@ class RDSDirectionStopsViewModel @Inject constructor(
             .apply {
                 forEach { poim ->
                     poim.addServiceUpdateLoaderListener(serviceUpdateLoaderListener) // trigger refresh because some provider do not fetch for route #stmbus
+                }
+            }
     }
 
     val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
