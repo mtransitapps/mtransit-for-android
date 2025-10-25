@@ -156,7 +156,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
         binding = FragmentAgencyTypeBinding.bind(view).apply {
-            viewPager.offscreenPageLimit = 2
+            viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 2
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
             viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->

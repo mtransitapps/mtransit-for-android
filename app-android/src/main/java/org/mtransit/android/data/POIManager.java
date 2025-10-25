@@ -59,9 +59,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.WeakHashMap;
 
 @SuppressWarnings({"WeakerAccess"})
-public class POIManager implements LocationPOI, MTLog.Loggable {
+public class POIManager implements LocationPOI,
+		ServiceUpdateLoader.ServiceUpdateLoaderListener,
+		MTLog.Loggable {
 
 	private static final String LOG_TAG = POIManager.class.getSimpleName();
 
@@ -119,7 +122,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return POIManager.class.getSimpleName() + '[' +//
 				"poi:" + this.poi.getUUID() + ',' + //
 				"status:" + this.hasStatus() + ',' + //
-				"service updated:" + this.hasServiceUpdates() + ',' + //
+				"service updated:" + (this.serviceUpdates == null ? null : this.serviceUpdates.size()) + ',' + //
 				']';
 	}
 
@@ -306,16 +309,16 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	@Nullable
-	private WeakReference<ServiceUpdateLoader.ServiceUpdateLoaderListener> serviceUpdateLoaderListenerWR;
+	@NonNull
+	private final WeakHashMap<ServiceUpdateLoader.ServiceUpdateLoaderListener, Object> serviceUpdateLoaderListenersWR = new WeakHashMap<>();
 
-	public void setServiceUpdateLoaderListener(@NonNull ServiceUpdateLoader.ServiceUpdateLoaderListener serviceUpdateLoaderListener) {
-		this.serviceUpdateLoaderListenerWR = new WeakReference<>(serviceUpdateLoaderListener);
+	public void addServiceUpdateLoaderListener(@NonNull ServiceUpdateLoader.ServiceUpdateLoaderListener serviceUpdateLoaderListener) {
+		this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null);
 	}
 
-	@SuppressWarnings("unused")
-	public boolean hasServiceUpdates() {
-		return CollectionUtils.getSize(this.serviceUpdates) != 0;
+	@Override
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
+		setServiceUpdates(serviceUpdates);
 	}
 
 	public void setServiceUpdates(@Nullable Collection<ServiceUpdate> newServiceUpdates) {
@@ -331,36 +334,14 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	@Nullable
-	public List<ServiceUpdate> getServiceUpdatesOrNull() {
-		return this.serviceUpdates;
-	}
-
-	@Deprecated
-	public boolean isServiceUpdateWarning(@Nullable Context ignoredContext,
-										  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
-		return isServiceUpdateWarning(serviceUpdateLoader);
-	}
-
-	public boolean isServiceUpdateWarning(@NonNull ServiceUpdateLoader serviceUpdateLoader) {
+	public List<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(serviceUpdateLoader, false);
 		}
-		return ServiceUpdate.isSeverityWarning(this.serviceUpdates);
-	}
-
-	@Deprecated
-	@Nullable
-	public ArrayList<ServiceUpdate> getServiceUpdates(@Nullable Context ignoredContext,
-													  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
-		return getServiceUpdates(serviceUpdateLoader);
-	}
-
-	@Nullable
-	public ArrayList<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader) {
-		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
-			findServiceUpdates(serviceUpdateLoader, false);
-		}
-		return this.serviceUpdates;
+		if (ignoredUUIDsOrUnknown == null) return null; // IF filter not ready DO wait for filter
+		return CollectionUtils.filterN(this.serviceUpdates, serviceUpdate ->
+				!ignoredUUIDsOrUnknown.contains(serviceUpdate.getTargetUUID())
+		);
 	}
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -375,7 +356,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false;
 	}
 
-	private long lastFindServiceUpdateTimestampMs = -1;
+	private long lastFindServiceUpdateTimestampMs = -1L;
 
 	@SuppressWarnings("UnusedReturnValue")
 	private boolean findServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader,
@@ -385,9 +366,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
 			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);
 			filter.setInFocus(this.inFocus);
-			ServiceUpdateLoader.ServiceUpdateLoaderListener listener = //
-					this.serviceUpdateLoaderListenerWR == null ? null : this.serviceUpdateLoaderListenerWR.get();
-			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, listener, skipIfBusy);
+			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
 			if (isNotSkipped) {
 				this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
 			}
@@ -1067,7 +1046,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		if (!Objects.equals(status, that.status)) return false;
 		if (!Objects.equals(serviceUpdates, that.serviceUpdates)) return false;
 		if (!Objects.equals(statusLoaderListenerWR, that.statusLoaderListenerWR)) return false;
-		if (!Objects.equals(serviceUpdateLoaderListenerWR, that.serviceUpdateLoaderListenerWR))
+		if (!Objects.equals(serviceUpdateLoaderListenersWR, that.serviceUpdateLoaderListenersWR))
 			return false;
 		return Objects.equals(color, that.color);
 	}
@@ -1084,7 +1063,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		result = 31 * result + Long.hashCode(lastFindStatusTimestampMs);
 		result = 31 * result + (statusLoaderListenerWR != null ? statusLoaderListenerWR.hashCode() : 0);
 		result = 31 * result + scheduleMaxDataRequests;
-		result = 31 * result + (serviceUpdateLoaderListenerWR != null ? serviceUpdateLoaderListenerWR.hashCode() : 0);
+		result = 31 * result + (serviceUpdateLoaderListenersWR != null ? serviceUpdateLoaderListenersWR.hashCode() : 0);
 		result = 31 * result + Long.hashCode(lastFindServiceUpdateTimestampMs);
 		result = 31 * result + (color != null ? color.hashCode() : 0);
 		return result;

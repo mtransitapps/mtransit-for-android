@@ -82,6 +82,10 @@ class DataSourceRequestManager(
         DataSourceManager.findRDSRoute(appContext, agencyAuthority, routeId)
     }
 
+    suspend fun findRDSDirection(agencyAuthority: String, directionId: Long): Direction? = withContext(ioDispatcher) {
+        DataSourceManager.findRDSDirection(appContext, agencyAuthority, directionId)
+    }
+
     suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {
         DataSourceManager.findRDSRouteDirections(appContext, agencyAuthority, routeId)
     }

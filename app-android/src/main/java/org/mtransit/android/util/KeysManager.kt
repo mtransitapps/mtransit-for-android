@@ -20,6 +20,9 @@ class KeysManager @Inject constructor(
 
         private val LOG_TAG: String = KeysManager::class.java.simpleName
 
+        private const val DEBUGGING_KEYS = false
+        // private const val DEBUGGING_KEYS = true // DEBUG
+
         private const val PKG_START = "org.mtransit.android"
         private const val GTFS_RT_END = "gtfs.realtime"
         private const val OBA_END = "oba"
@@ -35,7 +38,7 @@ class KeysManager @Inject constructor(
             KeysIds.CA_SUDBURY_TRANSIT_AUTH_TOKEN -> context.resources.getStringArray(R.array.greater_sudbury_auth_token).join()
             KeysIds.CA_WINNIPEG_TRANSIT_API_KEY -> context.resources.getStringArray(R.array.ca_winnipeg_transit_api_key).join()
             else -> {
-                MTLog.w(LOG_TAG, "Unexpected '$key'!")
+                if (DEBUGGING_KEYS) MTLog.w(LOG_TAG, "Unexpected '$key'!")
                 null
             }
         }?.takeIf { it.isNotBlank() }
@@ -98,7 +101,7 @@ class KeysManager @Inject constructor(
                     }
 
                     else -> {
-                        MTLog.d(LOG_TAG, "Unexpected '$authority'!")
+                        if (DEBUGGING_KEYS) MTLog.d(LOG_TAG, "Unexpected '$authority'!")
                         null
                     }
                 }
@@ -111,7 +114,7 @@ class KeysManager @Inject constructor(
                     }
 
                     else -> {
-                        MTLog.d(LOG_TAG, "Unexpected '$authority'!")
+                        if (DEBUGGING_KEYS) MTLog.d(LOG_TAG, "Unexpected '$authority'!")
                         null
                     }
                 }
@@ -119,7 +122,7 @@ class KeysManager @Inject constructor(
             // CUSTOM
             authority.endsWith("$debugS.winnipeg_transit") -> getKeyEntry(context, KeysIds.CA_WINNIPEG_TRANSIT_API_KEY)?.let { mapOf(it) }
             else -> {
-                MTLog.d(LOG_TAG, "No key for '$authority'.")
+                if (DEBUGGING_KEYS)  MTLog.d(LOG_TAG, "No key for '$authority'.")
                 null
             }
         }

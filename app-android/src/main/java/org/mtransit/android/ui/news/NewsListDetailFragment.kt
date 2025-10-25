@@ -233,7 +233,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 }
             }
             viewPager.apply {
-                offscreenPageLimit = 1 // only one because pre-fetching ads
+                offscreenPageLimit = 1 // only one because pre-fetching ads // TODO really? try ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             }

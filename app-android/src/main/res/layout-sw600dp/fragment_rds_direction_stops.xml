@@ -35,6 +35,19 @@
         app:layout_constraintWidth_percent="0.5"
         tools:visibility="visible" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_service_update"
+        style="@style/MTFabAutoBottomEnd"
+        android:contentDescription="@string/menu_action_show_service_updates"
+        android:src="@drawable/ic_info_outline_on_surface_16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/list_layout"
+        tools:backgroundTint="#FF00FF"
+        tools:ignore="MissingConstraints"
+        tools:rippleColor="#00FF00"
+        tools:src="@drawable/ic_warning_on_surface_16dp"
+        tools:visibility="visible" />
+
     <!-- MAP -->
     <org.mtransit.android.ui.view.common.MapViewInScroll
         android:id="@id/map"

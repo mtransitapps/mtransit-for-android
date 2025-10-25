@@ -81,7 +81,7 @@ fun View.setPadding(
     @Px top: Int = vertical,
     @Px right: Int = horizontal,
     @Px bottom: Int = vertical,
-    relative: Boolean = false,
+    relative: Boolean = true, // start/end instead of left/right
 ) {
     if (relative) {
         this.setPaddingRelative(left, top, right, bottom)

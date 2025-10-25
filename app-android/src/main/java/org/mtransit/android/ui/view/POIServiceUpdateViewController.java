@@ -11,15 +11,14 @@ import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.HtmlUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.UIServiceUpdates;
 import org.mtransit.android.databinding.LayoutPoiServiceUpdateBinding;
 import org.mtransit.android.ui.common.UISourceLabelUtils;
 import org.mtransit.android.util.LinkUtils;
-import org.mtransit.commons.CollectionUtils;
 
 import java.util.List;
 
@@ -142,11 +141,14 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 												 @NonNull POIDataProvider dataProvider) {
 		if (serviceUpdatesListViewHolder != null) {
 			if (dataProvider.isShowingServiceUpdates()) {
-				poim.setServiceUpdateLoaderListener(dataProvider);
+				poim.addServiceUpdateLoaderListener(dataProvider);
 				updateServiceUpdatesView(
 						context,
 						serviceUpdatesListViewHolder,
-						poim.getServiceUpdates(dataProvider.providesServiceUpdateLoader()),
+						poim.getServiceUpdates(
+								dataProvider.providesServiceUpdateLoader(),
+								dataProvider.getIgnoredTargetUUIDsOrUnknown()
+						),
 						dataProvider
 				);
 			} else {
@@ -159,43 +161,16 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 												 @NonNull ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
 												 @Nullable List<ServiceUpdate> serviceUpdates,
 												 @NonNull POIDataProvider dataProvider) {
-		int serviceMessageDisplayed = 0;
-		boolean isWarning = false;
-		if (CollectionUtils.getSize(serviceUpdates) != 0) {
-			StringBuilder ssb = new StringBuilder();
-			if (serviceUpdates != null) {
-				for (ServiceUpdate serviceUpdate : serviceUpdates) {
-					if (!serviceUpdate.shouldDisplay()) {
-						continue;
-					}
-					if (ssb.length() > 0) {
-						ssb.append(HtmlUtils.BR).append(HtmlUtils.BR);
-					}
-					String thisMsgFromHtml = serviceUpdate.getTextHTML();
-					if (serviceUpdate.isSeverityWarning()) {
-						thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorPrimary(context)));
-					} else {
-						thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorSecondary(context)));
-					}
-					ssb.append(thisMsgFromHtml);
-					if (!isWarning && serviceUpdate.isSeverityWarning()) {
-						isWarning = true;
-					}
-					serviceMessageDisplayed++;
-				}
-			}
-			serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(ssb.toString()), false), TextView.BufferType.SPANNABLE);
-			serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptor.getInstance(dataProvider));
-			serviceUpdatesListViewHolder.messagesTv.setBackgroundResource(
-					isWarning ? R.drawable.service_update_warning
-							: R.drawable.service_update_info
-			);
-		}
-		if (serviceMessageDisplayed == 0) {
-			serviceUpdatesListViewHolder.layout.setVisibility(View.GONE);
-		} else {
-			serviceUpdatesListViewHolder.layout.setVisibility(View.VISIBLE);
-		}
+		final String serviceUpdateHTMLText = UIServiceUpdates.makeServiceUpdatesHTMLText(context, serviceUpdates);
+		final boolean hasServiceUpdatesToShow = !serviceUpdateHTMLText.isEmpty();
+		final boolean hasWarnings = UIServiceUpdates.hasWarnings(serviceUpdates);
+		serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdateHTMLText), false), TextView.BufferType.SPANNABLE);
+		serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptor.getInstance(dataProvider));
+		serviceUpdatesListViewHolder.messagesTv.setBackgroundResource(
+				hasWarnings ? R.drawable.service_update_warning
+						: R.drawable.service_update_info
+		);
+		serviceUpdatesListViewHolder.layout.setVisibility(hasServiceUpdatesToShow ? View.VISIBLE : View.GONE);
 		UISourceLabelUtils.setSourceLabelTextView(serviceUpdatesListViewHolder.sourceLabelTv, serviceUpdates);
 	}
 
