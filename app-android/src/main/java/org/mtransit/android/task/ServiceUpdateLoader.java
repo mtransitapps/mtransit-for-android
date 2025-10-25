@@ -108,7 +108,6 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
-
 		return findServiceUpdate(
 				routeDirectionM.getAuthority(),
 				routeDirectionM.getRouteDirection().getUUID(),
