@@ -23,6 +23,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -90,7 +91,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	public boolean findServiceUpdate(@NonNull POIManager poim,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									 @Nullable ServiceUpdateLoaderListener listener,
+									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
 
 		return findServiceUpdate(
@@ -98,14 +99,14 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				poim.poi.getUUID(),
 				poim,
 				serviceUpdateFilter,
-				listener,
+				listeners,
 				skipIfBusy
 		);
 	}
 
 	public boolean findServiceUpdate(@NonNull RouteDirectionManager routeDirectionM,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									 @Nullable ServiceUpdateLoaderListener listener,
+									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
 
 		return findServiceUpdate(
@@ -113,14 +114,14 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				routeDirectionM.getRouteDirection().getUUID(),
 				routeDirectionM,
 				serviceUpdateFilter,
-				listener,
+				listeners,
 				skipIfBusy
 		);
 	}
 
 	public boolean findServiceUpdate(@NonNull RouteManager routeM,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									 @Nullable ServiceUpdateLoaderListener listener,
+									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
 
 		return findServiceUpdate(
@@ -128,7 +129,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				routeM.getRoute().getUUID(),
 				routeM,
 				serviceUpdateFilter,
-				listener,
+				listeners,
 				skipIfBusy
 		);
 	}
@@ -137,7 +138,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 									  @NonNull String targetUUID,
 									  @NonNull ServiceUpdateLoaderListener mainListener,
 									  @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									  @Nullable ServiceUpdateLoaderListener listener,
+									  @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									  boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
@@ -149,7 +150,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 					continue;
 				}
 				new ServiceUpdateFetcherCallable(this.appContext,
-						listener,
+						listeners,
 						provider,
 						targetUUID,
 						mainListener,
@@ -180,19 +181,23 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		@NonNull
 		private final WeakReference<ServiceUpdateLoaderListener> mainListenerWR;
 		@NonNull
-		private final WeakReference<ServiceUpdateLoader.ServiceUpdateLoaderListener> listenerWR;
+		private final WeakHashMap<ServiceUpdateLoaderListener, Object> listenerWR;
 		@NonNull
 		private final ServiceUpdateProviderContract.Filter serviceUpdateFilter;
 
 		ServiceUpdateFetcherCallable(@Nullable Context context,
-									 @Nullable ServiceUpdateLoader.ServiceUpdateLoaderListener listener,
+									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 @NonNull ServiceUpdateProviderProperties serviceUpdateProvider,
-									 // @Nullable POIManager poim,
 									 @NonNull String targetUUID,
 									 @Nullable ServiceUpdateLoaderListener mainListener,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 			this.contextWR = new WeakReference<>(context);
-			this.listenerWR = new WeakReference<>(listener);
+			this.listenerWR = new WeakHashMap<>();
+			if (listeners != null) {
+				for (ServiceUpdateLoaderListener listener : listeners) {
+					this.listenerWR.put(listener, null);
+				}
+			}
 			this.serviceUpdateProvider = serviceUpdateProvider;
 			this.targetUUID = targetUUID;
 			this.mainListenerWR = new WeakReference<>(mainListener);
@@ -219,11 +224,9 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				return;
 			}
 			mainListener.onServiceUpdatesLoaded(targetUUID, result);
-			final ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.listenerWR.get();
-			if (listener == null) {
-				return;
+			for (ServiceUpdateLoaderListener listener : this.listenerWR.keySet()) {
+				listener.onServiceUpdatesLoaded(targetUUID, result);
 			}
-			listener.onServiceUpdatesLoaded(targetUUID, result);
 		}
 
 		@Nullable

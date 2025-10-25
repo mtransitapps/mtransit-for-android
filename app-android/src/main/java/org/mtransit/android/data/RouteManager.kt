@@ -9,8 +9,7 @@ import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.CollectionUtils
-import java.lang.ref.WeakReference
-import kotlin.collections.orEmpty
+import java.util.WeakHashMap
 
 data class RouteManager(
     val authority: String,
@@ -26,10 +25,10 @@ data class RouteManager(
 
     override fun getLogTag() = LOG_TAG
 
-    private var serviceUpdateLoaderListenerWR: WeakReference<ServiceUpdateLoaderListener>? = null
+    private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Void?>()
 
-    override fun setServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
-        this.serviceUpdateLoaderListenerWR = WeakReference<ServiceUpdateLoaderListener>(serviceUpdateLoaderListener)
+    override fun addServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
+        this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null)
     }
 
     override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
@@ -70,7 +69,7 @@ data class RouteManager(
                 ServiceUpdateProviderContract.Filter(this.authority, this.route).apply {
                     setInFocus(inFocus)
                 },
-                this.serviceUpdateLoaderListenerWR?.get(),
+                this.serviceUpdateLoaderListenersWR.keys,
                 skipIfBusy
             )
             if (isNotSkipped) {

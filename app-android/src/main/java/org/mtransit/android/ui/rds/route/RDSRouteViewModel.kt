@@ -11,9 +11,6 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Direction
@@ -82,7 +79,7 @@ class RDSRouteViewModel @Inject constructor(
             emit(
                 route.toRouteM(authority)
                     .apply {
-                        setServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
                     }
             )
         }
@@ -91,14 +88,8 @@ class RDSRouteViewModel @Inject constructor(
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
 
-    private var serviceUpdateLoadedJob: Job? = null
-
     private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
-        serviceUpdateLoadedJob?.cancel()
-        serviceUpdateLoadedJob = viewModelScope.launch {
-            delay(333L) // wait for 0.333 seconds
-            _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
-        }
+        _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
     }
 
     private suspend fun getRoute(agency: IAgencyUIProperties?, routeId: Long?): Route? {

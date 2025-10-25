@@ -158,7 +158,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         )
         binding = FragmentRdsRouteBinding.bind(view).apply {
             viewPager.apply {
-                offscreenPageLimit = 1
+                viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 1
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
                 TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->

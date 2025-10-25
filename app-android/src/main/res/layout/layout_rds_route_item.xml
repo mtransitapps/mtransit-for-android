@@ -34,7 +34,7 @@
 
         <include
             android:id="@+id/service_update_layout"
-            layout="@layout/layout_route_status_service_update_img" />
+            layout="@layout/layout_route_service_update_img" />
     </FrameLayout>
     <!-- ROUTE LONG NAME -->
     <TextView

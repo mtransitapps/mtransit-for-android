@@ -223,7 +223,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
         binding = FragmentNearbyBinding.bind(view).apply {
-            viewPager.offscreenPageLimit = 3
+            viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 3
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
             viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->

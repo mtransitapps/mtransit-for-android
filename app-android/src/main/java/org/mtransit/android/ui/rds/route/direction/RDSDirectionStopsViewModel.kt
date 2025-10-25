@@ -118,7 +118,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
             emit(
                 routeDirection.toRouteDirectionM(authority)
                     .apply {
-                        setServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
                     }
             )
         }
@@ -132,7 +132,12 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
-            delay(333L) // wait for 0.333 seconds
+            delay(333L) // wait for 0.333 secs BECAUSE many POIMs can also trigger it
+            routeDirectionM.value?.apply {
+                if (targetUUID != routeDirection.uuid) {
+                    allowFindServiceUpdates() // allow to fetch following RDS update
+                }
+            }
             _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
         }
     }
@@ -158,6 +163,9 @@ class RDSDirectionStopsViewModel @Inject constructor(
             )
         }
         return this.poiRepository.findPOIMs(agency, poiFilter)
+            .apply {
+                forEach { poim ->
+                    poim.addServiceUpdateLoaderListener(serviceUpdateLoaderListener) // trigger refresh because some provider do not fetch for route #stmbus
     }
 
     val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->

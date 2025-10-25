@@ -10,6 +10,7 @@
     android:minWidth="@dimen/list_view_item_height"
     android:orientation="vertical"
     android:visibility="invisible"
+    tools:showIn="@layout/layout_poi_rds_with_schedule"
     tools:visibility="visible">
 
     <TextView

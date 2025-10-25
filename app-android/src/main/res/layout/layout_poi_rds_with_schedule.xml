@@ -27,7 +27,18 @@
 
     <include
         android:id="@+id/extra"
-        layout="@layout/layout_poi_rds_extras" />
+        layout="@layout/layout_poi_rds_extras"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <View
+        android:id="@+id/no_extra"
+        android:layout_width="@dimen/poi_padding_start_no_extra"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@id/extra"
+        android:visibility="gone"
+        tools:background="#AB0000FF"
+        tools:visibility="visible" />
 
     <include
         android:id="@+id/poi"
@@ -36,6 +47,6 @@
         android:layout_height="match_parent"
         android:layout_marginStart="@dimen/poi_margin_start"
         android:layout_toStartOf="@id/status"
-        android:layout_toEndOf="@id/extra" />
+        android:layout_toEndOf="@id/no_extra" />
 
 </RelativeLayout>

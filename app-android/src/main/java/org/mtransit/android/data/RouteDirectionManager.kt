@@ -9,8 +9,8 @@ import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.CollectionUtils
-import java.lang.ref.WeakReference
-import kotlin.collections.orEmpty
+import java.util.WeakHashMap
+import kotlin.time.Duration.Companion.minutes
 
 data class RouteDirectionManager(
     val authority: String,
@@ -24,12 +24,18 @@ data class RouteDirectionManager(
         private val LOG_TAG: String = RouteDirectionManager::class.java.simpleName
     }
 
-    override fun getLogTag() = LOG_TAG
+    @Suppress("SENSELESS_COMPARISON")
+    override fun getLogTag(): String {
+        if (this.routeDirection != null) {
+            return LOG_TAG + "-" + this.routeDirection.uuid.removePrefix(IAgencyProperties.PKG_COMMON)
+        }
+        return LOG_TAG
+    }
 
-    private var serviceUpdateLoaderListenerWR: WeakReference<ServiceUpdateLoaderListener>? = null
+    private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Void?>()
 
-    override fun setServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
-        this.serviceUpdateLoaderListenerWR = WeakReference<ServiceUpdateLoaderListener>(serviceUpdateLoaderListener)
+    override fun addServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
+        this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null)
     }
 
     override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
@@ -58,11 +64,15 @@ data class RouteDirectionManager(
     private val areServiceUpdatesUseful: Boolean
         get() = this.serviceUpdates.any { it.isUseful }
 
+    fun allowFindServiceUpdates() {
+        this.lastFindServiceUpdateTimestampMs -= 1.minutes.inWholeMilliseconds
+    }
+
     private fun findServiceUpdates(
         serviceUpdateLoader: ServiceUpdateLoader,
         skipIfBusy: Boolean
     ): Boolean {
-        val findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis()
+        val findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES
         var isNotSkipped = false
         if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
             isNotSkipped = serviceUpdateLoader.findServiceUpdate(
@@ -70,7 +80,7 @@ data class RouteDirectionManager(
                 ServiceUpdateProviderContract.Filter(this.authority, this.routeDirection).apply {
                     setInFocus(inFocus)
                 },
-                this.serviceUpdateLoaderListenerWR?.get(),
+                this.serviceUpdateLoaderListenersWR.keys,
                 skipIfBusy
             )
             if (isNotSkipped) {

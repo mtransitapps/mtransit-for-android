@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.WeakHashMap;
 
 @SuppressWarnings({"WeakerAccess"})
 public class POIManager implements LocationPOI,
@@ -308,11 +309,11 @@ public class POIManager implements LocationPOI,
 		}
 	}
 
-	@Nullable
-	private WeakReference<ServiceUpdateLoader.ServiceUpdateLoaderListener> serviceUpdateLoaderListenerWR;
+	@NonNull
+	private final WeakHashMap<ServiceUpdateLoader.ServiceUpdateLoaderListener, Object> serviceUpdateLoaderListenersWR = new WeakHashMap<>();
 
-	public void setServiceUpdateLoaderListener(@NonNull ServiceUpdateLoader.ServiceUpdateLoaderListener serviceUpdateLoaderListener) {
-		this.serviceUpdateLoaderListenerWR = new WeakReference<>(serviceUpdateLoaderListener);
+	public void addServiceUpdateLoaderListener(@NonNull ServiceUpdateLoader.ServiceUpdateLoaderListener serviceUpdateLoaderListener) {
+		this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null);
 	}
 
 	@Override
@@ -365,9 +366,7 @@ public class POIManager implements LocationPOI,
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
 			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);
 			filter.setInFocus(this.inFocus);
-			ServiceUpdateLoader.ServiceUpdateLoaderListener listener = //
-					this.serviceUpdateLoaderListenerWR == null ? null : this.serviceUpdateLoaderListenerWR.get();
-			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, listener, skipIfBusy);
+			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
 			if (isNotSkipped) {
 				this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
 			}
@@ -1047,7 +1046,7 @@ public class POIManager implements LocationPOI,
 		if (!Objects.equals(status, that.status)) return false;
 		if (!Objects.equals(serviceUpdates, that.serviceUpdates)) return false;
 		if (!Objects.equals(statusLoaderListenerWR, that.statusLoaderListenerWR)) return false;
-		if (!Objects.equals(serviceUpdateLoaderListenerWR, that.serviceUpdateLoaderListenerWR))
+		if (!Objects.equals(serviceUpdateLoaderListenersWR, that.serviceUpdateLoaderListenersWR))
 			return false;
 		return Objects.equals(color, that.color);
 	}
@@ -1064,7 +1063,7 @@ public class POIManager implements LocationPOI,
 		result = 31 * result + Long.hashCode(lastFindStatusTimestampMs);
 		result = 31 * result + (statusLoaderListenerWR != null ? statusLoaderListenerWR.hashCode() : 0);
 		result = 31 * result + scheduleMaxDataRequests;
-		result = 31 * result + (serviceUpdateLoaderListenerWR != null ? serviceUpdateLoaderListenerWR.hashCode() : 0);
+		result = 31 * result + (serviceUpdateLoaderListenersWR != null ? serviceUpdateLoaderListenersWR.hashCode() : 0);
 		result = 31 * result + Long.hashCode(lastFindServiceUpdateTimestampMs);
 		result = 31 * result + (color != null ? color.hashCode() : 0);
 		return result;

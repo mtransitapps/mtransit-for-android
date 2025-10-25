@@ -72,7 +72,7 @@ class ServiceUpdatesViewModel @Inject constructor(
             emit(
                 holder
                     .apply {
-                        setServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
                     }
             )
         }
