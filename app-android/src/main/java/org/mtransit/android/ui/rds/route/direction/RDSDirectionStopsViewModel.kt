@@ -132,10 +132,12 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
-            delay(333L) // wait for 0.333 secs BECAUSE many POIMs can also trigger it
+            if (routeDirectionM.value?.routeDirection?.uuid != targetUUID) {
+                delay(333L) // wait for 0.333 secs BECAUSE many POIMs can also trigger it
+            }
             routeDirectionM.value?.apply {
-                if (targetUUID != routeDirection.uuid) {
-                    allowFindServiceUpdates() // allow to fetch following RDS update
+                if (this.routeDirection.uuid != targetUUID) {
+                    this.allowFindServiceUpdates() // allow to fetch following RDS update
                 }
             }
             _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
