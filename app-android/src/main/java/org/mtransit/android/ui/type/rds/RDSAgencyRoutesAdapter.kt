@@ -146,7 +146,7 @@ class RDSAgencyRoutesAdapter(
                 routeShortName.isVisible = true
             }
 
-            serviceUpdateLayout.serviceUpdateImg.apply {
+            serviceUpdateLayout.routeServiceUpdateImg.apply {
                 val (isWarning, isInfo) = routeM.getServiceUpdates(
                     serviceUpdateLoader,
                     emptyList() // TODO agency-level UI?
@@ -167,7 +167,7 @@ class RDSAgencyRoutesAdapter(
             // LONG NAME (grid only)
             if (showingListInsteadOfGrid != false) { // LIST
                 routeLayout.setPadding(horizontal = 8.dp, relative = true)
-                serviceUpdateLayout.serviceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin = 8.dp
                 }
                 rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
@@ -180,7 +180,7 @@ class RDSAgencyRoutesAdapter(
                 routeLongName.isVisible = route.longName.isNotBlank()
             } else { // GRID
                 routeLayout.setPadding(horizontal = 4.dp, relative = true)
-                serviceUpdateLayout.serviceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin = 4.dp
                 }
                 rsnOrLogo.layoutParams = LinearLayout.LayoutParams(

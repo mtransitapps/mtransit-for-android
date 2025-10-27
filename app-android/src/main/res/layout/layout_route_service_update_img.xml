@@ -2,7 +2,7 @@
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/service_update_img"
+    android:id="@+id/route_service_update_img"
     android:layout_width="@dimen/baseline_12_x"
     android:layout_height="@dimen/baseline_12_x"
     android:layout_alignWithParentIfMissing="true"

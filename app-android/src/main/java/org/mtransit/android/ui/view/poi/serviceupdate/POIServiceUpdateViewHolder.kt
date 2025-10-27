@@ -94,7 +94,7 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
         @JvmStatic
         fun init(poi: POI, view: View, otherView: ImageView? = null) = POIServiceUpdateViewHolder(
             _uuid = poi.uuid,
-            serviceUpdateImg = view.findViewById(R.id.service_update_img),
+            serviceUpdateImg = view.findViewById(R.id.poi_status_service_update_img),
             otherServiceUpdateImg = otherView,
         ).apply {
             setTarget(poi)
