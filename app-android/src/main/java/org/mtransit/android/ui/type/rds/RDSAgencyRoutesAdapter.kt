@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.distinctByOriginalId
+import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.dp
 import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.IAgencyUIProperties
@@ -147,12 +149,11 @@ class RDSAgencyRoutesAdapter(
             }
 
             serviceUpdateLayout.routeServiceUpdateImg.apply {
-                val (isWarning, isInfo) = routeM.getServiceUpdates(
-                    serviceUpdateLoader,
-                    emptyList() // TODO agency-level UI?
-                ).let {
-                    ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
-                }
+                val serviceUpdates = routeM.getServiceUpdates(
+                    serviceUpdateLoader = serviceUpdateLoader,
+                    ignoredUUIDsOrUnknown = emptyList() // TODO agency-level UI?
+                ).distinctByOriginalId()
+                val (isWarning, isInfo) = serviceUpdates.isSeverityWarningInfo()
                 if (isWarning) {
                     setImageResource(R.drawable.ic_warning_on_surface_16dp)
                     isVisible = true

@@ -16,6 +16,8 @@ import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.distinctByOriginalId
+import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.findClosestPOISIdxUuid
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIArrayAdapter
@@ -227,8 +229,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                     }
                 }
                 setUpFabEdgeToEdge(
-                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end,
-                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom_above_fab,
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
+                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
                 updateServiceUpdateImg()
             }
@@ -332,12 +334,11 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     ) {
         fabServiceUpdate?.apply {
             routeDirectionM ?: run { isVisible = false; return }
-            val (isWarning, isInfo) = routeDirectionM.getServiceUpdates(
-                serviceUpdateLoader,
-                routeDirectionM.routeDirection.route.allUUIDs
-            ).let {
-                ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
-            }
+            val serviceUpdates = routeDirectionM.getServiceUpdates(
+                serviceUpdateLoader = serviceUpdateLoader,
+                ignoredUUIDsOrUnknown = routeDirectionM.routeDirection.route.allUUIDs
+            ).distinctByOriginalId()
+            val (isWarning, isInfo) = serviceUpdates.isSeverityWarningInfo()
             if (isWarning) {
                 setImageResource(R.drawable.ic_warning_black_24dp)
                 isVisible = SHOW_SERVICE_UPDATE_FAB

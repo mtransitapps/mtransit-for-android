@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.UIServiceUpdates
 import org.mtransit.android.databinding.FragmentDialogServiceUpdatesBinding
@@ -105,16 +106,16 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
     private fun updateServiceUpdatesView(
         holder: ServiceUpdatesHolder? = attachedViewModel?.holder?.value,
     ) = binding?.apply {
-        val serviceUpdates: List<ServiceUpdate>? = holder?.getServiceUpdates(
-            serviceUpdateLoader,
-            emptyList() // TODO?
-        )
-        serviceUpdates ?: run {
+        holder ?: run {
             emptyLayout.isVisible = false
             poiServiceUpdate.isVisible = false
             loadingLayout.isVisible = true
             return@apply // unknown
         }
+        val serviceUpdates = holder.getServiceUpdates(
+            serviceUpdateLoader = serviceUpdateLoader,
+            ignoredUUIDsOrUnknown = emptyList() // TODO?
+        ).distinctByOriginalId()
         loadingLayout.isVisible = false
         poiServiceUpdate.apply {
             val serviceUpdatesHTMLText = UIServiceUpdates.makeServiceUpdatesHTMLText(context, serviceUpdates)

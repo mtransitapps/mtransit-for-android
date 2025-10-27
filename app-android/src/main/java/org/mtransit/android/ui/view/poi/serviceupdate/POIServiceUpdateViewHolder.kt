@@ -8,6 +8,8 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.distinctByOriginalId
+import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
 
@@ -70,10 +72,8 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
                 if (other) ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
                 else !ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
             }
-        val (isWarning, isInfo) = filteredServiceUpdates
-            .let {
-                ServiceUpdate.isSeverityWarning(it) to ServiceUpdate.isSeverityInfo(it)
-            }
+            ?.distinctByOriginalId()
+        val (isWarning, isInfo) = filteredServiceUpdates.isSeverityWarningInfo()
         if (isWarning) {
             this.setImageResource(R.drawable.ic_warning_on_surface_16dp)
             this.isVisible = true

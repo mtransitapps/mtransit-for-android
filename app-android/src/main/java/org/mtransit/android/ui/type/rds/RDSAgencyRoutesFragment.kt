@@ -119,6 +119,12 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
+            fabFares.apply {
+                setUpFabEdgeToEdge(
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
+                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+                )
+            }
         }
         viewModel.colorIntDistinct.observe(viewLifecycleOwner) { colorIntDistinct ->
             colorIntDistinct?.let {

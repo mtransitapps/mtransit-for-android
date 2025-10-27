@@ -33,7 +33,7 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_service_update"
         style="@style/MTFabMiniBottomEnd"
-        android:layout_marginBottom="@dimen/fab_mini_margin_bottom_above_fab"
+        android:layout_marginEnd="@dimen/fab_mini_margin_end_above_fab"
         android:contentDescription="@string/menu_action_show_service_updates"
         android:src="@drawable/ic_info_outline_on_surface_16dp"
         android:visibility="gone"

@@ -6,6 +6,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.mtransit.android.BuildConfig;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.ServiceUpdate;
@@ -21,7 +22,9 @@ import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.WeakHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -93,7 +96,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
-
+		// SUPPORTED BY ALL SERVICE UPDATE PROVIDERS
 		return findServiceUpdate(
 				poim.poi.getAuthority(),
 				poim.poi.getUUID(),
@@ -104,10 +107,17 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		);
 	}
 
+	private static final Collection<String> ROUTE_DIRECTION_NOT_SUPPORTED = Collections.singleton(
+			"org.mtransit.android.ca_montreal_stm_subway" + (BuildConfig.DEBUG ? ".debug" : "") // + ".stminfo"
+	);
+
 	public boolean findServiceUpdate(@NonNull RouteDirectionManager routeDirectionM,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
+		if (ROUTE_DIRECTION_NOT_SUPPORTED.contains(routeDirectionM.getAuthority())) {
+			return true; // not skipped // not supported
+		}
 		return findServiceUpdate(
 				routeDirectionM.getAuthority(),
 				routeDirectionM.getRouteDirection().getUUID(),
@@ -118,11 +128,18 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		);
 	}
 
+	private static final Collection<String> ROUTE_NOT_SUPPORTED = Arrays.asList(
+			"org.mtransit.android.ca_laval_stl_bus" + (BuildConfig.DEBUG ? ".debug" : ""), // + ".nextbus"
+			"org.mtransit.android.ca_montreal_stm_bus" + (BuildConfig.DEBUG ? ".debug" : "") // + ".stminfoapi"
+	);
+
 	public boolean findServiceUpdate(@NonNull RouteManager routeM,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
-
+		if (ROUTE_NOT_SUPPORTED.contains(routeM.getAuthority())) {
+			return true; // not skipped // not supported
+		}
 		return findServiceUpdate(
 				routeM.getAuthority(),
 				routeM.getRoute().getUUID(),
@@ -133,7 +150,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		);
 	}
 
-	private boolean findServiceUpdate(@NonNull String authority,
+	private boolean findServiceUpdate(@NonNull String targetAuthority,
 									  @NonNull String targetUUID,
 									  @NonNull ServiceUpdateLoaderListener mainListener,
 									  @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
@@ -142,20 +159,21 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		final Collection<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(authority);
-		if (!providers.isEmpty()) {
-			for (ServiceUpdateProviderProperties provider : providers) {
-				if (provider == null) {
-					continue;
-				}
-				new ServiceUpdateFetcherCallable(this.appContext,
-						listeners,
-						provider,
-						targetUUID,
-						mainListener,
-						serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))
-				).executeOnExecutor(getFetchServiceUpdateExecutor());
+		final Collection<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(targetAuthority);
+		if (providers.isEmpty()) {
+			return true;
+		}
+		for (ServiceUpdateProviderProperties provider : providers) {
+			if (provider == null) {
+				continue;
 			}
+			new ServiceUpdateFetcherCallable(this.appContext,
+					listeners,
+					provider,
+					targetUUID,
+					mainListener,
+					serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))
+			).executeOnExecutor(getFetchServiceUpdateExecutor());
 		}
 		return true;
 	}

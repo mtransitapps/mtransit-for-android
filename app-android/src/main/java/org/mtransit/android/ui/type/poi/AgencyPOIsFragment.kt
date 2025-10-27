@@ -191,6 +191,12 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
+            fabFares.apply {
+                setUpFabEdgeToEdge(
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
+                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+                )
+            }
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
         }
         viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
