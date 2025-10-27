@@ -1799,7 +1799,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			convertView = this.layoutInflater.inflate(getRDSLayout(poim.getStatusType()), parent, false);
 			final RouteDirectionStopViewHolder holder = initRDSViewHolder(convertView, poim.poi.getUUID());
 			holder.setStatusViewHolder(POICommonStatusViewHolder.init(poim.poi, convertView));
-			holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poim.poi, convertView));
+			holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poim.poi, convertView, convertView.findViewById(R.id.route_direction_service_update_img)));
 			convertView.setTag(holder);
 		}
 		updateRouteDirectionStopView(poim, convertView);
@@ -2008,7 +2008,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		this.poiStatusViewHoldersWR.put(holder.getUuid(), holder.getStatusViewHolder());
 		if (holder.getServiceUpdateViewHolder() != null) {
-			holder.getServiceUpdateViewHolder().setUuid(poi.getUUID());
+			holder.getServiceUpdateViewHolder().setTarget(poi);
 		}
 		this.poiServiceUpdateViewHoldersWR.put(holder.getUuid(), holder.getServiceUpdateViewHolder());
 		holder.getNameTv().setText(POIManagerExtKt.getLabelDecorated(poi, getContext(), isShowingAccessibilityInfo()));

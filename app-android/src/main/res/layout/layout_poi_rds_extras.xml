@@ -24,9 +24,7 @@
         android:background="#0000FF" />
     DEBUG -->
     <!-- ROUTE/DIRECTION SERVICE UPDATES -->
-    <include
-        android:id="@+id/service_update_layout"
-        layout="@layout/layout_route_direction_service_update_img" />
+    <include layout="@layout/layout_route_direction_service_update_img" />
     <!-- ROUTE DIRECTION -->
     <LinearLayout
         android:id="@+id/route_direction"

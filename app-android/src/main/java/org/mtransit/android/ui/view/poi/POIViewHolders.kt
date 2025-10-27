@@ -76,7 +76,6 @@ class RouteDirectionStopViewHolder(
     val routeTypeImg: MTJPathsView = view.findViewById(R.id.route_type_img),
     val directionHeadingTv: TextView = view.findViewById(R.id.direction_heading),
     val directionHeadingBg: View = view.findViewById(R.id.direction_heading_bg),
-    val serviceUpdateImg: ImageView = view.findViewById(R.id.service_update_img),
 ) : CommonViewHolder {
     override var uuid: String? = null
     override var statusViewHolder: POICommonStatusViewHolder<*, *>? = null

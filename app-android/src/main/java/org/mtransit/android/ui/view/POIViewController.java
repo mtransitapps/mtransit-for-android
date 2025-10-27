@@ -230,7 +230,7 @@ public class POIViewController implements MTLog.Loggable {
 			holder = initBasicViewHolder(view);
 		}
 		holder.setStatusViewHolder(POICommonStatusViewHolder.init(poi, view));
-		holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poi, view));
+		holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poi, view, view.findViewById(R.id.route_direction_service_update_img)));
 		view.setTag(holder);
 	}
 
