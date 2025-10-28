@@ -15,7 +15,6 @@ import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.findClosestPOISIdxUuid
@@ -35,10 +34,10 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.rds.route.RDSRouteViewModel
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
+import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.context

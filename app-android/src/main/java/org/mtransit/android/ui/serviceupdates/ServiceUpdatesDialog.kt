@@ -15,7 +15,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.HtmlUtils
-import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.UIServiceUpdates
