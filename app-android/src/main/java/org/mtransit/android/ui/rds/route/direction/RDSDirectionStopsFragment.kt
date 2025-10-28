@@ -9,15 +9,19 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.data.distinctByOriginalId
+import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.findClosestPOISIdxUuid
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.RouteDirectionManager
 import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -27,15 +31,20 @@ import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
+import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.rds.route.RDSRouteViewModel
+import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
+import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.util.FragmentUtils
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -43,6 +52,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     companion object {
         private val LOG_TAG = RDSDirectionStopsFragment::class.java.simpleName
+
+        // internal const val SHOW_SERVICE_UPDATE_FAB = false
+        internal const val SHOW_SERVICE_UPDATE_FAB = true // ON to filter alerts in stop feed to avoid duplicates warnings signs
 
         @JvmStatic
         fun newInstance(
@@ -70,10 +82,10 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<RDSDirectionStopsViewModel>()
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
 
     private val parentViewModel by viewModels<RDSRouteViewModel>({ requireParentFragment() })
-    private val attachedParentViewModel
-        get() = if (isAttached()) parentViewModel else null
+    private val attachedParentViewModel get() = if (isAttached()) parentViewModel else null
 
     private var binding: FragmentRdsDirectionStopsBinding? = null
 
@@ -165,6 +177,11 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             logTag = this@RDSDirectionStopsFragment.logTag
             setShowExtra(false) // show route short name & direction
             setLocation(attachedParentViewModel?.deviceLocation?.value)
+            if (SHOW_SERVICE_UPDATE_FAB) {
+                setIgnoredTargetUUIDs(attachedViewModel?.routeDirectionM?.value?.routeDirection?.allUUIDs)
+            } else if (RDSRouteFragment.SHOW_SERVICE_UPDATE_IN_TOOLBAR) {
+                setIgnoredTargetUUIDs(attachedParentViewModel?.routeM?.value?.route?.allUUIDs)
+            }
         }
     }
 
@@ -194,12 +211,58 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
+            fabServiceUpdate.apply {
+                setOnClickListener {
+                    val authority = attachedParentViewModel?.authority?.value ?: return@setOnClickListener
+                    val routeId = attachedParentViewModel?.routeM?.value?.route?.id ?: return@setOnClickListener
+                    val directionId = attachedViewModel?.directionId?.value ?: return@setOnClickListener
+                    if (FeatureFlags.F_NAVIGATION) {
+                        // TODO navigate to dialog
+                    } else {
+                        FragmentUtils.replaceDialogFragment(
+                            activity ?: return@setOnClickListener,
+                            FragmentUtils.DIALOG_TAG,
+                            ServiceUpdatesDialog.newInstance(authority, routeId, directionId),
+                            null
+                        )
+                    }
+                }
+                setUpFabEdgeToEdge(
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
+                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+                )
+                updateServiceUpdateImg()
+            }
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+        }
+        viewModel.routeDirectionM.observe(viewLifecycleOwner) { routeDirectionM ->
+            updateServiceUpdateImg(routeDirectionM)
+            if (SHOW_SERVICE_UPDATE_FAB) {
+                if (listAdapter.setIgnoredTargetUUIDs(routeDirectionM.routeDirection.allUUIDs)) {
+                    listAdapter.notifyDataSetChanged(true)
+                }
+            }
+        }
+        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { triggered ->
+            updateServiceUpdateImg()
+        })
+        parentViewModel.routeM.observe(viewLifecycleOwner) {
+            if (SHOW_SERVICE_UPDATE_FAB) {
+                // elsewhere
+            } else if (RDSRouteFragment.SHOW_SERVICE_UPDATE_IN_TOOLBAR) {
+                if (listAdapter.setIgnoredTargetUUIDs(it.route.allUUIDs)) {
+                    listAdapter.notifyDataSetChanged(true)
+                }
+            }
         }
         parentViewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             binding?.apply {
                 colorInt?.let { colorInt ->
                     fabListMap?.apply {
+                        rippleColor = colorInt
+                        backgroundTintList = ColorStateList.valueOf(colorInt)
+                    }
+                    fabServiceUpdate.apply {
                         rippleColor = colorInt
                         backgroundTintList = ColorStateList.valueOf(colorInt)
                     }
@@ -261,6 +324,29 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
             }
             switchView()
+        }
+    }
+
+    private fun updateServiceUpdateImg(
+        routeDirectionM: RouteDirectionManager? = attachedViewModel?.routeDirectionM?.value,
+        fabServiceUpdate: FloatingActionButton? = binding?.fabServiceUpdate,
+    ) {
+        fabServiceUpdate?.apply {
+            routeDirectionM ?: run { isVisible = false; return }
+            val serviceUpdates = routeDirectionM.getServiceUpdates(
+                serviceUpdateLoader = serviceUpdateLoader,
+                ignoredUUIDsOrUnknown = routeDirectionM.routeDirection.route.allUUIDs
+            ).distinctByOriginalId()
+            val (isWarning, isInfo) = serviceUpdates.isSeverityWarningInfo()
+            if (isWarning) {
+                setImageResource(R.drawable.ic_warning_black_24dp)
+                isVisible = SHOW_SERVICE_UPDATE_FAB
+            } else if (isInfo) {
+                setImageResource(R.drawable.ic_info_outline_black_24dp)
+                isVisible = SHOW_SERVICE_UPDATE_FAB
+            } else {
+                isVisible = false
+            }
         }
     }
 

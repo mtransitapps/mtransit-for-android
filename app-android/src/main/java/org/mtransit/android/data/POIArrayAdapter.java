@@ -1,5 +1,11 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initBasicViewHolder;
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initModuleViewHolder;
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initPlaceViewHolder;
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initRDSViewHolder;
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initTextMessageViewHolder;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Typeface;
@@ -18,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -65,6 +70,7 @@ import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.common.UIColorUtils;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
@@ -74,12 +80,16 @@ import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.rds.route.RDSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
-import org.mtransit.android.ui.view.MTJPathsView;
 import org.mtransit.android.ui.view.POIViewUtils;
 import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
-import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateProvider;
+import org.mtransit.android.ui.view.poi.BasicPOIViewHolder;
+import org.mtransit.android.ui.view.poi.CommonViewHolder;
+import org.mtransit.android.ui.view.poi.ModuleViewHolder;
+import org.mtransit.android.ui.view.poi.PlaceViewHolder;
+import org.mtransit.android.ui.view.poi.RouteDirectionStopViewHolder;
+import org.mtransit.android.ui.view.poi.TextMessageViewHolder;
 import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder;
 import org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder;
 import org.mtransit.android.ui.view.poi.status.POIStatusDataProvider;
@@ -94,11 +104,13 @@ import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 @SuppressWarnings("WeakerAccess")
@@ -106,7 +118,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, MTSensorManager.SensorTaskCompleted,
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
-		POIStatusDataProvider, POIServiceUpdateProvider {
+		POIStatusDataProvider, ServiceUpdateLoaderProvider {
 
 	private static final String LOG_TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -718,8 +730,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		CommonViewHolder holder = (CommonViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
-		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
-		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, this);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, this);
 		return convertView;
 	}
 
@@ -1612,10 +1624,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private View getBasicPOIView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getBasicPOILayout(poim.getStatusType()), parent, false);
-			BasicPOIViewHolder holder = new BasicPOIViewHolder();
-			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
-			holder.statusViewHolder = POICommonStatusViewHolder.init(poim.poi, convertView);
-			holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poim.poi, convertView);
+			final BasicPOIViewHolder holder = initBasicViewHolder(convertView, poim.poi.getUUID());
+			holder.setStatusViewHolder(POICommonStatusViewHolder.init(poim.poi, convertView));
+			holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poim.poi, convertView));
 			convertView.setTag(holder);
 		}
 		updateBasicPOIView(poim, convertView);
@@ -1641,23 +1652,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private final WeakHashMap<MTCompassView, View> compassImgsWR = new WeakHashMap<>();
 
-	private void initCommonViewHolder(CommonViewHolder holder, View convertView, String poiUUID) {
-		holder.uuid = poiUUID;
-		holder.view = convertView;
-		holder.nameTv = convertView.findViewById(R.id.name);
-		holder.favImg = convertView.findViewById(R.id.fav);
-		holder.locationTv = convertView.findViewById(R.id.location);
-		holder.distanceTv = convertView.findViewById(R.id.distance);
-		holder.compassV = convertView.findViewById(R.id.compass);
-	}
-
 	@SuppressWarnings("UnusedReturnValue")
 	@NonNull
 	private View updateBasicPOIView(@NonNull POIManager poim, @NonNull View convertView) {
 		BasicPOIViewHolder holder = (BasicPOIViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
-		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
-		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, this);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, this);
 		return convertView;
 	}
 
@@ -1668,11 +1669,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		case POI.ITEM_STATUS_TYPE_NONE:
 			break;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			if (this.showExtra) {
-				layoutRes = R.layout.layout_poi_rds_with_schedule;
-			} else {
-				layoutRes = R.layout.layout_poi_basic_with_schedule;
-			}
+			layoutRes = R.layout.layout_poi_rds_with_schedule;
 			break;
 		default:
 			MTLog.w(this, "Unexpected status '%s' (rds view w/o status)!", status);
@@ -1681,17 +1678,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return layoutRes;
 	}
 
-	private void initPlaceExtra(View convertView, PlaceViewHolder holder) {
-		holder.placeIconImg = convertView.findViewById(R.id.extra);
-	}
-
 	@NonNull
 	private View getPlaceView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_place, parent, false);
-			final PlaceViewHolder holder = new PlaceViewHolder();
-			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
-			initPlaceExtra(convertView, holder);
+			final PlaceViewHolder holder = initPlaceViewHolder(convertView, poim.poi.getUUID());
 			convertView.setTag(holder);
 		}
 		updatePlaceView(poim, convertView);
@@ -1710,19 +1701,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private void initPlaceExtra(@NonNull POIManager poim, @NonNull PlaceViewHolder holder) {
 		if (this.showExtra && poim.poi instanceof Place) {
 			final Place place = (Place) poim.poi;
-			POIViewUtils.setupPOIExtraLayoutBackground(holder.placeIconImg, poim, dataSourcesRepository);
+			POIViewUtils.setupPOIExtraLayoutBackground(holder.getPlaceIconImg(), poim, dataSourcesRepository);
 			final RequestManager glideRequestManager;
 			if (getActivity() != null && getActivity() instanceof FragmentActivity) {
 				glideRequestManager = Glide.with((FragmentActivity) getActivity());
 			} else {
-				glideRequestManager = Glide.with(holder.view.getContext());
+				glideRequestManager = Glide.with(holder.getView().getContext());
 			}
 			glideRequestManager
 					.load(place.getIconUrl())
-					.into(holder.placeIconImg);
-			holder.placeIconImg.setVisibility(View.VISIBLE);
+					.into(holder.getPlaceIconImg());
+			holder.getPlaceIconImg().setVisibility(View.VISIBLE);
 		} else {
-			holder.placeIconImg.setVisibility(View.GONE);
+			holder.getPlaceIconImg().setVisibility(View.GONE);
 		}
 	}
 
@@ -1730,8 +1721,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private View getTextMessageView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_basic, parent, false);
-			TextViewViewHolder holder = new TextViewViewHolder();
-			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
+			final TextMessageViewHolder holder = initTextMessageViewHolder(convertView, poim.poi.getUUID());
 			convertView.setTag(holder);
 		}
 		updateTextMessageView(poim, convertView);
@@ -1741,7 +1731,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@SuppressWarnings("UnusedReturnValue")
 	@NonNull
 	private View updateTextMessageView(@NonNull POIManager poim, @NonNull View convertView) {
-		TextViewViewHolder holder = (TextViewViewHolder) convertView.getTag();
+		TextMessageViewHolder holder = (TextMessageViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		return convertView;
 	}
@@ -1750,19 +1740,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private View getModuleView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getModuleLayout(poim.getStatusType()), parent, false);
-			ModuleViewHolder holder = new ModuleViewHolder();
-			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
-			initModuleExtra(convertView, holder);
-			holder.statusViewHolder = POICommonStatusViewHolder.init(poim.poi, convertView);
-			holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poim.poi, convertView);
+			final ModuleViewHolder holder = initModuleViewHolder(convertView, poim.poi.getUUID());
+			holder.setStatusViewHolder(POICommonStatusViewHolder.init(poim.poi, convertView));
+			holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poim.poi, convertView));
 			convertView.setTag(holder);
 		}
 		updateModuleView(poim, convertView);
 		return convertView;
-	}
-
-	private void initModuleExtra(View convertView, ModuleViewHolder holder) {
-		holder.moduleExtraTypeImg = convertView.findViewById(R.id.extra);
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
@@ -1771,24 +1755,24 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		ModuleViewHolder holder = (ModuleViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		updateModuleExtra(poim, holder);
-		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
-		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, this);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, this);
 		return convertView;
 	}
 
 	private void updateModuleExtra(@NonNull POIManager poim, @NonNull ModuleViewHolder holder) {
 		if (this.showExtra && poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			POIViewUtils.setupPOIExtraLayoutBackground(holder.moduleExtraTypeImg, poim, dataSourcesRepository);
+			POIViewUtils.setupPOIExtraLayoutBackground(holder.getModuleExtraTypeImg(), poim, dataSourcesRepository);
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
-				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
+				holder.getModuleExtraTypeImg().setImageResource(moduleType.getIconResId());
 			} else {
-				holder.moduleExtraTypeImg.setImageResource(0);
+				holder.getModuleExtraTypeImg().setImageResource(0);
 			}
-			holder.moduleExtraTypeImg.setVisibility(View.VISIBLE);
+			holder.getModuleExtraTypeImg().setVisibility(View.VISIBLE);
 		} else {
-			holder.moduleExtraTypeImg.setVisibility(View.GONE);
+			holder.getModuleExtraTypeImg().setVisibility(View.GONE);
 		}
 	}
 
@@ -1813,24 +1797,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private View getRouteDirectionStopView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getRDSLayout(poim.getStatusType()), parent, false);
-			RouteDirectionStopViewHolder holder = new RouteDirectionStopViewHolder();
-			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
-			initRDSExtra(convertView, holder);
-			holder.statusViewHolder = POICommonStatusViewHolder.init(poim.poi, convertView);
-			holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poim.poi, convertView);
+			final RouteDirectionStopViewHolder holder = initRDSViewHolder(convertView, poim.poi.getUUID());
+			holder.setStatusViewHolder(POICommonStatusViewHolder.init(poim.poi, convertView));
+			holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poim.poi, convertView, convertView.findViewById(R.id.route_direction_service_update_img)));
 			convertView.setTag(holder);
 		}
 		updateRouteDirectionStopView(poim, convertView);
 		return convertView;
-	}
-
-	private void initRDSExtra(@NonNull View convertView, @NonNull RouteDirectionStopViewHolder holder) {
-		holder.rdsExtraV = convertView.findViewById(R.id.extra);
-		holder.routeFL = convertView.findViewById(R.id.route);
-		holder.routeShortNameTv = convertView.findViewById(R.id.route_short_name);
-		holder.routeTypeImg = convertView.findViewById(R.id.route_type_img);
-		holder.directionHeadingTv = convertView.findViewById(R.id.direction_heading);
-		holder.directionHeadingBg = convertView.findViewById(R.id.direction_heading_bg);
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
@@ -1844,8 +1817,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		RouteDirectionStopViewHolder holder = (RouteDirectionStopViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		updateRDSExtra(poim, holder);
-		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, this);
-		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, this);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, this);
 		return convertView;
 	}
 
@@ -1857,78 +1830,75 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@UiThread
 	private void updateRDSExtra(POIManager poim, RouteDirectionStopViewHolder holder) {
-		if (poim.poi instanceof RouteDirectionStop) {
-			RouteDirectionStop rds = (RouteDirectionStop) poim.poi;
-			if (!this.showExtra) {
-				if (holder.rdsExtraV != null) {
-					holder.rdsExtraV.setVisibility(View.GONE);
-				}
-				if (holder.routeFL != null) {
-					holder.routeFL.setVisibility(View.GONE);
-				}
-				if (holder.directionHeadingBg != null) {
-					holder.directionHeadingBg.setVisibility(View.GONE);
-				}
-			} else {
-				final Route route = rds.getRoute();
-				if (TextUtils.isEmpty(route.getShortName())) {
-					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					if (holder.routeTypeImg.hasPaths() && poim.poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
-						holder.routeTypeImg.setVisibility(View.VISIBLE);
-					} else {
-						final AgencyProperties agency = this.dataSourcesRepository.getAgency(poim.poi.getAuthority());
-						final JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
-						if (rdsRouteLogo != null) {
-							holder.routeTypeImg.setJSON(rdsRouteLogo);
-							holder.routeTypeImg.setTag(poim.poi.getAuthority());
-							holder.routeTypeImg.setVisibility(View.VISIBLE);
-						} else {
-							holder.routeTypeImg.setVisibility(View.GONE);
-						}
-					}
-				} else {
-					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(UIRouteUtils.decorateRouteShortName(getContext(), route.getShortName()));
-					holder.routeShortNameTv.setVisibility(View.VISIBLE);
-				}
-				holder.routeFL.setVisibility(View.VISIBLE);
-				holder.rdsExtraV.setVisibility(View.VISIBLE);
-				holder.directionHeadingTv.setText(
-						UIDirectionUtils.decorateDirection(getContext(), rds.getDirection().getUIHeading(getContext(), true), true)
-				);
-				holder.directionHeadingBg.setVisibility(View.VISIBLE);
-				POIViewUtils.setupPOIExtraLayoutBackground(holder.rdsExtraV, poim, dataSourcesRepository);
-				holder.rdsExtraV.setOnClickListener(view -> {
-					leaving();
-					MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
-					if (FeatureFlags.F_NAVIGATION) {
-						final NavController navController = Navigation.findNavController(view);
-						FragmentNavigator.Extras extras = null;
-						if (FeatureFlags.F_TRANSITION) {
-							extras = new FragmentNavigator.Extras.Builder()
-									.addSharedElement(view, view.getTransitionName())
-									.build();
-						}
-						NavControllerExtKt.navigateF(navController,
-								R.id.nav_to_rds_route_screen,
-								RDSRouteFragment.newInstanceArgs(rds),
-								null,
-								extras
-						);
-					} else {
-						final Activity activity = POIArrayAdapter.this.getActivity();
-						if (!(activity instanceof MainActivity)) {
-							MTLog.w(POIArrayAdapter.this, "No activity available to open RDS fragment!");
-							return;
-						}
-						((MainActivity) activity).addFragmentToStack(
-								RDSRouteFragment.newInstance(rds),
-								view
-						);
-					}
-				});
-			}
+		if (!(poim.poi instanceof RouteDirectionStop)) {
+			return;
 		}
+		final RouteDirectionStop rds = (RouteDirectionStop) poim.poi;
+		if (!this.showExtra) {
+			holder.getRdsExtraV().setVisibility(View.GONE);
+			holder.getRouteFL().setVisibility(View.GONE);
+			holder.getDirectionHeadingBg().setVisibility(View.GONE);
+			holder.getNoExtra().setVisibility(View.VISIBLE);
+			return;
+		}
+		final Route route = rds.getRoute();
+		if (TextUtils.isEmpty(route.getShortName())) {
+			holder.getRouteShortNameTv().setVisibility(View.INVISIBLE);
+			if (holder.getRouteTypeImg().hasPaths() && poim.poi.getAuthority().equals(holder.getRouteTypeImg().getTag())) {
+				holder.getRouteTypeImg().setVisibility(View.VISIBLE);
+			} else {
+				final AgencyProperties agency = this.dataSourcesRepository.getAgency(poim.poi.getAuthority());
+				final JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
+				if (rdsRouteLogo != null) {
+					holder.getRouteTypeImg().setJSON(rdsRouteLogo);
+					holder.getRouteTypeImg().setTag(poim.poi.getAuthority());
+					holder.getRouteTypeImg().setVisibility(View.VISIBLE);
+				} else {
+					holder.getRouteTypeImg().setVisibility(View.GONE);
+				}
+			}
+		} else {
+			holder.getRouteTypeImg().setVisibility(View.GONE);
+			holder.getRouteShortNameTv().setText(UIRouteUtils.decorateRouteShortName(getContext(), route.getShortName()));
+			holder.getRouteShortNameTv().setVisibility(View.VISIBLE);
+		}
+		holder.getRouteFL().setVisibility(View.VISIBLE);
+		holder.getRdsExtraV().setVisibility(View.VISIBLE);
+		holder.getNoExtra().setVisibility(View.GONE);
+		holder.getDirectionHeadingTv().setText(
+				UIDirectionUtils.decorateDirection(getContext(), rds.getDirection().getUIHeading(getContext(), true), true)
+		);
+		holder.getDirectionHeadingBg().setVisibility(View.VISIBLE);
+		POIViewUtils.setupPOIExtraLayoutBackground(holder.getRdsExtraV(), poim, dataSourcesRepository);
+		holder.getRdsExtraV().setOnClickListener(view -> {
+			leaving();
+			MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = Navigation.findNavController(view);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							.addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				NavControllerExtKt.navigateF(navController,
+						R.id.nav_to_rds_route_screen,
+						RDSRouteFragment.newInstanceArgs(rds),
+						null,
+						extras
+				);
+			} else {
+				final Activity activity = POIArrayAdapter.this.getActivity();
+				if (!(activity instanceof MainActivity)) {
+					MTLog.w(POIArrayAdapter.this, "No activity available to open RDS fragment!");
+					return;
+				}
+				((MainActivity) activity).addFragmentToStack(
+						RDSRouteFragment.newInstance(rds),
+						view
+				);
+			}
+		});
 	}
 
 	@Override
@@ -1951,6 +1921,33 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@Override
 	public ServiceUpdateLoader providesServiceUpdateLoader() {
 		return this.serviceUpdateLoader;
+	}
+
+	@Nullable
+	private Set<String> ignoredTargetUUIDsOrUnknown = new HashSet<>(); // null == unknown
+
+	public boolean setIgnoredTargetUUIDs(@Nullable Collection<String> ignoredTargetUUIDs) {
+		boolean changed = false;
+		if (ignoredTargetUUIDs == null) {
+			if (this.ignoredTargetUUIDsOrUnknown != null) {
+				this.ignoredTargetUUIDsOrUnknown = null;
+				changed = true;
+			}
+		} else if (this.ignoredTargetUUIDsOrUnknown == null) {
+			this.ignoredTargetUUIDsOrUnknown = new HashSet<>(ignoredTargetUUIDs);
+			changed = true;
+		} else if (!CollectionUtils.equalsCollectionContent(ignoredTargetUUIDs, this.ignoredTargetUUIDsOrUnknown)) {
+			this.ignoredTargetUUIDsOrUnknown.clear();
+			this.ignoredTargetUUIDsOrUnknown.addAll(ignoredTargetUUIDs);
+			changed = true;
+		}
+		return changed;
+	}
+
+	@Nullable
+	@Override
+	public Collection<String> getIgnoredTargetUUIDsOrUnknown() {
+		return this.ignoredTargetUUIDsOrUnknown;
 	}
 
 	@Override
@@ -2004,60 +2001,60 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return;
 		}
 		final POI poi = poim.poi;
-		holder.uuid = poi.getUUID();
-		MTTransitions.setTransitionName(holder.view, "poi_" + poi.getUUID());
-		if (holder.statusViewHolder != null) {
-			holder.statusViewHolder.setUuid(holder.uuid);
+		holder.setUuid(poi.getUUID());
+		MTTransitions.setTransitionName(holder.getView(), "poi_" + poi.getUUID());
+		if (holder.getStatusViewHolder() != null) {
+			holder.getStatusViewHolder().setUuid(poi.getUUID());
 		}
-		this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
-		if (holder.serviceUpdateViewHolder != null) {
-			holder.serviceUpdateViewHolder.setUuid(holder.uuid);
+		this.poiStatusViewHoldersWR.put(holder.getUuid(), holder.getStatusViewHolder());
+		if (holder.getServiceUpdateViewHolder() != null) {
+			holder.getServiceUpdateViewHolder().setTarget(poi);
 		}
-		this.poiServiceUpdateViewHoldersWR.put(holder.uuid, holder.serviceUpdateViewHolder);
-		if (holder.compassV != null) {
-			holder.compassV.setLatLng(poim.getLat(), poim.getLng());
-			this.compassImgsWR.put(holder.compassV, holder.distanceTv);
-		}
-		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, getContext(), isShowingAccessibilityInfo()));
-		if (holder.distanceTv != null) {
+		this.poiServiceUpdateViewHoldersWR.put(holder.getUuid(), holder.getServiceUpdateViewHolder());
+		holder.getNameTv().setText(POIManagerExtKt.getLabelDecorated(poi, getContext(), isShowingAccessibilityInfo()));
+		if (holder.getDistanceTv() != null) {
 			if (poim.getDistanceString() != null) {
-				if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
-					holder.distanceTv.setText(poim.getDistanceString());
+				if (!poim.getDistanceString().equals(holder.getDistanceTv().getText())) {
+					holder.getDistanceTv().setText(poim.getDistanceString());
 				}
-				holder.distanceTv.setVisibility(View.VISIBLE);
+				holder.getDistanceTv().setVisibility(View.VISIBLE);
 			} else {
-				holder.distanceTv.setVisibility(View.GONE);
-				holder.distanceTv.setText(null);
+				holder.getDistanceTv().setVisibility(View.GONE);
+				holder.getDistanceTv().setText(null);
 			}
 		}
-		if (holder.compassV != null) {
-			if (holder.distanceTv != null && holder.distanceTv.getVisibility() == View.VISIBLE) {
+		if (holder.getCompassV() != null) {
+			holder.getCompassV().setLatLng(poim.getLat(), poim.getLng());
+			this.compassImgsWR.put(holder.getCompassV(), holder.getDistanceTv());
+		}
+		if (holder.getCompassV() != null) {
+			if (holder.getDistanceTv() != null && holder.getDistanceTv().getVisibility() == View.VISIBLE) {
 				if (this.location != null
 						&& this.lastCompassInDegree != null
 						&& this.location.getAccuracy() <= poim.getDistance()) {
-					holder.compassV.generateAndSetHeadingN(this.location, this.lastCompassInDegree, this.locationDeclination);
+					holder.getCompassV().generateAndSetHeadingN(this.location, this.lastCompassInDegree, this.locationDeclination);
 				} else {
-					holder.compassV.resetHeading();
+					holder.getCompassV().resetHeading();
 				}
-				holder.compassV.setVisibility(View.VISIBLE);
+				holder.getCompassV().setVisibility(View.VISIBLE);
 			} else {
-				holder.compassV.resetHeading();
-				holder.compassV.setVisibility(View.GONE);
+				holder.getCompassV().resetHeading();
+				holder.getCompassV().setVisibility(View.GONE);
 			}
 		}
-		if (holder.locationTv != null) {
+		if (holder.getLocationTv() != null) {
 			if (TextUtils.isEmpty(poim.getLocation())) {
-				holder.locationTv.setVisibility(View.GONE);
-				holder.locationTv.setText(null);
+				holder.getLocationTv().setVisibility(View.GONE);
+				holder.getLocationTv().setText(null);
 			} else {
-				holder.locationTv.setText(poim.getLocation());
-				holder.locationTv.setVisibility(View.VISIBLE);
+				holder.getLocationTv().setText(poim.getLocation());
+				holder.getLocationTv().setVisibility(View.VISIBLE);
 			}
 		}
 		if (this.showFavorite && this.favUUIDs != null && this.favUUIDs.contains(poi.getUUID())) {
-			holder.favImg.setVisibility(View.VISIBLE);
+			holder.getFavImg().setVisibility(View.VISIBLE);
 		} else {
-			holder.favImg.setVisibility(View.GONE);
+			holder.getFavImg().setVisibility(View.GONE);
 		}
 		int index;
 		if (this.closestPoiUuids != null && this.closestPoiUuids.contains(poi.getUUID())) {
@@ -2068,15 +2065,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		//noinspection SwitchStatementWithTooFewBranches
 		switch (index) {
 		case 0:
-			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
-			if (holder.distanceTv != null) {
-				holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.getNameTv().setTypeface(Typeface.DEFAULT_BOLD);
+			if (holder.getDistanceTv() != null) {
+				holder.getDistanceTv().setTypeface(Typeface.DEFAULT_BOLD);
 			}
 			break;
 		default:
-			holder.nameTv.setTypeface(Typeface.DEFAULT);
-			if (holder.distanceTv != null) {
-				holder.distanceTv.setTypeface(Typeface.DEFAULT);
+			holder.getNameTv().setTypeface(Typeface.DEFAULT);
+			if (holder.getDistanceTv() != null) {
+				holder.getDistanceTv().setTypeface(Typeface.DEFAULT);
 			}
 			break;
 		}
@@ -2191,42 +2188,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private static class InfiniteLoadingViewHolder {
 		View progressBar;
 		View worldExplored;
-	}
-
-	private static class ModuleViewHolder extends CommonViewHolder {
-		ImageView moduleExtraTypeImg;
-	}
-
-	private static class RouteDirectionStopViewHolder extends CommonViewHolder {
-		TextView routeShortNameTv;
-		View routeFL;
-		View rdsExtraV;
-		MTJPathsView routeTypeImg;
-		TextView directionHeadingTv;
-		View directionHeadingBg;
-	}
-
-	private static class BasicPOIViewHolder extends CommonViewHolder {
-	}
-
-	private static class TextViewViewHolder extends CommonViewHolder {
-	}
-
-	private static class PlaceViewHolder extends CommonViewHolder {
-		ImageView placeIconImg;
-	}
-
-	public static class CommonViewHolder {
-		String uuid;
-		View view;
-		TextView nameTv;
-		TextView distanceTv;
-		TextView locationTv;
-		ImageView favImg;
-		MTCompassView compassV;
-		@Nullable
-		POICommonStatusViewHolder<?, ?> statusViewHolder;
-		POIServiceUpdateViewHolder serviceUpdateViewHolder;
 	}
 
 	private static class FavoriteFolderHeaderViewHolder {

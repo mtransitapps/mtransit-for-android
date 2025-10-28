@@ -6,12 +6,18 @@ import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,30 +27,43 @@ import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.distinctByOriginalId
+import org.mtransit.android.commons.data.isSeverityWarningInfo
+import org.mtransit.android.data.RouteManager
 import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.FragmentRdsRouteBinding
+import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
+import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
+import javax.inject.Inject
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocationListener {
+class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
+    DeviceLocationListener,
+    MenuProvider {
 
     companion object {
         private val LOG_TAG = RDSRouteFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "RTSRoute" // do not change to avoid breaking tracking
+
+        // internal const val SHOW_SERVICE_UPDATE_IN_TOOLBAR = false
+        internal const val SHOW_SERVICE_UPDATE_IN_TOOLBAR = true // ON to filter alerts in stop feed to avoid duplicates warnings signs
 
         private val TITLE_RSN_STYLE = SpanUtils.getNewBoldStyleSpan()
 
@@ -94,8 +113,10 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
     }
 
     private val viewModel by viewModels<RDSRouteViewModel>()
-    private val attachedViewModel
-        get() = if (isAttached()) viewModel else null
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
+
+    @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     private var binding: FragmentRdsRouteBinding? = null
 
@@ -134,9 +155,12 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
+        (requireActivity() as MenuHost).addMenuProvider(
+            this, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
         binding = FragmentRdsRouteBinding.bind(view).apply {
             viewPager.apply {
-                offscreenPageLimit = 1
+                viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 1
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
                 TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
@@ -163,16 +187,16 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
             MTTransitions.setTransitionName(
                 view,
                 authority?.let {
-                    viewModel.route.value?.id?.let { routeId ->
+                    viewModel.routeM.value?.route?.id?.let { routeId ->
                         "r_" + authority + "_" + routeId
                     }
                 }
             )
         }
-        viewModel.route.observe(viewLifecycleOwner) { route ->
+        viewModel.routeM.observe(viewLifecycleOwner) { routeM ->
             MTTransitions.setTransitionName(
                 view,
-                route?.id?.let { routeId ->
+                routeM?.route?.id?.let { routeId ->
                     viewModel.authority.value?.let { authority ->
                         "r_" + authority + "_" + routeId
                     }
@@ -184,7 +208,11 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
+            updateServiceUpdateImg(routeM = routeM)
         }
+        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { triggered ->
+            updateServiceUpdateImg()
+        })
         viewModel.colorInt.observe(viewLifecycleOwner) { it ->
             it?.let {
                 binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
@@ -216,6 +244,56 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
+    }
+
+    private var serviceUpdateImg: MenuItem? = null
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_rds_route, menu)
+        this.serviceUpdateImg = menu.findItem(R.id.menu_service_update_img)
+        updateServiceUpdateImg(serviceUpdateImg = this.serviceUpdateImg)
+    }
+
+    private fun updateServiceUpdateImg(
+        routeM: RouteManager? = attachedViewModel?.routeM?.value,
+        serviceUpdateImg: MenuItem? = this.serviceUpdateImg,
+    ) {
+        serviceUpdateImg?.apply {
+            routeM ?: run { isVisible = false; return }
+            val (isWarning, isInfo) = routeM.getServiceUpdates(
+                serviceUpdateLoader = serviceUpdateLoader,
+                ignoredUUIDsOrUnknown = emptyList(),
+            ).distinctByOriginalId().isSeverityWarningInfo()
+            if (isWarning) {
+                setIcon(R.drawable.ic_warning_black_24dp)
+                isVisible = SHOW_SERVICE_UPDATE_IN_TOOLBAR
+            } else if (isInfo) {
+                setIcon(R.drawable.ic_info_outline_black_24dp)
+                isVisible = SHOW_SERVICE_UPDATE_IN_TOOLBAR
+            } else {
+                icon = null
+                isVisible = false
+            }
+        }
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.menu_service_update_img) {
+            val authority = viewModel.authority.value ?: return false
+            val routeId = viewModel.routeM.value?.route?.id ?: return false
+            if (FeatureFlags.F_NAVIGATION) {
+                // TODO navigate to dialog
+            } else {
+                FragmentUtils.replaceDialogFragment(
+                    activity ?: return false,
+                    FragmentUtils.DIALOG_TAG,
+                    ServiceUpdatesDialog.newInstance(authority, routeId),
+                    null
+                )
+                return true // handled
+            }
+        }
+        return false // not handled
     }
 
     override fun onResume() {
@@ -279,14 +357,14 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route), DeviceLocation
         switchView()
     }
 
-    override fun isABReady() = attachedViewModel?.route?.value != null
+    override fun isABReady() = attachedViewModel?.routeM?.value != null
 
     override fun isABStatusBarTransparent() = true
 
     override fun isABOverrideGradient() = true
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return attachedViewModel?.route?.value?.let { makeABTitle(it) }
+        return attachedViewModel?.routeM?.value?.let { makeABTitle(it.route) }
             ?: super.getABTitle(context)
     }
 

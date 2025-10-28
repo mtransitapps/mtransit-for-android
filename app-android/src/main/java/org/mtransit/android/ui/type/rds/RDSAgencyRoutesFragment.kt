@@ -18,19 +18,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.commons.data.Route
-import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.FragmentRdsAgencyRoutesBinding
+import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
+import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.commons.FeatureFlags
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes) {
@@ -60,6 +62,9 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
+    @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
     private var binding: FragmentRdsAgencyRoutesBinding? = null
 
     private val listItemDecoration: ItemDecoration by lazy { DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL) }
@@ -68,13 +73,13 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
 
     private var listGridAdapter: RDSAgencyRoutesAdapter? = null
 
-    private fun makeListGridAdapter() = RDSAgencyRoutesAdapter(this::openRouteScreen).apply {
+    private fun makeListGridAdapter() = RDSAgencyRoutesAdapter(serviceUpdateLoader, this::openRouteScreen).apply {
         setAgency(attachedViewModel?.agency?.value)
         setShowingListInsteadOfGrid(attachedViewModel?.showingListInsteadOfGrid?.value)
-        submitList(attachedViewModel?.routes?.value)
+        submitList(attachedViewModel?.routesM?.value)
     }
 
-    private fun openRouteScreen(view: View, route: Route, agency: IAgencyProperties) {
+    private fun openRouteScreen(view: View, route: RouteManager) {
         if (FeatureFlags.F_NAVIGATION) {
             var extras: FragmentNavigator.Extras? = null
             if (FeatureFlags.F_TRANSITION) {
@@ -83,8 +88,8 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             findNavController().navigate(
                 R.id.nav_to_rds_route_screen,
                 RDSRouteFragment.newInstanceArgs(
-                    agency.authority,
-                    route.id,
+                    route.authority,
+                    route.route.id,
                 ),
                 null,
                 extras
@@ -92,8 +97,8 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         } else {
             (activity as? MainActivity)?.addFragmentToStack(
                 RDSRouteFragment.newInstance(
-                    agency.authority,
-                    route.id,
+                    route.authority,
+                    route.route.id,
                 ),
                 this,
                 view,
@@ -111,6 +116,12 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                 }
                 setUpFabEdgeToEdge(
                     originalMarginEndDimenRes = R.dimen.fab_mini_margin_end,
+                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+                )
+            }
+            fabFares.apply {
+                setUpFabEdgeToEdge(
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
@@ -188,11 +199,14 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                 }
             }
         }
-        viewModel.routes.observe(viewLifecycleOwner) { routes ->
+        viewModel.routesM.observe(viewLifecycleOwner) { routes ->
             listGridAdapter?.setList(routes)
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(routes.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
+        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { triggered ->
+            listGridAdapter?.onServiceUpdatesLoaded()
+        })
     }
 
     private fun calculateNoOfColumns(context: Context, @Suppress("SameParameterValue") columnWidthDp: Float): Int {
