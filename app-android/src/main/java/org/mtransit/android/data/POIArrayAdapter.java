@@ -1560,6 +1560,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.nearbyBtn = convertView.findViewById(R.id.nearbyBtn);
 			holder.allBtn = convertView.findViewById(R.id.allBtn);
 			holder.moreBtn = convertView.findViewById(R.id.moreBtn);
+			holder.layout = convertView;
 			convertView.setTag(holder);
 		}
 		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
@@ -1581,6 +1582,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.moreBtn.setOnClickListener(view ->
 					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_MORE, type)
 			);
+			holder.layout.setOnClickListener(view ->
+					holder.moreBtn.performClick()
+			);
+		} else {
+			holder.layout.setClickable(false);
 		}
 		return convertView;
 	}
@@ -2192,15 +2198,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private static class FavoriteFolderHeaderViewHolder {
 		TextView nameTv;
+		@Nullable
 		View deleteBtn;
+		@Nullable
 		View renameBtn;
 	}
 
 	private static class TypeHeaderViewHolder {
 		TextView nameTv;
+		@Nullable
 		View allBtn;
+		@Nullable
 		View nearbyBtn;
+		@Nullable
 		View moreBtn;
+		View layout;
 	}
 
 	public interface TypeHeaderButtonsClickListener {
