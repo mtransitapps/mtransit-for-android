@@ -82,7 +82,15 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	private boolean isBusy() {
-		return this.fetchServiceUpdateExecutor != null && this.fetchServiceUpdateExecutor.getActiveCount() > 0;
+		return getActiveCount() > 0;
+	}
+
+	private int getActiveCount() {
+		return this.fetchServiceUpdateExecutor == null ? 0 : this.fetchServiceUpdateExecutor.getActiveCount();
+	}
+
+	private long getTaskCount() {
+		return this.fetchServiceUpdateExecutor == null ? 0 : this.fetchServiceUpdateExecutor.getTaskCount();
 	}
 
 	public void clearAllTasks() {
