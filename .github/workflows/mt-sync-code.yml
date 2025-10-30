@@ -67,7 +67,7 @@ jobs:
       - name: MT test
         run: ./test.sh
       - name: MT artifact > unit tests XML results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }} # even if tests fails
         with:
           name: unit-test-xml-results
@@ -76,7 +76,7 @@ jobs:
             */build/test-results/*.xml
             */build/reports/*.xml
       - name: MT artifact > HTML reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }} # even if tests fails
         with:
           name: html-reports
@@ -100,7 +100,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
       - name: MT artifact > app-android > APK & ABB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: app-android-apk-bundle
           path: |
