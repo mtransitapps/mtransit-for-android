@@ -46,7 +46,6 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.Constants;
-import org.mtransit.commons.FeatureFlags;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -709,10 +708,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_COLOR, ModuleColumns.T_MODULE_K_COLOR) //
 				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_LOCATION) //
 				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_NAME_FR, ModuleColumns.T_MODULE_K_NAME_FR) //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE); //
 				;
-		if (FeatureFlags.F_ACCESSIBILITY_PRODUCER) {
-			builder.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE); //
-		}
 		return builder.build();
 		// @formatter:on
 	}

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -15,7 +16,6 @@ import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.provider.PlaceProvider;
-import org.mtransit.commons.FeatureFlags;
 
 public class Place extends DefaultPOI {
 
@@ -49,11 +49,7 @@ public class Place extends DefaultPOI {
 		resetUUID();
 	}
 
-	/**
-	 * Only useful when POI needs to be stored in DB like Modules (from JSON)
-	 * @deprecated use {@link #getProviderId()} instead
-	 */
-	@Deprecated
+	@Discouraged(message = "only useful for DB, use getProviderId() instead")
 	@Override
 	public int getId() {
 		return super.getId();
@@ -184,23 +180,8 @@ public class Place extends DefaultPOI {
 
 	@NonNull
 	public Object[] getCursorRow() {
-		//noinspection deprecation, DeprecatedCall
+		//noinspection DiscouragedApi
 		final int id = getId();
-		if (FeatureFlags.F_ACCESSIBILITY_PRODUCER) {
-			return new Object[]{ //
-					getUUID(), //
-					getDataSourceTypeId(), //
-					id,//
-					getName(), //
-					getLat(),//
-					getLng(), //
-					getAccessible(), //
-					getType(), getStatusType(), getActionsType(), //
-					getScore(), //
-					getProviderId(), getLang(), getReadAtInMs(), //
-					getIconUrl(), getIconBgColor() //
-			};
-		}
 		return new Object[]{ //
 				getUUID(), //
 				getDataSourceTypeId(), //
@@ -208,6 +189,7 @@ public class Place extends DefaultPOI {
 				getName(), //
 				getLat(),//
 				getLng(), //
+				getAccessible(), //
 				getType(), getStatusType(), getActionsType(), //
 				getScore(), //
 				getProviderId(), getLang(), getReadAtInMs(), //
