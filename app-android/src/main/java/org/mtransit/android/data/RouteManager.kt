@@ -23,7 +23,13 @@ data class RouteManager(
         private val LOG_TAG: String = RouteManager::class.java.simpleName
     }
 
-    override fun getLogTag() = LOG_TAG
+    @Suppress("SENSELESS_COMPARISON")
+    override fun getLogTag(): String {
+        if (this.route != null) {
+            return LOG_TAG + "-" + this.route.uuid.removePrefix(IAgencyProperties.PKG_COMMON)
+        }
+        return LOG_TAG
+    }
 
     private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Void?>()
 

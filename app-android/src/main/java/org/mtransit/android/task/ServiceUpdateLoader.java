@@ -22,10 +22,10 @@ import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -115,9 +115,13 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		);
 	}
 
-	private static final Collection<String> ROUTE_DIRECTION_NOT_SUPPORTED = Collections.singleton(
-			"org.mtransit.android.ca_montreal_stm_subway" + (BuildConfig.DEBUG ? ".debug" : "") // + ".stminfo"
-	);
+	private static final Collection<String> ROUTE_DIRECTION_NOT_SUPPORTED;
+
+	static {
+		Set<String> collection = new HashSet<>();
+		collection.add("org.mtransit.android.ca_montreal_stm_subway" + (BuildConfig.DEBUG ? ".debug" : "")); // + ".stminfo"
+		ROUTE_DIRECTION_NOT_SUPPORTED = collection;
+	}
 
 	public boolean findServiceUpdate(@NonNull RouteDirectionManager routeDirectionM,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
@@ -136,10 +140,14 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		);
 	}
 
-	private static final Collection<String> ROUTE_NOT_SUPPORTED = Arrays.asList(
-			"org.mtransit.android.ca_laval_stl_bus" + (BuildConfig.DEBUG ? ".debug" : ""), // + ".nextbus"
-			"org.mtransit.android.ca_montreal_stm_bus" + (BuildConfig.DEBUG ? ".debug" : "") // + ".stminfoapi"
-	);
+	private static final Collection<String> ROUTE_NOT_SUPPORTED;
+
+	static {
+		Set<String> collection = new HashSet<>();
+		collection.add("org.mtransit.android.ca_laval_stl_bus" + (BuildConfig.DEBUG ? ".debug" : "")); // + ".nextbus"
+		collection.add("org.mtransit.android.ca_montreal_stm_bus" + (BuildConfig.DEBUG ? ".debug" : "")); // + ".stminfoapi"
+		ROUTE_NOT_SUPPORTED = collection;
+	}
 
 	public boolean findServiceUpdate(@NonNull RouteManager routeM,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
