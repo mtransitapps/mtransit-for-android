@@ -42,7 +42,6 @@ import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.LanguageManager
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.NightModeUtils
-import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
 
@@ -318,15 +317,9 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 )
             }
         }
-        if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
-            viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
-                (findPreference(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY) as? Preference)?.apply {
-                    setSummary(if (showAccessibility) R.string.show_accessibility_pref_summary_on else R.string.show_accessibility_pref_summary_off)
-                }
-            }
-        } else {
+        viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
             (findPreference(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY) as? Preference)?.apply {
-                preferenceScreen.removePreference(this)
+                setSummary(if (showAccessibility) R.string.show_accessibility_pref_summary_on else R.string.show_accessibility_pref_summary_off)
             }
         }
         viewModel.useInternalWebBrowser.observe(viewLifecycleOwner) { useInternalWebBrowser ->

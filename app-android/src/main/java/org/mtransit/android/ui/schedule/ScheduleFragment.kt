@@ -47,7 +47,6 @@ import org.mtransit.android.ui.view.common.start
 import org.mtransit.android.ui.view.common.startMargin
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.FeatureFlags
 import java.util.TimeZone
 
 @AndroidEntryPoint
@@ -195,10 +194,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         viewModel.rds.observe(viewLifecycleOwner) { rds ->
             listAdapter.setRDS(rds)
         }
-        if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
-            viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
-                listAdapter.showingAccessibility = showAccessibility
-            }
+        viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
+            listAdapter.showingAccessibility = showAccessibility
         }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
             if (removed) {
