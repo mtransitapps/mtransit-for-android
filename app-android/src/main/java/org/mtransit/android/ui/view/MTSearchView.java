@@ -16,7 +16,10 @@ import org.mtransit.android.ui.MainActivity;
 import java.lang.ref.WeakReference;
 
 @SuppressLint("ViewConstructor")
-public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnFocusChangeListener, SearchView.OnCloseListener, SearchView.OnQueryTextListener {
+public class MTSearchView extends SearchView implements MTLog.Loggable,
+		View.OnFocusChangeListener,
+		SearchView.OnCloseListener,
+		SearchView.OnQueryTextListener {
 
 	private static final String TAG = MTSearchView.class.getSimpleName();
 
@@ -65,16 +68,14 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 
 	@Override
 	public void onFocusChange(View v, boolean hasFocus) {
-		if (!hasFocus) {
-			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-			if (mainActivity != null) {
-				KeyboardUtils.hideKeyboard(mainActivity, this);
-			}
+		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		if (mainActivity == null) {
+			return;
+		}
+		if (hasFocus) {
+			KeyboardUtils.showKeyboard(mainActivity, this);
 		} else {
-			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-			if (mainActivity != null) {
-				KeyboardUtils.showKeyboard(mainActivity, this);
-			}
+			KeyboardUtils.hideKeyboard(mainActivity, this);
 		}
 	}
 

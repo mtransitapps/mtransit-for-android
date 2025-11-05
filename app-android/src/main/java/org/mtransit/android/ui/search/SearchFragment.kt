@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.SearchView.OnQueryTextListener
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -15,7 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.KeyboardUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
@@ -63,6 +63,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             }
         }
 
+        @Suppress("SpellCheckingInspection")
         private const val DEV_QUERY = "MTDEV"
     }
 
@@ -205,7 +206,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun onTypeHeaderButtonClick(buttonId: Int, type: DataSourceType): Boolean {
         if (buttonId == TypeHeaderButtonsClickListener.BUTTON_MORE) {
-            KeyboardUtils.hideKeyboard(activity, view)
+            attachedViewModel?.setSearchHasFocus(false) // close keyboard
             viewModel.setTypeFilter(type)
             return true // handled
         }
@@ -232,7 +233,6 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     override fun onPause() {
         super.onPause()
         listAdapter.onPause()
-        viewModel.setSearchHasFocus(searchView?.hasFocus() ?: false)
         binding?.screenToolbarLayout?.screenToolbar?.let { resetScreenToolbarCustomView(it) }
     }
 
@@ -268,18 +268,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     override fun isABCustomViewFocusable() = true
 
     override fun isABCustomViewRequestFocus() =
-        refreshSearchHasFocus()
+        attachedViewModel?.searchHasFocus?.value ?: false
 
     override fun getABCustomView() = getSearchView()
-
-    private fun refreshSearchHasFocus() =
-        searchView?.hasFocus()?.also { hasFocus ->
-            attachedViewModel?.apply {
-                if (hasFocus != searchHasFocus.value) {
-                    setSearchHasFocus(hasFocus)
-                }
-            }
-        } ?: false
 
     private var searchView: MTSearchView? = null
 
@@ -298,9 +289,27 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         searchView = MTSearchView(mainActivity, context).apply {
             setIconifiedByDefault(false)
             setQuery(attachedViewModel?.query?.value, false)
-            if (attachedViewModel?.searchHasFocus?.value == false) {
-                clearFocus()
+            attachedViewModel?.apply {
+                if (searchHasFocus.value == false) {
+                    clearFocus()
+                }
             }
+            setOnQueryTextFocusChangeListener { view, hasFocus ->
+                attachedViewModel?.setSearchHasFocus(hasFocus) // attached view model == ignored starting ON_PAUSE -> STOP -> DESTROY
+                searchView?.onFocusChange(view, hasFocus) // show/hide keyboard
+            }
+            setOnQueryTextListener(object : OnQueryTextListener {
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    attachedViewModel?.onNewQuery(newText)
+                    return true // handled
+                }
+
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    attachedViewModel?.onNewQuery(query)
+                    attachedViewModel?.setSearchHasFocus(false) // close keyboard
+                    return true // handled
+                }
+            })
         }
     }
 
