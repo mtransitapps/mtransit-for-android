@@ -289,10 +289,8 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         searchView = MTSearchView(mainActivity, context).apply {
             setIconifiedByDefault(false)
             setQuery(attachedViewModel?.query?.value, false)
-            attachedViewModel?.apply {
-                if (searchHasFocus.value == false) {
-                    clearFocus()
-                }
+            if (attachedViewModel?.searchHasFocus?.value == false) {
+                clearFocus()
             }
             setOnQueryTextFocusChangeListener { view, hasFocus ->
                 attachedViewModel?.setSearchHasFocus(hasFocus) // attached view model == ignored starting ON_PAUSE -> STOP -> DESTROY

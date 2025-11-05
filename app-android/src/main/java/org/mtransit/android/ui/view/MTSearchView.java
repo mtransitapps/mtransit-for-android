@@ -35,7 +35,7 @@ public class MTSearchView extends SearchView implements MTLog.Loggable,
 	}
 
 	@Nullable
-	private WeakReference<MainActivity> mainActivityWR;
+	private WeakReference<MainActivity> mainActivityWR = null;
 
 	private void init(@Nullable MainActivity mainActivity) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
