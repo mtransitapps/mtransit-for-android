@@ -15,7 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.KeyboardUtils.Companion.hideKeyboard
+import org.mtransit.android.commons.KeyboardUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
@@ -39,7 +39,10 @@ import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListener, TypeHeaderButtonsClickListener, OnItemSelectedListener {
+class SearchFragment : ABFragment(R.layout.fragment_search),
+    DeviceLocationListener,
+    TypeHeaderButtonsClickListener,
+    OnItemSelectedListener {
 
     companion object {
         private val LOG_TAG = SearchFragment::class.java.simpleName
@@ -138,6 +141,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
                 onItemSelectedListener = this@SearchFragment
                 adapter = typeFilterAdapter
             }
+            screenToolbarLayout.apply {
+                setupScreenToolbar(this)
+            }
         }
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
@@ -192,11 +198,14 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
             }
             listAdapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
         }
+        viewModel.searchHasFocus.observe(viewLifecycleOwner) { searchHasFocus ->
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
+        }
     }
 
     override fun onTypeHeaderButtonClick(buttonId: Int, type: DataSourceType): Boolean {
         if (buttonId == TypeHeaderButtonsClickListener.BUTTON_MORE) {
-            hideKeyboard(activity, view)
+            KeyboardUtils.hideKeyboard(activity, view)
             viewModel.setTypeFilter(type)
             return true // handled
         }
@@ -223,6 +232,8 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
     override fun onPause() {
         super.onPause()
         listAdapter.onPause()
+        viewModel.setSearchHasFocus(searchView?.hasFocus() ?: false)
+        binding?.screenToolbarLayout?.screenToolbar?.let { resetScreenToolbarCustomView(it) }
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
@@ -248,37 +259,23 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
         viewModel.onNewQuery(query)
     }
 
-    override fun isABReady(): Boolean {
-        return searchView != null
-    }
+    override fun hasToolbar() = true
 
-    override fun isABShowSearchMenuItem(): Boolean {
-        return false
-    }
+    override fun isABReady() = searchView != null
 
-    override fun isABCustomViewFocusable(): Boolean {
-        return true
-    }
+    override fun isABShowSearchMenuItem() = false
 
-    override fun isABCustomViewRequestFocus(): Boolean {
-        return searchHasFocus()
-    }
+    override fun isABCustomViewFocusable() = true
 
-    private fun searchHasFocus(): Boolean {
-        return refreshSearchHasFocus()
-    }
+    override fun isABCustomViewRequestFocus() =
+        refreshSearchHasFocus()
 
-    private fun refreshSearchHasFocus(): Boolean {
-        return searchView?.let {
-            val focus = it.hasFocus()
-            attachedViewModel?.setSearchHasFocus(focus)
-            focus
+    override fun getABCustomView() = getSearchView()
+
+    private fun refreshSearchHasFocus() =
+        searchView?.hasFocus()?.also {
+            attachedViewModel?.setSearchHasFocus(it)
         } ?: false
-    }
-
-    override fun getABCustomView(): View? {
-        return getSearchView()
-    }
 
     private var searchView: MTSearchView? = null
 
@@ -291,10 +288,11 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
 
     private fun initSearchView() {
         val activity = activity ?: return
-        val mainActivity = activity as MainActivity
+        val mainActivity = activity as? MainActivity ?: return
         val supportActionBar = mainActivity.supportActionBar
-        val context = if (supportActionBar == null) mainActivity else supportActionBar.themedContext
+        val context = supportActionBar?.themedContext ?: mainActivity
         searchView = MTSearchView(mainActivity, context).apply {
+            setIconifiedByDefault(false)
             setQuery(attachedViewModel?.query?.value, false)
             if (attachedViewModel?.searchHasFocus?.value == false) {
                 clearFocus()

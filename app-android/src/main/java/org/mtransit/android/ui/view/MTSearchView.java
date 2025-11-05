@@ -70,6 +70,11 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 			if (mainActivity != null) {
 				KeyboardUtils.hideKeyboard(mainActivity, this);
 			}
+		} else {
+			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+			if (mainActivity != null) {
+				KeyboardUtils.showKeyboard(mainActivity, this);
+			}
 		}
 	}
 
