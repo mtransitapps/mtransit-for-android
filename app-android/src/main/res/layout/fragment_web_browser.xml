@@ -5,8 +5,8 @@
     android:id="@+id/context_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0000FF"
-    tools:context=".ui.favorites.FavoritesFragment">
+    tools:background="#0000FF"
+    tools:context=".ui.fragment.WebBrowserFragment">
 
     <include
         android:id="@+id/screen_toolbar_layout"
@@ -16,8 +16,7 @@
         android:id="@+id/screen_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".ui.fragment.WebBrowserFragment">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <WebView
             android:id="@+id/webView"

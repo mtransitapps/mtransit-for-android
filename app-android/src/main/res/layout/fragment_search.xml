@@ -1,53 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/context_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/action_bar_size_static"
+    tools:background="#0000FF"
     tools:context=".ui.search.SearchFragment">
 
-    <Spinner
-        android:id="@+id/typeFilters"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:visibility="gone"
-        tools:context=".ui.MainActivity"
-        tools:listitem="@layout/layout_poi_type_item"
-        tools:visibility="visible" />
+    <include
+        android:id="@+id/screen_toolbar_layout"
+        layout="@layout/layout_screen_toolbar" />
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-        <!-- LOADING -->
-        <include
-            android:id="@id/loading_layout"
-            layout="@layout/layout_loading_large"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <Spinner
+            android:id="@+id/typeFilters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/listPreferredItemHeightSmall"
             android:visibility="gone"
+            tools:context=".ui.MainActivity"
+            tools:listitem="@layout/layout_poi_type_item"
             tools:visibility="visible" />
-        <!-- LIST -->
-        <include
-            android:id="@id/list_layout"
-            layout="@layout/layout_poi_list_padding_bottom"
+
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="visible"
-            tools:visibility="visible" />
-        <!-- EMPTY -->
-        <include
-            android:id="@id/empty_layout"
-            layout="@layout/layout_empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <!-- LOADING -->
+            <include
+                android:id="@id/loading_layout"
+                layout="@layout/layout_loading_large"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                tools:visibility="visible" />
+            <!-- LIST -->
+            <include
+                android:id="@id/list_layout"
+                layout="@layout/layout_poi_list_padding_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible"
+                tools:visibility="visible" />
+            <!-- EMPTY -->
+            <include
+                android:id="@id/empty_layout"
+                layout="@layout/layout_empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-        <include layout="@layout/layout_shadow" />
+            <include layout="@layout/layout_shadow" />
 
-    </FrameLayout>
+        </FrameLayout>
 
-</LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
