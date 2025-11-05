@@ -10,6 +10,7 @@ runs:
         run: ./checkout_submodules.sh
       - name: MT check out all git submodule closest branch
         if: github.event_name == 'pull_request'
+        shell: bash
         run: |
           echo "Checking out submodules closest branch, '$MT_BRANCH_NAME' or '$MT_TARGET_BRANCH_NAME':"
           git submodule foreach 'git checkout $MT_BRANCH_NAME || git checkout $MT_TARGET_BRANCH_NAME'
@@ -18,6 +19,7 @@ runs:
 
       - name: MT check out this module repo build SHA
         if: github.repository != 'mtransitapps/mtransit-for-android'
+        shell: bash
         run: |
           REPOSITORY_OWNER_AND_NAME=${{ github.repository }};
           REPOSITORY_NAME=$(basename $REPOSITORY_OWNER_AND_NAME);
@@ -26,6 +28,7 @@ runs:
 
       - name: MT setup MT_GIT_BRANCH env
         if: github.repository == 'mtransitapps/mtransit-for-android' || github.event_name != 'pull_request'
+        shell: bash
         run: |
           # MT_GIT_BRANCH=${GITHUB_REF##*/}"
           MT_GIT_BRANCH=${{ github.head_ref || github.ref_name }}
@@ -33,6 +36,7 @@ runs:
           echo "MT_GIT_BRANCH=$MT_GIT_BRANCH" >> $GITHUB_ENV
 
       - name: MT code setup
+        shell: bash
         run: ./commons/code_setup.sh
       - name: MT set up JDK 17
         uses: actions/setup-java@v5
