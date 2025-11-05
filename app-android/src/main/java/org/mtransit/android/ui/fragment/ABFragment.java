@@ -290,17 +290,15 @@ public abstract class ABFragment extends MTFragmentX implements
 	}
 
 	private void setScreenToolbarCustomView(@NonNull Toolbar toolbar, @Nullable View customView) {
-		if (customView == null) {
-			if (currentScreenToolbarCustomView != null) {
-				toolbar.removeView(currentScreenToolbarCustomView);
-				currentScreenToolbarCustomView = null;
-			}
-		} else if (customView != currentScreenToolbarCustomView) {
-			if (currentScreenToolbarCustomView != null) {
-				toolbar.removeView(currentScreenToolbarCustomView);
-			}
-			toolbar.addView(customView);
-			currentScreenToolbarCustomView = customView;
+		if (this.currentScreenToolbarCustomView == customView) {
+			return; // no change
+		}
+		if (this.currentScreenToolbarCustomView != null) {
+			toolbar.removeView(this.currentScreenToolbarCustomView);
+		}
+		this.currentScreenToolbarCustomView = customView;
+		if (this.currentScreenToolbarCustomView != null) {
+			toolbar.addView(this.currentScreenToolbarCustomView);
 		}
 	}
 
