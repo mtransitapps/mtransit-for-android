@@ -273,8 +273,12 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     override fun getABCustomView() = getSearchView()
 
     private fun refreshSearchHasFocus() =
-        searchView?.hasFocus()?.also {
-            attachedViewModel?.setSearchHasFocus(it)
+        searchView?.hasFocus()?.also { hasFocus ->
+            attachedViewModel?.apply {
+                if (hasFocus != searchHasFocus.value) {
+                    setSearchHasFocus(hasFocus)
+                }
+            }
         } ?: false
 
     private var searchView: MTSearchView? = null
