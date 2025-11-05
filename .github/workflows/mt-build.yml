@@ -31,23 +31,21 @@ jobs:
           REPOSITORY_NAME=$(basename $REPOSITORY_OWNER_AND_NAME);
           if [ $REPOSITORY_OWNER_AND_NAME == "mtransitapps/mtransit-for-android" ]: then
             CHECKOUT_BRANCH='' // defaults to the reference or SHA for that event
-            echo "Checkout branch: '$CHECKOUT_BRANCH'."
-            echo "mt_checkout_branch=$CHECKOUT_BRANCH" >> "$GITHUB_OUTPUT"
-            return 0; # not failed
-          fi
-          MAIN_REPO_URL="https://github.com/mtransitapps/mtransit-for-android.git"
-          BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_BRANCH_NAME | wc -l);
-          if [ $BRANCH_EXISTS -eq 1 ]; then
-            CHECKOUT_BRANCH=$MT_BRANCH_NAME
           else
-            # Pull request target branch with same name?
-            BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_TARGET_BRANCH_NAME | wc -l);
+            MAIN_REPO_URL="https://github.com/mtransitapps/mtransit-for-android.git"
+            BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_BRANCH_NAME | wc -l);
             if [ $BRANCH_EXISTS -eq 1 ]; then
-              CHECKOUT_BRANCH=$MT_TARGET_BRANCH_NAME
+              CHECKOUT_BRANCH=$MT_BRANCH_NAME
             else
-              echo "WARNING: no match for current or target branch!!!"
-              DEFAULT_REPO_BRANCH=$(gh api repos/mtransitapps/mtransit-for-android --jq '.default_branch');
-              CHECKOUT_BRANCH=$DEFAULT_REPO_BRANCH
+              # Pull request target branch with same name?
+              BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_TARGET_BRANCH_NAME | wc -l);
+              if [ $BRANCH_EXISTS -eq 1 ]; then
+                CHECKOUT_BRANCH=$MT_TARGET_BRANCH_NAME
+              else
+                echo "WARNING: no match for current or target branch!!!"
+                DEFAULT_REPO_BRANCH=$(gh api repos/mtransitapps/mtransit-for-android --jq '.default_branch');
+                CHECKOUT_BRANCH=$DEFAULT_REPO_BRANCH
+              fi
             fi
           fi
           echo "Checkout branch: '$CHECKOUT_BRANCH'."
