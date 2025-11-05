@@ -30,7 +30,7 @@ jobs:
           REPOSITORY_OWNER_AND_NAME=${{ github.repository }};
           REPOSITORY_NAME=$(basename $REPOSITORY_OWNER_AND_NAME);
           if [ $REPOSITORY_OWNER_AND_NAME == "mtransitapps/mtransit-for-android" ]: then
-            CHECKOUT_BRANCH="" // defaults to the reference or SHA for that event
+            CHECKOUT_BRANCH="" # defaults to the reference or SHA for that event
           else
             MAIN_REPO_URL="https://github.com/mtransitapps/mtransit-for-android.git"
             BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_BRANCH_NAME | wc -l);
