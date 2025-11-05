@@ -228,6 +228,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         viewModel.onScreenVisible()
+        binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
     }
 
     override fun onPause() {
