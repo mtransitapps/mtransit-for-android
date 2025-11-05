@@ -77,7 +77,7 @@ jobs:
           git -C $REPOSITORY_NAME checkout $MT_SHA;
 
       - name: MT setup MT_GIT_BRANCH env
-        if: github.event_name != 'pull_request'
+        # if: github.event_name != 'pull_request'
         run: |
           # MT_GIT_BRANCH=${GITHUB_REF##*/}"
           MT_GIT_BRANCH=${{ github.head_ref || github.ref_name }}
