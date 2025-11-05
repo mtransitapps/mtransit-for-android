@@ -33,7 +33,7 @@ jobs:
             CHECKOUT_BRANCH='' // defaults to the reference or SHA for that event
             echo "Checkout branch: '$CHECKOUT_BRANCH'."
             echo "mt_checkout_branch=$CHECKOUT_BRANCH" >> "$GITHUB_OUTPUT"
-            exit 0; # not failed
+            return 0; # not failed
           fi
           MAIN_REPO_URL="https://github.com/mtransitapps/mtransit-for-android.git"
           BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_BRANCH_NAME | wc -l);
