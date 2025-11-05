@@ -7,6 +7,7 @@ runs:
   steps:
 
       - name: MT check out submodules
+        shell: bash
         run: ./checkout_submodules.sh
       - name: MT check out all git submodule closest branch
         if: github.event_name == 'pull_request'
