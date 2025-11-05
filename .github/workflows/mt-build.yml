@@ -6,6 +6,7 @@ on:
     branches:
       # - '**' # ALL
       - 'master'
+      # TODO 'develop', 'main'?
 # gh workflow run mt-build.yml --ref <branch>
 # gh run list --workflow=mt-build.yml
 concurrency:
@@ -20,9 +21,41 @@ jobs:
     name: "MT Build"
     runs-on: ubuntu-latest
     steps:
-      - name: MT check out main repository code (no submodules)
+
+      - name: MT select main repo checkout branch
+        id: mt-pick-main-repo-checkout-branch
+        env:
+          GH_TOKEN: ${{ github.token }} # GitHub CLI in a GitHub Actions workflow
+        run: |
+          REPOSITORY_OWNER_AND_NAME=${{ github.repository }};
+          REPOSITORY_NAME=$(basename $REPOSITORY_OWNER_AND_NAME);
+          if [ $REPOSITORY_OWNER_AND_NAME = "mtransitapps/mtransit-for-android" ]; then
+            CHECKOUT_BRANCH="" # defaults to the reference or SHA for that event
+          else
+            MAIN_REPO_URL="https://github.com/mtransitapps/mtransit-for-android.git"
+            BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_BRANCH_NAME | wc -l);
+            if [ $BRANCH_EXISTS -eq 1 ]; then
+              CHECKOUT_BRANCH=$MT_BRANCH_NAME
+            else
+              # Pull request target branch with same name?
+              BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_TARGET_BRANCH_NAME | wc -l);
+              if [ $BRANCH_EXISTS -eq 1 ]; then
+                CHECKOUT_BRANCH=$MT_TARGET_BRANCH_NAME
+              else
+                echo "WARNING: no match for current or target branch!!!"
+                DEFAULT_REPO_BRANCH=$(gh api repos/mtransitapps/mtransit-for-android --jq '.default_branch');
+                CHECKOUT_BRANCH=$DEFAULT_REPO_BRANCH
+              fi
+            fi
+          fi
+          echo "Checkout branch: '$CHECKOUT_BRANCH'."
+          echo "mt_checkout_branch=$CHECKOUT_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: MT check out main repo
         uses: actions/checkout@v5
         with:
+          repository: mtransitapps/mtransit-for-android
+          ref: ${{ steps.mt-pick-main-repo-checkout-branch.outputs.mt_checkout_branch }}
           submodules: true # required to set right token
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT check out submodules
@@ -34,10 +67,23 @@ jobs:
           git submodule foreach 'git checkout $MT_BRANCH_NAME || git checkout $MT_TARGET_BRANCH_NAME'
           echo "Showing submodules current branch:"
           git submodule foreach 'git branch --show-current'
-      - name: MT setup MT_GIT_BRANCH env
+
+      - name: MT check out this module repo build SHA
+        if: github.repository != 'mtransitapps/mtransit-for-android'
         run: |
+          REPOSITORY_OWNER_AND_NAME=${{ github.repository }};
+          REPOSITORY_NAME=$(basename $REPOSITORY_OWNER_AND_NAME);
+          echo "Checking our this repo '$REPOSITORY_NAME' workflow sha '$MT_SHA':"
+          git -C $REPOSITORY_NAME checkout $MT_SHA;
+
+      - name: MT setup MT_GIT_BRANCH env
+        if: github.repository == 'mtransitapps/mtransit-for-android' || github.event_name != 'pull_request'
+        run: |
+          # MT_GIT_BRANCH=${GITHUB_REF##*/}"
           MT_GIT_BRANCH=${{ github.head_ref || github.ref_name }}
+          # echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
           echo "MT_GIT_BRANCH=$MT_GIT_BRANCH" >> $GITHUB_ENV
+
       - name: MT code setup
         run: ./commons/code_setup.sh
       - name: MT set up JDK 17
@@ -47,6 +93,7 @@ jobs:
           java-version: '17'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+
       - name: MT test
         run: ./test.sh
       - name: MT artifact > unit tests XML results
@@ -66,6 +113,7 @@ jobs:
           path: |
             */build/reports/
             !**/*.xml
+
       - name: MT assemble release (APK & ABB)
         if: github.event_name != 'pull_request'
         run: ./assemble_release.sh
