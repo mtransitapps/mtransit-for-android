@@ -1,6 +1,7 @@
 name: MT build
 on:
   workflow_dispatch: # manual
+  workflow_call: # re-use (called from another GHA workflow)
   pull_request:
   push:
     branches:
