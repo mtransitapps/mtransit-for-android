@@ -84,6 +84,7 @@ public class Favorite {
 		return folder_id;
 	}
 
+	@SuppressWarnings("unused")
 	public static class FavoriteFolderNameComparator implements Comparator<POIManager> {
 
 		@NonNull
@@ -182,7 +183,7 @@ public class Favorite {
 			return "Favorite." + Favorite.Folder.class.getSimpleName() + "[" + this.id + "," + this.name + "]";
 		}
 
-		private static class FavoriteFolderNameComparator implements Comparator<Favorite.Folder> {
+		public static class FavoriteFolderNameComparator implements Comparator<Favorite.Folder> {
 
 			@Override
 			public int compare(@Nullable Favorite.Folder lFolder, @Nullable Favorite.Folder rFolder) {

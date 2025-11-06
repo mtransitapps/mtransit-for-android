@@ -58,7 +58,13 @@ class FavoritesViewModel @Inject constructor(
         _favoriteUpdatedTrigger.value = (_favoriteUpdatedTrigger.value ?: 0) + 1
     }
 
-    override val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
+    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
+
+    val oneAgency: LiveData<AgencyBaseProperties?> = _allAgencies.map { // many users have only 1 agency installed
+        if (it.size == 1) it[0] else null
+    }.distinctUntilChanged()
+
+    override val moduleDisabled = _allAgencies.map {
         it.filter { agency -> !agency.isEnabled }
     }.distinctUntilChanged()
 
@@ -68,12 +74,6 @@ class FavoritesViewModel @Inject constructor(
 
     private val _favoriteUpdatedTrigger = MutableLiveData(0)
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
-
-    val oneAgency: LiveData<AgencyBaseProperties?> = _allAgencies.map { // many users have only 1 agency installed
-        if (it.size == 1) it[0] else null
-    }.distinctUntilChanged()
-
     private val _hasFavoritesAgencyDisabled = MutableLiveData(false)
     val hasFavoritesAgencyDisabled: LiveData<Boolean> = _hasFavoritesAgencyDisabled.distinctUntilChanged()
 
@@ -81,13 +81,13 @@ class FavoritesViewModel @Inject constructor(
         PairMediatorLiveData(_favoriteUpdatedTrigger, _allAgencies).switchMap { (_, allAgencies) ->
             _hasFavoritesAgencyDisabled.value = false
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                allAgencies ?: return@liveData
+                allAgencies ?: run { return@liveData emit(null) } // loading
                 emit(getFavorites(allAgencies))
             }
         }
 
     @WorkerThread
-    private suspend fun getFavorites(allAgencies: List<IAgencyProperties>): List<POIManager>? {
+    private suspend fun getFavorites(allAgencies: List<IAgencyProperties>): List<POIManager> {
         val favorites = this.favoriteRepository.findFavorites()
         if (favorites.isEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no favorites)")

@@ -616,68 +616,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 			btn = makeHeaderBrowseButton(gridLine);
 			gridLine.addView(btn);
-			btn.setText(dst.getShortNamesResId());
-			if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
-				final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
-				final AgencyProperties oneAgency = dstAgencies == null || dstAgencies.size() != 1
-						|| DataSourceType.TYPE_MODULE.equals(dstAgencies.get(0).getType()) ? null
-						: dstAgencies.get(0);
-				final String oneAgencyShortName = oneAgency == null ? null : oneAgency.getShortName();
-				if (oneAgencyShortName != null && !oneAgencyShortName.isEmpty()) {
-					final int shortNameCount = IAgencyProperties.countAgenciesListShortName(dstToAgencies.values(), oneAgencyShortName);
-					if (shortNameCount == 1) {
-						btn.setText(oneAgencyShortName);
-					}
-				}
-			}
-			if (dst.getIconResId() != -1) {
-				btn.setIconResource(dst.getIconResId());
-			} else {
-				btn.setIcon(null);
-			}
-			btn.setOnClickListener(view ->
-					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
-			);
-			if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT > 0) {
-				final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
-				if (dstAgencies != null && !dstAgencies.isEmpty()) {
-					String selectedAgencyAuthority = null;
-					if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1) {
-						selectedAgencyAuthority = this.localPreferenceRepository.getValue( // TODO async?
-								LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dst.getId()),
-								LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
-						);
-						if (selectedAgencyAuthority == null || selectedAgencyAuthority.isEmpty()) {
-							selectedAgencyAuthority = dstAgencies.get(0).getAuthority();
-						}
-					}
-					final ArrayList<Integer> colors = new ArrayList<>();
-					for (AgencyProperties agency : dstAgencies) {
-						if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1
-								&& !agency.getAuthority().equals(selectedAgencyAuthority)) {
-							continue;
-						}
-						final Integer color = agency.getColorInt();
-						if (color != null) {
-							colors.add(UIColorUtils.adaptBackgroundColorToLightText(getContext(), color));
-						}
-					}
-					if (colors.size() == 1) {
-						btn.setBackgroundColor(colors.get(0));
-					} else if (colors.size() >= 2) {
-						final int max = Math.max(2, UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT); // gradient needs 2+
-						final int[] colorArray = Ints.toArray(ColorUtils.filterColors(colors, max));
-						final GradientDrawable gradient = new GradientDrawable(
-								GradientDrawable.Orientation.LEFT_RIGHT,
-								colorArray
-						);
-						gradient.setShape(GradientDrawable.RECTANGLE);
-						gradient.setCornerRadius(ResourceUtils.convertDPtoPX(getContext(), 4));
-						btn.setBackgroundTintList(null);
-						btn.setBackgroundDrawable(gradient);
-					}
-				}
-			}
+			setupButton(btn, dst, dstToAgencies);
 			btn.setVisibility(View.VISIBLE);
 			availableButtons--;
 		}
@@ -691,6 +630,71 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		gridLL.setVisibility(View.VISIBLE);
 		return convertViewBinding.getRoot();
+	}
+
+	private void setupButton(MaterialButton btn, DataSourceType dst, Map<DataSourceType, List<AgencyProperties>> dstToAgencies) {
+		btn.setText(dst.getShortNamesResId());
+		if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
+			final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
+			final AgencyProperties oneAgency = dstAgencies == null || dstAgencies.size() != 1
+					|| DataSourceType.TYPE_MODULE.equals(dstAgencies.get(0).getType()) ? null
+					: dstAgencies.get(0);
+			final String oneAgencyShortName = oneAgency == null ? null : oneAgency.getShortName();
+			if (oneAgencyShortName != null && !oneAgencyShortName.isEmpty()) {
+				final int shortNameCount = IAgencyProperties.countAgenciesListShortName(dstToAgencies.values(), oneAgencyShortName);
+				if (shortNameCount == 1) {
+					btn.setText(oneAgencyShortName);
+				}
+			}
+		}
+		if (dst.getIconResId() != -1) {
+			btn.setIconResource(dst.getIconResId());
+		} else {
+			btn.setIcon(null);
+		}
+		btn.setOnClickListener(view ->
+				onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
+		);
+		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT > 0) {
+			final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
+			if (dstAgencies != null && !dstAgencies.isEmpty()) {
+				String selectedAgencyAuthority = null;
+				if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1) {
+					selectedAgencyAuthority = this.localPreferenceRepository.getValue( // TODO async?
+							LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dst.getId()),
+							LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
+					);
+					if (selectedAgencyAuthority == null || selectedAgencyAuthority.isEmpty()) {
+						selectedAgencyAuthority = dstAgencies.get(0).getAuthority();
+					}
+				}
+				final ArrayList<Integer> colors = new ArrayList<>();
+				for (AgencyProperties agency : dstAgencies) {
+					if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1
+							&& !agency.getAuthority().equals(selectedAgencyAuthority)) {
+						continue;
+					}
+					final Integer color = agency.getColorInt();
+					if (color != null) {
+						colors.add(UIColorUtils.adaptBackgroundColorToLightText(getContext(), color));
+					}
+				}
+				if (colors.size() == 1) {
+					btn.setBackgroundColor(colors.get(0));
+				} else if (colors.size() >= 2) {
+					final int max = Math.max(2, UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT); // gradient needs 2+
+					final int[] colorArray = Ints.toArray(ColorUtils.filterColors(colors, max));
+					final GradientDrawable gradient = new GradientDrawable(
+							GradientDrawable.Orientation.LEFT_RIGHT,
+							colorArray
+					);
+					gradient.setShape(GradientDrawable.RECTANGLE);
+					gradient.setCornerRadius(ResourceUtils.convertDPtoPX(getContext(), 4));
+					btn.setBackgroundTintList(null);
+					btn.setBackgroundDrawable(gradient);
+				}
+			}
+		}
 	}
 
 	protected static int optimizeMaxButtonPerLines(int nbDisplayedAgencyTypeCount, int maxButtonsPerLines) {
@@ -1563,15 +1567,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.layout = convertView;
 			convertView.setTag(holder);
 		}
-		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
+		final TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
 		holder.nameTv.setText(this.showTypeHeaderNearby ? type.getNearbyName(holder.nameTv.getContext()) : type.getPoiShortName(holder.nameTv.getContext()));
 		if (type.getIconResId() != -1) {
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getIconResId(), 0, 0, 0);
 		}
 		if (holder.allBtn != null) {
-			holder.allBtn.setOnClickListener(view ->
-					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, type)
-			);
+			final Map<DataSourceType, List<AgencyProperties>> dstToAgencies = this.dataSourcesRepository.getAllTypeToAgencies();
+			setupButton(holder.allBtn, type, dstToAgencies);
+			holder.allBtn.setIcon(null);
+			holder.allBtn.setText(R.string.all);
 		}
 		if (holder.nearbyBtn != null) {
 			holder.nearbyBtn.setOnClickListener(view ->
@@ -2207,7 +2212,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private static class TypeHeaderViewHolder {
 		TextView nameTv;
 		@Nullable
-		View allBtn;
+		MaterialButton allBtn;
 		@Nullable
 		View nearbyBtn;
 		@Nullable
