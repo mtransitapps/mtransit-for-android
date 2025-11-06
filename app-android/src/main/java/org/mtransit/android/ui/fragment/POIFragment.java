@@ -70,6 +70,7 @@ import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.POIManagerExtKt;
 import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
@@ -547,7 +548,7 @@ public class POIFragment extends ABFragment implements
 									R.id.nav_to_news_detail_screen,
 									NewsListDetailFragment.newInstanceArgs(
 											poim.getColor(dataSourcesRepository),
-											POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+											POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 											Collections.singletonList(poim.poi.getAuthority()),
 											NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets(),
 											null,
@@ -563,7 +564,7 @@ public class POIFragment extends ABFragment implements
 								((MainActivity) activity).addFragmentToStack(
 										NewsListDetailFragment.newInstance(
 												poim.getColor(dataSourcesRepository),
-												POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+												POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 												Collections.singletonList(poim.poi.getAuthority()),
 												NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets(),
 												null,
@@ -694,12 +695,13 @@ public class POIFragment extends ABFragment implements
 			if (scheduleProviders == null || scheduleProviders.isEmpty()) {
 				rdsScheduleBtn.setVisibility(View.GONE);
 			} else {
-				final POIManager poim = getPoimOrNull();
-				if (poim != null) {
-					final int poiColor = poim.getColor(dataSourcesRepository);
+				final POIManager poimForColor = getPoimOrNull();
+				if (poimForColor != null) {
+					final int poiColor = poimForColor.getColor(dataSourcesRepository);
 					rdsScheduleBtn.setBackgroundColor(poiColor);
 				}
 				rdsScheduleBtn.setOnClickListener(v -> {
+					final POIManager poim = getPoimOrNull();
 					if (poim == null || !(poim.poi instanceof RouteDirectionStop)) {
 						MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RDS)");
 						return;
@@ -765,7 +767,7 @@ public class POIFragment extends ABFragment implements
 						R.id.nav_to_news_screen,
 						NewsListDetailFragment.newInstanceArgs(
 								poim.getColor(dataSourcesRepository),
-								POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+								POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 								Collections.singletonList(poim.poi.getAuthority()),
 								NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
 						),
@@ -781,7 +783,7 @@ public class POIFragment extends ABFragment implements
 				((MainActivity) activity).addFragmentToStack(
 						NewsListDetailFragment.newInstance(
 								poim.getColor(dataSourcesRepository),
-								POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+								POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 								Collections.singletonList(poim.poi.getAuthority()),
 								NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
 						),
