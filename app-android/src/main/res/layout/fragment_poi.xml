@@ -41,6 +41,27 @@
                 tools:layout="@layout/layout_poi_rds_with_schedule"
                 tools:visibility="visible" />
 
+            <!-- FAVORITE ROW (not clipped) -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/list_view_item_height"
+                android:layout_marginTop="-108dp"
+                android:layout_marginBottom="44dp"
+                android:clipChildren="false"
+                android:clipToPadding="true">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_favorite"
+                    style="@style/MTFabMiniBottomEnd"
+                    android:contentDescription="@string/menu_action_remove_favorite"
+                    android:src="@drawable/ic_star_black_24dp"
+                    tools:backgroundTint="#00FF00"
+                    tools:contentDescription="@string/menu_action_add_favorite"
+                    tools:rippleColor="#FF00FF"
+                    tools:src="@drawable/ic_star_border_black_24dp" />
+
+            </FrameLayout>
+
             <!-- TODO: keep view stub? (multiple layouts) -->
             <ViewStub
                 android:id="@+id/poi_status_detail_stub"
@@ -111,16 +132,6 @@
         </LinearLayout>
 
     </ScrollView>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_favorite"
-        style="@style/MTFabAutoBottomEnd"
-        android:contentDescription="@string/menu_action_remove_favorite"
-        android:src="@drawable/ic_star_black_24dp"
-        tools:backgroundTint="#00FF00"
-        tools:contentDescription="@string/menu_action_add_favorite"
-        tools:rippleColor="#FF00FF"
-        tools:src="@drawable/ic_star_border_black_24dp" />
 
     <View
         android:id="@+id/fragment_status_bar_bg"

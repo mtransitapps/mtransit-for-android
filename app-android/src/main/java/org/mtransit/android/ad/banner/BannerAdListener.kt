@@ -8,6 +8,7 @@ import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.MTLog.Loggable
+import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.dev.CrashReporter
 import java.lang.ref.WeakReference
 
@@ -78,7 +79,7 @@ class BannerAdListener(
             AdRequest.ERROR_CODE_NO_FILL -> MTLog.w(this, "Failed to received ad! No fill error code: '%s' (%s).", loadAdError.code, loadAdError)
             else -> this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", loadAdError.code, loadAdError)
         }
-        this.bannerAdManager.setAdBannerLoaded(false)
+        this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), false) // wait until next try, even if failed
         val activity = this.activityWR.get()
         if (activity == null) {
             MTLog.d(this, "onAdFailedToLoad() > SKIP (no activity)")
@@ -92,7 +93,7 @@ class BannerAdListener(
         val adView = this.adViewWR.get()
         val responseInfo = adView?.responseInfo
         MTLog.d(this, "onAdLoaded() > ad loaded from ${responseInfo?.mediationAdapterClassName} (collapsible:${adView?.isCollapsible})")
-        this.bannerAdManager.setAdBannerLoaded(true)
+        this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
         val activity = this.activityWR.get()
         if (activity == null) {
             MTLog.d(this, "onAdLoaded() > SKIP (no activity)")

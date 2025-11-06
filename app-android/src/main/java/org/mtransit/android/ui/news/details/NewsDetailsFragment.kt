@@ -21,7 +21,6 @@ import org.mtransit.android.ad.IAdScreenFragment
 import org.mtransit.android.ad.inlinebanner.InlineBannerAdManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.HtmlUtils
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
@@ -288,7 +287,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     }
                     thumbnailPlay.apply {
                         isVisible = true
-                        setOnClickListener { view ->
+                        setOnClickListener { _ ->
                             isVisible = false
                             thumbnail.isVisible = false
 
@@ -339,7 +338,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     thumbnailPlay.apply {
                         isVisible = true
 
-                        setOnClickListener { view ->
+                        setOnClickListener { _ ->
                             isVisible = false
                             thumbnail.isVisible = false
 

@@ -18,6 +18,8 @@ import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyUIProperties
+import org.mtransit.android.data.RouteManager
+import org.mtransit.android.data.toRouteM
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -64,10 +66,30 @@ class RDSRouteViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    val route: LiveData<Route?> = PairMediatorLiveData(_agency, routeId).switchMap { (agency, routeId) ->
+    private val _route: LiveData<Route?> = PairMediatorLiveData(_agency, routeId).switchMap { (agency, routeId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getRoute(agency, routeId))
         }
+    }
+
+    val routeM: LiveData<RouteManager> = PairMediatorLiveData(authority, _route).switchMap { (authority, route) ->
+        liveData(viewModelScope.coroutineContext) {
+            authority ?: return@liveData
+            route ?: return@liveData
+            emit(
+                route.toRouteM(authority)
+                    .apply {
+                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                    }
+            )
+        }
+    }
+
+    private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
+    val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
+
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+        _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
     }
 
     private suspend fun getRoute(agency: IAgencyUIProperties?, routeId: Long?): Route? {
@@ -75,7 +97,7 @@ class RDSRouteViewModel @Inject constructor(
             return null
         }
         if (agency == null) {
-            if (route.value != null) {
+            if (_route.value != null) {
                 MTLog.d(this, "getRoute() > data source removed (no more agency)")
                 dataSourceRemovedEvent.postValue(Event(true))
             }
@@ -89,7 +111,7 @@ class RDSRouteViewModel @Inject constructor(
         return newRoute
     }
 
-    val colorInt: LiveData<Int?> = PairMediatorLiveData(route, _agency).map { (route, agency) ->
+    val colorInt: LiveData<Int?> = PairMediatorLiveData(_route, _agency).map { (route, agency) ->
         route?.let { if (it.hasColor()) route.colorInt else agency?.colorInt }
     }
 
@@ -137,9 +159,10 @@ class RDSRouteViewModel @Inject constructor(
         }
     }
 
-    private val selectedDirectionId: LiveData<Long?> = PairMediatorLiveData(_selectedDirectionId, _selectedDirectionIdPref).map { (selectedDirectionId, selectedDirectionIdPref) ->
-        selectedDirectionId ?: selectedDirectionIdPref
-    }.distinctUntilChanged()
+    private val selectedDirectionId: LiveData<Long?> =
+        PairMediatorLiveData(_selectedDirectionId, _selectedDirectionIdPref).map { (selectedDirectionId, selectedDirectionIdPref) ->
+            selectedDirectionId ?: selectedDirectionIdPref
+        }.distinctUntilChanged()
 
     val selectedRouteDirectionPosition: LiveData<Int?> = PairMediatorLiveData(selectedDirectionId, routeDirections).map { (directionId, routeDirections) ->
         if (directionId == null || routeDirections == null) {

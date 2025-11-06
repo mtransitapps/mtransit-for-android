@@ -15,6 +15,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -45,8 +46,8 @@ class AgencyPOIsViewModel @Inject constructor(
 
     val colorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_COLOR_INT)
 
-    val agency: LiveData<AgencyBaseProperties?> = this._authority.switchMap { authority ->
-        this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
+    val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
+        this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated
     }
 
     val poiList: LiveData<List<POIManager>> = agency.switchMap { agency ->

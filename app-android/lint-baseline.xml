@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.12.1" type="baseline" client="gradle" dependencies="true" name="AGP (8.12.1)" variant="all" version="8.12.1">
+<issues format="6" by="lint 8.13.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.13.0)" variant="all" version="8.13.0">
 
     <issue
         id="DoNotMockPlatformTypes"
@@ -6036,7 +6036,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="102"
+            line="135"
             column="5"/>
     </issue>
 
@@ -6047,7 +6047,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="102"
+            line="135"
             column="5"/>
     </issue>
 
@@ -6058,7 +6058,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="102"
+            line="135"
             column="5"/>
     </issue>
 
@@ -6069,7 +6069,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="102"
+            line="135"
             column="38"/>
     </issue>
 
@@ -6080,7 +6080,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="102"
+            line="135"
             column="38"/>
     </issue>
 
@@ -6091,7 +6091,7 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="103"
+            line="136"
             column="7"/>
     </issue>
 
@@ -6102,7 +6102,7 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="103"
+            line="136"
             column="7"/>
     </issue>
 
@@ -6113,7 +6113,7 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="104"
+            line="137"
             column="7"/>
     </issue>
 
@@ -6124,29 +6124,51 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="104"
+            line="137"
             column="7"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      poim,"
-        errorLine2="      ~~~~">
+        errorLine1="      targetUUID,"
+        errorLine2="      ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="105"
+            line="138"
             column="7"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      poim,"
-        errorLine2="      ~~~~">
+        errorLine1="      targetUUID,"
+        errorLine2="      ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="105"
+            line="138"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      mainListener,"
+        errorLine2="      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="139"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      mainListener,"
+        errorLine2="      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="139"
             column="7"/>
     </issue>
 
@@ -6157,7 +6179,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="106"
+            line="140"
             column="7"/>
     </issue>
 
@@ -6168,7 +6190,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="106"
+            line="140"
             column="7"/>
     </issue>
 
@@ -6179,7 +6201,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="150"
+            line="189"
             column="12"/>
     </issue>
 
@@ -6190,7 +6212,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="150"
+            line="189"
             column="12"/>
     </issue>
 

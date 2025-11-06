@@ -7,6 +7,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.ui.view.common.textAndVisibility
 
 object UISourceLabelUtils : MTLog.Loggable {
@@ -16,8 +17,9 @@ object UISourceLabelUtils : MTLog.Loggable {
     override fun getLogTag() = LOG_TAG
 
     @JvmStatic
-    fun setSourceLabelTextView(textView: TextView, serviceUpdates: Iterable<ServiceUpdate>?) {
+    fun setSourceLabelTextView(textView: TextView, serviceUpdates: List<ServiceUpdate>?) {
         serviceUpdates
+            ?.distinctByOriginalId()
             ?.filter { it.shouldDisplay() }
             ?.mapNotNull { it.sourceLabel }
             ?.filter { it.isNotBlank() && isUrl(it) }

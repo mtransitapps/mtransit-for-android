@@ -6,24 +6,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.Route
+import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.distinctByOriginalId
+import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.dp
 import org.mtransit.android.commons.getDimensionInt
-import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.IAgencyUIProperties
+import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.LayoutRdsRouteItemBinding
+import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.setPadding
 import org.mtransit.android.util.UIRouteUtils
 
-class RDSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyProperties) -> Unit) :
-    ListAdapter<Route, RDSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
+class RDSAgencyRoutesAdapter(
+    private val serviceUpdateLoader: ServiceUpdateLoader,
+    private val onClick: (View, RouteManager) -> Unit,
+) : ListAdapter<RouteManager, RDSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
     MTLog.Loggable {
 
     companion object {
@@ -62,7 +68,7 @@ class RDSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setList(list: List<Route>?) {
+    fun setList(list: List<RouteManager>?) {
         submitList(list)
         if (_listSet == (list != null)) {
             MTLog.d(this, "setListSet() > SKIP (same: $_listSet)")
@@ -72,10 +78,15 @@ class RDSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun onServiceUpdatesLoaded() {
+        notifyDataSetChanged()
+    }
+
     fun isReady() = _agency != null && _showingListInsteadOfGrid != null && _listSet != null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteViewHolder {
-        return RouteViewHolder.from(parent)
+        return RouteViewHolder.from(parent, serviceUpdateLoader)
     }
 
     override fun onBindViewHolder(holder: RouteViewHolder, position: Int) {
@@ -88,83 +99,109 @@ class RDSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
     }
 
     class RouteViewHolder private constructor(
-        private val binding: LayoutRdsRouteItemBinding
+        private val binding: LayoutRdsRouteItemBinding,
+        private val serviceUpdateLoader: ServiceUpdateLoader,
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
-            fun from(parent: ViewGroup): RouteViewHolder {
+            fun from(parent: ViewGroup, serviceUpdateLoader: ServiceUpdateLoader): RouteViewHolder {
                 val binding = LayoutRdsRouteItemBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
                 )
-                return RouteViewHolder(binding)
+                return RouteViewHolder(binding, serviceUpdateLoader)
             }
         }
 
         fun bind(
-            route: Route?,
+            routeM: RouteManager?,
             agency: IAgencyUIProperties?,
             showingListInsteadOfGrid: Boolean?,
-            onClick: (View, Route, IAgencyProperties) -> Unit
-        ) {
-            if (route == null || agency == null || showingListInsteadOfGrid == null) {
+            onClick: (View, RouteManager) -> Unit
+        ) = binding.apply {
+            if (routeM?.route == null || agency == null || showingListInsteadOfGrid == null) {
                 MTLog.d(LOG_TAG, "onBindViewHolder() > SKIP (missing data)")
-                binding.route.isVisible = false
-                return
+                routeLayout.isVisible = false
+                return@apply
             }
-            MTTransitions.setTransitionName(binding.route, "r_" + agency.authority + "_" + route.id)
+            val route = routeM.route
+            MTTransitions.setTransitionName(routeLayout, "r_" + agency.authority + "_" + route.id)
             // SHORT NAME & LOGO
             if (route.shortName.isBlank()) { // NO RSN
-                binding.routeShortName.visibility = View.INVISIBLE // keep size
-                if (binding.routeTypeImg.hasPaths()
-                    && agency.authority == binding.routeTypeImg.tag
+                routeShortName.visibility = View.INVISIBLE // keep size
+                if (routeTypeImg.hasPaths()
+                    && agency.authority == routeTypeImg.tag
                 ) {
-                    binding.routeTypeImg.isVisible = true
+                    routeTypeImg.isVisible = true
                 } else {
                     agency.logo?.let {
-                        binding.routeTypeImg.setJSON(it)
-                        binding.routeTypeImg.tag = agency.authority
-                        binding.routeTypeImg.isVisible = true
+                        routeTypeImg.setJSON(it)
+                        routeTypeImg.tag = agency.authority
+                        routeTypeImg.isVisible = true
                     } ?: run {
-                        binding.routeTypeImg.isVisible = false
+                        routeTypeImg.isVisible = false
                     }
                 }
             } else {
-                binding.routeTypeImg.isVisible = false
-                binding.routeShortName.text = UIRouteUtils.decorateRouteShortName(binding.root.context, route.shortName)
-                binding.routeShortName.isVisible = true
+                routeTypeImg.isVisible = false
+                routeShortName.text = UIRouteUtils.decorateRouteShortName(context, route.shortName)
+                routeShortName.isVisible = true
+            }
+
+            serviceUpdateLayout.routeServiceUpdateImg.apply {
+                val serviceUpdates = routeM.getServiceUpdates(
+                    serviceUpdateLoader = serviceUpdateLoader,
+                    ignoredUUIDsOrUnknown = emptyList() // TODO agency-level UI?
+                ).distinctByOriginalId()
+                val (isWarning, isInfo) = serviceUpdates.isSeverityWarningInfo()
+                if (isWarning) {
+                    setImageResource(R.drawable.ic_warning_on_surface_16dp)
+                    isVisible = true
+                } else if (isInfo) {
+                    setImageResource(R.drawable.ic_info_outline_on_surface_16dp)
+                    isVisible = true
+                } else {
+                    setImageDrawable(null)
+                    isVisible = false
+                }
             }
             // LONG NAME (grid only)
             if (showingListInsteadOfGrid != false) { // LIST
-                binding.route.setPadding(horizontal = 8.dp, relative = true)
-                binding.rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
-                    binding.root.context.resources.getDimensionInt(R.dimen.poi_extra_width),
+                routeLayout.setPadding(horizontal = 8.dp, relative = true)
+                serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = 8.dp
+                }
+                rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
+                    context.resources.getDimensionInt(R.dimen.poi_extra_width),
                     // 64.dp, // TO DO poi_extra_width
-                    // ResourceUtils.convertDPtoPX(binding.root.context, 64).toInt(),
+                    // ResourceUtils.convertDPtoPX(context, 64).toInt(),
                     LinearLayout.LayoutParams.MATCH_PARENT
                 )
-                binding.routeLongName.text = route.longName
-                binding.routeLongName.isVisible = route.longName.isNotBlank()
+                routeLongName.text = route.longName
+                routeLongName.isVisible = route.longName.isNotBlank()
             } else { // GRID
-                binding.route.setPadding(horizontal = 4.dp, relative = true)
-                binding.rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
+                routeLayout.setPadding(horizontal = 4.dp, relative = true)
+                serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = 4.dp
+                }
+                rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT
                 )
-                binding.routeLongName.text = null
-                binding.routeLongName.isVisible = false
+                routeLongName.text = null
+                routeLongName.isVisible = false
             }
             // BG COLOR
-            binding.route.setBackgroundColor(
+            routeLayout.setBackgroundColor(
                 UIColorUtils.adaptBackgroundColorToLightText(
-                    binding.context,
+                    context,
                     (if (route.hasColor()) route.colorInt else null) ?: agency.colorInt ?: UIColorUtils.DEFAULT_BACKGROUND_COLOR
                 )
             )
-            binding.route.isVisible = true
-            binding.route.apply {
+            routeLayout.isVisible = true
+            routeLayout.apply {
                 setOnClickListener { view ->
-                    onClick(view, route, agency)
+                    onClick(view, routeM)
                 }
             }
         }

@@ -3,6 +3,7 @@ package org.mtransit.android.data;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -35,10 +36,7 @@ public class TextMessage extends DefaultPOI {
 		setName(message);
 	}
 
-	/**
-	 * Only useful when POI needs to be stored in DB like Modules (from JSON)
-	 * use {@link #getMessageId()} instead
-	 */
+	@Discouraged(message = "only useful for DB, use getMessageId() instead")
 	@Override
 	public int getId() {
 		return super.getId();

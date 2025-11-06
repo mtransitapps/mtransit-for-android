@@ -12,7 +12,6 @@ import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.data.Accessibility
 import org.mtransit.android.commons.dp
 import org.mtransit.commons.Constants.EMPTY
-import org.mtransit.commons.FeatureFlags
 
 object UIAccessibilityUtils {
 
@@ -72,7 +71,7 @@ object UIAccessibilityUtils {
         size: ImageSize,
         alignBottom: Boolean,
     ): CharSequence {
-        val removingInfo = !FeatureFlags.F_ACCESSIBILITY_CONSUMER || !isShowingAccessibilityInfo
+        val removingInfo = !isShowingAccessibilityInfo
         val decoratedStringSb = decoratedCs as? SpannableStringBuilder ?: SpannableStringBuilder(decoratedCs)
         val possibleStartIdx = decoratedStringSb.indexOf(Accessibility.POSSIBLE_CHAR)
         if (possibleStartIdx >= 0) {

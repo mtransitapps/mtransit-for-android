@@ -1,12 +1,16 @@
 package org.mtransit.android.ui.view;
 
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initBasicViewHolder;
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initModuleViewHolder;
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initPlaceViewHolder;
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initRDSViewHolder;
+import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initTextMessageViewHolder;
+
 import android.content.Context;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewStub;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -46,6 +50,10 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.rds.route.RDSRouteFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.ui.view.poi.CommonViewHolder;
+import org.mtransit.android.ui.view.poi.ModuleViewHolder;
+import org.mtransit.android.ui.view.poi.PlaceViewHolder;
+import org.mtransit.android.ui.view.poi.RouteDirectionStopViewHolder;
 import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder;
 import org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder;
 import org.mtransit.android.util.UIDirectionUtils;
@@ -221,106 +229,9 @@ public class POIViewController implements MTLog.Loggable {
 			MTLog.w(LOG_TAG, "initViewHolder() > Unknown view type for poi type %s!", poi.getType());
 			holder = initBasicViewHolder(view);
 		}
-		initCommonViewHolder(holder, view);
-		holder.statusViewHolder = POICommonStatusViewHolder.init(poi, view);
-		holder.serviceUpdateViewHolder = POIServiceUpdateViewHolder.init(poi, view);
+		holder.setStatusViewHolder(POICommonStatusViewHolder.init(poi, view));
+		holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poi, view, view.findViewById(R.id.route_direction_service_update_img)));
 		view.setTag(holder);
-	}
-
-	private static CommonViewHolder initModuleViewHolder(@NonNull View view) {
-		ModuleViewHolder holder = new ModuleViewHolder();
-		holder.moduleExtraTypeImg = view.findViewById(R.id.extra);
-		return holder;
-	}
-
-	private static CommonViewHolder initTextMessageViewHolder(@SuppressWarnings("unused") @NonNull View view) {
-		return new TextMessageViewHolder();
-	}
-
-	private static CommonViewHolder initPlaceViewHolder(@NonNull View view) {
-		PlaceViewHolder placeViewHolder = new PlaceViewHolder();
-		placeViewHolder.placeIconImg = view.findViewById(R.id.extra);
-		return placeViewHolder;
-	}
-
-	private static CommonViewHolder initBasicViewHolder(@SuppressWarnings("unused") @NonNull View view) {
-		return new BasicPOIViewHolder();
-	}
-
-	private static CommonViewHolder initRDSViewHolder(@NonNull View view) {
-		RouteDirectionStopViewHolder holder = new RouteDirectionStopViewHolder();
-		initRDSExtra(view, holder);
-		return holder;
-	}
-
-	private static void initRDSExtra(@NonNull View view, @NonNull RouteDirectionStopViewHolder holder) {
-		holder.rdsExtraV = view.findViewById(R.id.extra);
-		holder.routeFL = view.findViewById(R.id.route);
-		holder.routeShortNameTv = view.findViewById(R.id.route_short_name);
-		holder.routeTypeImg = view.findViewById(R.id.route_type_img);
-		holder.directionHeadingTv = view.findViewById(R.id.direction_heading);
-		holder.directionHeadingBg = view.findViewById(R.id.direction_heading_bg);
-	}
-
-	private static void initCommonViewHolder(@NonNull CommonViewHolder holder, @NonNull View view) {
-		holder.uuid = null;
-		holder.view = view;
-		holder.nameTv = view.findViewById(R.id.name);
-		holder.favImg = view.findViewById(R.id.fav);
-		holder.distanceTv = view.findViewById(R.id.distance);
-		holder.compassV = view.findViewById(R.id.compass);
-	}
-
-	@SuppressWarnings("unused")
-	public static void updatePOIView(@Nullable View view, @Nullable POI poi, @NonNull POIDataProvider dataProvider) {
-		if (view == null || poi == null) {
-			MTLog.d(LOG_TAG, "updateView() > SKIP (no view or poi)");
-			return;
-		}
-		if (view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
-			initViewHolder(poi, view);
-		}
-		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		updatePOICommonView(view.getContext(), holder, poi, dataProvider);
-		updateExtra(view.getContext(), holder, poi, dataProvider);
-		if (holder.statusViewHolder != null && !dataProvider.isShowingStatus()) {
-			holder.statusViewHolder.hideStatus();
-			return;
-		}
-		if (holder.serviceUpdateViewHolder != null && !dataProvider.isShowingServiceUpdates()) {
-			holder.serviceUpdateViewHolder.hideServiceUpdate();
-		}
-	}
-
-	private static void updatePOICommonView(@NonNull Context context, @NonNull CommonViewHolder holder, @NonNull POI poi, @NonNull POIDataProvider dataProvider) {
-		//noinspection ConstantConditions // poi always non-null?
-		if (poi == null) {
-			MTLog.d(LOG_TAG, "updateCommonView() > SKIP (no poi)");
-			return;
-		}
-		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, context, dataProvider.isShowingAccessibilityInfo()));
-		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
-		holder.nameTv.setSingleLine(true); // marquee forever
-		holder.nameTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
-		if (dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
-			holder.favImg.setVisibility(View.VISIBLE);
-		} else {
-			holder.favImg.setVisibility(View.GONE);
-		}
-		int index;
-		if (dataProvider.isClosestPOI(poi.getUUID())) {
-			index = 0;
-		} else {
-			index = -1;
-		}
-		holder.compassV.setLatLng(poi.getLat(), poi.getLng());
-		if (index == 0) {
-			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-		} else {
-			holder.nameTv.setTypeface(Typeface.DEFAULT);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT);
-		}
 	}
 
 	public static void updateView(@Nullable View view, @Nullable POIManager poim, @NonNull POIDataProvider dataProvider) {
@@ -334,8 +245,8 @@ public class POIViewController implements MTLog.Loggable {
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
 		updateCommonView(view.getContext(), holder, poim, dataProvider);
 		updateExtra(view.getContext(), holder, poim, dataProvider);
-		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, dataProvider);
-		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, dataProvider);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, dataProvider);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, dataProvider);
 	}
 
 	private static void updateExtra(@NonNull Context context,
@@ -360,44 +271,24 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updatePlaceExtra(@NonNull POI poi,
-										 @NonNull PlaceViewHolder holder,
-										 @NonNull POIDataProvider dataProvider) {
-		if (poi instanceof Place) {
-			final Place place = (Place) poi;
-			final RequestManager glideRequestManager;
-			if (dataProvider.getActivity() != null && dataProvider.getActivity() instanceof FragmentActivity) {
-				glideRequestManager = Glide.with((FragmentActivity) dataProvider.getActivity());
-			} else {
-				glideRequestManager = Glide.with(holder.view.getContext());
-			}
-			glideRequestManager
-					.load(place.getIconUrl())
-					.into(holder.placeIconImg);
-			holder.placeIconImg.setVisibility(View.VISIBLE);
-		} else {
-			holder.placeIconImg.setVisibility(View.GONE);
-		}
-	}
-
 	private static void updatePlaceExtra(@NonNull POIManager poim,
 										 @NonNull PlaceViewHolder holder,
 										 @NonNull POIDataProvider dataProvider) {
 		if (poim.poi instanceof Place) {
 			final Place place = (Place) poim.poi;
-			POIViewUtils.setupPOIExtraLayoutBackground(holder.placeIconImg, poim, dataProvider.providesDataSourcesRepository());
+			POIViewUtils.setupPOIExtraLayoutBackground(holder.getPlaceIconImg(), poim, dataProvider.providesDataSourcesRepository());
 			final RequestManager glideRequestManager;
 			if (dataProvider.getActivity() != null && dataProvider.getActivity() instanceof FragmentActivity) {
 				glideRequestManager = Glide.with((FragmentActivity) dataProvider.getActivity());
 			} else {
-				glideRequestManager = Glide.with(holder.view.getContext());
+				glideRequestManager = Glide.with(holder.getView().getContext());
 			}
 			glideRequestManager
 					.load(place.getIconUrl())
-					.into(holder.placeIconImg);
-			holder.placeIconImg.setVisibility(View.VISIBLE);
+					.into(holder.getPlaceIconImg());
+			holder.getPlaceIconImg().setVisibility(View.VISIBLE);
 		} else {
-			holder.placeIconImg.setVisibility(View.GONE);
+			holder.getPlaceIconImg().setVisibility(View.GONE);
 		}
 	}
 
@@ -406,139 +297,16 @@ public class POIViewController implements MTLog.Loggable {
 										  @NonNull POIDataProvider dataProvider) {
 		if (poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			POIViewUtils.setupPOIExtraLayoutBackground(holder.moduleExtraTypeImg, poim, dataProvider.providesDataSourcesRepository());
+			POIViewUtils.setupPOIExtraLayoutBackground(holder.getModuleExtraTypeImg(), poim, dataProvider.providesDataSourcesRepository());
 			final DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
-				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
+				holder.getModuleExtraTypeImg().setImageResource(moduleType.getIconResId());
 			} else {
-				holder.moduleExtraTypeImg.setImageResource(0);
+				holder.getModuleExtraTypeImg().setImageResource(0);
 			}
-			holder.moduleExtraTypeImg.setVisibility(View.VISIBLE);
+			holder.getModuleExtraTypeImg().setVisibility(View.VISIBLE);
 		} else {
-			holder.moduleExtraTypeImg.setVisibility(View.GONE);
-		}
-	}
-
-	private static void updateExtra(@NonNull Context context,
-									@NonNull CommonViewHolder holder,
-									@NonNull POI poi,
-									@NonNull POIDataProvider dataProvider) {
-		final int poiType = poi.getType();
-		switch (poiType) {
-		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
-			updateRDSExtra(context, poi, (RouteDirectionStopViewHolder) holder, dataProvider);
-			break;
-		case POI.ITEM_VIEW_TYPE_MODULE:
-			updateModuleExtra(poi, (ModuleViewHolder) holder);
-			break;
-		case POI.ITEM_VIEW_TYPE_PLACE:
-			updatePlaceExtra(poi, (PlaceViewHolder) holder, dataProvider);
-			break;
-		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
-		case POI.ITEM_VIEW_TYPE_BASIC_POI:
-			break;
-		default:
-			MTLog.w(LOG_TAG, "updateView() > Unknown view type for poi type %s!", poiType);
-		}
-	}
-
-	private static void updateRDSExtra(@NonNull Context context,
-									   @NonNull POI poi,
-									   @NonNull RouteDirectionStopViewHolder holder,
-									   @NonNull final POIDataProvider dataProvider) {
-		if (poi instanceof RouteDirectionStop) {
-			RouteDirectionStop rds = (RouteDirectionStop) poi;
-			//noinspection ConstantConditions // route is always non-null?
-			if (dataProvider.isShowingExtra() && rds.getRoute() == null) {
-				if (holder.rdsExtraV != null) {
-					holder.rdsExtraV.setVisibility(View.GONE);
-				}
-				if (holder.routeFL != null) {
-					holder.routeFL.setVisibility(View.GONE);
-				}
-				if (holder.directionHeadingBg != null) {
-					holder.directionHeadingBg.setVisibility(View.GONE);
-				}
-			} else {
-				final Route route = rds.getRoute();
-				if (TextUtils.isEmpty(route.getShortName())) {
-					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					if (holder.routeTypeImg.hasPaths() && poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
-						holder.routeTypeImg.setVisibility(View.VISIBLE);
-					} else {
-						final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
-						JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
-						if (rdsRouteLogo != null) {
-							holder.routeTypeImg.setJSON(rdsRouteLogo);
-							holder.routeTypeImg.setTag(poi.getAuthority());
-							holder.routeTypeImg.setVisibility(View.VISIBLE);
-						} else {
-							holder.routeTypeImg.setVisibility(View.GONE);
-						}
-					}
-				} else {
-					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(UIRouteUtils.decorateRouteShortName(context, route.getShortName()));
-					holder.routeShortNameTv.setVisibility(View.VISIBLE);
-				}
-				holder.routeFL.setVisibility(View.VISIBLE);
-				holder.rdsExtraV.setVisibility(View.VISIBLE);
-				//noinspection ConstantConditions // always non-null?
-				if (rds.getDirection() == null) {
-					holder.directionHeadingBg.setVisibility(View.GONE);
-				} else {
-					holder.directionHeadingTv.setText(
-							UIDirectionUtils.decorateDirection(context, rds.getDirection().getUIHeading(context, true), true)
-					);
-					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
-					holder.directionHeadingTv.setSingleLine(true); // marquee forever
-					holder.directionHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
-					holder.directionHeadingBg.setVisibility(View.VISIBLE);
-				}
-				holder.rdsExtraV.setOnClickListener(view -> {
-					MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
-					if (FeatureFlags.F_NAVIGATION) {
-						final NavController navController = Navigation.findNavController(view);
-						FragmentNavigator.Extras extras = null;
-						if (FeatureFlags.F_TRANSITION) {
-							extras = new FragmentNavigator.Extras.Builder()
-									.addSharedElement(view, view.getTransitionName())
-									.build();
-						}
-						NavControllerExtKt.navigateF(navController,
-								R.id.nav_to_rds_route_screen,
-								RDSRouteFragment.newInstanceArgs(rds),
-								null,
-								extras
-						);
-					} else {
-						final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
-						if (mainActivity == null) {
-							return;
-						}
-						mainActivity.addFragmentToStack(
-								RDSRouteFragment.newInstance(rds),
-								view
-						);
-					}
-				});
-			}
-		}
-	}
-
-	private static void updateModuleExtra(@NonNull POI poi,
-										  @NonNull ModuleViewHolder holder) {
-		if (poi instanceof Module) {
-			Module module = (Module) poi;
-			final DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
-			if (moduleType != null) {
-				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
-			} else {
-				holder.moduleExtraTypeImg.setImageResource(0);
-			}
-			holder.moduleExtraTypeImg.setVisibility(View.VISIBLE);
-		} else {
-			holder.moduleExtraTypeImg.setVisibility(View.GONE);
+			holder.getModuleExtraTypeImg().setVisibility(View.GONE);
 		}
 	}
 
@@ -547,85 +315,82 @@ public class POIViewController implements MTLog.Loggable {
 									   @NonNull RouteDirectionStopViewHolder holder,
 									   @NonNull final POIDataProvider dataProvider) {
 		final POI poi = poim.poi;
-		if (poi instanceof RouteDirectionStop) {
-			RouteDirectionStop rds = (RouteDirectionStop) poi;
-			//noinspection ConstantConditions // route is always non-null?
-			if (dataProvider.isShowingExtra() && rds.getRoute() == null) {
-				if (holder.rdsExtraV != null) {
-					holder.rdsExtraV.setVisibility(View.GONE);
-				}
-				if (holder.routeFL != null) {
-					holder.routeFL.setVisibility(View.GONE);
-				}
-				if (holder.directionHeadingBg != null) {
-					holder.directionHeadingBg.setVisibility(View.GONE);
-				}
-			} else {
-				final Route route = rds.getRoute();
-				if (TextUtils.isEmpty(route.getShortName())) {
-					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					if (holder.routeTypeImg.hasPaths() && poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
-						holder.routeTypeImg.setVisibility(View.VISIBLE);
-					} else {
-						final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
-						JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
-						if (rdsRouteLogo != null) {
-							holder.routeTypeImg.setJSON(rdsRouteLogo);
-							holder.routeTypeImg.setTag(poi.getAuthority());
-							holder.routeTypeImg.setVisibility(View.VISIBLE);
-						} else {
-							holder.routeTypeImg.setVisibility(View.GONE);
-						}
-					}
-				} else {
-					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(UIRouteUtils.decorateRouteShortName(context, route.getShortName()));
-					holder.routeShortNameTv.setVisibility(View.VISIBLE);
-				}
-				holder.routeFL.setVisibility(View.VISIBLE);
-				holder.rdsExtraV.setVisibility(View.VISIBLE);
-				//noinspection ConstantConditions // always non-null?
-				if (rds.getDirection() == null) {
-					holder.directionHeadingBg.setVisibility(View.GONE);
-				} else {
-					holder.directionHeadingTv.setText(
-							UIDirectionUtils.decorateDirection(context, rds.getDirection().getUIHeading(context, true), true)
-					);
-					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
-					holder.directionHeadingTv.setSingleLine(true); // marquee forever
-					holder.directionHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
-					holder.directionHeadingBg.setVisibility(View.VISIBLE);
-				}
-				POIViewUtils.setupPOIExtraLayoutBackground(holder.rdsExtraV, poim, dataProvider.providesDataSourcesRepository());
-				holder.rdsExtraV.setOnClickListener(view -> {
-					MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
-					if (FeatureFlags.F_NAVIGATION) {
-						final NavController navController = Navigation.findNavController(view);
-						FragmentNavigator.Extras extras = null;
-						if (FeatureFlags.F_TRANSITION) {
-							extras = new FragmentNavigator.Extras.Builder()
-									.addSharedElement(view, view.getTransitionName())
-									.build();
-						}
-						NavControllerExtKt.navigateF(navController,
-								R.id.nav_to_rds_route_screen,
-								RDSRouteFragment.newInstanceArgs(rds),
-								null,
-								extras
-						);
-					} else {
-						final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
-						if (mainActivity == null) {
-							return;
-						}
-						mainActivity.addFragmentToStack(
-								RDSRouteFragment.newInstance(rds),
-								view
-						);
-					}
-				});
-			}
+		if (!(poi instanceof RouteDirectionStop)) {
+			return;
 		}
+		final RouteDirectionStop rds = (RouteDirectionStop) poi;
+		if (!dataProvider.isShowingExtra()) {
+			holder.getRdsExtraV().setVisibility(View.GONE);
+			holder.getRouteFL().setVisibility(View.GONE);
+			holder.getDirectionHeadingBg().setVisibility(View.GONE);
+
+			holder.getNoExtra().setVisibility(View.VISIBLE);
+			return;
+		}
+		final Route route = rds.getRoute();
+		if (TextUtils.isEmpty(route.getShortName())) {
+			holder.getRouteShortNameTv().setVisibility(View.INVISIBLE);
+			if (holder.getRouteTypeImg().hasPaths() && poi.getAuthority().equals(holder.getRouteTypeImg().getTag())) {
+				holder.getRouteTypeImg().setVisibility(View.VISIBLE);
+			} else {
+				final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
+				JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
+				if (rdsRouteLogo != null) {
+					holder.getRouteTypeImg().setJSON(rdsRouteLogo);
+					holder.getRouteTypeImg().setTag(poi.getAuthority());
+					holder.getRouteTypeImg().setVisibility(View.VISIBLE);
+				} else {
+					holder.getRouteTypeImg().setVisibility(View.GONE);
+				}
+			}
+		} else {
+			holder.getRouteTypeImg().setVisibility(View.GONE);
+			holder.getRouteShortNameTv().setText(UIRouteUtils.decorateRouteShortName(context, route.getShortName()));
+			holder.getRouteShortNameTv().setVisibility(View.VISIBLE);
+		}
+		holder.getRouteFL().setVisibility(View.VISIBLE);
+		holder.getRdsExtraV().setVisibility(View.VISIBLE);
+		holder.getNoExtra().setVisibility(View.GONE);
+		//noinspection ConstantConditions // always non-null?
+		if (rds.getDirection() == null) {
+			holder.getDirectionHeadingBg().setVisibility(View.GONE);
+		} else {
+			holder.getDirectionHeadingTv().setText(
+					UIDirectionUtils.decorateDirection(context, rds.getDirection().getUIHeading(context, true), true)
+			);
+			final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
+			holder.getDirectionHeadingTv().setSingleLine(true); // marquee forever
+			holder.getDirectionHeadingTv().setSelected(!demoModeManager.isFullDemo()); // marquee forever
+			holder.getDirectionHeadingBg().setVisibility(View.VISIBLE);
+		}
+		POIViewUtils.setupPOIExtraLayoutBackground(holder.getRdsExtraV(), poim, dataProvider.providesDataSourcesRepository());
+		holder.getRdsExtraV().setOnClickListener(view -> {
+			MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = Navigation.findNavController(view);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							.addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				NavControllerExtKt.navigateF(navController,
+						R.id.nav_to_rds_route_screen,
+						RDSRouteFragment.newInstanceArgs(rds),
+						null,
+						extras
+				);
+			} else {
+				final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
+				if (mainActivity == null) {
+					return;
+				}
+				mainActivity.addFragmentToStack(
+						RDSRouteFragment.newInstance(rds),
+						view
+				);
+			}
+		});
 	}
 
 	public static void updatePOIStatus(@Nullable View view, @NonNull POIStatus status, @NonNull POIDataProvider dataProvider) {
@@ -634,7 +399,7 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		POICommonStatusViewHolder.updateView(holder.statusViewHolder, status, dataProvider);
+		POICommonStatusViewHolder.updateView(holder.getStatusViewHolder(), status, dataProvider);
 	}
 
 	public static void updatePOIStatus(@Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
@@ -646,7 +411,7 @@ public class POIViewController implements MTLog.Loggable {
 			initViewHolder(poim, view);
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		POICommonStatusViewHolder.fetchAndUpdateView(holder.statusViewHolder, poim, dataProvider);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, dataProvider);
 	}
 
 	public static void updateServiceUpdatesView(@Nullable View view,
@@ -657,7 +422,7 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		POIServiceUpdateViewHolder.updateView(holder.serviceUpdateViewHolder, serviceUpdates, dataProvider);
+		POIServiceUpdateViewHolder.updateView(holder.getServiceUpdateViewHolder(), serviceUpdates, dataProvider);
 	}
 
 	public static void updatePOIServiceUpdate(@Nullable View view,
@@ -671,7 +436,7 @@ public class POIViewController implements MTLog.Loggable {
 			initViewHolder(poim, view);
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.serviceUpdateViewHolder, poim, dataProvider);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, dataProvider);
 	}
 
 	public static void updatePOIDistanceAndCompass(@Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
@@ -690,30 +455,34 @@ public class POIViewController implements MTLog.Loggable {
 			MTLog.d(LOG_TAG, "updatePOIDistanceAndCompass() > skip (no poi or view holder)");
 			return;
 		}
-		holder.compassV.setLatLng(poi.getLat(), poi.getLng());
-		if (poim.getDistanceString() != null) {
-			if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
-				holder.distanceTv.setText(poim.getDistanceString());
-			}
-			holder.distanceTv.setVisibility(View.VISIBLE);
-		} else {
-			holder.distanceTv.setVisibility(View.GONE);
-			holder.distanceTv.setText(null);
+		if (holder.getCompassV() != null) {
+			holder.getCompassV().setLatLng(poi.getLat(), poi.getLng());
 		}
-		if (holder.distanceTv.getVisibility() == View.VISIBLE) {
+		if (holder.getDistanceTv() != null) {
+			if (poim.getDistanceString() != null) {
+				if (!poim.getDistanceString().equals(holder.getDistanceTv().getText())) {
+					holder.getDistanceTv().setText(poim.getDistanceString());
+				}
+				holder.getDistanceTv().setVisibility(View.VISIBLE);
+			} else {
+				holder.getDistanceTv().setVisibility(View.GONE);
+				holder.getDistanceTv().setText(null);
+			}
+		}
+		if (holder.getDistanceTv().getVisibility() == View.VISIBLE) {
 			if (dataProvider.getLocation() != null
 					&& dataProvider.getLastCompassInDegree() != null
 					&& dataProvider.getLocationDeclination() != null
 					&& dataProvider.getLocation().getAccuracy() <= poim.getDistance()) {
-				holder.compassV.generateAndSetHeadingN(
+				holder.getCompassV().generateAndSetHeadingN(
 						dataProvider.getLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
 			} else {
-				holder.compassV.resetHeading();
+				holder.getCompassV().resetHeading();
 			}
-			holder.compassV.setVisibility(View.VISIBLE);
+			holder.getCompassV().setVisibility(View.VISIBLE);
 		} else {
-			holder.compassV.resetHeading();
-			holder.compassV.setVisibility(View.GONE);
+			holder.getCompassV().resetHeading();
+			holder.getCompassV().setVisibility(View.GONE);
 		}
 	}
 
@@ -724,17 +493,17 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		final POI poi = poim.poi;
-		holder.uuid = poi.getUUID();
-		MTTransitions.setTransitionName(holder.view, "poi_" + poi.getUUID());
-		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, context, dataProvider.isShowingAccessibilityInfo()));
+		holder.setUuid(poi.getUUID());
+		MTTransitions.setTransitionName(holder.getView(), "poi_" + poi.getUUID());
+		holder.getNameTv().setText(POIManagerExtKt.getLabelDecorated(poi, context, dataProvider.isShowingAccessibilityInfo()));
 		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
-		holder.nameTv.setSingleLine(true); // marquee forever
-		holder.nameTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
+		holder.getNameTv().setSingleLine(true); // marquee forever
+		holder.getNameTv().setSelected(!demoModeManager.isFullDemo()); // marquee forever
 		updatePOIDistanceAndCompass(holder, poim, dataProvider);
 		if (dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
-			holder.favImg.setVisibility(View.VISIBLE);
+			holder.getFavImg().setVisibility(View.VISIBLE);
 		} else {
-			holder.favImg.setVisibility(View.GONE);
+			holder.getFavImg().setVisibility(View.GONE);
 		}
 		int index;
 		if (dataProvider.isClosestPOI(poi.getUUID())) {
@@ -743,46 +512,15 @@ public class POIViewController implements MTLog.Loggable {
 			index = -1;
 		}
 		if (index == 0) {
-			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.getNameTv().setTypeface(Typeface.DEFAULT_BOLD);
+			if (holder.getDistanceTv() != null) {
+				holder.getDistanceTv().setTypeface(Typeface.DEFAULT_BOLD);
+			}
 		} else {
-			holder.nameTv.setTypeface(Typeface.DEFAULT);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT);
+			holder.getNameTv().setTypeface(Typeface.DEFAULT);
+			if (holder.getDistanceTv() != null) {
+				holder.getDistanceTv().setTypeface(Typeface.DEFAULT);
+			}
 		}
-	}
-
-	private static class CommonViewHolder {
-		String uuid;
-		View view;
-		TextView nameTv;
-		TextView distanceTv;
-		ImageView favImg;
-		MTCompassView compassV;
-		@Nullable
-		POICommonStatusViewHolder<?, ?> statusViewHolder;
-		POIServiceUpdateViewHolder serviceUpdateViewHolder;
-	}
-
-	private static class TextMessageViewHolder extends CommonViewHolder {
-	}
-
-	private static class PlaceViewHolder extends CommonViewHolder {
-		ImageView placeIconImg;
-	}
-
-	private static class ModuleViewHolder extends CommonViewHolder {
-		ImageView moduleExtraTypeImg;
-	}
-
-	private static class RouteDirectionStopViewHolder extends CommonViewHolder {
-		TextView routeShortNameTv;
-		View routeFL;
-		View rdsExtraV;
-		MTJPathsView routeTypeImg;
-		TextView directionHeadingTv;
-		View directionHeadingBg;
-	}
-
-	private static class BasicPOIViewHolder extends CommonViewHolder {
 	}
 }

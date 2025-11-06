@@ -2,6 +2,7 @@ package org.mtransit.android.ui.rds.route.direction
 
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
@@ -11,18 +12,29 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
+import org.mtransit.android.commons.data.Direction
+import org.mtransit.android.commons.data.Route
+import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.RouteDirectionManager
+import org.mtransit.android.data.toRouteDirectionM
+import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
@@ -34,6 +46,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val poiRepository: POIRepository,
     private val dataSourcesRepository: DataSourcesRepository,
+    private val dataSourceRequestManager: DataSourceRequestManager,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {
@@ -62,7 +75,31 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     private val _routeId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_ROUTE_ID)
 
+    private val _route: LiveData<Route?> = PairMediatorLiveData(_authority, _routeId).switchMap { (authority, routeId) ->
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            authority ?: return@liveData
+            routeId ?: return@liveData
+            emit(dataSourceRequestManager.findRDSRoute(authority, routeId))
+        }
+    }
+
     val directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
+
+    private val _direction: LiveData<Direction?> = PairMediatorLiveData(_authority, directionId).switchMap { (authority, directionId) ->
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            authority ?: return@liveData
+            directionId ?: return@liveData
+            emit(dataSourceRequestManager.findRDSDirection(authority, directionId))
+        }
+    }
+
+    private val _routeDirection: LiveData<RouteDirection?> = PairMediatorLiveData(_route, _direction).switchMap { (route, direction) ->
+        liveData(viewModelScope.coroutineContext) {
+            route ?: return@liveData
+            direction ?: return@liveData
+            emit(RouteDirection(route, direction))
+        }
+    }
 
     val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
         .map { if (it < 0) null else it }
@@ -72,6 +109,39 @@ class RDSDirectionStopsViewModel @Inject constructor(
     fun setSelectedOrClosestStopShown() {
         savedStateHandle[EXTRA_SELECTED_STOP_ID] = EXTRA_SELECTED_STOP_ID_DEFAULT
         savedStateHandle[EXTRA_CLOSEST_POI_SHOWN] = true
+    }
+
+    val routeDirectionM: LiveData<RouteDirectionManager> = PairMediatorLiveData(_authority, _routeDirection).switchMap { (authority, routeDirection) ->
+        liveData(viewModelScope.coroutineContext) {
+            authority ?: return@liveData
+            routeDirection ?: return@liveData
+            emit(
+                routeDirection.toRouteDirectionM(authority)
+                    .apply {
+                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                    }
+            )
+        }
+    }
+
+    private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
+    val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
+
+    private var serviceUpdateLoadedJob: Job? = null
+
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+        serviceUpdateLoadedJob?.cancel()
+        serviceUpdateLoadedJob = viewModelScope.launch {
+            if (routeDirectionM.value?.routeDirection?.uuid != targetUUID) {
+                delay(333L) // wait for 0.333 secs BECAUSE many POIMs can also trigger it
+            }
+            routeDirectionM.value?.apply {
+                if (this.routeDirection.uuid != targetUUID) {
+                    this.allowFindServiceUpdates() // allow to fetch following RDS update
+                }
+            }
+            _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
+        }
     }
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_agency, directionId).switchMap { (agency, directionId) ->
@@ -95,6 +165,11 @@ class RDSDirectionStopsViewModel @Inject constructor(
             )
         }
         return this.poiRepository.findPOIMs(agency, poiFilter)
+            .apply {
+                forEach { poim ->
+                    poim.addServiceUpdateLoaderListener(serviceUpdateLoaderListener) // trigger refresh because some provider do not fetch for route #stmbus
+                }
+            }
     }
 
     val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
