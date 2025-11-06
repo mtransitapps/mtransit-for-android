@@ -195,6 +195,7 @@ dev.properties
 /gradlew
 /gradlew.bat
 /init_cache_key.sh
+/lint_only.sh
 /parse_current.sh
 /parse_next.sh
 /parse_list_change.sh
@@ -204,6 +205,7 @@ dev.properties
 /set_app_release_required.sh
 /settings.gradle
 /test.sh
+/test_only.sh
 
 # Generated files
 /project_name.properties
