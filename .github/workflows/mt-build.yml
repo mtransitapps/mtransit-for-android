@@ -20,8 +20,8 @@ env:
 
 jobs:
 
-  MT-SELECT-MAIN-REPO-BRANCH-JOB:
-    name: "MT Select main repository checkout branch"
+  MT-SELECT-BRANCH-JOB:
+    name: "MT Select branch"
     runs-on: ubuntu-latest
     outputs:
       mt_checkout_branch: ${{ steps.mt-pick-main-repo-checkout-branch.outputs.mt_checkout_branch }}
@@ -58,47 +58,17 @@ jobs:
 
   MT-BUILD-JOB:
     name: "MT Build"
-    needs: MT-SELECT-MAIN-REPO-BRANCH-JOB
+    needs: MT-SELECT-BRANCH-JOB
     runs-on: ubuntu-latest
     steps:
-
-      # - name: MT select main repo checkout branch
-      #   id: mt-pick-main-repo-checkout-branch
-      #   env:
-      #     GH_TOKEN: ${{ github.token }} # GitHub CLI in a GitHub Actions workflow
-      #   run: |
-      #     REPOSITORY_OWNER_AND_NAME=${{ github.repository }};
-      #     REPOSITORY_NAME=$(basename $REPOSITORY_OWNER_AND_NAME);
-      #     if [ $REPOSITORY_OWNER_AND_NAME = "mtransitapps/mtransit-for-android" ]; then
-      #       CHECKOUT_BRANCH="" # defaults to the reference or SHA for that event
-      #     else
-      #       MAIN_REPO_URL="https://github.com/mtransitapps/mtransit-for-android.git"
-      #       BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_BRANCH_NAME | wc -l);
-      #       if [ $BRANCH_EXISTS -eq 1 ]; then
-      #         CHECKOUT_BRANCH=$MT_BRANCH_NAME
-      #       else
-      #         # Pull request target branch with same name?
-      #         BRANCH_EXISTS=$(git ls-remote --heads $MAIN_REPO_URL $MT_TARGET_BRANCH_NAME | wc -l);
-      #         if [ $BRANCH_EXISTS -eq 1 ]; then
-      #           CHECKOUT_BRANCH=$MT_TARGET_BRANCH_NAME
-      #         else
-      #           echo "WARNING: no match for current or target branch!!!"
-      #           DEFAULT_REPO_BRANCH=$(gh api repos/mtransitapps/mtransit-for-android --jq '.default_branch');
-      #           CHECKOUT_BRANCH=$DEFAULT_REPO_BRANCH
-      #         fi
-      #       fi
-      #     fi
-      #     echo "Checkout branch: '$CHECKOUT_BRANCH'."
-      #     echo "mt_checkout_branch=$CHECKOUT_BRANCH" >> "$GITHUB_OUTPUT"
 
       - name: MT check out main repo
         uses: actions/checkout@v5
         with:
           repository: mtransitapps/mtransit-for-android
-          ref: ${{ needs.MT-SELECT-MAIN-REPO-BRANCH-JOB.outputs.mt_checkout_branch }}
+          ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
           submodules: true # required to set right token
           fetch-depth: 0 # fetch all (not required util release build)
-
       - name: MT setup
         id: mt-setup
         uses: ./.github/actions/setup
@@ -122,6 +92,24 @@ jobs:
           path: |
             */build/reports/
             !**/*.xml
+
+  MT-ASSEMBLE-JOB:
+    name: "MT Assemble"
+    needs: MT-SELECT-BRANCH-JOB
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: MT check out main repo
+        uses: actions/checkout@v5
+        with:
+          repository: mtransitapps/mtransit-for-android
+          ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
+          submodules: true # required to set right token
+          fetch-depth: 0 # fetch all (not required util release build)
+      - name: MT setup
+        id: mt-setup
+        uses: ./.github/actions/setup
 
       - name: MT assemble release (APK & ABB)
         if: github.event_name != 'pull_request'
