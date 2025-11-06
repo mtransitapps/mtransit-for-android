@@ -100,7 +100,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		);
 	}
 
-	void updateScreenToolbarTitle(@NonNull Toolbar toolbar) {
+	public void updateScreenToolbarTitle(@NonNull Toolbar toolbar) {
 		toolbar.setTitle(getABTitle(getContext()));
 	}
 

@@ -27,6 +27,8 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.dp
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.getNewOneLineSubtitleForSchedule
+import org.mtransit.android.data.getNewOneLineTitleForSchedule
 import org.mtransit.android.databinding.FragmentScheduleInfiniteBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
@@ -50,7 +52,8 @@ import org.mtransit.android.util.UITimeUtils
 import java.util.TimeZone
 
 @AndroidEntryPoint
-class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuProvider {
+class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
+    MenuProvider {
 
     companion object {
         private val LOG_TAG = ScheduleFragment::class.java.simpleName
@@ -141,6 +144,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
                 addItemDecoration(StickyHeaderItemDecorator(listAdapter, this))
                 setUpListEdgeToEdge()
             }
+            setupScreenToolbar(screenToolbarLayout)
             if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
                 sourceLabel.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
                     updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -207,10 +211,14 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
         viewModel.agency.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
         }
         viewModel.rds.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
+            abController?.setABTitle(this, getABTitle(context), false)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABSubtitle(this, getABSubtitle(context), false)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
             abController?.setABReady(this, isABReady, true)
         }
     }
@@ -219,8 +227,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         localTimeZone?.let {
             val nowInMs = UITimeUtils.currentTimeToTheMinuteMillis()
             UITimeUtils.formatTime(context, nowInMs, it)
-                .takeIf {
-                    it != UITimeUtils.formatTime(context, nowInMs, TimeZone.getDefault())
+                .takeIf { timeLocalTimeZone ->
+                    timeLocalTimeZone != UITimeUtils.formatTime(context, nowInMs, TimeZone.getDefault())
                 }
         }.let { localTimeDifferent ->
             localTime.apply {
@@ -290,13 +298,15 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
     }
 
+    override fun hasToolbar() = true
+
     override fun isABReady() = attachedViewModel?.rds?.value != null
 
-    override fun getABTitle(context: Context?) = context?.getString(R.string.full_schedule) ?: super.getABTitle(context)
+    override fun getABTitle(context: Context?) =
+        attachedViewModel?.rds?.value?.getNewOneLineTitleForSchedule() ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = attachedViewModel?.rds?.value?.let { rds ->
-        POIManager.getNewOneLineDescription(rds, attachedViewModel?.agency?.value)
-    } ?: super.getABSubtitle(context)
+    override fun getABSubtitle(context: Context?) =
+        attachedViewModel?.rds?.value?.getNewOneLineSubtitleForSchedule(context, attachedViewModel?.agency?.value) ?: super.getABSubtitle(context)
 
     override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 

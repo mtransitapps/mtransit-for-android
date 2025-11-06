@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
@@ -25,7 +24,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
-import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.DefaultPOI;
@@ -669,58 +667,6 @@ public class POIManager implements LocationPOI,
 			return agencyColorInt;
 		}
 		return defaultColor;
-	}
-
-	@MainThread
-	@NonNull
-	public String getNewOneLineDescription(@NonNull DataSourcesRepository dataSourcesRepository) {
-		return getNewOneLineDescription(this.poi, dataSourcesRepository);
-	}
-
-	@MainThread
-	@NonNull
-	public static String getNewOneLineDescription(@NonNull POI poi, @NonNull DataSourcesRepository dataSourcesRepository) {
-		return getNewOneLineDescription(poi, () -> dataSourcesRepository.getAgency(poi.getAuthority()));
-	}
-
-	@SuppressWarnings("unused")
-	@MainThread
-	@NonNull
-	public String getNewOneLineDescription(@Nullable IAgencyUIProperties agency) {
-		return getNewOneLineDescription(this.poi, agency);
-	}
-
-	@NonNull
-	public static String getNewOneLineDescription(@NonNull POI poi, @Nullable IAgencyUIProperties agency) {
-		return getNewOneLineDescription(poi, () -> agency);
-	}
-
-	@NonNull
-	public static String getNewOneLineDescription(@NonNull POI poi, @NonNull AgencyResolver agencyResolver) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(poi.getName());
-		if (poi instanceof RouteDirectionStop) {
-			RouteDirectionStop rds = (RouteDirectionStop) poi;
-			if (!TextUtils.isEmpty(rds.getRoute().getShortName())) {
-				if (sb.length() > 0) {
-					sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
-				}
-				sb.append(rds.getRoute().getShortName());
-			} else if (!TextUtils.isEmpty(rds.getRoute().getLongName())) {
-				if (sb.length() > 0) {
-					sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
-				}
-				sb.append(rds.getRoute().getLongName());
-			}
-		}
-		final IAgencyUIProperties agency = agencyResolver.getAgency();
-		if (agency != null) {
-			if (sb.length() > 0) {
-				sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
-			}
-			sb.append(agency.getShortName());
-		}
-		return sb.toString();
 	}
 
 	private boolean onActionsItemClickRDS(@NonNull Activity activity,
