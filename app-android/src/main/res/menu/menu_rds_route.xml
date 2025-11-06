@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.rds.route.RDSRouteFragment">
+    <item
+        android:id="@+id/menu_service_update_img"
+        android:icon="@drawable/ic_warning_black_24dp"
+        android:title="@string/menu_action_show_service_updates"
+        android:visible="false"
+        tools:icon="@drawable/ic_info_outline_black_24dp"
+        tools:visible="true"
+        app:showAsAction="ifRoom" />
+</menu>

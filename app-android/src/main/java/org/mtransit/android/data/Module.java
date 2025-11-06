@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.text.TextUtils;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -55,10 +56,7 @@ public class Module extends DefaultPOI {
 		this.targetTypeId = targetTypeId;
 	}
 
-	/**
-	 * @deprecated use {@link #getPkg()} instead
-	 */
-	@Deprecated
+	@Discouraged(message = "only useful for DB, use getPkg() instead")
 	@Override
 	public int getId() {
 		return super.getId();

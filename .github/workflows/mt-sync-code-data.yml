@@ -73,12 +73,20 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
       - name: MT commit code change
         run: ./commit_code_change.sh
-      - name: MT download & prepare
+      # - name: MT download & prepare
+      #   timeout-minutes: 10
+      #   run: ./download_and_prepare.sh
+      - name: MT download data (& archive)
+        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
         timeout-minutes: 10
-        run: ./download_and_prepare.sh
+        continue-on-error: true #optional
+        run: ./download_only.sh
+      - name: MT select archive
+        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+        run: ./prepare_only.sh
       - name: MT parse current
         timeout-minutes: 40
         run: ./parse_current.sh
@@ -90,7 +98,7 @@ jobs:
       - name: MT push commits
         run: ./push_commits.sh
       - name: MT artifact > GTFS files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }} # even if tests fails
         with:
           name: gtfs
@@ -99,7 +107,7 @@ jobs:
             agency-parser/input/gtfs_next.zip
           retention-days: 31
       - name: MT artifact > GTFS validator results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }} # even if tests fails
         with:
           name: gtfs-validator-results
@@ -126,7 +134,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
       - name: MT artifact > app-android > APK & ABB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: app-android-apk-bundle
           path: |

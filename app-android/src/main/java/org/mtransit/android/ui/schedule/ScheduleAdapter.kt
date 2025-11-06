@@ -15,9 +15,9 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.Accessibility
+import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
-import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.equalOrAfter
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.decorateDirection
@@ -30,7 +30,6 @@ import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.Constants
-import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.beginningOfDay
 import org.mtransit.commons.date
 import org.mtransit.commons.hourOfTheDay
@@ -614,17 +613,15 @@ class ScheduleAdapter
             }
             val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
             var timeSb = SpannableStringBuilder(formattedTime)
-            if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
-                timeSb.append(
-                    UIAccessibilityUtils.decorate(
-                        context,
-                        Accessibility.decorate(Constants.EMPTY, timestamp.accessibleOrDefault),
-                        showingAccessibility == true,
-                        UIAccessibilityUtils.ImageSize.SMALL,
-                        false
-                    )
+            timeSb.append(
+                UIAccessibilityUtils.decorate(
+                    context,
+                    Accessibility.decorate(Constants.EMPTY, timestamp.accessibleOrDefault),
+                    showingAccessibility == true,
+                    UIAccessibilityUtils.ImageSize.SMALL,
+                    false
                 )
-            }
+            )
             val timeOnly = timeSb.toString()
             if (timestamp.hasHeadsign()) {
                 val timestampHeading = timestamp.getHeading(context)

@@ -40,7 +40,6 @@ import org.mtransit.android.commons.provider.common.requiredContext
 import org.mtransit.android.data.Place
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.toLatLngBounds
-import org.mtransit.commons.FeatureFlags
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.Locale
@@ -123,11 +122,11 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                         lang,
                         newLastUpdateInMs
                     ).apply {
-                        this.name = place.name ?: return@mapNotNull null
-                        this.lat = place.latLng?.latitude ?: return@mapNotNull null
-                        this.lng = place.latLng?.longitude ?: return@mapNotNull null
+                        this.name = place.displayName ?: return@mapNotNull null
+                        this.lat = place.location?.latitude ?: return@mapNotNull null
+                        this.lng = place.location?.longitude ?: return@mapNotNull null
                         this.score = score--
-                        this.iconUrl = place.iconUrl
+                        this.iconUrl = place.iconMaskUrl
                         this.iconBgColor = place.iconBackgroundColor
                     }
                 } catch (e: Exception) {
@@ -416,9 +415,9 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
         private val GOOGLE_PLACE_TEXT_SEARCH_FIELDS = listOf(
             Field.ID,
-            Field.NAME, // DISPLAY_NAME
-            Field.LAT_LNG, // LOCATION
-            Field.ICON_URL,
+            Field.DISPLAY_NAME,
+            Field.LOCATION,
+            Field.ICON_MASK_URL,
             Field.ICON_BACKGROUND_COLOR,
         )
 
@@ -487,14 +486,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_READ_AT_IN_MS, PlaceColumns.T_PLACE_K_READ_AT_IN_MS)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_ICON_URL, PlaceColumns.T_PLACE_K_ICON_URL)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_ICON_BG_COLOR, PlaceColumns.T_PLACE_K_ICON_BG_COLOR)
-            .apply {
-                if (FeatureFlags.F_ACCESSIBILITY_PRODUCER) {
-                    appendTableColumn(
-                        POIProvider.POIDbHelper.T_POI,
-                        POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE,
-                        POIProviderContract.Columns.T_POI_K_ACCESSIBLE
-                    )
-                }
-            }.build()
+            .appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE)
+            .build()
     }
 }

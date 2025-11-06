@@ -35,6 +35,17 @@
         app:layout_constraintWidth_percent="0.5"
         tools:visibility="visible" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_fares"
+        style="@style/MTFabAutoBottomEnd"
+        android:contentDescription="@string/menu_action_fares"
+        android:src="@drawable/ic_payments_black_24"
+        android:visibility="gone"
+        tools:backgroundTint="#FF00FF"
+        tools:rippleColor="#00FF00"
+        tools:visibility="visible"
+        tools:ignore="MissingConstraints" />
+
     <!-- MAP -->
     <org.mtransit.android.ui.view.common.MapViewInScroll
         android:id="@id/map"

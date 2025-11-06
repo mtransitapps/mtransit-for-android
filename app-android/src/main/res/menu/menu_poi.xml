@@ -5,7 +5,7 @@
     tools:context=".ui.fragment.POIFragment">
     <item
         android:id="@+id/menu_show_fares"
-        android:icon="@drawable/ic_payment_black_24"
+        android:icon="@drawable/ic_payments_black_24"
         android:title="@string/menu_action_fares"
         android:visible="false"
         tools:visible="true"

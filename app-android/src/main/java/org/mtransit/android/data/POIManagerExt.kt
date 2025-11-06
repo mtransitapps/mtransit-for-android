@@ -4,7 +4,6 @@ import android.content.Context
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.util.UIAccessibilityUtils
-import org.mtransit.commons.FeatureFlags
 
 @Suppress("unused")
 fun Iterable<POIManager>.toStringUUID(): String {
@@ -14,10 +13,7 @@ fun Iterable<POIManager>.toStringUUID(): String {
 }
 
 fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean): CharSequence {
-    if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
-        return UIAccessibilityUtils.decorate(context, this.label, isShowingAccessibilityInfo, UIAccessibilityUtils.ImageSize.LARGE, alignBottom = false)
-    }
-    return this.label
+    return UIAccessibilityUtils.decorate(context, this.label, isShowingAccessibilityInfo, UIAccessibilityUtils.ImageSize.LARGE, alignBottom = false)
 }
 
 fun <P : POI> P.toPOIM() = POIManager(this)

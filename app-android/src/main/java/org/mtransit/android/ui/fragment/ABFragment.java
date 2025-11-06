@@ -181,6 +181,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarSubtitle(toolbar);
 		updateScreenToolbarOverrideGradient(appBarLayout, toolbar);
 		updateScreenToolbarBgColor(appBarLayout, toolbar);
+		updateScreenToolbarCustomView(toolbar);
 	}
 
 	// R.menu.menu_main
@@ -265,6 +266,44 @@ public abstract class ABFragment extends MTFragmentX implements
 
 	public boolean isABCustomViewRequestFocus() {
 		return false;
+	}
+
+	@Nullable
+	private View currentScreenToolbarCustomView = null;
+
+	public void updateScreenToolbarCustomView(@NonNull Toolbar toolbar) {
+		final View customView = getABCustomView();
+		setScreenToolbarCustomView(toolbar, customView);
+		if (customView == null) {
+			return;
+		}
+		if (isABCustomViewFocusable()) {
+			customView.setFocusable(true);
+			customView.setFocusableInTouchMode(true);
+			if (isABCustomViewRequestFocus()) {
+				customView.requestFocus();
+				customView.requestFocusFromTouch();
+			} else {
+				customView.clearFocus();
+			}
+		}
+	}
+
+	private void setScreenToolbarCustomView(@NonNull Toolbar toolbar, @Nullable View customView) {
+		if (this.currentScreenToolbarCustomView == customView) {
+			return; // no change
+		}
+		if (this.currentScreenToolbarCustomView != null) {
+			toolbar.removeView(this.currentScreenToolbarCustomView);
+		}
+		this.currentScreenToolbarCustomView = customView;
+		if (this.currentScreenToolbarCustomView != null) {
+			toolbar.addView(this.currentScreenToolbarCustomView);
+		}
+	}
+
+	public void resetScreenToolbarCustomView(@NonNull Toolbar toolbar) {
+		setScreenToolbarCustomView(toolbar, null);
 	}
 
 	public boolean isABDisplayHomeAsUpEnabled() {

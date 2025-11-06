@@ -94,7 +94,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
         }
-        viewModel.agencies.observe(this) { newAgencies ->
+        viewModel.agencies.observe(viewLifecycleOwner) { newAgencies ->
             agenciesAdapter.submitList(newAgencies)
             binding?.apply {
                 when (newAgencies) {

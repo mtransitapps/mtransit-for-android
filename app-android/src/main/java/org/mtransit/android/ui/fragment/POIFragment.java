@@ -738,90 +738,104 @@ public class POIFragment extends ABFragment implements
 		}
 		View newsView = view.findViewById(R.id.poi_news);
 		View moreBtn = newsView == null ? null : newsView.findViewById(R.id.moreBtn);
-		if (moreBtn != null) {
-			moreBtn.setOnClickListener(v -> {
-				final POIManager poim = getPoimOrNull();
-				if (poim == null) {
+		View titleMoreLayout = newsView == null ? null : newsView.findViewById(R.id.moreSectionTitle);
+		if (moreBtn == null) {
+			if (titleMoreLayout != null) {
+				titleMoreLayout.setClickable(false);
+			}
+			return;
+		}
+		moreBtn.setOnClickListener(v -> {
+			final POIManager poim = getPoimOrNull();
+			if (poim == null) {
+				return;
+			}
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = NavHostFragment.findNavController(this);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							// TODO button? .addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				NavControllerExtKt.navigateF(navController,
+						R.id.nav_to_news_screen,
+						NewsListDetailFragment.newInstanceArgs(
+								poim.getColor(dataSourcesRepository),
+								POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+								Collections.singletonList(poim.poi.getAuthority()),
+								NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+						),
+						null,
+						extras
+				);
+			} else {
+				final FragmentActivity activity = getActivity();
+				if (activity == null) {
+					MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 					return;
 				}
-				if (FeatureFlags.F_NAVIGATION) {
-					final NavController navController = NavHostFragment.findNavController(this);
-					FragmentNavigator.Extras extras = null;
-					if (FeatureFlags.F_TRANSITION) {
-						extras = new FragmentNavigator.Extras.Builder()
-								// TODO button? .addSharedElement(view, view.getTransitionName())
-								.build();
-					}
-					NavControllerExtKt.navigateF(navController,
-							R.id.nav_to_news_screen,
-							NewsListDetailFragment.newInstanceArgs(
-									poim.getColor(dataSourcesRepository),
-									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
-									Collections.singletonList(poim.poi.getAuthority()),
-									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
-							),
-							null,
-							extras
-					);
-				} else {
-					final FragmentActivity activity = getActivity();
-					if (activity == null) {
-						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
-						return;
-					}
-					((MainActivity) activity).addFragmentToStack(
-							NewsListDetailFragment.newInstance(
-									poim.getColor(dataSourcesRepository),
-									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
-									Collections.singletonList(poim.poi.getAuthority()),
-									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
-							),
-							POIFragment.this
-					);
-				}
-			});
-			moreBtn.setVisibility(View.VISIBLE);
+				((MainActivity) activity).addFragmentToStack(
+						NewsListDetailFragment.newInstance(
+								poim.getColor(dataSourcesRepository),
+								POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+								Collections.singletonList(poim.poi.getAuthority()),
+								NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+						),
+						POIFragment.this
+				);
+			}
+		});
+		if (titleMoreLayout != null) {
+			titleMoreLayout.setOnClickListener(v -> moreBtn.performClick());
 		}
+		moreBtn.setVisibility(View.VISIBLE);
 	}
 
 	private void setupMoreNearbyButton(View view) {
 		if (view == null) {
 			return;
 		}
-		View moreBtn = view.findViewById(R.id.poi_nearby_pois_title).findViewById(R.id.moreBtn);
-		if (moreBtn != null) {
-			moreBtn.setOnClickListener(v -> {
-				final POIManager poim = getPoimOrNull();
-				if (poim == null) {
+		View nearbyView = view.findViewById(R.id.poi_nearby_pois_title);
+		View moreBtn = nearbyView == null ? null : nearbyView.findViewById(R.id.moreBtn);
+		//noinspection UnnecessaryLocalVariable
+		View titleMoreLayout = nearbyView;
+		if (moreBtn == null) {
+			titleMoreLayout.setClickable(false);
+			return;
+		}
+		moreBtn.setOnClickListener(v -> {
+			final POIManager poim = getPoimOrNull();
+			if (poim == null) {
+				return;
+			}
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = NavHostFragment.findNavController(this);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							// TODO button? .addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				NavControllerExtKt.navigateF(navController,
+						R.id.nav_to_nearby_screen,
+						NearbyFragment.newFixedOnPOIInstanceArgs(poim, dataSourcesRepository),
+						null,
+						extras
+				);
+			} else {
+				final Activity activity = getActivity();
+				if (!(activity instanceof MainActivity)) {
 					return;
 				}
-				if (FeatureFlags.F_NAVIGATION) {
-					final NavController navController = NavHostFragment.findNavController(this);
-					FragmentNavigator.Extras extras = null;
-					if (FeatureFlags.F_TRANSITION) {
-						extras = new FragmentNavigator.Extras.Builder()
-								// TODO button? .addSharedElement(view, view.getTransitionName())
-								.build();
-					}
-					NavControllerExtKt.navigateF(navController,
-							R.id.nav_to_nearby_screen,
-							NearbyFragment.newFixedOnPOIInstanceArgs(poim, dataSourcesRepository),
-							null,
-							extras
-					);
-				} else {
-					final Activity activity = getActivity();
-					if (!(activity instanceof MainActivity)) {
-						return;
-					}
-					((MainActivity) activity).addFragmentToStack(
-							NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository),
-							POIFragment.this
-					);
-				}
-			});
-			moreBtn.setVisibility(View.VISIBLE);
-		}
+				((MainActivity) activity).addFragmentToStack(
+						NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository),
+						POIFragment.this
+				);
+			}
+		});
+		titleMoreLayout.setOnClickListener(v -> moreBtn.performClick());
+		moreBtn.setVisibility(View.VISIBLE);
 	}
 
 	@Nullable
@@ -1431,6 +1445,11 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public ServiceUpdateLoader providesServiceUpdateLoader() {
 		return this.sharedServiceUpdateLoader;
+	}
+
+	@Override
+	public @Nullable Collection<String> getIgnoredTargetUUIDsOrUnknown() {
+		return Collections.emptyList(); // empty = ready = no filter
 	}
 
 	@NonNull

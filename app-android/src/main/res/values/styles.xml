@@ -102,6 +102,24 @@
         <item name="android:letterSpacing">0.0123456789</item>
     </style>
 
+    <style name="MTButtonHeaderMoreBtn" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:minWidth">24dp</item>
+        <item name="android:minHeight">24dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:contentDescription">@string/more</item>
+        <item name="icon">@drawable/ic_arrow_forward_24</item>
+        <item name="iconTint">?attr/colorOnBackground</item>
+    </style>
+
     <style name="MTShapeAppearance" parent="@style/ShapeAppearance.Material3.Corner.ExtraSmall" />
 
     <style name="MTShapeAppearanceFull" parent="" />
@@ -147,6 +165,10 @@
         <item name="android:minHeight">?android:attr/listPreferredItemHeightSmall</item>
         <item name="android:paddingTop">@dimen/title_top_padding</item>
         <item name="android:paddingEnd">@dimen/title_end_padding</item>
+    </style>
+
+    <style name="MTLayoutSection.Clickable" parent="@style/MTLayoutSection">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
     <style name="MTTextSectionTitle">
@@ -259,6 +281,8 @@
         <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:layout_gravity">end|bottom</item>
+        <item name="layout_constraintBottom_toBottomOf">parent</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
     </style>
 
     <style name="MTFabMiniBottomEnd" parent="@style/MTFabBottomEnd">

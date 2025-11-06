@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/service_update_img"
+    android:id="@+id/poi_status_service_update_img"
     android:layout_width="@dimen/baseline_12_x"
     android:layout_height="@dimen/baseline_12_x"
     android:layout_alignWithParentIfMissing="true"
@@ -14,6 +14,6 @@
     android:contentDescription="@null"
     android:scaleType="fitCenter"
     android:visibility="gone"
-    tools:showIn="@layout/layout_poi_basic_with_schedule"
+    tools:showIn="@layout/layout_poi_rds_with_schedule"
     tools:srcCompat="@drawable/ic_warning_on_surface_16dp"
     tools:visibility="visible" />
