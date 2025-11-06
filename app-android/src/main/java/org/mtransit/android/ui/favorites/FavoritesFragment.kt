@@ -137,9 +137,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 listAdapter.setListView(this)
                 setUpListEdgeToEdge()
             }
-            screenToolbarLayout.apply {
-                setupScreenToolbar(this)
-            }
+            setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.oneAgency.observe(viewLifecycleOwner) { oneAgency ->
             updateEmptyLayout(pkg = oneAgency?.pkg)

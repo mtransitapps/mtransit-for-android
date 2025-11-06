@@ -279,9 +279,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 }
                 lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
             }
-            screenToolbarLayout.apply {
-                setupScreenToolbar(this)
-            }
+            setupScreenToolbar(screenToolbarLayout)
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
                 viewPager.children.find { it is RecyclerView }?.let {
                     it.isNestedScrollingEnabled = false

@@ -688,15 +688,18 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return;
 		}
-		View rdsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
-		Collection<ScheduleProviderProperties> scheduleProviders;
+		final View rdsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		if (rdsScheduleBtn != null) {
-			scheduleProviders = this.viewModel == null ? null : this.viewModel.getScheduleProviders().getValue();
+			final Collection<ScheduleProviderProperties> scheduleProviders = this.viewModel == null ? null : this.viewModel.getScheduleProviders().getValue();
 			if (scheduleProviders == null || scheduleProviders.isEmpty()) {
 				rdsScheduleBtn.setVisibility(View.GONE);
 			} else {
+				final POIManager poim = getPoimOrNull();
+				if (poim != null) {
+					final int poiColor = poim.getColor(dataSourcesRepository);
+					rdsScheduleBtn.setBackgroundColor(poiColor);
+				}
 				rdsScheduleBtn.setOnClickListener(v -> {
-					final POIManager poim = getPoimOrNull();
 					if (poim == null || !(poim.poi instanceof RouteDirectionStop)) {
 						MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RDS)");
 						return;

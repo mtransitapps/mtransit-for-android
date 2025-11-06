@@ -50,7 +50,8 @@ import org.mtransit.android.util.UITimeUtils
 import java.util.TimeZone
 
 @AndroidEntryPoint
-class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuProvider {
+class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
+    MenuProvider {
 
     companion object {
         private val LOG_TAG = ScheduleFragment::class.java.simpleName
@@ -141,6 +142,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
                 addItemDecoration(StickyHeaderItemDecorator(listAdapter, this))
                 setUpListEdgeToEdge()
             }
+            setupScreenToolbar(screenToolbarLayout)
             if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
                 sourceLabel.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
                     updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -207,10 +209,12 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
         viewModel.agency.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
         }
         viewModel.rds.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABSubtitle(this, getABSubtitle(context), false)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
             abController?.setABReady(this, isABReady, true)
         }
     }
@@ -289,6 +293,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
             listAdapter.onTimeChanged(-1L) // mark time as not updating anymore
         }
     }
+
+    override fun hasToolbar() = true
 
     override fun isABReady() = attachedViewModel?.rds?.value != null
 

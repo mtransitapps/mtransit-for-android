@@ -142,9 +142,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 onItemSelectedListener = this@SearchFragment
                 adapter = typeFilterAdapter
             }
-            screenToolbarLayout.apply {
-                setupScreenToolbar(this)
-            }
+            setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
@@ -199,7 +197,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             }
             listAdapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
         }
-        viewModel.searchHasFocus.observe(viewLifecycleOwner) { searchHasFocus ->
+        viewModel.searchHasFocus.observe(viewLifecycleOwner) {
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
         }
     }
