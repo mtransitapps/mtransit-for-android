@@ -1,7 +1,7 @@
 name: MT build
 on:
   workflow_dispatch: # manual
-  workflow_call: # re-use (called from another GHA workflow)
+  workflow_call: # re-use (called from submodule build workflow)
   pull_request:
   push:
     branches:
@@ -17,14 +17,17 @@ env:
   MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
   MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-jobs:
-  MT-BUILD-JOB:
-    name: "MT Build"
-    runs-on: ubuntu-latest
-    steps:
 
+jobs:
+
+  MT-SELECT-BRANCH-JOB:
+    name: "MT Select branch"
+    runs-on: ubuntu-latest
+    outputs:
+      mt_checkout_branch: ${{ steps.mt-select-branch.outputs.mt_checkout_branch }}
+    steps:
       - name: MT select main repo checkout branch
-        id: mt-pick-main-repo-checkout-branch
+        id: mt-select-branch
         env:
           GH_TOKEN: ${{ github.token }} # GitHub CLI in a GitHub Actions workflow
         run: |
@@ -52,56 +55,30 @@ jobs:
           echo "Checkout branch: '$CHECKOUT_BRANCH'."
           echo "mt_checkout_branch=$CHECKOUT_BRANCH" >> "$GITHUB_OUTPUT"
 
+  MT-TEST-JOB:
+    name: "MT Test"
+    needs: MT-SELECT-BRANCH-JOB
+    runs-on: ubuntu-latest
+    steps:
+
       - name: MT check out main repo
         uses: actions/checkout@v5
         with:
           repository: mtransitapps/mtransit-for-android
-          ref: ${{ steps.mt-pick-main-repo-checkout-branch.outputs.mt_checkout_branch }}
+          ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
           submodules: true # required to set right token
           fetch-depth: 0 # fetch all (not required util release build)
-      - name: MT check out submodules
-        run: ./checkout_submodules.sh
-      - name: MT check out all git submodule closest branch
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "Checking out submodules closest branch, '$MT_BRANCH_NAME' or '$MT_TARGET_BRANCH_NAME':"
-          git submodule foreach 'git checkout $MT_BRANCH_NAME || git checkout $MT_TARGET_BRANCH_NAME'
-          echo "Showing submodules current branch:"
-          git submodule foreach 'git branch --show-current'
-
-      - name: MT check out this module repo build SHA
-        if: github.repository != 'mtransitapps/mtransit-for-android'
-        run: |
-          REPOSITORY_OWNER_AND_NAME=${{ github.repository }};
-          REPOSITORY_NAME=$(basename $REPOSITORY_OWNER_AND_NAME);
-          echo "Checking our this repo '$REPOSITORY_NAME' workflow sha '$MT_SHA':"
-          git -C $REPOSITORY_NAME checkout $MT_SHA;
-
-      - name: MT setup MT_GIT_BRANCH env
-        if: github.repository == 'mtransitapps/mtransit-for-android' || github.event_name != 'pull_request'
-        run: |
-          # MT_GIT_BRANCH=${GITHUB_REF##*/}"
-          MT_GIT_BRANCH=${{ github.head_ref || github.ref_name }}
-          # echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          echo "MT_GIT_BRANCH=$MT_GIT_BRANCH" >> $GITHUB_ENV
-
-      - name: MT code setup
-        run: ./commons/code_setup.sh
-      - name: MT set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+      - name: MT setup
+        id: mt-setup
+        uses: ./.github/actions/setup
 
       - name: MT test
-        run: ./test.sh
-      - name: MT artifact > unit tests XML results
+        run: ./test_only.sh
+      - name: MT artifact > tests XML results
         uses: actions/upload-artifact@v5
         if: ${{ always() }} # even if tests fails
         with:
-          name: unit-test-xml-results
+          name: test-xml-results
           path: |
             */build/test-results/**/*.xml
             */build/test-results/*.xml
@@ -110,13 +87,65 @@ jobs:
         uses: actions/upload-artifact@v5
         if: ${{ always() }} # even if tests fails
         with:
-          name: html-reports
+          name: test-html-reports
           path: |
             */build/reports/
             !**/*.xml
 
+  MT-LINT-JOB:
+    name: "MT Lint"
+    needs: MT-SELECT-BRANCH-JOB
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: MT check out main repo
+        uses: actions/checkout@v5
+        with:
+          repository: mtransitapps/mtransit-for-android
+          ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
+          submodules: true # required to set right token
+          fetch-depth: 0 # fetch all (not required util release build)
+      - name: MT setup
+        id: mt-setup
+        uses: ./.github/actions/setup
+
+      - name: MT lint
+        run: ./lint_only.sh
+      - name: MT artifact > lint XML results
+        uses: actions/upload-artifact@v5
+        if: ${{ always() }} # even if tests fails
+        with:
+          name: lint-xml-results
+          path: |
+            */build/reports/*.xml
+      - name: MT artifact > lint HTML reports
+        uses: actions/upload-artifact@v5
+        if: ${{ always() }} # even if tests fails
+        with:
+          name: lint-html-reports
+          path: |
+            */build/reports/
+            !**/*.xml
+
+  MT-ASSEMBLE-JOB:
+    name: "MT Assemble"
+    needs: MT-SELECT-BRANCH-JOB
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: MT check out main repo
+        uses: actions/checkout@v5
+        with:
+          repository: mtransitapps/mtransit-for-android
+          ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
+          submodules: true # required to set right token
+          fetch-depth: 0 # fetch all (not required util release build)
+      - name: MT setup
+        id: mt-setup
+        uses: ./.github/actions/setup
+
       - name: MT assemble release (APK & ABB)
-        if: github.event_name != 'pull_request'
         run: ./assemble_release.sh
         env:
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
