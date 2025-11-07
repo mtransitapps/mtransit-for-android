@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/baseline_8"
+    android:gravity="center"
+    android:minWidth="56dp"
+    android:background="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/day_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        tools:text="Mon" />
+
+    <TextView
+        android:id="@+id/day_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="@dimen/baseline_2"
+        tools:text="21" />
+
+    <View
+        android:id="@+id/selection_indicator"
+        android:layout_width="48dp"
+        android:layout_height="4dp"
+        android:layout_marginTop="@dimen/baseline_2"
+        android:background="@android:color/transparent"
+        tools:background="#FFEB3B" />
+
+</LinearLayout>

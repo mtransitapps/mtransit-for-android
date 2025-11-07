@@ -105,6 +105,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     private var binding: FragmentScheduleInfiniteBinding? = null
 
+    private var horizontalCalendar: HorizontalCalendarView? = null
+
     private val listAdapter: ScheduleAdapter by lazy {
         ScheduleAdapter()
     }
@@ -145,6 +147,20 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 setUpListEdgeToEdge()
             }
             setupScreenToolbar(screenToolbarLayout)
+            // Initialize horizontal calendar
+            horizontalCalendar = HorizontalCalendarView(
+                context = requireContext(),
+                scrollView = horizontalCalendar.root as android.widget.HorizontalScrollView,
+                daysContainer = horizontalCalendar.root.findViewById(R.id.calendar_days_container)
+            ).apply {
+                setOnDaySelectedListener { selectedDateInMs ->
+                    viewModel.setSelectedDate(selectedDateInMs)
+                    // Scroll list to the selected date
+                    listAdapter.getScrollToDatePosition(selectedDateInMs)?.let { position ->
+                        list.scrollToPositionWithOffset(position, 0)
+                    }
+                }
+            }
             if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
                 sourceLabel.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
                     updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -158,6 +174,11 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         viewModel.localTimeZone.observe(viewLifecycleOwner) { localTimeZone ->
             listAdapter.localTimeZone = localTimeZone
             bindLocaleTime(localTimeZone)
+            // Update calendar timezone
+            localTimeZone?.let { 
+                horizontalCalendar?.setTimeZone(it)
+                horizontalCalendar?.setupCalendar(UITimeUtils.currentTimeMillis())
+            }
         }
         viewModel.startEndAt.observe(viewLifecycleOwner) { (startInMs, endInMs) ->
             val scrollPosition = (binding?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
@@ -312,6 +333,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     override fun onDestroyView() {
         super.onDestroyView()
+        horizontalCalendar = null
         binding = null
     }
 }

@@ -66,6 +66,7 @@ class ScheduleViewModel @Inject constructor(
         private const val EXTRA_START_AT_DAYS_BEFORE = "extra_start_at_days_before"
         private const val EXTRA_END_AT_DAYS_AFTER = "extra_end_at_days_after"
         private const val LOCAL_TIME_ZONE_ID = "local_time_zone_id"
+        private const val EXTRA_SELECTED_DATE_IN_MS = "extra_selected_date_in_ms"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -141,6 +142,12 @@ class ScheduleViewModel @Inject constructor(
 
     fun setScrolledToNow(scrolledToNow: Boolean) {
         savedStateHandle[EXTRA_SCROLLED_TO_NOW] = scrolledToNow
+    }
+
+    val selectedDateInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_SELECTED_DATE_IN_MS)
+
+    fun setSelectedDate(dateInMs: Long) {
+        savedStateHandle[EXTRA_SELECTED_DATE_IN_MS] = dateInMs
     }
 
     private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = this.authority.switchMap { authority ->

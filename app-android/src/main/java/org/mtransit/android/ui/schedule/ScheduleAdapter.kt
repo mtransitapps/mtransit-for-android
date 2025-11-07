@@ -267,6 +267,26 @@ class ScheduleAdapter
         return null
     }
 
+    fun getScrollToDatePosition(dateInMs: Long): Int? {
+        if (!isReady()) return null
+        val localTimeZone = this.localTimeZone ?: return null
+        val targetCalendar = dateInMs.toCalendar(localTimeZone).beginningOfDay
+        
+        var index = 0
+        this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
+            val dayCal = dayBeginningMs.toCalendar(localTimeZone).beginningOfDay
+            if (dayCal.timeInMillis == targetCalendar.timeInMillis) {
+                return index // Return position of day separator
+            }
+            index++ // day separator
+            hourToTimes.forEach { _, hourTimes ->
+                index++ // hour separator
+                index += hourTimes.size // times in this hour
+            }
+        }
+        return null
+    }
+
     private fun getTodaySelectPosition(): Int {
         nextTimestamp?.let { nextTimestamp ->
             val nextTimePosition: Int = getPosition(nextTimestamp)
