@@ -95,7 +95,7 @@ class HorizontalCalendarView(
                 dayNameTextView.alpha = 1f
                 dayNumberTextView.alpha = 1f
             } else {
-                selectionIndicator.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                selectionIndicator.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
                 dayNameTextView.alpha = 0.7f
                 dayNumberTextView.alpha = 0.7f
             }
@@ -113,7 +113,7 @@ class HorizontalCalendarView(
                 if (viewCalendar.timeInMillis == targetCalendar.timeInMillis) {
                     scrollView.post {
                         val scrollX = dayView.left - (scrollView.width - dayView.width) / 2
-                        scrollView.smoothScrollTo(scrollX, 0)
+                        scrollView.smoothScrollTo(maxOf(0, scrollX), 0)
                     }
                     return@let
                 }

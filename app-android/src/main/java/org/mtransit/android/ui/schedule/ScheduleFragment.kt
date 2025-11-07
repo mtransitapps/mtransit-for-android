@@ -164,6 +164,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                         }
                     }
                 }
+            } else {
+                MTLog.w(this@ScheduleFragment, "Failed to initialize horizontal calendar - views not found")
             }
             if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
                 sourceLabel.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
