@@ -4,6 +4,7 @@ package org.mtransit.android.ui.news
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.ColorInt
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.doOnLayout
@@ -60,7 +61,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         @JvmOverloads
         @JvmStatic
         fun newInstance(
-            optColorInt: Int? = null,
+            @ColorInt optColorInt: Int? = null,
             subtitle: String? = null,
             targetAuthorities: List<String>? = null,
             filterTargets: List<String>? = null,
@@ -102,7 +103,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         @JvmOverloads
         @JvmStatic
         fun newInstanceArgs(
-            optColorInt: Int? = null,
+            @ColorInt optColorInt: Int? = null,
             subtitle: String? = null,
             targetAuthorities: List<String>? = null,
             filterTargets: List<String>? = null,

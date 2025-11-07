@@ -8,4 +8,9 @@
         android:icon="@drawable/ic_create_new_folder_black_24dp"
         android:title="@string/menu_action_favorite_folder_new"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_show_news"
+        android:icon="@drawable/ic_newspaper_black_24dp"
+        android:title="@string/news"
+        app:showAsAction="ifRoom" />
 </menu>
