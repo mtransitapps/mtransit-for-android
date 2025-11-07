@@ -131,17 +131,16 @@ class HorizontalCalendarAdapter : RecyclerView.Adapter<HorizontalCalendarAdapter
         fun bind(dayInMs: Long) {
             calendar.timeInMillis = dayInMs
             
+            val todayBeginning = UITimeUtils.currentTimeMillis().toCalendar(localTimeZone).beginningOfDay
+            val dayBeginning = dayInMs.toCalendar(localTimeZone).beginningOfDay
+            
             val isSelected = selectedDayInMs?.let { selectedMs ->
                 val selectedCal = selectedMs.toCalendar(localTimeZone).beginningOfDay
-                val dayCal = dayInMs.toCalendar(localTimeZone).beginningOfDay
-                dayCal.isSameDay(selectedCal)
+                dayBeginning.isSameDay(selectedCal)
             } == true
             
-            val isToday = UITimeUtils.currentTimeMillis().toCalendar(localTimeZone).beginningOfDay.isSameDay(
-                dayInMs.toCalendar(localTimeZone).beginningOfDay
-            )
-            
-            val isPast = dayInMs < UITimeUtils.currentTimeMillis().toCalendar(localTimeZone).beginningOfDay.timeInMillis
+            val isToday = dayBeginning.isSameDay(todayBeginning)
+            val isPast = dayInMs < todayBeginning.timeInMillis
 
             // Set text values
             binding.dayName.text = dayNameFormat.format(calendar.time)
