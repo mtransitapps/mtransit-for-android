@@ -55,7 +55,7 @@ class FavoriteRepository(
 
     suspend fun findFavorites(): List<Favorite> = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) {
-            return@withContext emptyList<Favorite>()
+            return@withContext emptyList()
         }
         favoriteManager.findFavorites(appContext)
     }

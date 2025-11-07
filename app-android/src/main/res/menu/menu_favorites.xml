@@ -8,4 +8,11 @@
         android:icon="@drawable/ic_create_new_folder_black_24dp"
         android:title="@string/menu_action_favorite_folder_new"
         app:showAsAction="ifRoom" />
+    <!-- TODO: not sure, not main feature, accessible after selecting POI -->
+    <item
+        android:id="@+id/menu_show_news"
+        android:icon="@drawable/ic_newspaper_black_24dp"
+        android:title="@string/news"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -31,12 +31,14 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
+import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.news.NewsListDetailFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
@@ -239,6 +241,13 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
                 this.favoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
+                true // handled
+            }
+
+            R.id.menu_show_news -> {
+                (activity as? MainActivity)?.apply {
+                    addFragmentToStack(NewsListDetailFragment.newInstance(color = null))
+                }
                 true // handled
             }
 
