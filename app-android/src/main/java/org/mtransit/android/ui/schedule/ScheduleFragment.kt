@@ -148,7 +148,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             }
             setupScreenToolbar(screenToolbarLayout)
             // Initialize horizontal calendar
-            val calendarScrollView = this.horizontalCalendar.root as? android.widget.HorizontalScrollView
+            val calendarScrollView = horizontalCalendar.root as? android.widget.HorizontalScrollView
             val calendarDaysContainer = calendarScrollView?.findViewById<android.widget.LinearLayout>(R.id.calendar_days_container)
             if (calendarScrollView != null && calendarDaysContainer != null) {
                 this@ScheduleFragment.horizontalCalendar = HorizontalCalendarView(
@@ -178,10 +178,12 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         viewModel.localTimeZone.observe(viewLifecycleOwner) { localTimeZone ->
             listAdapter.localTimeZone = localTimeZone
             bindLocaleTime(localTimeZone)
-            // Update calendar timezone
-            localTimeZone?.let { 
-                this@ScheduleFragment.horizontalCalendar?.setTimeZone(it)
-                this@ScheduleFragment.horizontalCalendar?.setupCalendar(UITimeUtils.currentTimeMillis())
+            // Update calendar timezone and setup
+            localTimeZone?.let { tz ->
+                this@ScheduleFragment.horizontalCalendar?.apply {
+                    setTimeZone(tz)
+                    setupCalendar(UITimeUtils.currentTimeMillis())
+                }
             }
         }
         viewModel.startEndAt.observe(viewLifecycleOwner) { (startInMs, endInMs) ->

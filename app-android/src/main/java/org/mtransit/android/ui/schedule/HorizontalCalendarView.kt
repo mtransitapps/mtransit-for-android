@@ -26,7 +26,6 @@ class HorizontalCalendarView(
     companion object {
         private val LOG_TAG = HorizontalCalendarView::class.java.simpleName
         private const val DAYS_TO_SHOW = 21 // Show 3 weeks worth of days
-        private const val SELECTION_COLOR = 0xFFEB3B // Yellow color from mockup
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -47,8 +46,8 @@ class HorizontalCalendarView(
         dayViews.clear()
 
         val calendar = centerDateInMs.toCalendar(localTimeZone).beginningOfDay
-        // Start from 7 days before the center date
-        calendar.add(Calendar.DAY_OF_YEAR, -7)
+        // Start from half of DAYS_TO_SHOW before the center date
+        calendar.add(Calendar.DAY_OF_YEAR, -(DAYS_TO_SHOW / 2))
 
         val inflater = LayoutInflater.from(context)
         
