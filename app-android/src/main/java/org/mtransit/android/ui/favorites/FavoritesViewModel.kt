@@ -93,8 +93,8 @@ class FavoritesViewModel @Inject constructor(
         TripleMediatorLiveData(_favoriteUpdatedTrigger, _allAgencies, _homeScreenTypes).switchMap { (_, allAgencies, homeScreenTypes) ->
             _hasFavoritesAgencyDisabled.value = false
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                allAgencies ?: run { return@liveData emit(null) } // loading
-                homeScreenTypes ?: return@liveData
+                allAgencies ?: run { emit(null); return@liveData  } // loading
+                homeScreenTypes ?: run { emit(null); return@liveData  } // loading
                 emit(getFavorites(allAgencies, homeScreenTypes))
             }
         }
