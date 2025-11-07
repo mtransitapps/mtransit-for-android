@@ -168,9 +168,6 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             horizontalCalendar.root.apply {
                 adapter = horizontalCalendarAdapter
                 addOnScrollListener(calendarScrollListener)
-                // Set layout manager to horizontal
-                (layoutManager as? androidx.recyclerview.widget.LinearLayoutManager)?.orientation =
-                    androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
             }
             horizontalCalendarAdapter.setOnDaySelectedListener { selectedDateInMs ->
                 viewModel.setSelectedDate(selectedDateInMs)
@@ -178,11 +175,15 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 val selectedPosition = horizontalCalendarAdapter.getSelectedPosition()
                 if (selectedPosition >= 0) {
                     (horizontalCalendar.root.layoutManager as? androidx.recyclerview.widget.LinearLayoutManager)?.let { layoutManager ->
-                        // Calculate offset to center the selected item
-                        val recyclerViewWidth = horizontalCalendar.root.width
-                        val itemWidth = horizontalCalendar.root.getChildAt(0)?.width ?: 0
-                        val offset = if (itemWidth > 0) (recyclerViewWidth - itemWidth) / 2 else 0
-                        layoutManager.scrollToPositionWithOffset(selectedPosition, offset)
+                        horizontalCalendar.root.post {
+                            // Calculate offset to center the selected item
+                            val recyclerViewWidth = horizontalCalendar.root.width
+                            val itemWidth = if (horizontalCalendar.root.childCount > 0) {
+                                horizontalCalendar.root.getChildAt(0)?.width ?: 0
+                            } else 0
+                            val offset = if (itemWidth > 0) (recyclerViewWidth - itemWidth) / 2 else 0
+                            layoutManager.scrollToPositionWithOffset(selectedPosition, offset)
+                        }
                     }
                 }
                 // Scroll list to the selected date

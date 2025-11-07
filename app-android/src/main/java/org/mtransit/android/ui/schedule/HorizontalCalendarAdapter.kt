@@ -122,10 +122,15 @@ class HorizontalCalendarAdapter : RecyclerView.Adapter<HorizontalCalendarAdapter
         private val binding: LayoutScheduleCalendarDayItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        private val calendar = Calendar.getInstance(localTimeZone)
+
         fun bind(dayInMs: Long) {
-            val calendar = dayInMs.toCalendar(localTimeZone)
-            val targetCalendar = dayInMs.toCalendar(localTimeZone).beginningOfDay
-            val isSelected = selectedDayInMs?.toCalendar(localTimeZone)?.beginningOfDay?.isSameDay(targetCalendar) == true
+            calendar.timeInMillis = dayInMs
+            val isSelected = selectedDayInMs?.let { selectedMs ->
+                val selectedCal = selectedMs.toCalendar(localTimeZone).beginningOfDay
+                val dayCal = dayInMs.toCalendar(localTimeZone).beginningOfDay
+                dayCal.isSameDay(selectedCal)
+            } == true
 
             binding.dayName.text = dayNameFormat.format(calendar.time)
             binding.dayNumber.text = calendar.get(Calendar.DAY_OF_MONTH).toString()
