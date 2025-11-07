@@ -148,8 +148,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             }
             setupScreenToolbar(screenToolbarLayout)
             // Initialize horizontal calendar
-            val calendarScrollView = horizontalCalendar.root as? android.widget.HorizontalScrollView
-            val calendarDaysContainer = calendarScrollView?.findViewById<android.widget.LinearLayout>(R.id.calendar_days_container)
+            val calendarScrollView = binding.horizontalCalendar.root as? android.widget.HorizontalScrollView
+            val calendarDaysContainer = binding.horizontalCalendar.calendarDaysContainer
             if (calendarScrollView != null && calendarDaysContainer != null) {
                 this@ScheduleFragment.horizontalCalendar = HorizontalCalendarView(
                     context = requireContext(),
