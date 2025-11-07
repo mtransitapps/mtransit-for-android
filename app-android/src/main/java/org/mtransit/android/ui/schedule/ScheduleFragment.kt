@@ -105,7 +105,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     private var binding: FragmentScheduleInfiniteBinding? = null
 
-    private var horizontalCalendar: HorizontalCalendarView? = null
+    private val horizontalCalendarAdapter: HorizontalCalendarAdapter by lazy {
+        HorizontalCalendarAdapter()
+    }
 
     private val listAdapter: ScheduleAdapter by lazy {
         ScheduleAdapter()
@@ -133,6 +135,21 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         }
     }
 
+    private val calendarScrollListener = object : OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            (recyclerView.layoutManager as? LinearLayoutManager)?.let { layoutManager ->
+                // Load more days when scrolling near the end
+                val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
+                val itemCount = horizontalCalendarAdapter.itemCount
+                if (lastVisiblePosition >= itemCount - 3 && itemCount > 0) {
+                    recyclerView.post {
+                        attachedViewModel?.increaseEndTime()
+                    }
+                }
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as MenuHost).addMenuProvider(
@@ -147,25 +164,20 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 setUpListEdgeToEdge()
             }
             setupScreenToolbar(screenToolbarLayout)
-            // Initialize horizontal calendar
-            val calendarScrollView = binding.horizontalCalendar.root as? android.widget.HorizontalScrollView
-            val calendarDaysContainer = binding.horizontalCalendar.calendarDaysContainer
-            if (calendarScrollView != null && calendarDaysContainer != null) {
-                this@ScheduleFragment.horizontalCalendar = HorizontalCalendarView(
-                    context = requireContext(),
-                    scrollView = calendarScrollView,
-                    daysContainer = calendarDaysContainer
-                ).apply {
-                    setOnDaySelectedListener { selectedDateInMs ->
-                        viewModel.setSelectedDate(selectedDateInMs)
-                        // Scroll list to the selected date
-                        listAdapter.getScrollToDatePosition(selectedDateInMs)?.let { position ->
-                            list.scrollToPositionWithOffset(position, 0)
-                        }
-                    }
+            // Initialize horizontal calendar with RecyclerView
+            horizontalCalendar.root.apply {
+                adapter = horizontalCalendarAdapter
+                addOnScrollListener(calendarScrollListener)
+                // Set layout manager to horizontal
+                (layoutManager as? androidx.recyclerview.widget.LinearLayoutManager)?.orientation =
+                    androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
+            }
+            horizontalCalendarAdapter.setOnDaySelectedListener { selectedDateInMs ->
+                viewModel.setSelectedDate(selectedDateInMs)
+                // Scroll list to the selected date
+                listAdapter.getScrollToDatePosition(selectedDateInMs)?.let { position ->
+                    list.scrollToPositionWithOffset(position, 0)
                 }
-            } else {
-                MTLog.w(this@ScheduleFragment, "Failed to initialize horizontal calendar - views not found")
             }
             if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
                 sourceLabel.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
@@ -180,21 +192,29 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         viewModel.localTimeZone.observe(viewLifecycleOwner) { localTimeZone ->
             listAdapter.localTimeZone = localTimeZone
             bindLocaleTime(localTimeZone)
-            // Update calendar timezone and setup
+            // Update calendar timezone
             localTimeZone?.let { tz ->
-                this@ScheduleFragment.horizontalCalendar?.apply {
-                    setTimeZone(tz)
-                    setupCalendar(UITimeUtils.currentTimeMillis())
-                }
+                horizontalCalendarAdapter.setTimeZone(tz)
             }
         }
         viewModel.startEndAt.observe(viewLifecycleOwner) { (startInMs, endInMs) ->
             val scrollPosition = (binding?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
             listAdapter.startInMs = startInMs
             listAdapter.endInMs = endInMs
+            // Synchronize calendar with schedule list
+            horizontalCalendarAdapter.startInMs = startInMs
+            horizontalCalendarAdapter.endInMs = endInMs
             binding?.list?.apply {
                 if (scrollPosition > 0) {
                     scrollToPosition(scrollPosition)
+                }
+            }
+            // Scroll calendar to today if not yet scrolled
+            if (viewModel.scrolledToNow.value == false && startInMs != null) {
+                val todayPosition = horizontalCalendarAdapter.getPositionForDay(UITimeUtils.currentTimeMillis())
+                if (todayPosition >= 0) {
+                    binding?.horizontalCalendar?.root?.scrollToPosition(todayPosition)
+                    horizontalCalendarAdapter.selectDay(UITimeUtils.currentTimeMillis(), notifyAdapter = true)
                 }
             }
         }
@@ -341,7 +361,6 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        horizontalCalendar = null
         binding = null
     }
 }
