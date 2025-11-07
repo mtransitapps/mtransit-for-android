@@ -996,12 +996,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		public String getTitle() {
 			StringBuilder sb = new StringBuilder();
 			CollectionUtils.sort(this.names, MARKER_NAME_COMPARATOR);
+			java.util.HashSet<String> addedNames = new java.util.HashSet<>();
 			for (String name : this.names) {
-				if (sb.length() > 0) {
-					sb.append(SLASH);
-				}
-				if (sb.length() == 0 || !sb.toString().contains(name)) {
+				if (!addedNames.contains(name)) {
+					if (sb.length() > 0) {
+						sb.append(SLASH);
+					}
 					sb.append(name);
+					addedNames.add(name);
 				}
 			}
 			return sb.toString();
@@ -1014,29 +1016,35 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			StringBuilder sb = new StringBuilder();
 			boolean hasExtras = false;
 			CollectionUtils.sort(this.extras, MARKER_NAME_COMPARATOR);
-			for (int e = 0; e < this.extras.size(); e++) {
+			java.util.HashSet<String> addedExtras = new java.util.HashSet<>();
+			final int extrasSize = this.extras.size();
+			for (int e = 0; e < extrasSize; e++) {
 				String extra = this.extras.get(e);
-				if (hasExtras) {
-					sb.append(SLASH);
-				}
-				if (!hasExtras || !sb.toString().contains(extra)) {
+				if (!addedExtras.contains(extra)) {
+					if (hasExtras) {
+						sb.append(SLASH);
+					}
 					sb.append(extra);
 					hasExtras = true;
+					addedExtras.add(extra);
 				}
 			}
 			boolean hasAgencies = false;
 			CollectionUtils.sort(this.agencies, MARKER_NAME_COMPARATOR);
-			for (int a = 0; a < this.agencies.size(); a++) {
+			java.util.HashSet<String> addedAgencies = new java.util.HashSet<>();
+			final int agenciesSize = this.agencies.size();
+			for (int a = 0; a < agenciesSize; a++) {
 				String agency = this.agencies.get(a);
-				// if (sb.length() > 0) {
-				if (hasAgencies) {
-					sb.append(SLASH);
-				} else if (hasExtras) {
-					sb.append(StringUtils.SPACE_CAR).append(P1);
-				}
-				if (!hasAgencies || !sb.toString().contains(agency)) {
+				if (!addedAgencies.contains(agency)) {
+					// if (sb.length() > 0) {
+					if (hasAgencies) {
+						sb.append(SLASH);
+					} else if (hasExtras) {
+						sb.append(StringUtils.SPACE_CAR).append(P1);
+					}
 					sb.append(agency);
 					hasAgencies = true;
+					addedAgencies.add(agency);
 				}
 			}
 			if (hasExtras && hasAgencies) {
