@@ -5,7 +5,7 @@
     android:id="@+id/calendar_recycler_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorPrimary"
+    android:background="?attr/colorSurface"
     android:orientation="horizontal"
     android:paddingVertical="@dimen/baseline_8"
     android:clipToPadding="false"

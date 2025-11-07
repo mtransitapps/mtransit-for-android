@@ -2,12 +2,14 @@ package org.mtransit.android.ui.schedule
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.databinding.LayoutScheduleCalendarDayItemBinding
+import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.beginningOfDay
 import org.mtransit.commons.isSameDay
 import org.mtransit.commons.toCalendar
@@ -26,6 +28,7 @@ class HorizontalCalendarAdapter : RecyclerView.Adapter<HorizontalCalendarAdapter
     override fun getLogTag(): String = LOG_TAG
 
     private val dayNameFormat = SimpleDateFormat("EEE", Locale.getDefault())
+    private val monthNameFormat = SimpleDateFormat("MMM", Locale.getDefault())
     private val days = mutableListOf<Long>() // List of day timestamps in milliseconds
     private var selectedDayInMs: Long? = null
     private var localTimeZone: TimeZone = TimeZone.getDefault()
@@ -50,6 +53,7 @@ class HorizontalCalendarAdapter : RecyclerView.Adapter<HorizontalCalendarAdapter
     fun setTimeZone(timeZone: TimeZone) {
         localTimeZone = timeZone
         dayNameFormat.timeZone = timeZone
+        monthNameFormat.timeZone = timeZone
     }
 
     fun setOnDaySelectedListener(listener: (Long) -> Unit) {
@@ -126,29 +130,39 @@ class HorizontalCalendarAdapter : RecyclerView.Adapter<HorizontalCalendarAdapter
 
         fun bind(dayInMs: Long) {
             calendar.timeInMillis = dayInMs
+            
             val isSelected = selectedDayInMs?.let { selectedMs ->
                 val selectedCal = selectedMs.toCalendar(localTimeZone).beginningOfDay
                 val dayCal = dayInMs.toCalendar(localTimeZone).beginningOfDay
                 dayCal.isSameDay(selectedCal)
             } == true
+            
+            val isToday = UITimeUtils.currentTimeMillis().toCalendar(localTimeZone).beginningOfDay.isSameDay(
+                dayInMs.toCalendar(localTimeZone).beginningOfDay
+            )
+            
+            val isPast = dayInMs < UITimeUtils.currentTimeMillis().toCalendar(localTimeZone).beginningOfDay.timeInMillis
 
+            // Set text values
             binding.dayName.text = dayNameFormat.format(calendar.time)
             binding.dayNumber.text = calendar.get(Calendar.DAY_OF_MONTH).toString()
+            binding.monthName.text = monthNameFormat.format(calendar.time)
 
-            // Update selection state
-            if (isSelected) {
-                binding.selectionIndicator.setBackgroundColor(
-                    ContextCompat.getColor(binding.root.context, R.color.schedule_calendar_selection)
-                )
-                binding.dayName.alpha = 1f
-                binding.dayNumber.alpha = 1f
+            // Make today bold
+            if (isToday) {
+                binding.dayNumber.setTypeface(null, android.graphics.Typeface.BOLD)
             } else {
-                binding.selectionIndicator.setBackgroundColor(
-                    ContextCompat.getColor(binding.root.context, R.color.transparent)
-                )
-                binding.dayName.alpha = 0.7f
-                binding.dayNumber.alpha = 0.7f
+                binding.dayNumber.setTypeface(null, android.graphics.Typeface.NORMAL)
             }
+
+            // Update selection state - show/hide circular background
+            binding.selectionIndicator.visibility = if (isSelected) View.VISIBLE else View.GONE
+
+            // Set alpha for past days (75% = 0.75f)
+            val alpha = if (isPast) 0.75f else 1f
+            binding.dayName.alpha = alpha
+            binding.dayNumber.alpha = alpha
+            binding.monthName.alpha = alpha
 
             binding.root.setOnClickListener {
                 selectDay(dayInMs)
