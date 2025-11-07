@@ -98,6 +98,10 @@ class HorizontalCalendarAdapter : RecyclerView.Adapter<HorizontalCalendarAdapter
         }
     }
 
+    fun getSelectedPosition(): Int {
+        return selectedDayInMs?.let { getPositionForDay(it) } ?: -1
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
         val binding = LayoutScheduleCalendarDayItemBinding.inflate(
             LayoutInflater.from(parent.context),

@@ -174,6 +174,17 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             }
             horizontalCalendarAdapter.setOnDaySelectedListener { selectedDateInMs ->
                 viewModel.setSelectedDate(selectedDateInMs)
+                // Scroll calendar to center on selected day
+                val selectedPosition = horizontalCalendarAdapter.getSelectedPosition()
+                if (selectedPosition >= 0) {
+                    (horizontalCalendar.root.layoutManager as? androidx.recyclerview.widget.LinearLayoutManager)?.let { layoutManager ->
+                        // Calculate offset to center the selected item
+                        val recyclerViewWidth = horizontalCalendar.root.width
+                        val itemWidth = horizontalCalendar.root.getChildAt(0)?.width ?: 0
+                        val offset = if (itemWidth > 0) (recyclerViewWidth - itemWidth) / 2 else 0
+                        layoutManager.scrollToPositionWithOffset(selectedPosition, offset)
+                    }
+                }
                 // Scroll list to the selected date
                 listAdapter.getScrollToDatePosition(selectedDateInMs)?.let { position ->
                     list.scrollToPositionWithOffset(position, 0)
