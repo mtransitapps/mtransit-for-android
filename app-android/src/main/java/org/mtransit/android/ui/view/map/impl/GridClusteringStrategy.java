@@ -311,9 +311,10 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 				cluster.removeVirtual();
 				continue;
 			}
-			ClusterKey[] clusterIds = new ClusterKey[ms.size()];
+			final int msSize = ms.size();
+			ClusterKey[] clusterIds = new ClusterKey[msSize];
 			boolean allSame = true;
-			for (int j = 0; j < ms.size(); j++) {
+			for (int j = 0; j < msSize; j++) {
 				clusterIds[j] = calculateClusterKey(ms.get(j).getClusterGroup(), ms.get(j).getPosition());
 				if (!clusterIds[j].equals(clusterIds[0])) {
 					allSame = false;
@@ -326,7 +327,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 				}
 			} else {
 				cluster.removeVirtual();
-				for (int j = 0; j < ms.size(); j++) {
+				for (int j = 0; j < msSize; j++) {
 					cluster = newClusters.get(clusterIds[j]);
 					if (cluster == null) {
 						cluster = new ClusterMarker(this);

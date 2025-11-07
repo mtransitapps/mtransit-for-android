@@ -486,7 +486,8 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	public static boolean isFrequentService(@NonNull ArrayList<Timestamp> timestamps, long providerFSMinDurationInMs, long providerFSTimeSpanInMs) {
-		if (timestamps.size() < FREQUENT_SERVICE_MIN_SERVICE) {
+		final int timestampsSize = timestamps.size();
+		if (timestampsSize < FREQUENT_SERVICE_MIN_SERVICE) {
 			return false; // NOT FREQUENT (no service at all)
 		}
 		long fsMinDurationMs = providerFSMinDurationInMs > 0 ? providerFSMinDurationInMs : FREQUENT_SERVICE_MIN_DURATION_IN_MS_DEFAULT;
@@ -494,7 +495,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		int i = 0;
 		Timestamp timestamp;
 		long firstTimestamp = -1L;
-		for (; i < timestamps.size(); i++) {
+		for (; i < timestampsSize; i++) {
 			timestamp = timestamps.get(i);
 			if (timestamp.isNoPickup()) {
 				continue; // skip descent only
@@ -508,7 +509,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		long previousTimestamp = firstTimestamp;
 		long currentTimestamp;
 		long diffInMs;
-		for (; i < timestamps.size(); i++) {
+		for (; i < timestampsSize; i++) {
 			timestamp = timestamps.get(i);
 			if (timestamp.isNoPickup()) {
 				continue; // skip descent only
