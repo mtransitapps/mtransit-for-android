@@ -148,16 +148,20 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             }
             setupScreenToolbar(screenToolbarLayout)
             // Initialize horizontal calendar
-            horizontalCalendar = HorizontalCalendarView(
-                context = requireContext(),
-                scrollView = horizontalCalendar.root as android.widget.HorizontalScrollView,
-                daysContainer = horizontalCalendar.root.findViewById(R.id.calendar_days_container)
-            ).apply {
-                setOnDaySelectedListener { selectedDateInMs ->
-                    viewModel.setSelectedDate(selectedDateInMs)
-                    // Scroll list to the selected date
-                    listAdapter.getScrollToDatePosition(selectedDateInMs)?.let { position ->
-                        list.scrollToPositionWithOffset(position, 0)
+            val calendarScrollView = this.horizontalCalendar.root as? android.widget.HorizontalScrollView
+            val calendarDaysContainer = calendarScrollView?.findViewById<android.widget.LinearLayout>(R.id.calendar_days_container)
+            if (calendarScrollView != null && calendarDaysContainer != null) {
+                this@ScheduleFragment.horizontalCalendar = HorizontalCalendarView(
+                    context = requireContext(),
+                    scrollView = calendarScrollView,
+                    daysContainer = calendarDaysContainer
+                ).apply {
+                    setOnDaySelectedListener { selectedDateInMs ->
+                        viewModel.setSelectedDate(selectedDateInMs)
+                        // Scroll list to the selected date
+                        listAdapter.getScrollToDatePosition(selectedDateInMs)?.let { position ->
+                            list.scrollToPositionWithOffset(position, 0)
+                        }
                     }
                 }
             }
@@ -176,8 +180,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             bindLocaleTime(localTimeZone)
             // Update calendar timezone
             localTimeZone?.let { 
-                horizontalCalendar?.setTimeZone(it)
-                horizontalCalendar?.setupCalendar(UITimeUtils.currentTimeMillis())
+                this@ScheduleFragment.horizontalCalendar?.setTimeZone(it)
+                this@ScheduleFragment.horizontalCalendar?.setupCalendar(UITimeUtils.currentTimeMillis())
             }
         }
         viewModel.startEndAt.observe(viewLifecycleOwner) { (startInMs, endInMs) ->
