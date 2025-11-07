@@ -24,6 +24,6 @@
         style="@style/MTTextSectionTitle"
         android:layout_toStartOf="@id/nearbyBtn"
         tools:drawableStartCompat="@drawable/ic_directions_bus_black_24dp"
-        tools:text="Bus stops" />
+        tools:text="Bus Stops" />
 
 </RelativeLayout>

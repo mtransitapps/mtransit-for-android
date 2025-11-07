@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.favorites
 
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
@@ -10,7 +11,9 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ComparatorUtils
@@ -20,23 +23,28 @@ import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparator
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.TextMessage
+import org.mtransit.android.data.toPOIM
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.sortWithAnd
 import javax.inject.Inject
+import kotlin.collections.filter
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
+    @param:ApplicationContext private val appContext: Context,
     private val adManager: IAdManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
@@ -77,17 +85,22 @@ class FavoritesViewModel @Inject constructor(
     private val _hasFavoritesAgencyDisabled = MutableLiveData(false)
     val hasFavoritesAgencyDisabled: LiveData<Boolean> = _hasFavoritesAgencyDisabled.distinctUntilChanged()
 
+    private val _homeScreenTypes = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { // #onModulesUpdated
+        it.filter { dst -> dst.isHomeScreen && dst != DataSourceType.TYPE_MODULE }
+    }
+
     val favoritePOIs: LiveData<List<POIManager>?> =
-        PairMediatorLiveData(_favoriteUpdatedTrigger, _allAgencies).switchMap { (_, allAgencies) ->
+        TripleMediatorLiveData(_favoriteUpdatedTrigger, _allAgencies, _homeScreenTypes).switchMap { (_, allAgencies, homeScreenTypes) ->
             _hasFavoritesAgencyDisabled.value = false
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 allAgencies ?: run { return@liveData emit(null) } // loading
-                emit(getFavorites(allAgencies))
+                homeScreenTypes ?: return@liveData
+                emit(getFavorites(allAgencies, homeScreenTypes))
             }
         }
 
     @WorkerThread
-    private suspend fun getFavorites(allAgencies: List<IAgencyProperties>): List<POIManager> {
+    private suspend fun getFavorites(allAgencies: List<IAgencyProperties>, homeScreenTypes: List<DataSourceType>): List<POIManager> {
         val favorites = this.favoriteRepository.findFavorites()
         if (favorites.isEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no favorites)")
@@ -134,6 +147,12 @@ class FavoritesViewModel @Inject constructor(
         if (pois.isNotEmpty()) {
             pois.sortWith(FavoriteFolderNameComparator(this.favoriteRepository, favFolders))
         }
+        // ADD missing date source type with empty at the end of list
+        homeScreenTypes
+            .filter { !pois.any { poi -> poi.poi.dataSourceTypeId == it.id } }
+            .forEach {
+                pois.add(TextMessage(textMessageId++, it.id, appContext.getString(R.string.favorite_folder_empty)).toPOIM())
+            }
         return pois
     }
 
