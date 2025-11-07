@@ -616,7 +616,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 			btn = makeHeaderBrowseButton(gridLine);
 			gridLine.addView(btn);
-			setupButton(btn, dst, dstToAgencies);
+			setupHeaderButton(btn, dst, dstToAgencies);
 			btn.setVisibility(View.VISIBLE);
 			availableButtons--;
 		}
@@ -632,7 +632,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertViewBinding.getRoot();
 	}
 
-	private void setupButton(MaterialButton btn, DataSourceType dst, Map<DataSourceType, List<AgencyProperties>> dstToAgencies) {
+	private void setupHeaderButton(MaterialButton btn, DataSourceType dst, Map<DataSourceType, List<AgencyProperties>> dstToAgencies) {
 		btn.setText(dst.getShortNamesResId());
 		if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
 			final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
@@ -652,9 +652,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		} else {
 			btn.setIcon(null);
 		}
+		setupHeaderButtonClick(btn, dst);
+		setupHeaderButtonColor(btn, dst, dstToAgencies);
+	}
+
+	private void setupHeaderButtonClick(MaterialButton btn, DataSourceType dst) {
 		btn.setOnClickListener(view ->
 				onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
 		);
+	}
+
+	private void setupHeaderButtonColor(MaterialButton btn, DataSourceType dst, Map<DataSourceType, List<AgencyProperties>> dstToAgencies) {
 		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT > 0) {
 			final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
 			if (dstAgencies != null && !dstAgencies.isEmpty()) {
@@ -664,7 +672,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dst.getId()),
 							LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
 					);
-					if (selectedAgencyAuthority == null || selectedAgencyAuthority.isEmpty()) {
+					if (TextUtils.isEmpty(selectedAgencyAuthority)) {
 						selectedAgencyAuthority = dstAgencies.get(0).getAuthority();
 					}
 				}
@@ -1574,9 +1582,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		if (holder.allBtn != null) {
 			final Map<DataSourceType, List<AgencyProperties>> dstToAgencies = this.dataSourcesRepository.getAllTypeToAgencies();
-			setupButton(holder.allBtn, type, dstToAgencies);
-			holder.allBtn.setIcon(null);
-			holder.allBtn.setText(R.string.all);
+			setupHeaderButtonColor(holder.allBtn, type, dstToAgencies);
+			setupHeaderButtonClick(holder.allBtn, type);
 		}
 		if (holder.nearbyBtn != null) {
 			holder.nearbyBtn.setOnClickListener(view ->

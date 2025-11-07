@@ -147,7 +147,7 @@ class FavoritesViewModel @Inject constructor(
         if (pois.isNotEmpty()) {
             pois.sortWith(FavoriteFolderNameComparator(this.favoriteRepository, favFolders))
         }
-        // ADD missing date source type with empty at the end of list
+        // ADD missing data source type with empty at the end of list
         homeScreenTypes
             .filter { !pois.any { poi -> poi.poi.dataSourceTypeId == it.id } }
             .forEach {
