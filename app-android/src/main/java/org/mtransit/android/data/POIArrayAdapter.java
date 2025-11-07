@@ -616,7 +616,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 			btn = makeHeaderBrowseButton(gridLine);
 			gridLine.addView(btn);
-			setupHeaderButton(btn, dst, dstToAgencies);
+			setupHeaderButtonTextAndIcon(btn, dst, dstToAgencies);
+			setupHeaderButtonClick(btn, dst);
+			setupHeaderButtonColor(btn, dst, dstToAgencies);
 			btn.setVisibility(View.VISIBLE);
 			availableButtons--;
 		}
@@ -632,7 +634,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertViewBinding.getRoot();
 	}
 
-	private void setupHeaderButton(MaterialButton btn, DataSourceType dst, Map<DataSourceType, List<AgencyProperties>> dstToAgencies) {
+	private static void setupHeaderButtonTextAndIcon(MaterialButton btn, DataSourceType dst, Map<DataSourceType, List<AgencyProperties>> dstToAgencies) {
 		btn.setText(dst.getShortNamesResId());
 		if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
 			final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
@@ -652,8 +654,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		} else {
 			btn.setIcon(null);
 		}
-		setupHeaderButtonClick(btn, dst);
-		setupHeaderButtonColor(btn, dst, dstToAgencies);
 	}
 
 	private void setupHeaderButtonClick(MaterialButton btn, DataSourceType dst) {
@@ -662,46 +662,53 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		);
 	}
 
-	private void setupHeaderButtonColor(MaterialButton btn, DataSourceType dst, Map<DataSourceType, List<AgencyProperties>> dstToAgencies) {
-		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT > 0) {
-			final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
-			if (dstAgencies != null && !dstAgencies.isEmpty()) {
-				String selectedAgencyAuthority = null;
-				if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1) {
-					selectedAgencyAuthority = this.localPreferenceRepository.getValue( // TODO async?
-							LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dst.getId()),
-							LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
-					);
-					if (TextUtils.isEmpty(selectedAgencyAuthority)) {
-						selectedAgencyAuthority = dstAgencies.get(0).getAuthority();
-					}
-				}
-				final ArrayList<Integer> colors = new ArrayList<>();
-				for (AgencyProperties agency : dstAgencies) {
-					if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1
-							&& !agency.getAuthority().equals(selectedAgencyAuthority)) {
-						continue;
-					}
-					final Integer color = agency.getColorInt();
-					if (color != null) {
-						colors.add(UIColorUtils.adaptBackgroundColorToLightText(getContext(), color));
-					}
-				}
-				if (colors.size() == 1) {
-					btn.setBackgroundColor(colors.get(0));
-				} else if (colors.size() >= 2) {
-					final int max = Math.max(2, UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT); // gradient needs 2+
-					final int[] colorArray = Ints.toArray(ColorUtils.filterColors(colors, max));
-					final GradientDrawable gradient = new GradientDrawable(
-							GradientDrawable.Orientation.LEFT_RIGHT,
-							colorArray
-					);
-					gradient.setShape(GradientDrawable.RECTANGLE);
-					gradient.setCornerRadius(ResourceUtils.convertDPtoPX(getContext(), 4));
-					btn.setBackgroundTintList(null);
-					btn.setBackgroundDrawable(gradient);
-				}
+	@UiThread
+	private void setupHeaderButtonColor(MaterialButton btn,
+										DataSourceType dst,
+										Map<DataSourceType, List<AgencyProperties>> dstToAgencies
+	) {
+		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT <= 0) {
+			return;
+		}
+		final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
+		if (dstAgencies == null || dstAgencies.isEmpty()) {
+			return;
+		}
+		String selectedAgencyAuthority = null;
+		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1) {
+			//noinspection WrongThread # TODO async?
+			selectedAgencyAuthority = this.localPreferenceRepository.getValue(
+					LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dst.getId()),
+					LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
+			);
+			if (TextUtils.isEmpty(selectedAgencyAuthority)) {
+				selectedAgencyAuthority = dstAgencies.get(0).getAuthority();
 			}
+		}
+		final ArrayList<Integer> colors = new ArrayList<>();
+		for (AgencyProperties agency : dstAgencies) {
+			if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1
+					&& !agency.getAuthority().equals(selectedAgencyAuthority)) {
+				continue;
+			}
+			final Integer color = agency.getColorInt();
+			if (color != null) {
+				colors.add(UIColorUtils.adaptBackgroundColorToLightText(getContext(), color));
+			}
+		}
+		if (colors.size() == 1) {
+			btn.setBackgroundColor(colors.get(0));
+		} else if (colors.size() >= 2) {
+			final int max = Math.max(2, UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT); // gradient needs 2+
+			final int[] colorArray = Ints.toArray(ColorUtils.filterColors(colors, max));
+			final GradientDrawable gradient = new GradientDrawable(
+					GradientDrawable.Orientation.LEFT_RIGHT,
+					colorArray
+			);
+			gradient.setShape(GradientDrawable.RECTANGLE);
+			gradient.setCornerRadius(ResourceUtils.convertDPtoPX(getContext(), 4));
+			btn.setBackgroundTintList(null);
+			btn.setBackgroundDrawable(gradient);
 		}
 	}
 

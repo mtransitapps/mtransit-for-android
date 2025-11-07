@@ -148,8 +148,9 @@ class FavoritesViewModel @Inject constructor(
             pois.sortWith(FavoriteFolderNameComparator(this.favoriteRepository, favFolders))
         }
         // ADD missing data source type with empty at the end of list
+        val favoriteTypeIds = pois.map { it.poi.dataSourceTypeId }.toSet()
         homeScreenTypes
-            .filter { !pois.any { poi -> poi.poi.dataSourceTypeId == it.id } }
+            .filter { it.id !in favoriteTypeIds }
             .forEach {
                 pois.add(TextMessage(textMessageId++, it.id, appContext.getString(R.string.favorite_folder_empty)).toPOIM())
             }
