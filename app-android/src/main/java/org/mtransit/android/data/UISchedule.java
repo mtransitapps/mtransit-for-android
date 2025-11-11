@@ -26,10 +26,8 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.Accessibility;
-import org.mtransit.android.commons.data.Direction;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.util.UIAccessibilityUtils;
-import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
@@ -508,10 +506,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			SpannableStringBuilder dateSSB = null;
 			String fTime = UITimeUtils.formatTimestamp(context, t);
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
-			if (t.hasHeadsign() && !Direction.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
-				headSignSSB = new SpannableStringBuilder(
-						UIDirectionUtils.decorateDirection(context, t.getUIHeading(context, true), false)
-				);
+			final CharSequence timestampHeading = DirectionExtKt.makeHeading(t, context, optDefaultHeadSign, true);
+			if (timestampHeading != null) {
+				headSignSSB = new SpannableStringBuilder(timestampHeading);
 			}
 			final CharSequence a11y = UIAccessibilityUtils.decorate(
 					context,

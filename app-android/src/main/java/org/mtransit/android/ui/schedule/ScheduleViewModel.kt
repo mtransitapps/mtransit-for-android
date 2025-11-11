@@ -33,6 +33,7 @@ import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.beginningOfDay
 import org.mtransit.commons.toCalendar
+import java.util.Calendar
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -144,10 +145,17 @@ class ScheduleViewModel @Inject constructor(
         savedStateHandle[EXTRA_SCROLLED_TO_NOW] = scrolledToNow
     }
 
-    val selectedDateInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_SELECTED_DATE_IN_MS)
+    val selectedDateBeginningOfDayInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_SELECTED_DATE_IN_MS)
 
-    fun setSelectedDate(dateInMs: Long) {
-        savedStateHandle[EXTRA_SELECTED_DATE_IN_MS] = dateInMs
+    fun setSelectedDate(dateInMs: Long?) {
+        dateInMs ?: return
+        dateInMs.toCalendar().beginningOfDay.let { beginningOfDay ->
+            setSelectedDateBeginningOfDay(beginningOfDay)
+        }
+    }
+
+    fun setSelectedDateBeginningOfDay(beginningOfDay: Calendar) {
+        savedStateHandle[EXTRA_SELECTED_DATE_IN_MS] = beginningOfDay.timeInMillis
     }
 
     private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = this.authority.switchMap { authority ->

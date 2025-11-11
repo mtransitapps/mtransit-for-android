@@ -1,13 +1,14 @@
 package org.mtransit.android.ui.schedule
 
 import android.annotation.SuppressLint
+import android.graphics.Typeface
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import androidx.annotation.ColorInt
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.data.UISchedule
 import org.mtransit.android.databinding.LayoutScheduleCalendarDayItemBinding
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.beginningOfDay
@@ -26,6 +27,15 @@ class HorizontalCalendarAdapter : RecyclerView.Adapter<HorizontalCalendarAdapter
     }
 
     override fun getLogTag(): String = LOG_TAG
+
+    @ColorInt
+    var colorInt: Int? = null
+        @SuppressLint("NotifyDataSetChanged")
+        set(value) {
+            if (field == value) return
+            field = value
+            notifyDataSetChanged()
+        }
 
     private val dayNameFormat = SimpleDateFormat("EEE", Locale.getDefault())
     private val monthNameFormat = SimpleDateFormat("MMM", Locale.getDefault())
@@ -64,33 +74,28 @@ class HorizontalCalendarAdapter : RecyclerView.Adapter<HorizontalCalendarAdapter
     private fun updateDays() {
         val startInMs = this.startInMs ?: return
         val endInMs = this.endInMs ?: return
-        
+
         days.clear()
-        
+
         val calendar = startInMs.toCalendar(localTimeZone).beginningOfDay
         val endCalendar = endInMs.toCalendar(localTimeZone).beginningOfDay
-        
+
         while (calendar.timeInMillis <= endCalendar.timeInMillis) {
             days.add(calendar.timeInMillis)
             calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
-        
+
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun selectDay(dayInMs: Long, notifyAdapter: Boolean = true) {
-        MTLog.d(this, "selectDay() > dayInMs: $dayInMs")
-        val previousSelectedIndex = selectedDayInMs?.let { days.indexOf(it) } ?: -1
+        val previousSelectedIndex = getSelectedPosition()
         selectedDayInMs = dayInMs
-        val newSelectedIndex = days.indexOf(dayInMs)
-        
+        val newSelectedIndex = getSelectedPosition()
+        if (previousSelectedIndex == newSelectedIndex) return
         if (notifyAdapter) {
-            if (previousSelectedIndex >= 0) {
-                notifyItemChanged(previousSelectedIndex)
-            }
-            if (newSelectedIndex >= 0) {
-                notifyItemChanged(newSelectedIndex)
-            }
+            notifyDataSetChanged() // need to redraw all days to remove selected
         }
     }
 
@@ -126,44 +131,58 @@ class HorizontalCalendarAdapter : RecyclerView.Adapter<HorizontalCalendarAdapter
         private val binding: LayoutScheduleCalendarDayItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        @get:ColorInt
+        private val pastTextColorInt: Int by lazy { UISchedule.getDefaultPastTextColor(binding.root.context) }
+
+        @get:ColorInt
+        private val nowTextColorInt: Int by lazy { UISchedule.getDefaultNowTextColor(binding.root.context) }
+
+        @get:ColorInt
+        private val futureTextColorInt: Int by lazy { UISchedule.getDefaultFutureTextColor(binding.root.context) }
+
         private val calendar = Calendar.getInstance(localTimeZone)
 
-        fun bind(dayInMs: Long) {
+        fun bind(dayInMs: Long) = binding.apply {
             calendar.timeInMillis = dayInMs
-            
+
             val todayBeginning = UITimeUtils.currentTimeMillis().toCalendar(localTimeZone).beginningOfDay
             val dayBeginning = dayInMs.toCalendar(localTimeZone).beginningOfDay
             
             val isSelected = selectedDayInMs?.let { selectedMs ->
-                val selectedCal = selectedMs.toCalendar(localTimeZone).beginningOfDay
-                dayBeginning.isSameDay(selectedCal)
+                val selectedBeginning = selectedMs.toCalendar(localTimeZone).beginningOfDay
+                dayBeginning.isSameDay(selectedBeginning)
             } == true
             
             val isToday = dayBeginning.isSameDay(todayBeginning)
             val isPast = dayInMs < todayBeginning.timeInMillis
 
             // Set text values
-            binding.dayName.text = dayNameFormat.format(calendar.time)
-            binding.dayNumber.text = calendar.get(Calendar.DAY_OF_MONTH).toString()
-            binding.monthName.text = monthNameFormat.format(calendar.time)
+            dayName.text = dayNameFormat.format(calendar.time)
+            dayNumber.text = calendar.get(Calendar.DAY_OF_MONTH).toString()
+            monthName.text = monthNameFormat.format(calendar.time)
 
+            val typeface = if (isToday) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             // Make today bold
-            if (isToday) {
-                binding.dayNumber.setTypeface(null, android.graphics.Typeface.BOLD)
-            } else {
-                binding.dayNumber.setTypeface(null, android.graphics.Typeface.NORMAL)
+            dayName.typeface = typeface
+            dayNumber.typeface = typeface
+            monthName.typeface = typeface
+
+            // Update selection state
+            selectionIndicator.apply {
+                colorInt?.let { setBackgroundColor(it) }
+                isVisible = isSelected
             }
-
-            // Update selection state - show/hide circular background
-            binding.selectionIndicator.visibility = if (isSelected) View.VISIBLE else View.GONE
-
             // Set alpha for past days (75% = 0.75f)
-            val alpha = if (isPast) 0.75f else 1f
-            binding.dayName.alpha = alpha
-            binding.dayNumber.alpha = alpha
-            binding.monthName.alpha = alpha
+            val color = when {
+                isPast -> pastTextColorInt
+                isToday -> nowTextColorInt
+                else -> futureTextColorInt
+            }
+            dayName.setTextColor(color)
+            dayNumber.setTextColor(color)
+            monthName.setTextColor(color)
 
-            binding.root.setOnClickListener {
+            root.setOnClickListener {
                 selectDay(dayInMs)
                 onDaySelected?.invoke(dayInMs)
             }

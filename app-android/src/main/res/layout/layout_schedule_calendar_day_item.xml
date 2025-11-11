@@ -1,57 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center"
+    android:minWidth="@dimen/baseline_56"
+    android:orientation="vertical"
     android:padding="@dimen/baseline_4">
 
-    <!-- Circular selection background -->
+    <TextView
+        android:id="@+id/day_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="@dimen/text_size_small"
+        android:textStyle="normal"
+        tools:text="@tools:sample/date/day_of_week" />
+
+    <TextView
+        android:id="@+id/day_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/baseline_2"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="normal"
+        tools:text="2" />
+
+    <TextView
+        android:id="@+id/month_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="@dimen/text_size_extra_small"
+        android:textStyle="normal"
+        tools:text="Jun" />
+
     <View
         android:id="@+id/selection_indicator"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_gravity="center"
-        android:background="@drawable/calendar_day_circle"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/baseline_4"
+        android:layout_marginTop="@dimen/baseline_2"
+        android:background="?attr/colorOnBackground"
         android:visibility="gone"
         tools:visibility="visible" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:minWidth="56dp"
-        android:padding="@dimen/baseline_4"
-        android:background="?attr/selectableItemBackgroundBorderless">
-
-        <TextView
-            android:id="@+id/day_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="12sp"
-            android:textStyle="normal"
-            tools:text="Mon" />
-
-        <TextView
-            android:id="@+id/day_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="20sp"
-            android:textStyle="normal"
-            android:layout_marginTop="@dimen/baseline_2"
-            tools:text="21" />
-
-        <TextView
-            android:id="@+id/month_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="10sp"
-            android:textStyle="normal"
-            tools:text="Sep" />
-
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>

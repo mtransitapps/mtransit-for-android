@@ -17,11 +17,17 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <include
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/horizontal_calendar"
-            layout="@layout/layout_schedule_horizontal_calendar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="?attr/colorSurface"
+            android:clipToPadding="false"
+            android:orientation="horizontal"
+            android:paddingVertical="@dimen/baseline_8"
+            android:scrollbars="none"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/layout_schedule_calendar_day_item" />
 
         <FrameLayout
             android:layout_width="match_parent"

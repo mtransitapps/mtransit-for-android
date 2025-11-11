@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.dp
@@ -128,7 +128,7 @@ class RDSAgencyRoutesAdapter(
             MTTransitions.setTransitionName(routeLayout, "r_" + agency.authority + "_" + route.id)
             // SHORT NAME & LOGO
             if (route.shortName.isBlank()) { // NO RSN
-                routeShortName.visibility = View.INVISIBLE // keep size
+                routeShortName.isInvisible = true // keep size
                 if (routeTypeImg.hasPaths()
                     && agency.authority == routeTypeImg.tag
                 ) {

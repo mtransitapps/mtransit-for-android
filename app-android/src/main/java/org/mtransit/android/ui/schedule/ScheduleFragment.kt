@@ -17,10 +17,14 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -133,15 +137,41 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 }
             }
         }
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                updateCurrentSelectedDayJob?.cancel()
+                onRecyclerViewScrolling(recyclerView)
+                return
+            }
+            var debounceInMs = 33L
+            updateCurrentSelectedDayJob?.cancel()
+            updateCurrentSelectedDayJob = this@ScheduleFragment.lifecycleScope.launch {
+                while (true) {
+                    onRecyclerViewScrolling(recyclerView)
+                    delay(debounceInMs) // debounce / throttle
+                }
+            }
+        }
+
+        private fun onRecyclerViewScrolling(recyclerView: RecyclerView) {
+            val scrollPosition = (recyclerView.layoutManager as? LinearLayoutManager)
+                ?.findFirstCompletelyVisibleItemPosition()
+                ?: -1
+            scrollPosition.takeIf { it >= 0 } ?: return
+            listAdapter.getItemTimestamp(scrollPosition)?.let {
+                attachedViewModel?.setSelectedDate(it)
+            }
+        }
+
+        private var updateCurrentSelectedDayJob: Job? = null
     }
 
     private val calendarScrollListener = object : OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            (recyclerView.layoutManager as? LinearLayoutManager)?.let { layoutManager ->
+            (recyclerView.layoutManager as? LinearLayoutManager)?.let { linearLayoutManager ->
                 // Load more days when scrolling near the end
-                val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
-                val itemCount = horizontalCalendarAdapter.itemCount
-                if (lastVisiblePosition >= itemCount - 3 && itemCount > 0) {
+                val loadingPosition: Int = recyclerView.adapter?.itemCount?.minus(1) ?: -1
+                if (linearLayoutManager.findLastCompletelyVisibleItemPosition() == loadingPosition) {
                     recyclerView.post {
                         attachedViewModel?.increaseEndTime()
                     }
@@ -165,27 +195,12 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             }
             setupScreenToolbar(screenToolbarLayout)
             // Initialize horizontal calendar with RecyclerView
-            horizontalCalendar.root.apply {
+            horizontalCalendar.apply {
                 adapter = horizontalCalendarAdapter
                 addOnScrollListener(calendarScrollListener)
             }
             horizontalCalendarAdapter.setOnDaySelectedListener { selectedDateInMs ->
                 viewModel.setSelectedDate(selectedDateInMs)
-                // Scroll calendar to center on selected day
-                val selectedPosition = horizontalCalendarAdapter.getSelectedPosition()
-                if (selectedPosition >= 0) {
-                    (horizontalCalendar.root.layoutManager as? androidx.recyclerview.widget.LinearLayoutManager)?.let { layoutManager ->
-                        horizontalCalendar.root.post {
-                            // Calculate offset to center the selected item
-                            val recyclerViewWidth = horizontalCalendar.root.width
-                            val itemWidth = if (horizontalCalendar.root.childCount > 0) {
-                                horizontalCalendar.root.getChildAt(0)?.width ?: 0
-                            } else 0
-                            val offset = if (itemWidth > 0) (recyclerViewWidth - itemWidth) / 2 else 0
-                            layoutManager.scrollToPositionWithOffset(selectedPosition, offset)
-                        }
-                    }
-                }
                 // Scroll list to the selected date
                 listAdapter.getScrollToDatePosition(selectedDateInMs)?.let { position ->
                     list.scrollToPositionWithOffset(position, 0)
@@ -199,6 +214,19 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                         bottomMargin = insets.bottom
                     }
                 }
+            }
+        }
+        viewModel.selectedDateBeginningOfDayInMs.observe(viewLifecycleOwner) { selectedDateBeginningOfDayInMs ->
+            selectedDateBeginningOfDayInMs ?: return@observe
+            binding?.apply {
+                horizontalCalendarAdapter.getPositionForDay(selectedDateBeginningOfDayInMs)
+                    .takeIf { it >= 0 }
+                    ?.let { selectedPosition ->
+                        val childWidth = horizontalCalendar.getChildAt(selectedPosition)?.width?.div(2) ?: 0
+                        val offset = (horizontalCalendar.width / 2) + childWidth
+                        horizontalCalendar.scrollToPositionWithOffset(selectedPosition, offset)
+                        horizontalCalendarAdapter.selectDay(selectedDateBeginningOfDayInMs, notifyAdapter = true)
+                    }
             }
         }
         viewModel.localTimeZone.observe(viewLifecycleOwner) { localTimeZone ->
@@ -216,18 +244,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             // Synchronize calendar with schedule list
             horizontalCalendarAdapter.startInMs = startInMs
             horizontalCalendarAdapter.endInMs = endInMs
-            binding?.list?.apply {
-                if (scrollPosition > 0) {
-                    scrollToPosition(scrollPosition)
-                }
-            }
-            // Scroll calendar to today if not yet scrolled
-            if (viewModel.scrolledToNow.value == false && startInMs != null) {
-                val todayPosition = horizontalCalendarAdapter.getPositionForDay(UITimeUtils.currentTimeMillis())
-                if (todayPosition >= 0) {
-                    binding?.horizontalCalendar?.root?.scrollToPosition(todayPosition)
-                    horizontalCalendarAdapter.selectDay(UITimeUtils.currentTimeMillis(), notifyAdapter = true)
-                }
+            binding?.apply {
+                scrollPosition.takeIf { it > 0 }?.let { list.scrollToPosition(it) }
             }
         }
         viewModel.scrolledToNow.observe(viewLifecycleOwner) {
@@ -244,8 +262,11 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             binding?.apply {
                 if (timestamps != null) {
                     if (viewModel.scrolledToNow.value == false) {
-                        listAdapter.getScrollToNowPosition()?.let {
-                            list.scrollToPositionWithOffset(it, 48.dp)
+                        listAdapter.getScrollToNowPosition()?.let { position ->
+                            list.scrollToPositionWithOffset(position, 48.dp)
+                            listAdapter.getItemTimestamp(position)?.let { timestamp ->
+                                viewModel.setSelectedDate(timestamp)
+                            }
                         }
                         viewModel.setScrolledToNow(true)
                     } else if (scrollPosition > 0) {
@@ -267,15 +288,15 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
-        viewModel.colorInt.observe(viewLifecycleOwner) {
+        viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             abController?.setABBgColor(this, getABBgColor(context), false)
+            horizontalCalendarAdapter.colorInt = colorInt
         }
         viewModel.agency.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
         }
         viewModel.rds.observe(viewLifecycleOwner) {
-            abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABSubtitle(this, getABSubtitle(context), false)
@@ -309,8 +330,11 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         return when (menuItem.itemId) {
             R.id.menu_today -> {
                 binding?.apply {
-                    listAdapter.getScrollToNowPosition()?.let {
-                        this.list.scrollToPositionWithOffset(it, 48.dp)
+                    listAdapter.getScrollToNowPosition()?.let { position ->
+                        list.scrollToPositionWithOffset(position, 48.dp)
+                        listAdapter.getItemTimestamp(position)?.let { timestamp ->
+                            viewModel.setSelectedDate(timestamp)
+                        }
                     }
                     viewModel.setScrolledToNow(true)
                 }

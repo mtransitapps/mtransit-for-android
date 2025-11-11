@@ -2,6 +2,7 @@ package org.mtransit.android.ui.view.poi.status
 
 import android.view.View
 import androidx.annotation.CallSuper
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
 import org.mtransit.android.R
@@ -26,11 +27,11 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
     }
 
     fun showStatus() {
-        statusV.visibility = View.VISIBLE // NOT GONE!
+        statusV.isVisible = true // NOT GONE!
     }
 
     fun hideStatus() {
-        statusV.visibility = View.INVISIBLE // NOT GONE!
+        statusV.isInvisible = true // NOT GONE!
     }
 
     fun fetch(statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIStatusDataProvider): STATUS?

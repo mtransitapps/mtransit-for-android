@@ -79,6 +79,4 @@
 
     <color name="transparent">#00000000</color>
 
-    <color name="schedule_calendar_selection">#FFEB3B</color><!-- Yellow selection indicator -->
-
 </resources>
