@@ -26,8 +26,10 @@
             android:orientation="horizontal"
             android:paddingVertical="@dimen/baseline_8"
             android:scrollbars="none"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/layout_schedule_calendar_day_item" />
+            tools:listitem="@layout/layout_schedule_calendar_day_item"
+            tools:visibility="visible" />
 
         <FrameLayout
             android:layout_width="match_parent"

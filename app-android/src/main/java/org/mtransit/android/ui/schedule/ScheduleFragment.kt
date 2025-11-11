@@ -196,6 +196,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             setupScreenToolbar(screenToolbarLayout)
             // Initialize horizontal calendar with RecyclerView
             horizontalCalendar.apply {
+                isVisible = UIFeatureFlags.F_SCHEDULE_HORIZONTAL_CALENDAR
                 adapter = horizontalCalendarAdapter
                 addOnScrollListener(calendarScrollListener)
             }
