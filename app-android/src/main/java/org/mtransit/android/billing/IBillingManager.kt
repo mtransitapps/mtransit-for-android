@@ -147,8 +147,8 @@ fun List<NewsProviderProperties>.filterExpansiveNewsProviders(billingManager: IB
 
 fun List<NewsProviderProperties>.filterExpansiveNewsProviders(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<NewsProviderProperties> {
     if (showingPaidFeatures) return this // keep all for paid users
-    return filterTo(ArrayList()) { agency ->
-        filterExpansiveAgencyAuthorities(agency.authority, allowTwitterNewsForFree)
+    return filterTo(ArrayList()) { newsProvider ->
+        filterExpansiveAgencyAuthorities(newsProvider.authority, allowTwitterNewsForFree)
     }
 }
 
