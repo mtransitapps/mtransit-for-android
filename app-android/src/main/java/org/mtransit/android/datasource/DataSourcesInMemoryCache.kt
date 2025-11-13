@@ -18,6 +18,7 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.dev.filterDemoModeAgency
 import org.mtransit.android.dev.filterDemoModeTargeted
 import org.mtransit.android.dev.filterDemoModeType
+import org.mtransit.android.provider.experiments.ExperimentsProvider
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.commons.addAllNNE
 import javax.inject.Inject
@@ -29,6 +30,7 @@ class DataSourcesInMemoryCache @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val dataSourcesCache: DataSourcesCache,
     private val billingManager: IBillingManager,
+    private val experimentsProvider: ExperimentsProvider,
     private val demoModeManager: DemoModeManager,
 ) : MTLog.Loggable {
 
@@ -59,13 +61,13 @@ class DataSourcesInMemoryCache @Inject constructor(
     private fun startListeningForChangesIntoMemory() {
         dataSourcesCache.readingAllAgencies().observeForever { agencies -> // SINGLETON
             this._agencyProperties = agencies
-                .filterExpansiveAgencies(billingManager)
+                .filterExpansiveAgencies(billingManager, experimentsProvider)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
         dataSourcesCache.readingAllAgenciesBase().observeForever { agencies -> // SINGLETON
             this._agencyBaseProperties = agencies
-                .filterExpansiveAgencies(billingManager)
+                .filterExpansiveAgencies(billingManager, experimentsProvider)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
@@ -92,7 +94,7 @@ class DataSourcesInMemoryCache @Inject constructor(
         }
         dataSourcesCache.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
             this._newsProviderProperties = newsProviders
-                .filterExpansiveNewsProviders(billingManager)
+                .filterExpansiveNewsProviders(billingManager, experimentsProvider)
                 .filterDemoModeTargeted(demoModeManager)
         }
     }
