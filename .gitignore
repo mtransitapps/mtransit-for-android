@@ -68,6 +68,7 @@ captures/
 .idea/compiler.xml
 .idea/deviceManager.xml
 .idea/jarRepositories.xml
+.idea/markdown.xml
 .idea/modules.xml
 .idea/*.iml
 .idea/misc.xml
