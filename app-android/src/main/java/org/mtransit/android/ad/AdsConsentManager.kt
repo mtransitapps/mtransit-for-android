@@ -59,7 +59,8 @@ class AdsConsentManager @Inject constructor(
             }
         }.build()
         consentInformation.requestConsentInfoUpdate(
-            activity, consentRequestParams,
+            activity,
+            consentRequestParams,
             {
                 MTLog.d(this, "Consent information successfully updated.")
                 loadAndShowConsentFormIfRequired(activity, onConsentGatheringCompleteListener)
