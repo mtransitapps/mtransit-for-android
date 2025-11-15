@@ -3,7 +3,6 @@ package org.mtransit.android.ui.view.poi.status
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.data.POIManager
