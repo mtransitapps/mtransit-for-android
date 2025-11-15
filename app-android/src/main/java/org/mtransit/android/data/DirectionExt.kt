@@ -10,3 +10,15 @@ fun Direction.decorateDirection(context: Context, small: Boolean, centered: Bool
 
 fun Schedule.Timestamp.decorateDirection(context: Context, small: Boolean) =
     UIDirectionUtils.decorateDirection(context, this.getUIHeading(context, small), false)
+
+fun Schedule.Timestamp.makeHeading(context: Context, optDirectionHeading: String? = null, small: Boolean): CharSequence? {
+    if (!hasHeadsign()) return null
+    val timestampHeading = getHeading(context)
+    val directionHeading = optDirectionHeading.orEmpty()
+    if (Direction.isSameHeadsign(timestampHeading, directionHeading)) return null
+    return if (timestampHeading.startsWith(directionHeading)) {
+        timestampHeading.substring(directionHeading.length).trim()
+    } else {
+        decorateDirection(context, small = small)
+    }
+}

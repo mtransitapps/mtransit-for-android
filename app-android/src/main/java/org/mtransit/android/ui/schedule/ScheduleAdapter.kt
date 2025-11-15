@@ -21,6 +21,7 @@ import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.equalOrAfter
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.decorateDirection
+import org.mtransit.android.data.makeHeading
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleLoadingBinding
@@ -35,6 +36,7 @@ import org.mtransit.commons.date
 import org.mtransit.commons.hourOfTheDay
 import org.mtransit.commons.isSameDay
 import org.mtransit.commons.toCalendar
+import java.text.DateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -155,7 +157,7 @@ class ScheduleAdapter
     }
 
     private val dayDateFormat by lazy {
-        ThreadSafeDateFormatter("EEEE, MMM d, yyyy", Locale.getDefault()).apply {
+        ThreadSafeDateFormatter(DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault())).apply {
             localTimeZone?.let { setTimeZone(it) }
         }
     }
@@ -623,13 +625,8 @@ class ScheduleAdapter
                 )
             )
             val timeOnly = timeSb.toString()
-            if (timestamp.hasHeadsign()) {
-                val timestampHeading = timestamp.getHeading(context)
-                if (!Direction.isSameHeadsign(timestampHeading, optRds?.direction?.getHeading(context))) {
-                    timeSb.append(P1).append(
-                        timestamp.decorateDirection(context, false)
-                    ).append(P2)
-                }
+            timestamp.makeHeading(context, optRds?.direction?.getHeading(context), small = false)?.let {
+                timeSb.append(P1).append(it).append(P2)
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
