@@ -4,6 +4,9 @@ import androidx.lifecycle.LiveData
 import com.android.billingclient.api.ProductDetails
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
+import org.mtransit.android.provider.experiments.ExperimentsProvider
+import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE
+import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.UIFeatureFlags
 
@@ -110,39 +113,48 @@ interface IBillingManager {
     }
 }
 
-fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager) =
-    this.filterExpansiveAgencies(billingManager.showingPaidFeatures())
+fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager, experimentsProvider: ExperimentsProvider) =
+    filterExpansiveAgencies(
+        billingManager.showingPaidFeatures(),
+        experimentsProvider.get(EXP_ALLOW_TWITTER_NEWS_FOR_FREE, EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
+    )
 
-fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures: Boolean): List<T> {
+fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<T> {
     if (showingPaidFeatures) return this // keep all for paid users
-    return this.filterTo(ArrayList()) { agency ->
-        filterExpansiveAgencyAuthorities(agency.authority)
+    return filterTo(ArrayList()) { agency ->
+        filterExpansiveAgencyAuthorities(agency.authority, allowTwitterNewsForFree)
     }
 }
 
-fun List<String>.filterExpansiveAgencyAuthorities(billingManager: IBillingManager) =
-    this.filterExpansiveAgencyAuthorities(billingManager.showingPaidFeatures())
+fun List<String>.filterExpansiveAgencyAuthorities(billingManager: IBillingManager, experimentsProvider: ExperimentsProvider) =
+    filterExpansiveAgencyAuthorities(
+        billingManager.showingPaidFeatures(),
+        experimentsProvider.get(EXP_ALLOW_TWITTER_NEWS_FOR_FREE, EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT),
+    )
 
-fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean): List<String> {
+fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<String> {
     if (showingPaidFeatures) return this // keep all for paid users
-    return this.filterTo(ArrayList()) { authority ->
-        filterExpansiveAgencyAuthorities(authority)
+    return filterTo(ArrayList()) { authority ->
+        filterExpansiveAgencyAuthorities(authority, allowTwitterNewsForFree)
     }
 }
 
-fun List<NewsProviderProperties>.filterExpansiveNewsProviders(billingManager: IBillingManager) =
-    this.filterExpansiveNewsProviders(billingManager.showingPaidFeatures())
+fun List<NewsProviderProperties>.filterExpansiveNewsProviders(billingManager: IBillingManager, experimentsProvider: ExperimentsProvider) =
+    filterExpansiveNewsProviders(
+        billingManager.showingPaidFeatures(),
+        experimentsProvider.get(EXP_ALLOW_TWITTER_NEWS_FOR_FREE, EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
+    )
 
-fun List<NewsProviderProperties>.filterExpansiveNewsProviders(showingPaidFeatures: Boolean): List<NewsProviderProperties> {
+fun List<NewsProviderProperties>.filterExpansiveNewsProviders(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<NewsProviderProperties> {
     if (showingPaidFeatures) return this // keep all for paid users
-    return this.filterTo(ArrayList()) { agency ->
-        filterExpansiveAgencyAuthorities(agency.authority)
+    return filterTo(ArrayList()) { newsProvider ->
+        filterExpansiveAgencyAuthorities(newsProvider.authority, allowTwitterNewsForFree)
     }
 }
 
-private val filterExpansiveAgencyAuthorities: (String) -> Boolean = { authority ->
+private val filterExpansiveAgencyAuthorities: (String, allowTwitterNewsForFree: Boolean) -> Boolean = { authority, allowTwitterNewsForFree ->
     (
-            !authority.contains("news.twitter") // Twitter/X API
+            (allowTwitterNewsForFree || !authority.contains("news.twitter")) // Twitter/X API
                     && !authority.contains("provider.place") // Google Place Search API
             )
 }

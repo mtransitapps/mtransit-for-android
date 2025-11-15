@@ -13,6 +13,9 @@ class ExperimentsProvider @Inject constructor(
 
         // const val EXP_AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC = "mt_ad_banner_load_on_screen_resume_min_duration_sec"
         // const val EXP_AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT = 1L // -> 1 second is outperforming Baseline (-1=disabled) by 114% (& 2,3,5,7,10)
+
+        const val EXP_ALLOW_TWITTER_NEWS_FOR_FREE = "mt_twitter_news_free"
+        const val EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT = false
     }
 
     @Suppress("unused")

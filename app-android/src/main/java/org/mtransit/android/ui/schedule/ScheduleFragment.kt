@@ -278,9 +278,6 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 list.isVisible = listAdapter.isReady()
             }
         }
-        viewModel.rds.observe(viewLifecycleOwner) { rds ->
-            listAdapter.setRDS(rds)
-        }
         viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
             listAdapter.showingAccessibility = showAccessibility
         }
@@ -297,7 +294,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
         }
-        viewModel.rds.observe(viewLifecycleOwner) {
+        viewModel.rds.observe(viewLifecycleOwner) { rds ->
+            listAdapter.setRDS(rds)
             abController?.setABTitle(this, getABTitle(context), false)
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABSubtitle(this, getABSubtitle(context), false)

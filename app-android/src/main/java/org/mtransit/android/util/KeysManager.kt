@@ -4,16 +4,22 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.KeysIds
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils.EMPTY
 import org.mtransit.android.data.ITargetedProviderProperties
+import org.mtransit.android.provider.experiments.ExperimentsProvider
+import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE
+import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class KeysManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
+    private val billingManager: IBillingManager,
+    private val experimentsProvider: ExperimentsProvider,
 ) {
 
     companion object {
@@ -45,21 +51,30 @@ class KeysManager @Inject constructor(
 
         private fun getKeyEntry(context: Context, key: String) = getKey(context, key)?.let { key to it }
 
-        @JvmStatic
-        fun getKeysMap(context: Context, authority: String): Map<String, String>? = when {
+        private fun getKeysMap(
+            context: Context,
+            billingManager: IBillingManager,
+            experimentsProvider: ExperimentsProvider,
+            authority: String
+        ): Map<String, String>? = when {
             // MAIN
             authority.endsWith("$debugS.provider.place") -> getKeyEntry(context, KeysIds.GOOGLE_PLACES_NEW_API_KEY)?.let { mapOf(it) }
             // NEWS
             authority.endsWith("$debugS.news.twitter") -> {
                 buildMap {
-                    getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)?.let { (key, value) ->
-                        put(key, value)
-                    }
-                    getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)?.let { (key, value) ->
-                        put(key, value)
-                    }
+                    getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)
+                        ?.takeIf { billingManager.showingPaidFeatures() }
+                        ?.let { (key, value) ->
+                            put(key, value)
+                        }
+                    getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)
+                        ?.takeIf { experimentsProvider.get(EXP_ALLOW_TWITTER_NEWS_FOR_FREE, EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT) }
+                        ?.let { (key, value) ->
+                            put(key, value)
+                        }
                 }.takeIf { it.isNotEmpty() }
             }
+
             authority.endsWith("$debugS.news.youtube") -> getKeyEntry(context, KeysIds.YOUTUBE_API_KEY)?.let { mapOf(it) }
             // GTFS
             authority.endsWith("$debugS.gtfs") -> null // no keys (static)
@@ -122,12 +137,13 @@ class KeysManager @Inject constructor(
             // CUSTOM
             authority.endsWith("$debugS.winnipeg_transit") -> getKeyEntry(context, KeysIds.CA_WINNIPEG_TRANSIT_API_KEY)?.let { mapOf(it) }
             else -> {
-                if (DEBUGGING_KEYS)  MTLog.d(LOG_TAG, "No key for '$authority'.")
+                if (DEBUGGING_KEYS) MTLog.d(LOG_TAG, "No key for '$authority'.")
                 null
             }
         }
     }
 
+    @Suppress("unused")
     fun getKeysMap(targetedProviders: Iterable<ITargetedProviderProperties>?): Map<String, String>? {
         targetedProviders ?: return null
         val map = mutableMapOf<String, String>()
@@ -137,9 +153,9 @@ class KeysManager @Inject constructor(
         return map
     }
 
-    fun getKeysMap(targetedProvider: ITargetedProviderProperties) = getKeysMap(targetedProvider.authority)
+    private fun getKeysMap(targetedProvider: ITargetedProviderProperties) = getKeysMap(targetedProvider.authority)
 
-    fun getKeysMap(authority: String) = getKeysMap(appContext, authority)
+    fun getKeysMap(authority: String) = getKeysMap(appContext, billingManager, experimentsProvider, authority)
 }
 
 /**
