@@ -38,4 +38,7 @@ object UIFeatureFlags {
     const val F_NEWS_THUMBNAIL_PLAY_BUTTON = false
     // const val F_NEWS_THUMBNAIL_PLAY_BUTTON = true // WIP
 
+    const val F_SCHEDULE_HORIZONTAL_CALENDAR = false
+    // const val F_SCHEDULE_HORIZONTAL_CALENDAR = true // WIP
+
 }

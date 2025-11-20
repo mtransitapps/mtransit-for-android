@@ -15,12 +15,10 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.Accessibility
-import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.equalOrAfter
 import org.mtransit.android.data.UISchedule
-import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.data.makeHeading
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
@@ -269,6 +267,26 @@ class ScheduleAdapter
         return null
     }
 
+    fun getScrollToDatePosition(dateInMs: Long): Int? {
+        if (!isReady()) return null
+        val localTimeZone = this.localTimeZone ?: return null
+        val targetCalendar = dateInMs.toCalendar(localTimeZone).beginningOfDay
+
+        var index = 0
+        this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
+            val dayCal = dayBeginningMs.toCalendar(localTimeZone).beginningOfDay
+            if (dayCal.timeInMillis == targetCalendar.timeInMillis) {
+                return index // Return position of day separator
+            }
+            index++ // day separator
+            hourToTimes.forEach { _, hourTimes ->
+                index++ // hour separator
+                index += hourTimes.size // times in this hour
+            }
+        }
+        return null
+    }
+
     private fun getTodaySelectPosition(): Int {
         nextTimestamp?.let { nextTimestamp ->
             val nextTimePosition: Int = getPosition(nextTimestamp)
@@ -341,6 +359,16 @@ class ScheduleAdapter
                     dayToHourToTimestamps.size + // day separator
                     dayToHourToTimestamps.size * HOUR_SEPARATORS_COUNT + // time separator
                     1 // loading
+    }
+
+    fun getItemTimestamp(position: Int): Long? {
+        return when (getItemViewType(position)) {
+            ITEM_VIEW_TYPE_TIME -> getTimestampItem(position)?.t
+            ITEM_VIEW_TYPE_DAY_SEPARATORS -> getDayItem(position)
+            ITEM_VIEW_TYPE_HOUR_SEPARATORS -> getHourItemTimestamp(position)
+            ITEM_VIEW_TYPE_LOADING -> null
+            else -> null
+        }
     }
 
     private fun getTimestampItem(position: Int): Schedule.Timestamp? {
