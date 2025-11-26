@@ -24,6 +24,7 @@ import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
+import org.mtransit.android.data.YOUTUBE_HTTP_HEADERS
 import org.mtransit.android.data.getAuthority
 import org.mtransit.android.data.getTwitterVideoId
 import org.mtransit.android.data.getUuid
@@ -347,7 +348,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                                 newsArticle.getYouTubeVideoId()?.let { videoId ->
                                     makeYouTubeEmbedVideoPlayerUrl(videoId, autoPlay = true, mute = true).let { newUrl ->
                                         if (url != newUrl) {
-                                            loadUrl(newUrl)
+                                            loadUrl(newUrl, YOUTUBE_HTTP_HEADERS)
                                         }
                                     }
                                 }
@@ -361,7 +362,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                         newsArticle.getYouTubeVideoId()?.let { videoId ->
                             makeYouTubeEmbedVideoPlayerUrl(videoId, autoPlay = false).let { newUrl ->
                                 if (url != newUrl) {
-                                    loadUrl(newUrl)
+                                    loadUrl(newUrl, YOUTUBE_HTTP_HEADERS)
                                 }
                             }
                         }

@@ -90,6 +90,10 @@ fun News.getYouTubeVideoId(): String? = this.takeIf { it.isYouTubeVideo }?.webUR
 private const val TRUE = "1"
 private const val FALSE = "0"
 
+val YOUTUBE_HTTP_HEADERS = mapOf(
+    "Referer" to "https://mtransitapps.github.io/", // solves "Error 153: Video player configuration error"
+)
+
 fun makeYouTubeEmbedVideoPlayerUrl(videoId: String, autoPlay: Boolean, mute: Boolean = autoPlay) = Uri.Builder().apply {
     scheme("https")
     authority("www.youtube.com")
