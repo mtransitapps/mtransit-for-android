@@ -62,7 +62,7 @@ jobs:
     steps:
 
       - name: MT check out main repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: mtransitapps/mtransit-for-android
           ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
@@ -99,7 +99,7 @@ jobs:
     steps:
 
       - name: MT check out main repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: mtransitapps/mtransit-for-android
           ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
@@ -135,7 +135,7 @@ jobs:
     steps:
 
       - name: MT check out main repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: mtransitapps/mtransit-for-android
           ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
