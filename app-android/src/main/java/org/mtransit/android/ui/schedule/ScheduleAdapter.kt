@@ -15,12 +15,10 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.Accessibility
-import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.equalOrAfter
 import org.mtransit.android.data.UISchedule
-import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.data.makeHeading
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding

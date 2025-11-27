@@ -184,14 +184,19 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@NonNull
 	public static String formatTimestamp(@NonNull Context context, @NonNull Timestamp timestamp) {
+		return formatTimestamp(context, timestamp, timestamp.getT());
+	}
+
+	@NonNull
+	public static String formatTimestamp(@NonNull Context context, @NonNull Timestamp timestamp, long timestampInMs) {
 		final String localTimeZone = timestamp.getLocalTimeZone();
 		if (localTimeZone != null) {
 			return cleanNoRealTime(timestamp.isRealTime(),
-					formatTime(context, timestamp.t, TimeZone.getTimeZone(localTimeZone))
+					formatTime(context, timestampInMs, TimeZone.getTimeZone(localTimeZone))
 			);
 		} else {
 			return cleanNoRealTime(timestamp.isRealTime(),
-					formatTime(context, timestamp.t)
+					formatTime(context, timestampInMs)
 			);
 		}
 	}
