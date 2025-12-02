@@ -23,7 +23,7 @@ import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager

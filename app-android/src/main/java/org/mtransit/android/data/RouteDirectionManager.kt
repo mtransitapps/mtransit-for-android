@@ -3,7 +3,7 @@ package org.mtransit.android.data
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.data.ServiceUpdate
-import org.mtransit.android.commons.provider.ServiceUpdateProviderContract
+import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder

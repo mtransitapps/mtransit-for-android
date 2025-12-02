@@ -31,12 +31,12 @@ import org.mtransit.android.commons.UriUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI.POIUtils
-import org.mtransit.android.commons.provider.AgencyProvider
-import org.mtransit.android.commons.provider.ContentProviderConstants
-import org.mtransit.android.commons.provider.MTSQLiteOpenHelper
-import org.mtransit.android.commons.provider.POIProvider
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.agency.AgencyProvider
+import org.mtransit.android.commons.provider.common.ContentProviderConstants
+import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper
 import org.mtransit.android.commons.provider.common.requiredContext
+import org.mtransit.android.commons.provider.poi.POIProvider
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.Place
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.toLatLngBounds

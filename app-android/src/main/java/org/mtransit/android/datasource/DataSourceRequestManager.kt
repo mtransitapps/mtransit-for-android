@@ -10,9 +10,9 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.Direction
-import org.mtransit.android.commons.provider.NewsProviderContract
-import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.news.NewsProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
+import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
