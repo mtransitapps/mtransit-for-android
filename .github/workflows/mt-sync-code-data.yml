@@ -3,6 +3,11 @@ name: MT sync code & data # download & parse
 on:
   workflow_dispatch: # manual
     inputs:
+      skip-download-data:
+        description: 'Skip trying to download new data (use data archive)'
+        type: boolean
+        default: false
+        required: false
       force-app-release:
         description: 'Force app release (even if no data change and latest release recent)'
         type: boolean
@@ -76,13 +81,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
       - name: MT commit code change
         run: ./commit_code_change.sh
-      # - name: MT download & prepare
-      #   timeout-minutes: 10
-      #   run: ./download_and_prepare.sh
       - name: MT download data (& archive)
-        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') && github.event.inputs.skip-download-data == 'false' }}
         timeout-minutes: 10
-        continue-on-error: true #optional
+        continue-on-error: true # optional (continue with archive data)
         run: ./download_only.sh
       - name: MT select archive
         if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
