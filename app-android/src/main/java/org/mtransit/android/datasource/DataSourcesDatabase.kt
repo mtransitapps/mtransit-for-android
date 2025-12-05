@@ -1,6 +1,7 @@
 package org.mtransit.android.datasource
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -13,6 +14,7 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.commons.sql.SQLUtils
 
 @Database(
@@ -21,9 +23,18 @@ import org.mtransit.commons.sql.SQLUtils
         StatusProviderProperties::class,
         ScheduleProviderProperties::class,
         ServiceUpdateProviderProperties::class,
+        VehicleLocationProviderProperties::class,
         NewsProviderProperties::class,
     ],
-    version = 5,
+    autoMigrations = [
+        /**
+         * ```sql
+         * CREATE TABLE IF NOT EXISTS `vehicle_location_provider_properties` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, `pkg` TEXT NOT NULL, PRIMARY KEY(`authority`))
+         * ```
+         */
+        AutoMigration(from = 5, to = 6),
+    ],
+    version = 6,
     exportSchema = true
 )
 @TypeConverters(DataSourcesConverters::class)
@@ -36,6 +47,8 @@ abstract class DataSourcesDatabase : RoomDatabase() {
     abstract fun scheduleProviderPropertiesDao(): ScheduleProviderPropertiesDao
 
     abstract fun serviceUpdateProviderPropertiesDao(): ServiceUpdateProviderPropertiesDao
+
+    abstract fun vehicleLocationProviderPropertiesDao(): VehicleLocationProviderPropertiesDao
 
     abstract fun newsProviderPropertiesDao(): NewsProviderPropertiesDao
 
