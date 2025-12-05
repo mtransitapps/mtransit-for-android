@@ -161,6 +161,8 @@ dev.properties
 /.idea/studiobot.xml
 /.idea/vcs.xml
 /.vscode/settings.json
+/all_apps_pidcat_tag_mt.sh
+/all_apps_pidcat_tag_mtd.sh
 /app_clear_data_debug.sh
 /app_grant_post_notifications_debug.sh
 /app_install_debug.sh
