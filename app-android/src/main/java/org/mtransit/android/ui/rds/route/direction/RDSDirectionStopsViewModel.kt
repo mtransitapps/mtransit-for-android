@@ -21,13 +21,17 @@ import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
+import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
+import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.RouteDirectionManager
+import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.data.toRouteDirectionM
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -38,6 +42,7 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 
@@ -101,6 +106,37 @@ class RDSDirectionStopsViewModel @Inject constructor(
         }
     }
 
+    val routeDirectionTripIds: LiveData<List<String>?> =
+        TripleMediatorLiveData(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
+            liveData(viewModelScope.coroutineContext) {
+                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                authority ?: return@liveData
+                routeId ?: return@liveData
+                directionId ?: return@liveData
+                emit(dataSourceRequestManager.findRDSRouteDirectionTrips(authority, routeId, directionId)?.map { it.tripId })
+            }
+        }
+
+    private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
+        dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
+    }
+
+    // TODO use VehicleLocationLoader like status and service update?
+    val vehicleLocations: LiveData<List<VehicleLocation>?> =
+        TripleMediatorLiveData(_vehicleLocationProviders, _routeDirection, routeDirectionTripIds).switchMap { (vehicleLocationProviders, rd, tripIds) ->
+            liveData(viewModelScope.coroutineContext) {
+                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                vehicleLocationProviders ?: return@liveData
+                rd ?: return@liveData
+                tripIds ?: return@liveData
+                emit(
+                    vehicleLocationProviders.mapNotNull {
+                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd, tripIds))
+                    }.flatten()
+                )
+            }
+        }
+
     val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
         .map { if (it < 0) null else it }
 
@@ -129,7 +165,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     private var serviceUpdateLoadedJob: Job? = null
 
-    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
             if (routeDirectionM.value?.routeDirection?.uuid != targetUUID) {
