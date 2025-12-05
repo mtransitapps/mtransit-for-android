@@ -41,6 +41,8 @@ import org.mtransit.android.commons.provider.poi.POIProviderContract;
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract;
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.status.StatusProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.commons.FeatureFlags;
 
@@ -148,6 +150,39 @@ public final class DataSourceManager implements MTLog.Loggable {
 			if (cursor.moveToFirst()) {
 				do {
 					result.add(News.fromCursorStatic(cursor, authority));
+				} while (cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
+	@Nullable
+	public static ArrayList<VehicleLocation> findVehicleLocations(
+			@NonNull Context context,
+			@NonNull String authority,
+			@Nullable VehicleLocationProviderContract.Filter vehicleLocationFilter
+	) {
+		Cursor cursor = null;
+		try {
+			final String vehicleLocationFilterJSONString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJSONString();
+			final Uri uri = Uri.withAppendedPath(getUri(authority), VehicleLocationProviderContract.VEHICLE_LOCATION_PATH);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, vehicleLocationFilterJSONString, null, null);
+			return getVehicleLocations(cursor);
+		} catch (Exception e) {
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' vehicle locations from '%s'!", vehicleLocationFilter, authority);
+			return null;
+		} finally {
+			SqlUtils.closeQuietly(cursor);
+		}
+	}
+
+	@NonNull
+	private static ArrayList<VehicleLocation> getVehicleLocations(@Nullable Cursor cursor) {
+		ArrayList<VehicleLocation> result = new ArrayList<>();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				do {
+					result.add(VehicleLocation.fromCursor(cursor));
 				} while (cursor.moveToNext());
 			}
 		}
