@@ -261,6 +261,7 @@ class DataSourcesReader @Inject constructor(
         val knownStatusProviderProperties = dataSourcesDatabase.statusProviderPropertiesDao().getAllStatusProvider()
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
+        val knownVehicleLocationProviderProperties = dataSourcesDatabase.vehicleLocationProviderPropertiesDao().getAllVehicleLocationProvider()
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
         @Suppress("DEPRECATION") // DO request all PKG providers info
         pm.getAllInstalledProvidersWithMetaData().forEach pkg@{ packageInfo ->
@@ -337,7 +338,7 @@ class DataSourcesReader @Inject constructor(
                 }
                 // VEHICLE LOCATION
                 if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
-                    if (knownServiceUpdateProviderProperties.none { it.authority == providerAuthority }) {
+                    if (knownVehicleLocationProviderProperties.none { it.authority == providerAuthority }) {
                         providerMetaData.getString(vehicleLocationProviderTargetMetaData)?.let { targetAuthority ->
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
