@@ -337,7 +337,7 @@ class DataSourcesReader @Inject constructor(
                 }
                 // VEHICLE LOCATION
                 if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
-                    if (knownScheduleProviderProperties.none { it.authority == providerAuthority }) {
+                    if (knownServiceUpdateProviderProperties.none { it.authority == providerAuthority }) {
                         providerMetaData.getString(vehicleLocationProviderTargetMetaData)?.let { targetAuthority ->
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
