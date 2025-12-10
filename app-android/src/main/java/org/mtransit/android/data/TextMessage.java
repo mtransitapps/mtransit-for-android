@@ -13,7 +13,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
-import org.mtransit.android.commons.provider.POIProviderContract;
+import org.mtransit.android.commons.provider.poi.POIProviderContract;
 
 @SuppressWarnings("WeakerAccess")
 public class TextMessage extends DefaultPOI {

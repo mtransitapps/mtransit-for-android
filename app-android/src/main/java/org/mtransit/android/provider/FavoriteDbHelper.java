@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
+import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper;
 import org.mtransit.commons.sql.SQLCreateBuilder;
 import org.mtransit.commons.sql.SQLInsertBuilder;
 
