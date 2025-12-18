@@ -100,7 +100,7 @@ jobs:
       - name: MT push commits
         run: ./push_commits.sh
       - name: MT artifact > GTFS files
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ !cancelled() }} # even if tests fails
         with:
           name: gtfs
@@ -109,7 +109,7 @@ jobs:
             agency-parser/input/gtfs_next.zip
           retention-days: 31
       - name: MT artifact > GTFS validator results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ !cancelled() }} # even if tests fails
         with:
           name: gtfs-validator-results
@@ -136,7 +136,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
       - name: MT artifact > app-android > APK & ABB
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: app-android-apk-bundle
           path: |
