@@ -18,7 +18,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager

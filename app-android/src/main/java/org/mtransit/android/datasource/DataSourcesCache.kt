@@ -85,6 +85,23 @@ class DataSourcesCache @Inject constructor(
 
     // endregion
 
+    // region VEHICLE LOCATIONS
+
+    private fun vehicleLocationProviderPropertiesDao() = dataSourcesDatabase.vehicleLocationProviderPropertiesDao()
+
+    suspend fun getAllVehicleLocationProviders() = vehicleLocationProviderPropertiesDao().getAllVehicleLocationProvider()
+
+    fun readingAllVehicleLocationProviders() = vehicleLocationProviderPropertiesDao().readingAllVehicleLocationProvider()
+
+    suspend fun getVehicleLocationProviders(targetAuthority: String) =
+        vehicleLocationProviderPropertiesDao().getTargetAuthorityVehicleLocationProvider(targetAuthority)
+
+    fun readingVehicleLocationProviders(targetAuthority: String?) = vehicleLocationProviderPropertiesDao().readingTargetAuthorityVehicleLocationProviders(targetAuthority)
+
+    suspend fun getVehicleLocationProvider(authority: String) = vehicleLocationProviderPropertiesDao().getVehicleLocationProvider(authority)
+
+    // endregion
+
     // region NEWS
 
     private fun newsProviderPropertiesDao() = dataSourcesDatabase.newsProviderPropertiesDao()
