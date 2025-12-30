@@ -218,6 +218,23 @@ class DataSourcesRepository @Inject constructor(
 
     fun getServiceUpdateProvider(authority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProvider(authority)
 
+    fun readingVehicleLocationProviders(targetAuthority: String?) = liveData {
+        targetAuthority?.let { providerAuthority ->
+            emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(providerAuthority))
+            emitSource(dataSourcesIOCache.readingVehicleLocationProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
+
+    // endregion
+
+    // region VEHICLE LOCATION
+
+    fun getAllVehicleLocationProviders() = this.dataSourcesInMemoryCache.getAllVehicleLocationProviders()
+
+    fun getVehicleLocationProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProviders(targetAuthority)
+
+    fun getVehicleLocationProvider(authority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProvider(authority)
+
     // endregion
 
     // region TARGETED PROVIDERS
@@ -282,6 +299,8 @@ class DataSourcesRepository @Inject constructor(
 
     fun getNewsProvider(authority: String) = this.dataSourcesInMemoryCache.getNewsProvider(authority)
 
+    // endregion
+
     private var runningUpdate: Boolean = false
 
     private val mutex = Mutex()
@@ -331,6 +350,4 @@ class DataSourcesRepository @Inject constructor(
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
         return this.dataSourcesReader.isAProvider(pkg, agencyOnly)
     }
-
-    // endregion
 }

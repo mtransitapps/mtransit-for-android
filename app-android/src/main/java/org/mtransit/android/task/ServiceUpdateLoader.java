@@ -10,7 +10,7 @@ import org.mtransit.android.BuildConfig;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
+import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;

@@ -14,7 +14,7 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.set
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
