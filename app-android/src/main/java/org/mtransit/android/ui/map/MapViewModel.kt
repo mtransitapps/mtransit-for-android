@@ -330,12 +330,12 @@ class MapViewModel @Inject constructor(
         var authority: String
         var color: Int?
         var secondaryColor: Int?
-        agencyPOIs?.map {
+        agencyPOIs.map {
             it to POIMarker.getLatLng(it)
-        }?.filterNot { (_, position) ->
+        }.filterNot { (_, position) ->
             !loadingArea.contains(position)
                     && loadedArea?.contains(position) == true
-        }?.forEach { (poim, position) ->
+        }.forEach { (poim, position) ->
             coroutineScope.ensureActive()
             positionTrunc = POIMarker.getLatLngTrunc(poim)
             name = poim.poi.name

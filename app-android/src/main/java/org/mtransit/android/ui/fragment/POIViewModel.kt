@@ -177,12 +177,12 @@ class POIViewModel @Inject constructor(
                 .forEach { nearbyAgency ->
                     nearbyPOIs.addAllN(
                         poiRepository.findPOIMs(nearbyAgency, poiFilter)
-                            ?.removeAllAnd {
+                            .removeAllAnd {
                                 it.poi.uuid == excludedUUID
                                         || (it.poi.isNoPickup && !it.poi.isSameRoute(excludedPoi))
                             }
-                            ?.updateDistanceM(lat, lng)
-                            ?.removeTooFar(
+                            .updateDistanceM(lat, lng)
+                            .removeTooFar(
                                 when (nearbyAgency.type) {
                                     DataSourceType.TYPE_BUS -> maxDistanceInMeters
                                     DataSourceType.TYPE_BIKE -> maxDistanceInMeters * 1.5f
@@ -196,10 +196,10 @@ class POIViewModel @Inject constructor(
                                     }
                                 }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
                             )
-                            ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                            ?.removeAllAnd { nearbyPOIs.contains(it) }
-                            ?.removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteDirection(new.poi) } }
-                            ?.also {
+                            .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
+                            .removeAllAnd { nearbyPOIs.contains(it) }
+                            .removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteDirection(new.poi) } }
+                            .also {
                                 if (!nearbyAgencyPOIAdded
                                     && nearbyAgency.authority == agency.authority && it.isNotEmpty()
                                 ) {
@@ -255,15 +255,15 @@ class POIViewModel @Inject constructor(
                 }
                 nearbyPOIs.addAllN(
                     poiRepository.findPOIMs(agency, poiFilter)
-                        ?.removeAllAnd {
+                        .removeAllAnd {
                             it.poi.uuid == excludedUUID
                                     || (it.poi.isNoPickup && it.poi.isSameRoute(excludedPoi)) // remove if no pickup && another route
                         }
-                        ?.updateDistanceM(lat, lng)
-                        ?.removeTooFar(maxDistanceInMeters)
-                        ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                        ?.removeAllAnd { nearbyPOIs.contains(it) }
-                        ?.takeAnd(minNotConnectionSize - (nearbyPOIs.size - connectionSize))
+                        .updateDistanceM(lat, lng)
+                        .removeTooFar(maxDistanceInMeters)
+                        .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
+                        .removeAllAnd { nearbyPOIs.contains(it) }
+                        .takeAnd(minNotConnectionSize - (nearbyPOIs.size - connectionSize))
                 )
                 if (nearbyPOIs.size >= connectionSize + minNotConnectionSize // enough POI
                     || LocationUtils.searchComplete(lat, lng, aroundDiff) // world explored

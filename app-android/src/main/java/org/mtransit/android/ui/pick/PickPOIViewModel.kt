@@ -90,7 +90,7 @@ class PickPOIViewModel @Inject constructor(
         }
         val poiList = mutableListOf<POIManager>()
         agencyToUUIDs.forEach { (agency, uuids) ->
-            poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(uuids))?.let {
+            poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(uuids)).let {
                 poiList.addAll(it)
             }
         }
