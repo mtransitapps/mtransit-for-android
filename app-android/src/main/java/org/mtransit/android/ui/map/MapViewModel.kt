@@ -40,6 +40,8 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.ui.view.map.MTMapIconDef
+import org.mtransit.android.ui.view.map.MTMapIconsProvider.iconDef
 import org.mtransit.android.util.containsEntirely
 import javax.inject.Inject
 import kotlin.math.max
@@ -328,6 +330,7 @@ class MapViewModel @Inject constructor(
         var extra: String?
         var uuid: String
         var authority: String
+        var iconDef: MTMapIconDef
         var color: Int?
         var secondaryColor: Int?
         agencyPOIs.map {
@@ -342,11 +345,12 @@ class MapViewModel @Inject constructor(
             extra = (poim.poi as? RouteDirectionStop)?.route?.shortestName
             uuid = poim.poi.uuid
             authority = poim.poi.authority
+            iconDef = poim.poi.dataSourceTypeId.iconDef
             color = poim.getColor(dataSourcesRepository)
             secondaryColor = agency.colorInt
             clusterItems[positionTrunc] = clusterItems[positionTrunc]?.apply {
-                merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority)
-            } ?: POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority)
+                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, uuid, authority)
+            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, uuid, authority)
         }
         return clusterItems
     }

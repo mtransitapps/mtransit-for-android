@@ -14,7 +14,6 @@ import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +54,8 @@ import org.mtransit.android.ui.view.map.ExtendedGoogleMap;
 import org.mtransit.android.ui.view.map.ExtendedMarkerOptions;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTClusterOptionsProvider;
+import org.mtransit.android.ui.view.map.MTMapIconDef;
+import org.mtransit.android.ui.view.map.MTMapIconsProvider;
 import org.mtransit.android.ui.view.map.impl.ExtendedMapFactory;
 import org.mtransit.android.ui.view.map.utils.LatLngUtils;
 import org.mtransit.android.util.CrashUtils;
@@ -943,6 +944,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		private final ArrayList<String> agencies = new ArrayList<>();
 		@NonNull
 		private final ArrayList<String> extras = new ArrayList<>();
+		private MTMapIconDef iconDef;
 		@Nullable
 		@ColorInt
 		private Integer color;
@@ -956,6 +958,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 						 @Nullable String name,
 						 @Nullable String agency,
 						 @Nullable String extra,
+						 @NonNull MTMapIconDef iconDef,
 						 @Nullable @ColorInt Integer color,
 						 @Nullable @ColorInt Integer secondaryColor,
 						 @NonNull String uuid,
@@ -964,6 +967,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			addName(name);
 			addAgency(agency);
 			addExtras(extra);
+			this.iconDef = iconDef;
 			this.color = color;
 			this.secondaryColor = secondaryColor;
 			this.uuidsAndAuthority.put(uuid, authority);
@@ -1073,6 +1077,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			for (String extra : poiMarker.extras) {
 				addExtras(extra);
 			}
+			if (!this.iconDef.equals(poiMarker.iconDef)) {
+				this.iconDef = MTMapIconsProvider.getDefaultIconDef();
+			}
 			if (this.color != null) {
 				if (poiMarker.color == null || !this.color.equals(poiMarker.color)) {
 					this.color = null;
@@ -1090,6 +1097,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 						  @Nullable String name,
 						  @Nullable String agency,
 						  @Nullable String extra,
+						  @NonNull MTMapIconDef iconDef,
 						  @Nullable @ColorInt Integer color,
 						  @Nullable @ColorInt Integer secondaryColor,
 						  @NonNull String uuid,
@@ -1098,6 +1106,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			addName(name);
 			addAgency(agency);
 			addExtras(extra);
+			if (!this.iconDef.equals(iconDef)) {
+				this.iconDef = MTMapIconsProvider.getDefaultIconDef();
+			}
 			if (this.color != null) {
 				if (!this.color.equals(color)) {
 					this.color = null;
@@ -1169,6 +1180,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			result = 31 * result + names.hashCode();
 			result = 31 * result + agencies.hashCode();
 			result = 31 * result + extras.hashCode();
+			result = 31 * result + iconDef.hashCode();
 			result = 31 * result + (color != null ? color.hashCode() : 0);
 			result = 31 * result + (secondaryColor != null ? secondaryColor.hashCode() : 0);
 			result = 31 * result + uuidsAndAuthority.hashCode();
@@ -1317,6 +1329,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			String extra;
 			String uuid;
 			String authority;
+			MTMapIconDef iconDef;
 			Integer color;
 			Integer secondaryColor;
 			IAgencyUIProperties agency;
@@ -1335,13 +1348,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				agencyShortName = mapViewController.markerLabelShowExtra ? agency.getShortName() : null;
 				uuid = poim.poi.getUUID();
 				authority = poim.poi.getAuthority();
+				iconDef = MTMapIconsProvider.getIconDef(poim.poi.getDataSourceTypeId());
 				color = poim.getColor(dataSourcesRepository);
 				secondaryColor = agency.getColorInt();
 				POIMarker currentItem = clusterItems.get(positionTrunc);
 				if (currentItem == null) {
-					currentItem = new POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
+					currentItem = new POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, uuid, authority);
 				} else {
-					currentItem.merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
+					currentItem.merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, uuid, authority);
 				}
 				try {
 					clusterItems.put(positionTrunc, currentItem);
@@ -1379,7 +1393,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				options.position(poiMarker.position);
 				options.title(poiMarker.getTitle());
 				options.snippet(mapViewController.markerLabelShowExtra ? poiMarker.getSnippet() : null);
-				options.icon(context, getPlaceIconRes(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+				options.anchor(poiMarker.iconDef.getAnchorU(), poiMarker.iconDef.getAnchorV());
+				options.flat(poiMarker.iconDef.getFlat());
+				options.icon(context, poiMarker.iconDef.getResId(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 				options.data(poiMarker.getUuidsAndAuthority());
 				mapViewController.extendedGoogleMap.addMarker(options);
 			}
@@ -1389,11 +1405,6 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				mapViewController.showMarkers(false, mapViewController.followingDevice);
 			}
 		}
-	}
-
-	@DrawableRes
-	private static int getPlaceIconRes() {
-		return R.drawable.map_icon_place_white_slim_original;
 	}
 
 	public boolean addMarkers(@Nullable Collection<POIMarker> poiMarkers) {
@@ -1416,7 +1427,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				options.position(poiMarker.position);
 				options.title(poiMarker.getTitle());
 				options.snippet(this.markerLabelShowExtra ? poiMarker.getSnippet() : null);
-				options.icon(context, getPlaceIconRes(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+				options.anchor(poiMarker.iconDef.getAnchorU(), poiMarker.iconDef.getAnchorV());
+				options.flat(poiMarker.iconDef.getFlat());
+				options.icon(context, poiMarker.iconDef.getResId(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 				options.data(poiMarker.getUuidsAndAuthority());
 				final IMarker marker = this.extendedGoogleMap.addMarker(options);
 				if (poiMarker.hasUUID(this.lastSelectedUUID)) {

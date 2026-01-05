@@ -156,10 +156,7 @@ object MapUtils : Loggable {
         if (cachedBitmap != null) {
             return cachedBitmap
         }
-        val newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor)
-        if (newBase == null) {
-            return null
-        }
+        val newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor) ?: return null
         val newBitmapDescriptor = BitmapDescriptorFactory.fromBitmap(newBase)
         cache.put(key, newBitmapDescriptor)
         return newBitmapDescriptor
