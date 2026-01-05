@@ -12,6 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
@@ -119,6 +120,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         override fun getClosestPOI() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
+
+        override fun getVehicleLocations(): Collection<VehicleLocation?>? = null
     }
 
     @Suppress("DeprecatedCall")

@@ -43,6 +43,7 @@ import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.RouteDirectionStop;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.POIManager;
@@ -816,6 +817,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 			return true;
 		}
+		Collection<VehicleLocation> vehicleLocations = markerProvider.getVehicleLocations();
+		if (vehicleLocations != null) {
+			for (VehicleLocation vehicleLocation : vehicleLocations) {
+				llb.include(new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude()));
+			}
+			return true;
+		}
 		return false;
 	}
 
@@ -1369,14 +1377,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		@MainThread
 		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable Collection<POIMarker> result) {
-			MapViewController mapViewController = this.mapViewControllerWR.get();
+		protected void onPostExecuteNotCancelledMT(@Nullable Collection<POIMarker> poiMarkers) {
+			final MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				MTLog.d(this, "clearClusterManagerItems() > SKIP (no controller)");
 				return;
 			}
-			if (result == null) {
-				MTLog.d(this, "clearClusterManagerItems() > SKIP (no result)");
+			if (poiMarkers == null) {
+				MTLog.d(this, "clearClusterManagerItems() > SKIP (no poi markers)");
 				return;
 			}
 			if (mapViewController.extendedGoogleMap == null) {
@@ -1387,9 +1395,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				MTLog.d(this, "clearClusterManagerItems() > SKIP (no map)");
 				return;
 			}
-			ExtendedMarkerOptions options = new ExtendedMarkerOptions();
+			final ExtendedMarkerOptions options = new ExtendedMarkerOptions();
 			final Context context = mapViewController.mapView.getContext();
-			for (POIMarker poiMarker : result) {
+			for (POIMarker poiMarker : poiMarkers) {
 				options.position(poiMarker.position);
 				options.title(poiMarker.getTitle());
 				options.snippet(mapViewController.markerLabelShowExtra ? poiMarker.getSnippet() : null);
@@ -1398,6 +1406,21 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				options.icon(context, poiMarker.iconDef.getResId(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 				options.data(poiMarker.getUuidsAndAuthority());
 				mapViewController.extendedGoogleMap.addMarker(options);
+			}
+			MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
+			Collection<VehicleLocation> vehicleLocations = markerProvider == null ? null : markerProvider.getVehicleLocations();
+			if (vehicleLocations != null) {
+				final ExtendedMarkerOptions vMarkerOptions = new ExtendedMarkerOptions();
+				for (VehicleLocation vehicleLocation : vehicleLocations) {
+					vMarkerOptions.position(new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude()));
+
+					MTMapIconDef iconDef = MTMapIconsProvider.getOldDefaultIconDef();
+					vMarkerOptions.anchor(iconDef.getAnchorU(), iconDef.getAnchorV());
+					vMarkerOptions.flat(iconDef.getFlat());
+					vMarkerOptions.icon(context, iconDef.getResId(), Color.CYAN, Color.MAGENTA, Color.BLACK);
+
+					mapViewController.extendedGoogleMap.addMarker(vMarkerOptions);
+				}
 			}
 			mapViewController.clusterManagerItemsLoaded = true;
 			mapViewController.hideLoading();
@@ -1617,7 +1640,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	public interface MapMarkerProvider {
 
 		@Nullable
-		Collection<POIMarker> getPOMarkers();
+		Collection<POIMarker> getPOMarkers(); // unused?
 
 		@Nullable
 		Collection<POIManager> getPOIs();
@@ -1628,6 +1651,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		@SuppressWarnings("unused")
 		@Nullable
 		POIManager getPOI(@Nullable String uuid);
+
+		@Nullable
+		Collection<VehicleLocation> getVehicleLocations();
 	}
 
 	public interface MapListener {

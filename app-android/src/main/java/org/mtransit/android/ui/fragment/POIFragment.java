@@ -65,6 +65,7 @@ import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.news.NewsProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.data.IAgencyUpdatableProperties;
@@ -397,6 +398,12 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	@Override
 	public Collection<MapViewController.POIMarker> getPOMarkers() {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public Collection<VehicleLocation> getVehicleLocations() {
 		return null;
 	}
 
