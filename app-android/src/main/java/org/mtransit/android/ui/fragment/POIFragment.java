@@ -67,6 +67,7 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.news.NewsProviderContract;
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -405,6 +406,26 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public Collection<VehicleLocation> getVehicleLocations() {
 		return null;
+	}
+
+	@Nullable
+	@Override
+	public Integer getVehicleColorInt() {
+		final POIManager poim = getPoimOrNull();
+		if (poim == null) {
+			return null;
+		}
+		return poim.getColor(dataSourcesRepository);
+	}
+
+	@Nullable
+	@Override
+	public DataSourceType getVehicleType() {
+		final IAgencyProperties agency = getAgencyOrNull();
+		if (agency == null) {
+			return null;
+		}
+		return agency.getType();
 	}
 
 	@Override

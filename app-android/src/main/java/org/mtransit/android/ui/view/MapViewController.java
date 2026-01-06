@@ -42,9 +42,11 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -890,12 +892,26 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		//noinspection deprecation
-		if (this.loadClusterItemsTask != null && this.loadClusterItemsTask.getStatus() == LoadClusterItemsTask.Status.RUNNING) {
+		if (this.loadClusterItemsTask == null || this.loadClusterItemsTask.getStatus() != LoadClusterItemsTask.Status.RUNNING) {
+			this.loadClusterItemsTask = new LoadClusterItemsTask(this, false);
+			TaskUtils.execute(this.loadClusterItemsTask);
+		} else {
 			MTLog.d(this, "initMapMarkers() > SKIP (already running)");
+		}
+	}
+
+	public void refreshMapMarkers() {
+		if (this.extendedGoogleMap == null) {
+			MTLog.d(this, "refreshMapMarkers() > SKIP (no map)");
 			return;
 		}
-		this.loadClusterItemsTask = new LoadClusterItemsTask(this);
-		TaskUtils.execute(this.loadClusterItemsTask);
+		//noinspection deprecation
+		if (this.loadClusterItemsTask == null || this.loadClusterItemsTask.getStatus() != LoadClusterItemsTask.Status.RUNNING) {
+			this.loadClusterItemsTask = new LoadClusterItemsTask(this, true);
+			TaskUtils.execute(this.loadClusterItemsTask);
+		} else {
+			MTLog.d(this, "refreshMapMarkers() > SKIP (already running)");
+		}
 	}
 
 	private static final MarkerNameComparator MARKER_NAME_COMPARATOR = new MarkerNameComparator();
@@ -1295,6 +1311,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		@NonNull
 		private final WeakReference<MapViewController> mapViewControllerWR;
+		private final boolean update;
 
 		@NonNull
 		@Override
@@ -1302,34 +1319,40 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return LOG_TAG;
 		}
 
-		private LoadClusterItemsTask(MapViewController mapViewController) {
+		private LoadClusterItemsTask(MapViewController mapViewController, boolean update) {
 			this.mapViewControllerWR = new WeakReference<>(mapViewController);
+			this.update = update;
 		}
 
 		@WorkerThread
 		@Override
 		protected Collection<POIMarker> doInBackgroundNotCancelledMT(Void... params) {
-			MapViewController mapViewController = this.mapViewControllerWR.get();
+			final MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				return null;
 			}
-			MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
+			final MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
 			if (markerProvider == null) {
 				return null;
 			}
-			Collection<POIMarker> poiMarkers = markerProvider.getPOMarkers();
+			final Collection<POIMarker> poiMarkers = markerProvider.getPOMarkers();
 			if (poiMarkers != null) {
 				return poiMarkers;
 			}
-			Collection<POIManager> pois = markerProvider.getPOIs();
+			return createPOIMarkers(markerProvider.getPOIs(), mapViewController);
+		}
+
+		@WorkerThread
+		@Nullable
+		private Collection<POIMarker> createPOIMarkers(Collection<POIManager> pois, MapViewController mapViewController) {
 			if (pois == null) {
 				return null;
 			}
-			DataSourcesRepository dataSourcesRepository = mapViewController.dataSourcesRepository;
+			final DataSourcesRepository dataSourcesRepository = mapViewController.dataSourcesRepository;
 			if (dataSourcesRepository == null) {
 				return null;
 			}
-			ArrayMap<LatLng, POIMarker> clusterItems = new ArrayMap<>();
+			final ArrayMap<LatLng, POIMarker> clusterItems = new ArrayMap<>();
 			LatLng position;
 			LatLng positionTrunc;
 			String name;
@@ -1380,51 +1403,66 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		protected void onPostExecuteNotCancelledMT(@Nullable Collection<POIMarker> poiMarkers) {
 			final MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
-				MTLog.d(this, "clearClusterManagerItems() > SKIP (no controller)");
+				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no controller)");
 				return;
 			}
 			if (poiMarkers == null) {
-				MTLog.d(this, "clearClusterManagerItems() > SKIP (no poi markers)");
+				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no poi markers)");
 				return;
 			}
 			if (mapViewController.extendedGoogleMap == null) {
-				MTLog.d(this, "clearClusterManagerItems() > SKIP (no extended map)");
+				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no extended map)");
 				return;
 			}
 			if (mapViewController.mapView == null) {
-				MTLog.d(this, "clearClusterManagerItems() > SKIP (no map)");
+				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no map)");
 				return;
 			}
-			final ExtendedMarkerOptions options = new ExtendedMarkerOptions();
 			final Context context = mapViewController.mapView.getContext();
 			for (POIMarker poiMarker : poiMarkers) {
-				options.position(poiMarker.position);
-				options.title(poiMarker.getTitle());
-				options.snippet(mapViewController.markerLabelShowExtra ? poiMarker.getSnippet() : null);
-				options.anchor(poiMarker.iconDef.getAnchorU(), poiMarker.iconDef.getAnchorV());
-				options.flat(poiMarker.iconDef.getFlat());
-				options.icon(context, poiMarker.iconDef.getResId(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
-				options.data(poiMarker.getUuidsAndAuthority());
-				mapViewController.extendedGoogleMap.addMarker(options);
+				mapViewController.extendedGoogleMap.addMarker(new ExtendedMarkerOptions()
+						.position(poiMarker.position)
+						.title(poiMarker.getTitle())
+						.snippet(mapViewController.markerLabelShowExtra ? poiMarker.getSnippet() : null)
+						.anchor(poiMarker.iconDef.getAnchorU(), poiMarker.iconDef.getAnchorV())
+						.flat(poiMarker.iconDef.getFlat())
+						.icon(context, poiMarker.iconDef.getResId(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK)
+						.data(poiMarker.getUuidsAndAuthority())
+				);
 			}
-			MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
-			Collection<VehicleLocation> vehicleLocations = markerProvider == null ? null : markerProvider.getVehicleLocations();
+			final MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
+			final Collection<VehicleLocation> vehicleLocations = markerProvider == null ? null : markerProvider.getVehicleLocations();
+			final Integer vehicleColorInt = markerProvider == null ? null : markerProvider.getVehicleColorInt();
+			final DataSourceType vehicleDst = markerProvider == null ? null : markerProvider.getVehicleType();
 			if (vehicleLocations != null) {
-				final ExtendedMarkerOptions vMarkerOptions = new ExtendedMarkerOptions();
 				for (VehicleLocation vehicleLocation : vehicleLocations) {
-					vMarkerOptions.position(new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude()));
-
-					MTMapIconDef iconDef = MTMapIconsProvider.getOldDefaultIconDef();
-					vMarkerOptions.anchor(iconDef.getAnchorU(), iconDef.getAnchorV());
-					vMarkerOptions.flat(iconDef.getFlat());
-					vMarkerOptions.icon(context, iconDef.getResId(), Color.CYAN, Color.MAGENTA, Color.BLACK);
-
-					mapViewController.extendedGoogleMap.addMarker(vMarkerOptions);
+					final MTMapIconDef iconDef = MTMapIconsProvider.getVehicleIconDef(vehicleDst);
+					String title = null;
+					if (vehicleLocation.getReportTimestamp() != null) {
+						title = TimeUtils.formatTime(context, vehicleLocation.getReportTimestamp());
+					}
+					String snippet = null;
+					if (!TextUtils.isEmpty(vehicleLocation.getVehicleLabel())) {
+						snippet = vehicleLocation.getVehicleLabel();
+					}
+					float rotation = 0f;
+					if (vehicleLocation.getBearing() != null) {
+						rotation = vehicleLocation.getBearing();
+					}
+					mapViewController.extendedGoogleMap.addMarker(new ExtendedMarkerOptions()
+							.position(new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude()))
+							.anchor(iconDef.getAnchorU(), iconDef.getAnchorV())
+							.flat(iconDef.getFlat())
+							.icon(context, iconDef.getResId(), vehicleColorInt, null, Color.BLACK)
+							.title(title)
+							.snippet(snippet)
+							.rotation(rotation)
+					);
 				}
 			}
 			mapViewController.clusterManagerItemsLoaded = true;
 			mapViewController.hideLoading();
-			if (mapViewController.showAllMarkersWhenReady) {
+			if (!this.update && mapViewController.showAllMarkersWhenReady) {
 				mapViewController.showMarkers(false, mapViewController.followingDevice);
 			}
 		}
@@ -1444,17 +1482,17 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			MTLog.d(this, "addMarkers() > SKIP (no map)");
 			return false;
 		}
-		final ExtendedMarkerOptions options = new ExtendedMarkerOptions();
 		if (poiMarkers != null) {
 			for (POIMarker poiMarker : poiMarkers) {
-				options.position(poiMarker.position);
-				options.title(poiMarker.getTitle());
-				options.snippet(this.markerLabelShowExtra ? poiMarker.getSnippet() : null);
-				options.anchor(poiMarker.iconDef.getAnchorU(), poiMarker.iconDef.getAnchorV());
-				options.flat(poiMarker.iconDef.getFlat());
-				options.icon(context, poiMarker.iconDef.getResId(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
-				options.data(poiMarker.getUuidsAndAuthority());
-				final IMarker marker = this.extendedGoogleMap.addMarker(options);
+				final IMarker marker = this.extendedGoogleMap.addMarker(new ExtendedMarkerOptions()
+						.position(poiMarker.position)
+						.title(poiMarker.getTitle())
+						.snippet(this.markerLabelShowExtra ? poiMarker.getSnippet() : null)
+						.anchor(poiMarker.iconDef.getAnchorU(), poiMarker.iconDef.getAnchorV())
+						.flat(poiMarker.iconDef.getFlat())
+						.icon(context, poiMarker.iconDef.getResId(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK)
+						.data(poiMarker.getUuidsAndAuthority())
+				);
 				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
 					marker.showInfoWindow();
 					this.lastSelectedUUID = null; // select once only
@@ -1654,6 +1692,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		@Nullable
 		Collection<VehicleLocation> getVehicleLocations();
+
+		@Nullable
+		@ColorInt
+		Integer getVehicleColorInt();
+
+		@Nullable
+		DataSourceType getVehicleType();
 	}
 
 	public interface MapListener {

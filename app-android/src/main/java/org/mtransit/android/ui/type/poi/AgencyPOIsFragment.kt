@@ -13,6 +13,7 @@ import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
+import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
@@ -122,6 +123,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
 
         override fun getVehicleLocations(): Collection<VehicleLocation?>? = null
+
+        override fun getVehicleColorInt(): Int? = null
+
+        override fun getVehicleType(): DataSourceType? = null
     }
 
     @Suppress("DeprecatedCall")

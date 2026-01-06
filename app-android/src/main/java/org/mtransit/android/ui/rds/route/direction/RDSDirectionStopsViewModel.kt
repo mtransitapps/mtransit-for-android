@@ -15,13 +15,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.mtransit.android.BuildConfig
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
-import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
@@ -40,10 +40,12 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 
 @HiltViewModel
@@ -117,13 +119,40 @@ class RDSDirectionStopsViewModel @Inject constructor(
             }
         }
 
+    private var _vehicleRefreshJob: Job? = null
+
+    fun startVehicleLocationRefresh() {
+        _vehicleRefreshJob?.cancel()
+        _vehicleRefreshJob = viewModelScope.launch {
+            while (true) {
+                delay(if (BuildConfig.DEBUG) 10.seconds else 30.seconds)
+                triggerVehicleLocationRefresh()
+            }
+        }
+    }
+
+    fun stopVehicleLocationRefresh() {
+        _vehicleRefreshJob?.cancel()
+    }
+
+    private val _vehicleLocationRequestedTrigger = MutableLiveData<Int>() // no initial value to avoid triggering onChanged()
+
+    fun triggerVehicleLocationRefresh() {
+        _vehicleLocationRequestedTrigger.value = (_vehicleLocationRequestedTrigger.value ?: 0) + 1
+    }
+
     private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
         dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
     }
 
     // TODO use VehicleLocationLoader like status and service update?
     val vehicleLocations: LiveData<List<VehicleLocation>?> =
-        TripleMediatorLiveData(_vehicleLocationProviders, _routeDirection, routeDirectionTripIds).switchMap { (vehicleLocationProviders, rd, tripIds) ->
+        QuadrupleMediatorLiveData(
+            _vehicleLocationProviders,
+            _routeDirection,
+            routeDirectionTripIds,
+            _vehicleLocationRequestedTrigger
+        ).switchMap { (vehicleLocationProviders, rd, tripIds) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
                 vehicleLocationProviders ?: return@liveData
@@ -131,7 +160,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
                 tripIds ?: return@liveData
                 emit(
                     vehicleLocationProviders.mapNotNull {
-                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd, tripIds))
+                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd, tripIds).apply { inFocus = true })
                     }.flatten()
                 )
             }

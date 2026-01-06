@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.view.map
 
-import androidx.annotation.DrawableRes
 import org.mtransit.android.R
+import org.mtransit.android.data.DataSourceType
 
 object MTMapIconsProvider {
 
@@ -14,9 +14,13 @@ object MTMapIconsProvider {
     @JvmStatic
     val defaultClusterIconDef = MTMapIconDef(R.drawable.map_icon_cluster_blur_white, 0.5f, 0.5f, true)
 
-    // TODO: actually no, we should only show place icon or generic stop icon for stops/stations
-    // type icons should be reserved for actual vehicles
     @JvmStatic
-    @get:DrawableRes
-    val Int.iconDef: MTMapIconDef get() = defaultIconDef
+    val Int.iconDef: MTMapIconDef get() = oldDefaultIconDef
+
+    @JvmStatic
+    val DataSourceType?.vehicleIconDef: MTMapIconDef
+        get() = when (this) {
+            DataSourceType.TYPE_BUS -> MTMapIconDef(R.drawable.baseline_directions_bus_white_48, 0.5f, 0.5f, true)
+            else -> oldDefaultIconDef
+        }
 }
