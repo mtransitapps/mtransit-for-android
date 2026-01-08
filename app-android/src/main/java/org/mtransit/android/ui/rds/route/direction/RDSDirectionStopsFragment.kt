@@ -134,6 +134,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             return pois
         }
 
+        override fun getPOI(position: Int) = listAdapter.getItem(position)
+
         override fun getClosestPOI() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
@@ -310,7 +312,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             // DO NOTHING
         }
         if (FeatureFlags.F_EXPORT_TRIP_ID) {
-            viewModel.vehicleLocations.observe(viewLifecycleOwner) {
+            viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) {
                 mapViewController.refreshMapMarkers()
             }
             parentViewModel.colorInt.observe(viewLifecycleOwner) {

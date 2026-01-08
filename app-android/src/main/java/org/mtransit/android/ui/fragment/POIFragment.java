@@ -398,6 +398,12 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
+	public POIManager getPOI(int position) {
+		return position == 0 ? this.poim : null;
+	}
+
+	@Nullable
+	@Override
 	public Collection<MapViewController.POIMarker> getPOMarkers() {
 		return null;
 	}
@@ -435,7 +441,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onCameraChange(@NonNull LatLngBounds latLngBounds) {
+	public void onCameraChange(@NonNull LatLngBounds latLngBounds, float zoom) {
 		// DO NOTHING
 	}
 

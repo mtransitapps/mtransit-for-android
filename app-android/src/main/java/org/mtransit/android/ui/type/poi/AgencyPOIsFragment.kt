@@ -118,6 +118,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             return pois
         }
 
+        override fun getPOI(position: Int) = listAdapter.getItem(position)
+
         override fun getClosestPOI() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)

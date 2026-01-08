@@ -41,11 +41,11 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 
 	@NonNull
 	@Override
-	public ClusterOptions getClusterOptions(@NonNull List<IMarker> markers) {
+	public ClusterOptions getClusterOptions(@NonNull List<IMarker> markers, float zoom) {
 		final MTMapIconDef defaultCustomIconDef = MTMapIconsProvider.getDefaultClusterIconDef();
 		this.clusterOptions.anchor(defaultCustomIconDef.getAnchorU(), defaultCustomIconDef.getAnchorV());
 		this.clusterOptions.flat(defaultCustomIconDef.getFlat());
-		this.clusterOptions.icon(getClusterIcon(markers, defaultCustomIconDef.getResId()));
+		this.clusterOptions.icon(getClusterIcon(markers, defaultCustomIconDef.getZoomResId(zoom, null)));
 		return this.clusterOptions;
 	}
 

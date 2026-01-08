@@ -6,21 +6,27 @@ import org.mtransit.android.data.DataSourceType
 object MTMapIconsProvider {
 
     @JvmStatic
-    val oldDefaultIconDef = MTMapIconDef(R.drawable.map_icon_place_white_slim_original)
+    val selectedDefaultIconDef = MTMapIconDef(R.drawable.map_icon_place_white_slim_original)
 
     @JvmStatic
-    val defaultIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat, 0.5f, 0.5f, true)
+    val defaultIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat, R.drawable.map_icon_stop_white_flat_small, 0.5f, 0.5f, true)
 
     @JvmStatic
-    val defaultClusterIconDef = MTMapIconDef(R.drawable.map_icon_cluster_blur_white, 0.5f, 0.5f, true)
+    val arrowIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_arrow, R.drawable.map_icon_stop_white_flat_arrow_small, 0.5f, 0.5f, true)
 
     @JvmStatic
-    val Int.iconDef: MTMapIconDef get() = oldDefaultIconDef
+    val defaultClusterIconDef = MTMapIconDef(R.drawable.map_icon_cluster_blur_white, R.drawable.map_icon_cluster_blur_white, 0.5f, 0.5f, true)
+
+    // TODO HERE NOW, vehicle should always be bigger than stop icons?
+    @JvmStatic
+    val busVehicleIconDef =
+        MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_bus_big, R.drawable.map_icon_stop_white_flat_filled_bus, 0.5f, 0.5f, false)
+
 
     @JvmStatic
     val DataSourceType?.vehicleIconDef: MTMapIconDef
         get() = when (this) {
-            DataSourceType.TYPE_BUS -> MTMapIconDef(R.drawable.baseline_directions_bus_white_48, 0.5f, 0.5f, true)
-            else -> oldDefaultIconDef
+            DataSourceType.TYPE_BUS -> busVehicleIconDef
+            else -> selectedDefaultIconDef
         }
 }

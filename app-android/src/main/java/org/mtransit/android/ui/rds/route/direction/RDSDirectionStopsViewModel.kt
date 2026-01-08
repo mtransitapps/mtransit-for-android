@@ -166,6 +166,8 @@ class RDSDirectionStopsViewModel @Inject constructor(
             }
         }
 
+    val vehicleLocationsDistinct = vehicleLocations.distinctUntilChanged()
+
     val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
         .map { if (it < 0) null else it }
 
