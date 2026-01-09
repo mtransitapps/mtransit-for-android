@@ -167,7 +167,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final String vehicleLocationFilterJSONString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJSONString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), VehicleLocationProviderContract.VEHICLE_LOCATION_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, vehicleLocationFilterJSONString, null, null);
-			return getVehicleLocations(cursor);
+			return getVehicleLocations(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' vehicle locations from '%s'!", vehicleLocationFilter, authority);
 			return null;
@@ -177,12 +177,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<VehicleLocation> getVehicleLocations(@Nullable Cursor cursor) {
+	private static ArrayList<VehicleLocation> getVehicleLocations(@Nullable Cursor cursor, @NonNull String authority) {
 		ArrayList<VehicleLocation> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					result.add(VehicleLocation.fromCursor(cursor));
+					result.add(VehicleLocation.fromCursor(cursor, authority));
 				} while (cursor.moveToNext());
 			}
 		}

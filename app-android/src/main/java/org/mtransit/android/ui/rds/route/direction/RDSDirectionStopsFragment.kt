@@ -313,7 +313,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
         if (FeatureFlags.F_EXPORT_TRIP_ID) {
             viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) {
-                mapViewController.refreshMapMarkers()
+                context?.let { mapViewController.updateVehicleLocationMarkers(it) }
             }
             parentViewModel.colorInt.observe(viewLifecycleOwner) {
                 // do nothing // TODO mapViewController.refresh?

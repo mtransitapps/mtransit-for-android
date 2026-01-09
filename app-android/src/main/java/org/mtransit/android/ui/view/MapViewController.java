@@ -27,13 +27,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
-import com.google.maps.android.ui.IconGenerator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -44,6 +42,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
@@ -64,6 +63,7 @@ import org.mtransit.android.ui.view.map.MTClusterOptionsProvider;
 import org.mtransit.android.ui.view.map.MTMapIconDef;
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup;
 import org.mtransit.android.ui.view.map.MTMapIconsProvider;
+import org.mtransit.android.ui.view.map.VehicleLocationExtKt;
 import org.mtransit.android.ui.view.map.impl.ExtendedMapFactory;
 import org.mtransit.android.ui.view.map.utils.LatLngUtils;
 import org.mtransit.android.util.CrashUtils;
@@ -76,9 +76,14 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -850,7 +855,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		Collection<VehicleLocation> vehicleLocations = markerProvider.getVehicleLocations();
 		if (vehicleLocations != null) {
 			for (VehicleLocation vehicleLocation : vehicleLocations) {
-				llb.include(new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude()));
+				llb.include(VehicleLocationExtKt.getPosition(vehicleLocation));
 			}
 			return true;
 		}
@@ -1504,42 +1509,98 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 						.data(poiMarker.getUuidsAndAuthority())
 				);
 			}
-			final MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
-			final Collection<VehicleLocation> vehicleLocations = markerProvider == null ? null : markerProvider.getVehicleLocations();
-			final Integer vehicleColorInt = markerProvider == null ? null : markerProvider.getVehicleColorInt();
-			final DataSourceType vehicleDst = markerProvider == null ? null : markerProvider.getVehicleType();
-			final IconGenerator iconGenerator = new IconGenerator(context);
-			if (vehicleLocations != null) {
-				for (VehicleLocation vehicleLocation : vehicleLocations) {
-					final MTMapIconDef iconDef = MTMapIconsProvider.getVehicleIconDef(vehicleDst);
-					String title = null;
-					if (vehicleLocation.getReportTimestampMs() != null) {
-						title = UITimeUtils.formatVeryRecentTime(vehicleLocation.getReportTimestampMs()).toString();
-					}
-					String snippet = null;
-					if (!TextUtils.isEmpty(vehicleLocation.getVehicleLabel())) {
-						snippet = vehicleLocation.getVehicleLabel();
-					}
-					float rotation = 0f;
-					if (vehicleLocation.getBearing() != null) {
-						rotation = vehicleLocation.getBearing();
-					}
-					mapViewController.extendedGoogleMap.addMarker(new ExtendedMarkerOptions()
-									.position(new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude()))
-									.anchor(iconDef.getAnchorU(), iconDef.getAnchorV())
-									.flat(iconDef.getFlat())
-									.icon(context, iconDef.getZoomResId(currentZoomGroup), vehicleColorInt, null, Color.BLACK)
-									.rotation(rotation)
-									.title(title)
-									.snippet(snippet)
-									.zIndex(1.0f)
-					);
-				}
-			}
+			mapViewController.updateVehicleLocationMarkers(context);
 			mapViewController.clusterManagerItemsLoaded = true;
 			mapViewController.hideLoading();
 			if (!this.update && mapViewController.showAllMarkersWhenReady) {
 				mapViewController.showMarkers(false, mapViewController.followingDevice);
+			}
+		}
+	}
+
+	@NonNull
+	private final WeakHashMap<String, IMarker> vehicleLocationsMarkers = new WeakHashMap<>();
+
+	public void updateVehicleLocationMarkers(@NonNull Context context) {
+		if (this.extendedGoogleMap == null) {
+			MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no map)");
+			return;
+		}
+		final MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
+		if (markerProvider == null) {
+			MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no marker provider)");
+			return;
+		}
+		final HashSet<String> processedVehicleLocationsUUIDs = new HashSet<>();
+		final Collection<VehicleLocation> vehicleLocations = markerProvider.getVehicleLocations();
+		if (vehicleLocations == null || vehicleLocations.isEmpty()) {
+			MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations)");
+			removeMissingVehicleLocationMarkers(processedVehicleLocationsUUIDs);
+			return;
+		}
+		final int visibleMarkersCount = AreaExtKt.countVehicleLocationsInside(
+				AreaExtKt.toArea(extendedGoogleMap.getProjection().getVisibleRegion()),
+				vehicleLocations
+		);
+		final MTMapIconZoomGroup currentZoomGroup = MTMapIconZoomGroup.from(extendedGoogleMap.getCameraPosition().zoom, null);
+		final Integer vehicleColorInt = markerProvider.getVehicleColorInt();
+		final DataSourceType vehicleDst = markerProvider.getVehicleType();
+		int index = 0;
+		for (VehicleLocation vehicleLocation : vehicleLocations) {
+			final MTMapIconDef iconDef = MTMapIconsProvider.getVehicleIconDef(vehicleDst);
+			String title = null;
+			if (vehicleLocation.getReportTimestampMs() != null) {
+				title = UITimeUtils.formatVeryRecentTime(vehicleLocation.getReportTimestampMs()).toString();
+			}
+			String snippet = null;
+			if (!TextUtils.isEmpty(vehicleLocation.getVehicleLabel())) {
+				snippet = vehicleLocation.getVehicleLabel();
+			}
+			float rotation = 0f;
+			if (vehicleLocation.getBearing() != null) {
+				rotation = vehicleLocation.getBearing();
+			}
+			String uuid = vehicleLocation.getUuid();
+			if (uuid == null) { // cannot update
+				uuid = "generated-uuid-" + TimeUtils.currentTimeMillis() + "-" + index;
+			}
+			IMarker marker = this.vehicleLocationsMarkers.get(uuid);
+			if (marker == null) { // ADD new
+				marker = this.extendedGoogleMap.addMarker(new ExtendedMarkerOptions()
+						.position(VehicleLocationExtKt.getPosition(vehicleLocation))
+						.anchor(iconDef.getAnchorU(), iconDef.getAnchorV())
+						// TODO ?	.infoWindowAnchor()
+						.flat(iconDef.getFlat())
+						.icon(context, iconDef.getZoomResId(currentZoomGroup), vehicleColorInt, null, Color.BLACK)
+						.rotation(rotation)
+						.title(title)
+						.snippet(snippet)
+						.zIndex(1.0f)
+				);
+				this.vehicleLocationsMarkers.put(uuid, marker);
+			} else { // UPDATE existing
+				marker.animatePosition(VehicleLocationExtKt.getPosition(vehicleLocation));
+				marker.setAnchor(iconDef.getAnchorU(), iconDef.getAnchorV());
+				marker.setFlat(iconDef.getFlat());
+				marker.setIcon(context, iconDef.getZoomResId(currentZoomGroup), vehicleColorInt, null, Color.BLACK);
+				marker.setRotation(rotation);
+				marker.setTitle(title);
+				marker.setSnippet(snippet);
+			}
+			processedVehicleLocationsUUIDs.add(uuid);
+			index++;
+		}
+		removeMissingVehicleLocationMarkers(processedVehicleLocationsUUIDs);
+	}
+
+	private void removeMissingVehicleLocationMarkers(@NonNull Set<String> processedVehicleLocationsUUIDs) {
+		for (Map.Entry<String, IMarker> uuidMarkerEntry : this.vehicleLocationsMarkers.entrySet()) {
+			final String uuid = uuidMarkerEntry.getKey();
+			if (!processedVehicleLocationsUUIDs.contains(uuid)) {
+				final IMarker marker = this.vehicleLocationsMarkers.remove(uuid);
+				if (marker != null) {
+					marker.remove();
+				}
 			}
 		}
 	}
@@ -1744,6 +1805,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void clearClusterManagerItems() {
+		removeMissingVehicleLocationMarkers(Collections.emptySet());
 		if (this.extendedGoogleMap != null) {
 			this.extendedGoogleMap.clear();
 		}
