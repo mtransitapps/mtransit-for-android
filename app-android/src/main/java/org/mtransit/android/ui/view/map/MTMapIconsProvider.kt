@@ -18,8 +18,7 @@ object MTMapIconsProvider {
     val defaultClusterIconDef = MTMapIconDef(R.drawable.map_icon_cluster_blur_white, R.drawable.map_icon_cluster_blur_white, 0.5f, 0.5f, true)
 
     @JvmStatic
-    val busVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_bus_big, R.drawable.map_icon_stop_white_flat_filled_bus, 0.5f, 0.5f, false)
-
+    val busVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_bus_big, R.drawable.map_icon_stop_white_flat_filled_bus, 0.5f, 0.5f, true)
 
     @JvmStatic
     val DataSourceType?.vehicleIconDef: MTMapIconDef

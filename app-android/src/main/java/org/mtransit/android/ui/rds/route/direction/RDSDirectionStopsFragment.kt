@@ -10,8 +10,12 @@ import androidx.annotation.ColorInt
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewModelScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -49,6 +53,7 @@ import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
 class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_stops) {
@@ -312,8 +317,13 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             // DO NOTHING
         }
         if (FeatureFlags.F_EXPORT_TRIP_ID) {
-            viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) {
+            viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) { vehicleLocations ->
                 context?.let { mapViewController.updateVehicleLocationMarkers(it) }
+                if (vehicleLocations.isNullOrEmpty()) {
+                    stopVehicleLocationCountdownRefresh()
+                } else {
+                    startVehicleLocationCountdownRefresh()
+                }
             }
             parentViewModel.colorInt.observe(viewLifecycleOwner) {
                 // do nothing // TODO mapViewController.refresh?
@@ -475,10 +485,30 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         ) {
             mapViewController.onResume()
             viewModel.startVehicleLocationRefresh()
+        } else {
+            viewModel.stopVehicleLocationRefresh()
+            stopVehicleLocationCountdownRefresh()
         }
         listAdapter.onResume(this, parentViewModel.deviceLocation.value)
         updateFabListMapUI()
         switchView()
+    }
+
+    private var _vehicleLocationCountdownRefreshJob: Job? = null
+
+    private fun startVehicleLocationCountdownRefresh() {
+        _vehicleLocationCountdownRefreshJob?.cancel()
+        _vehicleLocationCountdownRefreshJob = viewModel.viewModelScope.launch {
+            while (true) {
+                delay(1.seconds)
+                context?.let { mapViewController.updateVehicleLocationMarkersCountdown(it) }
+            }
+        }
+    }
+
+    private fun stopVehicleLocationCountdownRefresh() {
+        _vehicleLocationCountdownRefreshJob?.cancel()
+        _vehicleLocationCountdownRefreshJob = null
     }
 
     override fun onPause() {

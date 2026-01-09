@@ -69,7 +69,6 @@ import org.mtransit.android.ui.view.map.utils.LatLngUtils;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
-import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
@@ -83,7 +82,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1519,7 +1518,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	@NonNull
-	private final WeakHashMap<String, IMarker> vehicleLocationsMarkers = new WeakHashMap<>();
+	private final ConcurrentHashMap<String, IMarker> vehicleLocationsMarkers = new ConcurrentHashMap<>(); // WeakHashMap forgets about markers not removed yet
 
 	public void updateVehicleLocationMarkers(@NonNull Context context) {
 		if (this.extendedGoogleMap == null) {
@@ -1538,28 +1537,15 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			removeMissingVehicleLocationMarkers(processedVehicleLocationsUUIDs);
 			return;
 		}
-		final int visibleMarkersCount = AreaExtKt.countVehicleLocationsInside(
-				AreaExtKt.toArea(extendedGoogleMap.getProjection().getVisibleRegion()),
-				vehicleLocations
-		);
 		final MTMapIconZoomGroup currentZoomGroup = MTMapIconZoomGroup.from(extendedGoogleMap.getCameraPosition().zoom, null);
 		final Integer vehicleColorInt = markerProvider.getVehicleColorInt();
 		final DataSourceType vehicleDst = markerProvider.getVehicleType();
 		int index = 0;
 		for (VehicleLocation vehicleLocation : vehicleLocations) {
 			final MTMapIconDef iconDef = MTMapIconsProvider.getVehicleIconDef(vehicleDst);
-			String title = null;
-			if (vehicleLocation.getReportTimestampMs() != null) {
-				title = UITimeUtils.formatVeryRecentTime(vehicleLocation.getReportTimestampMs()).toString();
-			}
-			String snippet = null;
-			if (!TextUtils.isEmpty(vehicleLocation.getVehicleLabel())) {
-				snippet = vehicleLocation.getVehicleLabel();
-			}
-			float rotation = 0f;
-			if (vehicleLocation.getBearing() != null) {
-				rotation = vehicleLocation.getBearing();
-			}
+			final String title = VehicleLocationExtKt.getMapMarkerTitle(vehicleLocation, context);
+			final String snippet = VehicleLocationExtKt.getMapMarkerSnippet(vehicleLocation, context);
+			float rotation = VehicleLocationExtKt.getRotation(vehicleLocation, 0.0f);
 			String uuid = vehicleLocation.getUuid();
 			if (uuid == null) { // cannot update
 				uuid = "generated-uuid-" + TimeUtils.currentTimeMillis() + "-" + index;
@@ -1569,23 +1555,27 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				marker = this.extendedGoogleMap.addMarker(new ExtendedMarkerOptions()
 						.position(VehicleLocationExtKt.getPosition(vehicleLocation))
 						.anchor(iconDef.getAnchorU(), iconDef.getAnchorV())
+						.infoWindowAnchor(0.5f, 0.5f)
 						// TODO ?	.infoWindowAnchor()
 						.flat(iconDef.getFlat())
 						.icon(context, iconDef.getZoomResId(currentZoomGroup), vehicleColorInt, null, Color.BLACK)
 						.rotation(rotation)
 						.title(title)
 						.snippet(snippet)
+						.data(vehicleLocation)
 						.zIndex(1.0f)
 				);
 				this.vehicleLocationsMarkers.put(uuid, marker);
 			} else { // UPDATE existing
 				marker.animatePosition(VehicleLocationExtKt.getPosition(vehicleLocation));
 				marker.setAnchor(iconDef.getAnchorU(), iconDef.getAnchorV());
+				marker.setInfoWindowAnchor(0.5f, 0.5f);
 				marker.setFlat(iconDef.getFlat());
 				marker.setIcon(context, iconDef.getZoomResId(currentZoomGroup), vehicleColorInt, null, Color.BLACK);
 				marker.setRotation(rotation);
 				marker.setTitle(title);
 				marker.setSnippet(snippet);
+				marker.setData(vehicleLocation);
 			}
 			processedVehicleLocationsUUIDs.add(uuid);
 			index++;
@@ -1601,6 +1591,24 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				if (marker != null) {
 					marker.remove();
 				}
+			}
+		}
+	}
+
+	public void updateVehicleLocationMarkersCountdown(@NonNull Context context) {
+		for (Map.Entry<String, IMarker> uuidMarkerEntry : this.vehicleLocationsMarkers.entrySet()) {
+			final IMarker marker = uuidMarkerEntry.getValue();
+			if (marker == null) continue;
+			final VehicleLocation vehicleLocation = marker.getData();
+			if (vehicleLocation == null) continue;
+			if (!marker.isInfoWindowShown()) continue;
+			final String newTitle = VehicleLocationExtKt.getMapMarkerTitle(vehicleLocation, context);
+			if (!Objects.equals(newTitle, marker.getTitle())) {
+				marker.setTitle(newTitle);
+			}
+			final String newSnippet = VehicleLocationExtKt.getMapMarkerSnippet(vehicleLocation, context);
+			if (!Objects.equals(newSnippet, marker.getSnippet())) {
+				marker.setSnippet(newSnippet);
 			}
 		}
 	}
