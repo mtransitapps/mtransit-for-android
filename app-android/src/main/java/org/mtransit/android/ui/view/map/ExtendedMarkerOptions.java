@@ -13,7 +13,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.lang.ref.WeakReference;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class ExtendedMarkerOptions {
 
 	@NonNull
@@ -70,6 +70,12 @@ public class ExtendedMarkerOptions {
 	@NonNull
 	public ExtendedMarkerOptions alpha(float alpha) {
 		real.alpha(alpha);
+		return this;
+	}
+
+	@NonNull
+	public ExtendedMarkerOptions zIndex(float zIndex) {
+		real.zIndex(zIndex);
 		return this;
 	}
 

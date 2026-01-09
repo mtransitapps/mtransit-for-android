@@ -64,8 +64,10 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.NewsProviderContract;
+import org.mtransit.android.commons.provider.news.NewsProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -396,8 +398,40 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
+	public POIManager getPOI(int position) {
+		return position == 0 ? this.poim : null;
+	}
+
+	@Nullable
+	@Override
 	public Collection<MapViewController.POIMarker> getPOMarkers() {
 		return null;
+	}
+
+	@Nullable
+	@Override
+	public Collection<VehicleLocation> getVehicleLocations() {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public Integer getVehicleColorInt() {
+		final POIManager poim = getPoimOrNull();
+		if (poim == null) {
+			return null;
+		}
+		return poim.getColor(dataSourcesRepository);
+	}
+
+	@Nullable
+	@Override
+	public DataSourceType getVehicleType() {
+		final IAgencyProperties agency = getAgencyOrNull();
+		if (agency == null) {
+			return null;
+		}
+		return agency.getType();
 	}
 
 	@Override
@@ -407,7 +441,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onCameraChange(@NonNull LatLngBounds latLngBounds) {
+	public void onCameraChange(@NonNull LatLngBounds latLngBounds, float zoom) {
 		// DO NOTHING
 	}
 

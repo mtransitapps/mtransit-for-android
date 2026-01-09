@@ -123,7 +123,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             // DO NOTHING
         }
 
-        override fun onCameraChange(latLngBounds: LatLngBounds) {
+        override fun onCameraChange(latLngBounds: LatLngBounds, zoom: Float) {
             attachedViewModel?.onCameraChange(latLngBounds) {
                 mapViewController.getBigCameraPosition(activity, 1.0f)
             }

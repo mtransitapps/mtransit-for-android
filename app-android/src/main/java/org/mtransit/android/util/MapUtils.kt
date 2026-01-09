@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.core.net.toUri
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -18,7 +19,6 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog.Loggable
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.ResourceUtils
-import androidx.core.net.toUri
 
 @Suppress("unused")
 object MapUtils : Loggable {
@@ -156,10 +156,7 @@ object MapUtils : Loggable {
         if (cachedBitmap != null) {
             return cachedBitmap
         }
-        val newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor)
-        if (newBase == null) {
-            return null
-        }
+        val newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor) ?: return null
         val newBitmapDescriptor = BitmapDescriptorFactory.fromBitmap(newBase)
         cache.put(key, newBitmapDescriptor)
         return newBitmapDescriptor

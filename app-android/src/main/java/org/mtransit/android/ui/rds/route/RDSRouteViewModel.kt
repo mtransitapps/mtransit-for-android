@@ -17,6 +17,7 @@ import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.data.toRouteM
@@ -114,6 +115,8 @@ class RDSRouteViewModel @Inject constructor(
     val colorInt: LiveData<Int?> = PairMediatorLiveData(_route, _agency).map { (route, agency) ->
         route?.let { if (it.hasColor()) route.colorInt else agency?.colorInt }
     }
+
+    val routeType: LiveData<DataSourceType?> = _agency.map { it?.type }
 
     val routeDirections: LiveData<List<Direction>?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {

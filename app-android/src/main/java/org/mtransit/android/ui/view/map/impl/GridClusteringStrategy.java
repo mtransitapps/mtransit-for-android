@@ -200,6 +200,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	@Override
 	public float getMinZoomLevelNotClustered(IMarker marker) {
+		//noinspection SuspiciousMethodCalls DelegatingMarker implements IMarker
 		if (!markers.containsKey(marker)) {
 			throw new UnsupportedOperationException("marker is not visible or is a cluster");
 		}
@@ -433,7 +434,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	com.google.android.gms.maps.model.Marker createMarker(@NonNull List<IMarker> markers, LatLng position) {
 		markerOptions.position(position);
-		ClusterOptions opts = clusterOptionsProvider.getClusterOptions(markers);
+		ClusterOptions opts = clusterOptionsProvider.getClusterOptions(markers, map.getCameraPosition().zoom);
 		markerOptions.icon(opts.getIcon());
 		markerOptions.alpha(opts.getAlpha());
 		markerOptions.anchor(opts.getAnchorU(), opts.getAnchorV());

@@ -26,7 +26,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyUIProperties
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -40,6 +40,8 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.ui.view.map.MTMapIconDef
+import org.mtransit.android.ui.view.map.MTMapIconsProvider
 import org.mtransit.android.util.containsEntirely
 import javax.inject.Inject
 import kotlin.math.max
@@ -328,25 +330,29 @@ class MapViewModel @Inject constructor(
         var extra: String?
         var uuid: String
         var authority: String
+        var iconDef: MTMapIconDef
         var color: Int?
+        val alpha: Float? = null
+        val rotation: Float? = null
         var secondaryColor: Int?
-        agencyPOIs?.map {
+        agencyPOIs.map {
             it to POIMarker.getLatLng(it)
-        }?.filterNot { (_, position) ->
+        }.filterNot { (_, position) ->
             !loadingArea.contains(position)
                     && loadedArea?.contains(position) == true
-        }?.forEach { (poim, position) ->
+        }.forEach { (poim, position) ->
             coroutineScope.ensureActive()
             positionTrunc = POIMarker.getLatLngTrunc(poim)
             name = poim.poi.name
             extra = (poim.poi as? RouteDirectionStop)?.route?.shortestName
             uuid = poim.poi.uuid
             authority = poim.poi.authority
+            iconDef = if (rotation == null) MTMapIconsProvider.defaultIconDef else MTMapIconsProvider.arrowIconDef // poim.poi.dataSourceTypeId.iconDef
             color = poim.getColor(dataSourcesRepository)
             secondaryColor = agency.colorInt
             clusterItems[positionTrunc] = clusterItems[positionTrunc]?.apply {
-                merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority)
-            } ?: POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority)
+                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)
+            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)
         }
         return clusterItems
     }

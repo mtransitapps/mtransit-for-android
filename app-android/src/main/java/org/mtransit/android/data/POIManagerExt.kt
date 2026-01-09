@@ -1,6 +1,7 @@
 package org.mtransit.android.data
 
 import android.content.Context
+import android.location.Location
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
@@ -12,9 +13,7 @@ import org.mtransit.android.util.UIAccessibilityUtils
 
 @Suppress("unused")
 fun Iterable<POIManager>.toStringUUID(): String {
-    return this.joinToString {
-        it.poi.uuid
-    }
+    return this.joinToString { it.poi.uuid }
 }
 
 fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean): CharSequence {
@@ -23,15 +22,23 @@ fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean)
 
 fun <P : POI> P.toPOIM() = POIManager(this)
 
-@Suppress("unused")
-fun POIManager.distanceToInMeters(other: POIManager): Float? {
-    return this.poi.distanceToInMeters(other.poi)
-}
+val POIManager.location: Location? get() = this.poi.location
 
-fun POI.distanceToInMeters(other: POI): Float? {
-    if (!this.hasLocation() || !other.hasLocation()) return null
-    return LocationUtils.distanceToInMeters(this.lat, this.lng, other.lat, other.lng)
-}
+val POI.location: Location? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
+
+@Suppress("unused")
+fun POIManager.distanceToInMeters(other: POIManager): Float? =
+    this.poi.distanceToInMeters(other.poi)
+
+fun POI.distanceToInMeters(other: POI): Float? =
+    if (this.hasLocation() && other.hasLocation()) LocationUtils.distanceToInMeters(this.lat, this.lng, other.lat, other.lng) else null
+
+@Suppress("unused")
+fun POIManager.bearingTo(other: POIManager?): Float? =
+    this.poi.bearingTo(other?.poi)
+
+fun POI.bearingTo(other: POI?): Float? =
+    other?.location?.let { this.location?.bearingTo(it) }
 
 fun POI.getNewOneLineDescriptionForNews(dataSourcesRepository: DataSourcesRepository) =
     getNewOneLineDescriptionForNews { dataSourcesRepository.getAgency(getAuthority()) }
