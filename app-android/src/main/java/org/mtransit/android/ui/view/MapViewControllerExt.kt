@@ -25,7 +25,6 @@ fun MapViewController.updateVehicleLocationMarkers(context: Context) {
     }
     val vehicleLocations = markerProvider.getVehicleLocations()?.takeIf { it.isNotEmpty() } ?: run {
         MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations)")
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations)")
         removeMissingVehicleLocationMarkers()
         return
     }

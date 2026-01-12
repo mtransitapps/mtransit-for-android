@@ -3237,6 +3237,39 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.MapMarkerProvider.getVehicleLocations is deprecated; consider using an alternative."
+        errorLine1="    val vehicleLocations = markerProvider.getVehicleLocations()?.takeIf { it.isNotEmpty() } ?: run {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
+            line="27"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.MapMarkerProvider.getVehicleColorInt is deprecated; consider using an alternative."
+        errorLine1="    val vehicleColorInt = markerProvider.getVehicleColorInt()"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
+            line="40"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.MapMarkerProvider.getVehicleType is deprecated; consider using an alternative."
+        errorLine1="    val vehicleDst = markerProvider.getVehicleType()"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
+            line="42"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.getLatLng is deprecated; consider using an alternative."
         errorLine1="            it to POIMarker.getLatLng(it)"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
