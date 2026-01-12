@@ -5,9 +5,11 @@ import androidx.annotation.DrawableRes
 data class MTMapIconDef(
     @get:DrawableRes val resId: Int,
     @get:DrawableRes val smallResId: Int = resId,
+    val flat: Boolean = false,
     val anchorU: Float = 0.5f,
     val anchorV: Float = 1.0f,
-    val flat: Boolean = false,
+    val inforWindowAnchorU: Float = 0.5f,
+    val inforWindowAnchorV: Float = 0.5f,
 ) {
 
     @DrawableRes

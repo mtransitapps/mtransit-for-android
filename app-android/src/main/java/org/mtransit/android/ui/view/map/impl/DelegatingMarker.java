@@ -241,6 +241,11 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
+	public void setZIndex(float zIndex) {
+		real.setZIndex(zIndex);
+	}
+
+	@Override
 	public void setSnippet(String snippet) {
 		real.setSnippet(snippet);
 	}

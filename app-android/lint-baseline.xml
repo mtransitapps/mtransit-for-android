@@ -6075,6 +6075,28 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.updateVehicleLocationMarkersCountdown is deprecated; consider using an alternative."
+        errorLine1="                context?.let { mapViewController.updateVehicleLocationMarkersCountdown(it) }"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="543"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.updateVehicleLocationMarkersCountdown is deprecated; consider using an alternative."
+        errorLine1="                context?.let { mapViewController.updateVehicleLocationMarkersCountdown(it) }"
+        errorLine2="                                                                                       ~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="543"
+            column="88"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onPause()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">

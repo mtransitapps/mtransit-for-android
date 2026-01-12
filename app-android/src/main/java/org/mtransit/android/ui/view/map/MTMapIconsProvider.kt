@@ -9,16 +9,16 @@ object MTMapIconsProvider {
     val selectedDefaultIconDef = MTMapIconDef(R.drawable.map_icon_place_white_slim_original)
 
     @JvmStatic
-    val defaultIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat, R.drawable.map_icon_stop_white_flat_small, 0.5f, 0.5f, true)
+    val defaultIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat, R.drawable.map_icon_stop_white_flat_small, true, 0.5f, 0.5f)
 
     @JvmStatic
-    val arrowIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_arrow, R.drawable.map_icon_stop_white_flat_arrow_small, 0.5f, 0.5f, true)
+    val arrowIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_arrow, R.drawable.map_icon_stop_white_flat_arrow_small, true, 0.5f, 0.5f)
 
     @JvmStatic
-    val defaultClusterIconDef = MTMapIconDef(R.drawable.map_icon_cluster_blur_white, R.drawable.map_icon_cluster_blur_white, 0.5f, 0.5f, true)
+    val defaultClusterIconDef = MTMapIconDef(R.drawable.map_icon_cluster_blur_white, R.drawable.map_icon_cluster_blur_white, true, 0.5f, 0.5f)
 
     @JvmStatic
-    val busVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_bus_big, R.drawable.map_icon_stop_white_flat_filled_bus, 0.5f, 0.5f, true)
+    val busVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_bus_big, R.drawable.map_icon_stop_white_flat_filled_bus, true, 0.5f, 0.5f)
 
     @JvmStatic
     val DataSourceType?.vehicleIconDef: MTMapIconDef

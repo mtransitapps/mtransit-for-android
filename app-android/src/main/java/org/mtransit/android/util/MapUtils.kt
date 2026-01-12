@@ -27,19 +27,26 @@ object MapUtils : Loggable {
 
     override fun getLogTag() = LOG_TAG
 
+    const val MAP_ZOOM_LEVEL_FARTHEST: Float = 0f
     const val MAP_ZOOM_LEVEL_WORLD: Float = 1f
     const val MAP_ZOOM_LEVEL_CONTINENT: Float = 5f
     const val MAP_ZOOM_LEVEL_CITY: Float = 10f
     const val MAP_ZOOM_LEVEL_STREETS: Float = 15f
     const val MAP_ZOOM_LEVEL_STREETS_BUSY: Float = 16f
     const val MAP_ZOOM_LEVEL_STREETS_BUSY_BUSY: Float = 17f
+    const val MAP_ZOOM_LEVEL_CLOSEST: Float = Float.MAX_VALUE // 20 or 21?
+
+    const val MAP_MARKER_ALPHA_DEFAULT = 1.0f
+    const val MAP_MARKER_ROTATION_DEFAULT = 0.0f
+
+    const val MAP_MARKER_HIGHEST = 1.0f // drawn on top
+    const val MAP_MARKER_LOWEST = 0.0f
+    const val MAP_MARKER_DEFAULT = MAP_MARKER_LOWEST
 
     const val MAP_TYPE_NORMAL: Int = GoogleMap.MAP_TYPE_NORMAL
-
     const val MAP_TYPE_SATELLITE: Int = GoogleMap.MAP_TYPE_HYBRID
 
     const val PREFS_LCL_MAP_TYPE: String = "pMapType"
-
     const val PREFS_LCL_MAP_TYPE_DEFAULT: Int = MAP_TYPE_NORMAL
 
     const val DEFAULT_MARKET_COLOR: Int = Color.WHITE

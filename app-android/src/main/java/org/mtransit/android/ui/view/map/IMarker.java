@@ -99,6 +99,8 @@ public interface IMarker {
 
 	void setRotation(float rotation);
 
+	void setZIndex(float zIndex);
+
 	void setSnippet(String snippet);
 
 	void setTitle(String title);

@@ -310,6 +310,11 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
+	public void setZIndex(float zIndex) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void setSnippet(String snippet) {
 		throw new UnsupportedOperationException();
 	}

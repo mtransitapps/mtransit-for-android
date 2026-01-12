@@ -185,6 +185,14 @@ public class LazyMarker implements MTLog.Loggable {
 		}
 	}
 
+	public void setZIndex(float zIndex) {
+		if (marker != null) {
+			marker.setZIndex(zIndex);
+		} else {
+			markerOptions.zIndex(zIndex);
+		}
+	}
+
 	public void setAlpha(float alpha) {
 		if (marker != null) {
 			marker.setAlpha(alpha);
