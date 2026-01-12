@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.latLng
 import org.mtransit.android.data.location
@@ -41,35 +42,67 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>?
         var nextRelevantPOIM: POIManager? = null
         viewModel?.poiList?.value?.let { poims ->
             poims.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
-                nextRelevantPOIM = poims.getOrNull(poimIndex + 1) ?: poims.getOrNull(poimIndex - 1)  // next or previous
+                val previousPOIM = poims.getOrNull(poimIndex - 1)
+                nextRelevantPOIM = poims.getOrNull(poimIndex + 1) ?: previousPOIM  // next or previous
                 nextRelevantPOIM?.latLng?.let { visibleMarkersLocations.add(it) }
+                previousPOIM?.latLng?.let { visibleMarkersLocations.add(it) }
             }
         }
-        val distanceToNextRelevantPOIM = nextRelevantPOIM?.latLng?.distanceToInMeters(poimLatLng)?.times(MAX_DISTANCE_TIMES)
-        val distanceToDeviceLocation = poim.poi.location?.let { deviceLocation?.distanceTo(it) } // in meters
-        val maxDistanceInMeters = max(distanceToNextRelevantPOIM ?: 0f, distanceToDeviceLocation ?: 0f)
-            .takeIf { it > 0f }
+        val maxVehicleDistanceInMeters: Float? = run {
+            val distanceToNextRelevantPOIM = nextRelevantPOIM?.latLng?.distanceToInMeters(poimLatLng)
+                ?.times(MAX_DISTANCE_TIMES)
+            val distanceToDeviceLocation = poim.poi.location?.let { deviceLocation?.distanceTo(it) } // in meters
+            max(distanceToNextRelevantPOIM ?: 0f, distanceToDeviceLocation ?: 0f)
+        }.takeIf { it > 0f }
         viewModel?.vehicleLocations?.value
             ?.sortedBy { it.position.distanceToInMeters(poimLatLng) } // closest first
             ?.forEach { vehicleLocation ->
-                if (maxDistanceInMeters != null && vehicleLocation.position.distanceToInMeters(poimLatLng) <= maxDistanceInMeters) {
+                if (maxVehicleDistanceInMeters != null && vehicleLocation.position.distanceToInMeters(poimLatLng) <= maxVehicleDistanceInMeters) {
                     visibleMarkersLocations.add(vehicleLocation.position)
                 }
             }
         return visibleMarkersLocations
     }
 
-const val PREVIOUS_STOP_ALPHA = 0.5f
+const val NEXT_STOP_ALPHA = 0.75f
+const val PREVIOUS_STOP_ALPHA = 0.50f
+const val TOO_MANY_STOPS_ALPHA = 0.25f
 
 fun POIFragment.getMapMarkerAlpha(position: Int): Float? {
     if (!FeatureFlags.F_EXPORT_TRIP_ID) return null
-    val poim = this.poim ?: return null
-    viewModel?.poiList?.value?.let { poims ->
-        poims.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
-            if (position <= poimIndex) {
-                return PREVIOUS_STOP_ALPHA
+    val poi = this.poim?.poi ?: return null
+    viewModel?.poiList?.value
+        ?.map { it.poi }
+        ?.let { pois ->
+            val selectedPoiIndex = pois.indexOfFirst { it.uuid == poi.uuid }.takeIf { it > -1 } ?: return null
+            val allRDS = pois.all { it is RouteDirectionStop }
+            return if (allRDS) {
+                when (position - 1) { // position = index+1
+                    selectedPoiIndex -> null
+                    in 0..selectedPoiIndex -> PREVIOUS_STOP_ALPHA
+                    else -> NEXT_STOP_ALPHA
+                }
+            } else {
+                when (position - 1) { // position = index+1
+                    selectedPoiIndex -> null
+                    else -> when (pois.size) {
+                        in 0..33 -> NEXT_STOP_ALPHA
+                        in 33..100 -> PREVIOUS_STOP_ALPHA
+                        else -> TOO_MANY_STOPS_ALPHA
+                    }
+                }
             }
         }
-    }
     return null
+}
+
+fun POIFragment.getPOI(position: Int): POIManager? {
+    if (FeatureFlags.F_EXPORT_TRIP_ID) {
+        val poiList = viewModel?.poiList?.value ?: return null
+        val distinct = poiList.mapNotNull { (it.poi as? RouteDirectionStop)?.direction?.id }.distinct()
+        val count = distinct.count()
+        if (count != 1) return null // only for stop on the same route direction
+        return poiList.getOrNull(position)
+    }
+    return this.poim?.takeIf { position == 0 }
 }

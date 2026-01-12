@@ -414,14 +414,7 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	@Override
 	public POIManager getPOI(int position) {
-		if (FeatureFlags.F_EXPORT_TRIP_ID) {
-			final List<POIManager> poiList = viewModel == null ? null : viewModel.getPoiList().getValue();
-			if (poiList == null || position < 0 || position >= poiList.size()) {
-				return null;
-			}
-			return poiList.get(position);
-		}
-		return position == 0 ? this.poim : null;
+		return POIFragmentExtKt.getPOI(this, position);
 	}
 
 	@Nullable

@@ -24,7 +24,6 @@ import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
@@ -181,21 +180,21 @@ class POIViewModel @Inject constructor(
             }
         }
 
-    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _directionId).switchMap { (agency, directionId) ->
+    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
             agency ?: return@liveData
-            directionId ?: return@liveData
-            emit(getPOIList(agency, directionId))
+            poi ?: return@liveData
+            emit(getPOIList(agency, poi))
         }
     }
 
-    private suspend fun getPOIList(agency: IAgencyProperties, directionId: Long) =
-        this.poiRepository.findPOIMs(
-            agency,
-            POIProviderContract.Filter.getNewSqlSelectionFilter(
+    private suspend fun getPOIList(agency: IAgencyProperties, poi: POI) = this.poiRepository.findPOIMs(
+        agency,
+        when (poi) {
+            is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
                 SqlUtils.getWhereEquals(
-                    GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, directionId
+                    GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
                 )
             ).apply {
                 addExtra(
@@ -203,7 +202,10 @@ class POIViewModel @Inject constructor(
                     SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
                 )
             }
-        )
+
+            else -> POIProviderContract.Filter.getNewEmptyFilter()
+        }
+    )
 
     val scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)
