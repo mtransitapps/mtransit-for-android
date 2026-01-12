@@ -46,7 +46,6 @@ import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
-
 @HiltViewModel
 class RDSDirectionStopsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
@@ -217,31 +216,30 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_agency, directionId).switchMap { (agency, directionId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            agency ?: return@liveData
+            directionId ?: return@liveData
             emit(getPOIList(agency, directionId))
         }
     }
 
-    private suspend fun getPOIList(agency: IAgencyProperties?, directionId: Long?): List<POIManager>? {
-        if (agency == null || directionId == null) {
-            return null
-        }
-        val poiFilter = POIProviderContract.Filter.getNewSqlSelectionFilter(
-            SqlUtils.getWhereEquals(
-                GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, directionId
-            )
-        ).apply {
-            addExtra(
-                POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
-                SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
-            )
-        }
-        return this.poiRepository.findPOIMs(agency, poiFilter)
-            .apply {
-                forEach { poim ->
-                    poim.addServiceUpdateLoaderListener(serviceUpdateLoaderListener) // trigger refresh because some provider do not fetch for route #stmbus
-                }
+    private suspend fun getPOIList(agency: IAgencyProperties, directionId: Long) =
+        this.poiRepository.findPOIMs(
+            agency,
+            POIProviderContract.Filter.getNewSqlSelectionFilter(
+                SqlUtils.getWhereEquals(
+                    GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, directionId
+                )
+            ).apply {
+                addExtra(
+                    POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
+                    SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
+                )
             }
-    }
+        ).apply {
+            forEach { poim ->
+                poim.addServiceUpdateLoaderListener(serviceUpdateLoaderListener) // trigger refresh because some provider do not fetch for route #stmbus
+            }
+        }
 
     val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
         liveData {

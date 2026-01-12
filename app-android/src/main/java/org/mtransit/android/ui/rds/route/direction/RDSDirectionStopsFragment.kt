@@ -11,6 +11,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -72,15 +73,13 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             routeId: Long,
             directionId: Long,
             optSelectedStopId: Int? = null,
-        ): RDSDirectionStopsFragment {
-            return RDSDirectionStopsFragment().apply {
-                arguments = bundleOf(
-                    RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                    RDSDirectionStopsViewModel.EXTRA_ROUTE_ID to routeId,
-                    RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to directionId,
-                    RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
-                )
-            }
+        ) = RDSDirectionStopsFragment().apply {
+            arguments = bundleOf(
+                RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
+                RDSDirectionStopsViewModel.EXTRA_ROUTE_ID to routeId,
+                RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to directionId,
+                RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
+            )
         }
 
         private const val TOP_PADDING_SP = 0
@@ -153,6 +152,10 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         override fun getVehicleColorInt(): Int? = attachedParentViewModel?.colorInt?.value
 
         override fun getVehicleType(): DataSourceType? = attachedParentViewModel?.routeType?.value
+
+        override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
+
+        override fun getMapMarkerAlpha(position: Int): Float? = null
     }
 
     @Suppress("DeprecatedCall")
@@ -517,6 +520,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         super.onPause()
         mapViewController.onPause()
         viewModel.stopVehicleLocationRefresh()
+        stopVehicleLocationCountdownRefresh()
         listAdapter.onPause()
     }
 

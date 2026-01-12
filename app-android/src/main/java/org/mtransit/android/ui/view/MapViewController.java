@@ -179,6 +179,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private String lastSelectedUUID;
 
+	private String focusedOnUUID = null;
+
 	private boolean locationPermissionGranted = false;
 
 	@Nullable
@@ -768,7 +770,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		final LatLngBounds.Builder llb = LatLngBounds.builder();
 		includeLocationAccuracyBounds(llb, this.deviceLocation);
-		llb.include(POIMarker.getLatLng(poim));
+		final LatLng poimlatLng = POIManagerExtKt.getLatLng(poim);
+		if (poimlatLng != null) {
+			llb.include(poimlatLng);
+		}
 		final Context context = getActivityOrNull();
 		final boolean success = updateMapCamera(true,
 				CameraUpdateFactory.newLatLngBounds(llb.build(), MapUtils.getMapWithButtonsCameraPaddingInPx(context))
@@ -824,32 +829,45 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private boolean includeMarkersInLatLngBounds(@NonNull LatLngBounds.Builder llb) {
-		java.util.List<IMarker> markers = this.extendedGoogleMap == null ? null : this.extendedGoogleMap.getMarkers();
+		final MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
+		if (markerProvider != null) {
+			final Collection<LatLng> visibleMarkersLocations = markerProvider.getVisibleMarkersLocations();
+			if (visibleMarkersLocations != null) {
+				if (visibleMarkersLocations.isEmpty()) return false; // try latter
+				for (LatLng latLng : visibleMarkersLocations) {
+					llb.include(latLng);
+				}
+				return true;
+			}
+		}
+		final java.util.List<IMarker> markers = this.extendedGoogleMap == null ? null : this.extendedGoogleMap.getMarkers();
 		if (markers != null && !markers.isEmpty()) {
 			for (IMarker imarker : markers) {
 				llb.include(imarker.getPosition());
 			}
 			return true;
 		}
-		MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
 		if (markerProvider == null) {
 			return false;
 		}
-		Collection<POIMarker> poiMarkers = markerProvider.getPOMarkers();
+		final Collection<POIMarker> poiMarkers = markerProvider.getPOMarkers();
 		if (poiMarkers != null) {
 			for (POIMarker poiMarker : poiMarkers) {
 				llb.include(poiMarker.position);
 			}
 			return true;
 		}
-		Collection<POIManager> pois = markerProvider.getPOIs();
+		final Collection<POIManager> pois = markerProvider.getPOIs();
 		if (pois != null) {
 			for (POIManager poim : pois) {
-				llb.include(POIMarker.getLatLng(poim));
+				final LatLng poimlatLng = POIManagerExtKt.getLatLng(poim);
+				if (poimlatLng != null) {
+					llb.include(poimlatLng);
+				}
 			}
 			return true;
 		}
-		Collection<VehicleLocation> vehicleLocations = markerProvider.getVehicleLocations();
+		final Collection<VehicleLocation> vehicleLocations = markerProvider.getVehicleLocations();
 		if (vehicleLocations != null) {
 			for (VehicleLocation vehicleLocation : vehicleLocations) {
 				llb.include(VehicleLocationExtKt.getPosition(vehicleLocation));
@@ -1039,11 +1057,6 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		private static double truncAround(double loc) {
 			return Double.parseDouble(String.format(Locale.US, AROUND_TRUNC, loc));
-		}
-
-		@NonNull
-		public static LatLng getLatLng(@NonNull POIManager poim) {
-			return new LatLng(poim.poi.getLat(), poim.poi.getLng());
 		}
 
 		@NonNull
@@ -1431,14 +1444,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			final int size = pois.size();
 			for (POIManager poim : pois) {
 				index++;
-				position = POIMarker.getLatLng(poim);
+				final LatLng poimlatLng = POIManagerExtKt.getLatLng(poim);
+				if (poimlatLng == null) continue;
+				position = poimlatLng;
 				positionTrunc = POIMarker.getLatLngTrunc(poim);
 				name = poim.poi.getName();
 				extra = null;
 				agency = dataSourcesRepository.getAgency(poim.poi.getAuthority());
-				if (agency == null) {
-					continue;
-				}
+				if (agency == null) continue;
 				if (mapViewController.markerLabelShowExtra && poim.poi instanceof RouteDirectionStop) {
 					extra = ((RouteDirectionStop) poim.poi).getRoute().getShortestName();
 				}
@@ -1447,10 +1460,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				authority = poim.poi.getAuthority();
 				color = poim.getColor(dataSourcesRepository);
 				secondaryColor = agency.getColorInt();
-				alpha = null;
-				final POIManager nextPoim = index < size ? markerProvider.getPOI(index) : null;
+				alpha = markerProvider.getMapMarkerAlpha(index);
+				final POIManager nextPoim = !uuid.equals(mapViewController.focusedOnUUID) && index < size
+						? markerProvider.getPOI(index) : null;
 				rotation = POIManagerExtKt.bearingTo(poim, nextPoim);
-				iconDef = rotation == null ? MTMapIconsProvider.getDefaultIconDef() : MTMapIconsProvider.getArrowIconDef();
+				iconDef = uuid.equals(mapViewController.focusedOnUUID) ? MTMapIconsProvider.getSelectedDefaultIconDef()
+						: rotation != null ? MTMapIconsProvider.getArrowIconDef()
+						: MTMapIconsProvider.getDefaultIconDef();
 				POIMarker currentItem = clusterItems.get(positionTrunc);
 				if (currentItem == null) {
 					currentItem = new POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority);
@@ -1657,6 +1673,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.lastSelectedUUID = uuid; // initial
 	}
 
+	public void setFocusedOnUUID(@Nullable String uuid) {
+		if (TextUtils.isEmpty(uuid)) {
+			return;
+		}
+		this.focusedOnUUID = uuid;
+	}
+
 	public void setInitialLocation(@Nullable Location initialLocation) {
 		if (initialLocation == null) {
 			return;
@@ -1758,6 +1781,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		@Nullable
 		DataSourceType getVehicleType();
+
+		@Nullable
+		Collection<LatLng> getVisibleMarkersLocations();
+
+		@Nullable
+		Float getMapMarkerAlpha(int position);
 	}
 
 	public interface MapListener {

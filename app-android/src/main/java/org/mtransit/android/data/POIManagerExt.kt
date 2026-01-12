@@ -5,6 +5,7 @@ import android.location.Location
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
+import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
@@ -23,20 +24,18 @@ fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean)
 fun <P : POI> P.toPOIM() = POIManager(this)
 
 val POIManager.location: Location? get() = this.poi.location
-
 val POI.location: Location? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
 
-@Suppress("unused")
-fun POIManager.distanceToInMeters(other: POIManager): Float? =
-    this.poi.distanceToInMeters(other.poi)
+val POIManager.latLng: LatLng? get() = this.poi.latLng
+val POI.latLng: LatLng? get() = if (this.hasLocation()) LatLng(this.lat, this.lng) else null
 
+@Suppress("unused")
+fun POIManager.distanceToInMeters(other: POIManager) = this.poi.distanceToInMeters(other.poi)
 fun POI.distanceToInMeters(other: POI): Float? =
     if (this.hasLocation() && other.hasLocation()) LocationUtils.distanceToInMeters(this.lat, this.lng, other.lat, other.lng) else null
 
 @Suppress("unused")
-fun POIManager.bearingTo(other: POIManager?): Float? =
-    this.poi.bearingTo(other?.poi)
-
+fun POIManager.bearingTo(other: POIManager?): Float? = this.poi.bearingTo(other?.poi)
 fun POI.bearingTo(other: POI?): Float? =
     other?.location?.let { this.location?.bearingTo(it) }
 
@@ -98,8 +97,5 @@ val POIManager.shortUUIDAndDistance: String
     get() = this.poi.shortUUID + " " + this.simpleDistanceString
 
 @Suppress("unused")
-val POIManager.shortUUID: String
-    get() = this.poi.shortUUID
-
-val POI.shortUUID: String
-    get() = this.uuid.substring(this.authority.length + 1)
+val POIManager.shortUUID: String get() = this.poi.shortUUID
+val POI.shortUUID: String get() = this.uuid.substring(this.authority.length + 1)

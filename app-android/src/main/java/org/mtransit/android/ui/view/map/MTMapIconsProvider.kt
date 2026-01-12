@@ -18,12 +18,32 @@ object MTMapIconsProvider {
     val defaultClusterIconDef = MTMapIconDef(R.drawable.map_icon_cluster_blur_white, R.drawable.map_icon_cluster_blur_white, true, 0.5f, 0.5f)
 
     @JvmStatic
+    val lightRailVehicleIconDef =
+        MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_tram_big, R.drawable.map_icon_stop_white_flat_filled_tram, true, 0.5f, 0.5f)
+
+    @JvmStatic
+    val subwayVehicleIconDef =
+        MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_subway_big, R.drawable.map_icon_stop_white_flat_filled_subway, true, 0.5f, 0.5f)
+
+    @JvmStatic
+    val railVehicleIconDef =
+        MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_railway_big, R.drawable.map_icon_stop_white_flat_filled_railway, true, 0.5f, 0.5f)
+
+    @JvmStatic
     val busVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_bus_big, R.drawable.map_icon_stop_white_flat_filled_bus, true, 0.5f, 0.5f)
+
+    @JvmStatic
+    val ferryVehicleIconDef =
+        MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_boat_big, R.drawable.map_icon_stop_white_flat_filled_boat, true, 0.5f, 0.5f)
 
     @JvmStatic
     val DataSourceType?.vehicleIconDef: MTMapIconDef
         get() = when (this) {
+            DataSourceType.TYPE_LIGHT_RAIL, DataSourceType.TYPE_TRAM -> lightRailVehicleIconDef
+            DataSourceType.TYPE_SUBWAY -> subwayVehicleIconDef
+            DataSourceType.TYPE_RAIL -> railVehicleIconDef
             DataSourceType.TYPE_BUS -> busVehicleIconDef
-            else -> selectedDefaultIconDef
+            DataSourceType.TYPE_FERRY -> ferryVehicleIconDef
+            else -> defaultIconDef // should not happen?
         }
 }

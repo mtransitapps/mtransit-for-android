@@ -8,6 +8,7 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
@@ -129,6 +130,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         override fun getVehicleColorInt(): Int? = null
 
         override fun getVehicleType(): DataSourceType? = null
+
+        override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
+
+        override fun getMapMarkerAlpha(position: Int): Float? = null
     }
 
     @Suppress("DeprecatedCall")

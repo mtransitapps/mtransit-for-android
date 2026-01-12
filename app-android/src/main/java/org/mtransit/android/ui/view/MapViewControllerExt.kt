@@ -33,7 +33,7 @@ fun MapViewController.updateVehicleLocationMarkers(context: Context) {
     val vehicleDst = markerProvider.getVehicleType()
     val processedVehicleLocationsUUIDs = mutableSetOf<String>()
     var index = 0
-    for (vehicleLocation in vehicleLocations) {
+    vehicleLocations.forEach { vehicleLocation ->
         val iconDef = vehicleDst.vehicleIconDef
         val title = vehicleLocation.getMapMarkerTitle(context)
         val snippet = vehicleLocation.getMapMarkerSnippet(context)
@@ -82,8 +82,8 @@ fun MapViewController.removeMissingVehicleLocationMarkers(
     processedVehicleLocationsUUIDs: Set<String> = emptySet(),
 ) {
     this.vehicleLocationsMarkers.entries.forEach { (uuid, _) ->
-        this.vehicleLocationsMarkers.remove(uuid)?.let { // REMOVE
-            it.remove()
+        this.vehicleLocationsMarkers.remove(uuid)?.let { marker -> // REMOVE
+            marker.remove()
         }
     }
 }

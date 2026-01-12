@@ -29,6 +29,7 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyUIProperties
+import org.mtransit.android.data.latLng
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
@@ -335,8 +336,8 @@ class MapViewModel @Inject constructor(
         val alpha: Float? = null
         val rotation: Float? = null
         var secondaryColor: Int?
-        agencyPOIs.map {
-            it to POIMarker.getLatLng(it)
+        agencyPOIs.mapNotNull { poim ->
+            poim.latLng?.let { poim to it }
         }.filterNot { (_, position) ->
             !loadingArea.contains(position)
                     && loadedArea?.contains(position) == true
@@ -347,7 +348,7 @@ class MapViewModel @Inject constructor(
             extra = (poim.poi as? RouteDirectionStop)?.route?.shortestName
             uuid = poim.poi.uuid
             authority = poim.poi.authority
-            iconDef = if (rotation == null) MTMapIconsProvider.defaultIconDef else MTMapIconsProvider.arrowIconDef // poim.poi.dataSourceTypeId.iconDef
+            iconDef = if (rotation == null) MTMapIconsProvider.defaultIconDef else MTMapIconsProvider.arrowIconDef
             color = poim.getColor(dataSourcesRepository)
             secondaryColor = agency.colorInt
             clusterItems[positionTrunc] = clusterItems[positionTrunc]?.apply {
