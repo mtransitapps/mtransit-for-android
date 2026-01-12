@@ -5855,13 +5855,24 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.refreshMapMarkers is deprecated; consider using an alternative."
-        errorLine1="                mapViewController.refreshMapMarkers()"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.view.MapViewController.updateVehicleLocationMarkers is deprecated; consider using an alternative."
+        errorLine1="                context?.let { mapViewController.updateVehicleLocationMarkers(it) }"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="328"
-            column="17"/>
+            line="333"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.updateVehicleLocationMarkers is deprecated; consider using an alternative."
+        errorLine1="                context?.let { mapViewController.updateVehicleLocationMarkers(it) }"
+        errorLine2="                                                                              ~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="333"
+            column="79"/>
     </issue>
 
     <issue

@@ -36,6 +36,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
@@ -55,6 +56,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val demoModeManager: DemoModeManager,
+    remoteConfigProvider: RemoteConfigProvider,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -122,12 +124,17 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     private var _vehicleRefreshJob: Job? = null
 
+    private val _vehicleLocationDataRefreshMinMs = remoteConfigProvider.get(
+        RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS,
+        RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT,
+    )
+
     fun startVehicleLocationRefresh() {
         _vehicleRefreshJob?.cancel()
         _vehicleRefreshJob = viewModelScope.launch {
             while (true) {
                 _vehicleLocationRequestedTrigger.value = (_vehicleLocationRequestedTrigger.value ?: 0) + 1
-                delay(30.seconds) // TODO 10.seconds if APIs allow?
+                delay(_vehicleLocationDataRefreshMinMs)
             }
         }
     }
