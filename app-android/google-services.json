@@ -41,25 +41,16 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 2,
-          "analytics_property": {
-            "tracking_id": "INSERT_TRACKING_ID"
-          }
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "INSERT_CLIENT_ID",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
-      }
+      },
+      "admob_app_id": "INSERT_GOOGLE_ADS_APP_ID_HERE"
     }
   ],
   "configuration_version": "1"
