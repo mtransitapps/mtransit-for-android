@@ -8,6 +8,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.MainActivity
@@ -36,6 +37,7 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        LocaleUtils.onApplicationCreate(this)
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
         splashScreen.setKeepOnScreenCondition { true } // Keep the splash screen visible for this Activity
