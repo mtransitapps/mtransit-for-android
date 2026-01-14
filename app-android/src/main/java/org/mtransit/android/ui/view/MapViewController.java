@@ -198,8 +198,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 							 boolean hasButtons,
 							 boolean clusteringEnabled,
 							 boolean showAllMarkersWhenReady,
-							 boolean markerLabelShowExtra,
-							 @Nullable DataSourcesRepository dataSourcesRepository) {
+							 boolean markerLabelShowExtra) {
 		setLogTag(logTag);
 		setMarkerProvider(markerProvider);
 		setMapListener(mapListener);
@@ -216,7 +215,6 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.clusteringEnabled = clusteringEnabled;
 		this.showAllMarkersWhenReady = showAllMarkersWhenReady;
 		this.markerLabelShowExtra = markerLabelShowExtra;
-		this.dataSourcesRepository = dataSourcesRepository;
 	}
 
 	private void setMarkerProvider(@Nullable MapMarkerProvider markerProvider) {
@@ -645,6 +643,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
+		if (mapListener != null) {
+			if (mapListener.onMarkerClick(marker)) {
+				return true; // handled
+			}
+		}
 		if (marker != null
 				&& !marker.isCluster()
 				&& marker.getData() != null
@@ -1423,6 +1426,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	public interface MapListener {
 
 		void onMapClick(@NonNull LatLng position);
+
+		boolean onMarkerClick(@Nullable IMarker marker);
 
 		void onCameraChange(@NonNull LatLngBounds latLngBounds, float zoom);
 

@@ -178,7 +178,6 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             false,
             true,
             false,
-            this.dataSourcesRepository
         ).apply {
             setAutoClickInfoWindow(true)
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))

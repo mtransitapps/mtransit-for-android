@@ -7,12 +7,13 @@ import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.ui.view.MapViewController.MAP_MARKER_Z_INDEX_VEHICLE
 import org.mtransit.android.ui.view.map.ExtendedMarkerOptions
-import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
+import org.mtransit.android.ui.view.map.countMarkersInside
 import org.mtransit.android.ui.view.map.getMapMarkerSnippet
 import org.mtransit.android.ui.view.map.getMapMarkerTitle
 import org.mtransit.android.ui.view.map.getRotation
 import org.mtransit.android.ui.view.map.position
+import org.mtransit.android.ui.view.map.toArea
 
 fun MapViewController.updateVehicleLocationMarkers(context: Context) {
     val googleMap = this.extendedGoogleMap ?: run {
@@ -28,7 +29,10 @@ fun MapViewController.updateVehicleLocationMarkers(context: Context) {
         removeMissingVehicleLocationMarkers()
         return
     }
-    val currentZoomGroup = MTMapIconZoomGroup.from(googleMap.getCameraPosition().zoom, null)
+    val visibleArea = googleMap.getProjection().visibleRegion.toArea()
+    val visibleMarkersCount = visibleArea.countMarkersInside(googleMap.getMarkers()) +
+            vehicleLocations.count { !this.vehicleLocationsMarkers.containsKey(it.uuid) }
+    val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)
     val vehicleColorInt = markerProvider.getVehicleColorInt()
     val vehicleDst = markerProvider.getVehicleType()
     val processedVehicleLocationsUUIDs = mutableSetOf<String>()

@@ -109,6 +109,7 @@ import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
@@ -253,8 +254,7 @@ public class POIFragment extends ABFragment implements
 					false,
 					false,
 					true,
-					false,
-					null // this.dataSourcesRepository
+					false
 			);
 
 	private void onAgencyLoaded(@Nullable AgencyProperties agency) {
@@ -483,13 +483,22 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
+	public boolean onMarkerClick(@Nullable IMarker marker) {
+		return onMapClick(); // handled
+	}
+
+	@Override
 	public void onMapClick(@NonNull LatLng position) {
+		onMapClick();
+	}
+
+	private boolean onMapClick() {
 		if (!FragmentUtils.isFragmentReady(this)) {
-			return;
+			return false;
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim == null) {
-			return;
+			return false;
 		}
 		if (FeatureFlags.F_NAVIGATION) {
 			final NavController navController = NavHostFragment.findNavController(this);
@@ -501,13 +510,37 @@ public class POIFragment extends ABFragment implements
 			}
 			if (FeatureFlags.F_EXPORT_TRIP_ID) {
 				if (poim.poi instanceof RouteDirectionStop) {
+					this.localPreferenceRepository.saveAsync(
+							LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
+									poim.poi.getAuthority(),
+									((RouteDirectionStop) poim.poi).getRoute().getId(),
+									((RouteDirectionStop) poim.poi).getDirection().getId()
+							),
+							false // show map instead of list
+					);
 					NavControllerExtKt.navigateF(navController,
 							R.id.nav_to_rds_route_screen,
 							RDSRouteFragment.newInstanceArgs((RouteDirectionStop) poim.poi),
 							null,
 							extras
 					);
+				} else {
+					this.localPreferenceRepository.saveAsync(
+							LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.getDataSourceTypeId()),
+							poim.poi.getAuthority()
+					);
+					this.defaultPrefRepository.saveAsync(
+							DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.getAuthority()),
+							false
+					);
+					NavControllerExtKt.navigateF(navController,
+							R.id.nav_to_type_screen,
+							AgencyTypeFragment.newInstanceArgs(poim.poi.getDataSourceTypeId()),
+							null,
+							extras
+					);
 				}
+				return true;
 			}
 			NavControllerExtKt.navigateF(navController,
 					R.id.nav_to_map_screen,
@@ -518,7 +551,7 @@ public class POIFragment extends ABFragment implements
 		} else {
 			final FragmentActivity activity = getActivity();
 			if (activity == null) {
-				return;
+				return false;
 			}
 			if (FeatureFlags.F_EXPORT_TRIP_ID) {
 				if (poim.poi instanceof RouteDirectionStop) {
@@ -547,12 +580,13 @@ public class POIFragment extends ABFragment implements
 							AgencyTypeFragment.newInstance(poim.poi.getDataSourceTypeId()),
 							this);
 				}
-				return;
+				return true;
 			}
 			((MainActivity) activity).addFragmentToStack(
 					MapFragment.newInstance(poim),
 					this);
 		}
+		return true;
 	}
 
 	@Override
