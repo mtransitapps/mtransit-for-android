@@ -1171,6 +1171,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 						  @Nullable @ColorInt Integer secondaryColor,
 						  @Nullable Float alpha,
 						  @Nullable Float rotation,
+						  @Nullable Float zIndex,
 						  @NonNull String uuid,
 						  @NonNull String authority
 		) {
