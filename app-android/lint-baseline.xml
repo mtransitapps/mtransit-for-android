@@ -751,193 +751,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.report is deprecated; consider using an alternative."
-        errorLine1="  report(null, message);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="23"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.report is deprecated; consider using an alternative."
-        errorLine1="  report(null, message);"
-        errorLine2="         ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="23"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.report is deprecated; consider using an alternative."
-        errorLine1="  report(null, message);"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="23"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="  w(loggable.getLogTag(), msg, args);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="45"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="  w(loggable.getLogTag(), msg, args);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="45"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="  w(loggable.getLogTag(), msg, args);"
-        errorLine2="                          ~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="45"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="  w(loggable.getLogTag(), msg, args);"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="45"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.report is deprecated; consider using an alternative."
-        errorLine1="  report(String.format(msg, args));"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="50"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.report is deprecated; consider using an alternative."
-        errorLine1="  report(String.format(msg, args));"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="50"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="  w(loggable.getLogTag(), t, msg, args);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="54"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="  w(loggable.getLogTag(), t, msg, args);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="54"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="  w(loggable.getLogTag(), t, msg, args);"
-        errorLine2="                          ~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="54"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="  w(loggable.getLogTag(), t, msg, args);"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="54"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="  w(loggable.getLogTag(), t, msg, args);"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="54"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.report is deprecated; consider using an alternative."
-        errorLine1="  report(t, String.format(msg, args));"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="59"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.report is deprecated; consider using an alternative."
-        errorLine1="  report(t, String.format(msg, args));"
-        errorLine2="         ~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="59"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.report is deprecated; consider using an alternative."
-        errorLine1="  report(t, String.format(msg, args));"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/CrashUtils.java"
-            line="59"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.commons.PackageManagerExtKt.getAllInstalledProvidersWithMetaData is deprecated; consider using an alternative."
         errorLine1="        pm.getAllInstalledProvidersWithMetaData().forEach pkg@{ packageInfo ->"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -3292,12 +3105,34 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
+        errorLine1="    val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
+            line="35"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
+        errorLine1="    val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
+            line="35"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.MapMarkerProvider.getVehicleColorInt is deprecated; consider using an alternative."
         errorLine1="    val vehicleColorInt = markerProvider.getVehicleColorInt()"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
-            line="40"
+            line="36"
             column="27"/>
     </issue>
 
@@ -3308,337 +3143,8 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
-            line="42"
+            line="37"
             column="22"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.getLatLng is deprecated; consider using an alternative."
-        errorLine1="            it to POIMarker.getLatLng(it)"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="334"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.getLatLng is deprecated; consider using an alternative."
-        errorLine1="            it to POIMarker.getLatLng(it)"
-        errorLine2="                                      ~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="334"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.getLatLngTrunc is deprecated; consider using an alternative."
-        errorLine1="            positionTrunc = POIMarker.getLatLngTrunc(poim)"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="340"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.getLatLngTrunc is deprecated; consider using an alternative."
-        errorLine1="            positionTrunc = POIMarker.getLatLngTrunc(poim)"
-        errorLine2="                                                     ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="340"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                      ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                       ~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                              ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                       ~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
-            column="86"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                              ~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="348"
-            column="92"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                                     ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="361"
-            column="102"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                                               ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="361"
-            column="112"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                                                       ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="361"
-            column="118"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                                                             ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="356"
-            column="126"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="349"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                           ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="349"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                     ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="349"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="349"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                            ~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="349"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                   ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="349"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                            ~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="362"
-            column="77"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="362"
-            column="84"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                                   ~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="362"
-            column="100"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                                          ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="362"
-            column="107"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                                                    ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="357"
-            column="117"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        errorLine2="                                                                                                                            ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="349"
-            column="91"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
-        <location
-            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
-            line="349"
-            column="97"/>
     </issue>
 
     <issue
@@ -4106,8 +3612,8 @@
     <issue
         id="DeprecatedCall"
         message="com.google.android.material.button.MaterialButton.setBackgroundDrawable is deprecated; consider using an alternative."
-        errorLine1="      btn.setBackgroundDrawable(gradient);"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="   btn.setBackgroundDrawable(gradient);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
             line="665"
@@ -4270,50 +3776,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
-        errorLine1="        val routeVH = Route(1L, &quot;11&quot;, &quot;Vaudreuil / Hudson&quot;, &quot;F16179&quot;)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="41"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
-        errorLine1="        val routeSH = Route(3L, &quot;13&quot;, &quot;Mont-St-Hilaire&quot;, &quot;CA5898&quot;)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="42"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
-        errorLine1="        val routeCA = Route(4L, &quot;14&quot;, &quot;Candiac&quot;, &quot;CA5898&quot;)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="43"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
-        errorLine1="        val routeMA = Route(6L, &quot;15&quot;, &quot;Mascouche&quot;, &quot;999AC6&quot;)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="44"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.commons.data.Stop.Stop is deprecated; consider using an alternative."
         errorLine1="        val stopCentrale = Stop(11010, &quot;&quot;, &quot;Centrale&quot;, 45.500002, -73.566668)"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -4343,39 +3805,6 @@
             file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
             line="55"
             column="29"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
-        errorLine1="        val route23 = Route(23L, &quot;23&quot;, &quot;Ste-Hélène / Jacques-Cartier&quot;, &quot;&quot;)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="89"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
-        errorLine1="        val route29 = Route(29L, &quot;29&quot;, &quot;Collectivité Nouvelle&quot;, &quot;&quot;)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="90"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Route.Route is deprecated; consider using an alternative."
-        errorLine1="        val route98 = Route(98L, &quot;98&quot;, &quot;Promenades St-Bruno / St-Bruno-De-Montarville&quot;, &quot;&quot;)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="91"
-            column="23"/>
     </issue>
 
     <issue
@@ -4429,17 +3858,6 @@
         errorLine2="     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="232"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="     null // this.dataSourcesRepository"
-        errorLine2="     ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="246"
             column="6"/>
     </issue>
@@ -4447,8 +3865,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="   this.mapViewController.notifyMarkerChanged(this);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="348"
@@ -4458,8 +3876,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="                                             ~~~~">
+        errorLine1="   this.mapViewController.notifyMarkerChanged(this);"
+        errorLine2="                                              ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="348"
@@ -4469,8 +3887,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.showMap(view);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="   this.mapViewController.showMap(view);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="349"
@@ -4480,8 +3898,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.showMap(view);"
-        errorLine2="                                 ~~~~">
+        errorLine1="   this.mapViewController.showMap(view);"
+        errorLine2="                                  ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="349"
@@ -4638,7 +4056,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="514"
+            line="658"
             column="40"/>
     </issue>
 
@@ -4765,8 +4183,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    this.mapViewController.notifyMarkerChanged(this);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="1102"
@@ -4776,8 +4194,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="                                              ~~~~">
+        errorLine1="    this.mapViewController.notifyMarkerChanged(this);"
+        errorLine2="                                               ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="1102"
@@ -4787,8 +4205,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.showMap(view);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    this.mapViewController.showMap(view);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="1103"
@@ -4798,8 +4216,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.showMap(view);"
-        errorLine2="                                  ~~~~">
+        errorLine1="    this.mapViewController.showMap(view);"
+        errorLine2="                                   ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="1103"
@@ -6018,28 +5436,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.updateVehicleLocationMarkers is deprecated; consider using an alternative."
-        errorLine1="                context?.let { mapViewController.updateVehicleLocationMarkers(it) }"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="333"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.updateVehicleLocationMarkers is deprecated; consider using an alternative."
-        errorLine1="                context?.let { mapViewController.updateVehicleLocationMarkers(it) }"
-        errorLine2="                                                                              ~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="333"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
         errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -6238,28 +5634,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.updateVehicleLocationMarkersCountdown is deprecated; consider using an alternative."
-        errorLine1="                context?.let { mapViewController.updateVehicleLocationMarkersCountdown(it) }"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="543"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.updateVehicleLocationMarkersCountdown is deprecated; consider using an alternative."
-        errorLine1="                context?.let { mapViewController.updateVehicleLocationMarkersCountdown(it) }"
-        errorLine2="                                                                                       ~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="543"
-            column="88"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onPause()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -6327,8 +5701,8 @@
     <issue
         id="DeprecatedCall"
         message="android.os.AsyncTask.executeOnExecutor is deprecated; consider using an alternative."
-        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
-        errorLine2="    ^">
+        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="135"
@@ -6338,8 +5712,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
-        errorLine2="    ^">
+        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="135"
@@ -6349,8 +5723,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
-        errorLine2="    ^">
+        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="135"
@@ -6360,8 +5734,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
-        errorLine2="                                     ~~~~~~~~~~~~~~~">
+        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="135"
@@ -6371,8 +5745,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    new ServiceUpdateFetcherCallable(this.appContext,"
-        errorLine2="                                     ~~~~~~~~~~~~~~~">
+        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="135"
@@ -6382,8 +5756,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      listener,"
-        errorLine2="      ~~~~~~~~">
+        errorLine1="     listeners,"
+        errorLine2="     ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="136"
@@ -6393,8 +5767,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      listener,"
-        errorLine2="      ~~~~~~~~">
+        errorLine1="     listeners,"
+        errorLine2="     ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="136"
@@ -6404,8 +5778,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      provider,"
-        errorLine2="      ~~~~~~~~">
+        errorLine1="     provider,"
+        errorLine2="     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="137"
@@ -6415,8 +5789,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      provider,"
-        errorLine2="      ~~~~~~~~">
+        errorLine1="     provider,"
+        errorLine2="     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="137"
@@ -6426,8 +5800,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      targetUUID,"
-        errorLine2="      ~~~~~~~~~~">
+        errorLine1="     targetUUID,"
+        errorLine2="     ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="138"
@@ -6437,8 +5811,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      targetUUID,"
-        errorLine2="      ~~~~~~~~~~">
+        errorLine1="     targetUUID,"
+        errorLine2="     ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="138"
@@ -6448,8 +5822,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      mainListener,"
-        errorLine2="      ~~~~~~~~~~~~">
+        errorLine1="     mainListener,"
+        errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="139"
@@ -6459,8 +5833,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      mainListener,"
-        errorLine2="      ~~~~~~~~~~~~">
+        errorLine1="     mainListener,"
+        errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="139"
@@ -6470,8 +5844,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="     serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
+        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="140"
@@ -6481,8 +5855,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="     serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
+        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
             line="140"
@@ -8071,17 +7445,6 @@
             file="src/main/res/values/dimens.xml"
             line="46"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.no_favorites` appears to be unused"
-        errorLine1="    &lt;string name=&quot;no_favorites&quot;>No favorites.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="90"
-            column="13"/>
     </issue>
 
     <issue
