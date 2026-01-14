@@ -643,6 +643,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
+		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
 		if (mapListener != null) {
 			if (mapListener.onMarkerClick(marker)) {
 				return true; // handled
