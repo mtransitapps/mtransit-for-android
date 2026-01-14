@@ -14,9 +14,7 @@ import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.poi.POIProviderContract
-import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.AgencyProperties
-import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -59,21 +57,20 @@ class AgencyPOIsViewModel @Inject constructor(
 
     val showingListInsteadOfMap: LiveData<Boolean> = _authority.switchMap { authority ->
         liveData {
-            authority?.let {
-                if (demoModeManager.isFullDemo()) {
-                    emit(false) // show map (demo mode ON)
-                    return@liveData
-                }
-                emitSource(
-                    defaultPrefRepository.pref.liveData(
-                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(it),
-                        defaultPrefRepository.getValue(
-                            DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
-                            DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
-                        )
+            authority ?: return@liveData
+            if (demoModeManager.isFullDemo()) {
+                emit(false) // show map (demo mode ON)
+                return@liveData
+            }
+            emitSource(
+                defaultPrefRepository.pref.liveData(
+                    DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority),
+                    defaultPrefRepository.getValue(
+                        DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
+                        DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
                     )
                 )
-            }
+            )
         }
     }.distinctUntilChanged()
 

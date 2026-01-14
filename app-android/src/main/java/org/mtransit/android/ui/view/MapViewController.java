@@ -77,6 +77,7 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Objects;
@@ -1027,6 +1028,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		private Float alpha;
 		@Nullable
 		private Float rotation;
+		@Nullable
+		private Float zIndex;
 		@NonNull
 		private final POIMarkerIds uuidsAndAuthority = new POIMarkerIds();
 
@@ -1039,6 +1042,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 						 @Nullable @ColorInt Integer secondaryColor,
 						 @Nullable Float alpha,
 						 @Nullable Float rotation,
+						 @Nullable Float zIndex,
 						 @NonNull String uuid,
 						 @NonNull String authority) {
 			this.position = position;
@@ -1050,6 +1054,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.secondaryColor = secondaryColor;
 			this.alpha = alpha;
 			this.rotation = rotation;
+			this.zIndex = zIndex;
 			this.uuidsAndAuthority.put(uuid, authority);
 		}
 
@@ -1142,40 +1147,19 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		public void merge(@NonNull POIMarker poiMarker) {
-			addPosition(poiMarker.position);
-			for (String name : poiMarker.names) {
-				addName(name);
-			}
-			for (String agency : poiMarker.agencies) {
-				addAgency(agency);
-			}
-			for (String extra : poiMarker.extras) {
-				addExtras(extra);
-			}
-			if (!this.iconDef.equals(poiMarker.iconDef)) {
-				this.iconDef = MTMapIconsProvider.getDefaultIconDef();
-			}
-			if (this.color != null) {
-				if (poiMarker.color == null || !this.color.equals(poiMarker.color)) {
-					this.color = null;
-				}
-			}
-			if (this.secondaryColor != null) {
-				if (poiMarker.secondaryColor == null || !this.secondaryColor.equals(poiMarker.secondaryColor)) {
-					this.secondaryColor = null;
-				}
-			}
-			float thisAlpha = this.alpha == null ? 1.0f : this.alpha;
-			float otherAlpha = poiMarker.alpha == null ? 1.0f : poiMarker.alpha;
-			if (thisAlpha != otherAlpha) {
-				this.alpha = (thisAlpha + otherAlpha) / 2.0f;
-			}
-			float thisRotation = this.rotation == null ? 0.0f : this.rotation;
-			float otherRotation = poiMarker.rotation == null ? 0.0f : poiMarker.rotation;
-			if (thisRotation != otherRotation) {
-				this.rotation = (thisRotation + otherRotation) / 2.0f;
-			}
-			this.uuidsAndAuthority.merge(poiMarker.uuidsAndAuthority);
+			merge(
+					poiMarker.position,
+					poiMarker.names,
+					poiMarker.agencies,
+					poiMarker.extras,
+					poiMarker.iconDef,
+					poiMarker.color,
+					poiMarker.secondaryColor,
+					poiMarker.alpha,
+					poiMarker.rotation,
+					poiMarker.zIndex,
+					poiMarker.uuidsAndAuthority
+			);
 		}
 
 		public void merge(@NonNull LatLng position,
@@ -1188,11 +1172,45 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 						  @Nullable Float alpha,
 						  @Nullable Float rotation,
 						  @NonNull String uuid,
-						  @NonNull String authority) {
+						  @NonNull String authority
+		) {
+			merge(
+					position,
+					Collections.singletonList(name),
+					Collections.singletonList(agency),
+					Collections.singletonList(extra),
+					iconDef,
+					color,
+					secondaryColor,
+					alpha,
+					rotation,
+					zIndex,
+					POIMarkerIds.from(uuid, authority)
+			);
+		}
+
+		public void merge(@NonNull LatLng position,
+						  @NonNull Collection<String> names,
+						  @NonNull Collection<String> agencies,
+						  @NonNull Collection<String> extras,
+						  @NonNull MTMapIconDef iconDef,
+						  @Nullable @ColorInt Integer color,
+						  @Nullable @ColorInt Integer secondaryColor,
+						  @Nullable Float alpha,
+						  @Nullable Float rotation,
+						  @Nullable Float zIndex,
+						  @NonNull POIMarkerIds uuidsAndAuthority
+		) {
 			addPosition(position);
-			addName(name);
-			addAgency(agency);
-			addExtras(extra);
+			for (String name : names) {
+				addName(name);
+			}
+			for (String agency : agencies) {
+				addAgency(agency);
+			}
+			for (String extra : extras) {
+				addExtras(extra);
+			}
 			if (!this.iconDef.equals(iconDef)) {
 				this.iconDef = MTMapIconsProvider.getDefaultIconDef();
 			}
@@ -1206,17 +1224,22 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 					this.secondaryColor = null;
 				}
 			}
-			float thisAlpha = this.alpha == null ? 1.0f : this.alpha;
-			float otherAlpha = alpha == null ? 1.0f : alpha;
+			float thisAlpha = this.alpha == null ? MapUtils.MAP_MARKER_ALPHA_DEFAULT : this.alpha;
+			float otherAlpha = alpha == null ? MapUtils.MAP_MARKER_ALPHA_DEFAULT : alpha;
 			if (thisAlpha != otherAlpha) {
 				this.alpha = (thisAlpha + otherAlpha) / 2.0f;
 			}
-			float thisRotation = this.rotation == null ? 0.0f : this.rotation;
-			float otherRotation = rotation == null ? 0.0f : rotation;
+			float thisRotation = this.rotation == null ? MapUtils.MAP_MARKER_ROTATION_DEFAULT : this.rotation;
+			float otherRotation = rotation == null ? MapUtils.MAP_MARKER_ROTATION_DEFAULT : rotation;
 			if (thisRotation != otherRotation) {
 				this.rotation = (thisRotation + otherRotation) / 2.0f;
 			}
-			this.uuidsAndAuthority.put(uuid, authority);
+			float thisIndex = this.zIndex == null ? MapUtils.MAP_MARKER_Z_INDEX_DEFAULT : this.zIndex;
+			float otherIndex = zIndex == null ? MapUtils.MAP_MARKER_Z_INDEX_DEFAULT : zIndex;
+			if (thisIndex != otherIndex) {
+				this.zIndex = (thisIndex + otherIndex) / 2.0f;
+			}
+			this.uuidsAndAuthority.merge(uuidsAndAuthority);
 		}
 
 		private void addPosition(@NonNull LatLng position) {
@@ -1299,14 +1322,21 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
-	private static class POIMarkerIds implements MTLog.Loggable {
+	public static class POIMarkerIds implements MTLog.Loggable {
 
-		private static final String TAG = MapViewController.class.getSimpleName() + ">" + POIMarkerIds.class.getSimpleName();
+		private static final String LOG_TAG = MapViewController.class.getSimpleName() + ">" + POIMarkerIds.class.getSimpleName();
 
 		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
+		}
+
+		@NonNull
+		private static POIMarkerIds from(String uuid, String authority) {
+			final POIMarkerIds poiMarkerIds = new POIMarkerIds();
+			poiMarkerIds.put(uuid, authority);
+			return poiMarkerIds;
 		}
 
 		java.util.Set<ArrayMap.Entry<String, String>> entrySet() {
@@ -1374,6 +1404,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
+	private static final float MAP_MARKER_Z_INDEX_STOP_FOCUSED_ON = MapUtils.MAP_MARKER_Z_INDEX_PRIMARY;
+	protected static final float MAP_MARKER_Z_INDEX_VEHICLE = MapUtils.MAP_MARKER_Z_INDEX_SECONDARY;
+	private static final float MAP_MARKER_Z_INDEX_STOPS_OTHER = MapUtils.MAP_MARKER_Z_INDEX_TERTIARY;
+
 	@Nullable
 	private LoadClusterItemsTask loadClusterItemsTask = null;
 
@@ -1439,6 +1473,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			Integer secondaryColor;
 			Float alpha;
 			Float rotation;
+			Float zIndex;
 			IAgencyUIProperties agency;
 			int index = 0;
 			final int size = pois.size();
@@ -1464,14 +1499,15 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				final POIManager nextPoim = !uuid.equals(mapViewController.focusedOnUUID) && index < size
 						? markerProvider.getPOI(index) : null;
 				rotation = POIManagerExtKt.bearingTo(poim, nextPoim);
+				zIndex = uuid.equals(mapViewController.focusedOnUUID) ? MAP_MARKER_Z_INDEX_STOP_FOCUSED_ON
+						: MAP_MARKER_Z_INDEX_STOPS_OTHER;
 				iconDef = uuid.equals(mapViewController.focusedOnUUID) ? MTMapIconsProvider.getSelectedDefaultIconDef()
-						: rotation != null ? MTMapIconsProvider.getArrowIconDef()
-						: MTMapIconsProvider.getDefaultIconDef();
+						: MTMapIconsProvider.getIconDefForRotation(rotation);
 				POIMarker currentItem = clusterItems.get(positionTrunc);
 				if (currentItem == null) {
-					currentItem = new POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority);
+					currentItem = new POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority);
 				} else {
-					currentItem.merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority);
+					currentItem.merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority);
 				}
 				try {
 					clusterItems.put(positionTrunc, currentItem);
@@ -1514,10 +1550,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 						.title(poiMarker.getTitle())
 						.snippet(mapViewController.markerLabelShowExtra ? poiMarker.getSnippet() : null)
 						.anchor(poiMarker.iconDef.getAnchorU(), poiMarker.iconDef.getAnchorV())
+						.infoWindowAnchor(poiMarker.iconDef.getInforWindowAnchorU(), poiMarker.iconDef.getInforWindowAnchorV())
 						.flat(poiMarker.iconDef.getFlat())
-						.icon(context, poiMarker.iconDef.getZoomResId(currentZoomGroup), poiMarker.color, poiMarker.secondaryColor, Color.BLACK)
+						.icon(context, poiMarker.iconDef.getZoomResId(currentZoomGroup), poiMarker.iconDef.getReplaceColor(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK)
 						.alpha(poiMarker.alpha != null ? poiMarker.alpha : MapUtils.MAP_MARKER_ALPHA_DEFAULT)
 						.rotation(poiMarker.rotation != null ? poiMarker.rotation : MapUtils.MAP_MARKER_ROTATION_DEFAULT)
+						.zIndex(poiMarker.zIndex != null ? poiMarker.zIndex : MapUtils.MAP_MARKER_Z_INDEX_DEFAULT)
 						.data(poiMarker.getUuidsAndAuthority())
 				);
 			}
@@ -1558,11 +1596,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 								.title(poiMarker.getTitle())
 								.snippet(this.markerLabelShowExtra ? poiMarker.getSnippet() : null)
 								.anchor(poiMarker.iconDef.getAnchorU(), poiMarker.iconDef.getAnchorV())
+								.infoWindowAnchor(poiMarker.iconDef.getInforWindowAnchorU(), poiMarker.iconDef.getInforWindowAnchorV())
 								.flat(poiMarker.iconDef.getFlat())
-								.icon(context, poiMarker.iconDef.getZoomResId(currentZoomGroup), poiMarker.color, poiMarker.secondaryColor, Color.BLACK)
+								.icon(context, poiMarker.iconDef.getZoomResId(currentZoomGroup), poiMarker.iconDef.getReplaceColor(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK)
 								.data(poiMarker.getUuidsAndAuthority())
 								.alpha(poiMarker.alpha != null ? poiMarker.alpha : MapUtils.MAP_MARKER_ALPHA_DEFAULT)
 								.rotation(poiMarker.rotation != null ? poiMarker.rotation : MapUtils.MAP_MARKER_ROTATION_DEFAULT)
+								.zIndex(poiMarker.zIndex != null ? poiMarker.zIndex : MapUtils.MAP_MARKER_Z_INDEX_DEFAULT)
 				);
 				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
 					marker.showInfoWindow();

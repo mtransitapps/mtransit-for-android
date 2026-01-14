@@ -64,9 +64,10 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>?
         return visibleMarkersLocations
     }
 
-const val NEXT_STOP_ALPHA = 0.75f
-const val PREVIOUS_STOP_ALPHA = 0.50f
-const val TOO_MANY_STOPS_ALPHA = 0.25f
+val MAP_MARKER_ALPHA_PRIMARY_FOCUS: Float? = null // 1.00f // DEFAULT
+const val MAP_MARKER_ALPHA_SECONDARY_FOCUS = 0.75f
+const val MAP_MARKER_ALPHA_TERTIARY_FOCUS = 0.50f
+const val MAP_MARKER_ALPHA_QUATERNARY_FOCUS = 0.25f
 
 fun POIFragment.getMapMarkerAlpha(position: Int): Float? {
     if (!FeatureFlags.F_EXPORT_TRIP_ID) return null
@@ -78,17 +79,17 @@ fun POIFragment.getMapMarkerAlpha(position: Int): Float? {
             val allRDS = pois.all { it is RouteDirectionStop }
             return if (allRDS) {
                 when (position - 1) { // position = index+1
-                    selectedPoiIndex -> null
-                    in 0..selectedPoiIndex -> PREVIOUS_STOP_ALPHA
-                    else -> NEXT_STOP_ALPHA
+                    selectedPoiIndex -> MAP_MARKER_ALPHA_PRIMARY_FOCUS
+                    in 0..selectedPoiIndex -> MAP_MARKER_ALPHA_QUATERNARY_FOCUS
+                    else -> MAP_MARKER_ALPHA_SECONDARY_FOCUS
                 }
             } else {
                 when (position - 1) { // position = index+1
-                    selectedPoiIndex -> null
+                    selectedPoiIndex -> MAP_MARKER_ALPHA_PRIMARY_FOCUS
                     else -> when (pois.size) {
-                        in 0..33 -> NEXT_STOP_ALPHA
-                        in 33..100 -> PREVIOUS_STOP_ALPHA
-                        else -> TOO_MANY_STOPS_ALPHA
+                        in 0..33 -> MAP_MARKER_ALPHA_SECONDARY_FOCUS
+                        in 33..100 -> MAP_MARKER_ALPHA_TERTIARY_FOCUS
+                        else -> MAP_MARKER_ALPHA_QUATERNARY_FOCUS
                     }
                 }
             }

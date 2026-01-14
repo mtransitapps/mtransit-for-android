@@ -24,6 +24,8 @@ public class ExtendedMarkerOptions {
 	@DrawableRes
 	private Integer realIconResId;
 	@Nullable
+	private Boolean realReplaceColor;
+	@Nullable
 	private Integer realColor;
 	@Nullable
 	private Integer realSecondaryColor;
@@ -47,6 +49,11 @@ public class ExtendedMarkerOptions {
 	@DrawableRes
 	public Integer getIconResId() {
 		return this.realIconResId;
+	}
+
+	@Nullable
+	public Boolean getReplaceColor() {
+		return this.realReplaceColor;
 	}
 
 	@Nullable
@@ -171,12 +178,14 @@ public class ExtendedMarkerOptions {
 	@NonNull
 	public ExtendedMarkerOptions icon(@NonNull Context context,
 									  @DrawableRes int iconResId,
+									  boolean replaceColor,
 									  @ColorInt @Nullable Integer color,
 									  @ColorInt @Nullable Integer secondaryColor,
 									  @ColorInt int defaultColor) {
 		real.icon(null);
 		realContextWR = new WeakReference<>(context);
 		realIconResId = iconResId;
+		realReplaceColor = replaceColor;
 		realColor = color;
 		realSecondaryColor = secondaryColor;
 		realDefaultColor = defaultColor;

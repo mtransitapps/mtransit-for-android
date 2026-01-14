@@ -243,16 +243,16 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
         liveData {
-            if (authority == null || routeId == null || directionId == null) {
-                return@liveData // SKIP
-            }
+            authority ?: return@liveData
+            routeId ?: return@liveData
+            directionId ?: return@liveData
             if (demoModeManager.isFullDemo()) {
                 emit(false) // show map (demo mode ON)
                 return@liveData
             }
             emitSource(
                 lclPrefRepository.pref.liveData(
-                    LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(authority, routeId, directionId),
+                    LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(authority, routeId, directionId),
                     LocalPreferenceRepository.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
                 )
             )
@@ -264,11 +264,12 @@ class RDSDirectionStopsViewModel @Inject constructor(
             return // SKIP (demo mode ON)
         }
         lclPrefRepository.pref.edit {
-            val authority = _authority.value ?: return
-            val routeId = _routeId.value ?: return
-            val directionId = directionId.value ?: return
             putBoolean(
-                LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(authority, routeId, directionId),
+                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
+                    _authority.value ?: return,
+                    _routeId.value ?: return,
+                    directionId.value ?: return
+                ),
                 showingListInsteadOfMap
             )
         }

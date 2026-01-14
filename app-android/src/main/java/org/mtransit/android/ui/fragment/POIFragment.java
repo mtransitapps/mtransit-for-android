@@ -95,6 +95,7 @@ import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.rds.route.RDSRouteFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
+import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
@@ -520,12 +521,32 @@ public class POIFragment extends ABFragment implements
 			}
 			if (FeatureFlags.F_EXPORT_TRIP_ID) {
 				if (poim.poi instanceof RouteDirectionStop) {
+					this.localPreferenceRepository.saveAsync(
+							LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
+									poim.poi.getAuthority(),
+									((RouteDirectionStop) poim.poi).getRoute().getId(),
+									((RouteDirectionStop) poim.poi).getDirection().getId()
+							),
+							false // show map instead of list
+					);
 					((MainActivity) activity).addFragmentToStack(
 							RDSRouteFragment.newInstance((RouteDirectionStop) poim.poi),
 							this
 					);
-					return;
+				} else {
+					this.localPreferenceRepository.saveAsync(
+							LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.getDataSourceTypeId()),
+							poim.poi.getAuthority()
+					);
+					this.defaultPrefRepository.saveAsync(
+							DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.getAuthority()),
+							false
+					);
+					((MainActivity) activity).addFragmentToStack(
+							AgencyTypeFragment.newInstance(poim.poi.getDataSourceTypeId()),
+							this);
 				}
+				return;
 			}
 			((MainActivity) activity).addFragmentToStack(
 					MapFragment.newInstance(poim),

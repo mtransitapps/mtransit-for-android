@@ -47,10 +47,10 @@ class DataSourceRequestManager(
     )
 
     companion object {
-        private val LOG_TAG = DataSourceRequestManager::class.java.simpleName
+        private val LOG_TAG: String = DataSourceRequestManager::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = withContext(ioDispatcher) {
         DataSourceManager.findPOI(appContext, authority, poiFilter)?.poi

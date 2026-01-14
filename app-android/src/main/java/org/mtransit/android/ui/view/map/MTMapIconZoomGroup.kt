@@ -3,37 +3,39 @@ package org.mtransit.android.ui.view.map
 import org.mtransit.android.commons.MTLog
 
 enum class MTMapIconZoomGroup(
-    val minZoom: Float?,
-    val maxZoom: Float?,
-    val minCount: Int?,
-    val maxCount: Int?,
-) {
+    val minZoom: Float = 0.0f,
+    val maxZoom: Float = Float.MAX_VALUE,
+    val minCount: Int = 0,
+    val maxCount: Int = Int.MAX_VALUE,
+) : MTLog.Loggable {
 
-    DEFAULT(13.0f, null, null, 10),
-    SMALL(null, 13.0f, 10, null)
+    DEFAULT(maxCount = 10),
+    SMALL(maxZoom = 13.0f, minCount = 10)
     ;
 
+    override fun getLogTag() = LOG_TAG
+
     companion object {
+
+        private val LOG_TAG: String = MTMapIconZoomGroup::class.java.simpleName
+
         @JvmStatic
-        fun from(zoom: Float?, markerCount: Int?): MTMapIconZoomGroup {
-            if (zoom != null) {
-                for (group in entries) {
-                    if (zoom >= (group.minZoom ?: Float.MIN_VALUE)
-                        && zoom <= (group.maxZoom ?: Float.MAX_VALUE)
-                    ) {
-                        if (markerCount != null) {
-                            if (group.minCount != null && markerCount < group.minCount) {
-                                continue
-                            }
-                            if (group.maxCount != null && markerCount > group.maxCount) {
-                                continue
-                            }
-                        }
-                        return group
+        fun from(zoom: Float, markerCount: Int?): MTMapIconZoomGroup {
+            for (group in entries) {
+                if (markerCount != null
+                    && markerCount in (group.minCount..group.maxCount)
+                    && zoom in (group.minZoom..group.maxZoom)
+                ) {
+                    return group
+                }
+                if (zoom in (group.minZoom..group.maxZoom)) {
+                    if (markerCount != null && markerCount !in (group.minCount..group.maxCount)) {
+                        continue
                     }
+                    return group
                 }
             }
-            MTLog.d(this, "Unknown zoom: $zoom")
+            MTLog.d(LOG_TAG, "from() > UNEXPECTED zoom: $zoom|markerCount: $markerCount -> DEFAULT")
             return DEFAULT
         }
     }

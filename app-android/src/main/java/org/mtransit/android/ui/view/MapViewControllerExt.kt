@@ -5,6 +5,7 @@ import android.graphics.Color
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
+import org.mtransit.android.ui.view.MapViewController.MAP_MARKER_Z_INDEX_VEHICLE
 import org.mtransit.android.ui.view.map.ExtendedMarkerOptions
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
@@ -12,7 +13,6 @@ import org.mtransit.android.ui.view.map.getMapMarkerSnippet
 import org.mtransit.android.ui.view.map.getMapMarkerTitle
 import org.mtransit.android.ui.view.map.getRotation
 import org.mtransit.android.ui.view.map.position
-import org.mtransit.android.util.MapUtils
 
 fun MapViewController.updateVehicleLocationMarkers(context: Context) {
     val googleMap = this.extendedGoogleMap ?: run {
@@ -49,12 +49,12 @@ fun MapViewController.updateVehicleLocationMarkers(context: Context) {
                     .anchor(iconDef.anchorU, iconDef.anchorV)
                     .infoWindowAnchor(iconDef.inforWindowAnchorU, iconDef.inforWindowAnchorV)
                     .flat(iconDef.flat)
-                    .icon(context, iconDef.getZoomResId(currentZoomGroup), vehicleColorInt, null, Color.BLACK)
+                    .icon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, vehicleColorInt, null, Color.BLACK)
                     .rotation(rotation)
                     .title(title)
                     .snippet(snippet)
                     .data(vehicleLocation)
-                    .zIndex(MapUtils.MAP_MARKER_HIGHEST)
+                    .zIndex(MAP_MARKER_Z_INDEX_VEHICLE)
             )
             this.vehicleLocationsMarkers[uuid] = marker
         } else { // UPDATE existing
@@ -63,12 +63,12 @@ fun MapViewController.updateVehicleLocationMarkers(context: Context) {
                 setAnchor(iconDef.anchorU, iconDef.anchorV)
                 setInfoWindowAnchor(iconDef.inforWindowAnchorU, iconDef.inforWindowAnchorV)
                 setFlat(iconDef.flat)
-                setIcon(context, iconDef.getZoomResId(currentZoomGroup), vehicleColorInt, null, Color.BLACK)
+                setIcon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, vehicleColorInt, null, Color.BLACK)
                 setRotation(rotation)
                 setTitle(title)
                 setSnippet(snippet)
                 setData(vehicleLocation)
-                setZIndex(MapUtils.MAP_MARKER_HIGHEST)
+                setZIndex(MAP_MARKER_Z_INDEX_VEHICLE)
             }
         }
         processedVehicleLocationsUUIDs.add(uuid)

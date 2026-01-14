@@ -10,10 +10,11 @@ data class MTMapIconDef(
     val anchorV: Float = 1.0f,
     val inforWindowAnchorU: Float = 0.5f,
     val inforWindowAnchorV: Float = 0.5f,
+    val replaceColor: Boolean = false,
 ) {
 
     @DrawableRes
-    fun getZoomResId(zoom: Float?, markerCount: Int?) =
+    fun getZoomResId(zoom: Float, markerCount: Int?) =
         getZoomResId(MTMapIconZoomGroup.from(zoom, markerCount))
 
     @DrawableRes

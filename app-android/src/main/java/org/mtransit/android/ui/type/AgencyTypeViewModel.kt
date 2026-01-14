@@ -101,11 +101,9 @@ class AgencyTypeViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     val selectedTypeAgencyPosition: LiveData<Int?> = PairMediatorLiveData(selectedTypeAgencyAuthority, typeAgencies).map { (agencyAuthority, agencies) ->
-        if (agencyAuthority == null || agencies == null) {
-            null
-        } else {
-            agencies.indexOfFirst { it.authority == agencyAuthority }.coerceAtLeast(0)
-        }
+        agencyAuthority ?: return@map null
+        agencies ?: return@map null
+        agencies.indexOfFirst { it.authority == agencyAuthority }.coerceAtLeast(0)
     }
 
     fun onPageSelected(position: Int) {

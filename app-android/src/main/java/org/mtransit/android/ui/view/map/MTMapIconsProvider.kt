@@ -5,11 +5,14 @@ import org.mtransit.android.data.DataSourceType
 
 object MTMapIconsProvider {
 
+    //@formatter:off
+
     @JvmStatic
     val selectedDefaultIconDef = MTMapIconDef(R.drawable.map_icon_place_white_slim_original)
 
     @JvmStatic
-    val defaultIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat, R.drawable.map_icon_stop_white_flat_small, true, 0.5f, 0.5f)
+    val defaultIconDef =
+        MTMapIconDef(R.drawable.map_icon_stop_replace_flat, R.drawable.map_icon_stop_replace_flat_small, true, 0.5f, 0.5f, replaceColor = true)
 
     @JvmStatic
     val arrowIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_arrow, R.drawable.map_icon_stop_white_flat_arrow_small, true, 0.5f, 0.5f)
@@ -19,22 +22,29 @@ object MTMapIconsProvider {
 
     @JvmStatic
     val lightRailVehicleIconDef =
-        MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_tram_big, R.drawable.map_icon_stop_white_flat_filled_tram, true, 0.5f, 0.5f)
+        MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_tram_big, R.drawable.map_icon_stop_replace_flat_filled_tram, true, 0.5f, 0.5f, replaceColor = true)
 
     @JvmStatic
     val subwayVehicleIconDef =
-        MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_subway_big, R.drawable.map_icon_stop_white_flat_filled_subway, true, 0.5f, 0.5f)
+        MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_subway_big, R.drawable.map_icon_stop_replace_flat_filled_subway, true, 0.5f, 0.5f, replaceColor = true)
 
     @JvmStatic
     val railVehicleIconDef =
-        MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_railway_big, R.drawable.map_icon_stop_white_flat_filled_railway, true, 0.5f, 0.5f)
+        MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_railway_big, R.drawable.map_icon_stop_replace_flat_filled_railway, true, 0.5f, 0.5f, replaceColor = true)
 
     @JvmStatic
-    val busVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_bus_big, R.drawable.map_icon_stop_white_flat_filled_bus, true, 0.5f, 0.5f)
+    val busVehicleIconDef =
+        MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_bus_big, R.drawable.map_icon_stop_replace_flat_filled_bus, true, 0.5f, 0.5f, replaceColor = true)
 
     @JvmStatic
     val ferryVehicleIconDef =
         MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_boat_big, R.drawable.map_icon_stop_white_flat_filled_boat, true, 0.5f, 0.5f)
+
+    //@formatter:on
+
+    @JvmStatic
+    val Float?.iconDefForRotation: MTMapIconDef
+        get() = if (this != null) arrowIconDef else defaultIconDef
 
     @JvmStatic
     val DataSourceType?.vehicleIconDef: MTMapIconDef

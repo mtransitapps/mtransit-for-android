@@ -45,15 +45,15 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 		final MTMapIconDef defaultCustomIconDef = MTMapIconsProvider.getDefaultClusterIconDef();
 		this.clusterOptions.anchor(defaultCustomIconDef.getAnchorU(), defaultCustomIconDef.getAnchorV());
 		this.clusterOptions.flat(defaultCustomIconDef.getFlat());
-		this.clusterOptions.icon(getClusterIcon(markers, defaultCustomIconDef.getZoomResId(zoom, null)));
+		this.clusterOptions.icon(getClusterIcon(markers, defaultCustomIconDef.getZoomResId(zoom, null), defaultCustomIconDef.getReplaceColor()));
 		return this.clusterOptions;
 	}
 
 	@Nullable
-	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers, @DrawableRes int iconResId) {
+	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers, @DrawableRes int iconResId, boolean replaceColor) {
 		final Context context = this.contextWR.get();
 		final int color = getColor(context, markers);
-		return MapUtils.getIcon(context, iconResId, color, false);
+		return MapUtils.getIcon(context, iconResId, color, replaceColor);
 	}
 
 	@ColorInt
