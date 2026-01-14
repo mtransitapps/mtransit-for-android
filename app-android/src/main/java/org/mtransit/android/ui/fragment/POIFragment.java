@@ -109,6 +109,7 @@ import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
@@ -420,7 +421,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
-	public Collection<MapViewController.POIMarker> getPOMarkers() {
+	public Collection<MTPOIMarker> getPOMarkers() {
 		return null;
 	}
 

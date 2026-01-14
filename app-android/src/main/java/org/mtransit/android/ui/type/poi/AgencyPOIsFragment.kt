@@ -33,10 +33,10 @@ import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -107,7 +107,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
-        override fun getPOMarkers(): Collection<POIMarker>? = null
+        override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
         override fun getPOIs(): Collection<POIManager>? {
             if (!listAdapter.isInitialized) {

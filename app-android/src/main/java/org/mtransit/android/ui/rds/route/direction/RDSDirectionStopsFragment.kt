@@ -51,6 +51,7 @@ import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
 import org.mtransit.android.util.FragmentUtils
@@ -127,7 +128,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
-        override fun getPOMarkers(): Collection<MapViewController.POIMarker>? = null
+        override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
         override fun getPOIs(): Collection<POIManager>? {
             if (!listAdapter.isInitialized) {

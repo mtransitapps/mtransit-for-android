@@ -4,7 +4,6 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.VisibleRegion
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
-import org.mtransit.android.ui.view.MapViewController
 
 fun VisibleRegion.toArea() = this.latLngBounds.toArea()
 
@@ -17,7 +16,7 @@ fun LatLngBounds.toArea(): Area {
     )
 }
 
-fun Area.countPOIMarkersInside(poiMarkers: Collection<MapViewController.POIMarker>?): Int {
+fun Area.countPOIMarkersInside(poiMarkers: Collection<MTPOIMarker>?): Int {
     return poiMarkers?.count { this.isInside(it.position.latitude, it.position.longitude) } ?: 0
 }
 
