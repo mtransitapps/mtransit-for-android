@@ -674,28 +674,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.getPosition is deprecated; consider using an alternative."
-        errorLine1="    return poiMarkers?.count { this.isInside(it.position.latitude, it.position.longitude) } ?: 0"
-        errorLine2="                                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/map/AreaExt.kt"
-            line="20"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.POIMarker.getPosition is deprecated; consider using an alternative."
-        errorLine1="    return poiMarkers?.count { this.isInside(it.position.latitude, it.position.longitude) } ?: 0"
-        errorLine2="                                                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/map/AreaExt.kt"
-            line="20"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.ad.banner.SetupBannerAdTask.SetupBannerAdTask is deprecated; consider using an alternative."
         errorLine1="            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -2793,6 +2771,72 @@
             file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
             line="253"
             column="10"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="            org.mtransit.android.util.CrashUtils.w(this, e, &quot;Error while adding POI marker ID %s:%s&quot;, uuid, authority)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
+            line="34"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="            org.mtransit.android.util.CrashUtils.w(this, e, &quot;Error while adding POI marker ID %s:%s&quot;, uuid, authority)"
+        errorLine2="                                                   ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
+            line="34"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="            org.mtransit.android.util.CrashUtils.w(this, e, &quot;Error while adding POI marker ID %s:%s&quot;, uuid, authority)"
+        errorLine2="                                                         ~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
+            line="34"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="            org.mtransit.android.util.CrashUtils.w(this, e, &quot;Error while adding POI marker ID %s:%s&quot;, uuid, authority)"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
+            line="34"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="            org.mtransit.android.util.CrashUtils.w(this, e, &quot;Error while adding POI marker ID %s:%s&quot;, uuid, authority)"
+        errorLine2="                                                                                                      ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
+            line="34"
+            column="103"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="            org.mtransit.android.util.CrashUtils.w(this, e, &quot;Error while adding POI marker ID %s:%s&quot;, uuid, authority)"
+        errorLine2="                                                                                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
+            line="34"
+            column="109"/>
     </issue>
 
     <issue
