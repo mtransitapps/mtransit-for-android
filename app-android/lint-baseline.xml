@@ -3315,8 +3315,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
             line="348"
@@ -3326,7 +3326,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3337,7 +3337,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3348,7 +3348,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3359,7 +3359,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                       ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3370,7 +3370,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                              ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3381,7 +3381,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                                       ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3392,7 +3392,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3403,7 +3403,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                                                              ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3414,7 +3414,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                                                                     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3425,8 +3425,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
-        errorLine2="                                                                                                               ~~~~">
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
+        errorLine2="                                                                                                               ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
             line="361"
@@ -3436,8 +3436,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
-        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
-        errorLine2="                                                                                                                     ~~~~~~~~~">
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
+        errorLine2="                                                                                                                       ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
             line="361"
@@ -3446,9 +3446,20 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.POIMarker.merge is deprecated; consider using an alternative."
+        errorLine1="                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
+        errorLine2="                                                                                                                             ~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
+            line="356"
+            column="126"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
             line="349"
@@ -3458,7 +3469,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3469,7 +3480,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3480,7 +3491,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3491,7 +3502,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                            ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3502,7 +3513,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                                   ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3513,7 +3524,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                                            ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3524,7 +3535,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3535,7 +3546,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                                                                   ~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3546,7 +3557,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         errorLine2="                                                                                                          ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
@@ -3557,8 +3568,19 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
-        errorLine2="                                                                                                                    ~~~~">
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
+        errorLine2="                                                                                                                    ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
+            line="357"
+            column="117"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
+        errorLine2="                                                                                                                            ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
             line="349"
@@ -3568,8 +3590,7 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.POIMarker.POIMarker is deprecated; consider using an alternative."
-        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, uuid, authority)"
-        errorLine2="                                                                                                                          ~~~~~~~~~">
+        errorLine1="            } ?: POIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)"
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapViewModel.kt"
             line="349"
@@ -4425,6 +4446,28 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.setFocusedOnUUID is deprecated; consider using an alternative."
+        errorLine1="  this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
+            line="362"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.setFocusedOnUUID is deprecated; consider using an alternative."
+        errorLine1="  this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
+            line="362"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.ui.view.MapViewController.onConfigurationChanged is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onConfigurationChanged(newConfig);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -4563,7 +4606,50 @@
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
             line="514"
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
+        errorLine1="  this.mapViewController.notifyMarkerChanged(this);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
+            line="652"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
+        errorLine1="  this.mapViewController.notifyMarkerChanged(this);"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
+            line="652"
             column="46"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        errorLine1="  this.mapViewController.showMap(getView());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
+            line="653"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        errorLine1="  this.mapViewController.showMap(getView());"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
+            line="653"
+            column="34"/>
     </issue>
 
     <issue
