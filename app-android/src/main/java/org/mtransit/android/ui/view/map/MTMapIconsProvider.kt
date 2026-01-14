@@ -38,7 +38,7 @@ object MTMapIconsProvider {
 
     @JvmStatic
     val ferryVehicleIconDef =
-        MTMapIconDef(R.drawable.map_icon_stop_white_flat_filled_boat_big, R.drawable.map_icon_stop_white_flat_filled_boat, true, 0.5f, 0.5f)
+        MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_boat_big, R.drawable.map_icon_stop_replace_flat_filled_boat, true, 0.5f, 0.5f, replaceColor = true)
 
     //@formatter:on
 
