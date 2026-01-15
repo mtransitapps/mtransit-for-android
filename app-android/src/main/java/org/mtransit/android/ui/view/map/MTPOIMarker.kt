@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.view.map
 
+import android.content.Context
+import android.graphics.Color
 import androidx.annotation.ColorInt
 import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.MTLog
@@ -41,6 +43,24 @@ data class MTPOIMarker(
         fun getLatLngTrunc(poim: POIManager) = getLatLngTrunc(poim.poi.getLat(), poim.poi.getLng())
 
         fun getLatLngTrunc(lat: Double, lng: Double) = LatLng(truncAround(lat), truncAround(lng))
+
+        @JvmStatic
+        fun MTPOIMarker.toExtendedMarkerOptions(
+            context: Context,
+            markerLabelShowExtra: Boolean,
+            currentZoomGroup: MTMapIconZoomGroup
+        ) = ExtendedMarkerOptions()
+            .position(position)
+            .title(title)
+            .snippet(if (markerLabelShowExtra) snippet else null)
+            .anchor(iconDef.anchorU, iconDef.anchorV)
+            .infoWindowAnchor(iconDef.inforWindowAnchorU, iconDef.inforWindowAnchorV)
+            .flat(iconDef.flat)
+            .icon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, color, secondaryColor, Color.BLACK)
+            .alpha(alpha ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
+            .rotation(rotation ?: MapUtils.MAP_MARKER_ROTATION_DEFAULT)
+            .zIndex(zIndex ?: MapUtils.MAP_MARKER_Z_INDEX_DEFAULT)
+            .data(uuidsAndAuthority)
     }
 
     override fun getLogTag(): String = LOG_TAG

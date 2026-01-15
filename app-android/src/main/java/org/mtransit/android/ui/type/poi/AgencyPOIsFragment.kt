@@ -13,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
@@ -137,7 +138,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
         override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
 
-        override fun getMapMarkerAlpha(position: Int): Float? = null
+        override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
     }
 
     @Suppress("DeprecatedCall")

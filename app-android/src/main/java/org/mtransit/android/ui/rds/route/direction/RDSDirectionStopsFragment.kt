@@ -21,6 +21,7 @@ import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
@@ -156,7 +157,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
         override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
 
-        override fun getMapMarkerAlpha(position: Int): Float? = null
+        override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
     }
 
     @Suppress("DeprecatedCall")

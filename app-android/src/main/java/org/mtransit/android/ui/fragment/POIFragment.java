@@ -61,6 +61,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.ToastUtils;
+import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
@@ -462,8 +463,8 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
-	public Float getMapMarkerAlpha(int position) {
-		return POIFragmentExtKt.getMapMarkerAlpha(this, position);
+	public Float getMapMarkerAlpha(int position, @NonNull Area visibleArea) {
+		return POIFragmentExtKt.getMapMarkerAlpha(this, position, visibleArea);
 	}
 
 	@Override
