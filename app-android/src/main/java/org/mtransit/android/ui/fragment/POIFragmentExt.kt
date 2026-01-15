@@ -64,10 +64,10 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>?
         return visibleMarkersLocations
     }
 
-val MAP_MARKER_ALPHA_PRIMARY_FOCUS: Float? = null // 1.00f // DEFAULT
-const val MAP_MARKER_ALPHA_SECONDARY_FOCUS = 0.75f
-const val MAP_MARKER_ALPHA_TERTIARY_FOCUS = 0.50f
-const val MAP_MARKER_ALPHA_QUATERNARY_FOCUS = 0.25f
+private val MAP_MARKER_ALPHA_PRIMARY_FOCUS: Float? = null // 1.00f // DEFAULT
+private const val MAP_MARKER_ALPHA_SECONDARY_FOCUS = 0.75f
+private const val MAP_MARKER_ALPHA_TERTIARY_FOCUS = 0.50f
+private const val MAP_MARKER_ALPHA_QUATERNARY_FOCUS = 0.25f
 
 fun POIFragment.getMapMarkerAlpha(position: Int): Float? {
     if (!FeatureFlags.F_EXPORT_TRIP_ID) return null
@@ -80,7 +80,7 @@ fun POIFragment.getMapMarkerAlpha(position: Int): Float? {
             return if (allRDS) {
                 when (position - 1) { // position = index+1
                     selectedPoiIndex -> MAP_MARKER_ALPHA_PRIMARY_FOCUS
-                    in 0..selectedPoiIndex -> MAP_MARKER_ALPHA_QUATERNARY_FOCUS
+                    in 0..selectedPoiIndex -> MAP_MARKER_ALPHA_SECONDARY_FOCUS.div(2.0f)
                     else -> MAP_MARKER_ALPHA_SECONDARY_FOCUS
                 }
             } else {
