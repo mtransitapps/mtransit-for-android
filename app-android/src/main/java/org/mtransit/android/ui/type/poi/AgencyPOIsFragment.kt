@@ -8,6 +8,7 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
@@ -30,11 +31,12 @@ import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.util.LinkUtils
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -103,7 +105,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
-        override fun getPOMarkers(): Collection<POIMarker>? = null
+        override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
         override fun getPOIs(): Collection<POIManager>? {
             if (!listAdapter.isInitialized) {
@@ -116,9 +118,18 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             return pois
         }
 
+        override fun getPOI(position: Int): POIManager? {
+            if (FeatureFlags.F_EXPORT_TRIP_ID) return null
+            return listAdapter.getItem(position)
+        }
+
         override fun getClosestPOI() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
+
+        override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
+
+        override fun getMapMarkerAlpha(position: Int): Float? = null
     }
 
     @Suppress("DeprecatedCall")
@@ -140,7 +151,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             false,
             true,
             false,
-            this.dataSourcesRepository
         ).apply {
             setAutoClickInfoWindow(true)
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))

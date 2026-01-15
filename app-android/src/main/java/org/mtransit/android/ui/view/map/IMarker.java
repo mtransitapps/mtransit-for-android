@@ -83,6 +83,7 @@ public interface IMarker {
 
 	void setIcon(@Nullable Context context,
 				 @DrawableRes @Nullable Integer iconResId,
+				 @Nullable Boolean replaceColor,
 				 @ColorInt @Nullable Integer color,
 				 @ColorInt @Nullable Integer secondaryColor,
 				 @ColorInt @Nullable Integer defaultColor);
@@ -98,6 +99,8 @@ public interface IMarker {
 	void setPosition(LatLng position);
 
 	void setRotation(float rotation);
+
+	void setZIndex(float zIndex);
 
 	void setSnippet(String snippet);
 

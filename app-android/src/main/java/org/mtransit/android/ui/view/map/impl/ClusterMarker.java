@@ -273,6 +273,7 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	@Override
 	public void setIcon(@Nullable Context context,
 						@DrawableRes @Nullable Integer iconResId,
+						@Nullable Boolean replaceColor,
 						@ColorInt @Nullable Integer color,
 						@ColorInt @Nullable Integer secondaryColor,
 						@ColorInt @Nullable Integer defaultColor) {
@@ -306,6 +307,11 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 
 	@Override
 	public void setRotation(float rotation) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setZIndex(float zIndex) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -39,7 +39,7 @@ class RemoteConfigProvider @Inject constructor(
                     MTLog.d(this, "Config params updated: ${task.result}")
                 } else {
                     this.activated.set(false)
-                    MTLog.d(this, "Fetch failed!")
+                    MTLog.w(this, task.exception, "Fetch failed!")
                 }
             }
     }

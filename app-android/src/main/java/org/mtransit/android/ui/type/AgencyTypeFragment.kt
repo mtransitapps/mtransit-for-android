@@ -30,18 +30,19 @@ import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.FragmentAgencyTypeBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.nearby.NearbyFragment
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
@@ -67,7 +68,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
 
         @JvmStatic
-        fun newInstance(dstId: Int): AgencyTypeFragment {
+        fun newInstance(@DataSourceTypeId.DataSourceType dstId: Int): AgencyTypeFragment {
             return AgencyTypeFragment().apply {
                 arguments = newInstanceArgs(dstId)
             }
@@ -77,7 +78,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         fun newInstanceArgs(dst: DataSourceType) = newInstanceArgs(dst.id)
 
         @JvmStatic
-        fun newInstanceArgs(dstId: Int) = bundleOf(
+        fun newInstanceArgs(@DataSourceTypeId.DataSourceType dstId: Int) = bundleOf(
             AgencyTypeViewModel.EXTRA_TYPE_ID to dstId
         )
     }

@@ -18,7 +18,6 @@ import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.lazy.LazyMarker;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
@@ -69,6 +68,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		marker.setIcon(
 				markerOptions.getContext(),
 				markerOptions.getIconResId(),
+				markerOptions.getReplaceColor(),
 				markerOptions.getColor(),
 				markerOptions.getSecondaryColor(),
 				markerOptions.getDefaultColor()
@@ -94,13 +94,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		List<IMarker> displayedMarkers = clusteringStrategy.getDisplayedMarkers();
 		if (displayedMarkers == null) {
 			displayedMarkers = getMarkers();
-			Iterator<IMarker> iterator = displayedMarkers.iterator();
-			while (iterator.hasNext()) {
-				IMarker m = iterator.next();
-				if (!m.isVisible()) {
-					iterator.remove();
-				}
-			}
+			displayedMarkers.removeIf(m -> !m.isVisible());
 		}
 		return displayedMarkers;
 	}

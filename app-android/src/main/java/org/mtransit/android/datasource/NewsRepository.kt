@@ -8,7 +8,7 @@ import kotlinx.coroutines.ensureActive
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.provider.NewsProviderContract
+import org.mtransit.android.commons.provider.news.NewsProviderContract
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.util.UITimeUtils

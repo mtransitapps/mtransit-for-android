@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 
-import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.MapUtils;
@@ -31,7 +30,7 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 	}
 
 	@NonNull
-	private final ClusterOptions clusterOptions = new ClusterOptions().anchor(0.5f, 0.5f);
+	private final ClusterOptions clusterOptions = new ClusterOptions();
 
 	@NonNull
 	private final WeakReference<Context> contextWR;
@@ -42,22 +41,19 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 
 	@NonNull
 	@Override
-	public ClusterOptions getClusterOptions(@NonNull List<IMarker> markers) {
-		BitmapDescriptor icon = getClusterIcon(markers);
-		this.clusterOptions.icon(icon);
+	public ClusterOptions getClusterOptions(@NonNull List<IMarker> markers, float zoom) {
+		final MTMapIconDef defaultCustomIconDef = MTMapIconsProvider.getDefaultClusterIconDef();
+		this.clusterOptions.anchor(defaultCustomIconDef.getAnchorU(), defaultCustomIconDef.getAnchorV());
+		this.clusterOptions.flat(defaultCustomIconDef.getFlat());
+		this.clusterOptions.icon(getClusterIcon(markers, defaultCustomIconDef.getZoomResId(zoom, null), defaultCustomIconDef.getReplaceColor()));
 		return this.clusterOptions;
 	}
 
-	@DrawableRes
-	private static int getClusterIconRes() {
-		return R.drawable.map_icon_cluster_blur_white;
-	}
-
 	@Nullable
-	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers) {
+	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers, @DrawableRes int iconResId, boolean replaceColor) {
 		final Context context = this.contextWR.get();
 		final int color = getColor(context, markers);
-		return MapUtils.getIcon(context, getClusterIconRes(), color, false);
+		return MapUtils.getIcon(context, iconResId, color, replaceColor);
 	}
 
 	@ColorInt

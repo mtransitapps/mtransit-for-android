@@ -470,12 +470,12 @@ public class POIViewController implements MTLog.Loggable {
 			}
 		}
 		if (holder.getDistanceTv().getVisibility() == View.VISIBLE) {
-			if (dataProvider.getLocation() != null
+			if (dataProvider.getDeviceLocation() != null
 					&& dataProvider.getLastCompassInDegree() != null
 					&& dataProvider.getLocationDeclination() != null
-					&& dataProvider.getLocation().getAccuracy() <= poim.getDistance()) {
+					&& dataProvider.getDeviceLocation().getAccuracy() <= poim.getDistance()) {
 				holder.getCompassV().generateAndSetHeadingN(
-						dataProvider.getLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
+						dataProvider.getDeviceLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
 			} else {
 				holder.getCompassV().resetHeading();
 			}

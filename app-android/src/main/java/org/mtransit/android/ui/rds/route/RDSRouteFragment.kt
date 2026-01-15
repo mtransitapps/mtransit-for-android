@@ -27,7 +27,6 @@ import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.data.RouteManager
@@ -76,11 +75,11 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         fun newInstance(
             authority: String,
             routeId: Long,
-            optSelectedTripId: Long? = null,
+            optSelectedDirectionId: Long? = null,
             optSelectedStopId: Int? = null,
         ): RDSRouteFragment {
             return RDSRouteFragment().apply {
-                arguments = newInstanceArgs(authority, routeId, optSelectedTripId, optSelectedStopId)
+                arguments = newInstanceArgs(authority, routeId, optSelectedDirectionId, optSelectedStopId)
             }
         }
 
@@ -91,12 +90,12 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         fun newInstanceArgs(
             authority: String,
             routeId: Long,
-            optSelectedTripId: Long? = null,
+            optSelectedDirectionId: Long? = null,
             optSelectedStopId: Int? = null,
         ) = bundleOf(
             RDSRouteViewModel.EXTRA_AUTHORITY to authority,
             RDSRouteViewModel.EXTRA_ROUTE_ID to routeId,
-            RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID to (optSelectedTripId ?: RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID_DEFAULT),
+            RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID to (optSelectedDirectionId ?: RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID_DEFAULT),
             RDSRouteViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSRouteViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
         )
     }
@@ -210,7 +209,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             abController?.setABReady(this, isABReady, true)
             updateServiceUpdateImg(routeM = routeM)
         }
-        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { triggered ->
+        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
             updateServiceUpdateImg()
         })
         viewModel.colorInt.observe(viewLifecycleOwner) { it ->

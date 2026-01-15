@@ -88,14 +88,12 @@ class RDSRouteViewModel @Inject constructor(
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
 
-    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
     }
 
     private suspend fun getRoute(agency: IAgencyUIProperties?, routeId: Long?): Route? {
-        if (routeId == null) {
-            return null
-        }
+        routeId ?: return null
         if (agency == null) {
             if (_route.value != null) {
                 MTLog.d(this, "getRoute() > data source removed (no more agency)")
@@ -122,21 +120,18 @@ class RDSRouteViewModel @Inject constructor(
     }
 
     private suspend fun getRouteDirections(authority: String?, routeId: Long?): List<Direction>? {
-        if (authority == null || routeId == null) {
-            return null
-        }
+        authority?: return null
+        routeId?: return null
         return this.dataSourceRequestManager.findRDSRouteDirections(authority, routeId)
     }
 
     private val _selectedDirectionIdPref: LiveData<Long?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
-        if (authority == null || routeId == null) {
-            MutableLiveData(null)
-        } else {
-            lclPrefRepository.pref.liveData(
-                LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(authority, routeId),
-                LocalPreferenceRepository.PREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB_DEFAULT
-            )
-        }
+        authority ?: return@switchMap MutableLiveData(null)
+        routeId ?: return@switchMap MutableLiveData(null)
+        lclPrefRepository.pref.liveData(
+            LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(authority, routeId),
+            LocalPreferenceRepository.PREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB_DEFAULT
+        )
     }
 
     fun onPageSelected(position: Int) {
@@ -152,10 +147,13 @@ class RDSRouteViewModel @Inject constructor(
     }
 
     private fun saveSelectedRouteDirectionId(direction: Direction) {
-        val authority: String = this.authority.value ?: return
-        val routeId: Long = this.routeId.value ?: return
         lclPrefRepository.pref.edit {
-            putLong(LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(authority, routeId), direction.id)
+            putLong(
+                LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(
+                    this@RDSRouteViewModel.authority.value ?: return,
+                    this@RDSRouteViewModel.routeId.value ?: return
+                ), direction.id
+            )
         }
     }
 

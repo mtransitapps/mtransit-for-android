@@ -9,6 +9,7 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -43,6 +44,7 @@ import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -62,15 +64,13 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             routeId: Long,
             directionId: Long,
             optSelectedStopId: Int? = null,
-        ): RDSDirectionStopsFragment {
-            return RDSDirectionStopsFragment().apply {
-                arguments = bundleOf(
-                    RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                    RDSDirectionStopsViewModel.EXTRA_ROUTE_ID to routeId,
-                    RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to directionId,
-                    RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
-                )
-            }
+        ) = RDSDirectionStopsFragment().apply {
+            arguments = bundleOf(
+                RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
+                RDSDirectionStopsViewModel.EXTRA_ROUTE_ID to routeId,
+                RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to directionId,
+                RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
+            )
         }
 
         private const val TOP_PADDING_SP = 0
@@ -118,7 +118,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
-        override fun getPOMarkers(): Collection<MapViewController.POIMarker>? = null
+        override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
         override fun getPOIs(): Collection<POIManager>? {
             if (!listAdapter.isInitialized) {
@@ -131,9 +131,15 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             return pois
         }
 
+        override fun getPOI(position: Int) = listAdapter.getItem(position)
+
         override fun getClosestPOI() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
+
+        override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
+
+        override fun getMapMarkerAlpha(position: Int): Float? = null
     }
 
     @Suppress("DeprecatedCall")
@@ -155,7 +161,6 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             false,
             true,
             false,
-            this.dataSourcesRepository
         ).apply {
             setAutoClickInfoWindow(true)
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
@@ -243,7 +248,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
             }
         }
-        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { triggered ->
+        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
             updateServiceUpdateImg()
         })
         parentViewModel.routeM.observe(viewLifecycleOwner) {

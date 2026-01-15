@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -17,11 +18,13 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.GTFSProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
@@ -41,6 +44,7 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.addAllN
 import org.mtransit.commons.removeAllAnd
 import org.mtransit.commons.sortWithAnd
@@ -91,7 +95,34 @@ class POIViewModel @Inject constructor(
 
     private val _poi = this.poim.map {
         it?.poi
+    }.distinctUntilChanged()
+
+    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+            agency ?: return@liveData
+            poi ?: return@liveData
+            emit(getPOIList(agency, poi))
+        }
     }
+
+    private suspend fun getPOIList(agency: IAgencyProperties, poi: POI) = this.poiRepository.findPOIMs(
+        agency,
+        when (poi) {
+            is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
+                SqlUtils.getWhereEquals(
+                    GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
+                )
+            ).apply {
+                addExtra(
+                    POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
+                    SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
+                )
+            }
+
+            else -> POIProviderContract.Filter.getNewEmptyFilter()
+        }
+    )
 
     val scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)
@@ -177,12 +208,12 @@ class POIViewModel @Inject constructor(
                 .forEach { nearbyAgency ->
                     nearbyPOIs.addAllN(
                         poiRepository.findPOIMs(nearbyAgency, poiFilter)
-                            ?.removeAllAnd {
+                            .removeAllAnd {
                                 it.poi.uuid == excludedUUID
                                         || (it.poi.isNoPickup && !it.poi.isSameRoute(excludedPoi))
                             }
-                            ?.updateDistanceM(lat, lng)
-                            ?.removeTooFar(
+                            .updateDistanceM(lat, lng)
+                            .removeTooFar(
                                 when (nearbyAgency.type) {
                                     DataSourceType.TYPE_BUS -> maxDistanceInMeters
                                     DataSourceType.TYPE_BIKE -> maxDistanceInMeters * 1.5f
@@ -196,10 +227,10 @@ class POIViewModel @Inject constructor(
                                     }
                                 }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
                             )
-                            ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                            ?.removeAllAnd { nearbyPOIs.contains(it) }
-                            ?.removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteDirection(new.poi) } }
-                            ?.also {
+                            .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
+                            .removeAllAnd { nearbyPOIs.contains(it) }
+                            .removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteDirection(new.poi) } }
+                            .also {
                                 if (!nearbyAgencyPOIAdded
                                     && nearbyAgency.authority == agency.authority && it.isNotEmpty()
                                 ) {
@@ -255,15 +286,15 @@ class POIViewModel @Inject constructor(
                 }
                 nearbyPOIs.addAllN(
                     poiRepository.findPOIMs(agency, poiFilter)
-                        ?.removeAllAnd {
+                        .removeAllAnd {
                             it.poi.uuid == excludedUUID
                                     || (it.poi.isNoPickup && it.poi.isSameRoute(excludedPoi)) // remove if no pickup && another route
                         }
-                        ?.updateDistanceM(lat, lng)
-                        ?.removeTooFar(maxDistanceInMeters)
-                        ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                        ?.removeAllAnd { nearbyPOIs.contains(it) }
-                        ?.takeAnd(minNotConnectionSize - (nearbyPOIs.size - connectionSize))
+                        .updateDistanceM(lat, lng)
+                        .removeTooFar(maxDistanceInMeters)
+                        .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
+                        .removeAllAnd { nearbyPOIs.contains(it) }
+                        .takeAnd(minNotConnectionSize - (nearbyPOIs.size - connectionSize))
                 )
                 if (nearbyPOIs.size >= connectionSize + minNotConnectionSize // enough POI
                     || LocationUtils.searchComplete(lat, lng, aroundDiff) // world explored

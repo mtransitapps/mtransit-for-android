@@ -38,6 +38,7 @@ import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.map.IMarker
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
@@ -119,11 +120,11 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     private val mapListener = object : MapViewController.MapListener {
 
-        override fun onMapClick(position: LatLng) {
-            // DO NOTHING
-        }
+        override fun onMapClick(position: LatLng) = Unit // DO NOTHING
 
-        override fun onCameraChange(latLngBounds: LatLngBounds) {
+        override fun onMarkerClick(marker: IMarker?) = false
+
+        override fun onCameraChange(latLngBounds: LatLngBounds, zoom: Float) {
             attachedViewModel?.onCameraChange(latLngBounds) {
                 mapViewController.getBigCameraPosition(activity, 1.0f)
             }
@@ -157,7 +158,6 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             true,
             false,
             true,
-            this.dataSourcesRepository
         ).apply {
             setAutoClickInfoWindow(true)
             logTag = this@MapFragment.logTag
