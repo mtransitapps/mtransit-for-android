@@ -4,11 +4,9 @@ import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.latLng
-import org.mtransit.commons.FeatureFlags
 
 val POIFragment.visibleMarkersLocationList: Collection<LatLng>?
     get() {
-        if (!FeatureFlags.F_EXPORT_TRIP_ID) return null
         val poim = this.poim ?: return emptySet()
         val poimLatLng = poim.latLng ?: return emptySet()
         val visibleMarkersLocations = mutableSetOf<LatLng>()
@@ -28,7 +26,6 @@ const val MAP_MARKER_ALPHA_TERTIARY_FOCUS = 0.50f
 const val MAP_MARKER_ALPHA_QUATERNARY_FOCUS = 0.25f
 
 fun POIFragment.getMapMarkerAlpha(position: Int): Float? {
-    if (!FeatureFlags.F_EXPORT_TRIP_ID) return null
     val poi = this.poim?.poi ?: return null
     viewModel?.poiList?.value
         ?.map { it.poi }
@@ -56,12 +53,9 @@ fun POIFragment.getMapMarkerAlpha(position: Int): Float? {
 }
 
 fun POIFragment.getPOI(position: Int): POIManager? {
-    if (FeatureFlags.F_EXPORT_TRIP_ID) {
-        val poiList = viewModel?.poiList?.value ?: return null
-        val distinct = poiList.mapNotNull { (it.poi as? RouteDirectionStop)?.direction?.id }.distinct()
-        val count = distinct.count()
-        if (count != 1) return null // only for stop on the same route direction
-        return poiList.getOrNull(position)
-    }
-    return this.poim?.takeIf { position == 0 }
+    val poiList = viewModel?.poiList?.value ?: return null
+    val distinct = poiList.mapNotNull { (it.poi as? RouteDirectionStop)?.direction?.id }.distinct()
+    val count = distinct.count()
+    if (count != 1) return null // only for stop on the same route direction
+    return poiList.getOrNull(position)
 }

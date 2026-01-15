@@ -36,7 +36,6 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.util.LinkUtils
-import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -118,10 +117,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             return pois
         }
 
-        override fun getPOI(position: Int): POIManager? {
-            if (FeatureFlags.F_EXPORT_TRIP_ID) return null
-            return listAdapter.getItem(position)
-        }
+        override fun getPOI(position: Int): POIManager? = null
 
         override fun getClosestPOI() = listAdapter.closestPOI
 

@@ -44,7 +44,6 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.addAllN
 import org.mtransit.commons.removeAllAnd
 import org.mtransit.commons.sortWithAnd
@@ -99,7 +98,6 @@ class POIViewModel @Inject constructor(
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
             agency ?: return@liveData
             poi ?: return@liveData
             emit(getPOIList(agency, poi))

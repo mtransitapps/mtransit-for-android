@@ -189,16 +189,13 @@ class RDSDirectionStopsViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
-        if (demoModeManager.isFullDemo()) {
-            return // SKIP (demo mode ON)
-        }
+        if (demoModeManager.isFullDemo()) return // SKIP (demo mode ON)
+        val authority = _authority.value ?: return
+        val routeId = _routeId.value ?: return
+        val directionId = directionId.value ?: return
         lclPrefRepository.pref.edit {
             putBoolean(
-                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-                    _authority.value ?: return,
-                    _routeId.value ?: return,
-                    directionId.value ?: return
-                ),
+                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(authority, routeId, directionId),
                 showingListInsteadOfMap
             )
         }
