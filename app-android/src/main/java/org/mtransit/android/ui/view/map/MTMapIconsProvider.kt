@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.view.map
 
 import org.mtransit.android.R
-import org.mtransit.android.data.DataSourceType
 
 object MTMapIconsProvider {
 
@@ -18,7 +17,8 @@ object MTMapIconsProvider {
     val arrowIconDef = MTMapIconDef(R.drawable.map_icon_stop_white_flat_arrow, R.drawable.map_icon_stop_white_flat_arrow_small, true, 0.5f, 0.5f)
 
     @JvmStatic
-    val defaultClusterIconDef = MTMapIconDef(R.drawable.map_icon_cluster_blur_white, R.drawable.map_icon_cluster_blur_white, true, 0.5f, 0.5f)
+    val defaultClusterIconDef =
+        MTMapIconDef(R.drawable.map_icon_cluster_blur_replace, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)
 
     //@formatter:on
 
