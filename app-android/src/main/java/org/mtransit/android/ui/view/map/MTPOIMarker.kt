@@ -48,7 +48,7 @@ data class MTPOIMarker(
         fun MTPOIMarker.toExtendedMarkerOptions(
             context: Context,
             markerLabelShowExtra: Boolean,
-            currentZoomGroup: MTMapIconZoomGroup
+            currentZoomGroup: MTMapIconZoomGroup?,
         ) = ExtendedMarkerOptions()
             .position(position)
             .title(title)

@@ -337,11 +337,6 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.extendedGoogleMap = null;
 	}
 
-	@Nullable
-	private ExtendedGoogleMap getGoogleMapOrNull() {
-		return this.extendedGoogleMap;
-	}
-
 	@Override
 	public void onMapReady(@NonNull GoogleMap googleMap) {
 		setupGoogleMap(googleMap);
@@ -350,7 +345,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private boolean clusterManagerItemsLoaded = false;
 
 	private void setupGoogleMap(@NonNull GoogleMap googleMap) {
-		this.extendedGoogleMap = ExtendedMapFactory.create(googleMap, getActivityOrNull());
+		final Activity activity = getActivityOrNull();
+		this.extendedGoogleMap = ExtendedMapFactory.create(googleMap, activity);
 		applyMapStyle();
 		applyMapType();
 		setupGoogleMapMyLocation();
@@ -365,20 +361,19 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.extendedGoogleMap.setOnMapClickListener(this);
 		this.extendedGoogleMap.setLocationSource(this);
 		this.extendedGoogleMap.setOnCameraChangeListener(this);
-		final ClusteringSettings settings = new ClusteringSettings();
-		settings.enabled(this.clusteringEnabled);
-		settings.clusterOptionsProvider(new MTClusterOptionsProvider(getActivityOrNull())).addMarkersDynamically(true);
-		this.extendedGoogleMap.setClustering(settings);
+		this.extendedGoogleMap.setClustering(new ClusteringSettings()
+				.enabled(this.clusteringEnabled)
+				.clusterOptionsProvider(new MTClusterOptionsProvider(activity))
+				.addMarkersDynamically(true)
+		);
 		clearMarkers();
 		int paddingTopPx = 0;
 		if (this.paddingTopSp > 0) {
-			final Context context = getActivityOrNull();
-			paddingTopPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
+			paddingTopPx = (int) ResourceUtils.convertSPtoPX(activity, this.paddingTopSp); // action bar
 		}
 		int paddingBottomPx = 0;
 		if (this.paddingBottomSp > 0) {
-			final Context context = getActivityOrNull();
-			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingBottomSp); // fab
+			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(activity, this.paddingBottomSp); // fab
 		}
 		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
 		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
@@ -507,16 +502,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void applyMapType() {
-		final ExtendedGoogleMap map = getGoogleMapOrNull();
-		if (map == null) {
+		if (this.extendedGoogleMap == null) {
 			return;
 		}
-		map.setMapType(getMapType());
+		this.extendedGoogleMap.setMapType(getMapType());
 	}
 
 	private void applyMapStyle() {
-		final ExtendedGoogleMap map = getGoogleMapOrNull();
-		if (map == null) {
+		if (this.extendedGoogleMap == null) {
 			return;
 		}
 		final Context context = getActivityOrNull();
@@ -524,7 +517,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		// https://mapstyle.withgoogle.com/
-		map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default));
+		this.extendedGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default));
 	}
 
 	private void setTypeSwitchImg() {
@@ -664,11 +657,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Override
 	public void onCameraChange(@NonNull CameraPosition cameraPosition) {
 		this.showingMyLocation = this.showingMyLocation == null;
-		final ExtendedGoogleMap googleMap = getGoogleMapOrNull();
 		Integer visibleMarkersCount = null;
-		if (googleMap != null) {
-			final Area visibleArea = AreaExtKt.toArea(googleMap.getProjection().getVisibleRegion());
-			visibleMarkersCount = AreaExtKt.countMarkersInside(visibleArea, googleMap.getMarkers());
+		if (this.extendedGoogleMap != null) {
+			final Area visibleArea = AreaExtKt.toArea(this.extendedGoogleMap.getProjection().getVisibleRegion());
+			visibleMarkersCount = AreaExtKt.countMarkersInside(visibleArea, this.extendedGoogleMap.getMarkers());
 		}
 		final MTMapIconZoomGroup newZoomGroup = MTMapIconZoomGroup.from(cameraPosition.zoom, visibleMarkersCount);
 		if (this.currentMapIconZoomGroup != null && this.currentMapIconZoomGroup != newZoomGroup) {
@@ -694,13 +686,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			MTLog.d(this, "notifyNewCameraPosition() > SKIP (no listener)");
 			return;
 		}
-		final ExtendedGoogleMap googleMap = getGoogleMapOrNull();
-		if (googleMap == null) {
+		if (this.extendedGoogleMap == null) {
 			MTLog.d(this, "notifyNewCameraPosition() > SKIP (no map)");
 			return;
 		}
-		final VisibleRegion visibleRegion = googleMap.getProjection().getVisibleRegion();
-		final float zoom = googleMap.getCameraPosition().zoom;
+		final VisibleRegion visibleRegion = this.extendedGoogleMap.getProjection().getVisibleRegion();
+		final float zoom = this.extendedGoogleMap.getCameraPosition().zoom;
 		mapListener.onCameraChange(visibleRegion.latLngBounds, zoom);
 	}
 
@@ -714,8 +705,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (activity == null) {
 			return null;
 		}
-		final ExtendedGoogleMap googleMap = getGoogleMapOrNull();
-		if (googleMap == null) {
+		if (this.extendedGoogleMap == null) {
 			return null;
 		}
 		try {
@@ -727,8 +717,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			int left = (int) (0 - factor * width);
 			int top = (int) (0 - factor * height);
 			int right = (int) (width + factor * width);
-			LatLng southWest = googleMap.getProjection().fromScreenLocation(new Point(left, bottom));
-			LatLng northEast = googleMap.getProjection().fromScreenLocation(new Point(right, top));
+			LatLng southWest = this.extendedGoogleMap.getProjection().fromScreenLocation(new Point(left, bottom));
+			LatLng northEast = this.extendedGoogleMap.getProjection().fromScreenLocation(new Point(right, top));
 			return new LatLngBounds(southWest, northEast);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while finding big camera position");
@@ -889,8 +879,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private static final float DEVICE_LOCATION_ZOOM = MapUtils.MAP_ZOOM_LEVEL_STREETS_BUSY_BUSY;
 
 	private boolean updateMapCamera(boolean anim, @NonNull CameraUpdate cameraUpdate) {
-		final ExtendedGoogleMap googleMap = getGoogleMapOrNull();
-		if (googleMap == null) {
+		if (this.extendedGoogleMap == null) {
 			MTLog.d(this, "updateMapCamera() > SKIP (no map)");
 			return false;
 		}
@@ -900,9 +889,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		try {
 			if (anim) {
-				googleMap.animateCamera(cameraUpdate);
+				this.extendedGoogleMap.animateCamera(cameraUpdate);
 			} else {
-				googleMap.moveCamera(cameraUpdate);
+				this.extendedGoogleMap.moveCamera(cameraUpdate);
 			}
 			return true;
 		} catch (IllegalStateException ise) {
@@ -1115,9 +1104,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				return;
 			}
 			mapViewController.clearMarkers();
-			final Area visibleArea = AreaExtKt.toArea(mapViewController.extendedGoogleMap.getProjection().getVisibleRegion());
-			final int visibleMarkersCount = AreaExtKt.countPOIMarkersInside(visibleArea, poiMarkers);
-			final MTMapIconZoomGroup currentZoomGroup = mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap, visibleMarkersCount);
+			final MTMapIconZoomGroup currentZoomGroup = mapViewController.clusteringEnabled ? null : mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap,
+					AreaExtKt.countPOIMarkersInside(
+							AreaExtKt.toArea(mapViewController.extendedGoogleMap.getProjection().getVisibleRegion()),
+							poiMarkers
+					)
+			);
 			final Context context = mapViewController.mapView.getContext();
 			for (MTPOIMarker poiMarker : poiMarkers) {
 				mapViewController.extendedGoogleMap.addMarker(
@@ -1142,14 +1134,17 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	public boolean addMarkers(@NonNull Context context, @Nullable Collection<MTPOIMarker> poiMarkers) {
-		if (MapViewController.this.extendedGoogleMap == null) {
+		if (this.extendedGoogleMap == null) {
 			MTLog.d(this, "addMarkers() > SKIP (no map)");
 			return false;
 		}
-		final Area visibleArea = AreaExtKt.toArea(MapViewController.this.extendedGoogleMap.getProjection().getVisibleRegion());
-		final int visibleMarkersCount = AreaExtKt.countPOIMarkersInside(visibleArea, poiMarkers);
-		final MTMapIconZoomGroup currentZoomGroup = MapViewController.this.getCurrentMapIconZoomGroup(MapViewController.this.extendedGoogleMap, visibleMarkersCount);
 		if (poiMarkers != null) {
+			final MTMapIconZoomGroup currentZoomGroup = this.clusteringEnabled ? null : this.getCurrentMapIconZoomGroup(this.extendedGoogleMap,
+					AreaExtKt.countPOIMarkersInside(
+							AreaExtKt.toArea(this.extendedGoogleMap.getProjection().getVisibleRegion()),
+							poiMarkers
+					)
+			);
 			for (MTPOIMarker poiMarker : poiMarkers) {
 				final IMarker marker = this.extendedGoogleMap.addMarker(
 						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, this.markerLabelShowExtra, currentZoomGroup)
@@ -1249,9 +1244,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (mapView != null) {
 			mapView.onPause();
 		}
-		final ExtendedGoogleMap googleMap = getGoogleMapOrNull();
-		if (googleMap != null) {
-			this.lastCameraPosition = googleMap.getCameraPosition();
+		if (this.extendedGoogleMap != null) {
+			this.lastCameraPosition = this.extendedGoogleMap.getCameraPosition();
 		}
 		resetMapType();
 	}
