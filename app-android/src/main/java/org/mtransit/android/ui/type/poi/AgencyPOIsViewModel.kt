@@ -32,13 +32,13 @@ class AgencyPOIsViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = AgencyPOIsViewModel::class.java.simpleName
+        private val LOG_TAG: String = AgencyPOIsViewModel::class.java.simpleName
 
         internal const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_COLOR_INT = "extra_color_int"
     }
 
-    override fun getLogTag(): String = agency.value?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
+    override fun getLogTag() = agency.value?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
     private val _authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
 

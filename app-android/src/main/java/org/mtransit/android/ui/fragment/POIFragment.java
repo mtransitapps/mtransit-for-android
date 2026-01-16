@@ -390,14 +390,7 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	@Override
 	public Collection<POIManager> getPOIs() {
-		final List<POIManager> poiList = viewModel == null ? null : viewModel.getPoiList().getValue();
-		if (poiList != null) {
-			return poiList;
-		}
-		if (this.poim == null) {
-			return null;
-		}
-		return Collections.singletonList(this.poim);
+		return viewModel == null ? null : viewModel.getPoiList().getValue();
 	}
 
 	@Nullable

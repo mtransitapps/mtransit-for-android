@@ -100,7 +100,15 @@ class POIViewModel @Inject constructor(
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             agency ?: return@liveData
             poi ?: return@liveData
-            emit(getPOIList(agency, poi))
+            emit(
+                getPOIList(agency, poi)
+                    .apply {
+                        if (poi !is RouteDirectionStop) {
+                            updateDistanceM(poi.lat, poi.lng)
+                            sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
+                        }
+                    }
+            )
         }
     }
 
