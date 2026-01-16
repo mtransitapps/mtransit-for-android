@@ -196,10 +196,11 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	@Override
 	public void setIcon(@Nullable Context context,
 						@DrawableRes @Nullable Integer iconResId,
+						@Nullable Boolean replaceColor,
 						@ColorInt @Nullable Integer color,
 						@ColorInt @Nullable Integer secondaryColor,
 						@ColorInt @Nullable Integer defaultColor) {
-		real.setIcon(context, iconResId, color, secondaryColor, defaultColor);
+		real.setIcon(context, iconResId, replaceColor, color, secondaryColor, defaultColor);
 	}
 
 	@Override
@@ -238,6 +239,11 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	@Override
 	public void setRotation(float rotation) {
 		real.setRotation(rotation);
+	}
+
+	@Override
+	public void setZIndex(float zIndex) {
+		real.setZIndex(zIndex);
 	}
 
 	@Override

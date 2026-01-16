@@ -23,7 +23,7 @@ import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
@@ -39,7 +39,6 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
-
 
 @HiltViewModel
 class RDSDirectionStopsViewModel @Inject constructor(
@@ -129,7 +128,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     private var serviceUpdateLoadedJob: Job? = null
 
-    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
             if (routeDirectionM.value?.routeDirection?.uuid != targetUUID) {
@@ -146,44 +145,43 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_agency, directionId).switchMap { (agency, directionId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            agency ?: return@liveData
+            directionId ?: return@liveData
             emit(getPOIList(agency, directionId))
         }
     }
 
-    private suspend fun getPOIList(agency: IAgencyProperties?, directionId: Long?): List<POIManager>? {
-        if (agency == null || directionId == null) {
-            return null
-        }
-        val poiFilter = POIProviderContract.Filter.getNewSqlSelectionFilter(
-            SqlUtils.getWhereEquals(
-                GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, directionId
-            )
-        ).apply {
-            addExtra(
-                POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
-                SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
-            )
-        }
-        return this.poiRepository.findPOIMs(agency, poiFilter)
-            .apply {
-                forEach { poim ->
-                    poim.addServiceUpdateLoaderListener(serviceUpdateLoaderListener) // trigger refresh because some provider do not fetch for route #stmbus
-                }
+    private suspend fun getPOIList(agency: IAgencyProperties, directionId: Long) =
+        this.poiRepository.findPOIMs(
+            agency,
+            POIProviderContract.Filter.getNewSqlSelectionFilter(
+                SqlUtils.getWhereEquals(
+                    GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, directionId
+                )
+            ).apply {
+                addExtra(
+                    POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
+                    SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
+                )
             }
-    }
+        ).apply {
+            forEach { poim ->
+                poim.addServiceUpdateLoaderListener(serviceUpdateLoaderListener) // trigger refresh because some provider do not fetch for route #stmbus
+            }
+        }
 
     val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
         liveData {
-            if (authority == null || routeId == null || directionId == null) {
-                return@liveData // SKIP
-            }
+            authority ?: return@liveData
+            routeId ?: return@liveData
+            directionId ?: return@liveData
             if (demoModeManager.isFullDemo()) {
                 emit(false) // show map (demo mode ON)
                 return@liveData
             }
             emitSource(
                 lclPrefRepository.pref.liveData(
-                    LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(authority, routeId, directionId),
+                    LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(authority, routeId, directionId),
                     LocalPreferenceRepository.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
                 )
             )
@@ -191,15 +189,13 @@ class RDSDirectionStopsViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
-        if (demoModeManager.isFullDemo()) {
-            return // SKIP (demo mode ON)
-        }
+        if (demoModeManager.isFullDemo()) return // SKIP (demo mode ON)
+        val authority = _authority.value ?: return
+        val routeId = _routeId.value ?: return
+        val directionId = directionId.value ?: return
         lclPrefRepository.pref.edit {
-            val authority = _authority.value ?: return
-            val routeId = _routeId.value ?: return
-            val directionId = directionId.value ?: return
             putBoolean(
-                LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(authority, routeId, directionId),
+                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(authority, routeId, directionId),
                 showingListInsteadOfMap
             )
         }

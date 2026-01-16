@@ -8,10 +8,12 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
@@ -30,10 +32,10 @@ import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
 
@@ -103,7 +105,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
-        override fun getPOMarkers(): Collection<POIMarker>? = null
+        override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
         override fun getPOIs(): Collection<POIManager>? {
             if (!listAdapter.isInitialized) {
@@ -116,9 +118,15 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             return pois
         }
 
+        override fun getPOI(position: Int): POIManager? = null
+
         override fun getClosestPOI() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
+
+        override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
+
+        override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
     }
 
     @Suppress("DeprecatedCall")
@@ -140,7 +148,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             false,
             true,
             false,
-            this.dataSourcesRepository
         ).apply {
             setAutoClickInfoWindow(true)
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))

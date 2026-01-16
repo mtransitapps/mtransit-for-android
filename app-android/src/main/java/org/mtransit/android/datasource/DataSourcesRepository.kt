@@ -282,6 +282,8 @@ class DataSourcesRepository @Inject constructor(
 
     fun getNewsProvider(authority: String) = this.dataSourcesInMemoryCache.getNewsProvider(authority)
 
+    // endregion
+
     private var runningUpdate: Boolean = false
 
     private val mutex = Mutex()
@@ -331,6 +333,4 @@ class DataSourcesRepository @Inject constructor(
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
         return this.dataSourcesReader.isAProvider(pkg, agencyOnly)
     }
-
-    // endregion
 }

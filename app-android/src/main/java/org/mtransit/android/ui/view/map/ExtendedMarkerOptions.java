@@ -13,7 +13,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.lang.ref.WeakReference;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class ExtendedMarkerOptions {
 
 	@NonNull
@@ -23,6 +23,8 @@ public class ExtendedMarkerOptions {
 	@Nullable
 	@DrawableRes
 	private Integer realIconResId;
+	@Nullable
+	private Boolean realReplaceColor;
 	@Nullable
 	private Integer realColor;
 	@Nullable
@@ -50,6 +52,11 @@ public class ExtendedMarkerOptions {
 	}
 
 	@Nullable
+	public Boolean getReplaceColor() {
+		return this.realReplaceColor;
+	}
+
+	@Nullable
 	@ColorInt
 	public Integer getColor() {
 		return this.realColor;
@@ -70,6 +77,12 @@ public class ExtendedMarkerOptions {
 	@NonNull
 	public ExtendedMarkerOptions alpha(float alpha) {
 		real.alpha(alpha);
+		return this;
+	}
+
+	@NonNull
+	public ExtendedMarkerOptions zIndex(float zIndex) {
+		real.zIndex(zIndex);
 		return this;
 	}
 
@@ -165,12 +178,14 @@ public class ExtendedMarkerOptions {
 	@NonNull
 	public ExtendedMarkerOptions icon(@NonNull Context context,
 									  @DrawableRes int iconResId,
+									  boolean replaceColor,
 									  @ColorInt @Nullable Integer color,
 									  @ColorInt @Nullable Integer secondaryColor,
 									  @ColorInt int defaultColor) {
 		real.icon(null);
 		realContextWR = new WeakReference<>(context);
 		realIconResId = iconResId;
+		realReplaceColor = replaceColor;
 		realColor = color;
 		realSecondaryColor = secondaryColor;
 		realDefaultColor = defaultColor;

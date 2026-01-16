@@ -1,40 +1,49 @@
 package org.mtransit.android.ui.view.map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue", "unused"})
 public class ClusteringSettings {
 
 	public static final double DEFAULT_CLUSTER_SIZE = 90.0;
 
 	private boolean addMarkersDynamically = false;
 
+	@Nullable
 	private ClusterOptionsProvider clusterOptionsProvider = null;
 
 	private double clusterSize = DEFAULT_CLUSTER_SIZE;
 
 	private boolean enabled = true;
 
+	@NonNull
 	public ClusteringSettings addMarkersDynamically(boolean addMarkersDynamically) {
 		this.addMarkersDynamically = addMarkersDynamically;
 		return this;
 	}
 
-	public ClusteringSettings clusterOptionsProvider(ClusterOptionsProvider clusterOptionsProvider) {
+	@NonNull
+	public ClusteringSettings clusterOptionsProvider(@Nullable ClusterOptionsProvider clusterOptionsProvider) {
 		this.clusterOptionsProvider = clusterOptionsProvider;
 		return this;
 	}
 
+	@NonNull
 	public ClusteringSettings clusterSize(double clusterSize) {
 		this.clusterSize = clusterSize;
 		return this;
 	}
 
+	@NonNull
 	public ClusteringSettings enabled(boolean enabled) {
 		this.enabled = enabled;
 		return this;
 	}
 
+	@Nullable
 	public ClusterOptionsProvider getClusterOptionsProvider() {
 		return clusterOptionsProvider;
 	}
@@ -79,8 +88,7 @@ public class ClusteringSettings {
 		int result = 0;
 		result = 31 * result + (addMarkersDynamically ? 1 : 0);
 		result = 31 * result + (clusterOptionsProvider != null ? clusterOptionsProvider.hashCode() : 0);
-		long temp = Double.doubleToLongBits(clusterSize);
-		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		result = 31 * result + Double.hashCode(clusterSize);
 		result = 31 * result + (enabled ? 1 : 0);
 		return result;
 	}
