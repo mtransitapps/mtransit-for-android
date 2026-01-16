@@ -218,13 +218,6 @@ class DataSourcesRepository @Inject constructor(
 
     fun getServiceUpdateProvider(authority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProvider(authority)
 
-    fun readingVehicleLocationProviders(targetAuthority: String?) = liveData {
-        targetAuthority?.let { providerAuthority ->
-            emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(providerAuthority))
-            emitSource(dataSourcesIOCache.readingVehicleLocationProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
-        }
-    }.distinctUntilChanged()
-
     // endregion
 
     // region VEHICLE LOCATION
@@ -234,6 +227,13 @@ class DataSourcesRepository @Inject constructor(
     fun getVehicleLocationProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProviders(targetAuthority)
 
     fun getVehicleLocationProvider(authority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProvider(authority)
+
+    fun readingVehicleLocationProviders(targetAuthority: String?) = liveData {
+        targetAuthority?.let { providerAuthority ->
+            emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(providerAuthority))
+            emitSource(dataSourcesIOCache.readingVehicleLocationProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
 
     // endregion
 
