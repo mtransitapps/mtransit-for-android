@@ -116,7 +116,6 @@ data class MTPOIMarker(
             if (hasExtras && hasAgencies) {
                 append(P2)
             }
-            return toString()
         }
 
     fun hasUUID(uuid: String?) = this.uuidsAndAuthority.hasUUID(uuid)
