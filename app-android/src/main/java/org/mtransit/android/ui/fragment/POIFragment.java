@@ -68,8 +68,7 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.news.NewsProviderContract;
-import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
+import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyProperties;
@@ -90,7 +89,6 @@ import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.main.NextMainViewModel;
-import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
@@ -357,11 +355,8 @@ public class POIFragment extends ABFragment implements
 		}
 		resetFavorite();
 		final View view = getView();
-		if (!FeatureFlags.F_EXPORT_TRIP_ID) {
-			this.mapViewController.notifyMarkerChanged(this);
-			this.mapViewController.showMap(view);
-		}
-		this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());
+		this.mapViewController.notifyMarkerChanged(this);
+		this.mapViewController.showMap(view);
 		POIViewController.updateView(getPOIView(view), this.poim, this);
 		POIStatusDetailViewController.updateView(getPOIStatusView(view), this.poim, this);
 		POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), this.poim, this);
@@ -402,12 +397,6 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	@Override
 	public Collection<POIManager> getPOIs() {
-		if (FeatureFlags.F_EXPORT_TRIP_ID) {
-			final List<POIManager> poiList = viewModel == null ? null : viewModel.getPoiList().getValue();
-			if (poiList != null) {
-				return poiList;
-			}
-		}
 		if (this.poim == null) {
 			return null;
 		}
@@ -424,47 +413,6 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public Collection<MTPOIMarker> getPOMarkers() {
 		return null;
-	}
-
-	@Nullable
-	@Override
-	public Collection<VehicleLocation> getVehicleLocations() {
-		if (FeatureFlags.F_EXPORT_TRIP_ID) {
-			return viewModel == null ? null : viewModel.getVehicleLocations().getValue();
-		}
-		return null;
-	}
-
-	@Nullable
-	@Override
-	public Integer getVehicleColorInt() {
-		final POIManager poim = getPoimOrNull();
-		if (poim == null) {
-			return null;
-		}
-		return poim.getColor(dataSourcesRepository);
-	}
-
-	@Nullable
-	@Override
-	public DataSourceType getVehicleType() {
-		final IAgencyProperties agency = getAgencyOrNull();
-		if (agency == null) {
-			return null;
-		}
-		return agency.getType();
-	}
-
-	@Nullable
-	@Override
-	public Collection<LatLng> getVisibleMarkersLocations() {
-		return POIFragmentExtKt.getVisibleMarkersLocationList(this);
-	}
-
-	@Nullable
-	@Override
-	public Float getMapMarkerAlpha(int position, @NonNull Area visibleArea) {
-		return POIFragmentExtKt.getMapMarkerAlpha(this, position, visibleArea);
 	}
 
 	@Override
@@ -509,40 +457,6 @@ public class POIFragment extends ABFragment implements
 						// TODO marker? .addSharedElement(view, view.getTransitionName())
 						.build();
 			}
-			if (FeatureFlags.F_EXPORT_TRIP_ID) {
-				if (poim.poi instanceof RouteDirectionStop) {
-					this.localPreferenceRepository.saveAsync(
-							LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-									poim.poi.getAuthority(),
-									((RouteDirectionStop) poim.poi).getRoute().getId(),
-									((RouteDirectionStop) poim.poi).getDirection().getId()
-							),
-							false // show map instead of list
-					);
-					NavControllerExtKt.navigateF(navController,
-							R.id.nav_to_rds_route_screen,
-							RDSRouteFragment.newInstanceArgs((RouteDirectionStop) poim.poi),
-							null,
-							extras
-					);
-				} else {
-					this.localPreferenceRepository.saveAsync(
-							LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.getDataSourceTypeId()),
-							poim.poi.getAuthority()
-					);
-					this.defaultPrefRepository.saveAsync(
-							DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.getAuthority()),
-							false
-					);
-					NavControllerExtKt.navigateF(navController,
-							R.id.nav_to_type_screen,
-							AgencyTypeFragment.newInstanceArgs(poim.poi.getDataSourceTypeId()),
-							null,
-							extras
-					);
-				}
-				return true;
-			}
 			NavControllerExtKt.navigateF(navController,
 					R.id.nav_to_map_screen,
 					MapFragment.newInstanceArgs(poim),
@@ -552,42 +466,12 @@ public class POIFragment extends ABFragment implements
 		} else {
 			final FragmentActivity activity = getActivity();
 			if (activity == null) {
-				return false;
-			}
-			if (FeatureFlags.F_EXPORT_TRIP_ID) {
-				if (poim.poi instanceof RouteDirectionStop) {
-					this.localPreferenceRepository.saveAsync(
-							LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-									poim.poi.getAuthority(),
-									((RouteDirectionStop) poim.poi).getRoute().getId(),
-									((RouteDirectionStop) poim.poi).getDirection().getId()
-							),
-							false // show map instead of list
-					);
-					((MainActivity) activity).addFragmentToStack(
-							RDSRouteFragment.newInstance((RouteDirectionStop) poim.poi),
-							this
-					);
-				} else {
-					this.localPreferenceRepository.saveAsync(
-							LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.getDataSourceTypeId()),
-							poim.poi.getAuthority()
-					);
-					this.defaultPrefRepository.saveAsync(
-							DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.getAuthority()),
-							false
-					);
-					((MainActivity) activity).addFragmentToStack(
-							AgencyTypeFragment.newInstance(poim.poi.getDataSourceTypeId()),
-							this);
-				}
-				return true;
+				return;
 			}
 			((MainActivity) activity).addFragmentToStack(
 					MapFragment.newInstance(poim),
 					this);
 		}
-		return true;
 	}
 
 	@Override
@@ -651,34 +535,8 @@ public class POIFragment extends ABFragment implements
 		viewModel.getScheduleProviders().observe(getViewLifecycleOwner(), scheduleProviders -> setupRDSFullScheduleBtn(getView()));
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
-		if (FeatureFlags.F_EXPORT_TRIP_ID) {
-			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
-			viewModel.getPoiList().observe(getViewLifecycleOwner(), this::onPOIsLoaded);
-		}
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
-	}
-
-	@Nullable
-	protected Job _vehicleLocationCountdownRefreshJob = null;
-
-	private void onVehicleLocationsLoaded(@Nullable List<VehicleLocation> vehicleLocations) {
-		if (!FeatureFlags.F_EXPORT_TRIP_ID) return;
-		final Context context = getContext();
-		if (context != null) {
-			MapViewControllerExtKt.updateVehicleLocationMarkers(this.mapViewController, context);
-		}
-		if (vehicleLocations == null || vehicleLocations.isEmpty()) {
-			stopVehicleLocationCountdownRefresh(this);
-		} else {
-			startVehicleLocationCountdownRefresh(this);
-		}
-	}
-
-	private void onPOIsLoaded(@Nullable List<POIManager> poiList) {
-		if (!FeatureFlags.F_EXPORT_TRIP_ID) return;
-		this.mapViewController.notifyMarkerChanged(this);
-		this.mapViewController.showMap(getView());
 	}
 
 	private void setupNewsLayout(@NonNull View view) {
@@ -1284,10 +1142,8 @@ public class POIFragment extends ABFragment implements
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			if (!FeatureFlags.F_EXPORT_TRIP_ID) {
-				this.mapViewController.notifyMarkerChanged(this);
-				this.mapViewController.showMap(view);
-			}
+			this.mapViewController.notifyMarkerChanged(this);
+			this.mapViewController.showMap(view);
 			POIViewController.updateView(getPOIView(view), poim, this);
 			POIStatusDetailViewController.updateView(getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), poim, this);
@@ -1304,10 +1160,9 @@ public class POIFragment extends ABFragment implements
 		this.adManager.refreshRewardedAdStatus((IActivity) requireActivity());
 		refreshRewardedLayout(getView());
 		refreshAppUpdateLayout(getView());
-		if (this.viewModel != null) {
-			this.viewModel.refreshAppUpdateAvailable();
-			// this.viewModel.onResumeScreen(this);
-			this.viewModel.startVehicleLocationRefresh();
+		if (viewModel != null) {
+			viewModel.refreshAppUpdateAvailable();
+			// viewModel.onResumeScreen(this);
 		}
 		refreshAppWasDisabledLayout(getView());
 		if (FeatureFlags.F_NAVIGATION) {

@@ -48,13 +48,13 @@ data class MTPOIMarker(
         fun MTPOIMarker.toExtendedMarkerOptions(
             context: Context,
             markerLabelShowExtra: Boolean,
-            currentZoomGroup: MTMapIconZoomGroup
+            currentZoomGroup: MTMapIconZoomGroup?,
         ) = ExtendedMarkerOptions()
             .position(position)
             .title(title)
             .snippet(if (markerLabelShowExtra) snippet else null)
             .anchor(iconDef.anchorU, iconDef.anchorV)
-            .infoWindowAnchor(iconDef.inforWindowAnchorU, iconDef.inforWindowAnchorV)
+            .infoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
             .flat(iconDef.flat)
             .icon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, color, secondaryColor, Color.BLACK)
             .alpha(alpha ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
@@ -91,7 +91,6 @@ data class MTPOIMarker(
         zIndex,
         MTPOIMarkerIds.from(uuid, authority),
     )
-
 
     val title: String
         get() = buildString {
@@ -136,7 +135,6 @@ data class MTPOIMarker(
             if (hasExtras && hasAgencies) {
                 append(P2)
             }
-            return toString()
         }
 
     fun hasUUID(uuid: String?) = this.uuidsAndAuthority.hasUUID(uuid)

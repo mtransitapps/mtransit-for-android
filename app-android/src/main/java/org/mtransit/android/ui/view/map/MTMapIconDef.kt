@@ -8,8 +8,8 @@ data class MTMapIconDef(
     val flat: Boolean = false,
     val anchorU: Float = 0.5f,
     val anchorV: Float = 1.0f,
-    val inforWindowAnchorU: Float = 0.5f,
-    val inforWindowAnchorV: Float = 0.5f,
+    val infoWindowAnchorU: Float = 0.5f,
+    val infoWindowAnchorV: Float = 0.5f,
     val replaceColor: Boolean = false,
 ) {
 

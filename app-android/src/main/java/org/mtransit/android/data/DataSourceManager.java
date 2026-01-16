@@ -440,7 +440,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
 			return getRDSTrips(cursor);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error while loading trips '%s'  from '%s'!", directionId, authority);
+			CrashUtils.w(LOG_TAG, e, "Error while loading trips for route '%s' direction '%s' from '%s'!", routeId, directionId, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);

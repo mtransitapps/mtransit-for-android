@@ -42,10 +42,10 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>?
         val visibleMarkersLocations = mutableSetOf<LatLng>()
         visibleMarkersLocations.add(poimLatLng)
         var nextRelevantPOIM: POIManager? = null
-        viewModel?.poiList?.value?.let { poims ->
-            poims.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
-                val previousPOIM = poims.getOrNull(poimIndex - 1)
-                nextRelevantPOIM = poims.getOrNull(poimIndex + 1) ?: previousPOIM  // next or previous
+        viewModel?.poiList?.value?.let { poiList ->
+            poiList.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
+                val previousPOIM = poiList.getOrNull(poimIndex - 1)
+                nextRelevantPOIM = poiList.getOrNull(poimIndex + 1) ?: previousPOIM  // next or previous
                 nextRelevantPOIM?.latLng?.let { visibleMarkersLocations.add(it) }
                 previousPOIM?.latLng?.let { visibleMarkersLocations.add(it) }
             }
@@ -72,7 +72,6 @@ private const val MAP_MARKER_ALPHA_FOCUS_3 = 0.50f
 private const val MAP_MARKER_ALPHA_FOCUS_4 = 0.25f
 
 fun POIFragment.getMapMarkerAlpha(position: Int, visibleArea: Area): Float? {
-    if (!FeatureFlags.F_EXPORT_TRIP_ID) return null
     val poi = this.poim?.poi ?: return null
     viewModel?.poiList?.value
         ?.map { it.poi }
@@ -89,7 +88,8 @@ fun POIFragment.getMapMarkerAlpha(position: Int, visibleArea: Area): Float? {
                 when (position - 1) { // position = index+1
                     selectedPoiIndex -> MAP_MARKER_ALPHA_FOCUS_1
                     else -> {
-                        when (visibleArea.countPOIInside(pois)) {
+                        val visiblePOIInsideArea = visibleArea.countPOIInside(pois).takeIf { it > 0 }
+                        when (visiblePOIInsideArea ?: pois.size) {
                             in 0..33 -> MAP_MARKER_ALPHA_FOCUS_2
                             in 33..100 -> MAP_MARKER_ALPHA_FOCUS_3
                             else -> MAP_MARKER_ALPHA_FOCUS_4
@@ -102,12 +102,9 @@ fun POIFragment.getMapMarkerAlpha(position: Int, visibleArea: Area): Float? {
 }
 
 fun POIFragment.getPOI(position: Int): POIManager? {
-    if (FeatureFlags.F_EXPORT_TRIP_ID) {
-        val poiList = viewModel?.poiList?.value ?: return null
-        val distinct = poiList.mapNotNull { (it.poi as? RouteDirectionStop)?.direction?.id }.distinct()
-        val count = distinct.count()
-        if (count != 1) return null // only for stop on the same route direction
-        return poiList.getOrNull(position)
-    }
-    return this.poim?.takeIf { position == 0 }
+    val poiList = viewModel?.poiList?.value ?: return null
+    val distinct = poiList.mapNotNull { (it.poi as? RouteDirectionStop)?.direction?.id }.distinct()
+    val count = distinct.count()
+    if (count != 1) return null // only for stop on the same route direction
+    return poiList.getOrNull(position)
 }

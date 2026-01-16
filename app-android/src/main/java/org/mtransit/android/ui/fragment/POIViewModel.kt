@@ -182,7 +182,6 @@ class POIViewModel @Inject constructor(
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
             agency ?: return@liveData
             poi ?: return@liveData
             emit(
