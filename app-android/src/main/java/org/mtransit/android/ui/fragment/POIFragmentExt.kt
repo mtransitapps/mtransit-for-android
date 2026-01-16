@@ -13,7 +13,6 @@ import org.mtransit.android.ui.view.map.countPOIInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.position
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
-import org.mtransit.commons.FeatureFlags
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
@@ -34,9 +33,8 @@ fun POIFragment.stopVehicleLocationCountdownRefresh() {
 
 const val MAX_DISTANCE_TIMES = 3
 
-val POIFragment.visibleMarkersLocationList: Collection<LatLng>?
+val POIFragment.visibleMarkersLocationList: Collection<LatLng>
     get() {
-        if (!FeatureFlags.F_EXPORT_TRIP_ID) return null
         val poim = this.poim ?: return emptySet()
         val poimLatLng = poim.latLng ?: return emptySet()
         val visibleMarkersLocations = mutableSetOf<LatLng>()
