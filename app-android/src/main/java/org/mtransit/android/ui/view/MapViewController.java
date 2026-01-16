@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.view;
 
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -12,6 +15,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,7 +44,9 @@ import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.RouteDirectionStop;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
@@ -57,6 +63,7 @@ import org.mtransit.android.ui.view.map.MTMapIconZoomGroup;
 import org.mtransit.android.ui.view.map.MTMapIconsProvider;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarkerIds;
+import org.mtransit.android.ui.view.map.VehicleLocationExtKt;
 import org.mtransit.android.ui.view.map.impl.ExtendedMapFactory;
 import org.mtransit.android.ui.view.map.utils.LatLngUtils;
 import org.mtransit.android.util.CrashUtils;
@@ -67,6 +74,7 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -848,6 +856,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 			return true;
 		}
+		final Collection<VehicleLocation> vehicleLocations = markerProvider.getVehicleLocations();
+		if (vehicleLocations != null) {
+			for (VehicleLocation vehicleLocation : vehicleLocations) {
+				llb.include(VehicleLocationExtKt.getPosition(vehicleLocation));
+			}
+			return true;
+		}
 		return false;
 	}
 
@@ -967,6 +982,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private static final float MAP_MARKER_Z_INDEX_STOP_FOCUSED_ON = MapUtils.MAP_MARKER_Z_INDEX_PRIMARY;
+	public static final float MAP_MARKER_Z_INDEX_VEHICLE = MapUtils.MAP_MARKER_Z_INDEX_SECONDARY;
 	private static final float MAP_MARKER_Z_INDEX_STOPS_OTHER = MapUtils.MAP_MARKER_Z_INDEX_TERTIARY;
 
 	@Nullable
@@ -1116,6 +1132,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.markerLabelShowExtra, currentZoomGroup)
 				);
 			}
+			updateVehicleLocationMarkers(mapViewController, context);
 			mapViewController.clusterManagerItemsLoaded = true;
 			mapViewController.hideLoading();
 			if (!this.update && mapViewController.showAllMarkersWhenReady) {
@@ -1123,6 +1140,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 		}
 	}
+
+	@NonNull
+	protected final ConcurrentHashMap<String, IMarker> vehicleLocationsMarkers = new ConcurrentHashMap<>(); // WeakHashMap forgets about markers not removed yet
 
 	public boolean addMarkers(@Nullable Collection<MTPOIMarker> poiMarkers) {
 		final Context context = getActivityOrNull();
@@ -1324,6 +1344,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void clearClusterManagerItems() {
+		removeMissingVehicleLocationMarkers(this);
 		if (this.extendedGoogleMap != null) {
 			this.extendedGoogleMap.clear();
 		}
@@ -1354,6 +1375,16 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		@SuppressWarnings("unused")
 		@Nullable
 		POIManager getPOI(@Nullable String uuid);
+
+		@Nullable
+		Collection<VehicleLocation> getVehicleLocations();
+
+		@Nullable
+		@ColorInt
+		Integer getVehicleColorInt();
+
+		@Nullable
+		DataSourceType getVehicleType();
 
 		@Nullable
 		Collection<LatLng> getVisibleMarkersLocations();

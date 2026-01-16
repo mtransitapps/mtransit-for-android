@@ -157,6 +157,17 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@SuppressWarnings("unused")
 	@NonNull
+	public static CharSequence formatVeryRecentTime(long timeInnMs) {
+		return formatVeryRecentTime(timeInnMs, currentTimeMillis());
+	}
+
+	@NonNull
+	private static CharSequence formatVeryRecentTime(long timeInnMs, long nowInMs) {
+		return DateUtils.getRelativeTimeSpanString(timeInnMs, nowInMs, DateUtils.SECOND_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+	}
+
+	@SuppressWarnings("unused")
+	@NonNull
 	public static CharSequence formatNearTime(long timeInnMs) {
 		return formatNearTime(timeInnMs, currentTimeMillis());
 	}

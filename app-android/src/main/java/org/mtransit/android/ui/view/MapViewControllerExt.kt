@@ -1,0 +1,77 @@
+package org.mtransit.android.ui.view
+
+import android.content.Context
+import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
+import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
+import org.mtransit.android.ui.view.map.countMarkersInside
+import org.mtransit.android.ui.view.map.getMapMarkerSnippet
+import org.mtransit.android.ui.view.map.getMapMarkerTitle
+import org.mtransit.android.ui.view.map.toArea
+import org.mtransit.android.ui.view.map.toExtendedMarkerOptions
+import org.mtransit.android.ui.view.map.updateMarker
+import org.mtransit.android.ui.view.map.uuidOrGenerated
+
+fun MapViewController.updateVehicleLocationMarkers(context: Context) {
+    val googleMap = this.extendedGoogleMap ?: run {
+        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no google map)")
+        return
+    }
+    val markerProvider = this.markerProviderWR?.get() ?: run {
+        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no marker provider)")
+        return
+    }
+    val vehicleLocations = markerProvider.getVehicleLocations()?.takeIf { it.isNotEmpty() } ?: run {
+        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations)")
+        removeMissingVehicleLocationMarkers()
+        return
+    }
+    val visibleArea = googleMap.getProjection().visibleRegion.toArea()
+    val visibleMarkersCount = visibleArea.countMarkersInside(googleMap.getMarkers()) +
+            vehicleLocations.count { !this.vehicleLocationsMarkers.containsKey(it.uuid) }
+    val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)
+    val vehicleColorInt = markerProvider.getVehicleColorInt()
+    val vehicleDst = markerProvider.getVehicleType()
+    val processedVehicleLocationsUUIDs = mutableSetOf<String>()
+    var index = 0
+    vehicleLocations.forEach { vehicleLocation ->
+        val iconDef = vehicleDst.vehicleIconDef
+        val uuid = vehicleLocation.uuidOrGenerated
+        var marker = this.vehicleLocationsMarkers[uuid]
+        if (marker == null) { // ADD new
+            marker = googleMap.addMarker(
+                vehicleLocation.toExtendedMarkerOptions(context, iconDef, vehicleColorInt, currentZoomGroup)
+            )
+            this.vehicleLocationsMarkers[uuid] = marker
+        } else { // UPDATE existing
+            vehicleLocation.updateMarker(marker, context, iconDef, vehicleColorInt, currentZoomGroup)
+        }
+        processedVehicleLocationsUUIDs.add(uuid)
+        index++
+    }
+    removeMissingVehicleLocationMarkers(processedVehicleLocationsUUIDs)
+}
+
+@JvmOverloads
+fun MapViewController.removeMissingVehicleLocationMarkers(
+    processedVehicleLocationsUUIDs: Set<String> = emptySet(),
+) {
+    this.vehicleLocationsMarkers.entries.forEach { (uuid, _) ->
+        this.vehicleLocationsMarkers.remove(uuid)?.let { marker -> // REMOVE
+            marker.remove()
+        }
+    }
+}
+
+fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
+    this.vehicleLocationsMarkers.entries.forEach { (_, marker) ->
+        val marker = marker.takeIf { it.isInfoWindowShown } ?: return@forEach
+        val vehicleLocation = marker.getData<VehicleLocation>() ?: return@forEach
+        vehicleLocation.getMapMarkerTitle(context)?.takeIf { it != marker.title }?.let {
+            marker.title = it
+        }
+        vehicleLocation.getMapMarkerSnippet(context)?.takeIf { it != marker.snippet }?.let {
+            marker.snippet = it
+        }
+    }
+}

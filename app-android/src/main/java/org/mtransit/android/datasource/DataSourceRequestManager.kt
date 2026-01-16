@@ -13,6 +13,8 @@ import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.provider.news.NewsProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
@@ -20,6 +22,7 @@ import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.JPaths
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.util.KeysManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -90,6 +93,13 @@ class DataSourceRequestManager(
     suspend fun findRDSRouteDirectionTrips(agencyAuthority: String, routeId: Long, directionId: Long): List<Trip>? = withContext(ioDispatcher) {
         if (!FeatureFlags.F_EXPORT_TRIP_ID) return@withContext null
         DataSourceManager.findRDSRouteDirectionTrips(appContext, agencyAuthority, routeId, directionId)
+    }
+
+    suspend fun findRDSVehicleLocations(
+        vehicleLocationProviderProperties: VehicleLocationProviderProperties,
+        filter: VehicleLocationProviderContract.Filter
+    ): List<VehicleLocation>? = withContext(ioDispatcher) {
+        DataSourceManager.findVehicleLocations(appContext, vehicleLocationProviderProperties.authority, filter.appendProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority)))
     }
 
     suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {

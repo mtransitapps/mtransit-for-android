@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.startVehicleLocationCountdownRefresh;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.stopVehicleLocationCountdownRefresh;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -66,7 +69,9 @@ import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.news.NewsProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -92,6 +97,7 @@ import org.mtransit.android.ui.rds.route.RDSRouteFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
@@ -121,6 +127,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import kotlinx.coroutines.Job;
 
 @AndroidEntryPoint
 public class POIFragment extends ABFragment implements
@@ -230,7 +237,7 @@ public class POIFragment extends ABFragment implements
 	private static final int BOTTOM_PADDING_SP = 0;
 
 	@NonNull
-	private final MapViewController mapViewController =
+	protected final MapViewController mapViewController =
 			new MapViewController(
 					LOG_TAG,
 					this,
@@ -403,6 +410,35 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public Collection<MTPOIMarker> getPOMarkers() {
 		return null;
+	}
+
+	@Nullable
+	@Override
+	public Collection<VehicleLocation> getVehicleLocations() {
+		if (FeatureFlags.F_EXPORT_TRIP_ID) {
+			return viewModel == null ? null : viewModel.getVehicleLocations().getValue();
+		}
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public Integer getVehicleColorInt() {
+		final POIManager poim = getPoimOrNull();
+		if (poim == null) {
+			return null;
+		}
+		return poim.getColor(dataSourcesRepository);
+	}
+
+	@Nullable
+	@Override
+	public DataSourceType getVehicleType() {
+		final IAgencyProperties agency = getAgencyOrNull();
+		if (agency == null) {
+			return null;
+		}
+		return agency.getType();
 	}
 
 	@Nullable
@@ -587,8 +623,27 @@ public class POIFragment extends ABFragment implements
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
 		viewModel.getPoiList().observe(getViewLifecycleOwner(), this::onPOIsLoaded);
+		if (FeatureFlags.F_EXPORT_TRIP_ID) {
+			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
+		}
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
+	}
+
+	@Nullable
+	protected Job _vehicleLocationCountdownRefreshJob = null;
+
+	private void onVehicleLocationsLoaded(@Nullable List<VehicleLocation> vehicleLocations) {
+		if (!FeatureFlags.F_EXPORT_TRIP_ID) return;
+		final Context context = getContext();
+		if (context != null) {
+			MapViewControllerExtKt.updateVehicleLocationMarkers(this.mapViewController, context);
+		}
+		if (vehicleLocations == null || vehicleLocations.isEmpty()) {
+			stopVehicleLocationCountdownRefresh(this);
+		} else {
+			startVehicleLocationCountdownRefresh(this);
+		}
 	}
 
 	private void onPOIsLoaded(@Nullable List<POIManager> poiList) {
@@ -1218,6 +1273,7 @@ public class POIFragment extends ABFragment implements
 		if (this.viewModel != null) {
 			this.viewModel.refreshAppUpdateAvailable();
 			// this.viewModel.onResumeScreen(this);
+			this.viewModel.startVehicleLocationRefresh();
 		}
 		refreshAppWasDisabledLayout(getView());
 		if (FeatureFlags.F_NAVIGATION) {
@@ -1361,6 +1417,9 @@ public class POIFragment extends ABFragment implements
 		}
 		disableTimeChangedReceiver();
 		this.mapViewController.onPause();
+		if (this.viewModel != null) {
+			this.viewModel.stopVehicleLocationRefresh();
+		}
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}

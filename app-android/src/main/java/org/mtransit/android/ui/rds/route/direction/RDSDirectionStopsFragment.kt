@@ -6,21 +6,28 @@ import android.content.res.ColorStateList
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.ColorInt
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.findClosestPOISIdxUuid
 import org.mtransit.android.commons.updateDistance
+import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.RouteDirectionManager
@@ -46,9 +53,12 @@ import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.map.MTPOIMarker
+import org.mtransit.android.ui.view.updateVehicleLocationMarkers
+import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
 class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_stops) {
@@ -137,6 +147,13 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         override fun getClosestPOI() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
+
+        override fun getVehicleLocations() = attachedViewModel?.vehicleLocations?.value
+
+        @ColorInt
+        override fun getVehicleColorInt(): Int? = attachedParentViewModel?.colorInt?.value
+
+        override fun getVehicleType(): DataSourceType? = attachedParentViewModel?.routeType?.value
 
         override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
 
@@ -291,8 +308,10 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                     || !listInsteadOfMap // MAP
                 ) {
                     mapViewController.onResume()
+                    viewModel.startVehicleLocationRefresh()
                 } else { // LIST
                     mapViewController.onPause()
+                    viewModel.stopVehicleLocationRefresh()
                 }
                 switchView(listInsteadOfMap)
             }
@@ -302,6 +321,22 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
         viewModel.closestPOIShown.observe(viewLifecycleOwner) {
             // DO NOTHING
+        }
+        if (FeatureFlags.F_EXPORT_TRIP_ID) {
+            viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) { vehicleLocations ->
+                context?.let { mapViewController.updateVehicleLocationMarkers(it) }
+                if (vehicleLocations.isNullOrEmpty()) {
+                    stopVehicleLocationCountdownRefresh()
+                } else {
+                    startVehicleLocationCountdownRefresh()
+                }
+            }
+            parentViewModel.colorInt.observe(viewLifecycleOwner) {
+                // do nothing // TODO mapViewController.refresh?
+            }
+            parentViewModel.routeType.observe(viewLifecycleOwner) {
+                // do nothing // TODO mapViewController.refresh?
+            }
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             var currentSelectedItemIndexUuid: Pair<Int?, String?>? = null
@@ -455,15 +490,38 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             || viewModel.showingListInsteadOfMap.value == false  // MAP
         ) {
             mapViewController.onResume()
+            viewModel.startVehicleLocationRefresh()
+        } else {
+            viewModel.stopVehicleLocationRefresh()
+            stopVehicleLocationCountdownRefresh()
         }
         listAdapter.onResume(this, parentViewModel.deviceLocation.value)
         updateFabListMapUI()
         switchView()
     }
 
+    private var _vehicleLocationCountdownRefreshJob: Job? = null
+
+    private fun startVehicleLocationCountdownRefresh() {
+        _vehicleLocationCountdownRefreshJob?.cancel()
+        _vehicleLocationCountdownRefreshJob = viewModel.viewModelScope.launch {
+            while (true) {
+                delay(1.seconds)
+                context?.let { mapViewController.updateVehicleLocationMarkersCountdown(it) }
+            }
+        }
+    }
+
+    private fun stopVehicleLocationCountdownRefresh() {
+        _vehicleLocationCountdownRefreshJob?.cancel()
+        _vehicleLocationCountdownRefreshJob = null
+    }
+
     override fun onPause() {
         super.onPause()
         mapViewController.onPause()
+        viewModel.stopVehicleLocationRefresh()
+        stopVehicleLocationCountdownRefresh()
         listAdapter.onPause()
     }
 
