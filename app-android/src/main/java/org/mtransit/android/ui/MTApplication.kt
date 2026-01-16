@@ -59,7 +59,6 @@ class MTApplication : MTCommonApp() {
             this.leakDetector.setup(this)
         }
         NightModeUtils.setDefaultNightMode(this, null)
-        LocaleUtils.onApplicationCreate(this)
         this.remoteConfigProvider.init()
         this.crashReporter.setup(!BuildConfig.DEBUG)
         this.strictMode.setup() // uses crash reporter
