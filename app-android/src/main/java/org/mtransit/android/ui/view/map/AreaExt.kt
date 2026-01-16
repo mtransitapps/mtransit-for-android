@@ -3,6 +3,7 @@ package org.mtransit.android.ui.view.map
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.VisibleRegion
 import org.mtransit.android.commons.data.Area
+import org.mtransit.android.commons.data.POI
 
 fun VisibleRegion.toArea() = this.latLngBounds.toArea()
 
@@ -13,6 +14,10 @@ fun LatLngBounds.toArea(): Area {
         minLng = this.southwest.longitude,
         maxLng = this.northeast.longitude
     )
+}
+
+fun Area.countPOIInside(poiList: Collection<POI>?): Int {
+    return poiList?.count { it.hasLocation() && this.isInside(it.lat, it.lat) } ?: 0
 }
 
 fun Area.countPOIMarkersInside(poiMarkers: Collection<MTPOIMarker>?): Int {

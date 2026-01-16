@@ -104,23 +104,24 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getPOIList(agency: IAgencyProperties, poi: POI) = this.poiRepository.findPOIMs(
-        agency,
-        when (poi) {
-            is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
-                SqlUtils.getWhereEquals(
-                    GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
-                )
-            ).apply {
-                addExtra(
-                    POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
-                    SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
-                )
-            }
+    private suspend fun getPOIList(agency: IAgencyProperties, poi: POI) =
+        this.poiRepository.findPOIMs(
+            agency,
+            when (poi) {
+                is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
+                    SqlUtils.getWhereEquals(
+                        GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
+                    )
+                ).apply {
+                    addExtra(
+                        POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
+                        SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
+                    )
+                }
 
-            else -> POIProviderContract.Filter.getNewEmptyFilter()
-        }
-    )
+                else -> POIProviderContract.Filter.getNewEmptyFilter()
+            }
+        )
 
     val scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)

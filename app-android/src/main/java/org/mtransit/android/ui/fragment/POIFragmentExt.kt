@@ -1,11 +1,13 @@
 package org.mtransit.android.ui.fragment
 
 import com.google.android.gms.maps.model.LatLng
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.latLng
+import org.mtransit.android.ui.view.map.countPOIInside
 
-val POIFragment.visibleMarkersLocationList: Collection<LatLng>?
+val POIFragment.visibleMarkersLocationList: Collection<LatLng>
     get() {
         val poim = this.poim ?: return emptySet()
         val poimLatLng = poim.latLng ?: return emptySet()
@@ -20,12 +22,12 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>?
         return visibleMarkersLocations
     }
 
-val MAP_MARKER_ALPHA_PRIMARY_FOCUS: Float? = null // 1.00f // DEFAULT
-const val MAP_MARKER_ALPHA_SECONDARY_FOCUS = 0.75f
-const val MAP_MARKER_ALPHA_TERTIARY_FOCUS = 0.50f
-const val MAP_MARKER_ALPHA_QUATERNARY_FOCUS = 0.25f
+private val MAP_MARKER_ALPHA_FOCUS_1: Float? = null // 1.00f // DEFAULT
+private const val MAP_MARKER_ALPHA_FOCUS_2 = 0.75f
+private const val MAP_MARKER_ALPHA_FOCUS_3 = 0.50f
+private const val MAP_MARKER_ALPHA_FOCUS_4 = 0.25f
 
-fun POIFragment.getMapMarkerAlpha(position: Int): Float? {
+fun POIFragment.getMapMarkerAlpha(position: Int, visibleArea: Area): Float? {
     val poi = this.poim?.poi ?: return null
     viewModel?.poiList?.value
         ?.map { it.poi }
@@ -34,17 +36,19 @@ fun POIFragment.getMapMarkerAlpha(position: Int): Float? {
             val allRDS = pois.all { it is RouteDirectionStop }
             return if (allRDS) {
                 when (position - 1) { // position = index+1
-                    selectedPoiIndex -> MAP_MARKER_ALPHA_PRIMARY_FOCUS
-                    in 0..selectedPoiIndex -> MAP_MARKER_ALPHA_QUATERNARY_FOCUS
-                    else -> MAP_MARKER_ALPHA_SECONDARY_FOCUS
+                    selectedPoiIndex -> MAP_MARKER_ALPHA_FOCUS_1
+                    in 0..selectedPoiIndex -> MAP_MARKER_ALPHA_FOCUS_2.div(2.0f)
+                    else -> MAP_MARKER_ALPHA_FOCUS_2
                 }
             } else {
                 when (position - 1) { // position = index+1
-                    selectedPoiIndex -> MAP_MARKER_ALPHA_PRIMARY_FOCUS
-                    else -> when (pois.size) {
-                        in 0..33 -> MAP_MARKER_ALPHA_SECONDARY_FOCUS
-                        in 33..100 -> MAP_MARKER_ALPHA_TERTIARY_FOCUS
-                        else -> MAP_MARKER_ALPHA_QUATERNARY_FOCUS
+                    selectedPoiIndex -> MAP_MARKER_ALPHA_FOCUS_1
+                    else -> {
+                        when (visibleArea.countPOIInside(pois)) {
+                            in 0..33 -> MAP_MARKER_ALPHA_FOCUS_2
+                            in 33..100 -> MAP_MARKER_ALPHA_FOCUS_3
+                            else -> MAP_MARKER_ALPHA_FOCUS_4
+                        }
                     }
                 }
             }
