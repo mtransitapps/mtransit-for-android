@@ -33,6 +33,7 @@ import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.beginningOfDay
 import org.mtransit.commons.toCalendar
+import java.util.Calendar
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -66,6 +67,7 @@ class ScheduleViewModel @Inject constructor(
         private const val EXTRA_START_AT_DAYS_BEFORE = "extra_start_at_days_before"
         private const val EXTRA_END_AT_DAYS_AFTER = "extra_end_at_days_after"
         private const val LOCAL_TIME_ZONE_ID = "local_time_zone_id"
+        private const val EXTRA_SELECTED_DATE_IN_MS = "extra_selected_date_in_ms"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -141,6 +143,19 @@ class ScheduleViewModel @Inject constructor(
 
     fun setScrolledToNow(scrolledToNow: Boolean) {
         savedStateHandle[EXTRA_SCROLLED_TO_NOW] = scrolledToNow
+    }
+
+    val selectedDateBeginningOfDayInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_SELECTED_DATE_IN_MS)
+
+    fun setSelectedDate(dateInMs: Long?) {
+        dateInMs ?: return
+        dateInMs.toCalendar().beginningOfDay.let { beginningOfDay ->
+            setSelectedDateBeginningOfDay(beginningOfDay)
+        }
+    }
+
+    fun setSelectedDateBeginningOfDay(beginningOfDay: Calendar) {
+        savedStateHandle[EXTRA_SELECTED_DATE_IN_MS] = beginningOfDay.timeInMillis
     }
 
     private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = this.authority.switchMap { authority ->
