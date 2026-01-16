@@ -18,7 +18,7 @@ fun LatLngBounds.toArea(): Area {
 }
 
 fun Area.countPOIInside(poiList: Collection<POI>?): Int {
-    return poiList?.count { it.hasLocation() && this.isInside(it.lat, it.lat) } ?: 0
+    return poiList?.count { it.hasLocation() && this.isInside(it.lat, it.lng) } ?: 0
 }
 
 fun Area.countPOIMarkersInside(poiMarkers: Collection<MTPOIMarker>?): Int {
