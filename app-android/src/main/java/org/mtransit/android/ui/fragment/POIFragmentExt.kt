@@ -44,7 +44,8 @@ fun POIFragment.getMapMarkerAlpha(position: Int, visibleArea: Area): Float? {
                 when (position - 1) { // position = index+1
                     selectedPoiIndex -> MAP_MARKER_ALPHA_FOCUS_1
                     else -> {
-                        when (visibleArea.countPOIInside(pois)) {
+                        val visiblePOIInsideArea = visibleArea.countPOIInside(pois).takeIf { it > 0 }
+                        when (visiblePOIInsideArea ?: pois.size) {
                             in 0..33 -> MAP_MARKER_ALPHA_FOCUS_2
                             in 33..100 -> MAP_MARKER_ALPHA_FOCUS_3
                             else -> MAP_MARKER_ALPHA_FOCUS_4
