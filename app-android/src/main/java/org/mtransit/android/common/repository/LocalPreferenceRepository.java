@@ -8,9 +8,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
@@ -19,7 +21,7 @@ import javax.inject.Singleton;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @Singleton
-public class LocalPreferenceRepository extends PreferenceRepository {
+public class LocalPreferenceRepository extends PreferenceRepository implements MTLog.Loggable {
 
 	public static final String PREFS_LCL_ROOT_SCREEN_ITEM_ID = PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID;
 
@@ -63,11 +65,16 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 		return PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId);
 	}
 
-	public static final long PREFS_LCL_AGENCY_LAST_OPENED_DEFAULT = PreferenceUtils.PREFS_LCL_AGENCY_LAST_OPENED_DEFAULT;
+	@NonNull
+	public static String getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(@NonNull String authority) {
+		return PreferenceUtils.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(authority);
+	}
+
+	private static final String LOG_TAG = LocalPreferenceRepository.class.getSimpleName();
 
 	@NonNull
-	public static String getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(String authority) {
-		return PreferenceUtils.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(authority);
+	public String getLogTag() {
+		return LOG_TAG;
 	}
 
 	@Nullable
@@ -76,9 +83,11 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 	@Inject
 	public LocalPreferenceRepository(@NonNull @ApplicationContext Context appContext) {
 		super(appContext);
-		Executors.newSingleThreadExecutor().execute(() ->
-				_prefs = loadPrefs()
-		);
+		try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
+			executorService.execute(() -> _prefs = loadPrefs());
+		} catch (Exception e) {
+			MTLog.w(LOG_TAG, e, "Exception while loading prefs!");
+		}
 	}
 
 	@WorkerThread

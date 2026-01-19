@@ -93,9 +93,7 @@ import org.mtransit.android.ui.main.NextMainViewModel;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
-import org.mtransit.android.ui.rds.route.RDSRouteFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
-import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
@@ -113,7 +111,6 @@ import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
-import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.UIFeatureFlags;
@@ -306,7 +303,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private POIManager getPoimOrNull() {
+	protected POIManager getPoimOrNull() {
 		if (!hasPoim()) {
 			return null;
 		}
@@ -471,94 +468,12 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
-		return onMapClick(); // handled
+		return POIFragmentExtKt.onMapClick(this);
 	}
 
 	@Override
 	public void onMapClick(@NonNull LatLng position) {
-		onMapClick();
-	}
-
-	private boolean onMapClick() {
-		if (!FragmentUtils.isFragmentReady(this)) {
-			return false;
-		}
-		final POIManager poim = getPoimOrNull();
-		if (poim == null) {
-			return false;
-		}
-		if (FeatureFlags.F_NAVIGATION) {
-			final NavController navController = NavHostFragment.findNavController(this);
-			FragmentNavigator.Extras extras = null;
-			if (FeatureFlags.F_TRANSITION) {
-				extras = new FragmentNavigator.Extras.Builder()
-						// TODO marker? .addSharedElement(view, view.getTransitionName())
-						.build();
-			}
-			if (poim.poi instanceof RouteDirectionStop) {
-				this.localPreferenceRepository.saveAsync(
-						LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-								poim.poi.getAuthority(),
-								((RouteDirectionStop) poim.poi).getRoute().getId(),
-								((RouteDirectionStop) poim.poi).getDirection().getId()
-						),
-						false // show map instead of list
-				);
-				NavControllerExtKt.navigateF(navController,
-						R.id.nav_to_rds_route_screen,
-						RDSRouteFragment.newInstanceArgs((RouteDirectionStop) poim.poi),
-						null,
-						extras
-				);
-			} else {
-				this.localPreferenceRepository.saveAsync(
-						LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.getDataSourceTypeId()),
-						poim.poi.getAuthority()
-				);
-				this.defaultPrefRepository.saveAsync(
-						DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.getAuthority()),
-						false
-				);
-				NavControllerExtKt.navigateF(navController,
-						R.id.nav_to_type_screen,
-						AgencyTypeFragment.newInstanceArgs(poim.poi.getDataSourceTypeId()),
-						null,
-						extras
-				);
-			}
-		} else {
-			final FragmentActivity activity = getActivity();
-			if (activity == null) {
-				return false;
-			}
-			if (poim.poi instanceof RouteDirectionStop) {
-				this.localPreferenceRepository.saveAsync(
-						LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-								poim.poi.getAuthority(),
-								((RouteDirectionStop) poim.poi).getRoute().getId(),
-								((RouteDirectionStop) poim.poi).getDirection().getId()
-						),
-						false // show map instead of list
-				);
-				((MainActivity) activity).addFragmentToStack(
-						RDSRouteFragment.newInstance((RouteDirectionStop) poim.poi),
-						this
-				);
-			} else {
-				this.localPreferenceRepository.saveAsync(
-						LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.getDataSourceTypeId()),
-						poim.poi.getAuthority()
-				);
-				this.defaultPrefRepository.saveAsync(
-						DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.getAuthority()),
-						false
-				);
-				((MainActivity) activity).addFragmentToStack(
-						AgencyTypeFragment.newInstance(poim.poi.getDataSourceTypeId()),
-						this);
-			}
-		}
-		return true;
+		POIFragmentExtKt.onMapClick(this);
 	}
 
 	@Override

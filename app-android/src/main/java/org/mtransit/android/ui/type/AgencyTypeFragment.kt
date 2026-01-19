@@ -21,6 +21,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.gms.maps.model.CameraPosition
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,6 +32,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.DataSourceTypeId
+import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.FragmentAgencyTypeBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
@@ -63,23 +65,100 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
         private const val TRACKING_SCREEN_NAME = "Browse"
 
+        @JvmOverloads
         @JvmStatic
-        fun newInstance(dst: DataSourceType) = newInstance(dst.id)
+        fun newInstance(poi: POI, optMapCameraPosition: CameraPosition? = null) =
+            newInstance(
+                poi.dataSourceTypeId,
+                poi.authority,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom
+            )
 
+        @JvmOverloads
+        @JvmStatic
+        fun newInstance(dst: DataSourceType, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null) =
+            newInstance(
+                dst.id,
+                optSelectedAgencyAuthority,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom
+            )
+
+        @JvmOverloads
+        @JvmStatic
+        fun newInstance(@DataSourceTypeId.DataSourceType dstId: Int, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null) =
+            newInstance(
+                dstId,
+                optSelectedAgencyAuthority,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom
+            )
 
         @JvmStatic
-        fun newInstance(@DataSourceTypeId.DataSourceType dstId: Int): AgencyTypeFragment {
-            return AgencyTypeFragment().apply {
-                arguments = newInstanceArgs(dstId)
-            }
+        fun newInstance(
+            @DataSourceTypeId.DataSourceType dstId: Int,
+            optSelectedAgencyAuthority: String? = null,
+            optMapLat: Double? = null,
+            optMapLng: Double? = null,
+            optMapZoom: Float? = null,
+        ) = AgencyTypeFragment().apply {
+            arguments = newInstanceArgs(dstId, optSelectedAgencyAuthority, optMapLat, optMapLng, optMapZoom)
         }
 
+        @JvmOverloads
         @JvmStatic
-        fun newInstanceArgs(dst: DataSourceType) = newInstanceArgs(dst.id)
+        fun newInstanceArgs(poi: POI, optMapCameraPosition: CameraPosition? = null) =
+            newInstanceArgs(
+                poi.dataSourceTypeId,
+                poi.authority,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom
+            )
+
+        @JvmOverloads
+        @JvmStatic
+        fun newInstanceArgs(dst: DataSourceType, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null) =
+            newInstanceArgs(
+                dst.id,
+                optSelectedAgencyAuthority,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom
+            )
+
+        @JvmOverloads
+        @JvmStatic
+        fun newInstanceArgs(
+            @DataSourceTypeId.DataSourceType dstId: Int,
+            optSelectedAgencyAuthority: String? = null,
+            optMapCameraPosition: CameraPosition? = null
+        ) =
+            newInstanceArgs(
+                dstId,
+                optSelectedAgencyAuthority,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom
+            )
 
         @JvmStatic
-        fun newInstanceArgs(@DataSourceTypeId.DataSourceType dstId: Int) = bundleOf(
-            AgencyTypeViewModel.EXTRA_TYPE_ID to dstId
+        fun newInstanceArgs(
+            @DataSourceTypeId.DataSourceType dstId: Int,
+            optSelectedAgencyAuthority: String? = null,
+            optMapLat: Double? = null,
+            optMapLng: Double? = null,
+            optMapZoom: Float? = null,
+        ) = bundleOf(
+            AgencyTypeViewModel.EXTRA_TYPE_ID to dstId,
+            AgencyTypeViewModel.EXTRA_SELECTED_AUTHORITY to optSelectedAgencyAuthority,
+            AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
+            AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
+            AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
         )
     }
 
@@ -112,6 +191,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     private var pagerAdapter: AgencyTypePagerAdapter? = null
 
     private fun makePagerAdapter() = AgencyTypePagerAdapter(this).apply {
+        selectedAgencyAuthority = attachedViewModel?.originalSelectedAgencyAuthority?.value
+        selectedCameraPosition = attachedViewModel?.selectedMapCameraPosition?.value
         setAgencies(attachedViewModel?.typeAgencies?.value)
     }
 
@@ -210,6 +291,14 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                     onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
                 }
             }
+        }
+        viewModel.originalSelectedAgencyAuthority.observe(viewLifecycleOwner) { originalSelectedAgencyAuthority ->
+            MTLog.d(this@AgencyTypeFragment, "originalSelectedAgencyAuthority: $originalSelectedAgencyAuthority")
+            this.pagerAdapter?.selectedAgencyAuthority = originalSelectedAgencyAuthority
+        }
+        viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedCameraPosition ->
+            MTLog.d(this@AgencyTypeFragment, "selectedMapCameraPosition: $selectedCameraPosition")
+            this.pagerAdapter?.selectedCameraPosition = selectedCameraPosition
         }
         ModuleDisabledUI.onViewCreated(this)
     }

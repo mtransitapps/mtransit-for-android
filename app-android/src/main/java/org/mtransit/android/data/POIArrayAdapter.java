@@ -73,6 +73,7 @@ import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.common.UIColorUtils;
+import org.mtransit.android.ui.common.UIContextExtKt;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
@@ -593,7 +594,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		int availableButtons = 0;
 		final int maxButtonsPerLines = optimizeMaxButtonPerLines(
 				nbDisplayedAgencyTypeCount,
-				getContext().getResources().getBoolean(R.bool.two_pane) ? 6 : 3
+				UIContextExtKt.getTwoPane(getContext()) ? 6 : 3
 		);
 		ViewGroup gridLine = null;
 		MaterialButton btn;

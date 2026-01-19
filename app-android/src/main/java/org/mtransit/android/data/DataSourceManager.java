@@ -388,7 +388,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = getRDSDirectionsUri(authority);
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ID, directionId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
-			ArrayList<Direction> rdsDirections = getRDSDirections(cursor);
+			ArrayList<Direction> rdsDirections = getRDSDirections(cursor, authority);
 			return rdsDirections.isEmpty() ? null : rdsDirections.get(0);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading route direction '%d' from '%s'!", directionId, authority);
@@ -405,7 +405,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final Uri uri = getRDSDirectionsUri(authority);
 			final String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ROUTE_ID, routeId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
-			return getRDSDirections(cursor);
+			return getRDSDirections(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading route '%s' directions from '%s'!", routeId, authority);
 			return null;
@@ -415,12 +415,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<Direction> getRDSDirections(@Nullable Cursor cursor) {
+	private static ArrayList<Direction> getRDSDirections(@Nullable Cursor cursor, @NonNull String authority) {
 		final ArrayList<Direction> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					final Direction fromCursor = Direction.fromCursor(cursor);
+					final Direction fromCursor = Direction.fromCursor(cursor, authority);
 					result.add(fromCursor);
 				} while (cursor.moveToNext());
 			}

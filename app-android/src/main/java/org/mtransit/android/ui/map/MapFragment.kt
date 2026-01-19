@@ -197,11 +197,10 @@ class MapFragment : ABFragment(R.layout.fragment_map),
                 viewModel.onInitialLocationSet()
             }
         }
-        viewModel.selectedUUID.observe(viewLifecycleOwner) {
-            it?.let {
-                mapViewController.setInitialSelectedUUID(it)
-                viewModel.onSelectedUUIDSet()
-            }
+        viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
+            selectedUUID ?: return@observe
+            mapViewController.setInitialSelectedUUID(selectedUUID)
+            viewModel.onSelectedUUIDSet()
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             context?.let { context ->

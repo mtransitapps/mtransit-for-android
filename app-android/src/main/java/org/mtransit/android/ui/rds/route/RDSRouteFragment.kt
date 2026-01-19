@@ -19,6 +19,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -68,8 +69,30 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
         private val TITLE_RLN_FONT = SpanUtils.getNewSansSerifLightTypefaceSpan()
 
+        @JvmOverloads
         @JvmStatic
-        fun newInstance(rds: RouteDirectionStop) = newInstance(rds.authority, rds.route.id, rds.direction.id, rds.stop.id)
+        fun newInstance(rds: RouteDirectionStop, optMapCameraPosition: CameraPosition? = null) =
+            newInstance(
+                rds.authority,
+                rds.route.id,
+                rds.direction.id,
+                rds.stop.id,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom,
+            )
+
+        @JvmOverloads
+        @JvmStatic
+        fun newInstance(r: Route, optMapCameraPosition: CameraPosition? = null) = newInstance(
+            r.authority,
+            r.id,
+            optSelectedDirectionId = null,
+            optSelectedStopId = null,
+            optMapCameraPosition?.target?.latitude,
+            optMapCameraPosition?.target?.longitude,
+            optMapCameraPosition?.zoom,
+        )
 
         @JvmStatic
         fun newInstance(
@@ -77,14 +100,38 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             routeId: Long,
             optSelectedDirectionId: Long? = null,
             optSelectedStopId: Int? = null,
-        ): RDSRouteFragment {
-            return RDSRouteFragment().apply {
-                arguments = newInstanceArgs(authority, routeId, optSelectedDirectionId, optSelectedStopId)
-            }
+            optMapLat: Double? = null,
+            optMapLng: Double? = null,
+            optMapZoom: Float? = null,
+        ) = RDSRouteFragment().apply {
+            arguments = newInstanceArgs(authority, routeId, optSelectedDirectionId, optSelectedStopId, optMapLat, optMapLng, optMapZoom)
         }
 
+        @JvmOverloads
         @JvmStatic
-        fun newInstanceArgs(rds: RouteDirectionStop) = newInstanceArgs(rds.authority, rds.route.id, rds.direction.id, rds.stop.id)
+        fun newInstanceArgs(rds: RouteDirectionStop, optMapCameraPosition: CameraPosition? = null) =
+            newInstanceArgs(
+                rds.authority,
+                rds.route.id,
+                rds.direction.id,
+                rds.stop.id,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom,
+            )
+
+        @JvmOverloads
+        @JvmStatic
+        fun newInstanceArgs(r: Route, optMapCameraPosition: CameraPosition? = null) =
+            newInstanceArgs(
+                r.authority,
+                r.id,
+                optSelectedDirectionId = null,
+                optSelectedStopId = null,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom,
+            )
 
         @JvmStatic
         fun newInstanceArgs(
@@ -92,24 +139,25 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             routeId: Long,
             optSelectedDirectionId: Long? = null,
             optSelectedStopId: Int? = null,
+            optMapLat: Double? = null,
+            optMapLng: Double? = null,
+            optMapZoom: Float? = null,
         ) = bundleOf(
             RDSRouteViewModel.EXTRA_AUTHORITY to authority,
             RDSRouteViewModel.EXTRA_ROUTE_ID to routeId,
             RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID to (optSelectedDirectionId ?: RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID_DEFAULT),
             RDSRouteViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSRouteViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
+            RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
+            RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
+            RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
         )
     }
 
     override fun getLogTag(): String = LOG_TAG
 
-    override fun getScreenName(): String {
-        val authority = attachedViewModel?.authority?.value
-        val routeId = attachedViewModel?.routeId?.value
-        if (authority != null && routeId != null) {
-            return "$TRACKING_SCREEN_NAME/$authority/$routeId"
-        }
-        return TRACKING_SCREEN_NAME
-    }
+    override fun getScreenName() =
+        attachedViewModel?.routeM?.value?.let { "$TRACKING_SCREEN_NAME/${it.authority}/${it.route.id}" }
+            ?: TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<RDSRouteViewModel>()
     private val attachedViewModel get() = if (isAttached()) viewModel else null
@@ -125,8 +173,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     private var pagerAdapter: RDSRouteDirectionPagerAdapter? = null
 
     private fun makePagerAdapter() = RDSRouteDirectionPagerAdapter(this).apply {
-        setSelectedStopId(attachedViewModel?.selectedStopId?.value)
-        setAuthority(attachedViewModel?.authority?.value)
+        selectedStopId = attachedViewModel?.selectedStopId?.value
+        selectedDirectionId = attachedViewModel?.originalSelectedDirectionId?.value
+        selectedCameraPosition = attachedViewModel?.selectedMapCameraPosition?.value
         setRouteDirections(attachedViewModel?.routeDirections?.value)
     }
 
@@ -178,28 +227,18 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge()
         }
         viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->
-            this.pagerAdapter?.setSelectedStopId(selectedStopId)
+            this.pagerAdapter?.selectedStopId = selectedStopId
         }
-        viewModel.authority.observe(viewLifecycleOwner) { authority ->
-            this.pagerAdapter?.setAuthority(authority)
-            switchView()
-            MTTransitions.setTransitionName(
-                view,
-                authority?.let {
-                    viewModel.routeM.value?.route?.id?.let { routeId ->
-                        "r_" + authority + "_" + routeId
-                    }
-                }
-            )
+        viewModel.originalSelectedDirectionId.observe(viewLifecycleOwner) { originalSelectedDirectionId ->
+            this.pagerAdapter?.selectedDirectionId = originalSelectedDirectionId
+        }
+        viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedCameraPosition ->
+            this.pagerAdapter?.selectedCameraPosition = selectedCameraPosition
         }
         viewModel.routeM.observe(viewLifecycleOwner) { routeM ->
             MTTransitions.setTransitionName(
                 view,
-                routeM?.route?.id?.let { routeId ->
-                    viewModel.authority.value?.let { authority ->
-                        "r_" + authority + "_" + routeId
-                    }
-                }
+                routeM?.route?.let { "r_" + it.authority + "_" + it.id }
             )
             attachedViewModel?.colorInt?.value?.let {
                 binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
@@ -229,7 +268,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
         }
-        viewModel.selectedRouteDirectionPosition.observe(viewLifecycleOwner) { newSelectedRouteDirectionPosition ->
+        viewModel.currentSelectedRouteDirectionPosition.observe(viewLifecycleOwner) { newSelectedRouteDirectionPosition ->
             newSelectedRouteDirectionPosition?.let {
                 if (this.lastPageSelected < 0) {
                     this.lastPageSelected = it
@@ -278,15 +317,14 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.menu_service_update_img) {
-            val authority = viewModel.authority.value ?: return false
-            val routeId = viewModel.routeM.value?.route?.id ?: return false
+            val routeManager = viewModel.routeM.value ?: return false
             if (FeatureFlags.F_NAVIGATION) {
                 // TODO navigate to dialog
             } else {
                 FragmentUtils.replaceDialogFragment(
                     activity ?: return false,
                     FragmentUtils.DIALOG_TAG,
-                    ServiceUpdatesDialog.newInstance(authority, routeId),
+                    ServiceUpdatesDialog.newInstance(routeManager.authority, routeManager.route.id),
                     null
                 )
                 return true // handled

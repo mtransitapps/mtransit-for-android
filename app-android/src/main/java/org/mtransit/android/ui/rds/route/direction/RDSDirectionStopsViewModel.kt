@@ -10,6 +10,8 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -65,6 +67,9 @@ class RDSDirectionStopsViewModel @Inject constructor(
         internal const val EXTRA_DIRECTION_ID = "extra_direction_id"
         internal const val EXTRA_SELECTED_STOP_ID = "extra_direction_stop_id"
         internal const val EXTRA_SELECTED_STOP_ID_DEFAULT: Int = -1
+        internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT = "extra_map_lat"
+        internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG = "extra_map_lng"
+        internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM = "extra_map_zoom"
 
         internal const val EXTRA_CLOSEST_POI_SHOWN = "extra_closest_poi_shown"
         internal const val EXTRA_CLOSEST_POI_SHOWN_DEFAULT: Boolean = false
@@ -173,6 +178,28 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
         .map { if (it < 0) null else it }
+
+    fun onSelectedStopIdSet() {
+        savedStateHandle[EXTRA_SELECTED_STOP_ID] = EXTRA_SELECTED_STOP_ID_DEFAULT
+    }
+
+    private val _selectedMapCameraPositionLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT)
+    private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)
+    private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct<Float?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)
+
+    val selectedMapCameraPosition =
+        TripleMediatorLiveData(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom).map { (lat, lng, zoom) ->
+            lat ?: return@map null
+            lng ?: return@map null
+            zoom ?: return@map null
+            CameraPosition.fromLatLngZoom(LatLng(lat, lng), zoom)
+        }.distinctUntilChanged()
+
+    fun onSelectedMapCameraPositionSet() {
+        savedStateHandle[EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT] = null
+        savedStateHandle[EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG] = null
+        savedStateHandle[EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM] = null
+    }
 
     val closestPOIShown = savedStateHandle.getLiveDataDistinct(EXTRA_CLOSEST_POI_SHOWN, EXTRA_CLOSEST_POI_SHOWN_DEFAULT)
 

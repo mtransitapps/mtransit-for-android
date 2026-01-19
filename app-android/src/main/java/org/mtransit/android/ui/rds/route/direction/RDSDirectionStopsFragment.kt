@@ -11,6 +11,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +23,7 @@ import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
+import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
@@ -39,6 +41,7 @@ import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
+import org.mtransit.android.ui.common.twoPane
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.rds.route.RDSRouteViewModel
@@ -71,16 +74,43 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
         @JvmStatic
         fun newInstance(
+            routeDirectionStop: RouteDirectionStop,
+            optMapCameraPosition: CameraPosition? = null,
+        ) = newInstance(routeDirectionStop.direction, routeDirectionStop.stop.id, optMapCameraPosition)
+
+        @JvmStatic
+        fun newInstance(
+            direction: Direction,
+            optSelectedStopId: Int? = null,
+            optMapCameraPosition: CameraPosition? = null,
+        ) = newInstance(
+            direction.authority,
+            direction.routeId,
+            direction.id,
+            optSelectedStopId,
+            optMapCameraPosition?.target?.latitude,
+            optMapCameraPosition?.target?.longitude,
+            optMapCameraPosition?.zoom,
+        )
+
+        @JvmStatic
+        fun newInstance(
             agencyAuthority: String,
             routeId: Long,
             directionId: Long,
             optSelectedStopId: Int? = null,
+            optMapLat: Double? = null,
+            optMapLng: Double? = null,
+            optMapZoom: Float? = null,
         ) = RDSDirectionStopsFragment().apply {
             arguments = bundleOf(
                 RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
                 RDSDirectionStopsViewModel.EXTRA_ROUTE_ID to routeId,
                 RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to directionId,
                 RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
+                RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
+                RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
+                RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
             )
         }
 
@@ -132,14 +162,12 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
         override fun getPOIs(): Collection<POIManager>? {
-            if (!listAdapter.isInitialized) {
-                return null
+            if (!listAdapter.isInitialized) return null
+            return buildList {
+                for (i in 0 until listAdapter.poisCount) {
+                    listAdapter.getItem(i)?.let { add(it) }
+                }
             }
-            val pois = mutableSetOf<POIManager>()
-            for (i in 0 until listAdapter.poisCount) {
-                listAdapter.getItem(i)?.let { pois.add(it) }
-            }
-            return pois
         }
 
         override fun getPOI(position: Int) = listAdapter.getItem(position)
@@ -224,9 +252,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             fabListMap?.apply {
                 setOnClickListener {
-                    if (context.resources.getBoolean(R.bool.two_pane)) { // large screen
-                        return@setOnClickListener
-                    }
+                    if (context.twoPane) return@setOnClickListener // LARGE SCREEN
                     viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
                 }
                 setUpFabEdgeToEdge(
@@ -236,8 +262,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             fabServiceUpdate.apply {
                 setOnClickListener {
-                    val authority = attachedParentViewModel?.authority?.value ?: return@setOnClickListener
-                    val routeId = attachedParentViewModel?.routeM?.value?.route?.id ?: return@setOnClickListener
+                    val routeM = attachedParentViewModel?.routeM?.value ?: return@setOnClickListener
                     val directionId = attachedViewModel?.directionId?.value ?: return@setOnClickListener
                     if (FeatureFlags.F_NAVIGATION) {
                         // TODO navigate to dialog
@@ -245,7 +270,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                         FragmentUtils.replaceDialogFragment(
                             activity ?: return@setOnClickListener,
                             FragmentUtils.DIALOG_TAG,
-                            ServiceUpdatesDialog.newInstance(authority, routeId, directionId),
+                            ServiceUpdatesDialog.newInstance(routeM.authority, routeM.route.id, directionId),
                             null
                         )
                     }
@@ -302,22 +327,28 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             listAdapter.setLocation(deviceLocation)
         }
         viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner) { showingListInsteadOfMap ->
-            showingListInsteadOfMap?.let { listInsteadOfMap ->
-                updateFabListMapUI(listInsteadOfMap)
-                if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
-                    || !listInsteadOfMap // MAP
-                ) {
-                    mapViewController.onResume()
-                    viewModel.startVehicleLocationRefresh()
-                } else { // LIST
-                    mapViewController.onPause()
-                    viewModel.stopVehicleLocationRefresh()
-                }
-                switchView(listInsteadOfMap)
+            updateFabListMapUI(showingListInsteadOfMap)
+            if (viewModel.mapVisible(context)) {
+                applySelectedIdChanged()
+                mapViewController.onResume()
+                viewModel.startVehicleLocationRefresh()
+            } else { // LIST
+                mapViewController.onPause()
+                viewModel.stopVehicleLocationRefresh()
+            }
+            switchView(showingListInsteadOfMap)
+        }
+        viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedMapCameraPosition ->
+            selectedMapCameraPosition?.let { cameraPosition ->
+                mapViewController.setShowAllMarkersWhenReady(false)
+                mapViewController.setInitialCameraPosition(cameraPosition)
+                viewModel.onSelectedMapCameraPositionSet()
             }
         }
-        viewModel.selectedStopId.observe(viewLifecycleOwner) {
-            // DO NOTHING
+        viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->
+            if (viewModel.mapVisible(context)) {
+                applySelectedIdChanged(selectedStopId)
+            }
         }
         viewModel.closestPOIShown.observe(viewLifecycleOwner) {
             // DO NOTHING
@@ -344,7 +375,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             val closestPOIShow = viewModel.closestPOIShown.value
             if (selectedStopId != null || closestPOIShow != true) {
                 if (selectedStopId != null) {
-                    currentSelectedItemIndexUuid = findStopIndexUuid(selectedStopId, poiList)
+                    currentSelectedItemIndexUuid = findStopIndexUuid(selectedStopId, poiList) // can be stop for other direction in route fragment
                 }
                 if (currentSelectedItemIndexUuid == null) {
                     if (closestPOIShow == false) {
@@ -356,9 +387,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             listAdapter.setPois(poiList)
             listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged(mapMarkerProvider)
-            if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
-                || viewModel.showingListInsteadOfMap.value == true // LIST
-            ) {
+            if (viewModel.listVisible(context)) {
                 val selectedPosition = currentSelectedItemIndexUuid?.first ?: -1
                 if (selectedPosition > 0) {
                     binding?.listLayout?.list?.setSelection(selectedPosition - 1) // show 1 more stop on top of the list
@@ -366,6 +395,19 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             switchView()
         }
+    }
+
+    private fun applySelectedIdChanged(selectedStopId: Int? = viewModel.selectedStopId.value) {
+        selectedStopId ?: return
+        val routeDirectionM = viewModel.routeDirectionM.value ?: return
+        val rdsUUID = RouteDirectionStop.makeUUID(
+            routeDirectionM.authority,
+            routeDirectionM.routeDirection.route.id,
+            routeDirectionM.routeDirection.direction.id,
+            selectedStopId
+        )
+        mapViewController.setInitialSelectedUUID(rdsUUID)
+        viewModel.onSelectedStopIdSet()
     }
 
     private fun updateServiceUpdateImg(
@@ -429,41 +471,38 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         return null
     }
 
-    private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
-        binding?.apply {
-            when {
-                !listAdapter.isInitialized || showingListInsteadOfMap == null -> { // LOADING
-                    emptyLayout.isVisible = false
-                    listLayout.isVisible = false
-                    mapViewController.hideMap()
-                    loadingLayout.isVisible = true
-                }
+    private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) = binding?.apply {
+        when {
+            !listAdapter.isInitialized || showingListInsteadOfMap == null -> { // LOADING
+                emptyLayout.isVisible = false
+                listLayout.isVisible = false
+                mapViewController.hideMap()
+                loadingLayout.isVisible = true
+            }
 
-                listAdapter.poisCount == 0 -> { // EMPTY
-                    loadingLayout.isVisible = false
-                    listLayout.isVisible = false
-                    mapViewController.hideMap()
-                    emptyLayout.isVisible = true
-                }
+            listAdapter.poisCount == 0 -> { // EMPTY
+                loadingLayout.isVisible = false
+                listLayout.isVisible = false
+                mapViewController.hideMap()
+                emptyLayout.isVisible = true
+            }
 
-                else -> {
-                    loadingLayout.isVisible = false
-                    emptyLayout.isVisible = false
-                    if (context.resources.getBoolean(R.bool.two_pane)) { // LARGE SCREEN
-                        listLayout.isVisible = true
-                        mapViewController.showMap(view)
-                    } else if (showingListInsteadOfMap) { // LIST
-                        mapViewController.hideMap()
-                        listLayout.isVisible = true
-                    } else { // MAP
-                        listLayout.isVisible = false
-                        mapViewController.showMap(view)
-                    }
+            else -> {
+                loadingLayout.isVisible = false
+                emptyLayout.isVisible = false
+                if (context.twoPane) { // LARGE SCREEN
+                    listLayout.isVisible = true
+                    mapViewController.showMap(view)
+                } else if (showingListInsteadOfMap) { // LIST
+                    mapViewController.hideMap()
+                    listLayout.isVisible = true
+                } else { // MAP
+                    listLayout.isVisible = false
+                    mapViewController.showMap(view)
                 }
             }
         }
     }
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -486,9 +525,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     override fun onResume() {
         super.onResume()
-        if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
-            || viewModel.showingListInsteadOfMap.value == false  // MAP
-        ) {
+        if (viewModel.mapVisible(context)) {
             mapViewController.onResume()
             viewModel.startVehicleLocationRefresh()
         } else {
@@ -544,4 +581,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     }
 
     override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
+
+    fun RDSDirectionStopsViewModel.listVisible(context: Context?): Boolean = context.twoPane || showingListInsteadOfMap.value == true
+
+    fun RDSDirectionStopsViewModel.mapVisible(context: Context?): Boolean = context.twoPane || showingListInsteadOfMap.value == false
 }

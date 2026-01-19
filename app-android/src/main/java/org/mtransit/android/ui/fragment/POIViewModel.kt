@@ -224,10 +224,10 @@ class POIViewModel @Inject constructor(
     private val _poiArea = _poi.map { it -> it?.let { Area.getArea(it.lat, it.lng, 0.01) } }
 
     private val nearbyAgencies: LiveData<List<AgencyBaseProperties>?> = PairMediatorLiveData(_poiArea, _allAgencies).map { (poiArea, allAgencies) ->
-        allAgencies?.filter {
-            it.type.isNearbyScreen
-                    && it.type != DataSourceType.TYPE_MODULE
-                    && it.isInArea(poiArea)
+        allAgencies?.filter { agency ->
+            agency.type.isNearbyScreen
+                    && agency.type != DataSourceType.TYPE_MODULE
+                    && agency.isInArea(poiArea)
         }
     }
 
@@ -239,8 +239,8 @@ class POIViewModel @Inject constructor(
     }
 
     private val poiConnectionComparator by lazy {
-        POIConnectionComparator({
-            when (it) {
+        POIConnectionComparator({ dataSourceTypeId ->
+            when (dataSourceTypeId) {
                 DataSourceType.TYPE_BIKE.id -> 250f
                 else -> NEARBY_CONNECTIONS_MAX_COVERAGE
             }

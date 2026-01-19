@@ -303,16 +303,16 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 }
             }
         } else if (demoModeManager.isEnabledBrowseScreen()) {
-            val type = demoModeManager.filterTypeId ?: throw RuntimeException("Demo mode: missing type!")
+            val dstId = demoModeManager.filterTypeId ?: throw RuntimeException("Demo mode: missing type!")
             view?.post {
                 if (FeatureFlags.F_NAVIGATION) {
                     findNavController().navigate(
                         R.id.nav_to_type_screen,
-                        AgencyTypeFragment.newInstanceArgs(type),
+                        AgencyTypeFragment.newInstanceArgs(dstId),
                     )
                 } else {
                     (activity as MainActivity).addFragmentToStack(
-                        AgencyTypeFragment.newInstance(type),
+                        AgencyTypeFragment.newInstance(dstId),
                     )
                 }
             }

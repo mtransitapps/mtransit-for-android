@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.FragmentRdsAgencyRoutesBinding
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -41,16 +42,18 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         private val LOG_TAG = RDSAgencyRoutesFragment::class.java.simpleName
 
         @JvmStatic
+        fun newInstance(agency : IAgencyUIProperties) =
+            newInstance(agency.authority, agency.colorInt)
+
+        @JvmStatic
         fun newInstance(
             agencyAuthority: String,
             optColorInt: Int? = null,
-        ): RDSAgencyRoutesFragment {
-            return RDSAgencyRoutesFragment().apply {
-                arguments = bundleOf(
-                    RDSAgencyRoutesViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                    RDSAgencyRoutesViewModel.EXTRA_COLOR_INT to optColorInt,
-                )
-            }
+        ) = RDSAgencyRoutesFragment().apply {
+            arguments = bundleOf(
+                RDSAgencyRoutesViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
+                RDSAgencyRoutesViewModel.EXTRA_COLOR_INT to optColorInt,
+            )
         }
     }
 
@@ -87,19 +90,13 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             }
             findNavController().navigate(
                 R.id.nav_to_rds_route_screen,
-                RDSRouteFragment.newInstanceArgs(
-                    route.authority,
-                    route.route.id,
-                ),
+                RDSRouteFragment.newInstanceArgs(route.route),
                 null,
                 extras
             )
         } else {
             (activity as? MainActivity)?.addFragmentToStack(
-                RDSRouteFragment.newInstance(
-                    route.authority,
-                    route.route.id,
-                ),
+                RDSRouteFragment.newInstance(route.route),
                 this,
                 view,
             )
@@ -204,7 +201,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(routes.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
-        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { triggered ->
+        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
             listGridAdapter?.onServiceUpdatesLoaded()
         })
     }

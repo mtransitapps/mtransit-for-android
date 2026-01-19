@@ -167,7 +167,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private final boolean followingDevice;
 	private final boolean hasButtons;
 	private final boolean clusteringEnabled;
-	private final boolean showAllMarkersWhenReady;
+	private boolean showAllMarkersWhenReady;
 	private final boolean markerLabelShowExtra;
 
 	private CameraPosition lastCameraPosition;
@@ -1270,6 +1270,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		resetMapType();
 	}
 
+	@Nullable
+	public CameraPosition getCameraPosition() {
+		if (this.extendedGoogleMap != null) {
+			this.lastCameraPosition = this.extendedGoogleMap.getCameraPosition();
+		}
+		return this.lastCameraPosition;
+	}
+
 	public void setInitialSelectedUUID(@Nullable String uuid) {
 		if (TextUtils.isEmpty(uuid)) {
 			return;
@@ -1288,10 +1296,23 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (initialLocation == null) {
 			return;
 		}
-		this.lastCameraPosition = CameraPosition.builder() //
-				.target(LatLngUtils.fromLocation(initialLocation)) //
-				.zoom(DEVICE_LOCATION_ZOOM) //
-				.build();
+		setInitialCameraPosition(
+				CameraPosition.builder()
+						.target(LatLngUtils.fromLocation(initialLocation))
+						.zoom(DEVICE_LOCATION_ZOOM)
+						.build()
+		);
+	}
+
+	public void setInitialCameraPosition(@Nullable CameraPosition initialCameraPosition) {
+		if (initialCameraPosition == null) {
+			return;
+		}
+		this.lastCameraPosition = initialCameraPosition;
+	}
+
+	public void setShowAllMarkersWhenReady(boolean showAllMarkersWhenReady) {
+		this.showAllMarkersWhenReady = showAllMarkersWhenReady;
 	}
 
 	public void onSaveInstanceState(@NonNull Bundle outState) {
