@@ -289,152 +289,229 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="        MTMapViewController("
+        errorLine2="        ^">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="201"
+            line="157"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="            logTag,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
+            line="158"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="            mapMarkerProvider,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
+            line="159"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="            null, // DO NOTHING (map click, camera change)"
+        errorLine2="            ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
+            line="160"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setAutoClickInfoWindow is deprecated; consider using an alternative."
+        errorLine1="            setAutoClickInfoWindow(true)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
+            line="175"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
+        errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
+            line="176"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onCreate is deprecated; consider using an alternative."
+        errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
+            line="200"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onCreate is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="201"
+            line="200"
             column="41"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="206"
+            line="205"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
         errorLine2="                                             ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="206"
+            line="205"
             column="46"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="206"
+            line="205"
             column="52"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLogTag is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setLogTag is deprecated; consider using an alternative."
         errorLine1="            mapViewController.logTag = this@AgencyPOIsFragment.logTag"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="248"
+            line="247"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLogTag is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setLogTag is deprecated; consider using an alternative."
         errorLine1="            mapViewController.logTag = this@AgencyPOIsFragment.logTag"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="248"
+            line="247"
             column="40"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
         errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="264"
+            line="263"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
         errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
         errorLine2="                                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="264"
+            line="263"
             column="55"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onResume is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.onResume()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="271"
+            line="270"
             column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onPause is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.onPause()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="273"
+            line="272"
             column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
         errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="281"
+            line="280"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
         errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="281"
+            line="280"
             column="51"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setShowAllMarkersWhenReady is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setShowAllMarkersWhenReady is deprecated; consider using an alternative."
         errorLine1="                mapViewController.setShowAllMarkersWhenReady(false)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
+            line="286"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.setInitialCameraPosition(cameraPosition)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
             line="287"
@@ -443,210 +520,199 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
-        errorLine1="                mapViewController.setInitialCameraPosition(cameraPosition)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="288"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
         errorLine1="                mapViewController.setInitialCameraPosition(cameraPosition)"
         errorLine2="                                                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="288"
+            line="287"
             column="60"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.hideMap is deprecated; consider using an alternative."
         errorLine1="                mapViewController.hideMap()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="315"
+            line="314"
             column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.hideMap is deprecated; consider using an alternative."
         errorLine1="                mapViewController.hideMap()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="323"
+            line="322"
             column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.showMap(view)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="334"
+            line="333"
             column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.showMap(view)"
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="334"
+            line="333"
             column="47"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.hideMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.hideMap()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="336"
+            line="335"
             column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.showMap(view)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="340"
+            line="339"
             column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.showMap(view)"
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="340"
+            line="339"
             column="47"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
         errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="349"
+            line="348"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
         errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="349"
+            line="348"
             column="38"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onAttach is deprecated; consider using an alternative."
         errorLine1="            onAttach(requireActivity())"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="350"
+            line="349"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onAttach is deprecated; consider using an alternative."
         errorLine1="            onAttach(requireActivity())"
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="350"
+            line="349"
             column="22"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
         errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="351"
+            line="350"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onSaveInstanceState is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onSaveInstanceState(outState)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="356"
+            line="355"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onSaveInstanceState is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onSaveInstanceState(outState)"
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="356"
+            line="355"
             column="47"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDetach is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDetach is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onDetach()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="362"
+            line="361"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onResume is deprecated; consider using an alternative."
         errorLine1="            mapViewController.onResume()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="368"
+            line="367"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onPause is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onPause()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="377"
+            line="376"
             column="9"/>
     </issue>
 
@@ -657,40 +723,40 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
+            line="381"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onLowMemory()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
             line="382"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onLowMemory is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onLowMemory()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="383"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroyView is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDestroyView is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onDestroyView()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="388"
+            line="387"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroy is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDestroy is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onDestroy()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="396"
+            line="395"
             column="9"/>
     </issue>
 
@@ -879,6 +945,39 @@
             file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingMarker.java"
             line="193"
             column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setPaddingTopSp is deprecated; consider using an alternative."
+        errorLine1="                setPaddingTopSp(topPaddingSp + insets.top.dpToPx)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="179"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setPaddingBottomSp is deprecated; consider using an alternative."
+        errorLine1="                setPaddingBottomSp(it + insets.bottom.dpToPx)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="182"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.applyPaddings is deprecated; consider using an alternative."
+        errorLine1="            applyPaddings()"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/EdgeToEdge.kt"
+            line="184"
+            column="13"/>
     </issue>
 
     <issue
@@ -2610,6 +2709,1920 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapViewOrNull is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = getMapViewOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="123"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMapInternal is deprecated; consider using an alternative."
+        errorLine1="   showMapInternal(null);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="127"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMapInternal is deprecated; consider using an alternative."
+        errorLine1="   showMapInternal(null);"
+        errorLine2="                   ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="127"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.hasGoogleMap is deprecated; consider using an alternative."
+        errorLine1="  if (!this.mapLayoutReady || !hasMapView() || !hasGoogleMap()) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="138"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.hasMapView is deprecated; consider using an alternative."
+        errorLine1="  if (!this.mapLayoutReady || !hasMapView() || !hasGoogleMap()) {"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="138"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showLastCameraPosition is deprecated; consider using an alternative."
+        errorLine1="  this.initialMapCameraSetup = showLastCameraPosition();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="146"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMarkers is deprecated; consider using an alternative."
+        errorLine1="   this.initialMapCameraSetup = showMarkers(false, this.followingDevice);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="148"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showDeviceLocation is deprecated; consider using an alternative."
+        errorLine1="   this.initialMapCameraSetup = showDeviceLocation(false);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="151"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setLogTag is deprecated; consider using an alternative."
+        errorLine1="  setLogTag(logTag);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="201"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setLogTag is deprecated; consider using an alternative."
+        errorLine1="  setLogTag(logTag);"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="201"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setMarkerProvider is deprecated; consider using an alternative."
+        errorLine1="  setMarkerProvider(markerProvider);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="202"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setMarkerProvider is deprecated; consider using an alternative."
+        errorLine1="  setMarkerProvider(markerProvider);"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="202"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setMapListener is deprecated; consider using an alternative."
+        errorLine1="  setMapListener(mapListener);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="203"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setMapListener is deprecated; consider using an alternative."
+        errorLine1="  setMapListener(mapListener);"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="203"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setActivity is deprecated; consider using an alternative."
+        errorLine1="  setActivity(activity);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="232"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setActivity is deprecated; consider using an alternative."
+        errorLine1="  setActivity(activity);"
+        errorLine2="              ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="232"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.restoreInstanceState is deprecated; consider using an alternative."
+        errorLine1="  restoreInstanceState(savedInstanceState);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="240"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.restoreInstanceState is deprecated; consider using an alternative."
+        errorLine1="  restoreInstanceState(savedInstanceState);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="240"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.restoreInstanceState is deprecated; consider using an alternative."
+        errorLine1="  restoreInstanceState(savedInstanceState);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="258"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.restoreInstanceState is deprecated; consider using an alternative."
+        errorLine1="  restoreInstanceState(savedInstanceState);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="258"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.initMapViewAsync is deprecated; consider using an alternative."
+        errorLine1="   initMapViewAsync(view);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="277"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.initMapViewAsync is deprecated; consider using an alternative."
+        errorLine1="   initMapViewAsync(view);"
+        errorLine2="                    ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="277"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.applyNewMapView is deprecated; consider using an alternative."
+        errorLine1="    applyNewMapView(view);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="290"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.applyNewMapView is deprecated; consider using an alternative."
+        errorLine1="    applyNewMapView(view);"
+        errorLine2="                    ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="290"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showHideLoading is deprecated; consider using an alternative."
+        errorLine1="  showHideLoading();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="325"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.initTypeSwitch is deprecated; consider using an alternative."
+        errorLine1="  initTypeSwitch();"
+        errorLine2="  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="326"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setupGoogleMap is deprecated; consider using an alternative."
+        errorLine1="  setupGoogleMap(googleMap);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="351"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setupGoogleMap is deprecated; consider using an alternative."
+        errorLine1="  setupGoogleMap(googleMap);"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="351"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="  final Activity activity = getActivityOrNull();"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="357"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.applyMapStyle is deprecated; consider using an alternative."
+        errorLine1="  applyMapStyle();"
+        errorLine2="  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="359"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.applyMapType is deprecated; consider using an alternative."
+        errorLine1="  applyMapType();"
+        errorLine2="  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="360"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setupGoogleMapMyLocation is deprecated; consider using an alternative."
+        errorLine1="  setupGoogleMapMyLocation();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="361"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.clearMarkers is deprecated; consider using an alternative."
+        errorLine1="  clearMarkers();"
+        errorLine2="  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="378"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapListener.onMapReady is deprecated; consider using an alternative."
+        errorLine1="   mapListener.onMapReady();"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="390"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMapInternal is deprecated; consider using an alternative."
+        errorLine1="  showMapInternal(null);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="392"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMapInternal is deprecated; consider using an alternative."
+        errorLine1="  showMapInternal(null);"
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="392"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="   final Context context = getActivityOrNull();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="409"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="   final Context context = getActivityOrNull();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="414"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setupGoogleMapMyLocation is deprecated; consider using an alternative."
+        errorLine1="  setupGoogleMapMyLocation();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="425"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.hideLoading is deprecated; consider using an alternative."
+        errorLine1="   hideLoading();"
+        errorLine2="   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="444"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showLoading is deprecated; consider using an alternative."
+        errorLine1="   showLoading();"
+        errorLine2="   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="446"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setTypeSwitchImg is deprecated; consider using an alternative."
+        errorLine1="  setTypeSwitchImg();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="478"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.switchMapType is deprecated; consider using an alternative."
+        errorLine1="    switchMapType()"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="480"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="   this.mapType = PreferenceUtils.getPrefLcl(getActivityOrNull(), MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="493"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapType is deprecated; consider using an alternative."
+        errorLine1="  int newMapType = getMapType() == MapUtils.MAP_TYPE_NORMAL ? MapUtils.MAP_TYPE_SATELLITE : MapUtils.MAP_TYPE_NORMAL; // switch"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="499"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setMapType is deprecated; consider using an alternative."
+        errorLine1="  setMapType(newMapType);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="500"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setTypeSwitchImg is deprecated; consider using an alternative."
+        errorLine1="  setTypeSwitchImg();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="505"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.applyMapType is deprecated; consider using an alternative."
+        errorLine1="  applyMapType();"
+        errorLine2="  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="506"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="  final Context context = getActivityOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="507"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapType is deprecated; consider using an alternative."
+        errorLine1="  this.extendedGoogleMap.setMapType(getMapType());"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="517"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="  final Context context = getActivityOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="524"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapType is deprecated; consider using an alternative."
+        errorLine1="   this.typeSwitchView.setImageResource(getMapType() == MapUtils.MAP_TYPE_NORMAL ? R.drawable.map_satellite : R.drawable.map_normal);"
+        errorLine2="                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="534"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMapInternal is deprecated; consider using an alternative."
+        errorLine1="  return showMapInternal(view);"
+        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="541"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMapInternal is deprecated; consider using an alternative."
+        errorLine1="  return showMapInternal(view);"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="541"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapViewOrInit is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = optView == null ? getMapViewOrNull() : getMapViewOrInit(optView);"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="546"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapViewOrInit is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = optView == null ? getMapViewOrNull() : getMapViewOrInit(optView);"
+        errorLine2="                                                                                  ~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="546"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapViewOrNull is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = optView == null ? getMapViewOrNull() : getMapViewOrInit(optView);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="546"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showHideLoading is deprecated; consider using an alternative."
+        errorLine1="  showHideLoading();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="555"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showTypeSwitch is deprecated; consider using an alternative."
+        errorLine1="  showTypeSwitch();"
+        errorLine2="  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="556"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setupInitialCamera is deprecated; consider using an alternative."
+        errorLine1="    setupInitialCamera();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="559"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.initMapMarkers is deprecated; consider using an alternative."
+        errorLine1="   initMapMarkers();"
+        errorLine2="   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="564"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapViewOrNull is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = getMapViewOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="581"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.hideTypeSwitch is deprecated; consider using an alternative."
+        errorLine1="  hideTypeSwitch();"
+        errorLine2="  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="587"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapListener.onMapClick is deprecated; consider using an alternative."
+        errorLine1="   mapListener.onMapClick(position);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="599"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapListener.onMapClick is deprecated; consider using an alternative."
+        errorLine1="   mapListener.onMapClick(position);"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="599"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="     final Activity activity = getActivityOrNull();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="614"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapListener.onMarkerClick is deprecated; consider using an alternative."
+        errorLine1="   if (mapListener.onMarkerClick(marker)) {"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="640"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapListener.onMarkerClick is deprecated; consider using an alternative."
+        errorLine1="   if (mapListener.onMarkerClick(marker)) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="640"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onInfoWindowClick is deprecated; consider using an alternative."
+        errorLine1="    onInfoWindowClick(marker);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="652"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onInfoWindowClick is deprecated; consider using an alternative."
+        errorLine1="    onInfoWindowClick(marker);"
+        errorLine2="                      ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="652"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="    return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoom));"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="657"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="    return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoom));"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="657"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.refreshMapMarkers is deprecated; consider using an alternative."
+        errorLine1="   refreshMapMarkers();"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="676"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.notifyNewCameraPosition is deprecated; consider using an alternative."
+        errorLine1="  notifyNewCameraPosition();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="680"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapListener.onCameraChange is deprecated; consider using an alternative."
+        errorLine1="  mapListener.onCameraChange(visibleRegion.latLngBounds, zoom);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="704"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapListener.onCameraChange is deprecated; consider using an alternative."
+        errorLine1="  mapListener.onCameraChange(visibleRegion.latLngBounds, zoom);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="704"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.notifyNewCameraPosition is deprecated; consider using an alternative."
+        errorLine1="  notifyNewCameraPosition();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="708"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.applyMapStyle is deprecated; consider using an alternative."
+        errorLine1="  applyMapStyle();"
+        errorLine2="  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="709"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.Display.getSize is deprecated; consider using an alternative."
+        errorLine1="   activity.getWindowManager().getDefaultDisplay().getSize(size);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="722"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.WindowManager.getDefaultDisplay is deprecated; consider using an alternative."
+        errorLine1="   activity.getWindowManager().getDefaultDisplay().getSize(size);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="722"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMarkers is deprecated; consider using an alternative."
+        errorLine1="   showMarkers(true, false);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="741"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showClosestPOI is deprecated; consider using an alternative."
+        errorLine1="  boolean handled = showClosestPOI();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="745"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showDeviceLocation is deprecated; consider using an alternative."
+        errorLine1="   handled = showDeviceLocation(true);"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="747"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getClosestPOI is deprecated; consider using an alternative."
+        errorLine1="  final POIManager poim = markerProvider == null ? null : markerProvider.getClosestPOI();"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="757"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.includeLocationAccuracyBounds is deprecated; consider using an alternative."
+        errorLine1="  includeLocationAccuracyBounds(llb, this.deviceLocation);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="762"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.includeLocationAccuracyBounds is deprecated; consider using an alternative."
+        errorLine1="  includeLocationAccuracyBounds(llb, this.deviceLocation);"
+        errorLine2="                                ~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="762"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.includeLocationAccuracyBounds is deprecated; consider using an alternative."
+        errorLine1="  includeLocationAccuracyBounds(llb, this.deviceLocation);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="762"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="  final Context context = getActivityOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="767"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="  final boolean success = updateMapCamera(true,"
+        errorLine2="                          ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="768"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="    CameraUpdateFactory.newLatLngBounds(llb.build(), MapUtils.getMapWithButtonsCameraPaddingInPx(context))"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="769"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.includeMarkersInLatLngBounds is deprecated; consider using an alternative."
+        errorLine1="  final boolean markersFound = includeMarkersInLatLngBounds(llb);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="783"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.includeMarkersInLatLngBounds is deprecated; consider using an alternative."
+        errorLine1="  final boolean markersFound = includeMarkersInLatLngBounds(llb);"
+        errorLine2="                                                            ~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="783"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.includeLocationAccuracyBounds is deprecated; consider using an alternative."
+        errorLine1="   includeLocationAccuracyBounds(llb, this.deviceLocation);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="788"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.includeLocationAccuracyBounds is deprecated; consider using an alternative."
+        errorLine1="   includeLocationAccuracyBounds(llb, this.deviceLocation);"
+        errorLine2="                                 ~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="788"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.includeLocationAccuracyBounds is deprecated; consider using an alternative."
+        errorLine1="   includeLocationAccuracyBounds(llb, this.deviceLocation);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="788"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="  final Context context = getActivityOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="790"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="   return updateMapCamera(anim, cameraUpdate);"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="799"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="   return updateMapCamera(anim, cameraUpdate);"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="799"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="802"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
+        errorLine2="                ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="802"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="802"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
+        errorLine2="                                                                              ~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="802"
+            column="79"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getVisibleMarkersLocations is deprecated; consider using an alternative."
+        errorLine1="   final Collection&lt;LatLng> visibleMarkersLocations = markerProvider.getVisibleMarkersLocations();"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="824"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getPOMarkers is deprecated; consider using an alternative."
+        errorLine1="  final Collection&lt;MTPOIMarker> poiMarkers = markerProvider.getPOMarkers();"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="843"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getPOIs is deprecated; consider using an alternative."
+        errorLine1="  final Collection&lt;POIManager> pois = markerProvider.getPOIs();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="850"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getVehicleLocations is deprecated; consider using an alternative."
+        errorLine1="  final Collection&lt;VehicleLocation> vehicleLocations = markerProvider.getVehicleLocations();"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="860"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="  return updateMapCamera(false, CameraUpdateFactory.zoomIn());"
+        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="872"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="  return updateMapCamera(false, CameraUpdateFactory.zoomIn());"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="872"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="  return updateMapCamera(false, CameraUpdateFactory.zoomOut());"
+        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="877"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="  return updateMapCamera(false, CameraUpdateFactory.zoomOut());"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="877"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="  return updateMapCamera(anim,"
+        errorLine2="         ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="887"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="    CameraUpdateFactory.newLatLngZoom("
+        errorLine2="    ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="888"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.refreshMapMarkers is deprecated; consider using an alternative."
+        errorLine1="  refreshMapMarkers(false);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="927"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.refreshMapMarkers is deprecated; consider using an alternative."
+        errorLine1="  refreshMapMarkers(true);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="931"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.os.AsyncTask.getStatus is deprecated; consider using an alternative."
+        errorLine1="  if (this.loadClusterItemsTask == null || this.loadClusterItemsTask.getStatus() != LoadClusterItemsTask.Status.RUNNING) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="940"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
+        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="942"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
+        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="942"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
+        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
+        errorLine2="                                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="942"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
+        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
+        errorLine2="                                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="942"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="This class or method is deprecated; consider using an alternative."
+        errorLine1=" public static final MarkerNameComparator MARKER_NAME_COMPARATOR = new MarkerNameComparator();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="949"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getPOMarkers is deprecated; consider using an alternative."
+        errorLine1="   final Collection&lt;MTPOIMarker> poiMarkers = markerProvider.getPOMarkers();"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1026"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.createPOIMarkers is deprecated; consider using an alternative."
+        errorLine1="   return createPOIMarkers(markerProvider, mapViewController);"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1030"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.createPOIMarkers is deprecated; consider using an alternative."
+        errorLine1="   return createPOIMarkers(markerProvider, mapViewController);"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1030"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getPOIs is deprecated; consider using an alternative."
+        errorLine1="   final Collection&lt;POIManager> pois = markerProvider.getPOIs();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1036"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getMapMarkerAlpha is deprecated; consider using an alternative."
+        errorLine1="    alpha = markerProvider.getMapMarkerAlpha(index, this.visibleArea);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1079"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getMapMarkerAlpha is deprecated; consider using an alternative."
+        errorLine1="    alpha = markerProvider.getMapMarkerAlpha(index, this.visibleArea);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1079"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getPOI is deprecated; consider using an alternative."
+        errorLine1="      ? markerProvider.getPOI(index) : null;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1081"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
+        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1096"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1096"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1096"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
+        errorLine2="                                                                           ~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1096"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.clearMarkers is deprecated; consider using an alternative."
+        errorLine1="   mapViewController.clearMarkers();"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1123"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
+        errorLine1="   final MTMapIconZoomGroup currentZoomGroup = mapViewController.clusteringEnabled ? null : mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap,"
+        errorLine2="                                                                                            ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1124"
+            column="93"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
+        errorLine1="   final MTMapIconZoomGroup currentZoomGroup = mapViewController.clusteringEnabled ? null : mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap,"
+        errorLine2="                                                                                                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1124"
+            column="138"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.hideLoading is deprecated; consider using an alternative."
+        errorLine1="   mapViewController.hideLoading();"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1138"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMarkers is deprecated; consider using an alternative."
+        errorLine1="    mapViewController.showMarkers(false, mapViewController.followingDevice);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1140"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getActivityOrNull is deprecated; consider using an alternative."
+        errorLine1="  final Context context = getActivityOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1149"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.addMarkers is deprecated; consider using an alternative."
+        errorLine1="  return addMarkers(context, poiMarkers);"
+        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1154"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.addMarkers is deprecated; consider using an alternative."
+        errorLine1="  return addMarkers(context, poiMarkers);"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1154"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.addMarkers is deprecated; consider using an alternative."
+        errorLine1="  return addMarkers(context, poiMarkers);"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1154"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
+        errorLine1="   final MTMapIconZoomGroup currentZoomGroup = this.clusteringEnabled ? null : this.getCurrentMapIconZoomGroup(this.extendedGoogleMap,"
+        errorLine2="                                                                               ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1163"
+            column="80"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
+        errorLine1="   final MTMapIconZoomGroup currentZoomGroup = this.clusteringEnabled ? null : this.getCurrentMapIconZoomGroup(this.extendedGoogleMap,"
+        errorLine2="                                                                                                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1163"
+            column="112"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.hideLoading is deprecated; consider using an alternative."
+        errorLine1="  hideLoading();"
+        errorLine2="  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1180"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMarkers is deprecated; consider using an alternative."
+        errorLine1="   showMarkers(false, this.followingDevice);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1182"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getLogTag is deprecated; consider using an alternative."
+        errorLine1="  if (this.deviceLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.deviceLocation, newLocation)) {"
+        errorLine2="                                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1205"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMarkers is deprecated; consider using an alternative."
+        errorLine1="    showMarkers(true, true);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1211"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setupInitialCamera is deprecated; consider using an alternative."
+        errorLine1="    setupInitialCamera();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1214"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapViewOrNull is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = getMapViewOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1223"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMapInternal is deprecated; consider using an alternative."
+        errorLine1="  showMapInternal(null);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1230"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMapInternal is deprecated; consider using an alternative."
+        errorLine1="  showMapInternal(null);"
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1230"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapType is deprecated; consider using an alternative."
+        errorLine1="  setMapType(getMapType());"
+        errorLine2="             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1231"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setMapType is deprecated; consider using an alternative."
+        errorLine1="  setMapType(getMapType());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1231"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="  final boolean success = updateMapCamera(false, CameraUpdateFactory.newCameraPosition(this.lastCameraPosition));"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1240"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.updateMapCamera is deprecated; consider using an alternative."
+        errorLine1="  final boolean success = updateMapCamera(false, CameraUpdateFactory.newCameraPosition(this.lastCameraPosition));"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1240"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapViewOrNull is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = getMapViewOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1265"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.resetMapType is deprecated; consider using an alternative."
+        errorLine1="  resetMapType();"
+        errorLine2="  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1272"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
+        errorLine1="  setInitialCameraPosition("
+        errorLine2="  ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1301"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
+        errorLine1="    CameraPosition.builder()"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1302"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapViewOrNull is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = getMapViewOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1321"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setMarkerProvider is deprecated; consider using an alternative."
+        errorLine1="  setMarkerProvider(markerProvider);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1337"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setMarkerProvider is deprecated; consider using an alternative."
+        errorLine1="  setMarkerProvider(markerProvider);"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1337"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.clearMarkers is deprecated; consider using an alternative."
+        errorLine1="  clearMarkers();"
+        errorLine2="  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1338"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.clearClusterManagerItems is deprecated; consider using an alternative."
+        errorLine1="  clearClusterManagerItems();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1342"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getMapViewOrNull is deprecated; consider using an alternative."
+        errorLine1="  final MapView mapView = getMapViewOrNull();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1346"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.clearActivity is deprecated; consider using an alternative."
+        errorLine1="  clearActivity();"
+        errorLine2="  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1353"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.destroyMapView is deprecated; consider using an alternative."
+        errorLine1="  destroyMapView();"
+        errorLine2="  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1357"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.destroyGoogleMap is deprecated; consider using an alternative."
+        errorLine1="  destroyGoogleMap();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1361"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.clearMarkers is deprecated; consider using an alternative."
+        errorLine1="  clearMarkers();"
+        errorLine2="  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1366"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.clearActivity is deprecated; consider using an alternative."
+        errorLine1="  clearActivity();"
+        errorLine2="  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
+            line="1378"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getVehicleLocations is deprecated; consider using an alternative."
+        errorLine1="    val vehicleLocations = markerProvider.getVehicleLocations()?.takeIf { it.isNotEmpty() } ?: run {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewControllerExt.kt"
+            line="24"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
+        errorLine1="    val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewControllerExt.kt"
+            line="32"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
+        errorLine1="    val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewControllerExt.kt"
+            line="32"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getVehicleColorInt is deprecated; consider using an alternative."
+        errorLine1="    val vehicleColorInt = markerProvider.getVehicleColorInt()"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewControllerExt.kt"
+            line="33"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MapMarkerProvider.getVehicleType is deprecated; consider using an alternative."
+        errorLine1="    val vehicleDst = markerProvider.getVehicleType()"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MTMapViewControllerExt.kt"
+            line="34"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
         errorLine1="            org.mtransit.android.util.CrashUtils.w(this, e, &quot;Error while adding POI marker ID %s:%s&quot;, uuid, authority)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -3116,57 +5129,574 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapMarkerProvider.getVehicleLocations is deprecated; consider using an alternative."
-        errorLine1="    val vehicleLocations = markerProvider.getVehicleLocations()?.takeIf { it.isNotEmpty() } ?: run {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.view.MTMapViewController.getBigCameraPosition is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.getBigCameraPosition(activity, 1.0f)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
-            line="24"
-            column="28"/>
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="127"
+            column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
-        errorLine1="    val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.view.MTMapViewController.getBigCameraPosition is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.getBigCameraPosition(activity, 1.0f)"
+        errorLine2="                                                       ~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
-            line="32"
-            column="28"/>
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="127"
+            column="56"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.getCurrentMapIconZoomGroup is deprecated; consider using an alternative."
-        errorLine1="    val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)"
-        errorLine2="                                                      ~~~~~~~~~">
+        message="org.mtransit.android.ui.view.MTMapViewController.clearMarkers is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.clearMarkers()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
-            line="32"
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="133"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.addMarkers is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.addMarkers(it)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="134"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.addMarkers is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.addMarkers(it)"
+        errorLine2="                                             ~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="134"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.showMap(view)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="135"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.showMap(view)"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="135"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="        MTMapViewController("
+        errorLine2="        ^">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="141"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="            logTag,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="142"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="            null, // DO NOTHING (not linked with list adapter)"
+        errorLine2="            ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="143"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="            mapListener,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="144"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setAutoClickInfoWindow is deprecated; consider using an alternative."
+        errorLine1="            setAutoClickInfoWindow(true)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="159"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setLogTag is deprecated; consider using an alternative."
+        errorLine1="            logTag = this@MapFragment.logTag"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="160"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setLogTag is deprecated; consider using an alternative."
+        errorLine1="            logTag = this@MapFragment.logTag"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="160"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
+        errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="161"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
+        errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="168"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
+        errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="168"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onAttach is deprecated; consider using an alternative."
+        errorLine1="            onAttach(requireActivity())"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="169"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onAttach is deprecated; consider using an alternative."
+        errorLine1="            onAttach(requireActivity())"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="169"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
+        errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="170"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onCreate is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onCreate(savedInstanceState)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="176"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onCreate is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onCreate(savedInstanceState)"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="176"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
+        errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="184"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
+        errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="184"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
+        errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="184"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialLocation is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.setInitialLocation(it)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="193"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialLocation is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.setInitialLocation(it)"
+        errorLine2="                                                     ~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="193"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialSelectedUUID is deprecated; consider using an alternative."
+        errorLine1="            mapViewController.setInitialSelectedUUID(selectedUUID)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="199"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialSelectedUUID is deprecated; consider using an alternative."
+        errorLine1="            mapViewController.setInitialSelectedUUID(selectedUUID)"
+        errorLine2="                                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="199"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="204"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
+        errorLine1="            mapViewController.onDeviceLocationChanged(it)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="206"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
+        errorLine1="            mapViewController.onDeviceLocationChanged(it)"
+        errorLine2="                                                      ~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="206"
             column="55"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapMarkerProvider.getVehicleColorInt is deprecated; consider using an alternative."
-        errorLine1="    val vehicleColorInt = markerProvider.getVehicleColorInt()"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.view.MTMapViewController.showLoading is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.showLoading()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
-            line="33"
-            column="27"/>
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="221"
+            column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapMarkerProvider.getVehicleType is deprecated; consider using an alternative."
-        errorLine1="    val vehicleDst = markerProvider.getVehicleType()"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.view.MTMapViewController.hideLoading is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.hideLoading()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ui/view/MapViewControllerExt.kt"
-            line="34"
-            column="22"/>
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="223"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.clearMarkers is deprecated; consider using an alternative."
+        errorLine1="            mapViewController.clearMarkers() // new types -> RESET"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="227"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.addMarkers is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.addMarkers(poiMarkers)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="229"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.addMarkers is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.addMarkers(poiMarkers)"
+        errorLine2="                                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="229"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.showMap(view)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="230"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.showMap(view)"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="230"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onSaveInstanceState is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onSaveInstanceState(outState)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="236"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onSaveInstanceState is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onSaveInstanceState(outState)"
+        errorLine2="                                              ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="236"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onDetach is deprecated; consider using an alternative."
+        errorLine1="        this.mapViewController.onDetach()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="242"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onConfigurationChanged is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onConfigurationChanged(newConfig)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="247"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onConfigurationChanged is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onConfigurationChanged(newConfig)"
+        errorLine2="                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="247"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onResume is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onResume()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="252"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.showMap(view)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="253"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.showMap(view)"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="253"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onPause is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onPause()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="268"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="        super.onLowMemory()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="272"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onLowMemory()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="273"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onDestroyView is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onDestroyView()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="355"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onDestroy is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onDestroy()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="361"
+            column="9"/>
     </issue>
 
     <issue
@@ -3842,8 +6372,8 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="   new MapViewController("
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="   new MTMapViewController("
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
@@ -3853,7 +6383,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
         errorLine1="     LOG_TAG,"
         errorLine2="     ~~~~~~~">
         <location
@@ -3864,7 +6394,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
         errorLine1="     this,"
         errorLine2="     ~~~~">
         <location
@@ -3875,7 +6405,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
         errorLine1="     this,"
         errorLine2="     ~~~~">
         <location
@@ -3886,7 +6416,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setFocusedOnUUID is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setFocusedOnUUID is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3897,7 +6427,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setFocusedOnUUID is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setFocusedOnUUID is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3908,7 +6438,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onConfigurationChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onConfigurationChanged is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onConfigurationChanged(newConfig);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3919,7 +6449,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onConfigurationChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onConfigurationChanged is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onConfigurationChanged(newConfig);"
         errorLine2="                                                ~~~~~~~~~">
         <location
@@ -3930,7 +6460,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3941,7 +6471,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3952,7 +6482,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3963,7 +6493,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onAttach is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onAttach(requireActivity());"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3974,7 +6504,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onAttach is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onAttach(requireActivity());"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~">
         <location
@@ -3985,7 +6515,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDetach is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDetach is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onDetach();"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3996,7 +6526,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onCreate is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onCreate(savedInstanceState);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4007,7 +6537,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onCreate is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onCreate(savedInstanceState);"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
@@ -4018,7 +6548,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onViewCreated(view, savedInstanceState);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4029,7 +6559,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onViewCreated(view, savedInstanceState);"
         errorLine2="                                       ~~~~">
         <location
@@ -4040,7 +6570,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onViewCreated(view, savedInstanceState);"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
@@ -4051,7 +6581,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.notifyMarkerChanged(this);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4062,7 +6592,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.notifyMarkerChanged(this);"
         errorLine2="                                             ~~~~">
         <location
@@ -4073,7 +6603,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.showMap(getView());"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4084,7 +6614,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.showMap(getView());"
         errorLine2="                                 ~~~~~~~~~">
         <location
@@ -4095,7 +6625,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onSaveInstanceState is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onSaveInstanceState(outState);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4106,7 +6636,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onSaveInstanceState is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onSaveInstanceState(outState);"
         errorLine2="                                             ~~~~~~~~">
         <location
@@ -4117,7 +6647,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
         errorLine1="   this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));"
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4128,7 +6658,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
         errorLine1="   this.mapViewController.onDeviceLocationChanged(this.deviceLocation);"
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4139,7 +6669,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
         errorLine1="   this.mapViewController.onDeviceLocationChanged(this.deviceLocation);"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4150,7 +6680,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onResume is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onResume();"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4161,7 +6691,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onPause is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onPause();"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4183,7 +6713,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onLowMemory is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onLowMemory is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onLowMemory();"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4194,7 +6724,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroyView is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDestroyView is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onDestroyView();"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4205,7 +6735,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroy is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDestroy is deprecated; consider using an alternative."
         errorLine1="  this.mapViewController.onDestroy();"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4216,7 +6746,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.getCameraPosition is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.getCameraPosition is deprecated; consider using an alternative."
         errorLine1="                    RDSRouteFragment.newInstanceArgs(poim.poi, this.mapViewController.cameraPosition),"
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4227,7 +6757,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.getCameraPosition is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.getCameraPosition is deprecated; consider using an alternative."
         errorLine1="                    AgencyTypeFragment.newInstanceArgs(poim.poi, this.mapViewController.cameraPosition),"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4238,7 +6768,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.getCameraPosition is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.getCameraPosition is deprecated; consider using an alternative."
         errorLine1="                    RDSRouteFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),"
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4249,7 +6779,7 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.getCameraPosition is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.getCameraPosition is deprecated; consider using an alternative."
         errorLine1="                    AgencyTypeFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),"
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -5294,130 +7824,207 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="        MTMapViewController("
+        errorLine2="        ^">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="241"
+            line="192"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="            logTag,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="193"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="            mapMarkerProvider,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="194"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.MTMapViewController is deprecated; consider using an alternative."
+        errorLine1="            null, // DO NOTHING (map click, camera change)"
+        errorLine2="            ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="195"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setAutoClickInfoWindow is deprecated; consider using an alternative."
+        errorLine1="            setAutoClickInfoWindow(true)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="210"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
+        errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="211"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onCreate is deprecated; consider using an alternative."
+        errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="240"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onCreate is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="241"
+            line="240"
             column="41"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="246"
+            line="245"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
         errorLine2="                                             ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="246"
+            line="245"
             column="46"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onViewCreated is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="246"
+            line="245"
             column="52"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLogTag is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setLogTag is deprecated; consider using an alternative."
         errorLine1="            mapViewController.logTag = this@RDSDirectionStopsFragment.logTag"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="323"
+            line="322"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLogTag is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setLogTag is deprecated; consider using an alternative."
         errorLine1="            mapViewController.logTag = this@RDSDirectionStopsFragment.logTag"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="323"
+            line="322"
             column="40"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
         errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="326"
+            line="325"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
         errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
         errorLine2="                                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="326"
+            line="325"
             column="55"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onResume is deprecated; consider using an alternative."
         errorLine1="                mapViewController.onResume()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="333"
+            line="332"
             column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onPause is deprecated; consider using an alternative."
         errorLine1="                mapViewController.onPause()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="336"
+            line="335"
             column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setShowAllMarkersWhenReady is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setShowAllMarkersWhenReady is deprecated; consider using an alternative."
         errorLine1="                mapViewController.setShowAllMarkersWhenReady(false)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="342"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
+        errorLine1="                mapViewController.setInitialCameraPosition(cameraPosition)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="343"
@@ -5426,254 +8033,243 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
-        errorLine1="                mapViewController.setInitialCameraPosition(cameraPosition)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="344"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialCameraPosition is deprecated; consider using an alternative."
         errorLine1="                mapViewController.setInitialCameraPosition(cameraPosition)"
         errorLine2="                                                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="344"
+            line="343"
             column="60"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
         errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="389"
+            line="388"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
         errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="389"
+            line="388"
             column="51"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setInitialSelectedUUID is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialSelectedUUID is deprecated; consider using an alternative."
         errorLine1="        mapViewController.setInitialSelectedUUID(rdsUUID)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="409"
+            line="408"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setInitialSelectedUUID is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setInitialSelectedUUID is deprecated; consider using an alternative."
         errorLine1="        mapViewController.setInitialSelectedUUID(rdsUUID)"
         errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="409"
+            line="408"
             column="50"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.hideMap is deprecated; consider using an alternative."
         errorLine1="                mapViewController.hideMap()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="479"
+            line="478"
             column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.hideMap is deprecated; consider using an alternative."
         errorLine1="                mapViewController.hideMap()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="486"
+            line="485"
             column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.showMap(view)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="495"
+            line="494"
             column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.showMap(view)"
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="495"
+            line="494"
             column="47"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.hideMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.hideMap()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="497"
+            line="496"
             column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.showMap(view)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="501"
+            line="500"
             column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.showMap is deprecated; consider using an alternative."
         errorLine1="                    mapViewController.showMap(view)"
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="501"
+            line="500"
             column="47"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
         errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="510"
+            line="509"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
         errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="510"
+            line="509"
             column="38"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onAttach is deprecated; consider using an alternative."
         errorLine1="            onAttach(requireActivity())"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="511"
+            line="510"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onAttach is deprecated; consider using an alternative."
         errorLine1="            onAttach(requireActivity())"
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="511"
+            line="510"
             column="22"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
         errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="512"
+            line="511"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onSaveInstanceState is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onSaveInstanceState(outState)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="517"
+            line="516"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onSaveInstanceState is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onSaveInstanceState(outState)"
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="517"
+            line="516"
             column="47"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDetach is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDetach is deprecated; consider using an alternative."
         errorLine1="        this.mapViewController.onDetach()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="523"
+            line="522"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onResume is deprecated; consider using an alternative."
         errorLine1="            mapViewController.onResume()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="529"
+            line="528"
             column="13"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onPause is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onPause()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="559"
+            line="558"
             column="9"/>
     </issue>
 
@@ -5684,40 +8280,40 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
+            line="565"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MTMapViewController.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="        mapViewController.onLowMemory()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
             line="566"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onLowMemory is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onLowMemory()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="567"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroyView is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDestroyView is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onDestroyView()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="573"
+            line="572"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroy is deprecated; consider using an alternative."
+        message="org.mtransit.android.ui.view.MTMapViewController.onDestroy is deprecated; consider using an alternative."
         errorLine1="        mapViewController.onDestroy()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="580"
+            line="579"
             column="9"/>
     </issue>
 
