@@ -27,7 +27,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.commons.dpToPx
-import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.MTMapViewController
 import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
 import org.mtransit.android.ui.view.common.height
@@ -163,10 +163,9 @@ fun View.applyStatusBarsHeightEdgeToEdge(@Px initialHeightPx: Int = 0) {
     }
 }
 
-@Suppress("DeprecatedCall")
 @JvmOverloads
 fun MapView.setUpMapEdgeToEdge(
-    mapViewController: MapViewController,
+    mapViewController: MTMapViewController,
     topPaddingSp: Int?,
     bottomPaddingSp: Int?,
     @Px originalHeightPx: Int? = null,

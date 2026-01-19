@@ -37,7 +37,7 @@ import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
-import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.MTMapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -123,7 +123,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
-    private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+    private val mapMarkerProvider = object : MTMapViewController.MapMarkerProvider {
 
         override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
@@ -153,9 +153,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
     }
 
-    @Suppress("DeprecatedCall")
-    private val mapViewController: MapViewController by lazy {
-        MapViewController(
+    private val mapViewController: MTMapViewController by lazy {
+        MTMapViewController(
             logTag,
             mapMarkerProvider,
             null, // DO NOTHING (map click, camera change)

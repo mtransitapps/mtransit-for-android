@@ -12,7 +12,7 @@ import org.mtransit.android.ui.view.map.toExtendedMarkerOptions
 import org.mtransit.android.ui.view.map.updateMarker
 import org.mtransit.android.ui.view.map.uuidOrGenerated
 
-fun MapViewController.updateVehicleLocationMarkers(context: Context) {
+fun MTMapViewController.updateVehicleLocationMarkers(context: Context) {
     val googleMap = this.extendedGoogleMap ?: run {
         MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no google map)")
         return
@@ -53,17 +53,18 @@ fun MapViewController.updateVehicleLocationMarkers(context: Context) {
 }
 
 @JvmOverloads
-fun MapViewController.removeMissingVehicleLocationMarkers(
+fun MTMapViewController.removeMissingVehicleLocationMarkers(
     processedVehicleLocationsUUIDs: Set<String> = emptySet(),
 ) {
     this.vehicleLocationsMarkers.entries.forEach { (uuid, _) ->
+        if (processedVehicleLocationsUUIDs.contains(uuid)) return@forEach // KEEP
         this.vehicleLocationsMarkers.remove(uuid)?.let { marker -> // REMOVE
             marker.remove()
         }
     }
 }
 
-fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
+fun MTMapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
     this.vehicleLocationsMarkers.entries.forEach { (_, marker) ->
         val marker = marker.takeIf { it.isInfoWindowShown } ?: return@forEach
         val vehicleLocation = marker.getData<VehicleLocation>() ?: return@forEach

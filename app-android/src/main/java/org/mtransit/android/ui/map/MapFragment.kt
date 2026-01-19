@@ -35,15 +35,13 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.MTMapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.map.IMarker
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
-
-@Suppress("DeprecatedCall")
 @AndroidEntryPoint
 class MapFragment : ABFragment(R.layout.fragment_map),
     DeviceLocationListener,
@@ -118,7 +116,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
-    private val mapListener = object : MapViewController.MapListener {
+    private val mapListener = object : MTMapViewController.MapListener {
 
         override fun onMapClick(position: LatLng) = Unit // DO NOTHING
 
@@ -139,9 +137,8 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         }
     }
 
-    @Suppress("DeprecatedCall")
-    private val mapViewController: MapViewController by lazy {
-        MapViewController(
+    private val mapViewController: MTMapViewController by lazy {
+        MTMapViewController(
             logTag,
             null, // DO NOTHING (not linked with list adapter)
             mapListener,

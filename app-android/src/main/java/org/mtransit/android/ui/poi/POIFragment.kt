@@ -57,7 +57,7 @@ package org.mtransit.android.ui.poi
 //import org.mtransit.android.ui.nearby.NearbyFragment
 //import org.mtransit.android.ui.news.NewsListFragment
 //import org.mtransit.android.ui.schedule.ScheduleFragment
-//import org.mtransit.android.ui.view.MapViewController
+//import org.mtransit.android.ui.view.MTMapViewController
 //import org.mtransit.android.ui.view.POIDataProvider
 //import org.mtransit.android.ui.view.POINewsViewController
 //import org.mtransit.android.ui.view.POIServiceUpdateViewController
@@ -138,9 +138,9 @@ package org.mtransit.android.ui.poi
 // private var poiRewardedAdBinding: LayoutPoiRewardedAdBinding? = null
 // // private var nearbyMoreBtn: View? = null
 //
-// private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+// private val mapMarkerProvider = object : MTMapViewController.MapMarkerProvider {
 //
-// override fun getPOMarkers(): Collection<MapViewController.POIMarker>? = null
+// override fun getPOMarkers(): Collection<MTMapViewController.POIMarker>? = null
 //
 // override fun getPOIs() = viewModel.poimV?.let { listOf(it) }
 //
@@ -151,7 +151,7 @@ package org.mtransit.android.ui.poi
 // }
 // }
 //
-// private val mapListener = object : MapViewController.MapListener {
+// private val mapListener = object : MTMapViewController.MapListener {
 //
 // override fun onMapClick(position: LatLng) {
 // if (!FragmentUtils.isFragmentReady(this@POIFragment)) {
@@ -179,8 +179,8 @@ package org.mtransit.android.ui.poi
 // }
 // }
 //
-// private val mapViewController: MapViewController by lazy {
-// MapViewController(
+// private val mapViewController: MTMapViewController by lazy {
+// MTMapViewController(
 // logTag,
 // mapMarkerProvider,
 // mapListener,

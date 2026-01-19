@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.view;
 
-import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
-import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
+import static org.mtransit.android.ui.view.MTMapViewControllerExtKt.removeMissingVehicleLocationMarkers;
+import static org.mtransit.android.ui.view.MTMapViewControllerExtKt.updateVehicleLocationMarkers;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -79,12 +79,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings({"WeakerAccess", "DeprecatedCall"})
-public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListener, ExtendedGoogleMap.OnInfoWindowClickListener,
+public class MTMapViewController implements ExtendedGoogleMap.OnCameraChangeListener, ExtendedGoogleMap.OnInfoWindowClickListener,
 		ExtendedGoogleMap.OnMapLoadedCallback, ExtendedGoogleMap.OnMarkerClickListener, ExtendedGoogleMap.OnMyLocationButtonClickListener,
 		ExtendedGoogleMap.OnMapClickListener, LocationSource, OnMapReadyCallback, ViewTreeObserver.OnGlobalLayoutListener, MTLog.Loggable {
 
-	private static final String LOG_TAG = MapViewController.class.getSimpleName();
+	private static final String LOG_TAG = MTMapViewController.class.getSimpleName();
 
 	@NonNull
 	private String logTag = LOG_TAG;
@@ -181,22 +180,24 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
 
-	public MapViewController(@NonNull String logTag,
-							 @Nullable MapMarkerProvider markerProvider,
-							 @Nullable MapListener mapListener,
-							 boolean mapToolbarEnabled,
-							 boolean myLocationEnabled,
-							 boolean myLocationButtonEnabled,
-							 boolean indoorLevelPickerEnabled,
-							 boolean trafficEnabled,
-							 boolean indoorEnabled,
-							 int paddingTopSp,
-							 int paddingBottomSp,
-							 boolean followingDevice,
-							 boolean hasButtons,
-							 boolean clusteringEnabled,
-							 boolean showAllMarkersWhenReady,
-							 boolean markerLabelShowExtra) {
+	public MTMapViewController(
+			@NonNull String logTag,
+			@Nullable MapMarkerProvider markerProvider,
+			@Nullable MapListener mapListener,
+			boolean mapToolbarEnabled,
+			boolean myLocationEnabled,
+			boolean myLocationButtonEnabled,
+			boolean indoorLevelPickerEnabled,
+			boolean trafficEnabled,
+			boolean indoorEnabled,
+			int paddingTopSp,
+			int paddingBottomSp,
+			boolean followingDevice,
+			boolean hasButtons,
+			boolean clusteringEnabled,
+			boolean showAllMarkersWhenReady,
+			boolean markerLabelShowExtra
+	) {
 		setLogTag(logTag);
 		setMarkerProvider(markerProvider);
 		setMapListener(mapListener);
@@ -926,7 +927,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		refreshMapMarkers(false);
 	}
 
-	public void refreshMapMarkers() {
+	private void refreshMapMarkers() {
 		refreshMapMarkers(true);
 	}
 
@@ -991,10 +992,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@SuppressWarnings("deprecation")
 	private static class LoadClusterItemsTask extends MTCancellableAsyncTask<Void, Void, Collection<MTPOIMarker>> {
 
-		private final String LOG_TAG = MapViewController.class.getSimpleName() + ">" + LoadClusterItemsTask.class.getSimpleName();
+		private final String LOG_TAG = MTMapViewController.class.getSimpleName() + ">" + LoadClusterItemsTask.class.getSimpleName();
 
 		@NonNull
-		private final WeakReference<MapViewController> mapViewControllerWR;
+		private final WeakReference<MTMapViewController> mapViewControllerWR;
 		private final boolean update;
 		@NonNull
 		private final Area visibleArea;
@@ -1005,7 +1006,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return LOG_TAG;
 		}
 
-		private LoadClusterItemsTask(MapViewController mapViewController, boolean update, @NonNull Area visibleArea) {
+		private LoadClusterItemsTask(MTMapViewController mapViewController, boolean update, @NonNull Area visibleArea) {
 			this.mapViewControllerWR = new WeakReference<>(mapViewController);
 			this.update = update;
 			this.visibleArea = visibleArea;
@@ -1014,7 +1015,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		@WorkerThread
 		@Override
 		protected Collection<MTPOIMarker> doInBackgroundNotCancelledMT(Void... params) {
-			final MapViewController mapViewController = this.mapViewControllerWR.get();
+			final MTMapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				return null;
 			}
@@ -1031,7 +1032,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		@WorkerThread
 		@Nullable
-		private Collection<MTPOIMarker> createPOIMarkers(MapMarkerProvider markerProvider, MapViewController mapViewController) {
+		private Collection<MTPOIMarker> createPOIMarkers(MapMarkerProvider markerProvider, MTMapViewController mapViewController) {
 			final Collection<POIManager> pois = markerProvider.getPOIs();
 			if (pois == null) {
 				return null;
@@ -1102,7 +1103,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable Collection<MTPOIMarker> poiMarkers) {
-			final MapViewController mapViewController = this.mapViewControllerWR.get();
+			final MTMapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no controller)");
 				return;
@@ -1153,7 +1154,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return addMarkers(context, poiMarkers);
 	}
 
-	public boolean addMarkers(@NonNull Context context, @Nullable Collection<MTPOIMarker> poiMarkers) {
+	private boolean addMarkers(@NonNull Context context, @Nullable Collection<MTPOIMarker> poiMarkers) {
 		if (this.extendedGoogleMap == null) {
 			MTLog.d(this, "addMarkers() > SKIP (no map)");
 			return false;
@@ -1233,6 +1234,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private boolean showLastCameraPosition() {
 		if (this.lastCameraPosition == null) {
+			MTLog.d(this, "showLastCameraPosition() > SKIP (no camera position)");
 			return false; // nothing shown
 		}
 		final boolean success = updateMapCamera(false, CameraUpdateFactory.newCameraPosition(this.lastCameraPosition));

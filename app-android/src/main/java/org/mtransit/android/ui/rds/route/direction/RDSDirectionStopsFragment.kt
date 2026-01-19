@@ -50,7 +50,7 @@ import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.MTMapViewController
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -157,7 +157,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
-    private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+    private val mapMarkerProvider = object : MTMapViewController.MapMarkerProvider {
 
         override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
@@ -188,9 +188,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
     }
 
-    @Suppress("DeprecatedCall")
-    private val mapViewController: MapViewController by lazy {
-        MapViewController(
+    private val mapViewController: MTMapViewController by lazy {
+        MTMapViewController(
             logTag,
             mapMarkerProvider,
             null, // DO NOTHING (map click, camera change)
