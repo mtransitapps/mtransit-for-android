@@ -294,7 +294,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="382"
+            line="381"
             column="9"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingGoogleMap.java"
-            line="82"
+            line="80"
             column="10"/>
     </issue>
 
@@ -2071,100 +2071,12 @@
 
     <issue
         id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onActivityCreated is deprecated; consider using an alternative."
-        errorLine1="  super.onActivityCreated(savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="49"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onActivityResult is deprecated; consider using an alternative."
-        errorLine1="  super.onActivityResult(requestCode, resultCode, data);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="58"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onAttach is deprecated; consider using an alternative."
-        errorLine1="  super.onAttach(activity);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="67"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onInflate is deprecated; consider using an alternative."
-        errorLine1="  super.onInflate(activity, attrs, savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="134"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onLowMemory is deprecated; consider using an alternative."
-        errorLine1="  super.onLowMemory();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="150"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onCreateOptionsMenu is deprecated; consider using an alternative."
-        errorLine1="  super.onCreateOptionsMenu(menu, inflater);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="231"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onPrepareOptionsMenu is deprecated; consider using an alternative."
-        errorLine1="  super.onPrepareOptionsMenu(menu);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="244"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onOptionsItemSelected is deprecated; consider using an alternative."
-        errorLine1="  return super.onOptionsItemSelected(item);"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="253"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="android.view.Display.getSize is deprecated; consider using an alternative."
         errorLine1="   activity.getWindowManager().getDefaultDisplay().getSize(size);"
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="745"
+            line="733"
             column="4"/>
     </issue>
 
@@ -2175,7 +2087,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="745"
+            line="733"
             column="4"/>
     </issue>
 
@@ -2186,7 +2098,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="827"
+            line="813"
             column="4"/>
     </issue>
 
@@ -2197,7 +2109,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="827"
+            line="813"
             column="17"/>
     </issue>
 
@@ -2208,7 +2120,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="827"
+            line="813"
             column="23"/>
     </issue>
 
@@ -2219,7 +2131,7 @@
         errorLine2="                                                                              ~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="827"
+            line="813"
             column="79"/>
     </issue>
 
@@ -2230,7 +2142,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="972"
+            line="951"
             column="44"/>
     </issue>
 
@@ -2241,7 +2153,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="974"
+            line="953"
             column="32"/>
     </issue>
 
@@ -2252,7 +2164,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="974"
+            line="953"
             column="32"/>
     </issue>
 
@@ -2263,7 +2175,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="974"
+            line="953"
             column="71"/>
     </issue>
 
@@ -2274,7 +2186,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="974"
+            line="953"
             column="71"/>
     </issue>
 
@@ -2285,7 +2197,7 @@
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1063"
+            line="1041"
             column="11"/>
     </issue>
 
@@ -2296,7 +2208,7 @@
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1063"
+            line="1041"
             column="11"/>
     </issue>
 
@@ -2307,7 +2219,7 @@
         errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1148"
+            line="1107"
             column="6"/>
     </issue>
 
@@ -2318,7 +2230,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1148"
+            line="1107"
             column="19"/>
     </issue>
 
@@ -2329,7 +2241,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1148"
+            line="1107"
             column="25"/>
     </issue>
 
@@ -2340,7 +2252,7 @@
         errorLine2="                                                                           ~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1148"
+            line="1107"
             column="76"/>
     </issue>
 
@@ -3539,7 +3451,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1663"
+            line="1648"
             column="3"/>
     </issue>
 
@@ -4584,7 +4496,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="601"
+            line="565"
             column="9"/>
     </issue>
 
@@ -4793,7 +4705,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="24"
+            line="23"
             column="5"/>
     </issue>
 
@@ -4804,7 +4716,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="24"
+            line="23"
             column="5"/>
     </issue>
 
@@ -4815,7 +4727,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="31"
+            line="30"
             column="9"/>
     </issue>
 
@@ -4826,7 +4738,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="31"
+            line="30"
             column="9"/>
     </issue>
 
@@ -4837,29 +4749,18 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="50"
+            line="46"
             column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
-        errorLine1="        if (isShowingAds == true &amp;&amp; !isCancelled) { // show ads"
-        errorLine2="                                     ~~~~~~~~~~~">
+        errorLine1="        if (isShowingAds &amp;&amp; !isCancelled) { // show ads"
+        errorLine2="                             ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="60"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.banner.SetupBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
-        errorLine1="                    adView = makeNewAdView(activity, adLayout)"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="65"
+            line="53"
             column="30"/>
     </issue>
 
@@ -4870,7 +4771,18 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="65"
+            line="58"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.banner.SetupBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
+        errorLine1="                    adView = makeNewAdView(activity, adLayout)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
+            line="58"
             column="30"/>
     </issue>
 
@@ -6284,225 +6196,6 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_boat_24` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/baseline_directions_boat_24.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_boat_white_18` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_boat_white_18.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_boat_white_20` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_boat_white_20.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_boat_white_24` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_boat_white_24.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_boat_white_36` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_boat_white_36.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_boat_white_48` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_boat_white_48.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_bus_white_18` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_bus_white_18.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_bus_white_20` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_bus_white_20.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_bus_white_24` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_bus_white_24.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_bus_white_36` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_bus_white_36.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_bus_white_48` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_bus_white_48.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_railway_24` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/baseline_directions_railway_24.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_railway_white_18` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_railway_white_18.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_railway_white_20` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_railway_white_20.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_railway_white_24` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_railway_white_24.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_railway_white_36` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_railway_white_36.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_directions_railway_white_48` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_railway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_subway_24` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/baseline_subway_24.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_subway_white_18` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_subway_white_18.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_subway_white_20` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_subway_white_20.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_subway_white_24` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_subway_white_24.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_subway_white_36` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_subway_white_36.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_subway_white_48` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_subway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_tram_24` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/baseline_tram_24.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_tram_white_18` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_tram_white_18.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_tram_white_20` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_tram_white_20.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_tram_white_24` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_tram_white_24.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_tram_white_36` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_tram_white_36.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.baseline_tram_white_48` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/baseline_tram_white_48.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.color.color_primary_variant` appears to be unused"
         errorLine1="    &lt;color name=&quot;color_primary_variant&quot;>@color/color_primary&lt;/color>"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -6569,157 +6262,6 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.drawable.directions_bus_24dp_black` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/directions_bus_24dp_black.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.layout_map_marker_vehicle` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/layout_map_marker_vehicle.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_place_white_slim_original` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_place_white_slim_original.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_replace_flat_filled` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_replace_flat_filled.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_replace_flat_filled_small` appears to be unused">
-        <location
-            file="src/main/res/drawable-xxxhdpi/map_icon_stop_replace_flat_filled_small.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_arrow` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_arrow.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_arrow_small` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_arrow_small.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_boat` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_boat.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_boat_big` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_boat_big.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_bus` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_bus.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_bus_big` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_bus_big.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_bus_small` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_bus_small.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_railway` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_railway.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_railway_big` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_railway_big.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_subway` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_subway.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_subway_big` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_subway_big.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_tram` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_tram.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_filled_tram_big` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_filled_tram_big.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.map_icon_stop_white_flat_small` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/map_icon_stop_white_flat_small.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.support_start_and_days_trial` appears to be unused"
         errorLine1="    &lt;string name=&quot;support_start_and_days_trial&quot;>Start %d-day free trial&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -6727,334 +6269,6 @@
             file="src/main/res/values/strings.xml"
             line="255"
             column="13"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-hdpi`: map_icon_stop_replace_flat_filled_small.png (found in drawable-xxxhdpi)">
-        <location
-            file="src/main/res/drawable-hdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-mdpi`: map_icon_stop_replace_flat_filled_small.png (found in drawable-xxxhdpi)">
-        <location
-            file="src/main/res/drawable-mdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-xhdpi`: map_icon_stop_replace_flat_filled_small.png (found in drawable-xxxhdpi)">
-        <location
-            file="src/main/res/drawable-xhdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-xxhdpi`: map_icon_stop_replace_flat_filled_small.png (found in drawable-xxxhdpi)">
-        <location
-            file="src/main/res/drawable-xxhdpi"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_boat_white_24.png, baseline_directions_boat_white_36.png, baseline_directions_boat_white_18.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_boat_white_18.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_directions_boat_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_boat_white_24.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_boat_white_36.png, baseline_directions_boat_white_18.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_directions_boat_white_18.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_boat_white_36.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_boat_white_48.png, baseline_directions_boat_white_36.png, baseline_directions_boat_white_24.png, baseline_directions_boat_white_18.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_directions_boat_white_18.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_directions_boat_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_boat_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_boat_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_boat_white_48.png, baseline_directions_boat_white_24.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_boat_white_24.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_directions_boat_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_boat_white_48.png, baseline_directions_boat_white_24.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_directions_boat_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_boat_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_boat_white_48.png, baseline_directions_boat_white_36.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_directions_boat_white_36.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_directions_boat_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_bus_white_24.png, baseline_directions_bus_white_36.png, baseline_directions_bus_white_18.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_bus_white_18.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_directions_bus_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_bus_white_24.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_bus_white_36.png, baseline_directions_bus_white_18.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_directions_bus_white_18.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_bus_white_36.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_bus_white_48.png, baseline_directions_bus_white_36.png, baseline_directions_bus_white_24.png, baseline_directions_bus_white_18.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_directions_bus_white_18.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_directions_bus_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_bus_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_bus_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_bus_white_48.png, baseline_directions_bus_white_24.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_bus_white_24.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_directions_bus_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_bus_white_48.png, baseline_directions_bus_white_24.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_directions_bus_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_bus_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_bus_white_48.png, baseline_directions_bus_white_36.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_directions_bus_white_36.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_directions_bus_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_railway_white_24.png, baseline_directions_railway_white_36.png, baseline_directions_railway_white_18.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_railway_white_18.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_directions_railway_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_railway_white_24.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_railway_white_36.png, baseline_directions_railway_white_18.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_directions_railway_white_18.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_railway_white_36.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_railway_white_48.png, baseline_directions_railway_white_36.png, baseline_directions_railway_white_24.png, baseline_directions_railway_white_18.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_directions_railway_white_18.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_directions_railway_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_railway_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_directions_railway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_railway_white_48.png, baseline_directions_railway_white_24.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_railway_white_24.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_directions_railway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_railway_white_48.png, baseline_directions_railway_white_24.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_directions_railway_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_directions_railway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_directions_railway_white_48.png, baseline_directions_railway_white_36.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_directions_railway_white_36.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_directions_railway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_subway_white_24.png, baseline_subway_white_36.png, baseline_subway_white_18.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_subway_white_18.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_subway_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_subway_white_24.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_subway_white_36.png, baseline_subway_white_18.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_subway_white_18.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_subway_white_36.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_subway_white_48.png, baseline_subway_white_36.png, baseline_subway_white_24.png, baseline_subway_white_18.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_subway_white_18.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_subway_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_subway_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_subway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_subway_white_48.png, baseline_subway_white_24.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_subway_white_24.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_subway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_subway_white_48.png, baseline_subway_white_24.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_subway_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_subway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_subway_white_48.png, baseline_subway_white_36.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_subway_white_36.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_subway_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_tram_white_24.png, baseline_tram_white_36.png, baseline_tram_white_18.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_tram_white_18.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_tram_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_tram_white_24.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_tram_white_36.png, baseline_tram_white_18.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_tram_white_18.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_tram_white_36.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_tram_white_48.png, baseline_tram_white_36.png, baseline_tram_white_24.png, baseline_tram_white_18.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_tram_white_18.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_tram_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_tram_white_36.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/baseline_tram_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_tram_white_48.png, baseline_tram_white_24.png">
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_tram_white_24.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/baseline_tram_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_tram_white_48.png, baseline_tram_white_24.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_tram_white_24.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/baseline_tram_white_48.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: baseline_tram_white_48.png, baseline_tram_white_36.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/baseline_tram_white_36.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/baseline_tram_white_48.png"/>
     </issue>
 
     <issue
