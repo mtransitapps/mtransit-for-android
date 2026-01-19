@@ -294,7 +294,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="381"
+            line="380"
             column="9"/>
     </issue>
 
@@ -2071,193 +2071,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="android.view.Display.getSize is deprecated; consider using an alternative."
-        errorLine1="   activity.getWindowManager().getDefaultDisplay().getSize(size);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="733"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.view.WindowManager.getDefaultDisplay is deprecated; consider using an alternative."
-        errorLine1="   activity.getWindowManager().getDefaultDisplay().getSize(size);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="733"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="813"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
-        errorLine2="                ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="813"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="813"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
-        errorLine2="                                                                              ~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="813"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.os.AsyncTask.getStatus is deprecated; consider using an alternative."
-        errorLine1="  if (this.loadClusterItemsTask == null || this.loadClusterItemsTask.getStatus() != LoadClusterItemsTask.Status.RUNNING) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="951"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
-        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="953"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
-        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="953"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
-        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
-        errorLine2="                                                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="953"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
-        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
-        errorLine2="                                                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="953"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.createPOIMarkers is deprecated; consider using an alternative."
-        errorLine1="   return createPOIMarkers(markerProvider, mapViewController);"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1041"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MTMapViewController.LoadClusterItemsTask.createPOIMarkers is deprecated; consider using an alternative."
-        errorLine1="   return createPOIMarkers(markerProvider, mapViewController);"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1041"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
-        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1107"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1107"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1107"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
-        errorLine2="                                                                           ~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/MTMapViewController.java"
-            line="1107"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
         errorLine1="            org.mtransit.android.util.CrashUtils.w(this, e, &quot;Error while adding POI marker ID %s:%s&quot;, uuid, authority)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -2771,6 +2584,193 @@
             file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
             line="273"
             column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.Display.getSize is deprecated; consider using an alternative."
+        errorLine1="   activity.getWindowManager().getDefaultDisplay().getSize(size);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="733"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.view.WindowManager.getDefaultDisplay is deprecated; consider using an alternative."
+        errorLine1="   activity.getWindowManager().getDefaultDisplay().getSize(size);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="733"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="813"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
+        errorLine2="                ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="813"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="813"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="   CrashUtils.w(this, &quot;Error while computing camera update to show markers!&quot;, e);"
+        errorLine2="                                                                              ~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="813"
+            column="79"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.os.AsyncTask.getStatus is deprecated; consider using an alternative."
+        errorLine1="  if (this.loadClusterItemsTask == null || this.loadClusterItemsTask.getStatus() != LoadClusterItemsTask.Status.RUNNING) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="951"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
+        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="953"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
+        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="953"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
+        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
+        errorLine2="                                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="953"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.LoadClusterItemsTask.LoadClusterItemsTask is deprecated; consider using an alternative."
+        errorLine1="   this.loadClusterItemsTask = new LoadClusterItemsTask(this, update, visibleArea);"
+        errorLine2="                                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="953"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.LoadClusterItemsTask.createPOIMarkers is deprecated; consider using an alternative."
+        errorLine1="   return createPOIMarkers(markerProvider, mapViewController);"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="1041"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ui.view.MapViewController.LoadClusterItemsTask.createPOIMarkers is deprecated; consider using an alternative."
+        errorLine1="   return createPOIMarkers(markerProvider, mapViewController);"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="1041"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
+        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="1107"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
+        errorLine2="                  ~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="1107"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="1107"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
+        errorLine1="     CrashUtils.w(this, &quot;ClassCastException while loading cluster items!&quot;, cce);"
+        errorLine2="                                                                           ~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/view/MapViewController.java"
+            line="1107"
+            column="76"/>
     </issue>
 
     <issue
@@ -4496,7 +4496,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="565"
+            line="564"
             column="9"/>
     </issue>
 
