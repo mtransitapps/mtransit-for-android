@@ -77,17 +77,16 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 		return LOG_TAG;
 	}
 
+	@NonNull
+	private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
 	@Nullable
 	private SharedPreferences _prefs;
 
 	@Inject
 	public LocalPreferenceRepository(@NonNull @ApplicationContext Context appContext) {
 		super(appContext);
-		try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
-			executorService.execute(() -> _prefs = loadPrefs());
-		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Exception while loading prefs!");
-		}
+		executorService.execute(() -> _prefs = loadPrefs());
 	}
 
 	@WorkerThread
