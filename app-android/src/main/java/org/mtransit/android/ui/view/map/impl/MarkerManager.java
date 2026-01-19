@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -32,6 +31,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		return LOG_TAG;
 	}
 
+	@NonNull
 	private final IGoogleMap factory;
 
 	private final ArrayMap<LazyMarker, DelegatingMarker> markers;
@@ -44,7 +44,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 
 	private final MarkerAnimator markerAnimator = new MarkerAnimator();
 
-	public MarkerManager(IGoogleMap factory) {
+	public MarkerManager(@NonNull IGoogleMap factory) {
 		this.factory = factory;
 		this.markers = new ArrayMap<>();
 		this.createdMarkers = new ArrayMap<>();
@@ -119,8 +119,16 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		markerAnimator.animate(marker, marker.getPosition(), target, SystemClock.uptimeMillis(), settings, callback);
 	}
 
-	public void onCameraChange(CameraPosition cameraPosition) {
-		clusteringStrategy.onCameraChange(cameraPosition);
+	public void onCameraMoveStarted(int reason) {
+		clusteringStrategy.onCameraMoveStarted(reason);
+	}
+
+	public void onCameraMove() {
+		clusteringStrategy.onCameraMove();
+	}
+
+	public void onCameraIdle() {
+		clusteringStrategy.onCameraIdle();
 	}
 
 	public void onClusterGroupChange(DelegatingMarker marker) {

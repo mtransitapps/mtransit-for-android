@@ -67,6 +67,7 @@ private fun ComponentActivity.edgeToEdgeOptOut() {
     if (UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
+    @Suppress("SimplifyBooleanWithConstants")
     if (BuildConfig.TARGET_SDK_VERSION < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
         return
     }

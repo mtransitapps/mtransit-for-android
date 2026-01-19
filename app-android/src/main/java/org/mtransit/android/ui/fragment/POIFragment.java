@@ -457,7 +457,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onCameraChange(@NonNull LatLngBounds latLngBounds, float zoom) {
+	public void onCameraChanged(@NonNull LatLngBounds latLngBounds, float zoom) {
 		// DO NOTHING
 	}
 

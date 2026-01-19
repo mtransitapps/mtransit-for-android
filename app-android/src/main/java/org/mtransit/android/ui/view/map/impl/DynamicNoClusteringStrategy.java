@@ -3,7 +3,6 @@ package org.mtransit.android.ui.view.map.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
 
@@ -26,11 +25,12 @@ class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable 
 		return TAG;
 	}
 
+	@NonNull
 	private final IGoogleMap map;
 	private final Set<DelegatingMarker> markers = new HashSet<>();
 	private LatLngBounds visibleRegionBounds;
 
-	DynamicNoClusteringStrategy(IGoogleMap map, List<DelegatingMarker> markers) {
+	DynamicNoClusteringStrategy(@NonNull IGoogleMap map, List<DelegatingMarker> markers) {
 		this.map = map;
 		for (DelegatingMarker marker : markers) {
 			if (marker.isVisible()) {
@@ -46,8 +46,18 @@ class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable 
 	}
 
 	@Override
-	public void onCameraChange(CameraPosition cameraPosition) {
+	public void onCameraMoveStarted(int reason) {
+		// do nothing
+	}
+
+	@Override
+	public void onCameraMove() {
 		showMarkersInVisibleRegion();
+	}
+
+	@Override
+	public void onCameraIdle() {
+		// do nothing
 	}
 
 	@Override

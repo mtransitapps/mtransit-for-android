@@ -122,10 +122,11 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
         override fun onMarkerClick(marker: IMarker?) = false
 
-        override fun onCameraChange(latLngBounds: LatLngBounds, zoom: Float) {
-            attachedViewModel?.onCameraChange(latLngBounds) {
-                mapViewController.getBigCameraPosition(activity, 1.0f)
-            }
+        override fun onCameraChanged(latLngBounds: LatLngBounds, zoom: Float) {
+            attachedViewModel?.onCameraChanged(
+                latLngBounds,
+                getBigCameraPosition = { mapViewController.getBigCameraPosition(activity, 1.0f) },
+            )
         }
 
         override fun onMapReady() {

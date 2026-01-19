@@ -170,7 +170,7 @@ package org.mtransit.android.ui.poi
 // )
 // }
 //
-// override fun onCameraChange(latLngBounds: LatLngBounds) {
+// override fun onCameraChanged(latLngBounds: LatLngBounds) {
 // // DO NOTHING
 // }
 //

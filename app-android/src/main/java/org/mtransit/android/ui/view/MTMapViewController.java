@@ -79,9 +79,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MTMapViewController implements ExtendedGoogleMap.OnCameraChangeListener, ExtendedGoogleMap.OnInfoWindowClickListener,
-		ExtendedGoogleMap.OnMapLoadedCallback, ExtendedGoogleMap.OnMarkerClickListener, ExtendedGoogleMap.OnMyLocationButtonClickListener,
-		ExtendedGoogleMap.OnMapClickListener, LocationSource, OnMapReadyCallback, ViewTreeObserver.OnGlobalLayoutListener, MTLog.Loggable {
+public class MTMapViewController implements
+		ExtendedGoogleMap.OnCameraIdleListener,
+		ExtendedGoogleMap.OnInfoWindowClickListener,
+		ExtendedGoogleMap.OnMapLoadedCallback,
+		ExtendedGoogleMap.OnMarkerClickListener,
+		ExtendedGoogleMap.OnMyLocationButtonClickListener,
+		ExtendedGoogleMap.OnMapClickListener,
+		LocationSource,
+		OnMapReadyCallback,
+		ViewTreeObserver.OnGlobalLayoutListener,
+		MTLog.Loggable {
 
 	private static final String LOG_TAG = MTMapViewController.class.getSimpleName();
 
@@ -369,7 +377,7 @@ public class MTMapViewController implements ExtendedGoogleMap.OnCameraChangeList
 		this.extendedGoogleMap.setOnMarkerClickListener(this);
 		this.extendedGoogleMap.setOnMapClickListener(this);
 		this.extendedGoogleMap.setLocationSource(this);
-		this.extendedGoogleMap.setOnCameraChangeListener(this);
+		this.extendedGoogleMap.setOnCameraIdleListener(this);
 		this.extendedGoogleMap.setClustering(new ClusteringSettings()
 				.enabled(this.clusteringEnabled)
 				.clusterOptionsProvider(new MTClusterOptionsProvider(activity))
@@ -664,7 +672,14 @@ public class MTMapViewController implements ExtendedGoogleMap.OnCameraChangeList
 	}
 
 	@Override
-	public void onCameraChange(@NonNull CameraPosition cameraPosition) {
+	public void onCameraIdle() {
+		if (this.extendedGoogleMap == null) {
+			return; // SKIP (no map)
+		}
+		onCameraChanged(this.extendedGoogleMap.getCameraPosition());
+	}
+
+	private void onCameraChanged(@NonNull CameraPosition cameraPosition) {
 		this.showingMyLocation = this.showingMyLocation == null;
 		Integer visibleMarkersCount = null;
 		if (this.extendedGoogleMap != null) {
@@ -701,7 +716,7 @@ public class MTMapViewController implements ExtendedGoogleMap.OnCameraChangeList
 		}
 		final VisibleRegion visibleRegion = this.extendedGoogleMap.getProjection().getVisibleRegion();
 		final float zoom = this.extendedGoogleMap.getCameraPosition().zoom;
-		mapListener.onCameraChange(visibleRegion.latLngBounds, zoom);
+		mapListener.onCameraChanged(visibleRegion.latLngBounds, zoom);
 	}
 
 	public void onConfigurationChanged(@SuppressWarnings("unused") @NonNull Configuration newConfig) {
@@ -711,12 +726,8 @@ public class MTMapViewController implements ExtendedGoogleMap.OnCameraChangeList
 
 	@Nullable
 	public LatLngBounds getBigCameraPosition(@Nullable Activity activity, float factor) {
-		if (activity == null) {
-			return null;
-		}
-		if (this.extendedGoogleMap == null) {
-			return null;
-		}
+		if (activity == null) return null;
+		if (this.extendedGoogleMap == null) return null;
 		try {
 			Point size = new Point();
 			activity.getWindowManager().getDefaultDisplay().getSize(size);
@@ -1422,7 +1433,7 @@ public class MTMapViewController implements ExtendedGoogleMap.OnCameraChangeList
 
 		boolean onMarkerClick(@Nullable IMarker marker);
 
-		void onCameraChange(@NonNull LatLngBounds latLngBounds, float zoom);
+		void onCameraChanged(@NonNull LatLngBounds latLngBounds, float zoom);
 
 		void onMapReady();
 	}

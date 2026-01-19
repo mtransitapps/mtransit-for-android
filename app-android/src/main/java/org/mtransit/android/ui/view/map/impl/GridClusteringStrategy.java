@@ -38,6 +38,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	private final boolean addMarkersDynamically;
 	private final double baseClusterSize;
+	@NonNull
 	private final IGoogleMap map;
 	private final ArrayMap<DelegatingMarker, ClusterMarker> markers;
 	private double clusterSize;
@@ -49,7 +50,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	private final ClusterRefresher refresher;
 	private final ClusterOptionsProvider clusterOptionsProvider;
 
-	GridClusteringStrategy(ClusteringSettings settings, IGoogleMap map, List<DelegatingMarker> markers, ClusterRefresher refresher) {
+	GridClusteringStrategy(ClusteringSettings settings, @NonNull IGoogleMap map, List<DelegatingMarker> markers, ClusterRefresher refresher) {
 		this.clusterOptionsProvider = settings.getClusterOptionsProvider();
 		this.addMarkersDynamically = settings.isAddMarkersDynamically();
 		this.baseClusterSize = settings.getClusterSize();
@@ -77,7 +78,21 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	}
 
 	@Override
-	public void onCameraChange(CameraPosition cameraPosition) {
+	public void onCameraMoveStarted(int reason) {
+		// do nothing
+	}
+
+	@Override
+	public void onCameraMove() {
+		onCameraChanged(this.map.getCameraPosition());
+	}
+
+	@Override
+	public void onCameraIdle() {
+
+	}
+
+	private void onCameraChanged(CameraPosition cameraPosition) {
 		oldZoom = zoom;
 		zoom = Math.round(cameraPosition.zoom);
 		double clusterSize = calculateClusterSize(zoom);

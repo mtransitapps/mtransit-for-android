@@ -10,7 +10,6 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
@@ -96,8 +95,11 @@ interface IGoogleMap {
 	)
 	void setMyLocationEnabled(boolean enabled);
 
-	@Deprecated
-	void setOnCameraChangeListener(OnCameraChangeListener listener);
+	void setOnCameraMoveStartedListener(@Nullable GoogleMap.OnCameraMoveStartedListener listener);
+
+	void setOnCameraMoveListener(@Nullable GoogleMap.OnCameraMoveListener listener);
+
+	void setOnCameraIdleListener(@Nullable GoogleMap.OnCameraIdleListener listener);
 
 	void setOnInfoWindowClickListener(OnInfoWindowClickListener listener);
 
