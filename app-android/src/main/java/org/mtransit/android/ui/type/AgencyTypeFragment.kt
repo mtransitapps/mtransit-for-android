@@ -293,11 +293,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             }
         }
         viewModel.originalSelectedAgencyAuthority.observe(viewLifecycleOwner) { originalSelectedAgencyAuthority ->
-            MTLog.d(this@AgencyTypeFragment, "originalSelectedAgencyAuthority: $originalSelectedAgencyAuthority")
             this.pagerAdapter?.selectedAgencyAuthority = originalSelectedAgencyAuthority
         }
         viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedCameraPosition ->
-            MTLog.d(this@AgencyTypeFragment, "selectedMapCameraPosition: $selectedCameraPosition")
             this.pagerAdapter?.selectedCameraPosition = selectedCameraPosition
         }
         ModuleDisabledUI.onViewCreated(this)

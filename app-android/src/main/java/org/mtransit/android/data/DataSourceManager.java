@@ -44,6 +44,7 @@ import org.mtransit.android.commons.provider.status.StatusProviderContract;
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract;
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.util.CrashUtils;
+import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.ArrayList;
@@ -162,6 +163,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			@NonNull String authority,
 			@Nullable VehicleLocationProviderContract.Filter vehicleLocationFilter
 	) {
+		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return null;
 		Cursor cursor = null;
 		try {
 			final String vehicleLocationFilterJSONString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJSONString();

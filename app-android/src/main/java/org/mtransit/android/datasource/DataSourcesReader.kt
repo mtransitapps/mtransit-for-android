@@ -30,6 +30,7 @@ import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
+import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -172,8 +173,10 @@ class DataSourcesReader @Inject constructor(
             if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
                 return true
             }
-            if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
-                return true
+            if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+                if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
+                    return true
+                }
             }
             @Suppress("RedundantIf")
             if (providerMetaData.isKeyMT(newsProviderMetaData)) {
@@ -337,17 +340,19 @@ class DataSourcesReader @Inject constructor(
                     }
                 }
                 // VEHICLE LOCATION
-                if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
-                    if (knownVehicleLocationProviderProperties.none { it.authority == providerAuthority }) {
-                        providerMetaData.getString(vehicleLocationProviderTargetMetaData)?.let { targetAuthority ->
-                            val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
-                                ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
-                                    .orEmpty()
-                            MTLog.d(this, "Vehicle Location provider '${providerAuthority}' added (target: '$validTargetAuthority').")
-                            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().insert(
-                                VehicleLocationProviderProperties(providerAuthority, validTargetAuthority, pkg)
-                            )
-                            markUpdated()
+                if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+                    if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
+                        if (knownVehicleLocationProviderProperties.none { it.authority == providerAuthority }) {
+                            providerMetaData.getString(vehicleLocationProviderTargetMetaData)?.let { targetAuthority ->
+                                val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
+                                    ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
+                                        .orEmpty()
+                                MTLog.d(this, "Vehicle Location provider '${providerAuthority}' added (target: '$validTargetAuthority').")
+                                dataSourcesDatabase.vehicleLocationProviderPropertiesDao().insert(
+                                    VehicleLocationProviderProperties(providerAuthority, validTargetAuthority, pkg)
+                                )
+                                markUpdated()
+                            }
                         }
                     }
                 }
@@ -701,6 +706,7 @@ class DataSourcesReader @Inject constructor(
     }
 
     private suspend fun refreshVehicleLocationProviderProperties(vehicleLocationProviderProperties: VehicleLocationProviderProperties, markUpdated: () -> Unit) {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         val pkg = vehicleLocationProviderProperties.pkg
         val authority = vehicleLocationProviderProperties.authority
         if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
@@ -725,7 +731,7 @@ class DataSourcesReader @Inject constructor(
             markUpdated()
             return
         }
-        val newTargetAuthority = providerMetadata.getString(serviceUpdateProviderTargetMetaData)
+        val newTargetAuthority = providerMetadata.getString(vehicleLocationProviderTargetMetaData)
         if (newTargetAuthority == null) {
             MTLog.d(this, "Vehicle Location '$authority' removed (invalid target authority)")
             dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)

@@ -412,7 +412,7 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	@Override
 	public Collection<VehicleLocation> getVehicleLocations() {
-		if (FeatureFlags.F_EXPORT_TRIP_ID) {
+		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
 			return viewModel == null ? null : viewModel.getVehicleLocations().getValue();
 		}
 		return null;
@@ -538,7 +538,7 @@ public class POIFragment extends ABFragment implements
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
 		viewModel.getPoiList().observe(getViewLifecycleOwner(), this::onPOIsLoaded);
-		if (FeatureFlags.F_EXPORT_TRIP_ID) {
+		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
 			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
 		}
 		setupView(view);
@@ -549,7 +549,7 @@ public class POIFragment extends ABFragment implements
 	protected Job _vehicleLocationCountdownRefreshJob = null;
 
 	private void onVehicleLocationsLoaded(@Nullable List<VehicleLocation> vehicleLocations) {
-		if (!FeatureFlags.F_EXPORT_TRIP_ID) return;
+		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return;
 		final Context context = getContext();
 		if (context != null) {
 			MapViewControllerExtKt.updateVehicleLocationMarkers(this.mapViewController, context);

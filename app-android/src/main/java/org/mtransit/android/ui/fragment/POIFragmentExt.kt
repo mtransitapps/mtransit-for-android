@@ -23,14 +23,17 @@ import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.position
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
 import org.mtransit.android.util.FragmentUtils
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
 fun POIFragment.startVehicleLocationCountdownRefresh() {
+    if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
     _vehicleLocationCountdownRefreshJob?.cancel()
     _vehicleLocationCountdownRefreshJob = viewModel?.viewModelScope?.launch {
         while (true) {
+            // delay(5.seconds) // TODO 1.seconds?
             delay(1.seconds)
             context?.let { mapViewController.updateVehicleLocationMarkersCountdown(it) }
         }
@@ -38,6 +41,7 @@ fun POIFragment.startVehicleLocationCountdownRefresh() {
 }
 
 fun POIFragment.stopVehicleLocationCountdownRefresh() {
+    if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
     _vehicleLocationCountdownRefreshJob?.cancel()
     _vehicleLocationCountdownRefreshJob = null
 }

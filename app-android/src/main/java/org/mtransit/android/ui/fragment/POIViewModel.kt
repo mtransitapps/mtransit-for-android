@@ -51,6 +51,7 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.addAllN
@@ -156,6 +157,7 @@ class POIViewModel @Inject constructor(
     }
 
     private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@switchMap null
         dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
     }
 
@@ -167,7 +169,7 @@ class POIViewModel @Inject constructor(
             _vehicleLocationRequestedTrigger
         ).switchMap { (vehicleLocationProviders, rds, tripIds, trigger) ->
             liveData(viewModelScope.coroutineContext) {
-                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
                 vehicleLocationProviders ?: return@liveData
                 rds ?: return@liveData
                 tripIds ?: return@liveData

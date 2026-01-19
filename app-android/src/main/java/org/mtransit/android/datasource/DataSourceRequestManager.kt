@@ -24,6 +24,7 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.util.KeysManager
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -99,6 +100,7 @@ class DataSourceRequestManager(
         vehicleLocationProviderProperties: VehicleLocationProviderProperties,
         filter: VehicleLocationProviderContract.Filter
     ): List<VehicleLocation>? = withContext(ioDispatcher) {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@withContext null
         DataSourceManager.findVehicleLocations(appContext, vehicleLocationProviderProperties.authority, filter.appendProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority)))
     }
 

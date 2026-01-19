@@ -58,6 +58,7 @@ import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
 import org.mtransit.android.util.FragmentUtils
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
@@ -351,7 +352,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         viewModel.closestPOIShown.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
-        if (FeatureFlags.F_EXPORT_TRIP_ID) {
+        if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
             viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) { vehicleLocations ->
                 context?.let { mapViewController.updateVehicleLocationMarkers(it) }
                 if (vehicleLocations.isNullOrEmpty()) {
@@ -361,10 +362,10 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
             }
             parentViewModel.colorInt.observe(viewLifecycleOwner) {
-                // do nothing // TODO mapViewController.refresh?
+                // do nothing
             }
             parentViewModel.routeType.observe(viewLifecycleOwner) {
-                // do nothing // TODO mapViewController.refresh?
+                // do nothing
             }
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
@@ -538,6 +539,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     private var _vehicleLocationCountdownRefreshJob: Job? = null
 
     private fun startVehicleLocationCountdownRefresh() {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         _vehicleLocationCountdownRefreshJob?.cancel()
         _vehicleLocationCountdownRefreshJob = viewModel.viewModelScope.launch {
             while (true) {
@@ -548,6 +550,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     }
 
     private fun stopVehicleLocationCountdownRefresh() {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         _vehicleLocationCountdownRefreshJob?.cancel()
         _vehicleLocationCountdownRefreshJob = null
     }

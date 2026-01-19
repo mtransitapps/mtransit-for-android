@@ -21,6 +21,7 @@ import org.mtransit.android.dev.filterDemoModeTargeted
 import org.mtransit.android.dev.filterDemoModeType
 import org.mtransit.android.provider.experiments.ExperimentsProvider
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.addAllNNE
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -94,9 +95,11 @@ class DataSourcesInMemoryCache @Inject constructor(
             this._serviceUpdateProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
         }
-        dataSourcesCache.readingAllVehicleLocationProviders().observeForever { // SINGLETON
-            this._vehicleLocationProviderProperties = it
-                .filterDemoModeTargeted(demoModeManager)
+        if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+            dataSourcesCache.readingAllVehicleLocationProviders().observeForever { // SINGLETON
+                this._vehicleLocationProviderProperties = it
+                    .filterDemoModeTargeted(demoModeManager)
+            }
         }
         dataSourcesCache.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
             this._newsProviderProperties = newsProviders
