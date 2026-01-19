@@ -79,6 +79,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("DeprecatedCall")
 public class MapViewController implements
 		ExtendedGoogleMap.OnCameraIdleListener,
 		ExtendedGoogleMap.OnInfoWindowClickListener,
