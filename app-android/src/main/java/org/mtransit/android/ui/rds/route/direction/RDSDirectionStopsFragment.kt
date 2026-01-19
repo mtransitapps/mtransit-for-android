@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
@@ -50,7 +49,7 @@ import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.view.MTMapViewController
+import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -157,7 +156,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
-    private val mapMarkerProvider = object : MTMapViewController.MapMarkerProvider {
+    private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
         override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
@@ -188,8 +187,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
     }
 
-    private val mapViewController: MTMapViewController by lazy {
-        MTMapViewController(
+    private val mapViewController: MapViewController by lazy {
+        MapViewController(
             logTag,
             mapMarkerProvider,
             null, // DO NOTHING (map click, camera change)

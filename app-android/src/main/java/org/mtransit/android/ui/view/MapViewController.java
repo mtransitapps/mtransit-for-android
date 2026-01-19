@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.view;
 
-import static org.mtransit.android.ui.view.MTMapViewControllerExtKt.removeMissingVehicleLocationMarkers;
-import static org.mtransit.android.ui.view.MTMapViewControllerExtKt.updateVehicleLocationMarkers;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -79,7 +79,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MTMapViewController implements
+public class MapViewController implements
 		ExtendedGoogleMap.OnCameraIdleListener,
 		ExtendedGoogleMap.OnInfoWindowClickListener,
 		ExtendedGoogleMap.OnMapLoadedCallback,
@@ -91,7 +91,7 @@ public class MTMapViewController implements
 		ViewTreeObserver.OnGlobalLayoutListener,
 		MTLog.Loggable {
 
-	private static final String LOG_TAG = MTMapViewController.class.getSimpleName();
+	private static final String LOG_TAG = MapViewController.class.getSimpleName();
 
 	@NonNull
 	private String logTag = LOG_TAG;
@@ -188,7 +188,7 @@ public class MTMapViewController implements
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
 
-	public MTMapViewController(
+	public MapViewController(
 			@NonNull String logTag,
 			@Nullable MapMarkerProvider markerProvider,
 			@Nullable MapListener mapListener,
@@ -1003,10 +1003,10 @@ public class MTMapViewController implements
 	@SuppressWarnings("deprecation")
 	private static class LoadClusterItemsTask extends MTCancellableAsyncTask<Void, Void, Collection<MTPOIMarker>> {
 
-		private final String LOG_TAG = MTMapViewController.class.getSimpleName() + ">" + LoadClusterItemsTask.class.getSimpleName();
+		private final String LOG_TAG = MapViewController.class.getSimpleName() + ">" + LoadClusterItemsTask.class.getSimpleName();
 
 		@NonNull
-		private final WeakReference<MTMapViewController> mapViewControllerWR;
+		private final WeakReference<MapViewController> mapViewControllerWR;
 		private final boolean update;
 		@NonNull
 		private final Area visibleArea;
@@ -1017,7 +1017,7 @@ public class MTMapViewController implements
 			return LOG_TAG;
 		}
 
-		private LoadClusterItemsTask(MTMapViewController mapViewController, boolean update, @NonNull Area visibleArea) {
+		private LoadClusterItemsTask(MapViewController mapViewController, boolean update, @NonNull Area visibleArea) {
 			this.mapViewControllerWR = new WeakReference<>(mapViewController);
 			this.update = update;
 			this.visibleArea = visibleArea;
@@ -1026,7 +1026,7 @@ public class MTMapViewController implements
 		@WorkerThread
 		@Override
 		protected Collection<MTPOIMarker> doInBackgroundNotCancelledMT(Void... params) {
-			final MTMapViewController mapViewController = this.mapViewControllerWR.get();
+			final MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				return null;
 			}
@@ -1043,7 +1043,7 @@ public class MTMapViewController implements
 
 		@WorkerThread
 		@Nullable
-		private Collection<MTPOIMarker> createPOIMarkers(MapMarkerProvider markerProvider, MTMapViewController mapViewController) {
+		private Collection<MTPOIMarker> createPOIMarkers(MapMarkerProvider markerProvider, MapViewController mapViewController) {
 			final Collection<POIManager> pois = markerProvider.getPOIs();
 			if (pois == null) {
 				return null;
@@ -1114,7 +1114,7 @@ public class MTMapViewController implements
 		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable Collection<MTPOIMarker> poiMarkers) {
-			final MTMapViewController mapViewController = this.mapViewControllerWR.get();
+			final MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no controller)");
 				return;

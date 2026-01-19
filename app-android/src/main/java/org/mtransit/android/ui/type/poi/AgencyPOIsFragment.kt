@@ -14,7 +14,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.DataSourceType
@@ -37,7 +36,7 @@ import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
-import org.mtransit.android.ui.view.MTMapViewController
+import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -123,7 +122,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
-    private val mapMarkerProvider = object : MTMapViewController.MapMarkerProvider {
+    private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
         override fun getPOMarkers(): Collection<MTPOIMarker>? = null
 
@@ -153,8 +152,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
     }
 
-    private val mapViewController: MTMapViewController by lazy {
-        MTMapViewController(
+    private val mapViewController: MapViewController by lazy {
+        MapViewController(
             logTag,
             mapMarkerProvider,
             null, // DO NOTHING (map click, camera change)

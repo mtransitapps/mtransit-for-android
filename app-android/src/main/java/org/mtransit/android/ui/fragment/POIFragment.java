@@ -94,8 +94,8 @@ import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
-import org.mtransit.android.ui.view.MTMapViewController;
-import org.mtransit.android.ui.view.MTMapViewControllerExtKt;
+import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
@@ -138,8 +138,8 @@ public class POIFragment extends ABFragment implements
 		IContext,
 		IAdManager.RewardedAdListener,
 		MenuProvider,
-		MTMapViewController.MapMarkerProvider,
-		MTMapViewController.MapListener {
+		MapViewController.MapMarkerProvider,
+		MapViewController.MapListener {
 
 	private static final String LOG_TAG = POIFragment.class.getSimpleName();
 
@@ -234,8 +234,8 @@ public class POIFragment extends ABFragment implements
 	private static final int BOTTOM_PADDING_SP = 0;
 
 	@NonNull
-	protected final MTMapViewController mapViewController =
-			new MTMapViewController(
+	protected final MapViewController mapViewController =
+			new MapViewController(
 					LOG_TAG,
 					this,
 					this,
@@ -552,7 +552,7 @@ public class POIFragment extends ABFragment implements
 		if (!FeatureFlags.F_EXPORT_TRIP_ID) return;
 		final Context context = getContext();
 		if (context != null) {
-			MTMapViewControllerExtKt.updateVehicleLocationMarkers(this.mapViewController, context);
+			MapViewControllerExtKt.updateVehicleLocationMarkers(this.mapViewController, context);
 		}
 		if (vehicleLocations == null || vehicleLocations.isEmpty()) {
 			stopVehicleLocationCountdownRefresh(this);
