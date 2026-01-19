@@ -134,6 +134,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
     )
 
     fun startVehicleLocationRefresh() {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         _vehicleRefreshJob?.cancel()
         _vehicleRefreshJob = viewModelScope.launch {
             while (true) {
@@ -144,12 +145,14 @@ class RDSDirectionStopsViewModel @Inject constructor(
     }
 
     fun stopVehicleLocationRefresh() {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         _vehicleLocationRequestedTrigger.value = null // disable when not visible
         _vehicleRefreshJob?.cancel()
         _vehicleRefreshJob = null
     }
 
     private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@switchMap null
         dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
     }
 

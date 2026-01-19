@@ -33,7 +33,6 @@ fun POIFragment.startVehicleLocationCountdownRefresh() {
     _vehicleLocationCountdownRefreshJob?.cancel()
     _vehicleLocationCountdownRefreshJob = viewModel?.viewModelScope?.launch {
         while (true) {
-            // delay(5.seconds) // TODO 1.seconds?
             delay(1.seconds)
             context?.let { mapViewController.updateVehicleLocationMarkersCountdown(it) }
         }

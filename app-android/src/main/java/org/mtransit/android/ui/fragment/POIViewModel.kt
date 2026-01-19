@@ -141,6 +141,7 @@ class POIViewModel @Inject constructor(
     )
 
     fun startVehicleLocationRefresh() {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         _vehicleRefreshJob?.cancel()
         _vehicleRefreshJob = viewModelScope.launch {
             while (true) {
@@ -151,6 +152,7 @@ class POIViewModel @Inject constructor(
     }
 
     fun stopVehicleLocationRefresh() {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         _vehicleLocationRequestedTrigger.value = null // disable when not visible
         _vehicleRefreshJob?.cancel()
         _vehicleRefreshJob = null

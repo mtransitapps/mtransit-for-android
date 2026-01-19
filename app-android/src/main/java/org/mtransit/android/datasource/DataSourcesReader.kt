@@ -480,8 +480,10 @@ class DataSourcesReader @Inject constructor(
             refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties, markUpdated)
         }
         // VEHICLE LOCATION
-        knownVehicleLocationProviderProperties.forEach { vehicleLocationProviderProperties ->
-            refreshVehicleLocationProviderProperties(vehicleLocationProviderProperties, markUpdated)
+        if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+            knownVehicleLocationProviderProperties.forEach { vehicleLocationProviderProperties ->
+                refreshVehicleLocationProviderProperties(vehicleLocationProviderProperties, markUpdated)
+            }
         }
         // NEWS
         knownNewsProviderProperties.forEach { newsProviderProperties ->
