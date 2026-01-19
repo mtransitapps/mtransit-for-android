@@ -8,7 +8,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
-import org.mtransit.android.ui.view.MTMapViewController
+import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.toDate
 import kotlin.time.Duration.Companion.milliseconds
@@ -52,7 +52,7 @@ fun VehicleLocation.toExtendedMarkerOptions(
     .title(getMapMarkerTitle(context))
     .snippet(getMapMarkerSnippet(context))
     .data(this)
-    .zIndex(MTMapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
+    .zIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
 
 fun VehicleLocation.updateMarker(
     marker: IMarker,
@@ -70,5 +70,5 @@ fun VehicleLocation.updateMarker(
     setTitle(getMapMarkerTitle(context))
     setSnippet(getMapMarkerSnippet(context))
     setData(this@updateMarker)
-    setZIndex(MTMapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
+    setZIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
 }

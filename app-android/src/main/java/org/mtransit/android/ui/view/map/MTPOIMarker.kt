@@ -7,7 +7,7 @@ import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.ui.view.MTMapViewController
+import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.defaultIconDef
 import org.mtransit.android.util.MapUtils
 import org.mtransit.commons.CollectionUtils
@@ -94,7 +94,7 @@ data class MTPOIMarker(
 
     val title: String
         get() = buildString {
-            CollectionUtils.sort(this@MTPOIMarker.names, MTMapViewController.MARKER_NAME_COMPARATOR)
+            CollectionUtils.sort(this@MTPOIMarker.names, MapViewController.MARKER_NAME_COMPARATOR)
             val addedNames = mutableSetOf<String>()
             this@MTPOIMarker.names.forEach { name ->
                 if (addedNames.contains(name)) return@forEach
@@ -107,7 +107,7 @@ data class MTPOIMarker(
     val snippet: String
         get() = buildString {
             var hasExtras = false
-            CollectionUtils.sort(this@MTPOIMarker.extras, MTMapViewController.MARKER_NAME_COMPARATOR)
+            CollectionUtils.sort(this@MTPOIMarker.extras, MapViewController.MARKER_NAME_COMPARATOR)
             val addedExtras = mutableSetOf<String>()
             this@MTPOIMarker.extras.forEach { extra ->
                 if (addedExtras.contains(extra)) return@forEach
@@ -119,7 +119,7 @@ data class MTPOIMarker(
                 addedExtras.add(extra)
             }
             var hasAgencies = false
-            CollectionUtils.sort(this@MTPOIMarker.agencies, MTMapViewController.MARKER_NAME_COMPARATOR)
+            CollectionUtils.sort(this@MTPOIMarker.agencies, MapViewController.MARKER_NAME_COMPARATOR)
             val addedAgencies = mutableSetOf<String>()
             this@MTPOIMarker.agencies.forEach { agency ->
                 if (addedAgencies.contains(agency)) return@forEach
