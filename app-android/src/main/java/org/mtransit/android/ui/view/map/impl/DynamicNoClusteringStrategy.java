@@ -52,12 +52,12 @@ class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable 
 
 	@Override
 	public void onCameraMove() {
-		showMarkersInVisibleRegion();
+		// do nothing
 	}
 
 	@Override
 	public void onCameraIdle() {
-		// do nothing
+		showMarkersInVisibleRegion(); // was inside @Deprecated "onCameraChange()"
 	}
 
 	@Override

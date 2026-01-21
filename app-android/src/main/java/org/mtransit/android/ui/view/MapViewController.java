@@ -1289,7 +1289,7 @@ public class MapViewController implements
 		if (this.extendedGoogleMap != null) {
 			this.lastCameraPosition = this.extendedGoogleMap.getCameraPosition();
 		}
-		return null;
+		return this.lastCameraPosition;
 	}
 
 	public void setInitialSelectedUUID(@Nullable String uuid) {
