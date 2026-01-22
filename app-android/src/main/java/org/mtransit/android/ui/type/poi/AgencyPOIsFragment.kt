@@ -51,13 +51,14 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         private val LOG_TAG = AgencyPOIsFragment::class.java.simpleName
 
         @JvmStatic
-        fun newInstance(agency: IAgencyUIProperties, optMapCameraPosition: CameraPosition? = null) =
+        fun newInstance(agency: IAgencyUIProperties, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =
             newInstance(
                 agency.authority,
                 agency.colorInt,
                 optMapCameraPosition?.target?.latitude,
                 optMapCameraPosition?.target?.longitude,
                 optMapCameraPosition?.zoom,
+                optSelectedUuid,
             )
 
         @JvmStatic
@@ -67,6 +68,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             optMapLat: Double? = null,
             optMapLng: Double? = null,
             optMapZoom: Float? = null,
+            optSelectedUuid: String? = null,
         ) = AgencyPOIsFragment().apply {
             arguments = bundleOf(
                 AgencyPOIsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
@@ -74,6 +76,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
                 AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
                 AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
+                AgencyPOIsViewModel.EXTRA_SELECTED_UUID to optSelectedUuid,
             )
         }
 
@@ -266,6 +269,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             showingListInsteadOfMap?.let { listInsteadOfMap ->
                 updateFabListMapUI(listInsteadOfMap)
                 if (viewModel.mapVisible(context)) {
+                    applySelectedUUIDChanged()
                     mapViewController.onResume()
                 } else { // LIST
                     mapViewController.onPause()
@@ -287,6 +291,19 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 viewModel.onSelectedMapCameraPositionSet()
             }
         }
+        viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
+            if (viewModel.mapVisible(context)) {
+                applySelectedUUIDChanged(selectedUUID)
+            }
+        }
+    }
+
+    private fun applySelectedUUIDChanged(
+        selectedUUID: String? = viewModel.selectedUUID.value,
+    ) {
+        selectedUUID ?: return
+        mapViewController.setInitialSelectedUUID(selectedUUID)
+        viewModel.onSelectedStopUuidSet()
     }
 
     private fun updateFabListMapUI(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {

@@ -21,6 +21,7 @@ class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Logga
 
     var selectedCameraPosition: CameraPosition? = null
     var selectedAgencyAuthority: String? = null
+    var selectedUUID: String? = null
 
     @SuppressLint("NotifyDataSetChanged")
     fun setAgencies(newAgencies: List<IAgencyUIProperties>?): Boolean { // TODO DiffUtil
@@ -52,6 +53,7 @@ class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Logga
             else -> AgencyPOIsFragment.newInstance(
                 agency,
                 selectedCameraPosition?.takeIf { agency.authority == selectedAgencyAuthority },
+                selectedUUID?.takeIf { agency.authority == selectedAgencyAuthority }
             )
         }
     }

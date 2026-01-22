@@ -54,6 +54,8 @@ class AgencyTypeViewModel @Inject constructor(
         internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT = "extra_map_lat"
         internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG = "extra_map_lng"
         internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM = "extra_map_zoom"
+
+        internal const val EXTRA_SELECTED_UUID = "extra_selected_uuid"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -78,6 +80,8 @@ class AgencyTypeViewModel @Inject constructor(
             zoom ?: return@map null
             CameraPosition.fromLatLngZoom(LatLng(lat, lng), zoom)
         }.distinctUntilChanged()
+
+    val selectedUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_UUID)
 
     private val allAvailableAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 

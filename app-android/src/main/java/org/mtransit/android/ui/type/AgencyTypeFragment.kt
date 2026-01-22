@@ -73,29 +73,32 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 poi.authority,
                 optMapCameraPosition?.target?.latitude,
                 optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom
+                optMapCameraPosition?.zoom,
+                poi.uuid,
             )
 
         @JvmOverloads
         @JvmStatic
-        fun newInstance(dst: DataSourceType, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null) =
+        fun newInstance(dst: DataSourceType, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =
             newInstance(
                 dst.id,
                 optSelectedAgencyAuthority,
                 optMapCameraPosition?.target?.latitude,
                 optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom
+                optMapCameraPosition?.zoom,
+                optSelectedUuid,
             )
 
         @JvmOverloads
         @JvmStatic
-        fun newInstance(@DataSourceTypeId.DataSourceType dstId: Int, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null) =
+        fun newInstance(@DataSourceTypeId.DataSourceType dstId: Int, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =
             newInstance(
                 dstId,
                 optSelectedAgencyAuthority,
                 optMapCameraPosition?.target?.latitude,
                 optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom
+                optMapCameraPosition?.zoom,
+                optSelectedUuid,
             )
 
         @JvmStatic
@@ -105,8 +108,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             optMapLat: Double? = null,
             optMapLng: Double? = null,
             optMapZoom: Float? = null,
+            optSelectedUuid: String? = null,
         ) = AgencyTypeFragment().apply {
-            arguments = newInstanceArgs(dstId, optSelectedAgencyAuthority, optMapLat, optMapLng, optMapZoom)
+            arguments = newInstanceArgs(dstId, optSelectedAgencyAuthority, optMapLat, optMapLng, optMapZoom, optSelectedUuid)
         }
 
         @JvmOverloads
@@ -117,18 +121,20 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 poi.authority,
                 optMapCameraPosition?.target?.latitude,
                 optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom
+                optMapCameraPosition?.zoom,
+                poi.uuid,
             )
 
         @JvmOverloads
         @JvmStatic
-        fun newInstanceArgs(dst: DataSourceType, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null) =
+        fun newInstanceArgs(dst: DataSourceType, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =
             newInstanceArgs(
                 dst.id,
                 optSelectedAgencyAuthority,
                 optMapCameraPosition?.target?.latitude,
                 optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom
+                optMapCameraPosition?.zoom,
+                optSelectedUuid,
             )
 
         @JvmOverloads
@@ -136,14 +142,16 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         fun newInstanceArgs(
             @DataSourceTypeId.DataSourceType dstId: Int,
             optSelectedAgencyAuthority: String? = null,
-            optMapCameraPosition: CameraPosition? = null
+            optMapCameraPosition: CameraPosition? = null,
+            optSelectedUuid: String? = null,
         ) =
             newInstanceArgs(
                 dstId,
                 optSelectedAgencyAuthority,
                 optMapCameraPosition?.target?.latitude,
                 optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom
+                optMapCameraPosition?.zoom,
+                optSelectedUuid,
             )
 
         @JvmStatic
@@ -153,12 +161,14 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             optMapLat: Double? = null,
             optMapLng: Double? = null,
             optMapZoom: Float? = null,
+            optSelectedUuid: String? = null,
         ) = bundleOf(
             AgencyTypeViewModel.EXTRA_TYPE_ID to dstId,
             AgencyTypeViewModel.EXTRA_SELECTED_AUTHORITY to optSelectedAgencyAuthority,
             AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
             AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
             AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
+            AgencyTypeViewModel.EXTRA_SELECTED_UUID to optSelectedUuid,
         )
     }
 
@@ -193,6 +203,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     private fun makePagerAdapter() = AgencyTypePagerAdapter(this).apply {
         selectedAgencyAuthority = attachedViewModel?.originalSelectedAgencyAuthority?.value
         selectedCameraPosition = attachedViewModel?.selectedMapCameraPosition?.value
+        selectedUUID = attachedViewModel?.selectedUUID?.value
         setAgencies(attachedViewModel?.typeAgencies?.value)
     }
 
@@ -297,6 +308,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         }
         viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedCameraPosition ->
             this.pagerAdapter?.selectedCameraPosition = selectedCameraPosition
+        }
+        viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
+            this.pagerAdapter?.selectedUUID = selectedUUID
         }
         ModuleDisabledUI.onViewCreated(this)
     }

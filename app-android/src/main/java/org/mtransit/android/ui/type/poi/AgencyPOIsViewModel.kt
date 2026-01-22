@@ -43,6 +43,7 @@ class AgencyPOIsViewModel @Inject constructor(
         internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT = "extra_map_lat"
         internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG = "extra_map_lng"
         internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM = "extra_map_zoom"
+        internal const val EXTRA_SELECTED_UUID = "extra_selected_uuid"
     }
 
     override fun getLogTag() = agency.value?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
@@ -67,6 +68,12 @@ class AgencyPOIsViewModel @Inject constructor(
         savedStateHandle[EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT] = null
         savedStateHandle[EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG] = null
         savedStateHandle[EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM] = null
+    }
+
+    val selectedUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_UUID)
+
+    fun onSelectedStopUuidSet() {
+        savedStateHandle[EXTRA_SELECTED_UUID] = null
     }
 
     val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
