@@ -284,6 +284,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
         viewModel.routeDirectionM.observe(viewLifecycleOwner) { routeDirectionM ->
             updateServiceUpdateImg(routeDirectionM)
+            if (viewModel.mapVisible(context)) {
+                applySelectedIdChanged(routeDirectionM = routeDirectionM)
+            }
             if (SHOW_SERVICE_UPDATE_FAB) {
                 if (listAdapter.setIgnoredTargetUUIDs(routeDirectionM.routeDirection.allUUIDs)) {
                     listAdapter.notifyDataSetChanged(true)
@@ -396,9 +399,12 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
     }
 
-    private fun applySelectedIdChanged(selectedStopId: Int? = viewModel.selectedStopId.value) {
+    private fun applySelectedIdChanged(
+        selectedStopId: Int? = viewModel.selectedStopId.value,
+        routeDirectionM: RouteDirectionManager? = viewModel.routeDirectionM.value,
+    ) {
         selectedStopId ?: return
-        val routeDirectionM = viewModel.routeDirectionM.value ?: return
+        routeDirectionM ?: return
         val rdsUUID = RouteDirectionStop.makeUUID(
             routeDirectionM.authority,
             routeDirectionM.routeDirection.route.id,

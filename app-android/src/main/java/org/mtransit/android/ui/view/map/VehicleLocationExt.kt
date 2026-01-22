@@ -35,7 +35,7 @@ fun VehicleLocation.getMapMarkerSnippet(context: Context): String? =
         ?: reportTimestampMs?.let { UITimeUtils.formatTime(false, context, it.toDate()) }
 
 fun VehicleLocation.getRotation(default: Float) =
-    this.bearing ?: default
+    this.bearingDegrees?.toFloat() ?: default
 
 fun VehicleLocation.toExtendedMarkerOptions(
     context: Context,

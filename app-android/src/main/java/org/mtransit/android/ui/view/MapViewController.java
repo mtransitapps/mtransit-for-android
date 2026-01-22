@@ -1141,9 +1141,13 @@ public class MapViewController implements
 			);
 			final Context context = mapViewController.mapView.getContext();
 			for (MTPOIMarker poiMarker : poiMarkers) {
-				mapViewController.extendedGoogleMap.addMarker(
+				final IMarker marker = mapViewController.extendedGoogleMap.addMarker(
 						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.markerLabelShowExtra, currentZoomGroup)
 				);
+				if (poiMarker.hasUUID(mapViewController.lastSelectedUUID)) {
+					marker.showInfoWindow();
+					mapViewController.lastSelectedUUID = null; // select once only
+				}
 			}
 			updateVehicleLocationMarkers(mapViewController, context);
 			mapViewController.clusterManagerItemsLoaded = true;
