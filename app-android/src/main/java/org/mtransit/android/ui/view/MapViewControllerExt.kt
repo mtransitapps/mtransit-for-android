@@ -68,11 +68,7 @@ fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
     this.vehicleLocationsMarkers.entries.forEach { (_, marker) ->
         val marker = marker.takeIf { it.isInfoWindowShown } ?: return@forEach
         val vehicleLocation = marker.getData<VehicleLocation>() ?: return@forEach
-        vehicleLocation.getMapMarkerTitle(context)?.takeIf { it != marker.title }?.let {
-            marker.title = it
-        }
-        vehicleLocation.getMapMarkerSnippet(context)?.takeIf { it != marker.snippet }?.let {
-            marker.snippet = it
-        }
+        marker.updateTitle(vehicleLocation.getMapMarkerTitle(context))
+        marker.updateSnippet(vehicleLocation.getMapMarkerSnippet(context))
     }
 }

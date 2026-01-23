@@ -52,7 +52,7 @@ fun VehicleLocation.toExtendedMarkerOptions(
     icon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, iconColorInt, null, Color.BLACK)
     title(getMapMarkerTitle(context))
     snippet(getMapMarkerSnippet(context))
-    data(this@toExtendedMarkerOptions)
+    data(this@toExtendedMarkerOptions) // used to update marker with countdown
     zIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
 }
 
@@ -71,6 +71,6 @@ fun VehicleLocation.updateMarker(
     setIcon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, iconColorInt, null, Color.BLACK)
     updateTitle(getMapMarkerTitle(context))
     updateSnippet(getMapMarkerSnippet(context))
-    updateData(this@updateMarker)
+    updateData(this@updateMarker) // used to update marker with countdown
     updateZIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
 }
