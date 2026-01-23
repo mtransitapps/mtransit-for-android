@@ -10,6 +10,8 @@ import org.mtransit.android.ui.view.map.getMapMarkerTitle
 import org.mtransit.android.ui.view.map.toArea
 import org.mtransit.android.ui.view.map.toExtendedMarkerOptions
 import org.mtransit.android.ui.view.map.updateMarker
+import org.mtransit.android.ui.view.map.updateSnippet
+import org.mtransit.android.ui.view.map.updateTitle
 import org.mtransit.android.ui.view.map.uuidOrGenerated
 
 fun MapViewController.updateVehicleLocationMarkers(context: Context) {
