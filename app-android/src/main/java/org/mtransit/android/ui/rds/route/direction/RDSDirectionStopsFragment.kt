@@ -337,6 +337,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             } else { // LIST
                 mapViewController.onPause()
                 viewModel.stopVehicleLocationRefresh()
+                stopVehicleLocationCountdownRefresh()
             }
             switchView(showingListInsteadOfMap)
         }

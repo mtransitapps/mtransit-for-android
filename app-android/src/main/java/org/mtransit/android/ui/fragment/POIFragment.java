@@ -1334,6 +1334,7 @@ public class POIFragment extends ABFragment implements
 		this.mapViewController.onPause();
 		if (this.viewModel != null) {
 			this.viewModel.stopVehicleLocationRefresh();
+			stopVehicleLocationCountdownRefresh(this);
 		}
 		if (this.adapter != null) {
 			this.adapter.onPause();

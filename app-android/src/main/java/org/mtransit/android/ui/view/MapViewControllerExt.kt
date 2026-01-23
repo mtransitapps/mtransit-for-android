@@ -5,14 +5,17 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
 import org.mtransit.android.ui.view.map.countMarkersInside
+import org.mtransit.android.ui.view.map.getMapMarkerAlpha
 import org.mtransit.android.ui.view.map.getMapMarkerSnippet
 import org.mtransit.android.ui.view.map.getMapMarkerTitle
 import org.mtransit.android.ui.view.map.toArea
 import org.mtransit.android.ui.view.map.toExtendedMarkerOptions
+import org.mtransit.android.ui.view.map.updateAlpha
 import org.mtransit.android.ui.view.map.updateMarker
 import org.mtransit.android.ui.view.map.updateSnippet
 import org.mtransit.android.ui.view.map.updateTitle
 import org.mtransit.android.ui.view.map.uuidOrGenerated
+import org.mtransit.android.util.MapUtils
 
 fun MapViewController.updateVehicleLocationMarkers(context: Context) {
     val googleMap = this.extendedGoogleMap ?: run {
@@ -68,8 +71,9 @@ fun MapViewController.removeMissingVehicleLocationMarkers(
 
 fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
     this.vehicleLocationsMarkers.entries.forEach { (_, marker) ->
-        val marker = marker.takeIf { it.isInfoWindowShown } ?: return@forEach
         val vehicleLocation = marker.getData<VehicleLocation>() ?: return@forEach
+        marker.updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
+        if (!marker.isInfoWindowShown) return@forEach
         marker.updateTitle(vehicleLocation.getMapMarkerTitle(context))
         marker.updateSnippet(vehicleLocation.getMapMarkerSnippet(context))
     }

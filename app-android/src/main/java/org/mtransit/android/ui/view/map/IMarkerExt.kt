@@ -2,10 +2,16 @@ package org.mtransit.android.ui.view.map
 
 import com.google.android.gms.maps.model.LatLng
 
+fun IMarker.updateAlpha(alpha: Float) {
+    if (alpha != getAlpha()) {
+        setAlpha(alpha)
+    }
+}
+
 fun IMarker.updateRotation(rotation: Float) {
-	if (rotation != getRotation()) {
-		setRotation(rotation)
-	}
+    if (rotation != getRotation()) {
+        setRotation(rotation)
+    }
 }
 
 fun IMarker.updatePosition(position: LatLng, animate: Boolean = false) {
