@@ -31,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapCapabilities;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
@@ -125,6 +126,9 @@ public class MapViewController implements
 	@Nullable
 	private Location deviceLocation;
 	private boolean waitingForGlobalLayout = false;
+
+	@SuppressWarnings("WeakerAccess")
+	protected boolean advancedMarkersAvailable = false; // requires Cloud Maps w/ map ID == $$$
 
 	@Override
 	public void onGlobalLayout() {
@@ -295,9 +299,9 @@ public class MapViewController implements
 			return;
 		}
 		try {
-			MapsInitializerUtil.initMap(view.getContext().getApplicationContext(), renderer -> {
+			MapsInitializerUtil.initMap(view.getContext(), renderer -> {
 				applyNewMapView(view);
-				initializingMapView.set(false);
+				return kotlin.Unit.INSTANCE;
 			});
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while initializing map!");
@@ -384,6 +388,9 @@ public class MapViewController implements
 				.clusterOptionsProvider(new MTClusterOptionsProvider(activity))
 				.addMarkersDynamically(true)
 		);
+		final MapCapabilities capabilities = googleMap.getMapCapabilities();
+		this.advancedMarkersAvailable = capabilities.isAdvancedMarkersAvailable();
+		MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
 		clearMarkers();
 		int paddingTopPx = 0;
 		if (this.paddingTopSp > 0) {

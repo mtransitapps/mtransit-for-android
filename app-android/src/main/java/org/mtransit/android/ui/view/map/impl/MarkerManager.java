@@ -114,7 +114,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		return clusteringStrategy.getMinZoomLevelNotClustered(marker);
 	}
 
-	public void onAnimateMarkerPosition(DelegatingMarker marker, LatLng target, AnimationSettings settings, IMarker.AnimationCallback callback) {
+	public void onAnimateMarkerPosition(@NonNull DelegatingMarker marker, @NonNull LatLng target, @NonNull AnimationSettings settings, @Nullable IMarker.AnimationCallback callback) {
 		markerAnimator.cancelAnimation(marker, IMarker.AnimationCallback.CancelReason.ANIMATE_POSITION);
 		markerAnimator.animate(marker, marker.getPosition(), target, SystemClock.uptimeMillis(), settings, callback);
 	}

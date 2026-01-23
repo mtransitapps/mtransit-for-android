@@ -15,8 +15,9 @@ import kotlin.time.Duration.Companion.milliseconds
 
 val VehicleLocation.position: LatLng get() = LatLng(this.latitude.toDouble(), this.longitude.toDouble())
 
-val VehicleLocation.uuidOrGenerated: String get() = this.uuid
-    ?: ("generated-uuid-" + TimeUtils.currentTimeMillis()).also { MTLog.d(this, "getUuidOrGenerated() > FAKE uuid: %s.", it) }
+val VehicleLocation.uuidOrGenerated: String
+    get() = this.uuid
+        ?: ("generated-uuid-" + TimeUtils.currentTimeMillis()).also { MTLog.d(this, "getUuidOrGenerated() > FAKE uuid: %s.", it) }
 
 fun VehicleLocation.getMapMarkerTitle(context: Context): String? =
     reportTimestamp?.let {
@@ -42,17 +43,18 @@ fun VehicleLocation.toExtendedMarkerOptions(
     iconDef: MTMapIconDef,
     @ColorInt iconColorInt: Int?,
     currentZoomGroup: MTMapIconZoomGroup?
-) = ExtendedMarkerOptions()
-    .position(position)
-    .anchor(iconDef.anchorU, iconDef.anchorV)
-    .infoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
-    .flat(iconDef.flat)
-    .icon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, iconColorInt, null, Color.BLACK)
-    .rotation(getRotation(default = 0.0f))
-    .title(getMapMarkerTitle(context))
-    .snippet(getMapMarkerSnippet(context))
-    .data(this)
-    .zIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
+) = ExtendedMarkerOptions().apply {
+    position(this@toExtendedMarkerOptions.position)
+    anchor(iconDef.anchorU, iconDef.anchorV)
+    infoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
+    rotation(getRotation(default = 0.0f))
+    flat(iconDef.flat)
+    icon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, iconColorInt, null, Color.BLACK)
+    title(getMapMarkerTitle(context))
+    snippet(getMapMarkerSnippet(context))
+    data(this@toExtendedMarkerOptions)
+    zIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
+}
 
 fun VehicleLocation.updateMarker(
     marker: IMarker,
@@ -61,14 +63,14 @@ fun VehicleLocation.updateMarker(
     @ColorInt iconColorInt: Int?,
     currentZoomGroup: MTMapIconZoomGroup?
 ) = marker.apply {
-    animatePosition(this@updateMarker.position)
+    updatePosition(this@updateMarker.position, animate = true)
     setAnchor(iconDef.anchorU, iconDef.anchorV)
     setInfoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
-    setFlat(iconDef.flat)
+    updateRotation(getRotation(default = 0.0f))
+    updateFlat(iconDef.flat)
     setIcon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, iconColorInt, null, Color.BLACK)
-    setRotation(getRotation(default = 0.0f))
-    setTitle(getMapMarkerTitle(context))
-    setSnippet(getMapMarkerSnippet(context))
-    setData(this@updateMarker)
-    setZIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
+    updateTitle(getMapMarkerTitle(context))
+    updateSnippet(getMapMarkerSnippet(context))
+    updateData(this@updateMarker)
+    updateZIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
 }

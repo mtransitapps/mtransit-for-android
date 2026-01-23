@@ -35,11 +35,11 @@ public class LazyMarker implements MTLog.Loggable {
 	}
 
 	@Nullable
-	private Marker marker;
+	private Marker marker; // or AdvancedMarker
 	// @Nullable
 	private GoogleMap map;
 	// @Nullable
-	private MarkerOptions markerOptions;
+	private MarkerOptions markerOptions; // or AdvancedMarkerOptions
 	@Nullable
 	private OnMarkerCreateListener listener;
 
@@ -109,6 +109,14 @@ public class LazyMarker implements MTLog.Loggable {
 			return marker.getRotation();
 		} else {
 			return markerOptions.getRotation();
+		}
+	}
+
+	public float getZIndex() {
+		if (marker != null) {
+			return marker.getZIndex();
+		} else {
+			return markerOptions.getZIndex();
 		}
 	}
 
@@ -390,7 +398,7 @@ public class LazyMarker implements MTLog.Loggable {
 							  @ColorInt Integer markerOptionsSecondaryColor,
 							  @ColorInt Integer markerOptionsDefaultColor,
 							  @DrawableRes Integer markerOptionsIconResId,
-							  @Nullable Boolean  markerOptionsIconReplaceColor,
+							  @Nullable Boolean markerOptionsIconReplaceColor,
 							  @Nullable Context markerOptionsContext,
 							  @Nullable OnMarkerCreateListener listener) {
 		if (markerOptionsDefaultColor != null && markerOptionsIconResId != null && markerOptionsContext != null && markerOptionsIconReplaceColor != null) {

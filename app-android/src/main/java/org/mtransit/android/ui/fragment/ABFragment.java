@@ -51,7 +51,6 @@ import java.util.WeakHashMap;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import kotlin.Unit;
 
 @AndroidEntryPoint
 public abstract class ABFragment extends MTFragmentX implements
@@ -378,7 +377,7 @@ public abstract class ABFragment extends MTFragmentX implements
 				if (appRatingDisplayed) {
 					this.sharedAppRatingsManager.onAppRequestDisplayed(this, this);
 				}
-				return Unit.INSTANCE;
+				return kotlin.Unit.INSTANCE;
 			});
 		});
 	}

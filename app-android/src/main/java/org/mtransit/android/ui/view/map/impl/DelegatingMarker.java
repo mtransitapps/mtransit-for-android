@@ -32,6 +32,7 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	private final MarkerManager manager;
 
 	private int clusterGroup;
+	@Nullable
 	private Object data;
 
 	private LatLng position;
@@ -46,22 +47,22 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
-	public void animatePosition(LatLng target) {
+	public void animatePosition(@Nullable LatLng target) {
 		animatePosition(target, new AnimationSettings(), null);
 	}
 
 	@Override
-	public void animatePosition(LatLng target, AnimationSettings settings) {
+	public void animatePosition(@Nullable LatLng target, @Nullable AnimationSettings settings) {
 		animatePosition(target, settings, null);
 	}
 
 	@Override
-	public void animatePosition(LatLng target, AnimationCallback callback) {
+	public void animatePosition(@Nullable LatLng target, @Nullable AnimationCallback callback) {
 		animatePosition(target, new AnimationSettings(), callback);
 	}
 
 	@Override
-	public void animatePosition(LatLng target, AnimationSettings settings, AnimationCallback callback) {
+	public void animatePosition(@Nullable LatLng target, @Nullable AnimationSettings settings, @Nullable AnimationCallback callback) {
 		if (target == null || settings == null) {
 			throw new IllegalArgumentException();
 		}
@@ -79,22 +80,26 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Nullable
 	@Override
 	public Object getData() {
 		return data;
 	}
 
 	@Deprecated
+	@NonNull
 	@Override
 	public String getId() {
 		return real.getId();
 	}
 
+	@Nullable
 	@Override
 	public List<IMarker> getMarkers() {
 		return null;
 	}
 
+	@NonNull
 	@Override
 	public LatLng getPosition() {
 		if (position == null) {
@@ -106,6 +111,11 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	@Override
 	public float getRotation() {
 		return real.getRotation();
+	}
+
+	@Override
+	public float getZIndex() {
+		return real.getZIndex();
 	}
 
 	@Override
@@ -173,7 +183,7 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
-	public void setData(Object data) {
+	public void setData(@Nullable Object data) {
 		this.data = data;
 	}
 
@@ -189,7 +199,7 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 
 	@Deprecated
 	@Override
-	public void setIcon(BitmapDescriptor icon) {
+	public void setIcon(@Nullable BitmapDescriptor icon) {
 		real.setIcon(icon);
 	}
 
@@ -203,16 +213,19 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 		real.setIcon(context, iconResId, replaceColor, color, secondaryColor, defaultColor);
 	}
 
+	@Nullable
 	@Override
 	public Integer getColor() {
 		return this.real == null ? null : this.real.getColor();
 	}
 
+	@Nullable
 	@Override
 	public Integer getSecondaryColor() {
 		return this.real == null ? null : this.real.getSecondaryColor();
 	}
 
+	@Nullable
 	@Override
 	public Integer getDefaultColor() {
 		return this.real == null ? null : this.real.getDefaultColor();
@@ -224,13 +237,13 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
-	public void setPosition(LatLng position) {
+	public void setPosition(@NonNull LatLng position) {
 		this.position = position;
 		real.setPosition(position);
 		manager.onPositionChange(this);
 	}
 
-	void setPositionDuringAnimation(LatLng position) {
+	void setPositionDuringAnimation(@NonNull LatLng position) {
 		this.position = position;
 		real.setPosition(position);
 		manager.onPositionDuringAnimationChange(this);
@@ -247,12 +260,12 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
-	public void setSnippet(String snippet) {
+	public void setSnippet(@Nullable String snippet) {
 		real.setSnippet(snippet);
 	}
 
 	@Override
-	public void setTitle(String title) {
+	public void setTitle(@Nullable String title) {
 		real.setTitle(title);
 	}
 
@@ -308,7 +321,7 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 		real.showInfoWindow();
 	}
 
-	void setVirtualPosition(LatLng position) {
+	void setVirtualPosition(@NonNull LatLng position) {
 		real.setPosition(position);
 	}
 }
