@@ -157,24 +157,24 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@SuppressWarnings("unused")
 	@NonNull
-	public static CharSequence formatVeryRecentTime(long timeInnMs) {
-		return formatVeryRecentTime(timeInnMs, currentTimeMillis());
+	public static CharSequence formatVeryRecentTime(long timeInMs) {
+		return formatVeryRecentTime(timeInMs, currentTimeMillis());
 	}
 
 	@NonNull
-	private static CharSequence formatVeryRecentTime(long timeInnMs, long nowInMs) {
-		return DateUtils.getRelativeTimeSpanString(timeInnMs, nowInMs, DateUtils.SECOND_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+	private static CharSequence formatVeryRecentTime(long timeInMs, long nowInMs) {
+		return DateUtils.getRelativeTimeSpanString(timeInMs, nowInMs, DateUtils.SECOND_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
 	}
 
 	@SuppressWarnings("unused")
 	@NonNull
-	public static CharSequence formatNearTime(long timeInnMs) {
-		return formatNearTime(timeInnMs, currentTimeMillis());
+	public static CharSequence formatNearTime(long timeInMs) {
+		return formatNearTime(timeInMs, currentTimeMillis());
 	}
 
 	@NonNull
-	private static CharSequence formatNearTime(long timeInnMs, long nowInMs) {
-		return DateUtils.getRelativeTimeSpanString(timeInnMs, nowInMs, DateUtils.DAY_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+	private static CharSequence formatNearTime(long timeInMs, long nowInMs) {
+		return DateUtils.getRelativeTimeSpanString(timeInMs, nowInMs, DateUtils.DAY_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
 	}
 
 	@NonNull
