@@ -8,6 +8,11 @@ on:
         type: boolean
         default: false
         required: false
+      skip-app-release:
+        description: 'Skip app release (event if data change or latest release old)'
+        type: boolean
+        default: false
+        required: false
       force-app-release:
         description: 'Force app release (even if no data change and latest release recent)'
         type: boolean
@@ -145,6 +150,7 @@ jobs:
       - name: MT push commits
         run: ./push_commits.sh
       - name: MT Publish release (?)
+        if: ${{ github.event.inputs.skip-app-release != 'true' }}
         run: ./publish_app_release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
