@@ -113,13 +113,19 @@ class RDSDirectionStopsViewModel @Inject constructor(
         }
     }
 
+    private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@switchMap null
+        dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
+    }
+
     private val _routeDirectionTripIds: LiveData<List<String>?> =
-        TripleMediatorLiveData(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
+        QuadrupleMediatorLiveData(_authority, _routeId, directionId, _vehicleLocationProviders).switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
                 authority ?: return@liveData
                 routeId ?: return@liveData
                 directionId ?: return@liveData
+                vehicleLocationProviders?.takeIf { it.isNotEmpty() } ?: return@liveData // no need to fetch trip IDs if no vehicle location provider available
                 emit(dataSourceRequestManager.findRDSRouteDirectionTrips(authority, routeId, directionId)?.map { it.tripId })
             }
         }
@@ -149,11 +155,6 @@ class RDSDirectionStopsViewModel @Inject constructor(
         _vehicleLocationRequestedTrigger.value = null // disable when not visible
         _vehicleRefreshJob?.cancel()
         _vehicleRefreshJob = null
-    }
-
-    private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
-        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@switchMap null
-        dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
     }
 
     // TODO use VehicleLocationLoader like status and service update?
