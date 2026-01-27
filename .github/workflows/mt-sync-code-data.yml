@@ -124,6 +124,7 @@ jobs:
       - name: MT commit data change
         run: ./commit_data_change.sh
       - name: MT set app release required (or not)
+        if: ${{ github.event.inputs.skip-app-release != 'true' }}
         run: ./set_app_release_required.sh
       - name: MT check if force app release
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force-app-release == 'true' }}
@@ -136,11 +137,13 @@ jobs:
           MT_SKIP_PUSH_COMMIT=false;
           echo "MT_SKIP_PUSH_COMMIT=$MT_SKIP_PUSH_COMMIT" >> "$GITHUB_ENV";
       - name: MT assemble release (APK & ABB)
+        if: ${{ github.event.inputs.skip-app-release != 'true' }}
         run: ./assemble_release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
       - name: MT artifact > app-android > APK & ABB
+        if: ${{ github.event.inputs.skip-app-release != 'true' }}
         uses: actions/upload-artifact@v6
         with:
           name: app-android-apk-bundle
