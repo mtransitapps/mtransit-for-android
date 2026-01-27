@@ -13,6 +13,8 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
@@ -25,6 +27,8 @@ import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
+import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
@@ -36,14 +40,20 @@ import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIConnectionComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
+import org.mtransit.android.data.VehicleLocationProviderProperties
+import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.addAllN
 import org.mtransit.commons.removeAllAnd
 import org.mtransit.commons.sortWithAnd
@@ -59,6 +69,8 @@ class POIViewModel @Inject constructor(
     private val poiRepository: POIRepository,
     private val newsRepository: NewsRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+    remoteConfigProvider: RemoteConfigProvider,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -95,6 +107,82 @@ class POIViewModel @Inject constructor(
     private val _poi = this.poim.map {
         it?.poi
     }.distinctUntilChanged()
+
+    private val _rds = _poi.map {
+        it as? RouteDirectionStop
+    }
+
+    private val _directionId: LiveData<Long?> = _rds.map {
+        it?.direction?.id
+    }
+
+    private val _routeId: LiveData<Long?> = _rds.map {
+        it?.route?.id
+    }
+
+    private val _routeDirectionTripIds: LiveData<List<String>?> =
+        TripleMediatorLiveData(_authority, _routeId, _directionId).switchMap { (authority, routeId, directionId) ->
+            liveData(viewModelScope.coroutineContext) {
+                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                authority ?: return@liveData
+                routeId ?: return@liveData
+                directionId ?: return@liveData
+                emit(dataSourceRequestManager.findRDSRouteDirectionTrips(authority, routeId, directionId)?.map { it.tripId })
+            }
+        }
+
+    private val _vehicleLocationRequestedTrigger = MutableLiveData<Int?>(null) // no initial value to avoid triggering onChanged()
+
+    private var _vehicleRefreshJob: Job? = null
+
+    private val _vehicleLocationDataRefreshMinMs = remoteConfigProvider.get(
+        RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS,
+        RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT,
+    )
+
+    fun startVehicleLocationRefresh() {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+        _vehicleRefreshJob?.cancel()
+        _vehicleRefreshJob = viewModelScope.launch {
+            while (true) {
+                _vehicleLocationRequestedTrigger.value = (_vehicleLocationRequestedTrigger.value ?: 0) + 1
+                delay(_vehicleLocationDataRefreshMinMs)
+            }
+        }
+    }
+
+    fun stopVehicleLocationRefresh() {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+        _vehicleLocationRequestedTrigger.value = null // disable when not visible
+        _vehicleRefreshJob?.cancel()
+        _vehicleRefreshJob = null
+    }
+
+    private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@switchMap null
+        dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
+    }
+
+    val vehicleLocations: LiveData<List<VehicleLocation>?> =
+        QuadrupleMediatorLiveData(
+            _vehicleLocationProviders,
+            _rds,
+            _routeDirectionTripIds,
+            _vehicleLocationRequestedTrigger
+        ).switchMap { (vehicleLocationProviders, rds, tripIds, trigger) ->
+            liveData(viewModelScope.coroutineContext) {
+                if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
+                vehicleLocationProviders ?: return@liveData
+                rds ?: return@liveData
+                tripIds ?: return@liveData
+                trigger ?: return@liveData // skip when not visible
+                emit(
+                    vehicleLocationProviders.mapNotNull {
+                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds, tripIds).apply { inFocus = true })
+                    }.flatten()
+                )
+            }
+        }
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
@@ -140,10 +228,10 @@ class POIViewModel @Inject constructor(
     private val _poiArea = _poi.map { it -> it?.let { Area.getArea(it.lat, it.lng, 0.01) } }
 
     private val nearbyAgencies: LiveData<List<AgencyBaseProperties>?> = PairMediatorLiveData(_poiArea, _allAgencies).map { (poiArea, allAgencies) ->
-        allAgencies?.filter {
-            it.type.isNearbyScreen
-                    && it.type != DataSourceType.TYPE_MODULE
-                    && it.isInArea(poiArea)
+        allAgencies?.filter { agency ->
+            agency.type.isNearbyScreen
+                    && agency.type != DataSourceType.TYPE_MODULE
+                    && agency.isInArea(poiArea)
         }
     }
 
@@ -155,8 +243,8 @@ class POIViewModel @Inject constructor(
     }
 
     private val poiConnectionComparator by lazy {
-        POIConnectionComparator({
-            when (it) {
+        POIConnectionComparator({ dataSourceTypeId ->
+            when (dataSourceTypeId) {
                 DataSourceType.TYPE_BIKE.id -> 250f
                 else -> NEARBY_CONNECTIONS_MAX_COVERAGE
             }

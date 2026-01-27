@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -21,18 +22,18 @@ public interface IMarker {
 			ANIMATE_POSITION, DRAG_START, REMOVE, SET_POSITION,
 		}
 
-		void onFinish(IMarker marker);
+		void onFinish(@NonNull IMarker marker);
 
-		void onCancel(IMarker marker, CancelReason reason);
+		void onCancel(@NonNull IMarker marker, @NonNull CancelReason reason);
 	}
 
-	void animatePosition(LatLng target);
+	void animatePosition(@Nullable LatLng target);
 
-	void animatePosition(LatLng target, AnimationSettings settings);
+	void animatePosition(@Nullable LatLng target, @Nullable AnimationSettings settings);
 
-	void animatePosition(LatLng target, AnimationCallback callback);
+	void animatePosition(@Nullable LatLng target, @Nullable AnimationCallback callback);
 
-	void animatePosition(LatLng target, AnimationSettings settings, AnimationCallback callback);
+	void animatePosition(@Nullable LatLng target, @Nullable AnimationSettings settings, @Nullable AnimationCallback callback);
 
 	float getAlpha();
 
@@ -41,16 +42,23 @@ public interface IMarker {
 	<T> T getData();
 
 	@Deprecated
+	@NonNull
 	String getId();
 
+	@Nullable
 	List<IMarker> getMarkers();
 
+	@NonNull
 	LatLng getPosition();
 
 	float getRotation();
 
+	float getZIndex();
+
+	@Nullable
 	String getSnippet();
 
+	@Nullable
 	String getTitle();
 
 	void hideInfoWindow();
@@ -73,14 +81,14 @@ public interface IMarker {
 
 	void setClusterGroup(int clusterGroup);
 
-	void setData(Object data);
+	void setData(@Nullable Object data);
 
 	void setDraggable(boolean draggable);
 
 	void setFlat(boolean flat);
 
 	@Deprecated
-	void setIcon(BitmapDescriptor icon);
+	void setIcon(@Nullable BitmapDescriptor icon);
 
 	void setIcon(@Nullable Context context,
 				 @DrawableRes @Nullable Integer iconResId,
@@ -89,23 +97,26 @@ public interface IMarker {
 				 @ColorInt @Nullable Integer secondaryColor,
 				 @ColorInt @Nullable Integer defaultColor);
 
+	@Nullable
 	Integer getColor();
 
+	@Nullable
 	Integer getSecondaryColor();
 
+	@Nullable
 	Integer getDefaultColor();
 
 	void setInfoWindowAnchor(float anchorU, float anchorV);
 
-	void setPosition(LatLng position);
+	void setPosition(@NonNull LatLng position);
 
 	void setRotation(float rotation);
 
 	void setZIndex(float zIndex);
 
-	void setSnippet(String snippet);
+	void setSnippet(@Nullable String snippet);
 
-	void setTitle(String title);
+	void setTitle(@Nullable String title);
 
 	void setVisible(boolean visible);
 

@@ -11,7 +11,6 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
@@ -201,10 +200,19 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 		map.setMyLocationEnabled(enabled);
 	}
 
-	@Deprecated
 	@Override
-	public final void setOnCameraChangeListener(OnCameraChangeListener listener) {
-		map.setOnCameraChangeListener(listener);
+	public final void setOnCameraMoveStartedListener(@Nullable GoogleMap.OnCameraMoveStartedListener listener) {
+		map.setOnCameraMoveStartedListener(listener);
+	}
+
+	@Override
+	public final void setOnCameraMoveListener(@Nullable GoogleMap.OnCameraMoveListener listener) {
+		map.setOnCameraMoveListener(listener);
+	}
+
+	@Override
+	public final void setOnCameraIdleListener(@Nullable GoogleMap.OnCameraIdleListener listener) {
+		map.setOnCameraIdleListener(listener);
 	}
 
 	@Override
@@ -267,6 +275,7 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 		map.stopAnimation();
 	}
 
+	@NonNull
 	@Override
 	public GoogleMap getMap() {
 		return map;

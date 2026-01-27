@@ -3083,6 +3083,17 @@
 
     <issue
         id="DeprecatedCall"
+        message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
+        errorLine1="        super.onLowMemory()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
+            line="273"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
         message="android.os.Handler.Handler is deprecated; consider using an alternative."
         errorLine1=" private Handler handler = new Handler(msg -> {"
         errorLine2="                           ^">

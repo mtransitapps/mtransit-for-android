@@ -2,8 +2,6 @@ package org.mtransit.android.ui.view.map.impl;
 
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.maps.model.CameraPosition;
-
 import org.mtransit.android.ui.view.map.IMarker;
 
 import java.util.List;
@@ -13,7 +11,11 @@ interface ClusteringStrategy {
 
 	void cleanup();
 
-	void onCameraChange(CameraPosition cameraPosition);
+	void onCameraMoveStarted(int reason);
+
+	void onCameraMove();
+
+	void onCameraIdle();
 
 	void onClusterGroupChange(DelegatingMarker marker);
 

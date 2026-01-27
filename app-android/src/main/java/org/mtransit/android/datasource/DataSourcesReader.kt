@@ -29,6 +29,8 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.android.data.VehicleLocationProviderProperties
+import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -134,6 +136,7 @@ class DataSourcesReader @Inject constructor(
     private val statusProviderMetaData by lazy { appContext.getString(commonsR.string.status_provider) }
     private val scheduleProviderMetaData by lazy { appContext.getString(commonsR.string.schedule_provider) }
     private val serviceUpdateProviderMetaData by lazy { appContext.getString(commonsR.string.service_update_provider) }
+    private val vehicleLocationProviderMetaData by lazy { appContext.getString(commonsR.string.vehicle_location_provider) }
     private val newsProviderMetaData by lazy { appContext.getString(commonsR.string.news_provider) }
 
     private val agencyProviderTypeMetaData by lazy { appContext.getString(commonsR.string.agency_provider_type) }
@@ -142,6 +145,7 @@ class DataSourcesReader @Inject constructor(
     private val statusProviderTargetMetaData by lazy { appContext.getString(commonsR.string.status_provider_target) }
     private val scheduleProviderTargetMetaData by lazy { appContext.getString(commonsR.string.schedule_provider_target) }
     private val serviceUpdateProviderTargetMetaData by lazy { appContext.getString(commonsR.string.service_update_provider_target) }
+    private val vehicleLocationProviderTargetMetaData by lazy { appContext.getString(commonsR.string.vehicle_location_provider_target) }
     private val newsProviderTargetMetaData by lazy { appContext.getString(commonsR.string.news_provider_target) }
 
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
@@ -168,6 +172,11 @@ class DataSourcesReader @Inject constructor(
             }
             if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
                 return true
+            }
+            if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+                if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
+                    return true
+                }
             }
             @Suppress("RedundantIf")
             if (providerMetaData.isKeyMT(newsProviderMetaData)) {
@@ -255,6 +264,7 @@ class DataSourcesReader @Inject constructor(
         val knownStatusProviderProperties = dataSourcesDatabase.statusProviderPropertiesDao().getAllStatusProvider()
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
+        val knownVehicleLocationProviderProperties = dataSourcesDatabase.vehicleLocationProviderPropertiesDao().getAllVehicleLocationProvider()
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
         @Suppress("DEPRECATION") // DO request all PKG providers info
         pm.getAllInstalledProvidersWithMetaData().forEach pkg@{ packageInfo ->
@@ -326,6 +336,23 @@ class DataSourcesReader @Inject constructor(
                                 ServiceUpdateProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
                             markUpdated()
+                        }
+                    }
+                }
+                // VEHICLE LOCATION
+                if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+                    if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
+                        if (knownVehicleLocationProviderProperties.none { it.authority == providerAuthority }) {
+                            providerMetaData.getString(vehicleLocationProviderTargetMetaData)?.let { targetAuthority ->
+                                val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
+                                    ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
+                                        .orEmpty()
+                                MTLog.d(this, "Vehicle Location provider '${providerAuthority}' added (target: '$validTargetAuthority').")
+                                dataSourcesDatabase.vehicleLocationProviderPropertiesDao().insert(
+                                    VehicleLocationProviderProperties(providerAuthority, validTargetAuthority, pkg)
+                                )
+                                markUpdated()
+                            }
                         }
                     }
                 }
@@ -401,6 +428,7 @@ class DataSourcesReader @Inject constructor(
         val knownStatusProviderProperties = dataSourcesDatabase.statusProviderPropertiesDao().getAllStatusProvider()
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
+        val knownVehicleLocationProviderProperties = dataSourcesDatabase.vehicleLocationProviderPropertiesDao().getAllVehicleLocationProvider()
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
         // AGENCY (only one properties kept in cache even when uninstalled/disabled to save refreshing data)
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().forEach { agencyProperties ->
@@ -450,6 +478,12 @@ class DataSourcesReader @Inject constructor(
         // SERVICE UPDATE
         knownServiceUpdateProviderProperties.forEach { serviceUpdateProviderProperties ->
             refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties, markUpdated)
+        }
+        // VEHICLE LOCATION
+        if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+            knownVehicleLocationProviderProperties.forEach { vehicleLocationProviderProperties ->
+                refreshVehicleLocationProviderProperties(vehicleLocationProviderProperties, markUpdated)
+            }
         }
         // NEWS
         knownNewsProviderProperties.forEach { newsProviderProperties ->
@@ -668,6 +702,48 @@ class DataSourcesReader @Inject constructor(
             MTLog.d(this, "Service Update '$authority' updated")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().update(
                 serviceUpdateProviderProperties.copy(targetAuthority = newTargetAuthority)
+            )
+            markUpdated()
+        }
+    }
+
+    private suspend fun refreshVehicleLocationProviderProperties(vehicleLocationProviderProperties: VehicleLocationProviderProperties, markUpdated: () -> Unit) {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+        val pkg = vehicleLocationProviderProperties.pkg
+        val authority = vehicleLocationProviderProperties.authority
+        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            MTLog.d(this, "Vehicle Location '$authority' not supported")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
+            markUpdated()
+            return
+        }
+        if (!pm.isAppInstalled(pkg)
+            || !pm.isAppEnabled(pkg)
+        ) {
+            MTLog.d(this, "Vehicle Location '$authority' removed (uninstalled | disabled)")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
+            markUpdated()
+            return
+        }
+        val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
+        val providerMetadata = provider?.metaData
+        if (providerMetadata == null) {
+            MTLog.d(this, "Vehicle Location '$authority' removed (no provider metadata)")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
+            markUpdated()
+            return
+        }
+        val newTargetAuthority = providerMetadata.getString(vehicleLocationProviderTargetMetaData)
+        if (newTargetAuthority == null) {
+            MTLog.d(this, "Vehicle Location '$authority' removed (invalid target authority)")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
+            markUpdated()
+            return
+        }
+        if (newTargetAuthority != vehicleLocationProviderProperties.targetAuthority) {
+            MTLog.d(this, "Vehicle Location '$authority' updated")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().update(
+                vehicleLocationProviderProperties.copy(targetAuthority = newTargetAuthority)
             )
             markUpdated()
         }

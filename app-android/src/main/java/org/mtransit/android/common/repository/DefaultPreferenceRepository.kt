@@ -80,10 +80,10 @@ class DefaultPreferenceRepository @Inject constructor(
 
     private var _prefs: SharedPreferences? = null
 
+    private val _executorService = Executors.newSingleThreadExecutor()
+
     init {
-        Executors.newSingleThreadExecutor().execute {
-            _prefs = loadPrefs()
-        }
+        _executorService.execute { _prefs = loadPrefs() }
     }
 
     @WorkerThread
@@ -94,6 +94,7 @@ class DefaultPreferenceRepository @Inject constructor(
         get() = _prefs ?: loadPrefs().apply {
             _prefs = this
         }
+
     @Suppress("FunctionName")
     fun getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routesCount: Int): Boolean {
         return routesCount < appContext.resources.getInteger(R.integer.rds_routes_default_grid_min_count)

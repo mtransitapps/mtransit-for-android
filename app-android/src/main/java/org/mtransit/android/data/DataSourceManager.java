@@ -41,7 +41,10 @@ import org.mtransit.android.commons.provider.poi.POIProviderContract;
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract;
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.status.StatusProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.util.CrashUtils;
+import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.ArrayList;
@@ -148,6 +151,40 @@ public final class DataSourceManager implements MTLog.Loggable {
 			if (cursor.moveToFirst()) {
 				do {
 					result.add(News.fromCursorStatic(cursor, authority));
+				} while (cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
+	@Nullable
+	public static ArrayList<VehicleLocation> findVehicleLocations(
+			@NonNull Context context,
+			@NonNull String authority,
+			@Nullable VehicleLocationProviderContract.Filter vehicleLocationFilter
+	) {
+		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return null;
+		Cursor cursor = null;
+		try {
+			final String vehicleLocationFilterJSONString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJSONString();
+			final Uri uri = Uri.withAppendedPath(getUri(authority), VehicleLocationProviderContract.VEHICLE_LOCATION_PATH);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, vehicleLocationFilterJSONString, null, null);
+			return getVehicleLocations(cursor, authority);
+		} catch (Exception e) {
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' vehicle locations from '%s'!", vehicleLocationFilter, authority);
+			return null;
+		} finally {
+			SqlUtils.closeQuietly(cursor);
+		}
+	}
+
+	@NonNull
+	private static ArrayList<VehicleLocation> getVehicleLocations(@Nullable Cursor cursor, @NonNull String authority) {
+		ArrayList<VehicleLocation> result = new ArrayList<>();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				do {
+					result.add(VehicleLocation.fromCursor(cursor, authority));
 				} while (cursor.moveToNext());
 			}
 		}
@@ -353,7 +390,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = getRDSDirectionsUri(authority);
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ID, directionId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
-			ArrayList<Direction> rdsDirections = getRDSDirections(cursor);
+			ArrayList<Direction> rdsDirections = getRDSDirections(cursor, authority);
 			return rdsDirections.isEmpty() ? null : rdsDirections.get(0);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading route direction '%d' from '%s'!", directionId, authority);
@@ -370,7 +407,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final Uri uri = getRDSDirectionsUri(authority);
 			final String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ROUTE_ID, routeId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
-			return getRDSDirections(cursor);
+			return getRDSDirections(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading route '%s' directions from '%s'!", routeId, authority);
 			return null;
@@ -380,12 +417,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<Direction> getRDSDirections(@Nullable Cursor cursor) {
+	private static ArrayList<Direction> getRDSDirections(@Nullable Cursor cursor, @NonNull String authority) {
 		final ArrayList<Direction> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					final Direction fromCursor = Direction.fromCursor(cursor);
+					final Direction fromCursor = Direction.fromCursor(cursor, authority);
 					result.add(fromCursor);
 				} while (cursor.moveToNext());
 			}

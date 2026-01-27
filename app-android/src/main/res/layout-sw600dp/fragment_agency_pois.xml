@@ -42,9 +42,9 @@
         android:src="@drawable/ic_payments_black_24"
         android:visibility="gone"
         tools:backgroundTint="#FF00FF"
+        tools:ignore="MissingConstraints"
         tools:rippleColor="#00FF00"
-        tools:visibility="visible"
-        tools:ignore="MissingConstraints" />
+        tools:visibility="visible" />
 
     <!-- MAP -->
     <org.mtransit.android.ui.view.common.MapViewInScroll

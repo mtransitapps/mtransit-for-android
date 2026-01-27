@@ -216,7 +216,7 @@ class MapViewModel @Inject constructor(
         loadedArea.containsEntirely(loadingArea)
     }
 
-    fun onCameraChange(newVisibleArea: LatLngBounds, getBigCameraPosition: () -> LatLngBounds?): Boolean {
+    fun onCameraChanged(newVisibleArea: LatLngBounds, getBigCameraPosition: () -> LatLngBounds?): Boolean {
         val loadedArea: LatLngBounds? = this._loadedArea.value
         val loadingArea: LatLngBounds? = this._loadingArea.value
         val loaded = loadedArea.containsEntirely(newVisibleArea)
@@ -253,7 +253,6 @@ class MapViewModel @Inject constructor(
 
     private var poiMarkersLoadJob: Job? = null
 
-    @Suppress("DeprecatedCall")
     private fun loadPOIMarkers() {
         poiMarkersLoadJob?.cancel()
         val reset: Boolean = _poiMarkersReset.value?.getContentIfNotHandled() == true

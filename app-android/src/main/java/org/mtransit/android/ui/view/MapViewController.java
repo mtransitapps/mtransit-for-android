@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.view;
 
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -12,6 +15,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapCapabilities;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
@@ -40,7 +45,9 @@ import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.RouteDirectionStop;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
@@ -57,6 +64,7 @@ import org.mtransit.android.ui.view.map.MTMapIconZoomGroup;
 import org.mtransit.android.ui.view.map.MTMapIconsProvider;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarkerIds;
+import org.mtransit.android.ui.view.map.VehicleLocationExtKt;
 import org.mtransit.android.ui.view.map.impl.ExtendedMapFactory;
 import org.mtransit.android.ui.view.map.utils.LatLngUtils;
 import org.mtransit.android.util.CrashUtils;
@@ -67,14 +75,23 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings({"WeakerAccess", "DeprecatedCall"})
-public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListener, ExtendedGoogleMap.OnInfoWindowClickListener,
-		ExtendedGoogleMap.OnMapLoadedCallback, ExtendedGoogleMap.OnMarkerClickListener, ExtendedGoogleMap.OnMyLocationButtonClickListener,
-		ExtendedGoogleMap.OnMapClickListener, LocationSource, OnMapReadyCallback, ViewTreeObserver.OnGlobalLayoutListener, MTLog.Loggable {
+@SuppressWarnings("DeprecatedCall")
+public class MapViewController implements
+		ExtendedGoogleMap.OnCameraIdleListener,
+		ExtendedGoogleMap.OnInfoWindowClickListener,
+		ExtendedGoogleMap.OnMapLoadedCallback,
+		ExtendedGoogleMap.OnMarkerClickListener,
+		ExtendedGoogleMap.OnMyLocationButtonClickListener,
+		ExtendedGoogleMap.OnMapClickListener,
+		LocationSource,
+		OnMapReadyCallback,
+		ViewTreeObserver.OnGlobalLayoutListener,
+		MTLog.Loggable {
 
 	private static final String LOG_TAG = MapViewController.class.getSimpleName();
 
@@ -109,6 +126,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Nullable
 	private Location deviceLocation;
 	private boolean waitingForGlobalLayout = false;
+
+	@SuppressWarnings("WeakerAccess")
+	protected boolean advancedMarkersAvailable = false; // requires Cloud Maps w/ map ID == $$$
 
 	@Override
 	public void onGlobalLayout() {
@@ -159,7 +179,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private final boolean followingDevice;
 	private final boolean hasButtons;
 	private final boolean clusteringEnabled;
-	private final boolean showAllMarkersWhenReady;
+	private boolean showAllMarkersWhenReady;
 	private final boolean markerLabelShowExtra;
 
 	private CameraPosition lastCameraPosition;
@@ -173,22 +193,24 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
 
-	public MapViewController(@NonNull String logTag,
-							 @Nullable MapMarkerProvider markerProvider,
-							 @Nullable MapListener mapListener,
-							 boolean mapToolbarEnabled,
-							 boolean myLocationEnabled,
-							 boolean myLocationButtonEnabled,
-							 boolean indoorLevelPickerEnabled,
-							 boolean trafficEnabled,
-							 boolean indoorEnabled,
-							 int paddingTopSp,
-							 int paddingBottomSp,
-							 boolean followingDevice,
-							 boolean hasButtons,
-							 boolean clusteringEnabled,
-							 boolean showAllMarkersWhenReady,
-							 boolean markerLabelShowExtra) {
+	public MapViewController(
+			@NonNull String logTag,
+			@Nullable MapMarkerProvider markerProvider,
+			@Nullable MapListener mapListener,
+			boolean mapToolbarEnabled,
+			boolean myLocationEnabled,
+			boolean myLocationButtonEnabled,
+			boolean indoorLevelPickerEnabled,
+			boolean trafficEnabled,
+			boolean indoorEnabled,
+			int paddingTopSp,
+			int paddingBottomSp,
+			boolean followingDevice,
+			boolean hasButtons,
+			boolean clusteringEnabled,
+			boolean showAllMarkersWhenReady,
+			boolean markerLabelShowExtra
+	) {
 		setLogTag(logTag);
 		setMarkerProvider(markerProvider);
 		setMapListener(mapListener);
@@ -277,9 +299,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		try {
-			MapsInitializerUtil.initMap(view.getContext().getApplicationContext(), renderer -> {
+			MapsInitializerUtil.initMap(view.getContext(), renderer -> {
 				applyNewMapView(view);
-				initializingMapView.set(false);
+				return kotlin.Unit.INSTANCE;
 			});
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while initializing map!");
@@ -360,12 +382,15 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.extendedGoogleMap.setOnMarkerClickListener(this);
 		this.extendedGoogleMap.setOnMapClickListener(this);
 		this.extendedGoogleMap.setLocationSource(this);
-		this.extendedGoogleMap.setOnCameraChangeListener(this);
+		this.extendedGoogleMap.setOnCameraIdleListener(this);
 		this.extendedGoogleMap.setClustering(new ClusteringSettings()
 				.enabled(this.clusteringEnabled)
 				.clusterOptionsProvider(new MTClusterOptionsProvider(activity))
 				.addMarkersDynamically(true)
 		);
+		final MapCapabilities capabilities = googleMap.getMapCapabilities();
+		this.advancedMarkersAvailable = capabilities.isAdvancedMarkersAvailable();
+		MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
 		clearMarkers();
 		int paddingTopPx = 0;
 		if (this.paddingTopSp > 0) {
@@ -655,7 +680,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	@Override
-	public void onCameraChange(@NonNull CameraPosition cameraPosition) {
+	public void onCameraIdle() {
+		if (this.extendedGoogleMap == null) {
+			return; // SKIP (no map)
+		}
+		onCameraChanged(this.extendedGoogleMap.getCameraPosition());
+	}
+
+	private void onCameraChanged(@NonNull CameraPosition cameraPosition) {
 		this.showingMyLocation = this.showingMyLocation == null;
 		Integer visibleMarkersCount = null;
 		if (this.extendedGoogleMap != null) {
@@ -692,7 +724,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		final VisibleRegion visibleRegion = this.extendedGoogleMap.getProjection().getVisibleRegion();
 		final float zoom = this.extendedGoogleMap.getCameraPosition().zoom;
-		mapListener.onCameraChange(visibleRegion.latLngBounds, zoom);
+		mapListener.onCameraChanged(visibleRegion.latLngBounds, zoom);
 	}
 
 	public void onConfigurationChanged(@SuppressWarnings("unused") @NonNull Configuration newConfig) {
@@ -702,12 +734,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	@Nullable
 	public LatLngBounds getBigCameraPosition(@Nullable Activity activity, float factor) {
-		if (activity == null) {
-			return null;
-		}
-		if (this.extendedGoogleMap == null) {
-			return null;
-		}
+		if (activity == null) return null;
+		if (this.extendedGoogleMap == null) return null;
 		try {
 			Point size = new Point();
 			activity.getWindowManager().getDefaultDisplay().getSize(size);
@@ -848,6 +876,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 			return true;
 		}
+		final Collection<VehicleLocation> vehicleLocations = markerProvider.getVehicleLocations();
+		if (vehicleLocations != null) {
+			for (VehicleLocation vehicleLocation : vehicleLocations) {
+				llb.include(VehicleLocationExtKt.getPosition(vehicleLocation));
+			}
+			return true;
+		}
 		return false;
 	}
 
@@ -911,7 +946,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		refreshMapMarkers(false);
 	}
 
-	public void refreshMapMarkers() {
+	private void refreshMapMarkers() {
 		refreshMapMarkers(true);
 	}
 
@@ -967,6 +1002,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private static final float MAP_MARKER_Z_INDEX_STOP_FOCUSED_ON = MapUtils.MAP_MARKER_Z_INDEX_PRIMARY;
+	public static final float MAP_MARKER_Z_INDEX_VEHICLE = MapUtils.MAP_MARKER_Z_INDEX_SECONDARY;
 	private static final float MAP_MARKER_Z_INDEX_STOPS_OTHER = MapUtils.MAP_MARKER_Z_INDEX_TERTIARY;
 
 	@Nullable
@@ -1112,10 +1148,15 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			);
 			final Context context = mapViewController.mapView.getContext();
 			for (MTPOIMarker poiMarker : poiMarkers) {
-				mapViewController.extendedGoogleMap.addMarker(
+				final IMarker marker = mapViewController.extendedGoogleMap.addMarker(
 						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.markerLabelShowExtra, currentZoomGroup)
 				);
+				if (poiMarker.hasUUID(mapViewController.lastSelectedUUID)) {
+					marker.showInfoWindow();
+					mapViewController.lastSelectedUUID = null; // select once only
+				}
 			}
+			updateVehicleLocationMarkers(mapViewController, context);
 			mapViewController.clusterManagerItemsLoaded = true;
 			mapViewController.hideLoading();
 			if (!this.update && mapViewController.showAllMarkersWhenReady) {
@@ -1123,6 +1164,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 		}
 	}
+
+	@NonNull
+	protected final ConcurrentHashMap<String, IMarker> vehicleLocationsMarkers = new ConcurrentHashMap<>(); // WeakHashMap forgets about markers not removed yet
 
 	public boolean addMarkers(@Nullable Collection<MTPOIMarker> poiMarkers) {
 		final Context context = getActivityOrNull();
@@ -1133,7 +1177,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return addMarkers(context, poiMarkers);
 	}
 
-	public boolean addMarkers(@NonNull Context context, @Nullable Collection<MTPOIMarker> poiMarkers) {
+	private boolean addMarkers(@NonNull Context context, @Nullable Collection<MTPOIMarker> poiMarkers) {
 		if (this.extendedGoogleMap == null) {
 			MTLog.d(this, "addMarkers() > SKIP (no map)");
 			return false;
@@ -1213,6 +1257,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private boolean showLastCameraPosition() {
 		if (this.lastCameraPosition == null) {
+			MTLog.d(this, "showLastCameraPosition() > SKIP (no camera position)");
 			return false; // nothing shown
 		}
 		final boolean success = updateMapCamera(false, CameraUpdateFactory.newCameraPosition(this.lastCameraPosition));
@@ -1250,6 +1295,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		resetMapType();
 	}
 
+	@Nullable
+	public CameraPosition getCameraPosition() {
+		if (this.extendedGoogleMap != null) {
+			this.lastCameraPosition = this.extendedGoogleMap.getCameraPosition();
+		}
+		return this.lastCameraPosition;
+	}
+
 	public void setInitialSelectedUUID(@Nullable String uuid) {
 		if (TextUtils.isEmpty(uuid)) {
 			return;
@@ -1268,10 +1321,23 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (initialLocation == null) {
 			return;
 		}
-		this.lastCameraPosition = CameraPosition.builder() //
-				.target(LatLngUtils.fromLocation(initialLocation)) //
-				.zoom(DEVICE_LOCATION_ZOOM) //
-				.build();
+		setInitialCameraPosition(
+				CameraPosition.builder()
+						.target(LatLngUtils.fromLocation(initialLocation))
+						.zoom(DEVICE_LOCATION_ZOOM)
+						.build()
+		);
+	}
+
+	public void setInitialCameraPosition(@Nullable CameraPosition initialCameraPosition) {
+		if (initialCameraPosition == null) {
+			return;
+		}
+		this.lastCameraPosition = initialCameraPosition;
+	}
+
+	public void setShowAllMarkersWhenReady(boolean showAllMarkersWhenReady) {
+		this.showAllMarkersWhenReady = showAllMarkersWhenReady;
 	}
 
 	public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -1324,6 +1390,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void clearClusterManagerItems() {
+		removeMissingVehicleLocationMarkers(this);
 		if (this.extendedGoogleMap != null) {
 			this.extendedGoogleMap.clear();
 		}
@@ -1356,6 +1423,16 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		POIManager getPOI(@Nullable String uuid);
 
 		@Nullable
+		Collection<VehicleLocation> getVehicleLocations();
+
+		@Nullable
+		@ColorInt
+		Integer getVehicleColorInt();
+
+		@Nullable
+		DataSourceType getVehicleType();
+
+		@Nullable
 		Collection<LatLng> getVisibleMarkersLocations();
 
 		@Nullable
@@ -1368,7 +1445,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		boolean onMarkerClick(@Nullable IMarker marker);
 
-		void onCameraChange(@NonNull LatLngBounds latLngBounds, float zoom);
+		void onCameraChanged(@NonNull LatLngBounds latLngBounds, float zoom);
 
 		void onMapReady();
 	}

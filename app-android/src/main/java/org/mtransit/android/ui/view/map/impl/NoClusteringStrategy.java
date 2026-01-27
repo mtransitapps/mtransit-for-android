@@ -3,8 +3,6 @@ package org.mtransit.android.ui.view.map.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.maps.model.CameraPosition;
-
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.map.IMarker;
 
@@ -35,7 +33,17 @@ class NoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	}
 
 	@Override
-	public void onCameraChange(CameraPosition cameraPosition) {
+	public void onCameraMoveStarted(int reason) {
+
+	}
+
+	@Override
+	public void onCameraMove() {
+
+	}
+
+	@Override
+	public void onCameraIdle() {
 
 	}
 
