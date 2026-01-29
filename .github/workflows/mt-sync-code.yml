@@ -118,14 +118,14 @@ jobs:
         run: ./lint_only.sh
       - name: MT artifact > lint XML results
         uses: actions/upload-artifact@v6
-        if: ${{ always() }} # even if tests fails
+        if: ${{ always() }} # even if lint fails
         with:
           name: lint-xml-results
           path: |
             */build/reports/*.xml
       - name: MT artifact > lint HTML reports
         uses: actions/upload-artifact@v6
-        if: ${{ always() }} # even if tests fails
+        if: ${{ always() }} # even if lint fails
         with:
           name: lint-html-reports
           path: |
