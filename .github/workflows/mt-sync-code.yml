@@ -132,7 +132,7 @@ jobs:
             */build/reports/
             !**/*.xml
 
-  MT-SYNC-CODE-DATA-JOB:
+  MT-SYNC-CODE-JOB:
     name: "MT Sync Code"
     needs: [MT-TEST-JOB, MT-LINT-JOB]
     timeout-minutes: 30
