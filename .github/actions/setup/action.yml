@@ -1,10 +1,33 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
 name: MT setup
 description: 'Setup workspace (git submodules/branches & gradle)'
-# TODO inputs?
+inputs:
+  code-sync:
+    description: "Sync code from submodules before setup."
+    type: boolean
+    default: false
+    required: false
 # TODO outputs?
+
 runs:
   using: "composite"
   steps:
+
+      - name: MT set environement variables
+        shell: bash
+        run: |
+          MT_IS_SUBMODULE=${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+          echo "[MT] > set MT_IS_SUBMODULE='$MT_IS_SUBMODULE'."
+          echo "MT_IS_SUBMODULE=$MT_IS_SUBMODULE" >> $GITHUB_ENV
+          # 
+          echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY.";
+          if [[ "$GITHUB_REPOSITORY" =~ ^mtransitapps/[a-zA-Z]{2}-.* ]]; then
+            MT_IS_AGENCY_REPO=true;
+          else
+            MT_IS_AGENCY_REPO=false;
+          fi
+          echo "[MT] > set MT_IS_AGENCY_REPO='$MT_IS_AGENCY_REPO'."
+          echo "MT_IS_AGENCY_REPO=$MT_IS_AGENCY_REPO" >> $GITHUB_ENV
 
       - name: MT check out submodules
         shell: bash
@@ -13,18 +36,27 @@ runs:
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
-          echo "Checking out submodules closest branch, '$MT_BRANCH_NAME' or '$MT_TARGET_BRANCH_NAME':"
+          echo "[MT] > Checking out submodules closest branch, '$MT_BRANCH_NAME' or '$MT_TARGET_BRANCH_NAME':"
           git submodule foreach 'git checkout $MT_BRANCH_NAME || git checkout $MT_TARGET_BRANCH_NAME'
-          echo "Showing submodules current branch:"
+          echo "[MT] > Showing submodules current branch:"
           git submodule foreach 'git branch --show-current'
 
-      - name: MT check out this module repo build SHA
-        if: github.repository != 'mtransitapps/mtransit-for-android'
+      - name: MT checkout this repo PR branch to allow push commits
+        if: github.event_name == 'pull_request' && env.MT_IS_AGENCY_REPO == 'true'
+        shell: bash
+        run: |
+          echo "[MT] > Checking out this repo closest branch, '$MT_BRANCH_NAME' or '$MT_TARGET_BRANCH_NAME':"
+          git checkout $MT_BRANCH_NAME || git checkout $MT_TARGET_BRANCH_NAME
+          echo "[MT] > Showing this repo current branch:"
+          git branch --show-current
+
+      - name: MT check out this submodule repo build SHA
+        if: env.MT_IS_SUBMODULE == 'true'
         shell: bash
         run: |
           REPOSITORY_OWNER_AND_NAME=${{ github.repository }};
           REPOSITORY_NAME=$(basename $REPOSITORY_OWNER_AND_NAME);
-          echo "Checking our this repo '$REPOSITORY_NAME' workflow sha '$MT_SHA':"
+          echo "[MT] > Checking out this repo '$REPOSITORY_NAME' workflow sha '$MT_SHA':"
           git -C $REPOSITORY_NAME checkout $MT_SHA;
 
       - name: MT setup MT_GIT_BRANCH env
@@ -33,8 +65,14 @@ runs:
         run: |
           # MT_GIT_BRANCH=${GITHUB_REF##*/}"
           MT_GIT_BRANCH=${{ github.head_ref || github.ref_name }}
+          echo "[MT] > setup MT_GIT_BRANCH='$MT_GIT_BRANCH'."
           # echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
           echo "MT_GIT_BRANCH=$MT_GIT_BRANCH" >> $GITHUB_ENV
+
+      - name: MT code sync
+        shell: bash
+        if: ${{ inputs.code-sync == 'true' }}
+        run: ./commons/code_sync.sh
 
       - name: MT code setup
         shell: bash
