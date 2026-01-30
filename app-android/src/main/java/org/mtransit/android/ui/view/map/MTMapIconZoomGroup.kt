@@ -35,7 +35,7 @@ enum class MTMapIconZoomGroup(
                     return group
                 }
             }
-            MTLog.d(LOG_TAG, "from() > UNEXPECTED zoom: $zoom|markerCount: $markerCount -> DEFAULT")
+            MTLog.d(LOG_TAG, "from() > Unexpected zoom: $zoom|markerCount: $markerCount -> DEFAULT")
             return DEFAULT
         }
     }
