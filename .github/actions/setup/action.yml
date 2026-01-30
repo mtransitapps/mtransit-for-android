@@ -16,7 +16,7 @@ runs:
       - name: MT set environement variables
         shell: bash
         run: |
-          MT_IS_SUBMODULE=${{ github.repository == 'mtransitapps/commons' || github.repository == 'mtransitapps/commons-java' || github.repository == 'mtransitapps/parser' || github.repository == 'mtransitapps/commons-android' }}
+          MT_IS_SUBMODULE=${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
           echo "[MT] > set MT_IS_SUBMODULE='$MT_IS_SUBMODULE'."
           echo "MT_IS_SUBMODULE=$MT_IS_SUBMODULE" >> $GITHUB_ENV
           # 
@@ -56,7 +56,7 @@ runs:
         run: |
           REPOSITORY_OWNER_AND_NAME=${{ github.repository }};
           REPOSITORY_NAME=$(basename $REPOSITORY_OWNER_AND_NAME);
-          echo "[MT] > Checking our this repo '$REPOSITORY_NAME' workflow sha '$MT_SHA':"
+          echo "[MT] > Checking out this repo '$REPOSITORY_NAME' workflow sha '$MT_SHA':"
           git -C $REPOSITORY_NAME checkout $MT_SHA;
 
       - name: MT setup MT_GIT_BRANCH env
