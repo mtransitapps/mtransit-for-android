@@ -22,9 +22,8 @@ data class MTMapIconDef(
     @DrawableRes
     fun getZoomResId(zoomGroup: MTMapIconZoomGroup?): Int {
         return when (zoomGroup) {
-            null -> resId
             MTMapIconZoomGroup.SMALL -> smallResId
-            MTMapIconZoomGroup.DEFAULT -> resId
+            MTMapIconZoomGroup.DEFAULT, null -> resId
         }
     }
 
@@ -35,9 +34,8 @@ data class MTMapIconDef(
     @DrawableRes
     fun getZoomSize(zoomGroup: MTMapIconZoomGroup?): Int? {
         return when (zoomGroup) {
-            null -> size
             MTMapIconZoomGroup.SMALL -> smallSize
-            MTMapIconZoomGroup.DEFAULT -> size
+            MTMapIconZoomGroup.DEFAULT, null -> size
         }
     }
 }
