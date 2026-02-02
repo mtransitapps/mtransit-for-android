@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.core.graphics.scale
 import androidx.core.net.toUri
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -60,8 +61,11 @@ object MapUtils : Loggable {
     // https://developers.google.com/maps/documentation/urls/android-intents
     // ex: https://maps.google.com/maps?saddr=Montreal,+Quebec&daddr=Toronto,+Ontario&dirflg=r
     private const val MAP_DIRECTION_URL_PART_1 = "https://maps.google.com/maps"
+    @Suppress("SpellCheckingInspection")
     private const val MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM = "saddr"
+    @Suppress("SpellCheckingInspection")
     private const val MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM = "daddr"
+    @Suppress("SpellCheckingInspection")
     private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "dirflg"
     private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE = "r"
 
@@ -108,6 +112,7 @@ object MapUtils : Loggable {
     }.build()
 
     private const val GOOGLE_MAPS_PKG = "com.google.android.apps.maps"
+    @Suppress("SpellCheckingInspection")
     private const val GOOGLE_MAPS_LITE_PKG = "com.google.android.apps.mapslite"
 
     private fun startMapIntent(activity: Activity, gmmIntentUri: Uri?) {
@@ -147,6 +152,7 @@ object MapUtils : Loggable {
     }
 
     fun fixScreenFlickering(viewGroup: ViewGroup?) {
+        @Suppress("ConstantConditionIf")
         if (true) return // DISABLED (testing...)
         // https://issuetracker.google.com/issues/35822212
         viewGroup?.requestTransparentRegion(viewGroup)
@@ -157,18 +163,21 @@ object MapUtils : Loggable {
         cache.evictAll()
     }
 
-    private val cache = LruCache<Pair<Int, Int>?, BitmapDescriptor?>(128)
+    private val cache = LruCache<Triple<Int, Int, Int?>?, BitmapDescriptor?>(128)
 
     @JvmStatic
-    fun getIcon(context: Context?, @DrawableRes iconResId: Int, @ColorInt color: Int, replaceColor: Boolean): BitmapDescriptor? {
+    fun getIcon(context: Context?, @DrawableRes iconResId: Int, @ColorInt color: Int, replaceColor: Boolean, size: Int? = null): BitmapDescriptor? {
         var color = color
-        val key = iconResId to color
+        val key = Triple(iconResId, color, size)
         color = ColorUtils.adaptColorToTheme(context, color)
         val cachedBitmap: BitmapDescriptor? = cache.get(key)
         if (cachedBitmap != null) {
             return cachedBitmap
         }
-        val newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor) ?: return null
+        val newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor)
+            ?.let { bitmap ->
+                size?.let { bitmap.scale(it, it) } ?: bitmap
+            } ?: return null
         val newBitmapDescriptor = BitmapDescriptorFactory.fromBitmap(newBase)
         cache.put(key, newBitmapDescriptor)
         return newBitmapDescriptor
