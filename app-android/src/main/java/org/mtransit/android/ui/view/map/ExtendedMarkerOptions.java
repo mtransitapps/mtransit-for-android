@@ -24,6 +24,8 @@ public class ExtendedMarkerOptions {
 	@DrawableRes
 	private Integer realIconResId;
 	@Nullable
+	private Integer realTargetSize;
+	@Nullable
 	private Boolean realReplaceColor;
 	@Nullable
 	private Integer realColor;
@@ -49,6 +51,11 @@ public class ExtendedMarkerOptions {
 	@DrawableRes
 	public Integer getIconResId() {
 		return this.realIconResId;
+	}
+
+	@Nullable
+	public Integer getTargetSize() {
+		return this.realTargetSize;
 	}
 
 	@Nullable
@@ -178,6 +185,7 @@ public class ExtendedMarkerOptions {
 	@NonNull
 	public ExtendedMarkerOptions icon(@NonNull Context context,
 									  @DrawableRes int iconResId,
+									  @Nullable Integer targetSize,
 									  boolean replaceColor,
 									  @ColorInt @Nullable Integer color,
 									  @ColorInt @Nullable Integer secondaryColor,
@@ -185,6 +193,7 @@ public class ExtendedMarkerOptions {
 		real.icon(null);
 		realContextWR = new WeakReference<>(context);
 		realIconResId = iconResId;
+		realTargetSize = targetSize;
 		realReplaceColor = replaceColor;
 		realColor = color;
 		realSecondaryColor = secondaryColor;

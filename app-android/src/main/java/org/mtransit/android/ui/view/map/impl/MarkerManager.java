@@ -68,6 +68,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		marker.setIcon(
 				markerOptions.getContext(),
 				markerOptions.getIconResId(),
+				markerOptions.getTargetSize(),
 				markerOptions.getReplaceColor(),
 				markerOptions.getColor(),
 				markerOptions.getSecondaryColor(),

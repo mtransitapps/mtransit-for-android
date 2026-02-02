@@ -11,6 +11,8 @@ data class MTMapIconDef(
     val infoWindowAnchorU: Float = 0.5f,
     val infoWindowAnchorV: Float = 0.5f,
     val replaceColor: Boolean = false,
+    val size: Int? = null,
+    val smallSize: Int? = size?.div(2),
 ) {
 
     @DrawableRes
@@ -20,9 +22,18 @@ data class MTMapIconDef(
     @DrawableRes
     fun getZoomResId(zoomGroup: MTMapIconZoomGroup?): Int {
         return when (zoomGroup) {
-            null -> resId
             MTMapIconZoomGroup.SMALL -> smallResId
-            MTMapIconZoomGroup.DEFAULT -> resId
+            MTMapIconZoomGroup.DEFAULT, null -> resId
+        }
+    }
+
+    fun getZoomSize(zoom: Float, markerCount: Int?) =
+        getZoomSize(MTMapIconZoomGroup.from(zoom, markerCount))
+
+    fun getZoomSize(zoomGroup: MTMapIconZoomGroup?): Int? {
+        return when (zoomGroup) {
+            MTMapIconZoomGroup.SMALL -> smallSize
+            MTMapIconZoomGroup.DEFAULT, null -> size
         }
     }
 }

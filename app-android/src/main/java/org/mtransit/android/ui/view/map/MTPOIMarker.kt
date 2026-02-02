@@ -56,7 +56,15 @@ data class MTPOIMarker(
             .anchor(iconDef.anchorU, iconDef.anchorV)
             .infoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
             .flat(iconDef.flat)
-            .icon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.replaceColor, color, secondaryColor, Color.BLACK)
+            .icon(
+                context,
+                iconDef.getZoomResId(currentZoomGroup),
+                iconDef.getZoomSize(currentZoomGroup),
+                iconDef.replaceColor,
+                color,
+                secondaryColor,
+                Color.BLACK
+            )
             .alpha(alpha ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
             .rotation(rotation ?: MapUtils.MAP_MARKER_ROTATION_DEFAULT)
             .zIndex(zIndex ?: MapUtils.MAP_MARKER_Z_INDEX_DEFAULT)
