@@ -27,11 +27,9 @@ data class MTMapIconDef(
         }
     }
 
-    @DrawableRes
     fun getZoomSize(zoom: Float, markerCount: Int?) =
         getZoomSize(MTMapIconZoomGroup.from(zoom, markerCount))
 
-    @DrawableRes
     fun getZoomSize(zoomGroup: MTMapIconZoomGroup?): Int? {
         return when (zoomGroup) {
             MTMapIconZoomGroup.SMALL -> smallSize
