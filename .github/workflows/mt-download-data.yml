@@ -29,8 +29,8 @@ env:
   MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
 jobs:
   MT-DOWNLOAD-DATA-JOB:
-    # if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true'}} # can NOT use env here:
-    if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+    # if: ${{ env.MT_IS_MAIN_REPO != 'true' &&  env.MT_IS_AGENCY_BIKE != 'true' }} # can NOT use env here:
+    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && ! contains(github.repository, '-bike-') }}
     name: "MT Download Data"
     timeout-minutes: 30
     runs-on: ubuntu-latest
