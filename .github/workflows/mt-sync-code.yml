@@ -34,7 +34,7 @@ env:
   MT_STORE_PRODUCTION_ON: ${{ secrets.MT_STORE_PRODUCTION_ON }}
   MT_STORE_PRODUCTION_OFF: ${{ secrets.MT_STORE_PRODUCTION_OFF }}
 jobs:
-  MT-SYNC-CODE-DATA-JOB:
+  MT-SYNC-CODE-JOB:
     name: "MT Sync Code"
     timeout-minutes: 30
     runs-on: ubuntu-latest
