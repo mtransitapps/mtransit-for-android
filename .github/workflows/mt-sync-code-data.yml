@@ -21,16 +21,24 @@ on:
         required: false
   schedule:
     - cron: '0 12 * * 2' # Tuesdays @ 12pm UTC # WEEKLY https://crontab.guru/#0_12_*_*_2
-# gh workflow run mt-sync-code-data.yml --ref <branch>
+# gh workflow run mt-sync-code-data.yml --ref $(git rev-parse --abbrev-ref HEAD)
 # gh run list --workflow=mt-sync-code-data.yml
-# gh run watch ; gh browse --branch <branch>
+# gh run watch ; gh browse --branch $(git rev-parse --abbrev-ref HEAD)
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 env:
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
   MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
-  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # repo type
+  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
+  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
+  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
   # git commit & push
   MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
   MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
@@ -59,6 +67,7 @@ env:
 jobs:
   MT-SYNC-CODE-DATA-JOB:
     name: "MT Sync Code & Data"
+    # if: ${{ env.MT_IS_MAIN_REPO != 'true' || github.event_name != 'pull_request' }} # can NOT use env here:
     if: ${{ ! endsWith(github.repository, '/mtransit-for-android') || github.event_name != 'pull_request'  }}
     # timeout-minutes: 45
     timeout-minutes: 90
@@ -70,41 +79,48 @@ jobs:
           submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
           fetch-depth: 0 # fetch all (not required util release build)
+
       - name: MT setup
         id: mt-setup
         uses: ./.github/actions/setup
         with:
-          code-sync: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+          code-sync: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
 
       - name: MT commit code change
-        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
         run: ./commit_code_change.sh
 
       # DOWNLOAD (not PR) AND PARSE (NOT main repo/bike)
       - name: MT download data (& archive)
-        if: ${{ github.event_name != 'pull_request' && ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') && github.event.inputs.skip-download-data == 'false' }}
+        if: ${{ github.event_name != 'pull_request' && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && github.event.inputs.skip-download-data == 'false' }}
         timeout-minutes: 10
         continue-on-error: true # optional (continue with archive data)
         run: ./download_only.sh
+
       - name: MT select archive
-        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./prepare_only.sh
+
       - name: MT parse current
-        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         timeout-minutes: 40
         run: ./parse_current.sh
+
       - name: MT parse next
-        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         timeout-minutes: 40
         run: ./parse_next.sh
+
       - name: MT parse list change
-        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./parse_list_change.sh
+
       - name: MT push commits
-        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./push_commits.sh
+
       - name: MT artifact > GTFS files
-        if: ${{ !cancelled() && ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }} # even if tests fails
+        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }} # even if tests fails
         uses: actions/upload-artifact@v6
         with:
           name: gtfs
@@ -112,22 +128,25 @@ jobs:
             agency-parser/input/gtfs.zip
             agency-parser/input/gtfs_next.zip
           retention-days: 31
+
       - name: MT artifact > GTFS validator results
-        if: ${{ !cancelled() && ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }} # even if tests fails
+        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }} # even if tests fails
         uses: actions/upload-artifact@v6
         with:
           name: gtfs-validator-results
           path: |
             agency-parser/output/current/
             agency-parser/output/next/
+
       - name: MT commit data change
-        if: ${{ ! contains(github.repository, '-bike-') && ! endsWith(github.repository, '/mtransit-for-android') }}
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./commit_data_change.sh
       # ----------
 
       - name: MT set app release required (or not)
         if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
         run: ./set_app_release_required.sh
+
       - name: MT check if force app release
         if: ${{ github.event.inputs.force-app-release == 'true' }}
         run: |
@@ -138,12 +157,14 @@ jobs:
           echo "$MT_APP_RELEASE_REQUIRED" > $MT_APP_RELEASE_REQUIRED_FILE;
           MT_SKIP_PUSH_COMMIT=false;
           echo "MT_SKIP_PUSH_COMMIT=$MT_SKIP_PUSH_COMMIT" >> "$GITHUB_ENV";
+
       - name: MT assemble release (APK & ABB)
         if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
         run: ./assemble_release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+
       - name: MT artifact > app-android > APK & ABB
         if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
         uses: actions/upload-artifact@v6
@@ -152,8 +173,10 @@ jobs:
           path: |
             app-android/build/outputs/apk
             app-android/build/outputs/bundle
+
       - name: MT push commits
         run: ./push_commits.sh
+
       - name: MT Publish release (?)
         if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
         run: ./publish_app_release.sh

@@ -13,36 +13,21 @@ runs:
   using: "composite"
   steps:
 
-      - name: MT set environement variables
-        shell: bash
-        run: |
-          MT_IS_SUBMODULE=${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
-          echo "[MT] > set MT_IS_SUBMODULE='$MT_IS_SUBMODULE'."
-          echo "MT_IS_SUBMODULE=$MT_IS_SUBMODULE" >> $GITHUB_ENV
-          # 
-          echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY.";
-          if [[ "$GITHUB_REPOSITORY" =~ ^mtransitapps/[a-zA-Z]{2}-.* ]]; then
-            MT_IS_AGENCY_REPO=true;
-          else
-            MT_IS_AGENCY_REPO=false;
-          fi
-          echo "[MT] > set MT_IS_AGENCY_REPO='$MT_IS_AGENCY_REPO'."
-          echo "MT_IS_AGENCY_REPO=$MT_IS_AGENCY_REPO" >> $GITHUB_ENV
-
       - name: MT check out submodules
         shell: bash
         run: ./checkout_submodules.sh
+
       - name: MT check out all git submodule closest branch
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
-          echo "[MT] > Checking out submodules closest branch, '$MT_BRANCH_NAME' or '$MT_TARGET_BRANCH_NAME':"
-          git submodule foreach 'git checkout $MT_BRANCH_NAME || git checkout $MT_TARGET_BRANCH_NAME'
+          echo "[MT] > Checking out submodules closest branch, '$MT_BRANCH_NAME' or '$MT_TARGET_BRANCH_NAME' or '$MT_DEFAULT_BRANCH_NAME':"
+          git submodule foreach 'git checkout $MT_BRANCH_NAME || git checkout $MT_TARGET_BRANCH_NAME || git checkout $MT_DEFAULT_BRANCH_NAME'
           echo "[MT] > Showing submodules current branch:"
           git submodule foreach 'git branch --show-current'
 
       - name: MT checkout this repo PR branch to allow push commits
-        if: github.event_name == 'pull_request' && env.MT_IS_AGENCY_REPO == 'true'
+        if: env.MT_IS_AGENCY_REPO == 'true' && (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
         shell: bash
         run: |
           echo "[MT] > Checking out this repo closest branch, '$MT_BRANCH_NAME' or '$MT_TARGET_BRANCH_NAME':"
@@ -77,10 +62,12 @@ runs:
       - name: MT code setup
         shell: bash
         run: ./commons/code_setup.sh
+
       - name: MT set up JDK 17
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
