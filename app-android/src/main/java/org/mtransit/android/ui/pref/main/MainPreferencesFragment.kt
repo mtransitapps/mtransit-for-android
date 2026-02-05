@@ -27,9 +27,11 @@ import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
+import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.capitalize
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.MTDialog
 import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.feedback.FeedbackDialog
@@ -70,6 +72,9 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     @Inject
     lateinit var languageManager: LanguageManager
+
+    @Inject
+    lateinit var remoteConfigProvider: RemoteConfigProvider
 
     private val viewModel by viewModels<MainPreferencesViewModel>()
     private val activityViewModel by activityViewModels<PreferencesViewModel>()
@@ -186,6 +191,28 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         (findPreference(MainPreferencesViewModel.DEV_MODE_MODULE_PREF) as? Preference)?.setOnPreferenceClickListener {
             startActivity(ModulesActivity.newInstance(it.context))
             true // handled
+        }
+        (findPreference(MainPreferencesViewModel.DEV_MODE_REMOTE_CONFIG_PREF) as? Preference)?.apply {
+            summary = remoteConfigProvider.getAll()?.entries?.let { all ->
+                "${all.size}: " + all.joinToString { (key, value) -> "[${key}: ${value}]" }
+            } ?: "(empty)"
+            setOnPreferenceClickListener {
+                ToastUtils.getNewTouchableToast(
+                    context,
+                    R.drawable.toast_frame_old,
+                    remoteConfigProvider.getAll()?.entries?.let { all ->
+                        "${all.size}: " + all.joinToString { (key, value) -> "\n- [${key}: ${value}]" }
+                    } ?: "(empty)",
+                    null,
+                )?.apply {
+                    @SuppressLint("ClickableViewAccessibility")
+                    setTouchInterceptor { _, _ -> this.dismiss(); true }
+                    setOnDismissListener { this.dismiss() }
+                    ToastUtils.showTouchableToastPx(activity, this, view, 0, 0)
+                }
+                true // handled
+            }
+            isEnabled = true
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference)?.setOnPreferenceClickListener {
             viewModel.resetConsent()

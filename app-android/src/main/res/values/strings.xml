@@ -236,6 +236,8 @@
     <string name="dev_mode_pref_cat_title">DEV MODE</string>
     <string name="dev_mode_pref_modules_pref_summary">MANAGE MODULES</string>
     <string name="dev_mode_pref_modules_pref_title">MODULES</string>
+    <string name="dev_mode_pref_remote_config_pref_summary">REMOTE CONFIG VALUES</string>
+    <string name="dev_mode_pref_remote_config_pref_title">REMOTE CONFIG</string>
     <string name="dev_mode_pref_reset_consent_pref_summary">REQUEST CONSENT AGAIN</string>
     <string name="dev_mode_pref_reset_consent_pref_title">RESET CONSENT</string>
     <string name="dev_mode_pref_reset_rewarded_pref_summary">SHOW BANNER ADS</string>
