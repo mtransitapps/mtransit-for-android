@@ -62,9 +62,6 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 )
             }
         }
-
-        @Suppress("SpellCheckingInspection")
-        private const val DEV_QUERY = "MTDEV"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -98,9 +95,6 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
-
-    @Inject
-    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     private var binding: FragmentSearchBinding? = null
 
@@ -200,6 +194,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         viewModel.searchHasFocus.observe(viewLifecycleOwner) {
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
         }
+        viewModel.devEnabled.observe(viewLifecycleOwner) { devEnabled ->
+            ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled")
+        }
     }
 
     override fun onTypeHeaderButtonClick(buttonId: Int, type: DataSourceType): Boolean {
@@ -243,18 +240,10 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
-    private var devEnabled: Boolean? = null
-
     fun setSearchQuery(
         query: String?,
         @Suppress("unused") alreadyInSearchView: Boolean,
     ) {
-        if (DEV_QUERY == query) {
-            devEnabled = devEnabled != true // flip
-            lclPrefRepository.saveAsync(LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, devEnabled)
-            ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled")
-            return
-        }
         viewModel.onNewQuery(query)
     }
 

@@ -56,8 +56,8 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
             }
             return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {
                 onActionClick?.let {
-                    setTouchInterceptor(View.OnTouchListener { v, event ->
-                        return@OnTouchListener when (event.action) {
+                    setTouchInterceptor { v, event ->
+                        when (event.action) {
                             MotionEvent.ACTION_DOWN -> {
                                 val handled = onActionClick.onLongClick(v)
                                 onActionClicked?.invoke()
@@ -66,7 +66,7 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
 
                             else -> false // not handled
                         }
-                    })
+                    }
                     setOnDismissListener {
                         onDismiss()
                     }

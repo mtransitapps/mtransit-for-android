@@ -3,6 +3,7 @@ package org.mtransit.android.ui.search
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -11,9 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.DataSourceType
@@ -33,6 +36,7 @@ class SearchViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val favoriteRepository: FavoriteRepository,
+    private val lclPrefRepository: LocalPreferenceRepository
 ) : MTViewModelWithLocation(), MTLog.Loggable {
 
     companion object {
@@ -42,6 +46,9 @@ class SearchViewModel @Inject constructor(
         internal const val EXTRA_QUERY_DEFAULT = StringUtils.EMPTY
         internal const val EXTRA_TYPE_FILTER = "extra_type_filter"
         internal const val EXTRA_SEARCH_HAS_FOCUS = "extra_search_has_focus"
+
+        @Suppress("SpellCheckingInspection")
+        private const val DEV_QUERY = "MTDEV"
     }
 
     fun onScreenVisible() {
@@ -72,7 +79,18 @@ class SearchViewModel @Inject constructor(
 
     private var favoriteUUIDs = emptySet<String>()
 
+    val devEnabled: LiveData<Boolean> by lazy {
+        lclPrefRepository.pref.liveData(
+            LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT
+        ).distinctUntilChanged()
+    }
+
     fun onNewQuery(queryOrNull: String?) {
+        if (DEV_QUERY == queryOrNull) {
+            val newDevEnabled = devEnabled.value != true // flip
+            lclPrefRepository.saveAsync(LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, newDevEnabled)
+            return
+        }
         val newQuery: String = queryOrNull.orEmpty()
         if (newQuery.trim() == this.query.value) {
             MTLog.d(this, "onNewQuery() > SKIP same value '$newQuery'.")

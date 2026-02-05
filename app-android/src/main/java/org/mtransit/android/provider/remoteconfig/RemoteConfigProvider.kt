@@ -1,6 +1,7 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigValue
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import org.mtransit.android.BuildConfig
@@ -52,4 +53,7 @@ class RemoteConfigProvider @Inject constructor(
 
     fun get(key: String, defaultValue: Long) =
         remoteConfig.takeIf { activated.get() }?.getLong(key) ?: defaultValue
+
+    fun getAll(): Map<String, String>? =
+        remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
 }
