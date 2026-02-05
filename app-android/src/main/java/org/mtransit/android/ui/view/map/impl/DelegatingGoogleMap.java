@@ -297,6 +297,15 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
+	public void setOnInfoWindowCloseListener(OnInfoWindowCloseListener onInfoWindowCloseListener) {
+		GoogleMap.OnInfoWindowCloseListener realOnInfoWindowCloseListener = null;
+		if (onInfoWindowCloseListener != null) {
+			realOnInfoWindowCloseListener = new DelegatingOnInfoWindowCloseListener(onInfoWindowCloseListener);
+		}
+		real.setOnInfoWindowCloseListener(realOnInfoWindowCloseListener);
+	}
+
+	@Override
 	public void setOnMapClickListener(OnMapClickListener onMapClickListener) {
 		real.setOnMapClickListener(onMapClickListener);
 	}
@@ -483,6 +492,29 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		public void onInfoWindowClick(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			IMarker imarker = markerManager.map(marker);
 			onInfoWindowClickListener.onInfoWindowClick(imarker);
+		}
+	}
+
+	private class DelegatingOnInfoWindowCloseListener implements GoogleMap.OnInfoWindowCloseListener, MTLog.Loggable {
+
+		private final String LOG_TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingOnInfoWindowCloseListener.class.getSimpleName();
+
+		@NonNull
+		@Override
+		public String getLogTag() {
+			return LOG_TAG;
+		}
+
+		private final OnInfoWindowCloseListener onInfoWindowClickListener;
+
+		DelegatingOnInfoWindowCloseListener(OnInfoWindowCloseListener onInfoWindowClickListener) {
+			this.onInfoWindowClickListener = onInfoWindowClickListener;
+		}
+
+		@Override
+		public void onInfoWindowClose(@NonNull com.google.android.gms.maps.model.Marker marker) {
+			final IMarker imarker = markerManager.map(marker);
+			onInfoWindowClickListener.onInfoWindowClose(imarker);
 		}
 	}
 

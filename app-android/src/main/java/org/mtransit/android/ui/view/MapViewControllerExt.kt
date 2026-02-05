@@ -63,9 +63,7 @@ fun MapViewController.removeMissingVehicleLocationMarkers(
 ) {
     this.vehicleLocationsMarkers.entries.forEach { (uuid, _) ->
         if (processedVehicleLocationsUUIDs.contains(uuid)) return@forEach // KEEP
-        this.vehicleLocationsMarkers.remove(uuid)?.let { marker -> // REMOVE
-            marker.remove()
-        }
+        this.vehicleLocationsMarkers.remove(uuid)?.remove()
     }
 }
 
