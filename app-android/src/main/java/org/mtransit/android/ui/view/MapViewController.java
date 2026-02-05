@@ -662,6 +662,7 @@ public class MapViewController implements
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
 		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
+		if (mapListener != null && mapListener.onMarkerClick(marker)) return true; // handled
 		final String selectedUUID = IMarkerExtKt.getUuid(marker);
 		final boolean isCluster = marker != null && marker.isCluster();
 		if (isCluster) {
