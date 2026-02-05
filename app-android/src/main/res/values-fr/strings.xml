@@ -239,6 +239,8 @@
     <string name="dev_mode_pref_cat_title">MODE DEV</string>
     <string name="dev_mode_pref_modules_pref_summary">GERER MODULES</string>
     <string name="dev_mode_pref_modules_pref_title">MODULES</string>
+    <string name="dev_mode_pref_remote_config_pref_summary">VALEURS REMOTE CONFIG</string>
+    <string name="dev_mode_pref_remote_config_pref_title">REMOTE CONFIG</string>
     <string name="dev_mode_pref_reset_consent_pref_summary">DEMANDED LE CONSENTEMENT À NOUVEAU</string>
     <string name="dev_mode_pref_reset_consent_pref_title">REINITIALISER CONSENTEMENT</string>
     <string name="dev_mode_pref_reset_rewarded_pref_summary">AFFICHER BANNIERE PUBS</string>
