@@ -117,6 +117,8 @@ public interface ExtendedGoogleMap {
 
 	void setOnInfoWindowClickListener(OnInfoWindowClickListener onInfoWindowClickListener);
 
+	void setOnInfoWindowCloseListener(OnInfoWindowCloseListener onInfoWindowCloseListener);
+
 	void setOnMapClickListener(OnMapClickListener onMapClickListener);
 
 	void setOnMapLoadedCallback(OnMapLoadedCallback onMapLoadedCallback);
@@ -172,8 +174,11 @@ public interface ExtendedGoogleMap {
 	}
 
 	interface OnInfoWindowClickListener {
+		void onInfoWindowClick(@Nullable IMarker marker);
+	}
 
-		void onInfoWindowClick(IMarker marker);
+	interface OnInfoWindowCloseListener {
+		void onInfoWindowClose(@Nullable IMarker marker);
 	}
 
 	interface OnMapClickListener extends GoogleMap.OnMapClickListener {

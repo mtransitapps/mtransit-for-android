@@ -58,6 +58,7 @@ import org.mtransit.android.ui.view.map.AreaExtKt;
 import org.mtransit.android.ui.view.map.ClusteringSettings;
 import org.mtransit.android.ui.view.map.ExtendedGoogleMap;
 import org.mtransit.android.ui.view.map.IMarker;
+import org.mtransit.android.ui.view.map.IMarkerExtKt;
 import org.mtransit.android.ui.view.map.MTClusterOptionsProvider;
 import org.mtransit.android.ui.view.map.MTMapIconDef;
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup;
@@ -84,6 +85,7 @@ import java.util.regex.Pattern;
 public class MapViewController implements
 		ExtendedGoogleMap.OnCameraIdleListener,
 		ExtendedGoogleMap.OnInfoWindowClickListener,
+		ExtendedGoogleMap.OnInfoWindowCloseListener,
 		ExtendedGoogleMap.OnMapLoadedCallback,
 		ExtendedGoogleMap.OnMarkerClickListener,
 		ExtendedGoogleMap.OnMyLocationButtonClickListener,
@@ -379,6 +381,7 @@ public class MapViewController implements
 		this.extendedGoogleMap.setOnMapLoadedCallback(this);
 		this.extendedGoogleMap.setOnMyLocationButtonClickListener(this);
 		this.extendedGoogleMap.setOnInfoWindowClickListener(this);
+		this.extendedGoogleMap.setOnInfoWindowCloseListener(this);
 		this.extendedGoogleMap.setOnMarkerClickListener(this);
 		this.extendedGoogleMap.setOnMapClickListener(this);
 		this.extendedGoogleMap.setLocationSource(this);
@@ -614,16 +617,15 @@ public class MapViewController implements
 		if (mapListener != null) {
 			mapListener.onMapClick(position);
 		}
-		this.lastSelectedUUID = null; // not selected anymore (map click)
 	}
 
 	@Override
 	public void onInfoWindowClick(@Nullable IMarker marker) {
-		if (marker != null && marker.getData() != null && marker.getData() instanceof MTPOIMarkerIds) {
-			final MTPOIMarkerIds poiMarkerIds = marker.getData();
-			final ArrayMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
-			this.lastSelectedUUID = uuidAndAuthority.getKey(); // keep selected if leaving the screen
-			if (poiMarkerIds.size() >= 1) {
+		final String selectedUUID = IMarkerExtKt.getUuid(marker);
+		final MTPOIMarkerIds poiMarkerIds = marker != null && marker.getData() instanceof MTPOIMarkerIds ? marker.getData() : null;
+		if (selectedUUID != null && poiMarkerIds != null) {
+			this.lastSelectedUUID = selectedUUID; // keep selected if leaving the screen
+			if (poiMarkerIds.size() > 0) {
 				if (FeatureFlags.F_NAVIGATION) {
 					// TODO navigate to dialog
 				} else {
@@ -641,6 +643,14 @@ public class MapViewController implements
 		}
 	}
 
+	@Override
+	public void onInfoWindowClose(@Nullable IMarker marker) {
+		final String closeUUID = IMarkerExtKt.getUuid(marker);
+		if (this.lastSelectedUUID != null && this.lastSelectedUUID.equals(closeUUID)) {
+			this.lastSelectedUUID = null;
+		}
+	}
+
 	private boolean autoClickInfoWindow = false;
 
 	public void setAutoClickInfoWindow(boolean autoClickInfoWindow) {
@@ -652,29 +662,19 @@ public class MapViewController implements
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
 		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
-		if (mapListener != null) {
-			if (mapListener.onMarkerClick(marker)) {
-				return true; // handled
-			}
-		}
-		if (marker != null
-				&& !marker.isCluster()
-				&& marker.getData() != null
-				&& marker.getData() instanceof MTPOIMarkerIds) {
-			final MTPOIMarkerIds poiMarkerIds = marker.getData();
-			final ArrayMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
-			this.lastSelectedUUID = uuidAndAuthority.getKey();
-			if (this.autoClickInfoWindow) {
-				onInfoWindowClick(marker);
-			}
-		} else if (marker != null && marker.isCluster()) {
+		if (mapListener != null && mapListener.onMarkerClick(marker)) return true; // handled
+		final String selectedUUID = IMarkerExtKt.getUuid(marker);
+		final boolean isCluster = marker != null && marker.isCluster();
+		if (isCluster) {
 			if (this.extendedGoogleMap != null) {
 				final float zoom = this.extendedGoogleMap.getCameraPosition().zoom + MARKER_ZOOM_INC;
 				return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoom));
 			}
-			this.lastSelectedUUID = null;
-		} else {
-			this.lastSelectedUUID = null;
+		} else if (selectedUUID != null) {
+			this.lastSelectedUUID = selectedUUID;
+			if (this.autoClickInfoWindow) {
+				onInfoWindowClick(marker);
+			}
 		}
 		return false; // not handled
 	}
@@ -1035,17 +1035,11 @@ public class MapViewController implements
 		@Override
 		protected Collection<MTPOIMarker> doInBackgroundNotCancelledMT(Void... params) {
 			final MapViewController mapViewController = this.mapViewControllerWR.get();
-			if (mapViewController == null) {
-				return null;
-			}
+			if (mapViewController == null) return null;
 			final MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
-			if (markerProvider == null) {
-				return null;
-			}
+			if (markerProvider == null) return null;
 			final Collection<MTPOIMarker> poiMarkers = markerProvider.getPOMarkers();
-			if (poiMarkers != null) {
-				return poiMarkers;
-			}
+			if (poiMarkers != null) return poiMarkers;
 			return createPOIMarkers(markerProvider, mapViewController);
 		}
 
@@ -1053,13 +1047,9 @@ public class MapViewController implements
 		@Nullable
 		private Collection<MTPOIMarker> createPOIMarkers(MapMarkerProvider markerProvider, MapViewController mapViewController) {
 			final Collection<POIManager> pois = markerProvider.getPOIs();
-			if (pois == null) {
-				return null;
-			}
+			if (pois == null) return null;
 			final DataSourcesRepository dataSourcesRepository = mapViewController.dataSourcesRepository;
-			if (dataSourcesRepository == null) {
-				return null;
-			}
+			if (dataSourcesRepository == null) return null;
 			final ArrayMap<LatLng, MTPOIMarker> clusterItems = new ArrayMap<>();
 			LatLng position;
 			LatLng positionTrunc;
@@ -1139,7 +1129,9 @@ public class MapViewController implements
 				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no map)");
 				return;
 			}
-			mapViewController.clearMarkers();
+			final String lastSelectedUUID = mapViewController.lastSelectedUUID;
+			mapViewController.clearMarkers(); // triggers onInfoWindowClose()
+			mapViewController.lastSelectedUUID = lastSelectedUUID;
 			final MTMapIconZoomGroup currentZoomGroup = mapViewController.clusteringEnabled ? null : mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap,
 					AreaExtKt.countPOIMarkersInside(
 							AreaExtKt.toArea(mapViewController.extendedGoogleMap.getProjection().getVisibleRegion()),
@@ -1153,7 +1145,6 @@ public class MapViewController implements
 				);
 				if (poiMarker.hasUUID(mapViewController.lastSelectedUUID)) {
 					marker.showInfoWindow();
-					mapViewController.lastSelectedUUID = null; // select once only
 				}
 			}
 			updateVehicleLocationMarkers(mapViewController, context);
@@ -1195,7 +1186,6 @@ public class MapViewController implements
 				);
 				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
 					marker.showInfoWindow();
-					this.lastSelectedUUID = null; // select once only
 				}
 			}
 		}

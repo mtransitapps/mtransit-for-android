@@ -63,15 +63,13 @@ fun MapViewController.removeMissingVehicleLocationMarkers(
 ) {
     this.vehicleLocationsMarkers.entries.forEach { (uuid, _) ->
         if (processedVehicleLocationsUUIDs.contains(uuid)) return@forEach // KEEP
-        this.vehicleLocationsMarkers.remove(uuid)?.let { marker -> // REMOVE
-            marker.remove()
-        }
+        this.vehicleLocationsMarkers.remove(uuid)?.remove()
     }
 }
 
 fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
     this.vehicleLocationsMarkers.entries.forEach { (_, marker) ->
-        val vehicleLocation = marker.getData<VehicleLocation>() ?: return@forEach
+        val vehicleLocation = marker.getData<Any?>() as? VehicleLocation ?: return@forEach
         marker.updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
         if (!marker.isInfoWindowShown) return@forEach
         marker.updateTitle(vehicleLocation.getMapMarkerTitle(context))

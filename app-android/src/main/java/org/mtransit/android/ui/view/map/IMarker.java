@@ -39,6 +39,7 @@ public interface IMarker {
 
 	int getClusterGroup();
 
+	@Nullable
 	<T> T getData();
 
 	@Deprecated

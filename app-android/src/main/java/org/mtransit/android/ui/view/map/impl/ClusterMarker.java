@@ -142,6 +142,7 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Nullable
 	@Override
 	public Object getData() {
 		return null;

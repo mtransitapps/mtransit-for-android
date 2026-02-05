@@ -78,6 +78,7 @@ fun VehicleLocation.updateMarker(
     @ColorInt iconColorInt: Int?,
     currentZoomGroup: MTMapIconZoomGroup?
 ) = marker.apply {
+    val wasInfoWindowShown = this.isInfoWindowShown
     updatePosition(this@updateMarker.position, animate = true)
     setAnchor(iconDef.anchorU, iconDef.anchorV)
     setInfoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
@@ -89,4 +90,5 @@ fun VehicleLocation.updateMarker(
     updateAlpha(getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
     updateData(this@updateMarker) // used to update marker with countdown
     updateZIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
+    if (wasInfoWindowShown) this.showInfoWindow()
 }

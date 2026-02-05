@@ -9,16 +9,6 @@ import androidx.annotation.RequiresPermission;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.CancelableCallback;
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
-import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
-import com.google.android.gms.maps.GoogleMap.SnapshotReadyCallback;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -87,12 +77,12 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public final void animateCamera(CameraUpdate update, CancelableCallback callback) {
+	public final void animateCamera(CameraUpdate update, GoogleMap.CancelableCallback callback) {
 		map.animateCamera(update, callback);
 	}
 
 	@Override
-	public final void animateCamera(CameraUpdate update, int durationMs, CancelableCallback callback) {
+	public final void animateCamera(CameraUpdate update, int durationMs, GoogleMap.CancelableCallback callback) {
 		map.animateCamera(update, durationMs, callback);
 	}
 
@@ -172,7 +162,7 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public final void setInfoWindowAdapter(InfoWindowAdapter adapter) {
+	public final void setInfoWindowAdapter(GoogleMap.InfoWindowAdapter adapter) {
 		map.setInfoWindowAdapter(adapter);
 	}
 
@@ -216,37 +206,42 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public final void setOnInfoWindowClickListener(OnInfoWindowClickListener listener) {
+	public final void setOnInfoWindowClickListener(GoogleMap.OnInfoWindowClickListener listener) {
 		map.setOnInfoWindowClickListener(listener);
 	}
 
 	@Override
-	public final void setOnMapClickListener(OnMapClickListener listener) {
+	public final void setOnInfoWindowCloseListener(GoogleMap.OnInfoWindowCloseListener listener) {
+		map.setOnInfoWindowCloseListener(listener);
+	}
+
+	@Override
+	public final void setOnMapClickListener(GoogleMap.OnMapClickListener listener) {
 		map.setOnMapClickListener(listener);
 	}
 
 	@Override
-	public void setOnMapLoadedCallback(OnMapLoadedCallback callback) {
+	public void setOnMapLoadedCallback(GoogleMap.OnMapLoadedCallback callback) {
 		map.setOnMapLoadedCallback(callback);
 	}
 
 	@Override
-	public final void setOnMapLongClickListener(OnMapLongClickListener listener) {
+	public final void setOnMapLongClickListener(GoogleMap.OnMapLongClickListener listener) {
 		map.setOnMapLongClickListener(listener);
 	}
 
 	@Override
-	public final void setOnMarkerClickListener(OnMarkerClickListener listener) {
+	public final void setOnMarkerClickListener(GoogleMap.OnMarkerClickListener listener) {
 		map.setOnMarkerClickListener(listener);
 	}
 
 	@Override
-	public final void setOnMarkerDragListener(OnMarkerDragListener listener) {
+	public final void setOnMarkerDragListener(GoogleMap.OnMarkerDragListener listener) {
 		map.setOnMarkerDragListener(listener);
 	}
 
 	@Override
-	public void setOnMyLocationButtonClickListener(OnMyLocationButtonClickListener listener) {
+	public void setOnMyLocationButtonClickListener(GoogleMap.OnMyLocationButtonClickListener listener) {
 		map.setOnMyLocationButtonClickListener(listener);
 	}
 
@@ -261,12 +256,12 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public void snapshot(SnapshotReadyCallback callback) {
+	public void snapshot(GoogleMap.SnapshotReadyCallback callback) {
 		map.snapshot(callback);
 	}
 
 	@Override
-	public void snapshot(SnapshotReadyCallback callback, Bitmap bitmap) {
+	public void snapshot(GoogleMap.SnapshotReadyCallback callback, Bitmap bitmap) {
 		map.snapshot(callback, bitmap);
 	}
 
