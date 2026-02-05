@@ -505,16 +505,16 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 			return LOG_TAG;
 		}
 
-		private final OnInfoWindowCloseListener onInfoWindowClickListener;
+		private final OnInfoWindowCloseListener onInfoWindowCloseListener;
 
-		DelegatingOnInfoWindowCloseListener(OnInfoWindowCloseListener onInfoWindowClickListener) {
-			this.onInfoWindowClickListener = onInfoWindowClickListener;
+		DelegatingOnInfoWindowCloseListener(OnInfoWindowCloseListener onInfoWindowCloseListener) {
+			this.onInfoWindowCloseListener = onInfoWindowCloseListener;
 		}
 
 		@Override
 		public void onInfoWindowClose(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			final IMarker imarker = markerManager.map(marker);
-			onInfoWindowClickListener.onInfoWindowClose(imarker);
+			onInfoWindowCloseListener.onInfoWindowClose(imarker);
 		}
 	}
 

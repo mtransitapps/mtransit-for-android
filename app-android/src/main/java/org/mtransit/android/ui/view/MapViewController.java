@@ -622,7 +622,7 @@ public class MapViewController implements
 	@Override
 	public void onInfoWindowClick(@Nullable IMarker marker) {
 		final String selectedUUID = IMarkerExtKt.getUuid(marker);
-		final MTPOIMarkerIds poiMarkerIds = marker == null ? null : marker.getData();
+		final MTPOIMarkerIds poiMarkerIds = marker != null && marker.getData() instanceof MTPOIMarkerIds ? marker.getData() : null;
 		if (selectedUUID != null && poiMarkerIds != null) {
 			this.lastSelectedUUID = selectedUUID; // keep selected if leaving the screen
 			if (poiMarkerIds.size() > 0) {
@@ -662,11 +662,6 @@ public class MapViewController implements
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
 		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
-		if (mapListener != null) {
-			if (mapListener.onMarkerClick(marker)) {
-				return true; // handled
-			}
-		}
 		final String selectedUUID = IMarkerExtKt.getUuid(marker);
 		final boolean isCluster = marker != null && marker.isCluster();
 		if (isCluster) {
