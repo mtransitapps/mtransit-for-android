@@ -125,5 +125,9 @@
 }
 # VUNGLE - END
 
+# PANGLE - START
+-keep class com.bytedance.sdk.** { *; }
+# PANGLE - END
+
 -dontwarn android.media.LoudnessCodecController$OnLoudnessCodecUpdateListener
 -dontwarn android.media.LoudnessCodecController
