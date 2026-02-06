@@ -10,7 +10,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.set
@@ -26,21 +25,17 @@ import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
 @Singleton
 class POIRepository(
     val dataSourceRequestManager: DataSourceRequestManager,
-    private val lclPrefRepository: LocalPreferenceRepository,
     private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
 
     @Inject
     constructor(
         dataSourceRequestManager: DataSourceRequestManager,
-        lclPrefRepository: LocalPreferenceRepository,
     ) : this(
         dataSourceRequestManager,
-        lclPrefRepository,
         Dispatchers.IO,
     )
 
@@ -64,12 +59,13 @@ class POIRepository(
 
     private fun commonSetup(filter: POIProviderContract.Filter) = filter
 
-
+    @Suppress("unused")
     suspend fun findPOI(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POI? {
         return dataSourceRequestManager.findPOI(agency.authority, commonSetup(poiFilter))
             ?.updateSupportedType(agency)
     }
 
+    @Suppress("unused")
     suspend fun findPOIM(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POIManager? {
         return dataSourceRequestManager.findPOIM(agency.authority, commonSetup(poiFilter))
             ?.updateSupportedType(agency)
@@ -116,6 +112,7 @@ class POIRepository(
         }
     }.distinctUntilChanged()
 
+    @Suppress("unused")
     suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI> {
         return dataSourceRequestManager.findPOIs(agency.authority, commonSetup(poiFilter))
             .updateSupportedType(agency)
@@ -168,6 +165,7 @@ class POIRepository(
             .let { let.invoke(it) }
     }
 
+    @Suppress("unused")
     fun loadingPOIMs(
         providers: List<IAgencyProperties>?,
         filter: POIProviderContract.Filter?,
@@ -206,6 +204,7 @@ class POIRepository(
             .let { let.invoke(it) }
     }
 
+    @Suppress("unused")
     suspend fun loadPOIMs(
         agency: IAgencyProperties,
         poiFilter: POIProviderContract.Filter,
