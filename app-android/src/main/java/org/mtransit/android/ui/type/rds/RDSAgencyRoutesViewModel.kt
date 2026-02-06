@@ -74,10 +74,11 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    private val _routesTripIds: LiveData<Map<Long, List<String>?>?> =
-        PairMediatorLiveData(_authority, _routes).switchMap { (authority, routes) ->
+    private val _routesTripIds: LiveData<Map<Long, List<String>?>?> = PairMediatorLiveData(_authority, _routes)
+        .switchMap { (authority, routes) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                if (!FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) return@liveData
                 authority ?: return@liveData
                 routes ?: return@liveData
                 emit(
@@ -88,19 +89,22 @@ class RDSAgencyRoutesViewModel @Inject constructor(
             }
         }
 
-    val routesM: LiveData<List<RouteManager>> = TripleMediatorLiveData(agency, _routes, _routesTripIds).switchMap { (agency, routes, routeIdTripIds) ->
-        liveData(viewModelScope.coroutineContext) {
-            agency ?: return@liveData
-            routes ?: return@liveData
-            routeIdTripIds ?: return@liveData
-            emit(routes.map { route ->
-                route.toRouteM(agency.authority, routeIdTripIds[route.id])
-                    .apply {
-                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                    }
-            })
+    val routesM: LiveData<List<RouteManager>> = TripleMediatorLiveData(agency, _routes, _routesTripIds)
+        .switchMap { (agency, routes, routeIdTripIds) ->
+            liveData(viewModelScope.coroutineContext) {
+                agency ?: return@liveData
+                routes ?: return@liveData
+                if (FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
+                    routeIdTripIds ?: return@liveData
+                }
+                emit(routes.map { route ->
+                    route.toRouteM(agency.authority, routeIdTripIds?.get(route.id))
+                        .apply {
+                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        }
+                })
+            }
         }
-    }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent

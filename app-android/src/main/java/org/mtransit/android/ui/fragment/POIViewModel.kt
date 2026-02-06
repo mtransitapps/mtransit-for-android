@@ -126,14 +126,19 @@ class POIViewModel @Inject constructor(
     }
 
     private val _routeDirectionTripIds: LiveData<List<String>?> =
-        QuadrupleMediatorLiveData(_authority, _routeId, _directionId, _vehicleLocationProviders).switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
+        QuadrupleMediatorLiveData(
+            _authority,
+            _routeId,
+            _directionId,
+            _vehicleLocationProviders
+        ).switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
                 authority ?: return@liveData
                 routeId ?: return@liveData
                 directionId ?: return@liveData
                 vehicleLocationProviders?.takeIf { it.isNotEmpty() } ?: return@liveData // no need to fetch trip IDs if no vehicle location provider available
-                emit(dataSourceRequestManager.findRDSTrips(authority, routeId, directionId)?.map { it.tripId })
+                emit(dataSourceRequestMa nager . findRDSTrips (authority, routeId, directionId)?.map { it.tripId })
             }
         }
 
@@ -165,25 +170,21 @@ class POIViewModel @Inject constructor(
     }
 
     val vehicleLocations: LiveData<List<VehicleLocation>?> =
-        QuadrupleMediatorLiveData(
-            _vehicleLocationProviders,
-            _rds,
-            _routeDirectionTripIds,
-            _vehicleLocationRequestedTrigger
-        ).switchMap { (vehicleLocationProviders, rds, tripIds, trigger) ->
-            liveData(viewModelScope.coroutineContext) {
-                if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
-                vehicleLocationProviders ?: return@liveData
-                rds ?: return@liveData
-                tripIds ?: return@liveData
-                trigger ?: return@liveData // skip when not visible
-                emit(
-                    vehicleLocationProviders.mapNotNull {
-                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds, tripIds).apply { inFocus = true })
-                    }.flatten()
-                )
+        QuadrupleMediatorLiveData(_vehicleLocationProviders, _rds, _routeDirectionTripIds, _vehicleLocationRequestedTrigger)
+            .switchMap { (vehicleLocationProviders, rds, tripIds, trigger) ->
+                liveData(viewModelScope.coroutineContext) {
+                    if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
+                    vehicleLocationProviders ?: return@liveData
+                    rds ?: return@liveData
+                    tripIds ?: return@liveData
+                    trigger ?: return@liveData // skip when not visible
+                    emit(
+                        vehicleLocationProviders.mapNotNull {
+                            dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds, tripIds).apply { inFocus = true })
+                        }.flatten()
+                    )
+                }
             }
-        }
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {

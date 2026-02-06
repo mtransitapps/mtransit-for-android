@@ -118,19 +118,17 @@ class RDSDirectionStopsViewModel @Inject constructor(
         dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
     }
 
-    private val _routeDirectionTripIds: LiveData<List<String>?> =
-        QuadrupleMediatorLiveData(
-            _authority,
-            _routeId,
-            directionId,
-            _vehicleLocationProviders
-        ).switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
+    private val _routeDirectionTripIds: LiveData<List<String>?> = QuadrupleMediatorLiveData(_authority, _routeId, directionId, _vehicleLocationProviders)
+        .switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
                 authority ?: return@liveData
                 routeId ?: return@liveData
                 directionId ?: return@liveData
-                vehicleLocationProviders?.takeIf { it.isNotEmpty() } ?: return@liveData // no need to fetch trip IDs if no vehicle location provider available
+                if (!FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
+                    vehicleLocationProviders?.takeIf { it.isNotEmpty() }
+                        ?: return@liveData // no need to fetch trip IDs if no vehicle location provider available
+                }
                 emit(dataSourceRequestManager.findRDSTrips(authority, routeId, directionId)?.map { it.tripId })
             }
         }
@@ -164,25 +162,21 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     // TODO use VehicleLocationLoader like status and service update?
     val vehicleLocations: LiveData<List<VehicleLocation>?> =
-        QuadrupleMediatorLiveData(
-            _vehicleLocationProviders,
-            _routeDirection,
-            _routeDirectionTripIds,
-            _vehicleLocationRequestedTrigger
-        ).switchMap { (vehicleLocationProviders, rd, tripIds, trigger) ->
-            liveData(viewModelScope.coroutineContext) {
-                if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
-                vehicleLocationProviders ?: return@liveData
-                rd ?: return@liveData
-                tripIds ?: return@liveData
-                trigger ?: return@liveData // skip when not visible
-                emit(
-                    vehicleLocationProviders.mapNotNull {
-                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd, tripIds).apply { inFocus = true })
-                    }.flatten()
-                )
+        QuadrupleMediatorLiveData(_vehicleLocationProviders, _routeDirection, _routeDirectionTripIds, _vehicleLocationRequestedTrigger)
+            .switchMap { (vehicleLocationProviders, rd, tripIds, trigger) ->
+                liveData(viewModelScope.coroutineContext) {
+                    if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
+                    vehicleLocationProviders ?: return@liveData
+                    rd ?: return@liveData
+                    tripIds ?: return@liveData
+                    trigger ?: return@liveData // skip when not visible
+                    emit(
+                        vehicleLocationProviders.mapNotNull {
+                            dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd, tripIds).apply { inFocus = true })
+                        }.flatten()
+                    )
+                }
             }
-        }
 
     val vehicleLocationsDistinct = vehicleLocations.distinctUntilChanged()
 
@@ -197,8 +191,8 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)
     private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct<Float?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)
 
-    val selectedMapCameraPosition =
-        TripleMediatorLiveData(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom).map { (lat, lng, zoom) ->
+    val selectedMapCameraPosition = TripleMediatorLiveData(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom)
+        .map { (lat, lng, zoom) ->
             lat ?: return@map null
             lng ?: return@map null
             zoom ?: return@map null
@@ -223,7 +217,9 @@ class RDSDirectionStopsViewModel @Inject constructor(
             liveData(viewModelScope.coroutineContext) {
                 authority ?: return@liveData
                 routeDirection ?: return@liveData
-                routeDirectionTrips ?: return@liveData
+                if (FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
+                    routeDirectionTrips ?: return@liveData
+                }
                 emit(
                     routeDirection.toRouteDirectionM(authority, routeDirectionTrips)
                         .apply {

@@ -27,12 +27,11 @@ fun <P : POI> P.toPOIM(
     tripIds: Collection<String>? = null,
     serviceUpdates: List<ServiceUpdate>? = null,
     status: POIStatus? = null
-) =
-    POIManager(this).apply {
-        this.tripIds = tripIds
-        setServiceUpdates(serviceUpdates)
-        status?.let { setStatus(status) }
-    }
+) = POIManager(this).apply {
+    this.tripIds = tripIds
+    setServiceUpdates(serviceUpdates)
+    status?.let { setStatus(status) }
+}
 
 val POIManager.location: Location? get() = this.poi.location
 val POI.location: Location? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null

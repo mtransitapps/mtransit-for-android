@@ -64,32 +64,36 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    private val _tripIds: LiveData<List<String>?> =
-        TripleMediatorLiveData(_authority, _routeId, _directionId).switchMap { (authority, routeId, directionId) ->
+    private val _tripIds: LiveData<List<String>?> = TripleMediatorLiveData(_authority, _routeId, _directionId)
+        .switchMap { (authority, routeId, directionId) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                if (!FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) return@liveData
                 authority ?: return@liveData
                 routeId ?: return@liveData
                 emit(dataSourceRequestManager.findRDSTrips(authority, routeId, directionId)?.map { it.tripId })
             }
         }
 
-    val holder: LiveData<ServiceUpdatesHolder> = QuadrupleMediatorLiveData(_authority, _route, _direction, _tripIds).switchMap { (authority, route, direction, tripIds) ->
-        liveData(viewModelScope.coroutineContext) {
-            authority ?: return@liveData
-            route ?: return@liveData
-            tripIds ?: return@liveData
-            val holder: ServiceUpdatesHolder = direction?.let {
-                RouteDirection(route, it).toRouteDirectionM(authority, tripIds)
-            } ?: route.toRouteM(authority, tripIds)
-            emit(
-                holder
-                    .apply {
-                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                    }
-            )
+    val holder: LiveData<ServiceUpdatesHolder> = QuadrupleMediatorLiveData(_authority, _route, _direction, _tripIds)
+        .switchMap { (authority, route, direction, tripIds) ->
+            liveData(viewModelScope.coroutineContext) {
+                authority ?: return@liveData
+                route ?: return@liveData
+                if (FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
+                    tripIds ?: return@liveData
+                }
+                val holder: ServiceUpdatesHolder = direction?.let {
+                    RouteDirection(route, it).toRouteDirectionM(authority, tripIds)
+                } ?: route.toRouteM(authority, tripIds)
+                emit(
+                    holder
+                        .apply {
+                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        }
+                )
+            }
         }
-    }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
