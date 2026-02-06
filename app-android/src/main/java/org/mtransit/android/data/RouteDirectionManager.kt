@@ -15,6 +15,7 @@ import kotlin.time.Duration.Companion.minutes
 data class RouteDirectionManager(
     val authority: String,
     val routeDirection: RouteDirection,
+    private val tripIds: Collection<String>? = null,
     private val serviceUpdates: MutableList<ServiceUpdate> = mutableListOf(),
     private var lastFindServiceUpdateTimestampMs: Long = -1L,
     private var inFocus: Boolean = false, // TODO?
@@ -35,7 +36,7 @@ data class RouteDirectionManager(
     private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Void?>()
 
     override fun addServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
-        this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null)
+        this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null
     }
 
     override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
@@ -70,14 +71,14 @@ data class RouteDirectionManager(
 
     private fun findServiceUpdates(
         serviceUpdateLoader: ServiceUpdateLoader,
-        skipIfBusy: Boolean
+        @Suppress("SameParameterValue") skipIfBusy: Boolean
     ): Boolean {
         val findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES
         var isNotSkipped = false
         if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
             isNotSkipped = serviceUpdateLoader.findServiceUpdate(
                 this,
-                ServiceUpdateProviderContract.Filter(this.authority, this.routeDirection).apply {
+                ServiceUpdateProviderContract.Filter(this.authority, this.routeDirection, tripIds).apply {
                     setInFocus(inFocus)
                 },
                 this.serviceUpdateLoaderListenersWR.keys,
@@ -91,5 +92,5 @@ data class RouteDirectionManager(
     }
 }
 
-fun RouteDirection.toRouteDirectionM(authority: String, serviceUpdates: List<ServiceUpdate>? = null) =
-    RouteDirectionManager(authority, this, serviceUpdates.orEmpty().toMutableList())
+fun RouteDirection.toRouteDirectionM(authority: String, tripIds: Collection<String>? = null, serviceUpdates: List<ServiceUpdate>? = null) =
+    RouteDirectionManager(authority, this, tripIds, serviceUpdates.orEmpty().toMutableList())

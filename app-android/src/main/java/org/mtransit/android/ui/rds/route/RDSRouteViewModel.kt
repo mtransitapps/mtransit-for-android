@@ -32,6 +32,7 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @HiltViewModel
@@ -73,8 +74,8 @@ class RDSRouteViewModel @Inject constructor(
     private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)
     private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct<Float?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)
 
-    val selectedMapCameraPosition =
-        TripleMediatorLiveData(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom).map { (lat, lng, zoom) ->
+    val selectedMapCameraPosition = TripleMediatorLiveData(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom)
+        .map { (lat, lng, zoom) ->
             lat ?: return@map null
             lng ?: return@map null
             zoom ?: return@map null
@@ -93,18 +94,37 @@ class RDSRouteViewModel @Inject constructor(
         }
     }
 
-    val routeM: LiveData<RouteManager> = PairMediatorLiveData(_authority, _route).switchMap { (authority, route) ->
-        liveData(viewModelScope.coroutineContext) {
-            authority ?: return@liveData
-            route ?: return@liveData
-            emit(
-                route.toRouteM(authority)
-                    .apply {
-                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                    }
-            )
+    private val _routeTripIds: LiveData<List<String>?> = PairMediatorLiveData(_authority, _routeId)
+        .switchMap { (authority, routeId) ->
+            liveData(viewModelScope.coroutineContext) {
+                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                if (FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) return@liveData
+                if (!FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) return@liveData
+                authority ?: return@liveData
+                routeId ?: return@liveData
+                //noinspection DiscouragedApi TODO enable F_PROVIDER_READS_TRIP_ID_DIRECTLY
+                emit(dataSourceRequestManager.findRDSTrips(authority, routeId)?.map { it.tripId })
+            }
         }
-    }
+
+    val routeM: LiveData<RouteManager> = TripleMediatorLiveData(_authority, _route, _routeTripIds)
+        .switchMap { (authority, route, routeTripIds) ->
+            liveData(viewModelScope.coroutineContext) {
+                authority ?: return@liveData
+                route ?: return@liveData
+                if (FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
+                    if (!FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) {
+                        routeTripIds ?: return@liveData
+                    }
+                }
+                emit(
+                    route.toRouteM(authority, routeTripIds)
+                        .apply {
+                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        }
+                )
+            }
+        }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
@@ -177,14 +197,15 @@ class RDSRouteViewModel @Inject constructor(
         }
     }
 
-    private val currentSelectedDirectionId: LiveData<Long?> =
-        PairMediatorLiveData(_selectedDirectionId, _selectedDirectionIdPref).map { (selectedDirectionId, selectedDirectionIdPref) ->
+    private val currentSelectedDirectionId: LiveData<Long?> = PairMediatorLiveData(_selectedDirectionId, _selectedDirectionIdPref)
+        .map { (selectedDirectionId, selectedDirectionIdPref) ->
             selectedDirectionId ?: selectedDirectionIdPref
         }.distinctUntilChanged()
 
-    val currentSelectedRouteDirectionPosition: LiveData<Int?> = PairMediatorLiveData(currentSelectedDirectionId, routeDirections).map { (directionId, routeDirections) ->
-        directionId ?: return@map null
-        routeDirections ?: return@map null
-        routeDirections.indexOfFirst { it.id == directionId }.coerceAtLeast(0)
-    }
+    val currentSelectedRouteDirectionPosition: LiveData<Int?> = PairMediatorLiveData(currentSelectedDirectionId, routeDirections)
+        .map { (directionId, routeDirections) ->
+            directionId ?: return@map null
+            routeDirections ?: return@map null
+            routeDirections.indexOfFirst { it.id == directionId }.coerceAtLeast(0)
+        }
 }

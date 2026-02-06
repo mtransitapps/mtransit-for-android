@@ -91,7 +91,9 @@ public class POIManager implements LocationPOI,
 	@Nullable
 	private POIStatus status = null;
 	@Nullable
-	private ArrayList<ServiceUpdate> serviceUpdates = null;
+	private Collection<String> tripIds; // original // GTFS // cleaned
+	@Nullable
+	private List<ServiceUpdate> serviceUpdates = null;
 	private boolean inFocus = false;
 
 	private long lastFindStatusTimestampMs = -1L;
@@ -163,16 +165,25 @@ public class POIManager implements LocationPOI,
 		return this;
 	}
 
-	public void setStatusLoaderListener(@NonNull StatusLoader.StatusLoaderListener statusLoaderListener) {
-		this.statusLoaderListenerWR = new WeakReference<>(statusLoaderListener);
-	}
-
 	@Nullable
 	public String getLocation() {
 		if (this.poi instanceof Module) {
 			return ((Module) this.poi).getLocation();
 		}
 		return null;
+	}
+
+	public void setTripIds(@Nullable Collection<String> tripIds) {
+		this.tripIds = tripIds;
+	}
+
+	@Nullable
+	public Collection<String> getTripIds() {
+		return tripIds;
+	}
+
+	public void setStatusLoaderListener(@NonNull StatusLoader.StatusLoaderListener statusLoaderListener) {
+		this.statusLoaderListenerWR = new WeakReference<>(statusLoaderListener);
 	}
 
 	public int getStatusType() {
@@ -331,6 +342,12 @@ public class POIManager implements LocationPOI,
 		}
 	}
 
+	@SuppressWarnings("unused")
+	@Nullable
+	public List<ServiceUpdate> getServiceUpdatesOrNull() {
+		return this.serviceUpdates;
+	}
+
 	@Nullable
 	public List<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
@@ -362,7 +379,7 @@ public class POIManager implements LocationPOI,
 		long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
-			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);
+			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi, this.tripIds);
 			filter.setInFocus(this.inFocus);
 			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
 			if (isNotSkipped) {
@@ -1009,7 +1026,7 @@ public class POIManager implements LocationPOI,
 		result = 31 * result + Long.hashCode(lastFindStatusTimestampMs);
 		result = 31 * result + (statusLoaderListenerWR != null ? statusLoaderListenerWR.hashCode() : 0);
 		result = 31 * result + scheduleMaxDataRequests;
-		result = 31 * result + (serviceUpdateLoaderListenersWR != null ? serviceUpdateLoaderListenersWR.hashCode() : 0);
+		result = 31 * result + serviceUpdateLoaderListenersWR.hashCode();
 		result = 31 * result + Long.hashCode(lastFindServiceUpdateTimestampMs);
 		result = 31 * result + (color != null ? color.hashCode() : 0);
 		return result;
