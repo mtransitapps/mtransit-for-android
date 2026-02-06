@@ -36,7 +36,7 @@ data class RouteDirectionManager(
     private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Void?>()
 
     override fun addServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
-        this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null)
+        this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null
     }
 
     override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
@@ -71,7 +71,7 @@ data class RouteDirectionManager(
 
     private fun findServiceUpdates(
         serviceUpdateLoader: ServiceUpdateLoader,
-        skipIfBusy: Boolean
+        @Suppress("SameParameterValue") skipIfBusy: Boolean
     ): Boolean {
         val findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES
         var isNotSkipped = false

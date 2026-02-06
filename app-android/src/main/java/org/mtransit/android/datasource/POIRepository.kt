@@ -97,7 +97,11 @@ class POIRepository(
                         || newPOIFromModule != cachePOIM.poi // new POI != cache POI
                     ) {
                         MTLog.d(this@POIRepository, "readingPOIM() > EMIT (new POI != cache POI)")
-                        val newPOIM = newPOIFromModule.toPOIM()
+                        val newPOIM = newPOIFromModule.toPOIM(
+                            tripIds = cachePOIM?.tripIds,
+                            serviceUpdates = cachePOIM?.serviceUpdatesOrNull,
+                            status = cachePOIM?.statusOrNull,
+                        )
                         emit(newPOIM)
                         push(newPOIM)
                     } else { // ELSE same POI, keep cache w/ extras (status, service update...)

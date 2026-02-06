@@ -342,6 +342,12 @@ public class POIManager implements LocationPOI,
 		}
 	}
 
+	@SuppressWarnings("unused")
+	@Nullable
+	public List<ServiceUpdate> getServiceUpdatesOrNull() {
+		return this.serviceUpdates;
+	}
+
 	@Nullable
 	public List<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {

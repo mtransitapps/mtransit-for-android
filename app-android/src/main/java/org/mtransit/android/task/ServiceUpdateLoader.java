@@ -196,7 +196,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	@SuppressWarnings("deprecation") // FIXME
-	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, ArrayList<ServiceUpdate>> {
+	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, List<ServiceUpdate>> {
 
 		private static final String LOG_TAG = ServiceUpdateLoader.LOG_TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
 
@@ -239,7 +239,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected ArrayList<ServiceUpdate> doInBackgroundNotCancelledMT(Void... params) {
+		protected List<ServiceUpdate> doInBackgroundNotCancelledMT(Void... params) {
 			try {
 				return call();
 			} catch (Exception e) {
@@ -249,7 +249,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable ArrayList<ServiceUpdate> result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable List<ServiceUpdate> result) {
 			if (result == null) {
 				return;
 			}
@@ -264,15 +264,11 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Nullable
-		ArrayList<ServiceUpdate> call() {
+		List<ServiceUpdate> call() {
 			final Context context = this.contextWR.get();
-			if (context == null) {
-				return null;
-			}
+			if (context == null) return null;
 			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
-			if (mainListener == null) {
-				return null;
-			}
+			if (mainListener == null) return null;
 			return DataSourceManager.findServiceUpdates(context, this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter);
 		}
 	}

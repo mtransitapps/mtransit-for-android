@@ -99,8 +99,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static ArrayList<ServiceUpdate> findServiceUpdates(@NonNull Context context, @NonNull String authority,
-															  @Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
+	public static List<ServiceUpdate> findServiceUpdates(
+			@NonNull Context context, @NonNull String authority,
+			@Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter
+	) {
 		Cursor cursor = null;
 		try {
 			final String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
@@ -116,7 +118,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<ServiceUpdate> getServiceUpdates(@Nullable Cursor cursor) {
+	private static List<ServiceUpdate> getServiceUpdates(@Nullable Cursor cursor) {
 		final ArrayList<ServiceUpdate> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -431,14 +433,18 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static ArrayList<Trip> findRDSRouteDirectionTrips(@NonNull Context context, @NonNull String authority, long routeId, long directionId) {
+	public static List<Trip> findRDSTrips(@NonNull Context context, @NonNull String authority, long routeId, @Nullable Long directionId) {
 		if (!FeatureFlags.F_EXPORT_TRIP_ID) return null;
 		Cursor cursor = null;
 		try {
 			final Uri uri = getRDSTripsUri(authority);
-			final String selection = SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_DIRECTION_ID, directionId) +
-					SqlUtils.AND + //
-					SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_ROUTE_ID, routeId);
+			final StringBuilder selectionSb = new StringBuilder();
+			if (directionId != null) {
+				selectionSb.append(SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_DIRECTION_ID, directionId));
+				selectionSb.append(SqlUtils.AND);
+			}
+			selectionSb.append(SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_ROUTE_ID, routeId));
+			final String selection = selectionSb.toString();
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
 			return getRDSTrips(cursor);
 		} catch (Exception e) {
@@ -450,7 +456,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<Trip> getRDSTrips(@Nullable Cursor cursor) {
+	private static List<Trip> getRDSTrips(@Nullable Cursor cursor) {
 		final ArrayList<Trip> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {

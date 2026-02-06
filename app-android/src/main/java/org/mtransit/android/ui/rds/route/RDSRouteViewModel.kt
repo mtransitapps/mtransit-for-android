@@ -32,6 +32,7 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @HiltViewModel
@@ -93,12 +94,23 @@ class RDSRouteViewModel @Inject constructor(
         }
     }
 
-    val routeM: LiveData<RouteManager> = PairMediatorLiveData(_authority, _route).switchMap { (authority, route) ->
+    private val _routeTripIds: LiveData<List<String>?> =
+        PairMediatorLiveData(_authority, _routeId).switchMap { (authority, routeId) ->
+            liveData(viewModelScope.coroutineContext) {
+                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                authority ?: return@liveData
+                routeId ?: return@liveData
+                emit(dataSourceRequestManager.findRDSTrips(authority, routeId)?.map { it.tripId })
+            }
+        }
+
+    val routeM: LiveData<RouteManager> = TripleMediatorLiveData(_authority, _route, _routeTripIds).switchMap { (authority, route, routeTripIds) ->
         liveData(viewModelScope.coroutineContext) {
             authority ?: return@liveData
             route ?: return@liveData
+            routeTripIds ?: return@liveData
             emit(
-                route.toRouteM(authority)
+                route.toRouteM(authority, routeTripIds)
                     .apply {
                         addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
                     }

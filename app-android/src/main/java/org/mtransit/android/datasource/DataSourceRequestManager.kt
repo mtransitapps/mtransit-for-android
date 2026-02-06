@@ -91,9 +91,9 @@ class DataSourceRequestManager(
         DataSourceManager.findRDSDirection(appContext, agencyAuthority, directionId)
     }
 
-    suspend fun findRDSRouteDirectionTrips(agencyAuthority: String, routeId: Long, directionId: Long): List<Trip>? = withContext(ioDispatcher) {
+    suspend fun findRDSTrips(agencyAuthority: String, routeId: Long, directionId: Long? = null): List<Trip>? = withContext(ioDispatcher) {
         if (!FeatureFlags.F_EXPORT_TRIP_ID) return@withContext null
-        DataSourceManager.findRDSRouteDirectionTrips(appContext, agencyAuthority, routeId, directionId)
+        DataSourceManager.findRDSTrips(appContext, agencyAuthority, routeId, directionId)
     }
 
     suspend fun findRDSVehicleLocations(

@@ -8,7 +8,9 @@ import androidx.core.text.scale
 import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.util.UIAccessibilityUtils
 
@@ -21,7 +23,16 @@ fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean)
     return UIAccessibilityUtils.decorate(context, this.label, isShowingAccessibilityInfo, UIAccessibilityUtils.ImageSize.LARGE, alignBottom = false)
 }
 
-fun <P : POI> P.toPOIM() = POIManager(this)
+fun <P : POI> P.toPOIM(
+    tripIds: Collection<String>? = null,
+    serviceUpdates: List<ServiceUpdate>? = null,
+    status: POIStatus? = null
+) =
+    POIManager(this).apply {
+        this.tripIds = tripIds
+        setServiceUpdates(serviceUpdates)
+        status?.let { setStatus(status) }
+    }
 
 val POIManager.location: Location? get() = this.poi.location
 val POI.location: Location? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
