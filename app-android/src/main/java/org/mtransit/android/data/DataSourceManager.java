@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -432,6 +433,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
+	@Discouraged(message = "provider read trip IDs directly")
 	@Nullable
 	public static List<Trip> findRDSTrips(@NonNull Context context, @NonNull String authority, long routeId, @Nullable Long directionId) {
 		if (!FeatureFlags.F_EXPORT_TRIP_ID) return null;

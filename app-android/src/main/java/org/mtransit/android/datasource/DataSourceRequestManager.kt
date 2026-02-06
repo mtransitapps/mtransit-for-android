@@ -1,6 +1,7 @@
 package org.mtransit.android.datasource
 
 import android.content.Context
+import androidx.annotation.Discouraged
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -91,8 +92,10 @@ class DataSourceRequestManager(
         DataSourceManager.findRDSDirection(appContext, agencyAuthority, directionId)
     }
 
+    @Discouraged(message = "provider read trip IDs directly")
     suspend fun findRDSTrips(agencyAuthority: String, routeId: Long, directionId: Long? = null): List<Trip>? = withContext(ioDispatcher) {
         if (!FeatureFlags.F_EXPORT_TRIP_ID) return@withContext null
+        //noinspection DiscouragedApi
         DataSourceManager.findRDSTrips(appContext, agencyAuthority, routeId, directionId)
     }
 
@@ -101,7 +104,11 @@ class DataSourceRequestManager(
         filter: VehicleLocationProviderContract.Filter
     ): List<VehicleLocation>? = withContext(ioDispatcher) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@withContext null
-        DataSourceManager.findVehicleLocations(appContext, vehicleLocationProviderProperties.authority, filter.appendProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority)))
+        DataSourceManager.findVehicleLocations(
+            appContext,
+            vehicleLocationProviderProperties.authority,
+            filter.appendProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))
+        )
     }
 
     suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {

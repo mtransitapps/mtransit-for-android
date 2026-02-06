@@ -78,11 +78,13 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         .switchMap { (authority, routes) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                if (FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY)
                 if (!FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) return@liveData
                 authority ?: return@liveData
                 routes ?: return@liveData
                 emit(
                     routes.associate { route ->
+                        //noinspection DiscouragedApi TODO enable F_PROVIDER_READS_TRIP_ID_DIRECTLY
                         route.id to dataSourceRequestManager.findRDSTrips(authority, route.id)?.map { it.tripId }
                     }
                 )
@@ -95,7 +97,9 @@ class RDSAgencyRoutesViewModel @Inject constructor(
                 agency ?: return@liveData
                 routes ?: return@liveData
                 if (FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
-                    routeIdTripIds ?: return@liveData
+                    if (!FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) {
+                        routeIdTripIds ?: return@liveData
+                    }
                 }
                 emit(routes.map { route ->
                     route.toRouteM(agency.authority, routeIdTripIds?.get(route.id))
@@ -111,7 +115,7 @@ class RDSAgencyRoutesViewModel @Inject constructor(
 
     private var serviceUpdateLoadedJob: Job? = null
 
-    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
             delay(333L) // wait for 0.333 secs BECAUSE many routes & will trigger RecyclerView.notifyDataSetChanged()

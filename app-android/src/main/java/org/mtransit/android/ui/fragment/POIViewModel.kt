@@ -129,10 +129,12 @@ class POIViewModel @Inject constructor(
         .switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
+                if (FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) return@liveData
                 authority ?: return@liveData
                 routeId ?: return@liveData
                 directionId ?: return@liveData
                 vehicleLocationProviders?.takeIf { it.isNotEmpty() } ?: return@liveData // no need to fetch trip IDs if no vehicle location provider available
+                //noinspection DiscouragedApi TODO enable F_PROVIDER_READS_TRIP_ID_DIRECTLY
                 emit(dataSourceRequestManager.findRDSTrips(authority, routeId, directionId)?.map { it.tripId })
             }
         }
@@ -171,7 +173,9 @@ class POIViewModel @Inject constructor(
                     if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
                     vehicleLocationProviders ?: return@liveData
                     rds ?: return@liveData
-                    tripIds ?: return@liveData
+                    if (!FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) {
+                        tripIds ?: return@liveData
+                    }
                     trigger ?: return@liveData // skip when not visible
                     emit(
                         vehicleLocationProviders.mapNotNull {
