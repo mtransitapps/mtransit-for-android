@@ -125,13 +125,8 @@ class POIViewModel @Inject constructor(
         dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
     }
 
-    private val _routeDirectionTripIds: LiveData<List<String>?> =
-        QuadrupleMediatorLiveData(
-            _authority,
-            _routeId,
-            _directionId,
-            _vehicleLocationProviders
-        ).switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
+    private val _routeDirectionTripIds: LiveData<List<String>?> = QuadrupleMediatorLiveData(_authority, _routeId, _directionId, _vehicleLocationProviders)
+        .switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
                 authority ?: return@liveData
