@@ -21,7 +21,6 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;

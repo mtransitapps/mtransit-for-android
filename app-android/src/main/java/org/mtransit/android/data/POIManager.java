@@ -93,7 +93,7 @@ public class POIManager implements LocationPOI,
 	@Nullable
 	private Collection<String> tripIds; // original // GTFS // cleaned
 	@Nullable
-	private ArrayList<ServiceUpdate> serviceUpdates = null;
+	private List<ServiceUpdate> serviceUpdates = null;
 	private boolean inFocus = false;
 
 	private long lastFindStatusTimestampMs = -1L;
@@ -1026,7 +1026,7 @@ public class POIManager implements LocationPOI,
 		result = 31 * result + Long.hashCode(lastFindStatusTimestampMs);
 		result = 31 * result + (statusLoaderListenerWR != null ? statusLoaderListenerWR.hashCode() : 0);
 		result = 31 * result + scheduleMaxDataRequests;
-		result = 31 * result + (serviceUpdateLoaderListenersWR != null ? serviceUpdateLoaderListenersWR.hashCode() : 0);
+		result = 31 * result + serviceUpdateLoaderListenersWR.hashCode();
 		result = 31 * result + Long.hashCode(lastFindServiceUpdateTimestampMs);
 		result = 31 * result + (color != null ? color.hashCode() : 0);
 		return result;

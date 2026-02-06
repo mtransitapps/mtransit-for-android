@@ -119,7 +119,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@NonNull
 	private static List<ServiceUpdate> getServiceUpdates(@Nullable Cursor cursor) {
-		final ArrayList<ServiceUpdate> result = new ArrayList<>();
+		final List<ServiceUpdate> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
