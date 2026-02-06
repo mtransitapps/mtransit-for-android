@@ -138,7 +138,7 @@ class POIViewModel @Inject constructor(
                 routeId ?: return@liveData
                 directionId ?: return@liveData
                 vehicleLocationProviders?.takeIf { it.isNotEmpty() } ?: return@liveData // no need to fetch trip IDs if no vehicle location provider available
-                emit(dataSourceRequestMa nager . findRDSTrips (authority, routeId, directionId)?.map { it.tripId })
+                emit(dataSourceRequestManager.findRDSTrips(authority, routeId, directionId)?.map { it.tripId })
             }
         }
 
