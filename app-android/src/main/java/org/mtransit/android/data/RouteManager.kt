@@ -14,6 +14,7 @@ import java.util.WeakHashMap
 data class RouteManager(
     val authority: String,
     val route: Route,
+    private val tripIds: Collection<String>? = null,
     private val serviceUpdates: MutableList<ServiceUpdate> = mutableListOf(),
     private var lastFindServiceUpdateTimestampMs: Long = -1L,
     private var inFocus: Boolean = false, // TODO?
@@ -72,7 +73,7 @@ data class RouteManager(
         if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
             isNotSkipped = serviceUpdateLoader.findServiceUpdate(
                 this,
-                ServiceUpdateProviderContract.Filter(this.authority, this.route).apply {
+                ServiceUpdateProviderContract.Filter(this.authority, this.route, tripIds).apply {
                     setInFocus(inFocus)
                 },
                 this.serviceUpdateLoaderListenersWR.keys,
@@ -86,5 +87,5 @@ data class RouteManager(
     }
 }
 
-fun Route.toRouteM(authority: String, serviceUpdates: List<ServiceUpdate>? = null) =
-    RouteManager(authority, this, serviceUpdates.orEmpty().toMutableList())
+fun Route.toRouteM(authority: String, tripIds: Collection<String>? = null, serviceUpdates: List<ServiceUpdate>? = null) =
+    RouteManager(authority, this, tripIds, serviceUpdates.orEmpty().toMutableList())

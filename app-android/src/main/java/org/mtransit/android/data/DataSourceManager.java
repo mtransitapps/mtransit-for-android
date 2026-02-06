@@ -103,8 +103,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 															  @Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 		Cursor cursor = null;
 		try {
-			String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
-			Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProviderContract.SERVICE_UPDATE_PATH);
+			final String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
+			final Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProviderContract.SERVICE_UPDATE_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
 			return getServiceUpdates(cursor);
 		} catch (Exception e) {
@@ -117,7 +117,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@NonNull
 	private static ArrayList<ServiceUpdate> getServiceUpdates(@Nullable Cursor cursor) {
-		ArrayList<ServiceUpdate> result = new ArrayList<>();
+		final ArrayList<ServiceUpdate> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {

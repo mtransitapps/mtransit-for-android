@@ -89,6 +89,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return this.fetchServiceUpdateExecutor == null ? 0 : this.fetchServiceUpdateExecutor.getActiveCount();
 	}
 
+	@SuppressWarnings("unused")
 	private long getTaskCount() {
 		return this.fetchServiceUpdateExecutor == null ? 0 : this.fetchServiceUpdateExecutor.getTaskCount();
 	}
