@@ -92,6 +92,7 @@ class DataSourceRequestManager(
         DataSourceManager.findRDSDirection(appContext, agencyAuthority, directionId)
     }
 
+    @Suppress("unused")
     @Discouraged(message = "provider read trip IDs directly")
     suspend fun findRDSTrips(agencyAuthority: String, routeId: Long, directionId: Long? = null): List<Trip>? = withContext(ioDispatcher) {
         if (!FeatureFlags.F_EXPORT_TRIP_ID) return@withContext null

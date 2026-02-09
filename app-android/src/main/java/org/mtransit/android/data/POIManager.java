@@ -66,16 +66,12 @@ public class POIManager implements LocationPOI,
 
 	private static final String LOG_TAG = POIManager.class.getSimpleName();
 
-	@SuppressWarnings("ConstantConditions")
 	@NonNull
 	@Override
 	public String getLogTag() {
-		if (this.poi != null) {
-			final String uuid = this.poi.getUUID();
-			final int index = uuid.indexOf(IAgencyProperties.PKG_COMMON);
-			return LOG_TAG + "-" + (index == -1 ? uuid : uuid.substring(index + IAgencyProperties.PKG_COMMON.length()));
-		}
-		return LOG_TAG;
+		final String uuid = this.poi.getUUID();
+		final int index = uuid.indexOf(IAgencyProperties.PKG_COMMON);
+		return LOG_TAG + "-" + (index == -1 ? uuid : uuid.substring(index + IAgencyProperties.PKG_COMMON.length()));
 	}
 
 	@ColorInt
@@ -90,8 +86,6 @@ public class POIManager implements LocationPOI,
 	private float distance = -1f;
 	@Nullable
 	private POIStatus status = null;
-	@Nullable
-	private Collection<String> tripIds; // original // GTFS // cleaned
 	@Nullable
 	private List<ServiceUpdate> serviceUpdates = null;
 	private boolean inFocus = false;
@@ -171,15 +165,6 @@ public class POIManager implements LocationPOI,
 			return ((Module) this.poi).getLocation();
 		}
 		return null;
-	}
-
-	public void setTripIds(@Nullable Collection<String> tripIds) {
-		this.tripIds = tripIds;
-	}
-
-	@Nullable
-	public Collection<String> getTripIds() {
-		return tripIds;
 	}
 
 	public void setStatusLoaderListener(@NonNull StatusLoader.StatusLoaderListener statusLoaderListener) {
@@ -379,7 +364,7 @@ public class POIManager implements LocationPOI,
 		long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
-			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi, this.tripIds);
+			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);
 			filter.setInFocus(this.inFocus);
 			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
 			if (isNotSkipped) {

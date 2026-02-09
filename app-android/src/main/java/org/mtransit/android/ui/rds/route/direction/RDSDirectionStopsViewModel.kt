@@ -42,11 +42,9 @@ import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UIFeatureFlags
-import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @HiltViewModel
@@ -118,23 +116,6 @@ class RDSDirectionStopsViewModel @Inject constructor(
         dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
     }
 
-    private val _routeDirectionTripIds: LiveData<List<String>?> = QuadrupleMediatorLiveData(_authority, _routeId, directionId, _vehicleLocationProviders)
-        .switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
-            liveData(viewModelScope.coroutineContext) {
-                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
-                if (FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) return@liveData
-                authority ?: return@liveData
-                routeId ?: return@liveData
-                directionId ?: return@liveData
-                if (!FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
-                    vehicleLocationProviders?.takeIf { it.isNotEmpty() }
-                        ?: return@liveData // no need to fetch trip IDs if no vehicle location provider available
-                }
-                //noinspection DiscouragedApi TODO enable F_PROVIDER_READS_TRIP_ID_DIRECTLY
-                emit(dataSourceRequestManager.findRDSTrips(authority, routeId, directionId)?.map { it.tripId })
-            }
-        }
-
     private val _vehicleLocationRequestedTrigger = MutableLiveData<Int?>(null) // no initial value to avoid triggering onChanged()
 
     private var _vehicleRefreshJob: Job? = null
@@ -162,21 +143,17 @@ class RDSDirectionStopsViewModel @Inject constructor(
         _vehicleRefreshJob = null
     }
 
-    // TODO use VehicleLocationLoader like status and service update?
     val vehicleLocations: LiveData<List<VehicleLocation>?> =
-        QuadrupleMediatorLiveData(_vehicleLocationProviders, _routeDirection, _routeDirectionTripIds, _vehicleLocationRequestedTrigger)
-            .switchMap { (vehicleLocationProviders, rd, tripIds, trigger) ->
+        TripleMediatorLiveData(_vehicleLocationProviders, _routeDirection, _vehicleLocationRequestedTrigger)
+            .switchMap { (vehicleLocationProviders, rd, trigger) ->
                 liveData(viewModelScope.coroutineContext) {
                     if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
                     vehicleLocationProviders ?: return@liveData
                     rd ?: return@liveData
-                    if (!FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) {
-                        tripIds ?: return@liveData
-                    }
                     trigger ?: return@liveData // skip when not visible
                     emit(
                         vehicleLocationProviders.mapNotNull {
-                            dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd, tripIds).apply { inFocus = true })
+                            dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd).apply { inFocus = true })
                         }.flatten()
                     )
                 }
@@ -216,18 +193,13 @@ class RDSDirectionStopsViewModel @Inject constructor(
         savedStateHandle[EXTRA_CLOSEST_POI_SHOWN] = true
     }
 
-    val routeDirectionM: LiveData<RouteDirectionManager> = TripleMediatorLiveData(_authority, _routeDirection, _routeDirectionTripIds)
-        .switchMap { (authority, routeDirection, routeDirectionTrips) ->
+    val routeDirectionM: LiveData<RouteDirectionManager> = PairMediatorLiveData(_authority, _routeDirection)
+        .switchMap { (authority, routeDirection) ->
             liveData(viewModelScope.coroutineContext) {
                 authority ?: return@liveData
                 routeDirection ?: return@liveData
-                if (FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
-                    if (!FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) {
-                        routeDirectionTrips ?: return@liveData
-                    }
-                }
                 emit(
-                    routeDirection.toRouteDirectionM(authority, routeDirectionTrips)
+                    routeDirection.toRouteDirectionM(authority)
                         .apply {
                             addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
                         }

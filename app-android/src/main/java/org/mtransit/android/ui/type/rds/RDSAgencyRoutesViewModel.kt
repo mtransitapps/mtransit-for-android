@@ -29,9 +29,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
-import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @HiltViewModel
@@ -74,35 +72,13 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    private val _routesTripIds: LiveData<Map<Long, List<String>?>?> = PairMediatorLiveData(_authority, _routes)
-        .switchMap { (authority, routes) ->
-            liveData(viewModelScope.coroutineContext) {
-                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
-                if (FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY)
-                if (!FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) return@liveData
-                authority ?: return@liveData
-                routes ?: return@liveData
-                emit(
-                    routes.associate { route ->
-                        //noinspection DiscouragedApi TODO enable F_PROVIDER_READS_TRIP_ID_DIRECTLY
-                        route.id to dataSourceRequestManager.findRDSTrips(authority, route.id)?.map { it.tripId }
-                    }
-                )
-            }
-        }
-
-    val routesM: LiveData<List<RouteManager>> = TripleMediatorLiveData(agency, _routes, _routesTripIds)
-        .switchMap { (agency, routes, routeIdTripIds) ->
+    val routesM: LiveData<List<RouteManager>> = PairMediatorLiveData(agency, _routes)
+        .switchMap { (agency, routes) ->
             liveData(viewModelScope.coroutineContext) {
                 agency ?: return@liveData
                 routes ?: return@liveData
-                if (FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
-                    if (!FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) {
-                        routeIdTripIds ?: return@liveData
-                    }
-                }
                 emit(routes.map { route ->
-                    route.toRouteM(agency.authority, routeIdTripIds?.get(route.id))
+                    route.toRouteM(agency.authority)
                         .apply {
                             addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
                         }

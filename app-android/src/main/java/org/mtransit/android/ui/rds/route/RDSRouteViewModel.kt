@@ -32,7 +32,6 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
-import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @HiltViewModel
@@ -94,31 +93,13 @@ class RDSRouteViewModel @Inject constructor(
         }
     }
 
-    private val _routeTripIds: LiveData<List<String>?> = PairMediatorLiveData(_authority, _routeId)
-        .switchMap { (authority, routeId) ->
-            liveData(viewModelScope.coroutineContext) {
-                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
-                if (FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) return@liveData
-                if (!FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) return@liveData
-                authority ?: return@liveData
-                routeId ?: return@liveData
-                //noinspection DiscouragedApi TODO enable F_PROVIDER_READS_TRIP_ID_DIRECTLY
-                emit(dataSourceRequestManager.findRDSTrips(authority, routeId)?.map { it.tripId })
-            }
-        }
-
-    val routeM: LiveData<RouteManager> = TripleMediatorLiveData(_authority, _route, _routeTripIds)
-        .switchMap { (authority, route, routeTripIds) ->
+    val routeM: LiveData<RouteManager> = PairMediatorLiveData(_authority, _route)
+        .switchMap { (authority, route) ->
             liveData(viewModelScope.coroutineContext) {
                 authority ?: return@liveData
                 route ?: return@liveData
-                if (FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
-                    if (!FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) {
-                        routeTripIds ?: return@liveData
-                    }
-                }
                 emit(
-                    route.toRouteM(authority, routeTripIds)
+                    route.toRouteM(authority)
                         .apply {
                             addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
                         }

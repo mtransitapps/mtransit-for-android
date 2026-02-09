@@ -22,10 +22,8 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
-import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,32 +62,14 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    private val _tripIds: LiveData<List<String>?> = TripleMediatorLiveData(_authority, _routeId, _directionId)
-        .switchMap { (authority, routeId, directionId) ->
-            liveData(viewModelScope.coroutineContext) {
-                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
-                if (FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) return@liveData
-                if (!FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) return@liveData
-                authority ?: return@liveData
-                routeId ?: return@liveData
-                //noinspection DiscouragedApi TODO enable F_PROVIDER_READS_TRIP_ID_DIRECTLY
-                emit(dataSourceRequestManager.findRDSTrips(authority, routeId, directionId)?.map { it.tripId })
-            }
-        }
-
-    val holder: LiveData<ServiceUpdatesHolder> = QuadrupleMediatorLiveData(_authority, _route, _direction, _tripIds)
-        .switchMap { (authority, route, direction, tripIds) ->
+    val holder: LiveData<ServiceUpdatesHolder> = TripleMediatorLiveData(_authority, _route, _direction)
+        .switchMap { (authority, route, direction) ->
             liveData(viewModelScope.coroutineContext) {
                 authority ?: return@liveData
                 route ?: return@liveData
-                if (FeatureFlags.F_USE_TRIP_IS_FOR_SERVICE_UPDATES) {
-                    if (!FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) {
-                        tripIds ?: return@liveData
-                    }
-                }
                 val holder: ServiceUpdatesHolder = direction?.let {
-                    RouteDirection(route, it).toRouteDirectionM(authority, tripIds)
-                } ?: route.toRouteM(authority, tripIds)
+                    RouteDirection(route, it).toRouteDirectionM(authority)
+                } ?: route.toRouteM(authority)
                 emit(
                     holder
                         .apply {

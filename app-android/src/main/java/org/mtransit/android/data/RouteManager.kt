@@ -14,7 +14,6 @@ import java.util.WeakHashMap
 data class RouteManager(
     val authority: String,
     val route: Route,
-    private val tripIds: Collection<String>? = null,
     private val serviceUpdates: MutableList<ServiceUpdate> = mutableListOf(),
     private var lastFindServiceUpdateTimestampMs: Long = -1L,
     private var inFocus: Boolean = false, // TODO?
@@ -24,13 +23,7 @@ data class RouteManager(
         private val LOG_TAG: String = RouteManager::class.java.simpleName
     }
 
-    @Suppress("SENSELESS_COMPARISON")
-    override fun getLogTag(): String {
-        if (this.route != null) {
-            return LOG_TAG + "-" + this.route.uuid.removePrefix(IAgencyProperties.PKG_COMMON)
-        }
-        return LOG_TAG
-    }
+    override fun getLogTag() = LOG_TAG + "-" + this.route.uuid.removePrefix(IAgencyProperties.PKG_COMMON)
 
     private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Void?>()
 
@@ -73,7 +66,7 @@ data class RouteManager(
         if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
             isNotSkipped = serviceUpdateLoader.findServiceUpdate(
                 this,
-                ServiceUpdateProviderContract.Filter(this.authority, this.route, tripIds).apply {
+                ServiceUpdateProviderContract.Filter(this.authority, this.route).apply {
                     setInFocus(inFocus)
                 },
                 this.serviceUpdateLoaderListenersWR.keys,
@@ -87,5 +80,5 @@ data class RouteManager(
     }
 }
 
-fun Route.toRouteM(authority: String, tripIds: Collection<String>? = null, serviceUpdates: List<ServiceUpdate>? = null) =
-    RouteManager(authority, this, tripIds, serviceUpdates.orEmpty().toMutableList())
+fun Route.toRouteM(authority: String, serviceUpdates: List<ServiceUpdate>? = null) =
+    RouteManager(authority, this, serviceUpdates.orEmpty().toMutableList())

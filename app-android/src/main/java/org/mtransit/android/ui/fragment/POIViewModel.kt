@@ -48,12 +48,10 @@ import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.addAllN
 import org.mtransit.commons.removeAllAnd
 import org.mtransit.commons.sortWithAnd
@@ -112,32 +110,10 @@ class POIViewModel @Inject constructor(
         it as? RouteDirectionStop
     }
 
-    private val _directionId: LiveData<Long?> = _rds.map {
-        it?.direction?.id
-    }
-
-    private val _routeId: LiveData<Long?> = _rds.map {
-        it?.route?.id
-    }
-
     private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@switchMap null
         dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
     }
-
-    private val _routeDirectionTripIds: LiveData<List<String>?> = QuadrupleMediatorLiveData(_authority, _routeId, _directionId, _vehicleLocationProviders)
-        .switchMap { (authority, routeId, directionId, vehicleLocationProviders) ->
-            liveData(viewModelScope.coroutineContext) {
-                if (!FeatureFlags.F_EXPORT_TRIP_ID) return@liveData
-                if (FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) return@liveData
-                authority ?: return@liveData
-                routeId ?: return@liveData
-                directionId ?: return@liveData
-                vehicleLocationProviders?.takeIf { it.isNotEmpty() } ?: return@liveData // no need to fetch trip IDs if no vehicle location provider available
-                //noinspection DiscouragedApi TODO enable F_PROVIDER_READS_TRIP_ID_DIRECTLY
-                emit(dataSourceRequestManager.findRDSTrips(authority, routeId, directionId)?.map { it.tripId })
-            }
-        }
 
     private val _vehicleLocationRequestedTrigger = MutableLiveData<Int?>(null) // no initial value to avoid triggering onChanged()
 
@@ -167,19 +143,16 @@ class POIViewModel @Inject constructor(
     }
 
     val vehicleLocations: LiveData<List<VehicleLocation>?> =
-        QuadrupleMediatorLiveData(_vehicleLocationProviders, _rds, _routeDirectionTripIds, _vehicleLocationRequestedTrigger)
-            .switchMap { (vehicleLocationProviders, rds, tripIds, trigger) ->
+        TripleMediatorLiveData(_vehicleLocationProviders, _rds, _vehicleLocationRequestedTrigger)
+            .switchMap { (vehicleLocationProviders, rds, trigger) ->
                 liveData(viewModelScope.coroutineContext) {
                     if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
                     vehicleLocationProviders ?: return@liveData
                     rds ?: return@liveData
-                    if (!FeatureFlags.F_PROVIDER_READS_TRIP_ID_DIRECTLY) {
-                        tripIds ?: return@liveData
-                    }
                     trigger ?: return@liveData // skip when not visible
                     emit(
                         vehicleLocationProviders.mapNotNull {
-                            dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds, tripIds).apply { inFocus = true })
+                            dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds).apply { inFocus = true })
                         }.flatten()
                     )
                 }
