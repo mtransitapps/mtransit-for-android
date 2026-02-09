@@ -101,7 +101,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@Nullable
 	public static List<ServiceUpdate> findServiceUpdates(
-			@NonNull Context context, @NonNull String authority,
+			@NonNull Context context,
+			@NonNull String authority,
 			@Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter
 	) {
 		Cursor cursor = null;

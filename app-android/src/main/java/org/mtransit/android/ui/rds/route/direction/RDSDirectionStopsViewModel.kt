@@ -27,7 +27,6 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
-import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
@@ -143,21 +142,20 @@ class RDSDirectionStopsViewModel @Inject constructor(
         _vehicleRefreshJob = null
     }
 
-    val vehicleLocations: LiveData<List<VehicleLocation>?> =
-        TripleMediatorLiveData(_vehicleLocationProviders, _routeDirection, _vehicleLocationRequestedTrigger)
-            .switchMap { (vehicleLocationProviders, rd, trigger) ->
-                liveData(viewModelScope.coroutineContext) {
-                    if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
-                    vehicleLocationProviders ?: return@liveData
-                    rd ?: return@liveData
-                    trigger ?: return@liveData // skip when not visible
-                    emit(
-                        vehicleLocationProviders.mapNotNull {
-                            dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd).apply { inFocus = true })
-                        }.flatten()
-                    )
-                }
+    val vehicleLocations = TripleMediatorLiveData(_vehicleLocationProviders, _routeDirection, _vehicleLocationRequestedTrigger)
+        .switchMap { (vehicleLocationProviders, rd, trigger) ->
+            liveData(viewModelScope.coroutineContext) {
+                if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
+                vehicleLocationProviders ?: return@liveData
+                rd ?: return@liveData
+                trigger ?: return@liveData // skip when not visible
+                emit(
+                    vehicleLocationProviders.mapNotNull {
+                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd).apply { inFocus = true })
+                    }.flatten()
+                )
             }
+        }
 
     val vehicleLocationsDistinct = vehicleLocations.distinctUntilChanged()
 
@@ -172,8 +170,8 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)
     private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct<Float?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)
 
-    val selectedMapCameraPosition = TripleMediatorLiveData(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom)
-        .map { (lat, lng, zoom) ->
+    val selectedMapCameraPosition =
+        TripleMediatorLiveData(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom).map { (lat, lng, zoom) ->
             lat ?: return@map null
             lng ?: return@map null
             zoom ?: return@map null
@@ -193,19 +191,18 @@ class RDSDirectionStopsViewModel @Inject constructor(
         savedStateHandle[EXTRA_CLOSEST_POI_SHOWN] = true
     }
 
-    val routeDirectionM: LiveData<RouteDirectionManager> = PairMediatorLiveData(_authority, _routeDirection)
-        .switchMap { (authority, routeDirection) ->
-            liveData(viewModelScope.coroutineContext) {
-                authority ?: return@liveData
-                routeDirection ?: return@liveData
-                emit(
-                    routeDirection.toRouteDirectionM(authority)
-                        .apply {
-                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                        }
-                )
-            }
+    val routeDirectionM: LiveData<RouteDirectionManager> = PairMediatorLiveData(_authority, _routeDirection).switchMap { (authority, routeDirection) ->
+        liveData(viewModelScope.coroutineContext) {
+            authority ?: return@liveData
+            routeDirection ?: return@liveData
+            emit(
+                routeDirection.toRouteDirectionM(authority)
+                    .apply {
+                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                    }
+            )
         }
+    }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent

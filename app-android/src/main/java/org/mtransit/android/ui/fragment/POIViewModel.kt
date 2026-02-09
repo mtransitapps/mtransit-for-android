@@ -28,7 +28,6 @@ import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
-import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
@@ -142,21 +141,20 @@ class POIViewModel @Inject constructor(
         _vehicleRefreshJob = null
     }
 
-    val vehicleLocations: LiveData<List<VehicleLocation>?> =
-        TripleMediatorLiveData(_vehicleLocationProviders, _rds, _vehicleLocationRequestedTrigger)
-            .switchMap { (vehicleLocationProviders, rds, trigger) ->
-                liveData(viewModelScope.coroutineContext) {
-                    if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
-                    vehicleLocationProviders ?: return@liveData
-                    rds ?: return@liveData
-                    trigger ?: return@liveData // skip when not visible
-                    emit(
-                        vehicleLocationProviders.mapNotNull {
-                            dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds).apply { inFocus = true })
-                        }.flatten()
-                    )
-                }
+    val vehicleLocations = TripleMediatorLiveData(_vehicleLocationProviders, _rds, _vehicleLocationRequestedTrigger)
+        .switchMap { (vehicleLocationProviders, rds, trigger) ->
+            liveData(viewModelScope.coroutineContext) {
+                if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
+                vehicleLocationProviders ?: return@liveData
+                rds ?: return@liveData
+                trigger ?: return@liveData // skip when not visible
+                emit(
+                    vehicleLocationProviders.mapNotNull {
+                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds).apply { inFocus = true })
+                    }.flatten()
+                )
             }
+        }
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
