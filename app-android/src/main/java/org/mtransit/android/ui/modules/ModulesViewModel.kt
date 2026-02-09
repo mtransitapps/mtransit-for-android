@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,7 +37,7 @@ class ModulesViewModel @Inject constructor(
     private val sortByPkgOrMaxValid = MutableLiveData(true)
 
     val agencies: LiveData<List<AgencyProperties>?> =
-        PairMediatorLiveData(_filteredAgencies, sortByPkgOrMaxValid).map { (newFilteredAgencies, newSortByPkgOrMaxValid) ->
+        MediatorLiveData2(_filteredAgencies, sortByPkgOrMaxValid).map { (newFilteredAgencies, newSortByPkgOrMaxValid) ->
             if (ADD_FAKE_AGENCIES) { // DEBUG
                 return@map newFilteredAgencies
                     ?.toMutableList()

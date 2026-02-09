@@ -25,8 +25,8 @@ import org.mtransit.android.data.getUuid
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -71,7 +71,7 @@ class NewsListViewModel @Inject constructor(
 
     private val _filterUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_UUIDS, EXTRA_FILTER_UUIDS_DEFAULT)
 
-    private val _filters = TripleMediatorLiveData(_targetAuthorities, _filterTargets, _filterUUIDs).map {
+    private val _filters = MediatorLiveData3(_targetAuthorities, _filterTargets, _filterUUIDs).map {
         Filters(it.first?.toList(), it.second?.toList(), it.third?.toList())
     }.distinctUntilChanged()
 
@@ -83,7 +83,7 @@ class NewsListViewModel @Inject constructor(
 
     private val _selectedNewsArticleUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_ARTICLE_UUID)
 
-    val selectedNewsArticleAuthorityAndUUID = PairMediatorLiveData(_selectedNewsArticleAgencyAuthority, _selectedNewsArticleUUID).map { (authority, uuid) ->
+    val selectedNewsArticleAuthorityAndUUID = MediatorLiveData2(_selectedNewsArticleAgencyAuthority, _selectedNewsArticleUUID).map { (authority, uuid) ->
         authority?.let {
             uuid?.let {
                 AuthorityAndUuid(authority, uuid)
@@ -105,7 +105,7 @@ class NewsListViewModel @Inject constructor(
     val loading: LiveData<Boolean> = _loading
 
     val newsArticles: LiveData<List<News>?> =
-        TripleMediatorLiveData(_allNewsProviders, _filters, _refreshRequestedTrigger).switchMap { (allNewsProviders, filters, trigger) ->
+        MediatorLiveData3(_allNewsProviders, _filters, _refreshRequestedTrigger).switchMap { (allNewsProviders, filters, trigger) ->
             _loading.value = true
             newsRepository.loadingNewsArticles(
                 allProviders = allNewsProviders,

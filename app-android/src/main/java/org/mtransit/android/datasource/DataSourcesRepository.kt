@@ -30,7 +30,7 @@ import org.mtransit.android.dev.filterDemoModeType
 import org.mtransit.android.dev.takeIfDemoModeAgency
 import org.mtransit.android.dev.takeIfDemoModeTargeted
 import org.mtransit.android.provider.experiments.ExperimentsProvider
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.commons.addAllNNE
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -142,7 +142,7 @@ class DataSourcesRepository @Inject constructor(
             .sortedWith(defaultDataSourceTypeComparator)
     }
 
-    private fun readingAllSupportedDataSourceTypesIO() = PairMediatorLiveData(
+    private fun readingAllSupportedDataSourceTypesIO() = MediatorLiveData2(
         dataSourcesIOCache.readingAllNotExtendedDataSourceTypes(),
         dataSourcesIOCache.readingAllExtendedDataSourceTypes()
     ).switchMap { (notExtendedDST, extendedDST) ->

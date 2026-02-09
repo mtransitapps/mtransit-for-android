@@ -21,7 +21,7 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
 import javax.inject.Inject
 
 @HiltViewModel
@@ -98,7 +98,7 @@ class NextMainViewModel @Inject constructor(
         DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT
     ).distinctUntilChanged()
 
-    val showDrawerLearning: LiveData<Boolean> = PairMediatorLiveData(_hasAgenciesAdded, _userLearnedDrawer).map { (hasAgenciesAdded, userLearnedDrawer) ->
+    val showDrawerLearning: LiveData<Boolean> = MediatorLiveData2(_hasAgenciesAdded, _userLearnedDrawer).map { (hasAgenciesAdded, userLearnedDrawer) ->
         hasAgenciesAdded == true && userLearnedDrawer == false
     }
 

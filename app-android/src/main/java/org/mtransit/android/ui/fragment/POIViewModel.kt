@@ -46,8 +46,8 @@ import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
@@ -92,7 +92,7 @@ class POIViewModel @Inject constructor(
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
-    val poim: LiveData<POIManager?> = PairMediatorLiveData(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
+    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
         getPOIManager(agency, uuid)
     }
 
@@ -141,7 +141,7 @@ class POIViewModel @Inject constructor(
         _vehicleRefreshJob = null
     }
 
-    val vehicleLocations = TripleMediatorLiveData(_vehicleLocationProviders, _rds, _vehicleLocationRequestedTrigger)
+    val vehicleLocations = MediatorLiveData3(_vehicleLocationProviders, _rds, _vehicleLocationRequestedTrigger)
         .switchMap { (vehicleLocationProviders, rds, trigger) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
@@ -156,7 +156,7 @@ class POIViewModel @Inject constructor(
             }
         }
 
-    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
+    val poiList: LiveData<List<POIManager>?> = MediatorLiveData2(agency, _poi).switchMap { (agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             agency ?: return@liveData
             poi ?: return@liveData
@@ -199,7 +199,7 @@ class POIViewModel @Inject constructor(
 
     private val _poiArea = _poi.map { it -> it?.let { Area.getArea(it.lat, it.lng, 0.01) } }
 
-    private val nearbyAgencies: LiveData<List<AgencyBaseProperties>?> = PairMediatorLiveData(_poiArea, _allAgencies).map { (poiArea, allAgencies) ->
+    private val nearbyAgencies: LiveData<List<AgencyBaseProperties>?> = MediatorLiveData2(_poiArea, _allAgencies).map { (poiArea, allAgencies) ->
         allAgencies?.filter { agency ->
             agency.type.isNearbyScreen
                     && agency.type != DataSourceType.TYPE_MODULE
@@ -208,7 +208,7 @@ class POIViewModel @Inject constructor(
     }
 
     // like Home screen (no infinite loading like in Nearby screen)
-    val nearbyPOIs: LiveData<List<POIManager>?> = TripleMediatorLiveData(nearbyAgencies, agency, _poi).switchMap { (nearbyAgencies, agency, poi) ->
+    val nearbyPOIs: LiveData<List<POIManager>?> = MediatorLiveData3(nearbyAgencies, agency, _poi).switchMap { (nearbyAgencies, agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getNearbyPOIs(nearbyAgencies, agency, poi))
         }
@@ -398,7 +398,7 @@ class POIViewModel @Inject constructor(
         dataSourcesRepository.readingNewsProviders(it) // #onModulesUpdated
     }
 
-    val latestNewsArticleList: LiveData<List<News>?> = PairMediatorLiveData(_poi, _newsProviders).switchMap { (poi, newsProviders) ->
+    val latestNewsArticleList: LiveData<List<News>?> = MediatorLiveData2(_poi, _newsProviders).switchMap { (poi, newsProviders) ->
         newsRepository.loadingNewsArticles(
             newsProviders,
             poi,

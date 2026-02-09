@@ -36,9 +36,9 @@ import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData4
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.ui.view.map.MTMapIconDef
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.iconDefForRotation
@@ -78,7 +78,7 @@ class MapViewModel @Inject constructor(
     }
 
     override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
-        PairMediatorLiveData(deviceLocation, locationSettingsResolution).map { (deviceLocation, resolution) ->
+        MediatorLiveData2(deviceLocation, locationSettingsResolution).map { (deviceLocation, resolution) ->
             if (deviceLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -124,7 +124,7 @@ class MapViewModel @Inject constructor(
     }
 
     val filterTypeIds: LiveData<Collection<Int>?> =
-        TripleMediatorLiveData(mapTypes, filterTypeIdsPref, includedTypeId).map { (mapTypes, filterTypeIdsPref, includedTypeId) ->
+        MediatorLiveData3(mapTypes, filterTypeIdsPref, includedTypeId).map { (mapTypes, filterTypeIdsPref, includedTypeId) ->
             makeFilterTypeId(mapTypes, filterTypeIdsPref, includedTypeId)
         }.distinctUntilChanged()
 
@@ -195,7 +195,7 @@ class MapViewModel @Inject constructor(
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
-    val typeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = PairMediatorLiveData(_allAgencies, filterTypeIds).map { (allAgencies, filterTypeIds) ->
+    val typeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(_allAgencies, filterTypeIds).map { (allAgencies, filterTypeIds) ->
         filterTypeIds?.let { theFilterTypeIds ->
             allAgencies?.filter { agency ->
                 agency.getSupportedType().isMapScreen
@@ -204,7 +204,7 @@ class MapViewModel @Inject constructor(
         }
     }
     private val areaTypeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> =
-        PairMediatorLiveData(typeMapAgencies, _loadingArea).map { (typeMapAgencies, loadingArea) ->
+        MediatorLiveData2(typeMapAgencies, _loadingArea).map { (typeMapAgencies, loadingArea) ->
             loadingArea?.let { theLoadingArea -> // loading area REQUIRED
                 typeMapAgencies?.filter { agency ->
                     agency.isInArea(theLoadingArea)
@@ -212,7 +212,7 @@ class MapViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    val loaded: LiveData<Boolean?> = PairMediatorLiveData(_loadingArea, _loadedArea).map { (loadingArea, loadedArea) ->
+    val loaded: LiveData<Boolean?> = MediatorLiveData2(_loadingArea, _loadedArea).map { (loadingArea, loadedArea) ->
         loadedArea.containsEntirely(loadingArea)
     }
 
@@ -241,7 +241,7 @@ class MapViewModel @Inject constructor(
     val poiMarkers: LiveData<Collection<MTPOIMarker>?> = _poiMarkers
 
     val poiMarkersTrigger: LiveData<Any?> =
-        QuadrupleMediatorLiveData(
+        MediatorLiveData4(
             areaTypeMapAgencies,
             _loadedArea,
             _loadingArea,

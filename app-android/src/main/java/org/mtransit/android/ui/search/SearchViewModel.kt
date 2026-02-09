@@ -26,7 +26,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -137,7 +137,7 @@ class SearchViewModel @Inject constructor(
     val searchHasFocus: LiveData<Boolean> = _searchHasFocus
 
     val searchResults: LiveData<List<POIManager>?> =
-        TripleMediatorLiveData(query, _typeFilterId, _searchableAgencies).switchMap { (query, typeFilterId, searchableAgencies) ->
+        MediatorLiveData3(query, _typeFilterId, _searchableAgencies).switchMap { (query, typeFilterId, searchableAgencies) ->
             var keepAll = false
             this.poiRepository.loadingPOIMs(
                 typeToProviders = searchableAgencies

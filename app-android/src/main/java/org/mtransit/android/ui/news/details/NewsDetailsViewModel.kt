@@ -15,7 +15,7 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -43,7 +43,7 @@ class NewsDetailsViewModel @Inject constructor(
 
     private val allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
 
-    private val thisNewsProvider: LiveData<NewsProviderProperties?> = PairMediatorLiveData(allNewsProviders, authority).map { (allNewsProviders, authority) ->
+    private val thisNewsProvider: LiveData<NewsProviderProperties?> = MediatorLiveData2(allNewsProviders, authority).map { (allNewsProviders, authority) ->
         if (allNewsProviders != null && authority != null) {
             allNewsProviders.firstOrNull { it.authority == authority }
         } else {
@@ -51,7 +51,7 @@ class NewsDetailsViewModel @Inject constructor(
         }
     }
 
-    val newsArticle: LiveData<News?> = PairMediatorLiveData(uuid, thisNewsProvider).switchMap { (uuid, thisNewsProvider) ->
+    val newsArticle: LiveData<News?> = MediatorLiveData2(uuid, thisNewsProvider).switchMap { (uuid, thisNewsProvider) ->
         newsRepository.loadingNewsArticle(
             uuid,
             thisNewsProvider,

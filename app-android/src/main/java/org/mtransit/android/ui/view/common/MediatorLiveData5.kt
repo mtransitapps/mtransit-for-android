@@ -6,14 +6,14 @@ import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.commons.model.Quintuple
 
-class QuintupleMediatorLiveData<A, B, C, D, E>(a: LiveData<A>, b: LiveData<B>, c: LiveData<C>, d: LiveData<D>, e: LiveData<E>) :
+class MediatorLiveData5<A, B, C, D, E>(a: LiveData<A>, b: LiveData<B>, c: LiveData<C>, d: LiveData<D>, e: LiveData<E>) :
     MediatorLiveData<Quintuple<A?, B?, C?, D?, E?>>(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = QuintupleMediatorLiveData::class.java.simpleName
+        private val LOG_TAG: String = MediatorLiveData5::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     init {
         addSource(a) {
@@ -48,7 +48,5 @@ class QuintupleMediatorLiveData<A, B, C, D, E>(a: LiveData<A>, b: LiveData<B>, c
         }
     }
 
-    override fun toString(): String {
-        return "${javaClass.simpleName}(${this.value?.toString()})"
-    }
+    override fun toString() = "${javaClass.simpleName}(${this.value?.toString()})"
 }

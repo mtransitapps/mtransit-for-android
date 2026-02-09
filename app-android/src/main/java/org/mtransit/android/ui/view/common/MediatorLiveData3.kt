@@ -5,14 +5,14 @@ import androidx.lifecycle.MediatorLiveData
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 
-class TripleMediatorLiveData<A, B, C>(a: LiveData<A>, b: LiveData<B>, c: LiveData<C>) :
+class MediatorLiveData3<A, B, C>(a: LiveData<A>, b: LiveData<B>, c: LiveData<C>) :
     MediatorLiveData<Triple<A?, B?, C?>>(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = TripleMediatorLiveData::class.java.simpleName
+        private val LOG_TAG: String = MediatorLiveData3::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     init {
         addSource(a) {
@@ -35,7 +35,5 @@ class TripleMediatorLiveData<A, B, C>(a: LiveData<A>, b: LiveData<B>, c: LiveDat
         }
     }
 
-    override fun toString(): String {
-        return "${javaClass.simpleName}(${this.value?.toString()})"
-    }
+    override fun toString() = "${javaClass.simpleName}(${this.value?.toString()})"
 }
