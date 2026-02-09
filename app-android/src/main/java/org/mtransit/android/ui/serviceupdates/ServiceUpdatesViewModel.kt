@@ -62,22 +62,21 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    val holder: LiveData<ServiceUpdatesHolder> = TripleMediatorLiveData(_authority, _route, _direction)
-        .switchMap { (authority, route, direction) ->
-            liveData(viewModelScope.coroutineContext) {
-                authority ?: return@liveData
-                route ?: return@liveData
-                val holder: ServiceUpdatesHolder = direction?.let {
-                    RouteDirection(route, it).toRouteDirectionM(authority)
-                } ?: route.toRouteM(authority)
-                emit(
-                    holder
-                        .apply {
-                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                        }
-                )
-            }
+    val holder: LiveData<ServiceUpdatesHolder> = TripleMediatorLiveData(_authority, _route, _direction).switchMap { (authority, route, direction) ->
+        liveData(viewModelScope.coroutineContext) {
+            authority ?: return@liveData
+            route ?: return@liveData
+            val holder: ServiceUpdatesHolder = direction?.let {
+                RouteDirection(route, it).toRouteDirectionM(authority)
+            } ?: route.toRouteM(authority)
+            emit(
+                holder
+                    .apply {
+                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                    }
+            )
         }
+    }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent

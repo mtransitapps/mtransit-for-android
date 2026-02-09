@@ -73,8 +73,8 @@ class RDSRouteViewModel @Inject constructor(
     private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)
     private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct<Float?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)
 
-    val selectedMapCameraPosition = TripleMediatorLiveData(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom)
-        .map { (lat, lng, zoom) ->
+    val selectedMapCameraPosition =
+        TripleMediatorLiveData(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom).map { (lat, lng, zoom) ->
             lat ?: return@map null
             lng ?: return@map null
             zoom ?: return@map null
@@ -93,19 +93,18 @@ class RDSRouteViewModel @Inject constructor(
         }
     }
 
-    val routeM: LiveData<RouteManager> = PairMediatorLiveData(_authority, _route)
-        .switchMap { (authority, route) ->
-            liveData(viewModelScope.coroutineContext) {
-                authority ?: return@liveData
-                route ?: return@liveData
-                emit(
-                    route.toRouteM(authority)
-                        .apply {
-                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                        }
-                )
-            }
+    val routeM: LiveData<RouteManager> = PairMediatorLiveData(_authority, _route).switchMap { (authority, route) ->
+        liveData(viewModelScope.coroutineContext) {
+            authority ?: return@liveData
+            route ?: return@liveData
+            emit(
+                route.toRouteM(authority)
+                    .apply {
+                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                    }
+            )
         }
+    }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
@@ -178,15 +177,14 @@ class RDSRouteViewModel @Inject constructor(
         }
     }
 
-    private val currentSelectedDirectionId: LiveData<Long?> = PairMediatorLiveData(_selectedDirectionId, _selectedDirectionIdPref)
-        .map { (selectedDirectionId, selectedDirectionIdPref) ->
+    private val currentSelectedDirectionId: LiveData<Long?> =
+        PairMediatorLiveData(_selectedDirectionId, _selectedDirectionIdPref).map { (selectedDirectionId, selectedDirectionIdPref) ->
             selectedDirectionId ?: selectedDirectionIdPref
         }.distinctUntilChanged()
 
-    val currentSelectedRouteDirectionPosition: LiveData<Int?> = PairMediatorLiveData(currentSelectedDirectionId, routeDirections)
-        .map { (directionId, routeDirections) ->
-            directionId ?: return@map null
-            routeDirections ?: return@map null
-            routeDirections.indexOfFirst { it.id == directionId }.coerceAtLeast(0)
-        }
+    val currentSelectedRouteDirectionPosition = PairMediatorLiveData(currentSelectedDirectionId, routeDirections).map { (directionId, routeDirections) ->
+        directionId ?: return@map null
+        routeDirections ?: return@map null
+        routeDirections.indexOfFirst { it.id == directionId }.coerceAtLeast(0)
+    }
 }

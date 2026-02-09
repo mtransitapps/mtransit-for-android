@@ -72,19 +72,18 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    val routesM: LiveData<List<RouteManager>> = PairMediatorLiveData(agency, _routes)
-        .switchMap { (agency, routes) ->
-            liveData(viewModelScope.coroutineContext) {
-                agency ?: return@liveData
-                routes ?: return@liveData
-                emit(routes.map { route ->
-                    route.toRouteM(agency.authority)
-                        .apply {
-                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                        }
-                })
-            }
+    val routesM: LiveData<List<RouteManager>> = PairMediatorLiveData(agency, _routes).switchMap { (agency, routes) ->
+        liveData(viewModelScope.coroutineContext) {
+            agency ?: return@liveData
+            routes ?: return@liveData
+            emit(routes.map { route ->
+                route.toRouteM(agency.authority)
+                    .apply {
+                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                    }
+            })
         }
+    }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
