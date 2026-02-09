@@ -94,7 +94,6 @@ class POIRepository(
                     ) {
                         MTLog.d(this@POIRepository, "readingPOIM() > EMIT (new POI != cache POI)")
                         val newPOIM = newPOIFromModule.toPOIM(
-                            tripIds = cachePOIM?.tripIds,
                             serviceUpdates = cachePOIM?.serviceUpdatesOrNull,
                             status = cachePOIM?.statusOrNull,
                         )

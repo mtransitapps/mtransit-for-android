@@ -24,13 +24,11 @@ fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean)
 }
 
 fun <P : POI> P.toPOIM(
-    tripIds: Collection<String>? = null,
     serviceUpdates: List<ServiceUpdate>? = null,
     status: POIStatus? = null
 ) = POIManager(this).apply {
-    this.tripIds = tripIds
     setServiceUpdates(serviceUpdates)
-    status?.let { setStatus(status) }
+    status?.let { setStatus(it) }
 }
 
 val POIManager.location: Location? get() = this.poi.location

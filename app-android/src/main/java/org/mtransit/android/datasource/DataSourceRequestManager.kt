@@ -93,7 +93,7 @@ class DataSourceRequestManager(
     }
 
     @Suppress("unused")
-    @Discouraged(message = "provider read trip IDs directly")
+    @Discouraged(message = "providers read trip IDs directly")
     suspend fun findRDSTrips(agencyAuthority: String, routeId: Long, directionId: Long? = null): List<Trip>? = withContext(ioDispatcher) {
         if (!FeatureFlags.F_EXPORT_TRIP_ID) return@withContext null
         //noinspection DiscouragedApi
