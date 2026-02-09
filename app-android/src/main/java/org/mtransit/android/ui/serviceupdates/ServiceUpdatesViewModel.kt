@@ -83,7 +83,7 @@ class ServiceUpdatesViewModel @Inject constructor(
 
     private var serviceUpdateLoadedJob: Job? = null
 
-    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
             _serviceUpdateLoadedEvent.postValue(Event(targetUUID))

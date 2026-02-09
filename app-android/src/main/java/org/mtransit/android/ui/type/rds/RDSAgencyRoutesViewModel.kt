@@ -90,7 +90,7 @@ class RDSAgencyRoutesViewModel @Inject constructor(
 
     private var serviceUpdateLoadedJob: Job? = null
 
-    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
             delay(333L) // wait for 0.333 secs BECAUSE many routes & will trigger RecyclerView.notifyDataSetChanged()

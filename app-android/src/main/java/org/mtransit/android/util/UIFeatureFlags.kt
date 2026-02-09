@@ -3,6 +3,7 @@ package org.mtransit.android.util
 import android.os.Build
 import org.mtransit.commons.FeatureFlags
 
+@Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
 object UIFeatureFlags {
 
     const val F_HIDE_ONE_AGENCY_TYPE_TABS = false

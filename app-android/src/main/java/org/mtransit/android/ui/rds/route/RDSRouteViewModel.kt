@@ -182,7 +182,7 @@ class RDSRouteViewModel @Inject constructor(
             selectedDirectionId ?: selectedDirectionIdPref
         }.distinctUntilChanged()
 
-    val currentSelectedRouteDirectionPosition: LiveData<Int?> = PairMediatorLiveData(currentSelectedDirectionId, routeDirections).map { (directionId, routeDirections) ->
+    val currentSelectedRouteDirectionPosition = PairMediatorLiveData(currentSelectedDirectionId, routeDirections).map { (directionId, routeDirections) ->
         directionId ?: return@map null
         routeDirections ?: return@map null
         routeDirections.indexOfFirst { it.id == directionId }.coerceAtLeast(0)

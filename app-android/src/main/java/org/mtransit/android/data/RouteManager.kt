@@ -23,18 +23,12 @@ data class RouteManager(
         private val LOG_TAG: String = RouteManager::class.java.simpleName
     }
 
-    @Suppress("SENSELESS_COMPARISON")
-    override fun getLogTag(): String {
-        if (this.route != null) {
-            return LOG_TAG + "-" + this.route.uuid.removePrefix(IAgencyProperties.PKG_COMMON)
-        }
-        return LOG_TAG
-    }
+    override fun getLogTag() = LOG_TAG + "-" + this.route.uuid.removePrefix(IAgencyProperties.PKG_COMMON)
 
     private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Void?>()
 
     override fun addServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
-        this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null)
+        this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null
     }
 
     override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
@@ -65,7 +59,7 @@ data class RouteManager(
 
     private fun findServiceUpdates(
         serviceUpdateLoader: ServiceUpdateLoader,
-        skipIfBusy: Boolean
+        @Suppress("SameParameterValue") skipIfBusy: Boolean
     ): Boolean {
         val findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis()
         var isNotSkipped = false
