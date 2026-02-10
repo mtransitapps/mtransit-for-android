@@ -40,6 +40,9 @@ object UIFeatureFlags {
     const val F_NEWS_THUMBNAIL_PLAY_BUTTON = false
     // const val F_NEWS_THUMBNAIL_PLAY_BUTTON = true // WIP
 
+    const val F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY = false
+    // const val F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY = true // WIP
+
     const val F_CONSUME_VEHICLE_LOCATION = FeatureFlags.F_EXPORT_TRIP_ID && false
     // const val F_CONSUME_VEHICLE_LOCATION = FeatureFlags.F_EXPORT_TRIP_ID && true // WIP
 

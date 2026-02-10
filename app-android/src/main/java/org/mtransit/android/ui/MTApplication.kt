@@ -17,6 +17,7 @@ import org.mtransit.android.dev.LeakDetector
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.MapsInitializerUtil
 import org.mtransit.android.util.NightModeUtils
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.CommonsApp
 import javax.inject.Inject
 
@@ -59,7 +60,7 @@ class MTApplication : MTCommonApp() {
             this.leakDetector.setup(this)
         }
         NightModeUtils.setDefaultNightMode(this, null)
-        LocaleUtils.onApplicationCreate(this)
+        if (!UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) LocaleUtils.fixWebViewLocale(this)
         this.remoteConfigProvider.init()
         this.crashReporter.setup(!BuildConfig.DEBUG)
         this.strictMode.setup() // uses crash reporter
