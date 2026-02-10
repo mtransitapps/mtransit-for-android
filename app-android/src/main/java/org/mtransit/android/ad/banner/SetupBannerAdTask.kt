@@ -10,7 +10,6 @@ import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.util.UIFeatureFlags
 import java.lang.ref.WeakReference
@@ -42,30 +41,22 @@ class SetupBannerAdTask(
     override fun getLogTag() = LOG_TAG
 
     @WorkerThread
-    override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean? {
-        MTLog.d(this, "doInBackgroundNotCancelledMT()")
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
+    override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean {
+        if (!AdConstants.AD_ENABLED) return false
         return !isCancelled && this.globalAdManager.isShowingAds() // TODO can be called from any thread
     }
 
     @MainThread
     override fun onPostExecuteNotCancelledMT(result: Boolean?) {
-        val isShowingAds = result
-        val activity = this.activityWR.get()
-        if (activity == null) {
-            return
-        }
-        if (isShowingAds == true && !isCancelled) { // show ads
+        val activity = this.activityWR.get() ?: return
+        val isShowingAds = result == true
+        if (isShowingAds && !isCancelled) { // show ads
             val adLayout = this.bannerAdManager.getAdLayout(activity)
             if (adLayout != null) {
                 var adView = this.bannerAdManager.getAdView(adLayout)
                 if (adView == null) {
                     adView = makeNewAdView(activity, adLayout)
-                } else {
                 }
-
                 adView.loadAd(AdManager.getAdRequest(activity, collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE))
             }
         } else { // hide ads

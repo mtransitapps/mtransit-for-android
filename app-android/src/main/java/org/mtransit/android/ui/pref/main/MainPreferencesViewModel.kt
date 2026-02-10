@@ -27,6 +27,7 @@ class MainPreferencesViewModel @Inject constructor(
     companion object {
         private val LOG_TAG = MainPreferencesViewModel::class.java.simpleName
 
+        @Suppress("unused")
         internal const val DEVICE_SETTINGS_GROUP_PREF = "pDeviceSettings"
         internal const val DEVICE_SETTINGS_DATE_AND_TIME_PREF = "pDeviceSettingsDateAndTime"
         internal const val DEVICE_SETTINGS_LOCATION_PREF = "pDeviceSettingsLocation"
@@ -49,6 +50,7 @@ class MainPreferencesViewModel @Inject constructor(
 
         internal const val DEV_MODE_GROUP_PREF = "pDevMode"
         internal const val DEV_MODE_MODULE_PREF = "pDevModeModule"
+        internal const val DEV_MODE_REMOTE_CONFIG_PREF = "pDevModeRemoteConfig"
         internal const val DEV_MODE_CONSENT_RESET_PREF = "pDevModeConsentReset"
         internal const val DEV_MODE_REWARDED_RESET_PREF = "pDevModeRewardedReset"
         internal const val DEV_MODE_AD_INSPECTOR_PREF = "pDevModeAdInspector"

@@ -1,6 +1,7 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigValue
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import org.mtransit.android.BuildConfig
@@ -15,6 +16,9 @@ class RemoteConfigProvider @Inject constructor(
 
     companion object {
         private val LOG_TAG: String = RemoteConfigProvider::class.java.simpleName
+
+        const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS = "mt_vehicle_location_refresh_min_ms"
+        const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT = 30_000L // 30 seconds
     }
 
     override fun getLogTag() = LOG_TAG
@@ -39,7 +43,7 @@ class RemoteConfigProvider @Inject constructor(
                     MTLog.d(this, "Config params updated: ${task.result}")
                 } else {
                     this.activated.set(false)
-                    MTLog.d(this, "Fetch failed!")
+                    MTLog.w(this, task.exception, "Fetch failed!")
                 }
             }
     }
@@ -49,4 +53,7 @@ class RemoteConfigProvider @Inject constructor(
 
     fun get(key: String, defaultValue: Long) =
         remoteConfig.takeIf { activated.get() }?.getLong(key) ?: defaultValue
+
+    fun getAll(): Map<String, String>? =
+        remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
 }

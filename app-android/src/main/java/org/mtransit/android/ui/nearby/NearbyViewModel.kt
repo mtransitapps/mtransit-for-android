@@ -42,9 +42,9 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData4
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -96,7 +96,7 @@ class NearbyViewModel @Inject constructor(
     private val _fixedOnLng = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LNG, EXTRA_FIXED_ON_LNG_DEFAULT)
         .map { if (it == 999f) null else it.toDouble() }
 
-    val fixedOnLocation: LiveData<Location?> = PairMediatorLiveData(_fixedOnLat, _fixedOnLng).map { (fixedOnLat, fixedOnLng) ->
+    val fixedOnLocation: LiveData<Location?> = MediatorLiveData2(_fixedOnLat, _fixedOnLng).map { (fixedOnLat, fixedOnLng) ->
         if (fixedOnLat == null || fixedOnLng == null) {
             null
         } else {
@@ -116,7 +116,7 @@ class NearbyViewModel @Inject constructor(
     private val _ipLocation = networkLocationRepository.ipLocation
 
     val nearbyLocation: LiveData<Location?> =
-        QuadrupleMediatorLiveData(
+        MediatorLiveData4(
             fixedOnLocation,
             deviceLocation,
             _nearbyLocationForceReset,
@@ -162,7 +162,7 @@ class NearbyViewModel @Inject constructor(
     }
 
     override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
-        PairMediatorLiveData(nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
+        MediatorLiveData2(nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
             if (nearbyLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -178,12 +178,12 @@ class NearbyViewModel @Inject constructor(
 
     val fixedOnName = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
 
-    val isFixedOn: LiveData<Boolean?> = TripleMediatorLiveData(_fixedOnLat, _fixedOnLng, fixedOnName).map { (lat, lng, name) ->
+    val isFixedOn: LiveData<Boolean?> = MediatorLiveData3(_fixedOnLat, _fixedOnLng, fixedOnName).map { (lat, lng, name) ->
         lat != null && lng != null && !name.isNullOrBlank()
     }
 
     override val newLocationAvailable: LiveData<Boolean?> =
-        TripleMediatorLiveData(isFixedOn, nearbyLocation, deviceLocation).map { (isFixedOn, nearbyLocation, deviceLocation) ->
+        MediatorLiveData3(isFixedOn, nearbyLocation, deviceLocation).map { (isFixedOn, nearbyLocation, deviceLocation) ->
             isFixedOn == false
                     && nearbyLocation != null
                     && deviceLocation != null
@@ -202,11 +202,11 @@ class NearbyViewModel @Inject constructor(
         LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT, // default = no selection
     )
 
-    val selectedTypeId: LiveData<Int?> = PairMediatorLiveData(_selectedTypeId, _selectedTypeIdPref).map { (selectedTypeId, selectedTypeIdPref) ->
+    val selectedTypeId: LiveData<Int?> = MediatorLiveData2(_selectedTypeId, _selectedTypeIdPref).map { (selectedTypeId, selectedTypeIdPref) ->
         selectedTypeId ?: selectedTypeIdPref
     }
 
-    val selectedTypePosition: LiveData<Int?> = PairMediatorLiveData(selectedTypeId, availableTypes).map { (selectedTypeId, availableTypes) ->
+    val selectedTypePosition: LiveData<Int?> = MediatorLiveData2(selectedTypeId, availableTypes).map { (selectedTypeId, availableTypes) ->
         if (availableTypes == null || selectedTypeId == null) return@map null
         val availableSelectedId = selectedTypeId.takeIf { it >= 0 } ?: availableTypes.firstOrNull()?.id
         availableTypes

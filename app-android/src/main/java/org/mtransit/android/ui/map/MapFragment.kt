@@ -38,11 +38,10 @@ import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.map.IMarker
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
-
-@Suppress("DeprecatedCall")
 @AndroidEntryPoint
 class MapFragment : ABFragment(R.layout.fragment_map),
     DeviceLocationListener,
@@ -119,14 +118,15 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     private val mapListener = object : MapViewController.MapListener {
 
-        override fun onMapClick(position: LatLng) {
-            // DO NOTHING
-        }
+        override fun onMapClick(position: LatLng) = Unit // DO NOTHING
 
-        override fun onCameraChange(latLngBounds: LatLngBounds) {
-            attachedViewModel?.onCameraChange(latLngBounds) {
-                mapViewController.getBigCameraPosition(activity, 1.0f)
-            }
+        override fun onMarkerClick(marker: IMarker?) = false
+
+        override fun onCameraChanged(latLngBounds: LatLngBounds, zoom: Float) {
+            attachedViewModel?.onCameraChanged(
+                latLngBounds,
+                getBigCameraPosition = { mapViewController.getBigCameraPosition(activity, 1.0f) },
+            )
         }
 
         override fun onMapReady() {
@@ -138,7 +138,6 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         }
     }
 
-    @Suppress("DeprecatedCall")
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,
@@ -157,7 +156,6 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             true,
             false,
             true,
-            this.dataSourcesRepository
         ).apply {
             setAutoClickInfoWindow(true)
             logTag = this@MapFragment.logTag
@@ -197,11 +195,10 @@ class MapFragment : ABFragment(R.layout.fragment_map),
                 viewModel.onInitialLocationSet()
             }
         }
-        viewModel.selectedUUID.observe(viewLifecycleOwner) {
-            it?.let {
-                mapViewController.setInitialSelectedUUID(it)
-                viewModel.onSelectedUUIDSet()
-            }
+        viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
+            selectedUUID ?: return@observe
+            mapViewController.setInitialSelectedUUID(selectedUUID)
+            viewModel.onSelectedUUIDSet()
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             context?.let { context ->

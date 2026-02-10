@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -31,16 +32,21 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.AgencyProviderContract;
+import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.GTFSProviderContract;
-import org.mtransit.android.commons.provider.NewsProviderContract;
-import org.mtransit.android.commons.provider.POIProvider;
-import org.mtransit.android.commons.provider.POIProviderContract;
-import org.mtransit.android.commons.provider.ProviderContract;
-import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract;
-import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
-import org.mtransit.android.commons.provider.StatusProviderContract;
+import org.mtransit.android.commons.provider.agency.AgencyProviderContract;
+import org.mtransit.android.commons.provider.common.ProviderContract;
+import org.mtransit.android.commons.provider.news.NewsProviderContract;
+import org.mtransit.android.commons.provider.poi.POIProvider;
+import org.mtransit.android.commons.provider.poi.POIProviderContract;
+import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract;
+import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
+import org.mtransit.android.commons.provider.status.StatusProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.util.CrashUtils;
+import org.mtransit.android.util.UIFeatureFlags;
+import org.mtransit.commons.FeatureFlags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,12 +100,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static ArrayList<ServiceUpdate> findServiceUpdates(@NonNull Context context, @NonNull String authority,
-															  @Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
+	public static List<ServiceUpdate> findServiceUpdates(
+			@NonNull Context context,
+			@NonNull String authority,
+			@Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter
+	) {
 		Cursor cursor = null;
 		try {
-			String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
-			Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProviderContract.SERVICE_UPDATE_PATH);
+			final String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
+			final Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProviderContract.SERVICE_UPDATE_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
 			return getServiceUpdates(cursor);
 		} catch (Exception e) {
@@ -111,8 +120,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<ServiceUpdate> getServiceUpdates(@Nullable Cursor cursor) {
-		ArrayList<ServiceUpdate> result = new ArrayList<>();
+	private static List<ServiceUpdate> getServiceUpdates(@Nullable Cursor cursor) {
+		final List<ServiceUpdate> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -146,6 +155,40 @@ public final class DataSourceManager implements MTLog.Loggable {
 			if (cursor.moveToFirst()) {
 				do {
 					result.add(News.fromCursorStatic(cursor, authority));
+				} while (cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
+	@Nullable
+	public static ArrayList<VehicleLocation> findVehicleLocations(
+			@NonNull Context context,
+			@NonNull String authority,
+			@Nullable VehicleLocationProviderContract.Filter vehicleLocationFilter
+	) {
+		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return null;
+		Cursor cursor = null;
+		try {
+			final String vehicleLocationFilterJSONString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJSONString();
+			final Uri uri = Uri.withAppendedPath(getUri(authority), VehicleLocationProviderContract.VEHICLE_LOCATION_PATH);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, vehicleLocationFilterJSONString, null, null);
+			return getVehicleLocations(cursor, authority);
+		} catch (Exception e) {
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' vehicle locations from '%s'!", vehicleLocationFilter, authority);
+			return null;
+		} finally {
+			SqlUtils.closeQuietly(cursor);
+		}
+	}
+
+	@NonNull
+	private static ArrayList<VehicleLocation> getVehicleLocations(@Nullable Cursor cursor, @NonNull String authority) {
+		ArrayList<VehicleLocation> result = new ArrayList<>();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				do {
+					result.add(VehicleLocation.fromCursor(cursor, authority));
 				} while (cursor.moveToNext());
 			}
 		}
@@ -351,7 +394,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = getRDSDirectionsUri(authority);
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ID, directionId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
-			ArrayList<Direction> rdsDirections = getRDSDirections(cursor);
+			ArrayList<Direction> rdsDirections = getRDSDirections(cursor, authority);
 			return rdsDirections.isEmpty() ? null : rdsDirections.get(0);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading route direction '%d' from '%s'!", directionId, authority);
@@ -368,7 +411,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final Uri uri = getRDSDirectionsUri(authority);
 			final String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ROUTE_ID, routeId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
-			return getRDSDirections(cursor);
+			return getRDSDirections(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading route '%s' directions from '%s'!", routeId, authority);
 			return null;
@@ -378,12 +421,50 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<Direction> getRDSDirections(@Nullable Cursor cursor) {
+	private static ArrayList<Direction> getRDSDirections(@Nullable Cursor cursor, @NonNull String authority) {
 		final ArrayList<Direction> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					final Direction fromCursor = Direction.fromCursor(cursor);
+					final Direction fromCursor = Direction.fromCursor(cursor, authority);
+					result.add(fromCursor);
+				} while (cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
+	@Discouraged(message = "providers read trip IDs directly")
+	@Nullable
+	public static List<Trip> findRDSTrips(@NonNull Context context, @NonNull String authority, long routeId, @Nullable Long directionId) {
+		if (!FeatureFlags.F_EXPORT_TRIP_ID) return null;
+		Cursor cursor = null;
+		try {
+			final Uri uri = getRDSTripsUri(authority);
+			final StringBuilder selectionSb = new StringBuilder();
+			if (directionId != null) {
+				selectionSb.append(SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_DIRECTION_ID, directionId));
+				selectionSb.append(SqlUtils.AND);
+			}
+			selectionSb.append(SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_ROUTE_ID, routeId));
+			final String selection = selectionSb.toString();
+			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
+			return getRDSTrips(cursor);
+		} catch (Exception e) {
+			CrashUtils.w(LOG_TAG, e, "Error while loading trips for route '%s' direction '%s' from '%s'!", routeId, directionId, authority);
+			return null;
+		} finally {
+			SqlUtils.closeQuietly(cursor);
+		}
+	}
+
+	@NonNull
+	private static List<Trip> getRDSTrips(@Nullable Cursor cursor) {
+		final ArrayList<Trip> result = new ArrayList<>();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				do {
+					final Trip fromCursor = Trip.fromCursor(cursor);
 					result.add(fromCursor);
 				} while (cursor.moveToNext());
 			}
@@ -559,5 +640,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 	@NonNull
 	private static Uri getRDSDirectionsUri(@NonNull String authority) {
 		return Uri.withAppendedPath(getUri(authority), GTFSProviderContract.DIRECTION_PATH);
+	}
+
+	@NonNull
+	private static Uri getRDSTripsUri(@NonNull String authority) {
+		return Uri.withAppendedPath(getUri(authority), GTFSProviderContract.TRIP_PATH);
 	}
 }

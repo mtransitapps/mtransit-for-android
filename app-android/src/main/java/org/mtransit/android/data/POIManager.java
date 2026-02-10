@@ -33,8 +33,8 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
-import org.mtransit.android.commons.provider.StatusProviderContract;
+import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
+import org.mtransit.android.commons.provider.status.StatusProviderContract;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.provider.FavoriteManager;
@@ -66,16 +66,12 @@ public class POIManager implements LocationPOI,
 
 	private static final String LOG_TAG = POIManager.class.getSimpleName();
 
-	@SuppressWarnings("ConstantConditions")
 	@NonNull
 	@Override
 	public String getLogTag() {
-		if (this.poi != null) {
-			final String uuid = this.poi.getUUID();
-			final int index = uuid.indexOf(IAgencyProperties.PKG_COMMON);
-			return LOG_TAG + "-" + (index == -1 ? uuid : uuid.substring(index + IAgencyProperties.PKG_COMMON.length()));
-		}
-		return LOG_TAG;
+		final String uuid = this.poi.getUUID();
+		final int index = uuid.indexOf(IAgencyProperties.PKG_COMMON);
+		return LOG_TAG + "-" + (index == -1 ? uuid : uuid.substring(index + IAgencyProperties.PKG_COMMON.length()));
 	}
 
 	@ColorInt
@@ -91,7 +87,7 @@ public class POIManager implements LocationPOI,
 	@Nullable
 	private POIStatus status = null;
 	@Nullable
-	private ArrayList<ServiceUpdate> serviceUpdates = null;
+	private List<ServiceUpdate> serviceUpdates = null;
 	private boolean inFocus = false;
 
 	private long lastFindStatusTimestampMs = -1L;
@@ -163,16 +159,16 @@ public class POIManager implements LocationPOI,
 		return this;
 	}
 
-	public void setStatusLoaderListener(@NonNull StatusLoader.StatusLoaderListener statusLoaderListener) {
-		this.statusLoaderListenerWR = new WeakReference<>(statusLoaderListener);
-	}
-
 	@Nullable
 	public String getLocation() {
 		if (this.poi instanceof Module) {
 			return ((Module) this.poi).getLocation();
 		}
 		return null;
+	}
+
+	public void setStatusLoaderListener(@NonNull StatusLoader.StatusLoaderListener statusLoaderListener) {
+		this.statusLoaderListenerWR = new WeakReference<>(statusLoaderListener);
 	}
 
 	public int getStatusType() {
@@ -329,6 +325,12 @@ public class POIManager implements LocationPOI,
 			this.serviceUpdates.addAll(newServiceUpdates);
 			CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
 		}
+	}
+
+	@SuppressWarnings("unused")
+	@Nullable
+	public List<ServiceUpdate> getServiceUpdatesOrNull() {
+		return this.serviceUpdates;
 	}
 
 	@Nullable
@@ -1009,7 +1011,7 @@ public class POIManager implements LocationPOI,
 		result = 31 * result + Long.hashCode(lastFindStatusTimestampMs);
 		result = 31 * result + (statusLoaderListenerWR != null ? statusLoaderListenerWR.hashCode() : 0);
 		result = 31 * result + scheduleMaxDataRequests;
-		result = 31 * result + (serviceUpdateLoaderListenersWR != null ? serviceUpdateLoaderListenersWR.hashCode() : 0);
+		result = 31 * result + serviceUpdateLoaderListenersWR.hashCode();
 		result = 31 * result + Long.hashCode(lastFindServiceUpdateTimestampMs);
 		result = 31 * result + (color != null ? color.hashCode() : 0);
 		return result;

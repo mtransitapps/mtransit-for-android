@@ -106,22 +106,22 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
-	public void animatePosition(LatLng target) {
+	public void animatePosition(@Nullable LatLng target) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void animatePosition(LatLng target, AnimationSettings settings) {
+	public void animatePosition(@Nullable LatLng target, @Nullable AnimationSettings settings) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void animatePosition(LatLng target, AnimationCallback callback) {
+	public void animatePosition(@Nullable LatLng target, @Nullable AnimationCallback callback) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void animatePosition(LatLng target, AnimationSettings settings, AnimationCallback callback) {
+	public void animatePosition(@Nullable LatLng target, @Nullable AnimationSettings settings, @Nullable AnimationCallback callback) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -142,6 +142,7 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Nullable
 	@Override
 	public Object getData() {
 		return null;
@@ -149,15 +150,17 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 
 	@Deprecated
 	@Override
-	public String getId() {
+	public @NonNull String getId() {
 		throw new UnsupportedOperationException();
 	}
 
+	@NonNull
 	@Override
 	public List<IMarker> getMarkers() {
 		return new ArrayList<>(markers);
 	}
 
+	@NonNull
 	@Override
 	public LatLng getPosition() {
 		if (virtual != null) {
@@ -176,6 +179,14 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 			return virtual.getRotation();
 		}
 		return 0.0f;
+	}
+
+	@Override
+	public float getZIndex() {
+		if (virtual != null) {
+			return virtual.getZIndex();
+		}
+		return 1.0f;
 	}
 
 	@Override
@@ -250,7 +261,7 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
-	public void setData(Object data) {
+	public void setData(@Nullable Object data) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -273,6 +284,8 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	@Override
 	public void setIcon(@Nullable Context context,
 						@DrawableRes @Nullable Integer iconResId,
+						@Nullable Integer targetSize,
+						@Nullable Boolean replaceColor,
 						@ColorInt @Nullable Integer color,
 						@ColorInt @Nullable Integer secondaryColor,
 						@ColorInt @Nullable Integer defaultColor) {
@@ -300,7 +313,7 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
-	public void setPosition(LatLng position) {
+	public void setPosition(@NonNull LatLng position) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -310,7 +323,12 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
-	public void setSnippet(String snippet) {
+	public void setZIndex(float zIndex) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setSnippet(@Nullable String snippet) {
 		throw new UnsupportedOperationException();
 	}
 

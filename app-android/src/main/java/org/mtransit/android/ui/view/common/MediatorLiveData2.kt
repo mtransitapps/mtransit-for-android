@@ -5,14 +5,14 @@ import androidx.lifecycle.MediatorLiveData
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 
-class PairMediatorLiveData<A, B>(a: LiveData<A>, b: LiveData<B>) :
+class MediatorLiveData2<A, B>(a: LiveData<A>, b: LiveData<B>) :
     MediatorLiveData<Pair<A?, B?>>(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = PairMediatorLiveData::class.java.simpleName
+        private val LOG_TAG: String = MediatorLiveData2::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     init {
         addSource(a) {
@@ -29,9 +29,7 @@ class PairMediatorLiveData<A, B>(a: LiveData<A>, b: LiveData<B>) :
         }
     }
 
-    override fun toString(): String {
-        return "${javaClass.simpleName}(${this.value?.toString()})"
-    }
+    override fun toString() = "${javaClass.simpleName}(${this.value?.toString()})"
 }
 
-fun <A, B> LiveData<A>.with(other: LiveData<B>) = PairMediatorLiveData(this, other)
+fun <A, B> LiveData<A>.with(other: LiveData<B>) = MediatorLiveData2(this, other)

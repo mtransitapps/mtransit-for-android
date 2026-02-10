@@ -21,7 +21,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.isAppEnabled
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparator
@@ -36,7 +36,7 @@ import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.sortWithAnd
 import javax.inject.Inject
@@ -90,7 +90,7 @@ class FavoritesViewModel @Inject constructor(
     }
 
     val favoritePOIs: LiveData<List<POIManager>?> =
-        TripleMediatorLiveData(_favoriteUpdatedTrigger, _allAgencies, _homeScreenTypes).switchMap { (_, allAgencies, homeScreenTypes) ->
+        MediatorLiveData3(_favoriteUpdatedTrigger, _allAgencies, _homeScreenTypes).switchMap { (_, allAgencies, homeScreenTypes) ->
             _hasFavoritesAgencyDisabled.value = false
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 allAgencies ?: run { emit(null); return@liveData  } // loading

@@ -1,7 +1,9 @@
 package org.mtransit.android.util
 
 import android.os.Build
+import org.mtransit.commons.FeatureFlags
 
+@Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
 object UIFeatureFlags {
 
     const val F_HIDE_ONE_AGENCY_TYPE_TABS = false
@@ -37,5 +39,8 @@ object UIFeatureFlags {
 
     const val F_NEWS_THUMBNAIL_PLAY_BUTTON = false
     // const val F_NEWS_THUMBNAIL_PLAY_BUTTON = true // WIP
+
+    const val F_CONSUME_VEHICLE_LOCATION = FeatureFlags.F_EXPORT_TRIP_ID && false
+    // const val F_CONSUME_VEHICLE_LOCATION = FeatureFlags.F_EXPORT_TRIP_ID && true // WIP
 
 }

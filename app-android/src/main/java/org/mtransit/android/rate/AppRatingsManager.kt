@@ -26,7 +26,7 @@ import org.mtransit.android.ui.favorites.FavoritesFragment
 import org.mtransit.android.ui.home.HomeFragment
 import org.mtransit.android.ui.news.NewsListDetailFragment
 import org.mtransit.android.ui.schedule.ScheduleFragment
-import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -124,7 +124,7 @@ class AppRatingsManager @Inject constructor(
     }
 
     @JvmOverloads
-    fun getShouldShowAppRatingRequest(trackingScreen: IAnalyticsManager.Trackable? = null): LiveData<Boolean> = QuadrupleMediatorLiveData(
+    fun getShouldShowAppRatingRequest(trackingScreen: IAnalyticsManager.Trackable? = null): LiveData<Boolean> = MediatorLiveData4(
         hasAgenciesEnabled,
         lastRequestAppOpenCount,
         appOpenCounts,

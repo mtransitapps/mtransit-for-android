@@ -26,20 +26,23 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyUIProperties
+import org.mtransit.android.data.latLng
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
-import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData4
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.ui.view.map.MTMapIconDef
+import org.mtransit.android.ui.view.map.MTMapIconsProvider.iconDefForRotation
+import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.util.containsEntirely
 import javax.inject.Inject
 import kotlin.math.max
@@ -75,7 +78,7 @@ class MapViewModel @Inject constructor(
     }
 
     override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
-        PairMediatorLiveData(deviceLocation, locationSettingsResolution).map { (deviceLocation, resolution) ->
+        MediatorLiveData2(deviceLocation, locationSettingsResolution).map { (deviceLocation, resolution) ->
             if (deviceLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -121,7 +124,7 @@ class MapViewModel @Inject constructor(
     }
 
     val filterTypeIds: LiveData<Collection<Int>?> =
-        TripleMediatorLiveData(mapTypes, filterTypeIdsPref, includedTypeId).map { (mapTypes, filterTypeIdsPref, includedTypeId) ->
+        MediatorLiveData3(mapTypes, filterTypeIdsPref, includedTypeId).map { (mapTypes, filterTypeIdsPref, includedTypeId) ->
             makeFilterTypeId(mapTypes, filterTypeIdsPref, includedTypeId)
         }.distinctUntilChanged()
 
@@ -192,7 +195,7 @@ class MapViewModel @Inject constructor(
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
-    val typeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = PairMediatorLiveData(_allAgencies, filterTypeIds).map { (allAgencies, filterTypeIds) ->
+    val typeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(_allAgencies, filterTypeIds).map { (allAgencies, filterTypeIds) ->
         filterTypeIds?.let { theFilterTypeIds ->
             allAgencies?.filter { agency ->
                 agency.getSupportedType().isMapScreen
@@ -201,7 +204,7 @@ class MapViewModel @Inject constructor(
         }
     }
     private val areaTypeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> =
-        PairMediatorLiveData(typeMapAgencies, _loadingArea).map { (typeMapAgencies, loadingArea) ->
+        MediatorLiveData2(typeMapAgencies, _loadingArea).map { (typeMapAgencies, loadingArea) ->
             loadingArea?.let { theLoadingArea -> // loading area REQUIRED
                 typeMapAgencies?.filter { agency ->
                     agency.isInArea(theLoadingArea)
@@ -209,11 +212,11 @@ class MapViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    val loaded: LiveData<Boolean?> = PairMediatorLiveData(_loadingArea, _loadedArea).map { (loadingArea, loadedArea) ->
+    val loaded: LiveData<Boolean?> = MediatorLiveData2(_loadingArea, _loadedArea).map { (loadingArea, loadedArea) ->
         loadedArea.containsEntirely(loadingArea)
     }
 
-    fun onCameraChange(newVisibleArea: LatLngBounds, getBigCameraPosition: () -> LatLngBounds?): Boolean {
+    fun onCameraChanged(newVisibleArea: LatLngBounds, getBigCameraPosition: () -> LatLngBounds?): Boolean {
         val loadedArea: LatLngBounds? = this._loadedArea.value
         val loadingArea: LatLngBounds? = this._loadingArea.value
         val loaded = loadedArea.containsEntirely(newVisibleArea)
@@ -234,11 +237,11 @@ class MapViewModel @Inject constructor(
 
     private val _poiMarkersReset = MutableLiveData(Event(false))
 
-    private val _poiMarkers = MutableLiveData<Collection<POIMarker>?>(null)
-    val poiMarkers: LiveData<Collection<POIMarker>?> = _poiMarkers
+    private val _poiMarkers = MutableLiveData<Collection<MTPOIMarker>?>(null)
+    val poiMarkers: LiveData<Collection<MTPOIMarker>?> = _poiMarkers
 
     val poiMarkersTrigger: LiveData<Any?> =
-        QuadrupleMediatorLiveData(
+        MediatorLiveData4(
             areaTypeMapAgencies,
             _loadedArea,
             _loadingArea,
@@ -250,7 +253,6 @@ class MapViewModel @Inject constructor(
 
     private var poiMarkersLoadJob: Job? = null
 
-    @Suppress("DeprecatedCall")
     private fun loadPOIMarkers() {
         poiMarkersLoadJob?.cancel()
         val reset: Boolean = _poiMarkersReset.value?.getContentIfNotHandled() == true
@@ -261,16 +263,16 @@ class MapViewModel @Inject constructor(
             val areaTypeMapAgencies: List<IAgencyNearbyUIProperties>? = areaTypeMapAgencies.value
             val loadedArea: LatLngBounds? = _loadedArea.value
             val loadingArea: LatLngBounds? = _loadingArea.value
-            val currentPOIMarkers: Collection<POIMarker>? = _poiMarkers.value
+            val currentPOIMarkers: Collection<MTPOIMarker>? = _poiMarkers.value
             if (loadingArea == null || areaTypeMapAgencies == null) {
                 MTLog.d(this@MapViewModel, "loadPOIMarkers() > SKIP (no loading area OR agencies)")
                 return@launch // SKIP (missing loading area or agencies)
             }
-            val positionToPoiMarkers = ArrayMap<LatLng, POIMarker>()
+            val positionToPoiMarkers = ArrayMap<LatLng, MTPOIMarker>()
             var positionTrunc: LatLng
             if (!reset) {
                 currentPOIMarkers?.forEach { poiMarker ->
-                    positionTrunc = POIMarker.getLatLngTrunc(poiMarker.position.latitude, poiMarker.position.longitude)
+                    positionTrunc = MTPOIMarker.getLatLngTrunc(poiMarker.position.latitude, poiMarker.position.longitude)
                     positionToPoiMarkers[positionTrunc] = positionToPoiMarkers[positionTrunc]?.apply {
                         merge(poiMarker)
                     } ?: poiMarker
@@ -308,8 +310,8 @@ class MapViewModel @Inject constructor(
         loadingArea: LatLngBounds,
         loadedArea: LatLngBounds? = null,
         coroutineScope: CoroutineScope,
-    ): ArrayMap<LatLng, POIMarker> {
-        val clusterItems = ArrayMap<LatLng, POIMarker>()
+    ): ArrayMap<LatLng, MTPOIMarker> {
+        val clusterItems = ArrayMap<LatLng, MTPOIMarker>()
         val poiFilter = POIProviderContract.Filter.getNewAreaFilter(
             loadingArea.let { min(it.northeast.latitude, it.southwest.latitude) }, // MIN LAT
             loadingArea.let { max(it.northeast.latitude, it.southwest.latitude) }, // MAX LAT
@@ -328,25 +330,30 @@ class MapViewModel @Inject constructor(
         var extra: String?
         var uuid: String
         var authority: String
+        var iconDef: MTMapIconDef
         var color: Int?
+        val alpha: Float? = null
+        val rotation: Float? = null
+        val zIndex: Float? = null
         var secondaryColor: Int?
-        agencyPOIs?.map {
-            it to POIMarker.getLatLng(it)
-        }?.filterNot { (_, position) ->
+        agencyPOIs.mapNotNull { poim ->
+            poim.latLng?.let { poim to it }
+        }.filterNot { (_, position) ->
             !loadingArea.contains(position)
                     && loadedArea?.contains(position) == true
-        }?.forEach { (poim, position) ->
+        }.forEach { (poim, position) ->
             coroutineScope.ensureActive()
-            positionTrunc = POIMarker.getLatLngTrunc(poim)
+            positionTrunc = MTPOIMarker.getLatLngTrunc(poim)
             name = poim.poi.name
             extra = (poim.poi as? RouteDirectionStop)?.route?.shortestName
             uuid = poim.poi.uuid
             authority = poim.poi.authority
+            iconDef = rotation.iconDefForRotation
             color = poim.getColor(dataSourcesRepository)
             secondaryColor = agency.colorInt
             clusterItems[positionTrunc] = clusterItems[positionTrunc]?.apply {
-                merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority)
-            } ?: POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority)
+                merge(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)
+            } ?: MTPOIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority)
         }
         return clusterItems
     }

@@ -28,7 +28,7 @@ import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.provider.GTFSProviderContract
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
@@ -52,8 +52,8 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.GTFSCommons
 import org.mtransit.commons.addAllN
@@ -106,7 +106,7 @@ class HomeViewModel @Inject constructor(
     private val _nearbyLocationForceReset = MutableLiveData(Event(false))
 
     private val _nearbyLocation: LiveData<Location?> =
-        TripleMediatorLiveData(deviceLocation, _nearbyLocationForceReset, _ipLocation).switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
+        MediatorLiveData3(deviceLocation, _nearbyLocationForceReset, _ipLocation).switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
                 if (forceReset) {
@@ -143,7 +143,7 @@ class HomeViewModel @Inject constructor(
     }
 
     override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
-        PairMediatorLiveData(_nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
+        MediatorLiveData2(_nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
             if (nearbyLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -158,7 +158,7 @@ class HomeViewModel @Inject constructor(
     }
 
     override val newLocationAvailable: LiveData<Boolean?> =
-        PairMediatorLiveData(_nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
+        MediatorLiveData2(_nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
             if (nearbyLocation == null) {
                 null // not new if current unknown
             } else {
@@ -169,7 +169,7 @@ class HomeViewModel @Inject constructor(
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
-    private val _typeToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = PairMediatorLiveData(_allAgencies, _nearbyLocation)
+    private val _typeToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = MediatorLiveData2(_allAgencies, _nearbyLocation)
         .map { (allAgencies, nearbyLocation) ->
             if (nearbyLocation == null || allAgencies.isNullOrEmpty()) {
                 null
@@ -194,7 +194,7 @@ class HomeViewModel @Inject constructor(
     val nearbyPOIsTrigger: LiveData<Event<Boolean>> = _nearbyPOIsTrigger
 
     val nearbyPOIsTriggerListener: LiveData<Void> =
-        PairMediatorLiveData(_typeToHomeAgencies, _nearbyLocation).switchMap { (typeToHomeAgencies, nearbyLocation) ->
+        MediatorLiveData2(_typeToHomeAgencies, _nearbyLocation).switchMap { (typeToHomeAgencies, nearbyLocation) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 if (typeToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
                     nearbyPOIsLoadJob?.cancel()

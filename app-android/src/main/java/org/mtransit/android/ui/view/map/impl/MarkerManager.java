@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -18,7 +17,6 @@ import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.lazy.LazyMarker;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
@@ -33,6 +31,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		return LOG_TAG;
 	}
 
+	@NonNull
 	private final IGoogleMap factory;
 
 	private final ArrayMap<LazyMarker, DelegatingMarker> markers;
@@ -45,7 +44,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 
 	private final MarkerAnimator markerAnimator = new MarkerAnimator();
 
-	public MarkerManager(IGoogleMap factory) {
+	public MarkerManager(@NonNull IGoogleMap factory) {
 		this.factory = factory;
 		this.markers = new ArrayMap<>();
 		this.createdMarkers = new ArrayMap<>();
@@ -69,6 +68,8 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		marker.setIcon(
 				markerOptions.getContext(),
 				markerOptions.getIconResId(),
+				markerOptions.getTargetSize(),
+				markerOptions.getReplaceColor(),
 				markerOptions.getColor(),
 				markerOptions.getSecondaryColor(),
 				markerOptions.getDefaultColor()
@@ -94,13 +95,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		List<IMarker> displayedMarkers = clusteringStrategy.getDisplayedMarkers();
 		if (displayedMarkers == null) {
 			displayedMarkers = getMarkers();
-			Iterator<IMarker> iterator = displayedMarkers.iterator();
-			while (iterator.hasNext()) {
-				IMarker m = iterator.next();
-				if (!m.isVisible()) {
-					iterator.remove();
-				}
-			}
+			displayedMarkers.removeIf(m -> !m.isVisible());
 		}
 		return displayedMarkers;
 	}
@@ -120,13 +115,21 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		return clusteringStrategy.getMinZoomLevelNotClustered(marker);
 	}
 
-	public void onAnimateMarkerPosition(DelegatingMarker marker, LatLng target, AnimationSettings settings, IMarker.AnimationCallback callback) {
+	public void onAnimateMarkerPosition(@NonNull DelegatingMarker marker, @NonNull LatLng target, @NonNull AnimationSettings settings, @Nullable IMarker.AnimationCallback callback) {
 		markerAnimator.cancelAnimation(marker, IMarker.AnimationCallback.CancelReason.ANIMATE_POSITION);
 		markerAnimator.animate(marker, marker.getPosition(), target, SystemClock.uptimeMillis(), settings, callback);
 	}
 
-	public void onCameraChange(CameraPosition cameraPosition) {
-		clusteringStrategy.onCameraChange(cameraPosition);
+	public void onCameraMoveStarted(int reason) {
+		clusteringStrategy.onCameraMoveStarted(reason);
+	}
+
+	public void onCameraMove() {
+		clusteringStrategy.onCameraMove();
+	}
+
+	public void onCameraIdle() {
+		clusteringStrategy.onCameraIdle();
 	}
 
 	public void onClusterGroupChange(DelegatingMarker marker) {

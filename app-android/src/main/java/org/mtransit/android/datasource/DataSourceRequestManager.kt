@@ -1,18 +1,21 @@
 package org.mtransit.android.datasource
 
 import android.content.Context
+import androidx.annotation.Discouraged
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.Direction
-import org.mtransit.android.commons.provider.NewsProviderContract
-import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.data.Trip
+import org.mtransit.android.commons.provider.news.NewsProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
+import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
@@ -20,7 +23,10 @@ import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.JPaths
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.util.KeysManager
+import org.mtransit.android.util.UIFeatureFlags
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,10 +48,10 @@ class DataSourceRequestManager(
     )
 
     companion object {
-        private val LOG_TAG = DataSourceRequestManager::class.java.simpleName
+        private val LOG_TAG: String = DataSourceRequestManager::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = withContext(ioDispatcher) {
         DataSourceManager.findPOI(appContext, authority, poiFilter)?.poi
@@ -86,6 +92,26 @@ class DataSourceRequestManager(
         DataSourceManager.findRDSDirection(appContext, agencyAuthority, directionId)
     }
 
+    @Suppress("unused")
+    @Discouraged(message = "providers read trip IDs directly")
+    suspend fun findRDSTrips(agencyAuthority: String, routeId: Long, directionId: Long? = null): List<Trip>? = withContext(ioDispatcher) {
+        if (!FeatureFlags.F_EXPORT_TRIP_ID) return@withContext null
+        //noinspection DiscouragedApi
+        DataSourceManager.findRDSTrips(appContext, agencyAuthority, routeId, directionId)
+    }
+
+    suspend fun findRDSVehicleLocations(
+        vehicleLocationProviderProperties: VehicleLocationProviderProperties,
+        filter: VehicleLocationProviderContract.Filter
+    ): List<VehicleLocation>? = withContext(ioDispatcher) {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@withContext null
+        DataSourceManager.findVehicleLocations(
+            appContext,
+            vehicleLocationProviderProperties.authority,
+            filter.appendProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))
+        )
+    }
+
     suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {
         DataSourceManager.findRDSRouteDirections(appContext, agencyAuthority, routeId)
     }
@@ -107,9 +133,7 @@ class DataSourceRequestManager(
         DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)
     }
 
-    suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter) = findNews(newsProvider.authority, newsFilter)
-
-    suspend fun findNews(authority: String, newsFilter: NewsProviderContract.Filter): List<News>? = withContext(ioDispatcher) {
-        DataSourceManager.findNews(appContext, authority, newsFilter.appendProvidedKeys(keysManager.getKeysMap(authority)))
+    suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter) = withContext(ioDispatcher) {
+        DataSourceManager.findNews(appContext, newsProvider.authority, newsFilter.appendProvidedKeys(keysManager.getKeysMap(newsProvider.authority)))
     }
 }

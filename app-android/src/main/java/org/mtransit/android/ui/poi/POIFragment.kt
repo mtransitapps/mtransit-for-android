@@ -32,7 +32,7 @@ package org.mtransit.android.ui.poi
 //import org.mtransit.android.commons.data.POIStatus
 //import org.mtransit.android.commons.data.RouteDirectionStop
 //import org.mtransit.android.commons.data.ServiceUpdate
-//import org.mtransit.android.commons.provider.NewsProviderContract
+//import org.mtransit.android.commons.provider.news.NewsProviderContract
 //import org.mtransit.android.data.AgencyProperties
 //import org.mtransit.android.data.POIArrayAdapter
 //import org.mtransit.android.data.POIManager
@@ -170,7 +170,7 @@ package org.mtransit.android.ui.poi
 // )
 // }
 //
-// override fun onCameraChange(latLngBounds: LatLngBounds) {
+// override fun onCameraChanged(latLngBounds: LatLngBounds) {
 // // DO NOTHING
 // }
 //

@@ -8,9 +8,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
@@ -19,7 +21,7 @@ import javax.inject.Singleton;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @Singleton
-public class LocalPreferenceRepository extends PreferenceRepository {
+public class LocalPreferenceRepository extends PreferenceRepository implements MTLog.Loggable {
 
 	public static final String PREFS_LCL_ROOT_SCREEN_ITEM_ID = PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID;
 
@@ -52,8 +54,8 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 	public static final boolean PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT = PreferenceUtils.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT;
 
 	@NonNull
-	public static String getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(@NonNull String authority, long routeId, long directionId) {
-		return PreferenceUtils.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_KEY(authority, routeId, directionId);
+	public static String getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(@NonNull String authority, long routeId, long directionId) {
+		return PreferenceUtils.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(authority, routeId, directionId);
 	}
 
 	public static final String PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT = PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT;
@@ -63,12 +65,20 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 		return PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId);
 	}
 
-	public static final long PREFS_LCL_AGENCY_LAST_OPENED_DEFAULT = PreferenceUtils.PREFS_LCL_AGENCY_LAST_OPENED_DEFAULT;
-
 	@NonNull
-	public static String getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(String authority) {
+	public static String getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(@NonNull String authority) {
 		return PreferenceUtils.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(authority);
 	}
+
+	private static final String LOG_TAG = LocalPreferenceRepository.class.getSimpleName();
+
+	@NonNull
+	public String getLogTag() {
+		return LOG_TAG;
+	}
+
+	@NonNull
+	private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 	@Nullable
 	private SharedPreferences _prefs;
@@ -76,9 +86,7 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 	@Inject
 	public LocalPreferenceRepository(@NonNull @ApplicationContext Context appContext) {
 		super(appContext);
-		Executors.newSingleThreadExecutor().execute(() ->
-				_prefs = loadPrefs()
-		);
+		executorService.execute(() -> _prefs = loadPrefs());
 	}
 
 	@WorkerThread

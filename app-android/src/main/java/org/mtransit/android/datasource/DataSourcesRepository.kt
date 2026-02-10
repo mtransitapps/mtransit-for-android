@@ -30,7 +30,7 @@ import org.mtransit.android.dev.filterDemoModeType
 import org.mtransit.android.dev.takeIfDemoModeAgency
 import org.mtransit.android.dev.takeIfDemoModeTargeted
 import org.mtransit.android.provider.experiments.ExperimentsProvider
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.commons.addAllNNE
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -142,7 +142,7 @@ class DataSourcesRepository @Inject constructor(
             .sortedWith(defaultDataSourceTypeComparator)
     }
 
-    private fun readingAllSupportedDataSourceTypesIO() = PairMediatorLiveData(
+    private fun readingAllSupportedDataSourceTypesIO() = MediatorLiveData2(
         dataSourcesIOCache.readingAllNotExtendedDataSourceTypes(),
         dataSourcesIOCache.readingAllExtendedDataSourceTypes()
     ).switchMap { (notExtendedDST, extendedDST) ->
@@ -220,6 +220,23 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
+    // region VEHICLE LOCATION
+
+    fun getAllVehicleLocationProviders() = this.dataSourcesInMemoryCache.getAllVehicleLocationProviders()
+
+    fun getVehicleLocationProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProviders(targetAuthority)
+
+    fun getVehicleLocationProvider(authority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProvider(authority)
+
+    fun readingVehicleLocationProviders(targetAuthority: String?) = liveData {
+        targetAuthority?.let { providerAuthority ->
+            emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(providerAuthority))
+            emitSource(dataSourcesIOCache.readingVehicleLocationProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
+
+    // endregion
+
     // region TARGETED PROVIDERS
 
     fun List<ITargetedProviderProperties>.filterEnabled(): List<ITargetedProviderProperties> {
@@ -282,6 +299,8 @@ class DataSourcesRepository @Inject constructor(
 
     fun getNewsProvider(authority: String) = this.dataSourcesInMemoryCache.getNewsProvider(authority)
 
+    // endregion
+
     private var runningUpdate: Boolean = false
 
     private val mutex = Mutex()
@@ -331,6 +350,4 @@ class DataSourcesRepository @Inject constructor(
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
         return this.dataSourcesReader.isAProvider(pkg, agencyOnly)
     }
-
-    // endregion
 }

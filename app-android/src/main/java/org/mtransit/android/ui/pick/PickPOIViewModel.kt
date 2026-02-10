@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
@@ -16,8 +16,8 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 import kotlin.math.min
@@ -47,7 +47,7 @@ class PickPOIViewModel @Inject constructor(
     private val _allAgencies = dataSourcesRepository.readingAllAgenciesBase()
 
     val dataSourceRemovedEvent: LiveData<Event<Boolean?>> =
-        PairMediatorLiveData(_poiAuthorities, _allAgencies).switchMap { (authorities, allAgencies) ->
+        MediatorLiveData2(_poiAuthorities, _allAgencies).switchMap { (authorities, allAgencies) ->
             liveData {
                 emit(Event(checkForDataSourceRemoved(authorities, allAgencies)))
             }
@@ -65,7 +65,7 @@ class PickPOIViewModel @Inject constructor(
     }
 
     val poiList: LiveData<List<POIManager>?> =
-        TripleMediatorLiveData(_poiUuids, _poiAuthorities, _allAgencies).switchMap { (poiUuids, poiAuthorities, allAgencies) ->
+        MediatorLiveData3(_poiUuids, _poiAuthorities, _allAgencies).switchMap { (poiUuids, poiAuthorities, allAgencies) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getPOIList(poiUuids, poiAuthorities, allAgencies))
             }
@@ -90,7 +90,7 @@ class PickPOIViewModel @Inject constructor(
         }
         val poiList = mutableListOf<POIManager>()
         agencyToUUIDs.forEach { (agency, uuids) ->
-            poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(uuids))?.let {
+            poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(uuids)).let {
                 poiList.addAll(it)
             }
         }

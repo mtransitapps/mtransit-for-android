@@ -14,12 +14,14 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.dev.filterDemoModeAgency
 import org.mtransit.android.dev.filterDemoModeTargeted
 import org.mtransit.android.dev.filterDemoModeType
 import org.mtransit.android.provider.experiments.ExperimentsProvider
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.addAllNNE
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -51,6 +53,7 @@ class DataSourcesInMemoryCache @Inject constructor(
     private var _statusProviderProperties = listOf<StatusProviderProperties>() // sorted for stability
     private var _scheduleProviderProperties = listOf<ScheduleProviderProperties>() // sorted for stability
     private var _serviceUpdateProviderProperties = listOf<ServiceUpdateProviderProperties>() // sorted for stability
+    private var _vehicleLocationProviderProperties = listOf<VehicleLocationProviderProperties>() // sorted for stability
     private var _newsProviderProperties = listOf<NewsProviderProperties>() // sorted for stability
 
     init {
@@ -71,7 +74,7 @@ class DataSourcesInMemoryCache @Inject constructor(
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
-        PairMediatorLiveData(
+        MediatorLiveData2(
             dataSourcesCache.readingAllNotExtendedDataSourceTypes(),
             dataSourcesCache.readingAllExtendedDataSourceTypes(),
         ).observeForever { (notExtendedDST, extendedDST) -> // SINGLETON
@@ -91,6 +94,12 @@ class DataSourcesInMemoryCache @Inject constructor(
         dataSourcesCache.readingAllServiceUpdateProviders().observeForever { // SINGLETON
             this._serviceUpdateProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
+        }
+        if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+            dataSourcesCache.readingAllVehicleLocationProviders().observeForever { // SINGLETON
+                this._vehicleLocationProviderProperties = it
+                    .filterDemoModeTargeted(demoModeManager)
+            }
         }
         dataSourcesCache.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
             this._newsProviderProperties = newsProviders
@@ -136,6 +145,16 @@ class DataSourcesInMemoryCache @Inject constructor(
     fun getServiceUpdateProviders(targetAuthority: String) = this._serviceUpdateProviderProperties.filter { it.targetAuthority == targetAuthority }
 
     fun getServiceUpdateProvider(authority: String) = this._serviceUpdateProviderProperties.singleOrNull { it.authority == authority }
+
+    // VEHICLE LOCATION
+
+    fun getAllVehicleLocationProviders() = this._vehicleLocationProviderProperties
+
+    fun getVehicleLocationProviders(targetAuthority: String) = this._vehicleLocationProviderProperties.filter { it.targetAuthority == targetAuthority }
+
+    fun getVehicleLocationProvidersList(targetAuthority: String) = this._vehicleLocationProviderProperties.filter { it.targetAuthority == targetAuthority }
+
+    fun getVehicleLocationProvider(authority: String) = this._vehicleLocationProviderProperties.singleOrNull { it.authority == authority }
 
     // NEWS
 

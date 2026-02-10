@@ -10,7 +10,7 @@ import org.mtransit.android.BuildConfig;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
+import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
@@ -21,7 +21,6 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -89,6 +88,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return this.fetchServiceUpdateExecutor == null ? 0 : this.fetchServiceUpdateExecutor.getActiveCount();
 	}
 
+	@SuppressWarnings("unused")
 	private long getTaskCount() {
 		return this.fetchServiceUpdateExecutor == null ? 0 : this.fetchServiceUpdateExecutor.getTaskCount();
 	}
@@ -195,7 +195,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	@SuppressWarnings("deprecation") // FIXME
-	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, ArrayList<ServiceUpdate>> {
+	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, List<ServiceUpdate>> {
 
 		private static final String LOG_TAG = ServiceUpdateLoader.LOG_TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
 
@@ -238,7 +238,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected ArrayList<ServiceUpdate> doInBackgroundNotCancelledMT(Void... params) {
+		protected List<ServiceUpdate> doInBackgroundNotCancelledMT(Void... params) {
 			try {
 				return call();
 			} catch (Exception e) {
@@ -248,7 +248,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable ArrayList<ServiceUpdate> result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable List<ServiceUpdate> result) {
 			if (result == null) {
 				return;
 			}
@@ -263,15 +263,11 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Nullable
-		ArrayList<ServiceUpdate> call() {
+		List<ServiceUpdate> call() {
 			final Context context = this.contextWR.get();
-			if (context == null) {
-				return null;
-			}
+			if (context == null) return null;
 			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
-			if (mainListener == null) {
-				return null;
-			}
+			if (mainListener == null) return null;
 			return DataSourceManager.findServiceUpdates(context, this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter);
 		}
 	}

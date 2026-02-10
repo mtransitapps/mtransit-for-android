@@ -16,7 +16,7 @@ interface POIDataProvider : POIStatusDataProvider, ServiceUpdateLoaderProvider, 
     val isShowingFavorite: Boolean
     val locationDeclination: Float?
     val lastCompassInDegree: Int?
-    val location: Location?
+    val deviceLocation: Location?
     fun hasLastCompassInDegree(): Boolean
     fun hasLocation(): Boolean
     fun providesDataSourcesRepository(): DataSourcesRepository

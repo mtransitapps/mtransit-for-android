@@ -21,8 +21,8 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -46,7 +46,7 @@ class ServiceUpdatesViewModel @Inject constructor(
 
     private val _directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
 
-    private val _route: LiveData<Route?> = PairMediatorLiveData(_authority, _routeId).switchMap { (authority, routeId) ->
+    private val _route: LiveData<Route?> = MediatorLiveData2(_authority, _routeId).switchMap { (authority, routeId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             authority ?: return@liveData
             routeId ?: return@liveData
@@ -54,7 +54,7 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    private val _direction: LiveData<Direction?> = PairMediatorLiveData(_authority, _directionId).switchMap { (authority, directionId) ->
+    private val _direction: LiveData<Direction?> = MediatorLiveData2(_authority, _directionId).switchMap { (authority, directionId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             authority ?: return@liveData
             directionId ?: return@liveData
@@ -62,7 +62,7 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    val holder: LiveData<ServiceUpdatesHolder> = TripleMediatorLiveData(_authority, _route, _direction).switchMap { (authority, route, direction) ->
+    val holder: LiveData<ServiceUpdatesHolder> = MediatorLiveData3(_authority, _route, _direction).switchMap { (authority, route, direction) ->
         liveData(viewModelScope.coroutineContext) {
             authority ?: return@liveData
             route ?: return@liveData
@@ -83,7 +83,7 @@ class ServiceUpdatesViewModel @Inject constructor(
 
     private var serviceUpdateLoadedJob: Job? = null
 
-    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
             _serviceUpdateLoadedEvent.postValue(Event(targetUUID))

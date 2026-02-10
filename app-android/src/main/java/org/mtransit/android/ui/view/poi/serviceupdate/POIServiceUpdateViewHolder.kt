@@ -35,7 +35,6 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
         otherServiceUpdateImg?.update(allServiceUpdates, dataProvider, other = true)
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
     fun fetch(
         dataProvider: ServiceUpdateLoaderProvider,
         poim: POIManager

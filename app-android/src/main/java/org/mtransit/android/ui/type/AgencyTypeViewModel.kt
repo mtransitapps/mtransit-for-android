@@ -9,6 +9,8 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.ad.IAdManager
@@ -23,7 +25,8 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
@@ -45,6 +48,14 @@ class AgencyTypeViewModel @Inject constructor(
         private val LOG_TAG = AgencyTypeViewModel::class.java.simpleName
 
         internal const val EXTRA_TYPE_ID = "extra_type_id"
+
+        internal const val EXTRA_SELECTED_AUTHORITY = "extra_agency_authority"
+
+        internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT = "extra_map_lat"
+        internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG = "extra_map_lng"
+        internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM = "extra_map_zoom"
+
+        internal const val EXTRA_SELECTED_UUID = "extra_selected_uuid"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -55,9 +66,26 @@ class AgencyTypeViewModel @Inject constructor(
         DataSourceType.parseId(typeId)
     }
 
+    private val _selectedAgencyAuthority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_AUTHORITY)
+    val originalSelectedAgencyAuthority = _selectedAgencyAuthority
+
+    private val _selectedMapCameraPositionLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT)
+    private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)
+    private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct<Float?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)
+
+    val selectedMapCameraPosition =
+        MediatorLiveData3(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom).map { (lat, lng, zoom) ->
+            lat ?: return@map null
+            lng ?: return@map null
+            zoom ?: return@map null
+            CameraPosition.fromLatLngZoom(LatLng(lat, lng), zoom)
+        }.distinctUntilChanged()
+
+    val selectedUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_UUID)
+
     private val allAvailableAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
-    val typeAgencies = PairMediatorLiveData(type, allAvailableAgencies).map { (dst, allAgencies) ->
+    val typeAgencies = MediatorLiveData2(type, allAvailableAgencies).map { (dst, allAgencies) ->
         allAgencies?.filter { it.getSupportedType() == dst }
     }
 
@@ -65,7 +93,7 @@ class AgencyTypeViewModel @Inject constructor(
         it?.filter { agency -> !agency.isEnabled } ?: emptyList()
     }.distinctUntilChanged()
 
-    val title: LiveData<String?> = PairMediatorLiveData(type, typeAgencies).map { (dst, agencies) ->
+    val title: LiveData<String?> = MediatorLiveData2(type, typeAgencies).map { (dst, agencies) ->
         if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
             if (agencies?.size == 1) {
                 return@map agencies[0].shortName
@@ -74,13 +102,10 @@ class AgencyTypeViewModel @Inject constructor(
         return@map dst?.shortNamesResId?.let { appContext.getString(it) }
     }
 
-    val tabsVisible: LiveData<Boolean> = PairMediatorLiveData(type, typeAgencies).map { (dst, agencies) ->
-        if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
-            if (agencies?.size == 1) {
-                return@map false
-            }
-        }
-        return@map dst != DataSourceType.TYPE_MODULE
+    val tabsVisible: LiveData<Boolean> = MediatorLiveData2(type, typeAgencies).map { (dst, agencies) ->
+        @Suppress("SimplifyBooleanWithConstants")
+        if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS && agencies?.size == 1) return@map false
+        dst != DataSourceType.TYPE_MODULE
     }
 
     override val hasDisabledModule = moduleDisabled.map {
@@ -100,12 +125,10 @@ class AgencyTypeViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    val selectedTypeAgencyPosition: LiveData<Int?> = PairMediatorLiveData(selectedTypeAgencyAuthority, typeAgencies).map { (agencyAuthority, agencies) ->
-        if (agencyAuthority == null || agencies == null) {
-            null
-        } else {
-            agencies.indexOfFirst { it.authority == agencyAuthority }.coerceAtLeast(0)
-        }
+    val selectedTypeAgencyPosition: LiveData<Int?> = MediatorLiveData2(selectedTypeAgencyAuthority, typeAgencies).map { (agencyAuthority, agencies) ->
+        agencyAuthority ?: return@map null
+        agencies ?: return@map null
+        agencies.indexOfFirst { it.authority == agencyAuthority }.coerceAtLeast(0)
     }
 
     fun onPageSelected(position: Int) {

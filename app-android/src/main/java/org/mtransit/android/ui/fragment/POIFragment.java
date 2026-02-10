@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.startVehicleLocationCountdownRefresh;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.stopVehicleLocationCountdownRefresh;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -58,14 +61,17 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.ToastUtils;
+import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.NewsProviderContract;
+import org.mtransit.android.commons.provider.news.NewsProviderContract;
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -84,12 +90,12 @@ import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.main.NextMainViewModel;
-import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
@@ -101,9 +107,10 @@ import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.ui.view.map.IMarker;
+import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
-import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.UIFeatureFlags;
@@ -117,6 +124,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import kotlinx.coroutines.Job;
 
 @AndroidEntryPoint
 public class POIFragment extends ABFragment implements
@@ -127,10 +135,10 @@ public class POIFragment extends ABFragment implements
 		MTSensorManager.SensorTaskCompleted,
 		FavoriteManager.FavoriteUpdateListener,
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
-		MapViewController.MapMarkerProvider,
 		IContext,
 		IAdManager.RewardedAdListener,
 		MenuProvider,
+		MapViewController.MapMarkerProvider,
 		MapViewController.MapListener {
 
 	private static final String LOG_TAG = POIFragment.class.getSimpleName();
@@ -190,7 +198,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private POIViewModel viewModel;
+	protected POIViewModel viewModel;
 	@Nullable
 	private NextMainViewModel nextMainViewModel;
 
@@ -226,7 +234,7 @@ public class POIFragment extends ABFragment implements
 	private static final int BOTTOM_PADDING_SP = 0;
 
 	@NonNull
-	private final MapViewController mapViewController =
+	protected final MapViewController mapViewController =
 			new MapViewController(
 					LOG_TAG,
 					this,
@@ -241,10 +249,9 @@ public class POIFragment extends ABFragment implements
 					BOTTOM_PADDING_SP,
 					true,
 					false,
-					true,
-					true,
 					false,
-					null // this.dataSourcesRepository
+					true,
+					false
 			);
 
 	private void onAgencyLoaded(@Nullable AgencyProperties agency) {
@@ -288,7 +295,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private POIManager poim; // kept for now because it can be updated anywhere #GodObject
+	protected POIManager poim; // kept for now because it can be updated anywhere #GodObject
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean hasPoim() {
@@ -296,7 +303,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private POIManager getPoimOrNull() {
+	protected POIManager getPoimOrNull() {
 		if (!hasPoim()) {
 			return null;
 		}
@@ -346,8 +353,7 @@ public class POIFragment extends ABFragment implements
 		}
 		resetFavorite();
 		final View view = getView();
-		this.mapViewController.notifyMarkerChanged(this);
-		this.mapViewController.showMap(view);
+		this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());
 		POIViewController.updateView(getPOIView(view), this.poim, this);
 		POIStatusDetailViewController.updateView(getPOIStatusView(view), this.poim, this);
 		POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), this.poim, this);
@@ -388,16 +394,60 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	@Override
 	public Collection<POIManager> getPOIs() {
-		if (this.poim == null) {
-			return null;
-		}
-		return Collections.singletonList(this.poim);
+		return viewModel == null ? null : viewModel.getPoiList().getValue();
 	}
 
 	@Nullable
 	@Override
-	public Collection<MapViewController.POIMarker> getPOMarkers() {
+	public POIManager getPOI(int position) {
+		return POIFragmentExtKt.getPOI(this, position);
+	}
+
+	@Nullable
+	@Override
+	public Collection<MTPOIMarker> getPOMarkers() {
 		return null;
+	}
+
+	@Nullable
+	@Override
+	public Collection<VehicleLocation> getVehicleLocations() {
+		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+			return viewModel == null ? null : viewModel.getVehicleLocations().getValue();
+		}
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public Integer getVehicleColorInt() {
+		final POIManager poim = getPoimOrNull();
+		if (poim == null) {
+			return null;
+		}
+		return poim.getColor(dataSourcesRepository);
+	}
+
+	@Nullable
+	@Override
+	public DataSourceType getVehicleType() {
+		final IAgencyProperties agency = getAgencyOrNull();
+		if (agency == null) {
+			return null;
+		}
+		return agency.getType();
+	}
+
+	@Nullable
+	@Override
+	public Collection<LatLng> getVisibleMarkersLocations() {
+		return POIFragmentExtKt.getVisibleMarkersLocationList(this);
+	}
+
+	@Nullable
+	@Override
+	public Float getMapMarkerAlpha(int position, @NonNull Area visibleArea) {
+		return POIFragmentExtKt.getMapMarkerAlpha(this, position, visibleArea);
 	}
 
 	@Override
@@ -407,7 +457,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onCameraChange(@NonNull LatLngBounds latLngBounds) {
+	public void onCameraChanged(@NonNull LatLngBounds latLngBounds, float zoom) {
 		// DO NOTHING
 	}
 
@@ -417,37 +467,13 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
+	public boolean onMarkerClick(@Nullable IMarker marker) {
+		return POIFragmentExtKt.onMapClick(this);
+	}
+
+	@Override
 	public void onMapClick(@NonNull LatLng position) {
-		if (!FragmentUtils.isFragmentReady(this)) {
-			return;
-		}
-		final POIManager poim = getPoimOrNull();
-		if (poim == null) {
-			return;
-		}
-		if (FeatureFlags.F_NAVIGATION) {
-			final NavController navController = NavHostFragment.findNavController(this);
-			FragmentNavigator.Extras extras = null;
-			if (FeatureFlags.F_TRANSITION) {
-				extras = new FragmentNavigator.Extras.Builder()
-						// TODO marker? .addSharedElement(view, view.getTransitionName())
-						.build();
-			}
-			NavControllerExtKt.navigateF(navController,
-					R.id.nav_to_map_screen,
-					MapFragment.newInstanceArgs(poim),
-					null,
-					extras
-			);
-		} else {
-			final FragmentActivity activity = getActivity();
-			if (activity == null) {
-				return;
-			}
-			((MainActivity) activity).addFragmentToStack(
-					MapFragment.newInstance(poim),
-					this);
-		}
+		POIFragmentExtKt.onMapClick(this);
 	}
 
 	@Override
@@ -511,8 +537,33 @@ public class POIFragment extends ABFragment implements
 		viewModel.getScheduleProviders().observe(getViewLifecycleOwner(), scheduleProviders -> setupRDSFullScheduleBtn(getView()));
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
+		viewModel.getPoiList().observe(getViewLifecycleOwner(), this::onPOIsLoaded);
+		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
+		}
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
+	}
+
+	@Nullable
+	protected Job _vehicleLocationCountdownRefreshJob = null;
+
+	private void onVehicleLocationsLoaded(@Nullable List<VehicleLocation> vehicleLocations) {
+		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return;
+		final Context context = getContext();
+		if (context != null) {
+			MapViewControllerExtKt.updateVehicleLocationMarkers(this.mapViewController, context);
+		}
+		if (vehicleLocations == null || vehicleLocations.isEmpty()) {
+			stopVehicleLocationCountdownRefresh(this);
+		} else {
+			startVehicleLocationCountdownRefresh(this);
+		}
+	}
+
+	private void onPOIsLoaded(@Nullable List<POIManager> poiList) {
+		this.mapViewController.notifyMarkerChanged(this);
+		this.mapViewController.showMap(getView());
 	}
 
 	private void setupNewsLayout(@NonNull View view) {
@@ -1010,11 +1061,11 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private Location deviceLocation;
+	protected Location deviceLocation;
 
 	@Nullable
 	@Override
-	public Location getLocation() {
+	public Location getDeviceLocation() {
 		return this.deviceLocation;
 	}
 
@@ -1118,8 +1169,6 @@ public class POIFragment extends ABFragment implements
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			this.mapViewController.notifyMarkerChanged(this);
-			this.mapViewController.showMap(view);
 			POIViewController.updateView(getPOIView(view), poim, this);
 			POIStatusDetailViewController.updateView(getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), poim, this);
@@ -1136,9 +1185,10 @@ public class POIFragment extends ABFragment implements
 		this.adManager.refreshRewardedAdStatus((IActivity) requireActivity());
 		refreshRewardedLayout(getView());
 		refreshAppUpdateLayout(getView());
-		if (viewModel != null) {
-			viewModel.refreshAppUpdateAvailable();
-			// viewModel.onResumeScreen(this);
+		if (this.viewModel != null) {
+			this.viewModel.refreshAppUpdateAvailable();
+			// this.viewModel.onResumeScreen(this);
+			this.viewModel.startVehicleLocationRefresh();
 		}
 		refreshAppWasDisabledLayout(getView());
 		if (FeatureFlags.F_NAVIGATION) {
@@ -1282,6 +1332,10 @@ public class POIFragment extends ABFragment implements
 		}
 		disableTimeChangedReceiver();
 		this.mapViewController.onPause();
+		if (this.viewModel != null) {
+			this.viewModel.stopVehicleLocationRefresh();
+			stopVehicleLocationCountdownRefresh(this);
+		}
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}

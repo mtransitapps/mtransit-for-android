@@ -14,7 +14,7 @@ import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,7 +47,7 @@ class NetworkLocationRepository @Inject constructor(
 
     private val _hasAgenciesAdded = dataSourcesRepository.readingHasAgenciesAdded()
 
-    val ipLocation: LiveData<Location?> = TripleMediatorLiveData(_ipLocationLat, _ipLocationLng, _hasAgenciesAdded).switchMap { (lat, lng, hasAgenciesAdded) ->
+    val ipLocation: LiveData<Location?> = MediatorLiveData3(_ipLocationLat, _ipLocationLng, _hasAgenciesAdded).switchMap { (lat, lng, hasAgenciesAdded) ->
         liveData {
             if (lat != null && lng != null && hasAgenciesAdded != null && hasAgenciesAdded == false) {
                 emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS, PROVIDER_NAME))

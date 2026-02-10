@@ -2,8 +2,9 @@ package org.mtransit.android.ui.view.map.impl;
 
 import android.os.Handler;
 import android.os.SystemClock;
-import android.view.animation.Interpolator;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -14,75 +15,70 @@ import org.mtransit.android.ui.view.map.IMarker;
 import java.util.Iterator;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
+@SuppressWarnings("WeakerAccess")
 class MarkerAnimator {
 
-	private Handler handler = new Handler(msg -> {
+	private final Handler handler = new Handler(msg -> {
 		calculatePositions();
 		return true;
 	});
 
-	private ArrayMap<DelegatingMarker, AnimationData> queue = new ArrayMap<>();
+	private final ArrayMap<DelegatingMarker, MarkerAnimatorData> queue = new ArrayMap<>();
 
 	private void calculatePositions() {
 		long now = SystemClock.uptimeMillis();
 		Iterator<DelegatingMarker> iterator = queue.keySet().iterator();
 		while (iterator.hasNext()) {
 			DelegatingMarker marker = iterator.next();
-			AnimationData data = queue.get(marker);
-			long time = now - data.start;
+			MarkerAnimatorData data = queue.get(marker);
+			if (data == null) continue;
+			long time = now - data.getStart();
 			if (time <= 0) {
-				marker.setPositionDuringAnimation(data.from);
-			} else if (time >= data.duration) {
-				marker.setPositionDuringAnimation(data.to);
-				if (data.callback != null) {
-					data.callback.onFinish(marker);
+				marker.setPositionDuringAnimation(data.getFrom());
+			} else if (time >= data.getDuration()) {
+				marker.setPositionDuringAnimation(data.getTo());
+				if (data.getCallback() != null) {
+					data.getCallback().onFinish(marker);
 				}
 				iterator.remove();
 			} else {
-				float t = ((float) time) / data.duration;
-				t = data.interpolator.getInterpolation(t);
-				double lat = (1.0f - t) * data.from.latitude + t * data.to.latitude;
-				double lng = (1.0f - t) * data.from.longitude + t * data.to.longitude;
+				float t = ((float) time) / data.getDuration();
+				t = data.getInterpolator().getInterpolation(t);
+				double lat = (1.0f - t) * data.getFrom().latitude + t * data.getTo().latitude;
+				double lng = (1.0f - t) * data.getFrom().longitude + t * data.getTo().longitude;
 				marker.setPositionDuringAnimation(new LatLng(lat, lng));
 			}
 		}
-		if (queue.size() > 0) {
+		if (!queue.isEmpty()) {
 			handler.sendEmptyMessage(0);
 		}
 	}
 
-	public void animate(DelegatingMarker marker, LatLng from, LatLng to, long start, AnimationSettings settings, IMarker.AnimationCallback callback) {
-		AnimationData data = new AnimationData();
-		data.from = from;
-		data.to = to;
-		data.start = start;
-		data.duration = settings.getDuration();
-		data.interpolator = settings.getInterpolator();
-		data.callback = callback;
+	public void animate(
+			DelegatingMarker marker,
+			@NonNull LatLng from,
+			@NonNull LatLng to,
+			long start,
+			@NonNull AnimationSettings settings,
+			@Nullable IMarker.AnimationCallback callback
+	) {
+		final MarkerAnimatorData data = new MarkerAnimatorData(
+				from,
+				to,
+				start,
+				settings.getDuration(),
+				settings.getInterpolator(),
+				callback
+		);
 		queue.put(marker, data);
 		handler.removeMessages(0);
 		handler.sendEmptyMessage(0);
 	}
 
-	public void cancelAnimation(DelegatingMarker marker, IMarker.AnimationCallback.CancelReason reason) {
-		AnimationData data = queue.remove(marker);
-		if (data != null && data.callback != null) {
-			data.callback.onCancel(marker, reason);
+	public void cancelAnimation(@NonNull DelegatingMarker marker, @NonNull IMarker.AnimationCallback.CancelReason reason) {
+		MarkerAnimatorData data = queue.remove(marker);
+		if (data != null && data.getCallback() != null) {
+			data.getCallback().onCancel(marker, reason);
 		}
-	}
-
-	private static class AnimationData {
-
-		private LatLng from;
-
-		private LatLng to;
-
-		private long start;
-
-		private long duration;
-
-		private Interpolator interpolator;
-
-		private IMarker.AnimationCallback callback;
 	}
 }

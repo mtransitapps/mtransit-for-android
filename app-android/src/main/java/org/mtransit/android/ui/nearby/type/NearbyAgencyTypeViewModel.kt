@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
@@ -25,7 +25,7 @@ import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.commons.addAllN
 import javax.inject.Inject
@@ -53,7 +53,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
 
-    val typeAgencies = PairMediatorLiveData(typeId, _allAgencies).map { (typeId, allAgencies) ->
+    val typeAgencies = MediatorLiveData2(typeId, _allAgencies).map { (typeId, allAgencies) ->
         val currentParams = this._params.value ?: NearbyParams()
         this._params.value = currentParams.copy(
             typeId = typeId,

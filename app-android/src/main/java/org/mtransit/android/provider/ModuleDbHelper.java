@@ -7,9 +7,9 @@ import androidx.annotation.NonNull;
 
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
-import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
-import org.mtransit.android.commons.provider.POIProvider;
-import org.mtransit.android.commons.provider.StatusProvider;
+import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper;
+import org.mtransit.android.commons.provider.poi.POIProvider;
+import org.mtransit.android.commons.provider.status.StatusProvider;
 
 @SuppressWarnings("WeakerAccess")
 public class ModuleDbHelper extends MTSQLiteOpenHelper {

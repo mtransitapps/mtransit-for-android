@@ -68,6 +68,7 @@ class DefaultPreferenceRepository @Inject constructor(
         const val PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET = PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET
         const val PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT = PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
 
+        @JvmStatic
         @Suppress("FunctionName")
         fun getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority: String) = PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority)
 
@@ -79,10 +80,10 @@ class DefaultPreferenceRepository @Inject constructor(
 
     private var _prefs: SharedPreferences? = null
 
+    private val _executorService = Executors.newSingleThreadExecutor()
+
     init {
-        Executors.newSingleThreadExecutor().execute {
-            _prefs = loadPrefs()
-        }
+        _executorService.execute { _prefs = loadPrefs() }
     }
 
     @WorkerThread
@@ -93,6 +94,7 @@ class DefaultPreferenceRepository @Inject constructor(
         get() = _prefs ?: loadPrefs().apply {
             _prefs = this
         }
+
     @Suppress("FunctionName")
     fun getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routesCount: Int): Boolean {
         return routesCount < appContext.resources.getInteger(R.integer.rds_routes_default_grid_min_count)

@@ -23,8 +23,10 @@ for SUBMODULE in "${SUBMODULES[@]}"; do
     echo "- '$SUBMODULE': ${#SUBMODULE_CHANGES[@]} changes: ";
     for SUBMODULE_CHANGE in "${SUBMODULE_CHANGES[@]}"; do
       echo "  - '$SUBMODULE_CHANGE'";
-      COMMIT_MESSAGE_BODY+="\n- $SUBMODULE: $SUBMODULE_CHANGE";
-      ONE_COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE_START from '$SUBMODULE': $SUBMODULE_CHANGE";
+      # Replace PR references (#123) with full GitHub URLs
+      SUBMODULE_CHANGE_WITH_URLS=$(printf '%s' "$SUBMODULE_CHANGE" | sed -E "s|\(#([0-9]+)\)|https://github.com/mtransitapps/$SUBMODULE/pull/\1|g");
+      COMMIT_MESSAGE_BODY+="\n- $SUBMODULE: $SUBMODULE_CHANGE_WITH_URLS";
+      ONE_COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE_START from '$SUBMODULE': $SUBMODULE_CHANGE_WITH_URLS";
       ((COMMITS++));
     done
     if [[ -z $COMMIT_MESSAGE_TITLE ]]; then

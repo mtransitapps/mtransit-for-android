@@ -1,37 +1,51 @@
 package org.mtransit.android.data
 
 import android.content.Context
+import android.location.Location
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
+import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.util.UIAccessibilityUtils
 
 @Suppress("unused")
 fun Iterable<POIManager>.toStringUUID(): String {
-    return this.joinToString {
-        it.poi.uuid
-    }
+    return this.joinToString { it.poi.uuid }
 }
 
 fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean): CharSequence {
     return UIAccessibilityUtils.decorate(context, this.label, isShowingAccessibilityInfo, UIAccessibilityUtils.ImageSize.LARGE, alignBottom = false)
 }
 
-fun <P : POI> P.toPOIM() = POIManager(this)
+fun <P : POI> P.toPOIM(
+    serviceUpdates: List<ServiceUpdate>? = null,
+    status: POIStatus? = null
+) = POIManager(this).apply {
+    setServiceUpdates(serviceUpdates)
+    status?.let { setStatus(it) }
+}
+
+val POIManager.location: Location? get() = this.poi.location
+val POI.location: Location? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
+
+val POIManager.latLng: LatLng? get() = this.poi.latLng
+val POI.latLng: LatLng? get() = if (this.hasLocation()) LatLng(this.lat, this.lng) else null
 
 @Suppress("unused")
-fun POIManager.distanceToInMeters(other: POIManager): Float? {
-    return this.poi.distanceToInMeters(other.poi)
-}
+fun POIManager.distanceToInMeters(other: POIManager) = this.poi.distanceToInMeters(other.poi)
+fun POI.distanceToInMeters(other: POI): Float? =
+    if (this.hasLocation() && other.hasLocation()) LocationUtils.distanceToInMeters(this.lat, this.lng, other.lat, other.lng) else null
 
-fun POI.distanceToInMeters(other: POI): Float? {
-    if (!this.hasLocation() || !other.hasLocation()) return null
-    return LocationUtils.distanceToInMeters(this.lat, this.lng, other.lat, other.lng)
-}
+@Suppress("unused")
+fun POIManager.bearingTo(other: POIManager?): Float? = this.poi.bearingTo(other?.poi)
+fun POI.bearingTo(other: POI?): Float? =
+    other?.location?.let { this.location?.bearingTo(it) }
 
 fun POI.getNewOneLineDescriptionForNews(dataSourcesRepository: DataSourcesRepository) =
     getNewOneLineDescriptionForNews { dataSourcesRepository.getAgency(getAuthority()) }
@@ -91,8 +105,5 @@ val POIManager.shortUUIDAndDistance: String
     get() = this.poi.shortUUID + " " + this.simpleDistanceString
 
 @Suppress("unused")
-val POIManager.shortUUID: String
-    get() = this.poi.shortUUID
-
-val POI.shortUUID: String
-    get() = this.uuid.substring(this.authority.length + 1)
+val POIManager.shortUUID: String get() = this.poi.shortUUID
+val POI.shortUUID: String get() = this.uuid.substring(this.authority.length + 1)

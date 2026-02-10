@@ -8,15 +8,6 @@ import androidx.annotation.RequiresPermission;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.CancelableCallback;
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
-import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -34,6 +25,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
+import org.mtransit.android.ui.view.map.ExtendedGoogleMap;
+
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 interface IGoogleMap {
 
@@ -49,9 +42,9 @@ interface IGoogleMap {
 
 	TileOverlay addTileOverlay(TileOverlayOptions options);
 
-	void animateCamera(CameraUpdate update, CancelableCallback callback);
+	void animateCamera(CameraUpdate update, GoogleMap.CancelableCallback callback);
 
-	void animateCamera(CameraUpdate update, int durationMs, CancelableCallback callback);
+	void animateCamera(CameraUpdate update, int durationMs, GoogleMap.CancelableCallback callback);
 
 	void animateCamera(@NonNull CameraUpdate update);
 
@@ -83,7 +76,7 @@ interface IGoogleMap {
 
 	boolean setIndoorEnabled(boolean enabled);
 
-	void setInfoWindowAdapter(InfoWindowAdapter adapter);
+	void setInfoWindowAdapter(GoogleMap.InfoWindowAdapter adapter);
 
 	void setLocationSource(LocationSource source);
 
@@ -96,22 +89,27 @@ interface IGoogleMap {
 	)
 	void setMyLocationEnabled(boolean enabled);
 
-	@Deprecated
-	void setOnCameraChangeListener(OnCameraChangeListener listener);
+	void setOnCameraMoveStartedListener(@Nullable GoogleMap.OnCameraMoveStartedListener listener);
 
-	void setOnInfoWindowClickListener(OnInfoWindowClickListener listener);
+	void setOnCameraMoveListener(@Nullable GoogleMap.OnCameraMoveListener listener);
 
-	void setOnMapClickListener(OnMapClickListener listener);
+	void setOnCameraIdleListener(@Nullable GoogleMap.OnCameraIdleListener listener);
+
+	void setOnInfoWindowClickListener(GoogleMap.OnInfoWindowClickListener listener);
+
+	void setOnInfoWindowCloseListener(GoogleMap.OnInfoWindowCloseListener listener);
+
+	void setOnMapClickListener(GoogleMap.OnMapClickListener listener);
 
 	void setOnMapLoadedCallback(GoogleMap.OnMapLoadedCallback callback);
 
-	void setOnMapLongClickListener(OnMapLongClickListener listener);
+	void setOnMapLongClickListener(GoogleMap.OnMapLongClickListener listener);
 
-	void setOnMarkerClickListener(OnMarkerClickListener listener);
+	void setOnMarkerClickListener(GoogleMap.OnMarkerClickListener listener);
 
-	void setOnMarkerDragListener(OnMarkerDragListener listener);
+	void setOnMarkerDragListener(GoogleMap.OnMarkerDragListener listener);
 
-	void setOnMyLocationButtonClickListener(OnMyLocationButtonClickListener listener);
+	void setOnMyLocationButtonClickListener(GoogleMap.OnMyLocationButtonClickListener listener);
 
 	void setPadding(int left, int top, int right, int bottom);
 

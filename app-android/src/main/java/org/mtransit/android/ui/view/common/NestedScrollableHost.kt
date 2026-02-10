@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 import androidx.core.view.isNotEmpty
@@ -35,7 +34,7 @@ class NestedScrollableHost : FrameLayout {
             while (v != null && v !is ViewPager2) {
                 v = v.parent as? View
             }
-            return v as? ViewPager2
+            return v
         }
 
     private val child: View? get() = if (isNotEmpty()) getChildAt(0) else null
@@ -73,7 +72,7 @@ class NestedScrollableHost : FrameLayout {
         } else if (e.action == MotionEvent.ACTION_MOVE) {
             val dx = e.x - initialX
             val dy = e.y - initialY
-            val isVpHorizontal = orientation == ORIENTATION_HORIZONTAL
+            val isVpHorizontal = orientation == ViewPager2.ORIENTATION_HORIZONTAL
 
             // assuming ViewPager2 touch-slop is 2x touch-slop of child
             val scaledDx = dx.absoluteValue * if (isVpHorizontal) .5f else 1f
