@@ -74,8 +74,8 @@ env:
 jobs:
   MT-SYNC-CODE-DATA-JOB:
     name: "MT Sync Code & Data"
-    # if: ${{ env.MT_IS_MAIN_REPO != 'true' && github.event_name != 'pull_request' }} # can NOT use env here:
-    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && github.event_name != 'pull_request' }}
+    # if: ${{ env.MT_IS_MAIN_REPO != 'true' }} # can NOT use env here:
+    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') }}
     # timeout-minutes: 45
     timeout-minutes: 90
     runs-on: ubuntu-latest
