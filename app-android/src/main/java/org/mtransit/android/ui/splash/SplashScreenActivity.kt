@@ -37,7 +37,7 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        LocaleUtils.onApplicationCreate(this)
+        LocaleUtils.fixWebViewLocale(this)
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
         splashScreen.setKeepOnScreenCondition { true } // Keep the splash screen visible for this Activity
