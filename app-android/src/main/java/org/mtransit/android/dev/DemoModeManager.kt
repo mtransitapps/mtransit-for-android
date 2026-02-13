@@ -15,6 +15,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
@@ -30,6 +31,7 @@ import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.GTFSCommons
 import org.mtransit.commons.removeAllAnd
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,9 +44,15 @@ class DemoModeManager @Inject constructor(
     companion object {
         private val LOG_TAG = DemoModeManager::class.java.simpleName
 
-        const val FILTER_AGENCY_AUTHORITY = "filter_agency_authority"
-        const val FILTER_SCREEN = "filter_screen"
-        const val FORCE_LANG = "force_lang"
+        private const val FILTER_AGENCY_AUTHORITY = "filter_agency_authority"
+        private const val FILTER_SCREEN = "filter_screen"
+        private const val FORCE_LANG = "force_lang"
+        private const val FORCE_TIMESTAMP_SEC = "force_timestamp_sec"
+        private const val FORCE_TIMEZONE = "force_tz"
+        private const val FORCE_TIME_FORMAT = "force_time"
+
+        private const val FORCE_TIME_FORMAT_12 = "12"
+        private const val FORCE_TIME_FORMAT_24 = "24"
 
         const val FILTER_SCREEN_HOME = "home"
         const val FILTER_SCREEN_POI = "poi"
@@ -120,6 +128,20 @@ class DemoModeManager @Inject constructor(
     private var forceLang: String? = null
     fun isForceLang() = !forceLang.isNullOrBlank()
 
+    private var forceTimestampSec: String? = null
+    private val forceTimestampMs: Long? get() = forceTimestampSec?.toLongOrNull()?.let { it * 1000L }
+
+    private var forceTimeZone: String? = null
+    private val forceTZ: TimeZone get() = forceTimeZone?.takeIf { it.isNotEmpty() }?.let { TimeZone.getTimeZone(it) } ?: TimeZone.getDefault()
+
+    private var forceTimeFormat: String? = null
+    private val isForce24HourFormat: Boolean?
+        get() = when (forceTimeFormat) {
+            FORCE_TIME_FORMAT_12 -> false
+            FORCE_TIME_FORMAT_24 -> true
+            else -> null
+        }
+
     val enabled: Boolean
         get() = (BuildConfig.DEBUG && (filterAgencyAuthority != null || filterScreen != null || forceLang != null)) || isFullDemo()
 
@@ -129,17 +151,9 @@ class DemoModeManager @Inject constructor(
         filterAgencyAuthority = savedStateHandle[FILTER_AGENCY_AUTHORITY]
         filterScreen = savedStateHandle[FILTER_SCREEN]
         forceLang = savedStateHandle[FORCE_LANG]
-        // @Suppress("ConstantConditionIf")
-        // if (true) {
-        // val debug = true
-        // val isRDS = true
-        // // val isRDS = false
-        // val agencyId = "ca_halifax_transit_bus"
-        // // val agencyId = "ca_quebec_a_velo_bike"
-        // filterAgencyAuthority = "org.mtransit.android.${if (debug) "debug" else ""}.$agencyId${if (isRDS) ".gtfs" else ""}"
-        // filterScreen = FILTER_SCREEN_HOME
-        // forceLang = "en-US"
-        // }
+        forceTimestampSec = savedStateHandle[FORCE_TIMESTAMP_SEC]
+        forceTimeZone = savedStateHandle[FORCE_TIMEZONE]
+        forceTimeFormat = savedStateHandle[FORCE_TIME_FORMAT]
         if (enabled) {
             apply(dataSourcesCache)
         }
@@ -170,6 +184,13 @@ class DemoModeManager @Inject constructor(
             }
             LocationUtils.getNewLocation(lat, lng, 77f)
         }
+    }
+
+    fun init() {
+        if (!enabled) return
+        setTimestamp()
+        setTimeZone()
+        set24HourFormat()
     }
 
     fun isEnabledPOIScreen(): Boolean {
@@ -224,6 +245,18 @@ class DemoModeManager @Inject constructor(
             Locale.setDefault(defaultLocale)
         }
     }
+
+    private fun setTimestamp() {
+        TimeUtils.setOverrideCurrentTimeMillis(this.forceTimestampMs)
+    }
+
+    private fun setTimeZone() {
+        TimeZone.setDefault(this.forceTZ)
+    }
+
+    private fun set24HourFormat() {
+        TimeUtils.setOverrideIs24HourFormat(this.isForce24HourFormat)
+    }
 }
 
 fun <T : IAgencyProperties> List<T>.filterDemoModeAgency(demoModeManager: DemoModeManager): List<T> {
@@ -260,6 +293,7 @@ fun <T : ITargetedProviderProperties> List<T>.filterDemoModeTargeted(demoModeMan
     }
 }
 
+@Suppress("unused")
 fun <T : ITargetedProviderProperties> Set<T>.filterDemoModeTargeted(demoModeManager: DemoModeManager): Set<T> {
     if (!demoModeManager.isFilteringAgency()) {
         return this
