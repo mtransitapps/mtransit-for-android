@@ -143,9 +143,14 @@ class DemoModeManager @Inject constructor(
         }
 
     val enabled: Boolean
-        get() = (BuildConfig.DEBUG && (filterAgencyAuthority != null || filterScreen != null || forceLang != null)) || isFullDemo()
+        get() = (
+                BuildConfig.DEBUG
+                        && (filterAgencyAuthority != null || filterScreen != null || forceLang != null || forceTimestampSec != null || forceTimeZone != null || forceTimeFormat != null)
+                )
+                || isFullDemo()
 
     fun isFullDemo(): Boolean = filterAgencyAuthority != null && filterScreen != null && forceLang != null
+    // not mandatory: forceTimestampSec, forceTimeZone, forceTimeFormat
 
     suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesCache: DataSourcesCache) {
         filterAgencyAuthority = savedStateHandle[FILTER_AGENCY_AUTHORITY]
