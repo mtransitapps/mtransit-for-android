@@ -47,6 +47,7 @@ class SplashScreenViewModel @Inject constructor(
             val appOpenCounts = getAndUpdateAppOpenCounts()
             analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, appOpenCounts)
             demoModeManager.read(savedStateHandle, dataSourcesCache)
+            demoModeManager.init()
             if (demoModeManager.isFullDemo()) {
                 NightModeUtils.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // light for screenshots (demo mode ON)
             }
