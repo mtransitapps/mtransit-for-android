@@ -232,9 +232,7 @@ class DemoModeManager @Inject constructor(
     fun isAllowedAnyway(targeted: ITargetedProviderProperties?) = this.allowedTargeted.contains(targeted?.authority)
 
     fun fixLocale(newBaseContext: Context): Context {
-        if (!enabled && forceLang == null) {
-            return newBaseContext
-        }
+        if (!enabled && forceLang == null) return newBaseContext
         var newBase = newBaseContext
         newBase = newBase.createConfigurationContext(
             fixLocale(newBase.resources.configuration)
@@ -245,10 +243,8 @@ class DemoModeManager @Inject constructor(
     @SuppressLint("AppBundleLocaleChanges")
     private fun fixLocale(newConfiguration: Configuration): Configuration {
         val defaultLocale = forceLang?.let { Locale.forLanguageTag(it) } ?: LocaleUtils.getDefaultLocale()
-        return newConfiguration.apply {
-            setLocale(defaultLocale)
-            Locale.setDefault(defaultLocale)
-        }
+        LocaleUtils.setDefaultLocale(defaultLocale)
+        return LocaleUtils.fixDefaultLocale(newConfiguration)
     }
 
     private fun setTimestamp() {
