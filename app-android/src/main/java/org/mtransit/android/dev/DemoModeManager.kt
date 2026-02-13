@@ -47,6 +47,7 @@ class DemoModeManager @Inject constructor(
         private const val FILTER_AGENCY_AUTHORITY = "filter_agency_authority"
         private const val FILTER_SCREEN = "filter_screen"
         private const val FORCE_LANG = "force_lang"
+        // overriding current time inside main app doesn't load static/real-time schedule for overridden time
         private const val FORCE_TIMESTAMP_SEC = "force_timestamp_sec"
         private const val FORCE_TIMEZONE = "force_tz"
         private const val FORCE_TIME_FORMAT = "force_time"
