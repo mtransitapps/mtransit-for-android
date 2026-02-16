@@ -60,6 +60,8 @@ class DemoModeManager @Inject constructor(
         const val FILTER_SCREEN_BROWSE = "browse"
 
         const val MIN_POI_HOME_SCREEN = 7
+
+        private val AVAILABLE_TIMEZONE_IDS by lazy { TimeZone.getAvailableIDs().toSet() }
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -134,7 +136,7 @@ class DemoModeManager @Inject constructor(
 
     private var forceTimeZone: String? = null
     private val forceTZ: TimeZone get() = forceTimeZone
-        ?.takeIf { it.isNotEmpty() && TimeZone.getAvailableIDs().contains(it) }
+        ?.takeIf { it.isNotEmpty() && AVAILABLE_TIMEZONE_IDS.contains(it) }
         ?.let { TimeZone.getTimeZone(it) }
         ?: TimeZone.getDefault()
 
