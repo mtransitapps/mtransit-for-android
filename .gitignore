@@ -192,6 +192,7 @@ dev.properties
 /download_and_prepare.sh
 /download_only.sh
 /download_dependencies.sh
+/gh_repo_update_details.sh
 /gitall.sh
 /gradle.properties
 /gradle/
