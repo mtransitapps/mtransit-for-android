@@ -133,7 +133,10 @@ class DemoModeManager @Inject constructor(
     private val forceTimestampMs: Long? get() = forceTimestampSec?.toLongOrNull()?.let { it * 1000L }
 
     private var forceTimeZone: String? = null
-    private val forceTZ: TimeZone get() = forceTimeZone?.takeIf { it.isNotEmpty() }?.let { TimeZone.getTimeZone(it) } ?: TimeZone.getDefault()
+    private val forceTZ: TimeZone get() = forceTimeZone
+        ?.takeIf { it.isNotEmpty() && TimeZone.getAvailableIDs().contains(it) }
+        ?.let { TimeZone.getTimeZone(it) }
+        ?: TimeZone.getDefault()
 
     private var forceTimeFormat: String? = null
     private val isForce24HourFormat: Boolean?
