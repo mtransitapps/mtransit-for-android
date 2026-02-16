@@ -8,10 +8,12 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -38,6 +40,7 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
         super.onCreate(savedInstanceState)
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
+        if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) LocaleUtils.fixWebViewLocale(this.applicationContext)
         splashScreen.setKeepOnScreenCondition { true } // Keep the splash screen visible for this Activity
         showMainActivity()
     }

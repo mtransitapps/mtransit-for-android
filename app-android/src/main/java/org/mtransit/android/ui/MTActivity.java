@@ -20,7 +20,6 @@ public abstract class MTActivity extends MTAppCompatActivity implements IActivit
 	@ContentView
 	public MTActivity(@LayoutRes int contentLayoutId) {
 		super(contentLayoutId);
-
 	}
 
 	@NonNull
