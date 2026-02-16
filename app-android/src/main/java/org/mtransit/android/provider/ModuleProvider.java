@@ -200,11 +200,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		if (currentDbHelper == null) { // initialize
 			final ModuleDbHelper newDbHelper = getNewDbHelper(context);
 			this.dbHelper = newDbHelper;
-			this.currentDbVersion = getCurrentDbVersion();
+			this.currentDbVersion = getCurrentDbVersion(context);
 			return newDbHelper;
 		}
 		try { // reset
-			if (this.currentDbVersion != getCurrentDbVersion()) {
+			if (this.currentDbVersion != getCurrentDbVersion(context)) {
 				if (this.dbHelper != null) {
 					this.dbHelper.close();
 					this.dbHelper = null;
@@ -519,14 +519,15 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@Override
 	public boolean isAgencySetupRequired() {
-		if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
+		final Context context = requireContextCompat();
+		if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion(context)) {
 			return true; // live update required => update
 		}
-		if (!SqlUtils.isDbExist(requireContextCompat(), getDbName())) {
+		if (!SqlUtils.isDbExist(context, getDbName())) {
 			return true; // not deployed => initialization
 		}
 		//noinspection RedundantIfStatement
-		if (SqlUtils.getCurrentDbVersion(requireContextCompat(), getDbName()) != getCurrentDbVersion()) {
+		if (SqlUtils.getCurrentDbVersion(context, getDbName()) != getCurrentDbVersion(context)) {
 			return true; // update required => update
 		}
 		return false;
@@ -545,7 +546,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@Override
 	public int getAgencyVersion() {
-		return getCurrentDbVersion();
+		return getCurrentDbVersion(requireContextCompat());
 	}
 
 	/**
@@ -639,8 +640,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
-	private int getCurrentDbVersion() {
-		return ModuleDbHelper.getDbVersion();
+	private int getCurrentDbVersion(@NonNull Context context) {
+		return ModuleDbHelper.getDbVersion(context);
 	}
 
 	/**
