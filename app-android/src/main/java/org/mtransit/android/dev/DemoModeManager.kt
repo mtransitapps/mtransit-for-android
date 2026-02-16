@@ -146,11 +146,21 @@ class DemoModeManager @Inject constructor(
     val enabled: Boolean
         get() = (
                 BuildConfig.DEBUG
-                        && (filterAgencyAuthority != null || filterScreen != null || forceLang != null || forceTimestampSec != null || forceTimeZone != null || forceTimeFormat != null)
+                        && (
+                        !filterAgencyAuthority.isNullOrBlank()
+                                || !filterScreen.isNullOrBlank()
+                                || !forceLang.isNullOrBlank()
+                                || !forceTimestampSec.isNullOrBlank()
+                                || !forceTimeZone.isNullOrBlank()
+                                || !forceTimeFormat.isNullOrBlank()
+                        )
                 )
                 || isFullDemo()
 
-    fun isFullDemo(): Boolean = filterAgencyAuthority != null && filterScreen != null && forceLang != null
+    fun isFullDemo(): Boolean =
+        !filterAgencyAuthority.isNullOrBlank()
+                && !filterScreen.isNullOrBlank()
+                && !forceLang.isNullOrBlank()
     // not mandatory: forceTimestampSec, forceTimeZone, forceTimeFormat
 
     suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesCache: DataSourcesCache) {
