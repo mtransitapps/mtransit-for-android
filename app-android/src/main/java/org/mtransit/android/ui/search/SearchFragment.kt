@@ -195,7 +195,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
         }
         viewModel.devEnabled.observe(viewLifecycleOwner) { devEnabled ->
-            ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled")
+           if (devEnabled) { ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled") }
         }
     }
 
