@@ -19,12 +19,10 @@ class ExperimentsProvider @Inject constructor(
     }
 
     @Suppress("unused")
-    fun get(key: String, defaultValue: Boolean): Boolean {
-        return remoteConfigProvider.get(key, defaultValue)
-    }
+    fun get(key: String, defaultValue: Boolean) =
+        remoteConfigProvider.get(key, defaultValue)
 
     @Suppress("unused")
-    fun get(key: String, defaultValue: Long): Long {
-        return remoteConfigProvider.get(key, defaultValue)
-    }
+    fun get(key: String, defaultValue: Long) =
+        remoteConfigProvider.get(key, defaultValue)
 }
