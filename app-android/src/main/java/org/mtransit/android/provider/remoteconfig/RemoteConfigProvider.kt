@@ -1,7 +1,7 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigValue
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import org.mtransit.android.BuildConfig
@@ -48,11 +48,25 @@ class RemoteConfigProvider @Inject constructor(
             }
     }
 
+    fun get(key: String, defaultValue: String) =
+        remoteConfig.takeIf { activated.get() }
+            ?.getString(key).takeIf { it != FirebaseRemoteConfig.DEFAULT_VALUE_FOR_STRING }
+            ?: defaultValue
+
     fun get(key: String, defaultValue: Boolean) =
-        remoteConfig.takeIf { activated.get() }?.getBoolean(key) ?: defaultValue
+        remoteConfig.takeIf { activated.get() }
+            ?.getBoolean(key).takeIf { it != FirebaseRemoteConfig.DEFAULT_VALUE_FOR_BOOLEAN }
+            ?: defaultValue
+
+    fun get(key: String, defaultValue: Double) =
+        remoteConfig.takeIf { activated.get() }
+            ?.getDouble(key).takeIf { it != FirebaseRemoteConfig.DEFAULT_VALUE_FOR_DOUBLE }
+            ?: defaultValue
 
     fun get(key: String, defaultValue: Long) =
-        remoteConfig.takeIf { activated.get() }?.getLong(key) ?: defaultValue
+        remoteConfig.takeIf { activated.get() }
+            ?.getLong(key).takeIf { it != FirebaseRemoteConfig.DEFAULT_VALUE_FOR_LONG }
+            ?: defaultValue
 
     fun getAll(): Map<String, String>? =
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
