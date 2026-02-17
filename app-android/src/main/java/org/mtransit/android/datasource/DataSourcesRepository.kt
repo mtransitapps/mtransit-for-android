@@ -258,8 +258,8 @@ class DataSourcesRepository @Inject constructor(
     private val filterNewsProviders: (NewsProviderProperties) -> Boolean = {
         (
                 !it.authority.contains("news.instagram") // not working
-                        || it.authority == "org.mtransit.android.news.instagram" // DEBUG
-                        || it.authority == "org.mtransit.android.debug.news.instagram" // DEBUG
+                        // || it.authority == "org.mtransit.android.news.instagram" // DEBUG
+                        // || it.authority == "org.mtransit.android.debug.news.instagram" // DEBUG
                 )
     }
 
