@@ -19,12 +19,14 @@ import org.mtransit.android.common.repository.DefaultPreferenceRepository.Compan
 import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_APP_OPEN_LAST_DEFAULT
 import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_DAILY
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.TimeUtils
+import org.mtransit.android.commons.TimeUtilsK
+import org.mtransit.android.commons.toInstant
+import org.mtransit.android.commons.toMillis
 import org.mtransit.android.datasource.DataSourcesCache
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.util.NightModeUtils
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
 @SuppressLint("CustomSplashScreen")
 @HiltViewModel
@@ -56,13 +58,13 @@ class SplashScreenViewModel @Inject constructor(
     private suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
         var appOpenCounts = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
         appOpenCounts++
-        var appOpenLast = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_LAST, PREF_USER_APP_OPEN_LAST_DEFAULT)
-        val sevenDaysAgo = TimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(7L)
+        var appOpenLast = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_LAST, PREF_USER_APP_OPEN_LAST_DEFAULT).toInstant()
+        val sevenDaysAgo = TimeUtilsK.currentInstant() - 7.days
         val dailyUser = sevenDaysAgo < appOpenLast && appOpenCounts > 10 // opened in the last 7 days
-        appOpenLast = TimeUtils.currentTimeMillis()
+        appOpenLast = TimeUtilsK.currentInstant()
         defaultPrefRepository.pref.edit {
             putInt(PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
-            putLong(PREF_USER_APP_OPEN_LAST, appOpenLast)
+            putLong(PREF_USER_APP_OPEN_LAST, appOpenLast.toMillis())
             putBoolean(PREF_USER_DAILY, dailyUser)
         }
         appOpenCounts

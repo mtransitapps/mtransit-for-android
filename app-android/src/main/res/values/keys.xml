@@ -13,7 +13,7 @@
     </string-array>
     <!-- NEWS -->
     <string-array name="twitter_cached_api_url" />
-    <string-array name="twitter_bearer_token"><!-- PROD 2024 $$$ -->
+    <string-array name="twitter_bearer_token"><!-- PROD 2026 PpU $$$ -->
         <item>INSERT_TWITTER_BEARER_TOKEN_HERE</item>
     </string-array>
     <string-array name="youtube_api_key"><!-- PROD 2024 -->

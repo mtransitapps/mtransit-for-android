@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
 
+import org.mtransit.android.R;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper;
@@ -26,11 +27,6 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	 * Override if multiple {@link ModuleDbHelper} implementations in same app.
 	 */
 	protected static final String DB_NAME = "module.db";
-
-	/**
-	 * Override if multiple {@link ModuleDbHelper} in same app.
-	 */
-	public static final int DB_VERSION = 92;
 
 	/**
 	 * Override if multiple {@link ModuleDbHelper} implementations in same app.
@@ -56,18 +52,23 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	private static final String T_MODULE_STATUS_SQL_CREATE = StatusProvider.StatusDbHelper.getSqlCreateBuilder(T_MODULE_STATUS).build();
 	private static final String T_MODULE_STATUS_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE_STATUS);
 
+	private static int dbVersion = -1;
+
 	/**
 	 * Override if multiple {@link ModuleDbHelper} in same app.
 	 */
-	public static int getDbVersion() {
-		return DB_VERSION;
+	public static int getDbVersion(@NonNull Context context) {
+		if (dbVersion < 0) {
+			dbVersion = context.getResources().getInteger(R.integer.module_db_version); // do not change to avoid breaking compat w/ old modules
+		}
+		return dbVersion;
 	}
 
 	@NonNull
 	private final Context context;
 
 	public ModuleDbHelper(@NonNull Context context) {
-		super(context, DB_NAME, null, getDbVersion());
+		super(context, DB_NAME, null, getDbVersion(context));
 		this.context = context;
 	}
 
