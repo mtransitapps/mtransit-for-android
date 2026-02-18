@@ -1,0 +1,91 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+name: MT release
+on:
+  workflow_dispatch: # manual
+# gh workflow run mt-release.yml
+# gh run list --workflow=mt-release.yml
+# gh run watch ; gh browse --branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # repo type
+  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
+  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
+  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+  # push to store
+  MT_ORG_PUSH_STORE_ON: ${{ secrets.MT_ORG_PUSH_STORE_ON }}
+  MT_ORG_PUSH_STORE_OFF: ${{ secrets.MT_ORG_PUSH_STORE_OFF }}
+  MT_PUSH_STORE_ON: ${{ secrets.MT_PUSH_STORE_ON }}
+  MT_PUSH_STORE_OFF: ${{ secrets.MT_PUSH_STORE_OFF }}
+  # push to store > alpha
+  MT_ORG_STORE_ALPHA_ON: ${{ secrets.MT_ORG_STORE_ALPHA_ON }}
+  MT_ORG_STORE_ALPHA_OFF: ${{ secrets.MT_ORG_STORE_ALPHA_OFF }}
+  MT_STORE_ALPHA_ON: ${{ secrets.MT_STORE_ALPHA_ON }}
+  MT_STORE_ALPHA_OFF: ${{ secrets.MT_STORE_ALPHA_OFF }}
+  # push to store > private beta
+  MT_ORG_STORE_BETA_PRIVATE_ON: ${{ secrets.MT_ORG_STORE_BETA_PRIVATE_ON }}
+  MT_ORG_STORE_BETA_PRIVATE_OFF: ${{ secrets.MT_ORG_STORE_BETA_PRIVATE_OFF }}
+  MT_STORE_BETA_PRIVATE_ON: ${{ secrets.MT_STORE_BETA_PRIVATE_ON }}
+  MT_STORE_BETA_PRIVATE_OFF: ${{ secrets.MT_STORE_BETA_PRIVATE_OFF }}
+  # push to store > production
+  MT_ORG_STORE_PRODUCTION_ON: ${{ secrets.MT_ORG_STORE_PRODUCTION_ON }}
+  MT_ORG_STORE_PRODUCTION_OFF: ${{ secrets.MT_ORG_STORE_PRODUCTION_OFF }}
+  MT_STORE_PRODUCTION_ON: ${{ secrets.MT_STORE_PRODUCTION_ON }}
+  MT_STORE_PRODUCTION_OFF: ${{ secrets.MT_STORE_PRODUCTION_OFF }}
+jobs:
+  MT-RELEASE-JOB:
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
+    name: "MT Release"
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code (with submodules)
+        uses: actions/checkout@v6
+        with:
+          submodules: true # required to set right token
+          token: ${{ secrets.MT_PAT }}
+          fetch-depth: 0 # fetch all (not required util release build)
+
+      - name: MT setup
+        id: mt-setup
+        uses: ./.github/actions/setup
+
+      - name: MT enable app release
+        run: |
+          MT_TEMP_DIR=".mt";
+          mkdir -p $MT_TEMP_DIR;
+          MT_APP_RELEASE_REQUIRED_FILE="$MT_TEMP_DIR/mt_app_release_required";
+          MT_APP_RELEASE_REQUIRED=true;
+          echo "$MT_APP_RELEASE_REQUIRED" > $MT_APP_RELEASE_REQUIRED_FILE;
+
+      - name: MT assemble release (APK & AAB)
+        run: ./assemble_release.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+
+      - name: MT artifact > app-android > APK & AAB
+        uses: actions/upload-artifact@v6
+        with:
+          name: app-android-apk-bundle
+          path: |
+            app-android/build/outputs/apk
+            app-android/build/outputs/bundle
+
+      - name: MT Publish release
+        run: ./publish_app_release.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}

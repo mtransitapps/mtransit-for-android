@@ -61,7 +61,7 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-      - name: MT check out main repository code (no submodules)
+      - name: MT check out main repository code
         uses: actions/checkout@v6
         with:
           token: ${{ secrets.MT_PAT }}
