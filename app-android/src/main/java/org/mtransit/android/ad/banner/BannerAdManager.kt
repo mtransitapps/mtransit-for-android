@@ -234,6 +234,6 @@ class BannerAdManager @Inject constructor(
             }
         val density = displayMetrics.density
         val adWidth = (adWidthPixels / density).toInt()
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+        return AdSize.getLargeAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
 }
