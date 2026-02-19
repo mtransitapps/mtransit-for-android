@@ -9,9 +9,7 @@ import org.mtransit.android.commons.KeysIds
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils.EMPTY
 import org.mtransit.android.data.ITargetedProviderProperties
-import org.mtransit.android.provider.experiments.ExperimentsProvider
-import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE
-import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +17,7 @@ import javax.inject.Singleton
 class KeysManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val billingManager: IBillingManager,
-    private val experimentsProvider: ExperimentsProvider,
+    private val remoteConfigProvider: RemoteConfigProvider,
 ) {
 
     companion object {
@@ -54,7 +52,7 @@ class KeysManager @Inject constructor(
         private fun getKeysMap(
             context: Context,
             billingManager: IBillingManager,
-            experimentsProvider: ExperimentsProvider,
+            remoteConfigProvider: RemoteConfigProvider,
             authority: String
         ): Map<String, String>? = when {
             // MAIN
@@ -68,7 +66,7 @@ class KeysManager @Inject constructor(
                             put(key, value)
                         }
                     getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)
-                        ?.takeIf { experimentsProvider.get(EXP_ALLOW_TWITTER_NEWS_FOR_FREE, EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT) }
+                        ?.takeIf { remoteConfigProvider.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT) }
                         ?.let { (key, value) ->
                             put(key, value)
                         }
@@ -155,7 +153,7 @@ class KeysManager @Inject constructor(
 
     private fun getKeysMap(targetedProvider: ITargetedProviderProperties) = getKeysMap(targetedProvider.authority)
 
-    fun getKeysMap(authority: String) = getKeysMap(appContext, billingManager, experimentsProvider, authority)
+    fun getKeysMap(authority: String) = getKeysMap(appContext, billingManager, remoteConfigProvider, authority)
 }
 
 /**

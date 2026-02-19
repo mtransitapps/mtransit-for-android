@@ -19,7 +19,7 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.dev.filterDemoModeAgency
 import org.mtransit.android.dev.filterDemoModeTargeted
 import org.mtransit.android.dev.filterDemoModeType
-import org.mtransit.android.provider.experiments.ExperimentsProvider
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.addAllNNE
@@ -32,7 +32,7 @@ class DataSourcesInMemoryCache @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val dataSourcesCache: DataSourcesCache,
     private val billingManager: IBillingManager,
-    private val experimentsProvider: ExperimentsProvider,
+    private val remoteConfigProvider: RemoteConfigProvider,
     private val demoModeManager: DemoModeManager,
 ) : MTLog.Loggable {
 
@@ -64,13 +64,13 @@ class DataSourcesInMemoryCache @Inject constructor(
     private fun startListeningForChangesIntoMemory() {
         dataSourcesCache.readingAllAgencies().observeForever { agencies -> // SINGLETON
             this._agencyProperties = agencies
-                .filterExpansiveAgencies(billingManager, experimentsProvider)
+                .filterExpansiveAgencies(billingManager, remoteConfigProvider)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
         dataSourcesCache.readingAllAgenciesBase().observeForever { agencies -> // SINGLETON
             this._agencyBaseProperties = agencies
-                .filterExpansiveAgencies(billingManager, experimentsProvider)
+                .filterExpansiveAgencies(billingManager, remoteConfigProvider)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
@@ -103,7 +103,7 @@ class DataSourcesInMemoryCache @Inject constructor(
         }
         dataSourcesCache.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
             this._newsProviderProperties = newsProviders
-                .filterExpansiveNewsProviders(billingManager, experimentsProvider)
+                .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
                 .filterDemoModeTargeted(demoModeManager)
         }
     }
