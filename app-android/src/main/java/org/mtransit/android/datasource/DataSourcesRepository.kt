@@ -29,7 +29,7 @@ import org.mtransit.android.dev.filterDemoModeTargeted
 import org.mtransit.android.dev.filterDemoModeType
 import org.mtransit.android.dev.takeIfDemoModeAgency
 import org.mtransit.android.dev.takeIfDemoModeTargeted
-import org.mtransit.android.provider.experiments.ExperimentsProvider
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.commons.addAllNNE
 import javax.inject.Inject
@@ -45,7 +45,7 @@ class DataSourcesRepository @Inject constructor(
     private val dataSourcesReader: DataSourcesReader,
     private val demoModeManager: DemoModeManager,
     private val billingManager: IBillingManager,
-    private val experimentsProvider: ExperimentsProvider,
+    private val remoteConfigProvider: RemoteConfigProvider,
     private val pm: PackageManager,
 ) : MTLog.Loggable {
 
@@ -64,7 +64,7 @@ class DataSourcesRepository @Inject constructor(
 
     private val includedAgencyCount: Int
         get() {
-            return defaultAgencies.filterExpansiveAgencyAuthorities(billingManager, experimentsProvider).size
+            return defaultAgencies.filterExpansiveAgencyAuthorities(billingManager, remoteConfigProvider).size
         }
 
     private val defaultAgencyComparator: Comparator<IAgencyProperties> = IAgencyProperties.SHORT_NAME_COMPARATOR
@@ -81,14 +81,14 @@ class DataSourcesRepository @Inject constructor(
 
     fun readingAllAgencies() = this.dataSourcesIOCache.readingAllAgencies().map { agencies ->
         agencies
-            .filterExpansiveAgencies(billingManager, experimentsProvider)
+            .filterExpansiveAgencies(billingManager, remoteConfigProvider)
             .filterDemoModeAgency(demoModeManager)
             .sortedWith(defaultAgencyComparator)
     }.distinctUntilChanged()
 
     fun readingAllAgenciesBase() = this.dataSourcesIOCache.readingAllAgenciesBase().map { agencies ->
         agencies
-            .filterExpansiveAgencies(billingManager, experimentsProvider)
+            .filterExpansiveAgencies(billingManager, remoteConfigProvider)
             .filterDemoModeAgency(demoModeManager)
             .sortedWith(defaultAgencyComparator)
     }.distinctUntilChanged()
@@ -273,7 +273,7 @@ class DataSourcesRepository @Inject constructor(
         )
         emitSource(dataSourcesIOCache.readingAllNewsProviders().map { newsProviders ->
             newsProviders
-                .filterExpansiveNewsProviders(billingManager, experimentsProvider)
+                .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
                 .filterDemoModeTargeted(demoModeManager)
                 .filterNewsProviders()
         }) // #onModulesUpdated
@@ -290,7 +290,7 @@ class DataSourcesRepository @Inject constructor(
             emitSource(
                 dataSourcesIOCache.readingNewsProviders(providerAuthority).map { newsProviders ->
                     newsProviders
-                        .filterExpansiveNewsProviders(billingManager, experimentsProvider)
+                        .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
                         .filterDemoModeTargeted(demoModeManager)
                         .filterNewsProviders()
                 }) // #onModulesUpdated

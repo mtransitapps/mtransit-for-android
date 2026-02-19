@@ -4,9 +4,7 @@ import androidx.lifecycle.LiveData
 import com.android.billingclient.api.ProductDetails
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
-import org.mtransit.android.provider.experiments.ExperimentsProvider
-import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE
-import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.UIFeatureFlags
 
@@ -24,6 +22,7 @@ interface IBillingManager {
         @JvmField
         val PRODUCT_ID_STARTS_WITH_F = "f_"
 
+        @Suppress("unused")
         @JvmField
         val PRODUCT_ID_STARTS_WITH_N = "n_"
 
@@ -48,6 +47,7 @@ interface IBillingManager {
         @JvmField
         val NEW_PRO_SUBSCRIPTIONS = "n_pro" // TODO create on play console
 
+        @Suppress("KotlinConstantConditions")
         @JvmField
         val NEW_SUBSCRIPTIONS = arrayListOf(
             NEW_BASIC_SUBSCRIPTIONS,
@@ -113,10 +113,10 @@ interface IBillingManager {
     }
 }
 
-fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager, experimentsProvider: ExperimentsProvider) =
+fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveAgencies(
         billingManager.showingPaidFeatures(),
-        experimentsProvider.get(EXP_ALLOW_TWITTER_NEWS_FOR_FREE, EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
+        remoteConfigProvider.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
     )
 
 fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<T> {
@@ -126,10 +126,10 @@ fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures:
     }
 }
 
-fun List<String>.filterExpansiveAgencyAuthorities(billingManager: IBillingManager, experimentsProvider: ExperimentsProvider) =
+fun List<String>.filterExpansiveAgencyAuthorities(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveAgencyAuthorities(
         billingManager.showingPaidFeatures(),
-        experimentsProvider.get(EXP_ALLOW_TWITTER_NEWS_FOR_FREE, EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT),
+        remoteConfigProvider.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT),
     )
 
 fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<String> {
@@ -139,10 +139,10 @@ fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean, 
     }
 }
 
-fun List<NewsProviderProperties>.filterExpansiveNewsProviders(billingManager: IBillingManager, experimentsProvider: ExperimentsProvider) =
+fun List<NewsProviderProperties>.filterExpansiveNewsProviders(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveNewsProviders(
         billingManager.showingPaidFeatures(),
-        experimentsProvider.get(EXP_ALLOW_TWITTER_NEWS_FOR_FREE, EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
+        remoteConfigProvider.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
     )
 
 fun List<NewsProviderProperties>.filterExpansiveNewsProviders(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<NewsProviderProperties> {
