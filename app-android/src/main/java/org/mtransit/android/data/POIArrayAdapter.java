@@ -917,6 +917,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		MTLog.d(this, "appendPois() > data changed");
 		notifyDataSetChanged();
+		applyLastCompass();
 	}
 
 	private boolean append(@Nullable List<POIManager> pois, boolean dataSetChanged) {
