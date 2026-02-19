@@ -7,7 +7,7 @@ import org.mtransit.android.ui.view.common.IFragment
 
 interface MTSensorManager {
 
-    fun registerCompassListener(sensorEventListener: SensorEventListener)
+    fun registerCompassListener(sensorEventListener: SensorEventListener, listener: CompassListener)
 
     fun unregisterSensorListener(sensorEventListener: SensorEventListener)
 

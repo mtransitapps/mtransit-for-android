@@ -1083,19 +1083,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
-	@Deprecated
-	public void updateDistancesNowSync(@Nullable Location currentLocation) {
-		if (currentLocation != null) {
-			if (this.poisByType != null) {
-				for (List<POIManager> pois : this.poisByType.values()) {
-					LocationUtils.updateDistanceWithString(getContext(), pois, currentLocation, null);
-				}
-			}
-			updateClosestPoi();
-		}
-		setLocation(currentLocation);
-	}
-
 	public void updateDistanceNowAsync(@Nullable Location currentLocation) {
 		this.location = null; // clear current location to force refresh
 		setLocation(currentLocation);
@@ -1279,7 +1266,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			this.location = newLocation;
 			this.locationDeclination = this.sensorManager.getLocationDeclination(this.location);
 			if (!this.compassUpdatesEnabled) {
-				this.sensorManager.registerCompassListener(this);
+				this.sensorManager.registerCompassListener(this, this);
 				this.compassUpdatesEnabled = true;
 			}
 			updateDistances(this.location);
@@ -1378,18 +1365,31 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.infiniteLoadingListener = null;
 	}
 
+	@Nullable
+	private Float compassLastOrientation = null;
+	@Nullable
+	private Boolean compassForce = null;
+
 	@Override
 	public void updateCompass(float orientation, boolean force) {
+		MTLog.d(this, "updateCompass() > orientation = %s, force = %s", orientation, force);
+		this.compassLastOrientation = orientation;
+		this.compassForce = force;
 		if (getPoisCount() == 0) {
 			return;
 		}
-		long now = UITimeUtils.currentTimeMillis();
-		int roundedOrientation = DegreeUtils.convertToPositive360Degree((int) orientation);
+		applyLastCompass();
+	}
+
+	private void applyLastCompass() {
+		if (this.compassLastOrientation == null || this.compassForce== null) {
+			return;
+		}
 		this.sensorManager.updateCompass(
-				force,
+				this.compassForce,
 				this.location,
-				roundedOrientation,
-				now,
+				DegreeUtils.convertToPositive360Degree((int) this.compassLastOrientation.floatValue()),
+				UITimeUtils.currentTimeMillis(),
 				this.scrollState,
 				this.lastCompassChanged,
 				this.lastCompassInDegree,
@@ -1409,7 +1409,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return;
 		}
 		for (WeakHashMap.Entry<MTCompassView, View> compassAndDistance : this.compassImgsWR.entrySet()) {
-			MTCompassView compassView = compassAndDistance.getKey();
+			final MTCompassView compassView = compassAndDistance.getKey();
 			if (compassView != null && compassView.isHeadingSet()) {
 				compassView.generateAndSetHeadingN(this.location, this.lastCompassInDegree, this.locationDeclination);
 			}
