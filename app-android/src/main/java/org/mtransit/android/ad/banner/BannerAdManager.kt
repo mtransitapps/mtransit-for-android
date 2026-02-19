@@ -1,5 +1,6 @@
 package org.mtransit.android.ad.banner
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
@@ -239,6 +240,7 @@ class BannerAdManager @Inject constructor(
         if (remoteConfigProvider.get(RemoteConfigProvider.AD_BANNER_LARGE, RemoteConfigProvider.AD_BANNER_LARGE_DEFAULT)) {
             return AdSize.getLargeAnchoredAdaptiveBannerAdSize(this, adWidth)
         }
+        @SuppressLint("DeprecatedCall")
         @Suppress("DEPRECATION") // recommended replacement don't show the same ad size!
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
