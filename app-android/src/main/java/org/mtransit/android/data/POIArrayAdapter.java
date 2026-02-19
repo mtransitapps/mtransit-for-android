@@ -1373,7 +1373,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@Override
 	public void updateCompass(float orientation, boolean force) {
-		MTLog.d(this, "updateCompass() > orientation = %s, force = %s", orientation, force);
 		this.compassLastOrientation = orientation;
 		this.compassForce = force;
 		if (getPoisCount() == 0) {
@@ -1383,7 +1382,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	private void applyLastCompass() {
-		if (this.compassLastOrientation == null || this.compassForce== null) {
+		if (this.compassLastOrientation == null || this.compassForce == null) {
 			return;
 		}
 		this.sensorManager.updateCompass(
