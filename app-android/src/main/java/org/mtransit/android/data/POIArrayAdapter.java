@@ -1329,6 +1329,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.compassImgsWR.clear();
 		this.lastCompassChanged = -1;
 		this.lastCompassInDegree = null;
+		this.compassLastOrientation = null;
+		this.compassForce = null;
 		this.accelerometerValues = new float[3];
 		this.magneticFieldValues = new float[3];
 		this.lastNotifyDataSetChanged = -1L;
