@@ -99,10 +99,12 @@ class NextMainViewModel @Inject constructor(
     ).distinctUntilChanged()
 
     val showDrawerLearning: LiveData<Boolean> = MediatorLiveData2(_hasAgenciesAdded, _userLearnedDrawer).map { (hasAgenciesAdded, userLearnedDrawer) ->
+        if (demoModeManager.isFullDemo()) return@map false
         hasAgenciesAdded == true && userLearnedDrawer == false
     }
 
     fun setUserLearnedDrawer(learned: Boolean) {
+        if (demoModeManager.isFullDemo()) return
         defaultPrefRepository.pref.edit {
             putBoolean(DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, learned)
         }
