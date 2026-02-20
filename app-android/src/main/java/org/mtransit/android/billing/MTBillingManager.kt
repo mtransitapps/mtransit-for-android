@@ -28,6 +28,7 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveDataN
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.SystemSettingManager
 import java.util.WeakHashMap
@@ -40,6 +41,7 @@ import javax.inject.Singleton
 class MTBillingManager @Inject constructor(
     @ApplicationContext appContext: Context,
     private val lclPrefRepository: LocalPreferenceRepository,
+    private val demoModeManager: DemoModeManager,
 ) : MTLog.Loggable,
     IBillingManager,
     BillingClientStateListener, // connection to billing
@@ -87,6 +89,7 @@ class MTBillingManager @Inject constructor(
 
     override fun showingPaidFeatures() = (hasSubscription.value == true
             && !isUsingFirebaseTestLab)
+            || demoModeManager.isFullDemo()
             // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
