@@ -12,6 +12,7 @@ import android.widget.AbsListView
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.api.SupportFactory
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.IFragment
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -19,6 +20,7 @@ import kotlin.math.abs
 
 class SensorManagerImpl @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
+    private val demoModeManager: DemoModeManager,
 ) : MTSensorManager, MTLog.Loggable {
 
     companion object {
@@ -34,7 +36,11 @@ class SensorManagerImpl @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    override fun registerCompassListener(sensorEventListener: SensorEventListener) {
+    override fun registerCompassListener(sensorEventListener: SensorEventListener, listener: MTSensorManager.CompassListener) {
+        if (demoModeManager.isFilterLocation()) {
+            listener.updateCompass(170.0f, false)
+            return
+        }
         sensorManager?.apply {
             registerListener(
                 sensorEventListener,
@@ -70,6 +76,9 @@ class SensorManagerImpl @Inject constructor(
         magneticFieldValues: FloatArray,
         listener: MTSensorManager.CompassListener
     ) {
+        if (demoModeManager.isFilterLocation()) {
+            return
+        }
         when (event.sensor.type) {
             Sensor.TYPE_ACCELEROMETER -> {
                 System.arraycopy(
@@ -116,7 +125,7 @@ class SensorManagerImpl @Inject constructor(
                 }
             }
             else -> {
-                // DO NOTING
+                // DO NOTHING
             }
         }
     }
