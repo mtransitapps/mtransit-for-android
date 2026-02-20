@@ -3,6 +3,11 @@ name: MT release
 on:
   workflow_dispatch: # manual
     inputs:
+      allowNonDefault:
+        description: 'Allow running on non-default branch'
+        type: boolean
+        default: false
+        required: false
       skipStoreAll:
         description: 'Skip all store releases'
         type: boolean
@@ -24,6 +29,7 @@ on:
         default: false
         required: false
 # gh workflow run mt-release.yml
+# gh workflow run mt-release.yml --ref $(git rev-parse --abbrev-ref HEAD) -f allowNonDefault=true
 # gh workflow run mt-release.yml -f skipStoreAll=true
 # gh workflow run mt-release.yml -f skipStoreProduction=true
 # gh run list --workflow=mt-release.yml
@@ -70,7 +76,7 @@ env:
   MT_STORE_PRODUCTION_OFF: ${{ secrets.MT_STORE_PRODUCTION_OFF }}
 jobs:
   MT-RELEASE-JOB:
-    if: ${{ github.ref_name == github.event.repository.default_branch }}
+    if: ${{ github.ref_name == github.event.repository.default_branch || github.event.inputs.allowNonDefault == 'true' }}
     name: "MT Release"
     runs-on: ubuntu-latest
     steps:
