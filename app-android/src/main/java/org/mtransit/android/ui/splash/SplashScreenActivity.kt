@@ -38,7 +38,6 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        LocaleUtils.fixWebViewLocale(this)
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
         if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) LocaleUtils.fixWebViewLocale(this.applicationContext)
