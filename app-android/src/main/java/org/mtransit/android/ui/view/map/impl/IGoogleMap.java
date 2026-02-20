@@ -25,8 +25,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
-import org.mtransit.android.ui.view.map.ExtendedGoogleMap;
-
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 interface IGoogleMap {
 
@@ -50,6 +48,7 @@ interface IGoogleMap {
 
 	void clear();
 
+	@NonNull
 	CameraPosition getCameraPosition();
 
 	int getMapType();

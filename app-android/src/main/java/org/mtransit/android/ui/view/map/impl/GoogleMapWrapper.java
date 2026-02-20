@@ -97,7 +97,7 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public final CameraPosition getCameraPosition() {
+	public final @NonNull CameraPosition getCameraPosition() {
 		return map.getCameraPosition();
 	}
 
