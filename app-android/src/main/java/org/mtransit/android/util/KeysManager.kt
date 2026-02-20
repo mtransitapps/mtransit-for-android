@@ -62,12 +62,12 @@ class KeysManager @Inject constructor(
             authority.endsWith("$debugS.news.twitter") -> {
                 buildMap {
                     getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)
-                        ?.takeIf { billingManager.showingPaidFeatures() }
+                        ?.takeIf { billingManager.showingPaidFeatures() } // main app token $$ for paid users only
                         ?.let { (key, value) ->
                             put(key, value)
                         }
                     getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)
-                        ?.takeIf { remoteConfigProvider.allowTwitterNews() }
+                        ?.takeIf { remoteConfigProvider.allowTwitterNews() } // remote cached API for free users as well (with feature flag)
                         ?.let { (key, value) ->
                             put(key, value)
                         }
