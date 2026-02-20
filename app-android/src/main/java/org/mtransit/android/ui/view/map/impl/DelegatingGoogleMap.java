@@ -128,7 +128,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public CameraPosition getCameraPosition() {
+	public @NonNull CameraPosition getCameraPosition() {
 		return real.getCameraPosition();
 	}
 
