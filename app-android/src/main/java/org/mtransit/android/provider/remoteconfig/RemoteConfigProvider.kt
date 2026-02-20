@@ -1,7 +1,7 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigValue
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import org.mtransit.android.BuildConfig
@@ -16,6 +16,20 @@ class RemoteConfigProvider @Inject constructor(
 
     companion object {
         private val LOG_TAG: String = RemoteConfigProvider::class.java.simpleName
+
+        // const val AD_BANNER_LOAD_ON_SCREEN_RESUME = "mt_ad_banner_load_on_screen_resume" // -> true is outperforming Baseline by 95% after 2 weeks
+        // const val AD_BANNER_LOAD_ON_SCREEN_RESUME_DEFAULT = false
+
+        // const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC = "mt_ad_banner_load_on_screen_resume_min_duration_sec"
+        // const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT = 1L // -> 1 second is outperforming Baseline (-1=disabled) by 114% (& 2,3,5,7,10)
+
+        const val AD_BANNER_LARGE = "mt_ad_banner_large"
+        const val AD_BANNER_LARGE_DEFAULT = false
+
+        @Suppress("SimplifyBooleanWithConstants", "MayBeConstant", "RedundantSuppression")
+        val ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT = false
+        // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
+        const val ALLOW_TWITTER_NEWS_FOR_FREE = "mt_twitter_news_free"
 
         const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS = "mt_vehicle_location_refresh_min_ms"
         const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT = 30_000L // 30 seconds
@@ -48,11 +62,22 @@ class RemoteConfigProvider @Inject constructor(
             }
     }
 
+    fun get(key: String, defaultValue: String) =
+        getActivatedValueNonStatic(key)?.asString() ?: defaultValue
+
     fun get(key: String, defaultValue: Boolean) =
-        remoteConfig.takeIf { activated.get() }?.getBoolean(key) ?: defaultValue
+        getActivatedValueNonStatic(key)?.asBoolean() ?: defaultValue
+
+    fun get(key: String, defaultValue: Double) =
+        getActivatedValueNonStatic(key)?.asDouble() ?: defaultValue
 
     fun get(key: String, defaultValue: Long) =
-        remoteConfig.takeIf { activated.get() }?.getLong(key) ?: defaultValue
+        getActivatedValueNonStatic(key)?.asLong() ?: defaultValue
+
+    private fun getActivatedValueNonStatic(key: String) =
+        remoteConfig.takeIf { activated.get() }
+            ?.getValue(key)
+            ?.takeIf { it.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC }
 
     fun getAll(): Map<String, String>? =
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }

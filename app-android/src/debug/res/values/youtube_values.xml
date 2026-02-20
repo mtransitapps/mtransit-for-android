@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources,InconsistentArrays,TypographyDashes">
-    <integer name="youtube_db_version">4</integer>
     <string name="youtube_target_for_poi_authority" />
     <string name="youtube_color">0761A5</string><!-- Vancouver TransLink BLUE -->
     <string-array name="youtube_channels_username">
@@ -20,20 +19,5 @@
     </string-array>
     <string-array name="youtube_channels_author_url">
         <item>https://www.youtube.com/user/TransLink</item>
-    </string-array>
-    <string-array name="youtube_channels_lang">
-        <item>@string/news_provider_language_unknown_show_all</item>
-    </string-array>
-    <string-array name="youtube_channels_colors">
-        <item>@string/youtube_color</item>
-    </string-array>
-    <string-array name="youtube_channels_target">
-        <item>@string/youtube_target_for_poi_authority</item>
-    </string-array>
-    <integer-array name="youtube_channels_severity">
-        <item>@integer/news_provider_severity_info_agency</item>
-    </integer-array>
-    <string-array name="youtube_channels_noteworthy">
-        <item>@string/news_provider_noteworthy_long_term</item>
     </string-array>
 </resources>

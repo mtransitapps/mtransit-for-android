@@ -195,9 +195,14 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
         }
         viewModel.devEnabled.observe(viewLifecycleOwner) { devEnabled ->
-            ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled")
+            if (lastDevEnabled != null && lastDevEnabled != devEnabled) {
+                ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled")
+            }
+            lastDevEnabled = devEnabled
         }
     }
+
+    private var lastDevEnabled: Boolean? = null
 
     override fun onTypeHeaderButtonClick(buttonId: Int, type: DataSourceType): Boolean {
         if (buttonId == TypeHeaderButtonsClickListener.BUTTON_MORE) {

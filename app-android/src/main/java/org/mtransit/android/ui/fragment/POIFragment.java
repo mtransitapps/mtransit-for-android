@@ -1086,7 +1086,7 @@ public class POIFragment extends ABFragment implements
 			this.deviceLocation = newLocation;
 			this.locationDeclination = sensorManager.getLocationDeclination(newLocation);
 			if (!this.compassUpdatesEnabled) {
-				sensorManager.registerCompassListener(this);
+				sensorManager.registerCompassListener(this, this);
 				this.compassUpdatesEnabled = true;
 			}
 			final POIManager poim = getPoimOrNull();

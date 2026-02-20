@@ -13,6 +13,8 @@
     <string-array name="google_places_new_api_key"><!-- DEBUG 2025 $$$ | Android App restriction -->
         <item>INSERT_GOOGLE_PLACES_NEW_API_KEY_HERE</item>
     </string-array>
+    <string-array name="twitter_bearer_token"><!-- DEBUG 2026 $$$ -->
+    </string-array>
     <string-array name="youtube_api_key"><!-- DEBUG -->
         <item>INSERT_YOUTUBE_API_KEY_HERE</item>
     </string-array>

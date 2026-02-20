@@ -1,5 +1,6 @@
 package org.mtransit.android.ad.banner
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.dev.CrashReporter
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.isVisibleOnce
 import org.mtransit.commons.FeatureFlags
 import java.util.concurrent.atomic.AtomicLong
@@ -26,6 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 class BannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
     private val crashReporter: CrashReporter,
+    private val remoteConfigProvider: RemoteConfigProvider,
 ) : MTLog.Loggable {
 
     companion object {
@@ -234,6 +237,11 @@ class BannerAdManager @Inject constructor(
             }
         val density = displayMetrics.density
         val adWidth = (adWidthPixels / density).toInt()
+        if (remoteConfigProvider.get(RemoteConfigProvider.AD_BANNER_LARGE, RemoteConfigProvider.AD_BANNER_LARGE_DEFAULT)) {
+            return AdSize.getLargeAnchoredAdaptiveBannerAdSize(this, adWidth)
+        }
+        @SuppressLint("DeprecatedCall")
+        @Suppress("DEPRECATION") // recommended replacement don't show the same ad size!
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
 }

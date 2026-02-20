@@ -298,6 +298,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 
 	@WorkerThread
 	private boolean hasUserLearnedDrawer() {
+		if (this.demoModeManager.isFullDemo()) return true;
 		if (this.userLearnedDrawer == null) {
 			final MainActivity mainActivity = this.mainActivityWR.get();
 			if (mainActivity != null) {
@@ -309,6 +310,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	private void setUserLearnedDrawer() {
+		if (this.demoModeManager.isFullDemo()) return;
 		this.userLearnedDrawer = true;
 		Context context = this.mainActivityWR.get();
 		if (context != null) {

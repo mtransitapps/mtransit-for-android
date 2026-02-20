@@ -80,7 +80,7 @@ jobs:
     timeout-minutes: 90
     runs-on: ubuntu-latest
     steps:
-      - name: MT check out main repository code (no submodules)
+      - name: MT check out main repository code (with submodules)
         uses: actions/checkout@v6
         with:
           submodules: true # required to set right token
@@ -172,28 +172,17 @@ jobs:
           MT_SKIP_PUSH_COMMIT=false;
           echo "MT_SKIP_PUSH_COMMIT=$MT_SKIP_PUSH_COMMIT" >> "$GITHUB_ENV";
 
-      - name: MT assemble release (APK & ABB)
-        if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
-        run: ./assemble_release.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
-          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
-
-      - name: MT artifact > app-android > APK & ABB
-        if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
-        uses: actions/upload-artifact@v6
-        with:
-          name: app-android-apk-bundle
-          path: |
-            app-android/build/outputs/apk
-            app-android/build/outputs/bundle
-
       - name: MT push commits
         run: ./push_commits.sh
 
-      - name: MT Publish release (?)
+      - name: MT trigger release if required
         if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
-        run: ./publish_app_release.sh
+        run: |
+          MT_TEMP_DIR=".mt";
+          mkdir -p $MT_TEMP_DIR;
+          MT_APP_RELEASE_REQUIRED_FILE="$MT_TEMP_DIR/mt_app_release_required";
+          if [ -f "$MT_APP_RELEASE_REQUIRED_FILE" ] && [ "$(cat "$MT_APP_RELEASE_REQUIRED_FILE")" = "true" ]; then
+            gh workflow run mt-release.yml
+          fi
         env:
-          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
-          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+          GH_TOKEN: ${{ secrets.MT_PAT }}

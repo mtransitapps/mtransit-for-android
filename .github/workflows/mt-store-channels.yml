@@ -1,0 +1,144 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+name: MT store channels (enable/disable)
+on:
+  workflow_dispatch: # manual
+    inputs:
+      alpha:
+        description: 'Alpha channel'
+        type: choice
+        options:
+          - ignore
+          - enable
+          - disable
+        default: ignore
+        required: true
+      betaPrivate:
+        description: 'Beta (Private) channel'
+        type: choice
+        options:
+          - ignore
+          - enable
+          - disable
+        default: ignore
+        required: true
+      production:
+        description: 'Production channel'
+        type: choice
+        options:
+          - ignore
+          - enable
+          - disable
+        default: ignore
+        required: true
+# gh workflow run mt-store-channels.yml --ref $(git rev-parse --abbrev-ref HEAD)
+# gh workflow run mt-store-channels.yml -f production=disable
+# gh run list --workflow=mt-store-channels.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  MT_BOT_USER_NAME: ${{ vars.MT_BOT_USER_NAME }}
+  MT_BOT_USER_EMAIL: ${{ vars.MT_BOT_USER_EMAIL }}
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # repo type
+  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
+  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
+  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+jobs:
+  MT-STORE-CHANNELS-JOB:
+    name: "MT store channels"
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MT_PAT }}
+
+      - name: MT Enable `Alpha` channel
+        if: ${{ github.event.inputs.alpha == 'enable' }}
+        run: |
+          mkdir -p config/store/
+          touch config/store/alpha
+      - name: MT Disable `Alpha` channel
+        if: ${{ github.event.inputs.alpha == 'disable' }}
+        run: |
+          rm -f config/store/alpha
+
+      - name: MT Enable `Beta Private` channel
+        if: ${{ github.event.inputs.betaPrivate == 'enable' }}
+        run: |
+          mkdir -p config/store/
+          touch config/store/beta-private
+      - name: MT Disable `Beta Private` channel
+        if: ${{ github.event.inputs.betaPrivate == 'disable' }}
+        run: |
+          rm -f config/store/beta-private
+
+      - name: MT Enable `Production` channel
+        if: ${{ github.event.inputs.production == 'enable' }}
+        run: |
+          mkdir -p config/store/
+          touch config/store/production
+      - name: MT Disable `Production` channel
+        if: ${{ github.event.inputs.production == 'disable' }}
+        run: |
+          rm -f config/store/production
+
+      - name: MT Commit changes
+        continue-on-error: true
+        id: mt-commit-changes
+        run: |
+          git add -v -A config/store
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 1 # fail
+          fi
+          git checkout -B "${MT_BRANCH_NAME}_update_store_channels"
+          git config user.name "$MT_BOT_USER_NAME"
+          git config user.email "$MT_BOT_USER_EMAIL"
+          git commit -m "Update store channels in \`${MT_BRANCH_NAME}\`"
+          git push -u origin "$(git rev-parse --abbrev-ref HEAD)" --force
+          exit 0 # success
+
+      - name: MT Check if PR exists
+        id: mt-check-pr-exists
+        if: ${{ steps.mt-commit-changes.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          # gh pr view &>/dev/null # incl. closed PRs
+          PR_COUNT=$(gh pr list --state open --head "$(git rev-parse --abbrev-ref HEAD)" | wc -l)
+          echo "Pull requests found: $PR_COUNT."
+          if [[ $PR_COUNT -eq 0 ]]; then
+            exit 1 # fail
+          else
+            exit 0 # success
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT Create pull request (if necessary)
+        if: ${{ steps.mt-commit-changes.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'failure' }}
+        run: |
+          gh pr create --fill --assignee montransit
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers;
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+      - name: MT Update pull request (if necessary)
+        if: ${{ steps.mt-commit-changes.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
+        run: |
+          gh pr edit --add-assignee montransit --title "Update store channels in \`${MT_BRANCH_NAME}\`"
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers;
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
