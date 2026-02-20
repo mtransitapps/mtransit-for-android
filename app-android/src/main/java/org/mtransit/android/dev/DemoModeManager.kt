@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
@@ -39,6 +40,7 @@ import javax.inject.Singleton
 class DemoModeManager @Inject constructor(
     @ApplicationContext appContext: Context,
     private val dataSourceRequestManager: DataSourceRequestManager,
+    private val billingManager: IBillingManager,
 ) : MTLog.Loggable {
 
     companion object {
@@ -181,6 +183,7 @@ class DemoModeManager @Inject constructor(
     }
 
     private suspend fun apply(dataSourcesCache: DataSourcesCache) = withContext(Dispatchers.IO) {
+        billingManager.fullDemoMode = isFullDemo()
         filterAgencyAuthority?.let { authority ->
             filterAgency = dataSourcesCache.getAgency(authority)
         }
