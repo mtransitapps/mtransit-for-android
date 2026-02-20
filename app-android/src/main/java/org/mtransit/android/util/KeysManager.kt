@@ -5,6 +5,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.billing.allowTwitterNews
 import org.mtransit.android.commons.KeysIds
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils.EMPTY
@@ -66,7 +67,7 @@ class KeysManager @Inject constructor(
                             put(key, value)
                         }
                     getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)
-                        ?.takeIf { remoteConfigProvider.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT) }
+                        ?.takeIf { remoteConfigProvider.allowTwitterNews() }
                         ?.let { (key, value) ->
                             put(key, value)
                         }
