@@ -26,12 +26,9 @@ class RemoteConfigProvider @Inject constructor(
         const val AD_BANNER_LARGE = "mt_ad_banner_large"
         const val AD_BANNER_LARGE_DEFAULT = false
 
-        @Deprecated("use ALLOW_TWITTER_NEWS_CACHED_DEFAULT instead")
-        @Suppress("SimplifyBooleanWithConstants", "MayBeConstant", "RedundantSuppression")
-        val ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT = false
-        // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
         @Deprecated("use ALLOW_TWITTER_NEWS_CACHED instead")
         const val ALLOW_TWITTER_NEWS_FOR_FREE = "mt_twitter_news_free"
+        const val ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT = false
 
         const val ALLOW_TWITTER_NEWS_CACHED = "mt_twitter_news_cached"
         const val ALLOW_TWITTER_NEWS_CACHED_DEFAULT = false

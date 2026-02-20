@@ -114,8 +114,9 @@ interface IBillingManager {
 }
 
 fun RemoteConfigProvider.allowTwitterNews() =
-    this.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_CACHED, RemoteConfigProvider.ALLOW_TWITTER_NEWS_CACHED_DEFAULT) ||
-            this.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
+    this.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_CACHED, RemoteConfigProvider.ALLOW_TWITTER_NEWS_CACHED_DEFAULT)
+            || this.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
+// || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
 fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveAgencies(
