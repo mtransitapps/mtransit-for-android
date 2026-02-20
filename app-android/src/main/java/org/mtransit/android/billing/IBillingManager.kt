@@ -115,10 +115,15 @@ interface IBillingManager {
     }
 }
 
+fun RemoteConfigProvider.allowTwitterNews() =
+    this.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_CACHED, RemoteConfigProvider.ALLOW_TWITTER_NEWS_CACHED_DEFAULT)
+            || this.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
+// || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
+
 fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveAgencies(
         billingManager.showingPaidFeatures(),
-        remoteConfigProvider.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
+        remoteConfigProvider.allowTwitterNews()
     )
 
 fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<T> {
@@ -131,7 +136,7 @@ fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures:
 fun List<String>.filterExpansiveAgencyAuthorities(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveAgencyAuthorities(
         billingManager.showingPaidFeatures(),
-        remoteConfigProvider.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT),
+        remoteConfigProvider.allowTwitterNews(),
     )
 
 fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<String> {
@@ -144,7 +149,7 @@ fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean, 
 fun List<NewsProviderProperties>.filterExpansiveNewsProviders(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveNewsProviders(
         billingManager.showingPaidFeatures(),
-        remoteConfigProvider.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
+        remoteConfigProvider.allowTwitterNews()
     )
 
 fun List<NewsProviderProperties>.filterExpansiveNewsProviders(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<NewsProviderProperties> {
