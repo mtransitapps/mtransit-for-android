@@ -35,11 +35,9 @@ fun VehicleLocation.getMapMarkerAlpha(): Float? {
 
 fun VehicleLocation.getMapMarkerTitle(context: Context): String? =
     reportTimestamp?.let {
-        (TimeUtils.currentTimeMillis().milliseconds - it).toComponents { days, hours, minutes, seconds, _ ->
+        (TimeUtils.currentTimeMillis().milliseconds - it).toComponents { seconds, _ ->
             when {
-                days > 0L -> context.getString(R.string.short_days_count, days)
-                hours > 0L -> context.getString(R.string.short_hours_count, hours)
-                minutes > 0L -> context.getString(R.string.short_minutes_count, minutes)
+                seconds >= 100L -> context.getString(R.string.short_minutes_plus_count, seconds / 60)
                 else -> context.getString(R.string.short_seconds_count, seconds)
             }
         }
