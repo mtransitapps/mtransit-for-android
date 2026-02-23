@@ -167,6 +167,13 @@ jobs:
           
           # Extract current version using grep
           CURRENT_VERSION=$(grep -oP 'module_db_version">\K[0-9]+' "$MODULES_VALUES_FILE")
+          
+          # Validate version was extracted
+          if [[ -z "$CURRENT_VERSION" ]]; then
+            echo "ERROR: Failed to extract current module_db_version"
+            exit 1
+          fi
+          
           echo "Current module_db_version: $CURRENT_VERSION"
           
           # Increment version
@@ -175,6 +182,13 @@ jobs:
           
           # Use sed to update the version number
           sed -i "s/<integer name=\"module_db_version\">${CURRENT_VERSION}<\/integer>/<integer name=\"module_db_version\">${NEW_VERSION}<\/integer>/" "$MODULES_VALUES_FILE"
+          
+          # Verify the update was successful
+          UPDATED_VERSION=$(grep -oP 'module_db_version">\K[0-9]+' "$MODULES_VALUES_FILE")
+          if [[ "$UPDATED_VERSION" != "$NEW_VERSION" ]]; then
+            echo "ERROR: Failed to update module_db_version. Expected $NEW_VERSION but got $UPDATED_VERSION"
+            exit 1
+          fi
           
           echo "module_db_version bumped from $CURRENT_VERSION to $NEW_VERSION."
 
@@ -249,6 +263,8 @@ jobs:
       - name: MT update pull request (if necessary)
         if: ${{ steps.mt-commit-changes.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
         run: |
+          BRANCH_SUFFIX="${{ steps.extract-suffix.outputs.SUFFIX }}"
+          NEW_BRANCH="${MT_BRANCH_NAME}_update_modules_${BRANCH_SUFFIX}"
           MODULE_NAME="${{ github.event.inputs.name }}"
           
           if [[ "$ACTION" == "updated" ]]; then
@@ -257,7 +273,7 @@ jobs:
             TITLE="Add module \`${MODULE_NAME}\` to \`${MT_BRANCH_NAME}\`"
           fi
           
-          gh pr edit --add-assignee montransit --title "$TITLE"
+          gh pr edit --head "$NEW_BRANCH" --add-assignee montransit --title "$TITLE"
           gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
