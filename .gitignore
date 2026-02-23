@@ -190,6 +190,9 @@ dev.properties
 /dependency_update_push_commits.sh
 /download_and_parse.sh
 /download_and_prepare.sh
+/download_latest_apk.sh
+/download_latest_apk_main.sh
+/download_latest_apk_repo.sh
 /download_only.sh
 /download_dependencies.sh
 /gh_repo_update_details.sh
@@ -208,6 +211,7 @@ dev.properties
 /publish_app_release.sh
 /push_commits.sh
 /set_app_release_required.sh
+/setup-and-all-app-screenshots.sh
 /settings.gradle
 /test.sh
 /test_only.sh

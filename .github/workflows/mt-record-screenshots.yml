@@ -1,0 +1,236 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+name: MT record screenshots
+on:
+  workflow_dispatch: # manual
+    inputs:
+      commitDirectly:
+        description: 'Commit directly to current branch (without PR)'
+        required: false
+        default: false
+        type: boolean
+      buildFromSource:
+        description: 'Build APK from source (skip download)'
+        required: false
+        default: false
+        type: boolean
+# gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD)
+# gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD) -f commitDirectly=true
+# gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD) -f buildFromSource=true
+# gh run list --workflow=mt-record-screenshots.yml
+# gh run watch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  MT_BOT_USER_NAME: ${{ vars.MT_BOT_USER_NAME }}
+  MT_BOT_USER_EMAIL: ${{ vars.MT_BOT_USER_EMAIL }}
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # repo type
+  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
+  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
+  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+jobs:
+  MT-RECORD-SCREENSHOTS-JOB:
+    name: "MT record screenshots"
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MT_PAT }}
+
+      - name: MT setup
+        uses: ./.github/actions/setup
+
+      - name: MT read sdk-target from gradle/libs.versions.toml
+        id: sdk-target
+        run: |
+          SDK_TARGET=$(grep -E '^sdk-target\s*=\s*"[0-9]+"' commons/gradle/libs.versions.toml | sed -E 's/.*"([0-9]+)".*/\1/')
+          echo "API_LEVEL=${SDK_TARGET}" >> $GITHUB_OUTPUT
+          echo "Using API level: ${SDK_TARGET}"
+
+      - name: MT enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: MT download main app release APK
+        id: download-main-apk
+        run: |
+          source ./download_latest_apk.sh "mtransitapps/mtransit-for-android"
+          if [[ -z "$APK_FILE" ]]; then
+            echo "ERROR: no APK file!"
+            exit 1 # error
+          fi
+          echo "MAIN_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "Main app APK downloaded successfully."
+
+      - name: MT download this app release APK
+        id: download-module-apk
+        if: github.event.inputs.buildFromSource != 'true'
+        continue-on-error: true
+        run: |
+          REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
+          MODULE_REPO="mtransitapps/${REPO_NAME}"
+          source ./download_latest_apk.sh "$MODULE_REPO"
+          if [[ -z "$APK_FILE" ]]; then
+            echo "WARNING: no APK file!"
+            exit 1 # triggers fallback step
+          fi
+          echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "Module app APK downloaded successfully."
+
+      - name: MT build this app release APK (fallback)
+        if: steps.download-module-apk.outcome == 'failure' || github.event.inputs.buildFromSource == 'true'
+        id: build-module-apk
+        env:
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+        run: |
+          echo "No release APK found, building from source..."
+          # Cleanup keys first (fail OK)
+          ./app-android/keys_cleanup.sh || echo "Keys cleanup (pre-setup) completed with warnings (OK)"
+          # Setup keys (can fail CI if fail)
+          ./app-android/keys_setup.sh || exit
+          # Assemble release APK (store result)
+          ./gradlew :app-android:assembleRelease --no-scan -PuseGooglePlayUploadKeysProperties=false
+          RESULT=$?
+          # Cleanup keys (can fail CI if fail)
+          ./app-android/keys_cleanup.sh || exit
+          # Check if build failed
+          if [[ $RESULT -ne 0 ]]; then
+            echo "ERROR: Failed to assemble release APK!"
+            exit ${RESULT}
+          fi
+          # Find and set the APK file path
+          APK_FILE=$(find ./app-android/build/outputs/apk/release -name "*.apk" -type f | head -1)
+          if [[ -z "$APK_FILE" ]] || [[ ! -f "$APK_FILE" ]]; then
+            echo "ERROR: APK file not found in ./app-android/build/outputs/apk/release/"
+            exit 1
+          fi
+          echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "Module app APK assembled successfully at: $APK_FILE"
+
+      - name: MT read timezone from XML resource value (optional)
+        id: timezone
+        run: |
+          TIMEZONE_XML_FILE="app-android/src/main/res/values/gtfs_rts_values_gen.xml"
+          if [ -f "$TIMEZONE_XML_FILE" ]; then
+            TIMEZONE=$(xmllint --xpath "string(//resources/string[@name='gtfs_rts_timezone']/text())" "$TIMEZONE_XML_FILE" 2>/dev/null || echo "")
+            if [ -n "$TIMEZONE" ]; then
+              echo "TIMEZONE=${TIMEZONE}" >> $GITHUB_OUTPUT
+              echo "Found timezone: '${TIMEZONE}'."
+            else
+              echo "No timezone found in '$TIMEZONE_XML_FILE' file (ok)."
+            fi
+          else
+            echo "No '$TIMEZONE_XML_FILE' file found (ok)."
+          fi
+
+      - name: MT record screenshots with Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        timeout-minutes: 10
+        env:
+          TZ: ${{ steps.timezone.outputs.TIMEZONE || 'UTC' }}
+          MAIN_APK_FILE: ${{ steps.download-main-apk.outputs.MAIN_APK_FILE }}
+          MODULE_APK_FILE: ${{ steps.download-module-apk.outputs.MODULE_APK_FILE || steps.build-module-apk.outputs.MODULE_APK_FILE }}
+        with:
+          api-level: ${{ steps.sdk-target.outputs.API_LEVEL }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_4_xl
+          force-avd-creation: false
+          disable-animations: true
+          disable-spellchecker: true
+          disable-linux-hw-accel: false
+          emulator-boot-timeout: 180
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -no-snapshot-save
+          script: ./setup-and-all-app-screenshots.sh
+
+      - name: MT upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ github.sha }}
+          path: |
+            app-android/src/main/play/listings/*/graphics/*-screenshots/*.png
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: MT commit screenshots
+        continue-on-error: true
+        id: mt-commit-screenshots
+        run: |
+          # Check if screenshots were generated
+          SCREENSHOT_COUNT=$(find app-android/src/main/play/listings -type d -name '*-screenshots' -exec find {} -type f -name '*.png' \; 2>/dev/null | wc -l)
+          if [ "$SCREENSHOT_COUNT" -gt 0 ]; then
+            echo "Found $SCREENSHOT_COUNT screenshot file(s)."
+            git add -v -A app-android/src/main/play/listings/
+            if git diff --staged --quiet; then
+              echo "No new screenshots to commit."
+              exit 1 # fail == no PR needed
+            fi
+            git config user.name "$MT_BOT_USER_NAME"
+            git config user.email "$MT_BOT_USER_EMAIL"
+            if [ "${{ github.event.inputs.commitDirectly }}" = "true" ]; then
+              echo "Committing directly to current branch: ${MT_BRANCH_NAME}"
+              git commit -m "Update screenshots in \`${MT_BRANCH_NAME}\`"
+              git push origin "${MT_BRANCH_NAME}"
+              exit 1 # fail == no PR needed
+            else
+              echo "Creating new branch and preparing for PR: ${MT_BRANCH_NAME}_update_screenshots"
+              git checkout -B "${MT_BRANCH_NAME}_update_screenshots"
+              git commit -m "Update screenshots in \`${MT_BRANCH_NAME}\`"
+              git push -u origin "${MT_BRANCH_NAME}_update_screenshots" --force
+            fi
+            exit 0 # success == PR needed
+          else
+            echo "No screenshots found."
+            exit 1 # fail == no PR needed
+          fi
+
+      - name: MT check if PR exists
+        id: mt-check-pr-exists
+        if: ${{ steps.mt-commit-screenshots.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          # Fetch the branch to ensure it exists in the remote tracking
+          git fetch origin "${MT_BRANCH_NAME}_update_screenshots" || true
+          PR_COUNT=$(gh pr list --state open --head "${MT_BRANCH_NAME}_update_screenshots" | wc -l)
+          echo "Pull requests found: $PR_COUNT."
+          if [[ $PR_COUNT -eq 0 ]]; then
+            exit 1 # fail == PR need to be created
+          else
+            exit 0 # success == PR need to be updated
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT create pull request (if necessary)
+        if: ${{ steps.mt-commit-screenshots.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'failure' }}
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          gh pr create --base "${MT_BRANCH_NAME}" --title "$COMMIT_MSG" --body "$COMMIT_MSG" --assignee montransit
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT update pull request (if necessary)
+        if: ${{ steps.mt-commit-screenshots.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
+        run: |
+          gh pr edit --add-assignee montransit --title "Update screenshots in \`${MT_BRANCH_NAME}\`"
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
