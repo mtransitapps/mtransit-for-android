@@ -247,12 +247,16 @@ public class POIFragment extends ABFragment implements
 					false,
 					TOP_PADDING_SP,
 					BOTTOM_PADDING_SP,
-					true,
+					false, // manually set
 					false,
 					false,
 					true,
 					false
 			);
+
+	private void setupMapViewController() {
+		this.mapViewController.setHideMapMarkerSnippet(true);
+	}
 
 	private void onAgencyLoaded(@Nullable AgencyProperties agency) {
 		applyNewAgency();
@@ -480,6 +484,7 @@ public class POIFragment extends ABFragment implements
 	public void onAttach(@NonNull Context context) {
 		super.onAttach(context);
 		initAdapters(this);
+		setupMapViewController();
 		this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));
 		this.mapViewController.onAttach(requireActivity());
@@ -548,12 +553,14 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	protected Job _vehicleLocationCountdownRefreshJob = null;
 
-	private void onVehicleLocationsLoaded(@Nullable List<VehicleLocation> vehicleLocations) {
+	private void onVehicleLocationsLoaded(@Nullable Collection<VehicleLocation> vehicleLocations) {
 		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return;
 		final Context context = getContext();
 		if (context != null) {
-			MapViewControllerExtKt.updateVehicleLocationMarkers(this.mapViewController, context);
+			final String closestVehicleLocationUuid = POIFragmentExtKt.getClosestVehicleLocationUuid(this, vehicleLocations);
+			MapViewControllerExtKt.updateVehicleLocationMarkers(this.mapViewController, context, closestVehicleLocationUuid, this, vehicleLocations);
 		}
+		this.mapViewController.showMarkers(true, false);
 		if (vehicleLocations == null || vehicleLocations.isEmpty()) {
 			stopVehicleLocationCountdownRefresh(this);
 		} else {

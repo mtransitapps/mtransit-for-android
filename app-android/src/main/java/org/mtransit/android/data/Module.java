@@ -100,7 +100,7 @@ public class Module extends DefaultPOI {
 	}
 
 	@Nullable
-	public String getLocation() {
+	public String getLocationString() {
 		return this.location;
 	}
 

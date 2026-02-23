@@ -186,11 +186,14 @@ public class MapViewController implements
 
 	private CameraPosition lastCameraPosition;
 
-	private String lastSelectedUUID;
+	@Nullable
+	protected String lastSelectedUUID = null;
 
 	private String focusedOnUUID = null;
 
 	private boolean locationPermissionGranted = false;
+
+	protected boolean hideMapMarkerSnippet = false;
 
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
@@ -249,6 +252,10 @@ public class MapViewController implements
 
 	public void setDataSourcesRepository(@Nullable DataSourcesRepository dataSourcesRepository) {
 		this.dataSourcesRepository = dataSourcesRepository;
+	}
+
+	public void setHideMapMarkerSnippet(boolean hideMapMarkerSnippet) {
+		this.hideMapMarkerSnippet = hideMapMarkerSnippet;
 	}
 
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -769,14 +776,10 @@ public class MapViewController implements
 	}
 
 	private boolean showClosestPOI() {
-		if (this.deviceLocation == null) {
-			return false; // not handled
-		}
+		if (this.deviceLocation == null) return false; // not handled
 		final MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
 		final POIManager poim = markerProvider == null ? null : markerProvider.getClosestPOI();
-		if (poim == null) {
-			return false; // not handled
-		}
+		if (poim == null) return false; // not handled
 		final LatLngBounds.Builder llb = LatLngBounds.builder();
 		includeLocationAccuracyBounds(llb, this.deviceLocation);
 		final LatLng poimlatLng = POIManagerExtKt.getLatLng(poim);
@@ -791,18 +794,12 @@ public class MapViewController implements
 		return success; // handled or not
 	}
 
-	private boolean showMarkers(boolean anim, boolean includeDeviceLocation) {
-		if (!this.mapLayoutReady) {
-			return false;
-		}
-		if (!this.mapVisible) {
-			return false;
-		}
+	public boolean showMarkers(boolean anim, boolean includeDeviceLocation) {
+		if (!this.mapLayoutReady) return false;
+		if (!this.mapVisible) return false;
 		final LatLngBounds.Builder llb = LatLngBounds.builder();
 		final boolean markersFound = includeMarkersInLatLngBounds(llb);
-		if (!markersFound) {
-			return false; // not shown
-		}
+		if (!markersFound) return false;  // not shown
 		if (includeDeviceLocation) {
 			includeLocationAccuracyBounds(llb, this.deviceLocation);
 		}
@@ -824,9 +821,7 @@ public class MapViewController implements
 	}
 
 	private static void includeLocationAccuracyBounds(@NonNull LatLngBounds.Builder llb, @Nullable Location location) {
-		if (location == null) {
-			return;
-		}
+		if (location == null) return;
 		Location northEastBound = LocationUtils.computeOffset(location, location.getAccuracy(), LocationUtils.HEADING_NORTH_EAST);
 		llb.include(LatLngUtils.fromLocation(northEastBound));
 		Location southEastBound = LocationUtils.computeOffset(location, location.getAccuracy(), LocationUtils.HEADING_SOUTH_EAST);

@@ -160,9 +160,9 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Nullable
-	public String getLocation() {
+	public String getLocationString() {
 		if (this.poi instanceof Module) {
-			return ((Module) this.poi).getLocation();
+			return ((Module) this.poi).getLocationString();
 		}
 		return null;
 	}

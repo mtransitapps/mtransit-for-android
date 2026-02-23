@@ -17,19 +17,26 @@ import org.mtransit.android.ui.view.map.updateTitle
 import org.mtransit.android.ui.view.map.uuidOrGenerated
 import org.mtransit.android.util.MapUtils
 
-fun MapViewController.updateVehicleLocationMarkers(context: Context) {
+@JvmOverloads
+fun MapViewController.updateVehicleLocationMarkers(
+    context: Context,
+    selectedUuid: String? = this.lastSelectedUUID,
+    markerProvider: MapViewController.MapMarkerProvider? = this.markerProviderWR?.get(),
+    vehicleLocations: Collection<VehicleLocation>? = markerProvider?.vehicleLocations,
+): Boolean {
+    selectedUuid?.let { setInitialSelectedUUID(selectedUuid) }
     val googleMap = this.extendedGoogleMap ?: run {
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no google map)")
-        return
+        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no google map) #:POIFragment")
+        return false
     }
-    val markerProvider = this.markerProviderWR?.get() ?: run {
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no marker provider)")
-        return
+    val markerProvider = markerProvider ?: run {
+        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no marker provider) #:POIFragment")
+        return false
     }
-    val vehicleLocations = markerProvider.getVehicleLocations()?.takeIf { it.isNotEmpty() } ?: run {
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations)")
+    val vehicleLocations = vehicleLocations?.takeIf { it.isNotEmpty() } ?: run {
+        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations) #:POIFragment")
         removeMissingVehicleLocationMarkers()
-        return
+        return true
     }
     val visibleArea = googleMap.getProjection().visibleRegion.toArea()
     val visibleMarkersCount = visibleArea.countMarkersInside(googleMap.getMarkers()) +
@@ -45,16 +52,20 @@ fun MapViewController.updateVehicleLocationMarkers(context: Context) {
         var marker = this.vehicleLocationsMarkers[uuid]
         if (marker == null) { // ADD new
             marker = googleMap.addMarker(
-                vehicleLocation.toExtendedMarkerOptions(context, iconDef, vehicleColorInt, currentZoomGroup)
+                vehicleLocation.toExtendedMarkerOptions(context, iconDef, vehicleColorInt, currentZoomGroup, hideMapMarkerSnippet)
             )
             this.vehicleLocationsMarkers[uuid] = marker
         } else { // UPDATE existing
-            vehicleLocation.updateMarker(marker, context, iconDef, vehicleColorInt, currentZoomGroup)
+            vehicleLocation.updateMarker(marker, context, iconDef, vehicleColorInt, currentZoomGroup, hideMapMarkerSnippet)
+        }
+        if (selectedUuid == uuid) {
+            marker.showInfoWindow()
         }
         processedVehicleLocationsUUIDs.add(uuid)
         index++
     }
     removeMissingVehicleLocationMarkers(processedVehicleLocationsUUIDs)
+    return true
 }
 
 @JvmOverloads
@@ -73,6 +84,6 @@ fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
         marker.updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
         if (!marker.isInfoWindowShown) return@forEach
         marker.updateTitle(vehicleLocation.getMapMarkerTitle(context))
-        marker.updateSnippet(vehicleLocation.getMapMarkerSnippet(context))
+        marker.updateSnippet(if (hideMapMarkerSnippet) null else vehicleLocation.getMapMarkerSnippet(context))
     }
 }
