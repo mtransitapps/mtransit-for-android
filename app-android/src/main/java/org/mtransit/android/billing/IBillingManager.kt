@@ -115,6 +115,7 @@ interface IBillingManager {
     }
 }
 
+@Suppress("DEPRECATION")
 fun RemoteConfigProvider.allowTwitterNews() =
     this.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_CACHED, RemoteConfigProvider.ALLOW_TWITTER_NEWS_CACHED_DEFAULT)
             || this.get(RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE, RemoteConfigProvider.ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT)
