@@ -166,7 +166,7 @@ jobs:
           MODULES_VALUES_FILE="app-android/src/main/res/values/modules_values.xml"
           
           # Extract current version using grep
-          CURRENT_VERSION=$(grep -oP 'module_db_version">\K[0-9]+' "$MODULES_VALUES_FILE")
+          CURRENT_VERSION=$(grep -oP '<integer name="module_db_version">\K[0-9]+(?=</integer>)' "$MODULES_VALUES_FILE")
           
           # Validate version was extracted
           if [[ -z "$CURRENT_VERSION" ]]; then
@@ -184,7 +184,7 @@ jobs:
           sed -i "s/<integer name=\"module_db_version\">${CURRENT_VERSION}<\/integer>/<integer name=\"module_db_version\">${NEW_VERSION}<\/integer>/" "$MODULES_VALUES_FILE"
           
           # Verify the update was successful
-          UPDATED_VERSION=$(grep -oP 'module_db_version">\K[0-9]+' "$MODULES_VALUES_FILE")
+          UPDATED_VERSION=$(grep -oP '<integer name="module_db_version">\K[0-9]+(?=</integer>)' "$MODULES_VALUES_FILE")
           if [[ "$UPDATED_VERSION" != "$NEW_VERSION" ]]; then
             echo "ERROR: Failed to update module_db_version. Expected $NEW_VERSION but got $UPDATED_VERSION"
             exit 1
