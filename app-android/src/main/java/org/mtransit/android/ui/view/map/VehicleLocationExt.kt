@@ -13,6 +13,7 @@ import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.toDate
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 val VehicleLocation.position: LatLng get() = LatLng(this.latitude.toDouble(), this.longitude.toDouble())
 
@@ -35,9 +36,9 @@ fun VehicleLocation.getMapMarkerAlpha(): Float? {
 
 fun VehicleLocation.getMapMarkerTitle(context: Context): String? =
     reportTimestamp?.let {
-        (TimeUtils.currentTimeMillis().milliseconds - it).toComponents { seconds, _ ->
+        (TimeUtils.currentTimeMillis().milliseconds - it).inWholeSeconds.let { seconds ->
             when {
-                seconds >= 100L -> context.getString(R.string.short_minutes_plus_count, seconds / 60)
+                seconds >= 100L -> context.getString(R.string.short_minutes_plus_count, seconds.seconds.inWholeMinutes)
                 else -> context.getString(R.string.short_seconds_count, seconds)
             }
         }
