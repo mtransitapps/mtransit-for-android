@@ -8,8 +8,14 @@ on:
         required: false
         default: false
         type: boolean
+      buildFromSource:
+        description: 'Build APK from source (skip download)'
+        required: false
+        default: false
+        type: boolean
 # gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD)
 # gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD) -f commitDirectly=true
+# gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD) -f buildFromSource=true
 # gh run list --workflow=mt-record-screenshots.yml
 # gh run watch
 concurrency:
@@ -74,16 +80,48 @@ jobs:
 
       - name: MT download this app release APK
         id: download-module-apk
+        if: github.event.inputs.buildFromSource != 'true'
+        continue-on-error: true
         run: |
           REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
           MODULE_REPO="mtransitapps/${REPO_NAME}"
           source ./download_latest_apk.sh "$MODULE_REPO"
           if [[ -z "$APK_FILE" ]]; then
-            echo "ERROR: no APK file!"
-            exit 1 # error
+            echo "WARNING: no APK file!"
+            exit 1 # triggers fallback step
           fi
           echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
           echo "Module app APK downloaded successfully."
+
+      - name: MT build this app release APK (fallback)
+        if: steps.download-module-apk.outcome == 'failure' || github.event.inputs.buildFromSource == 'true'
+        id: build-module-apk
+        env:
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+        run: |
+          echo "No release APK found, building from source..."
+          # Cleanup keys first (fail OK)
+          ./app-android/keys_cleanup.sh || echo "Keys cleanup (pre-setup) completed with warnings (OK)"
+          # Setup keys (can fail CI if fail)
+          ./app-android/keys_setup.sh || exit
+          # Assemble release APK (store result)
+          ./gradlew :app-android:assembleRelease --no-scan -PuseGooglePlayUploadKeysProperties=false
+          RESULT=$?
+          # Cleanup keys (can fail CI if fail)
+          ./app-android/keys_cleanup.sh || exit
+          # Check if build failed
+          if [[ $RESULT -ne 0 ]]; then
+            echo "ERROR: Failed to assemble release APK!"
+            exit ${RESULT}
+          fi
+          # Find and set the APK file path
+          APK_FILE=$(find ./app-android/build/outputs/apk/release -name "*.apk" -type f | head -1)
+          if [[ -z "$APK_FILE" ]] || [[ ! -f "$APK_FILE" ]]; then
+            echo "ERROR: APK file not found in ./app-android/build/outputs/apk/release/"
+            exit 1
+          fi
+          echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "Module app APK assembled successfully at: $APK_FILE"
 
       - name: MT read timezone from XML resource value (optional)
         id: timezone
