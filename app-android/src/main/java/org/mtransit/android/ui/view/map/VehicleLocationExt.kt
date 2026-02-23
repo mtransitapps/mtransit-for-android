@@ -47,7 +47,7 @@ fun VehicleLocation.getMapMarkerTitle(context: Context): String? =
 
 fun VehicleLocation.getMapMarkerSnippet(context: Context): String? = buildList {
     vehicleLabel?.takeIf { it.isNotEmpty() }?.let { add(it) }
-        ?: reportTimestampMs?.let { UITimeUtils.formatTime(false, context, it.toDate()) }?.let { add(it) }
+    reportTimestampMs?.let { UITimeUtils.formatTime(false, context, it.toDate()) }?.let { add(it) }
 }.takeIf { it.isNotEmpty() }?.joinToString(separator = " | ")
 
 fun VehicleLocation.getRotation(default: Float) =
