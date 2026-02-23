@@ -145,7 +145,7 @@ jobs:
         env:
           TZ: ${{ steps.timezone.outputs.TIMEZONE || 'UTC' }}
           MAIN_APK_FILE: ${{ steps.download-main-apk.outputs.MAIN_APK_FILE }}
-          MODULE_APK_FILE: ${{ steps.download-module-apk.outputs.MODULE_APK_FILE }}
+          MODULE_APK_FILE: ${{ steps.download-module-apk.outputs.MODULE_APK_FILE || steps.build-module-apk.outputs.MODULE_APK_FILE }}
         with:
           api-level: ${{ steps.sdk-target.outputs.API_LEVEL }}
           target: google_apis
