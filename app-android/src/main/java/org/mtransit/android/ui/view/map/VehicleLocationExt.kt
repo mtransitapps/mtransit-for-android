@@ -12,7 +12,6 @@ import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.toDate
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 val VehicleLocation.position: LatLng get() = LatLng(this.latitude.toDouble(), this.longitude.toDouble())
@@ -23,24 +22,19 @@ val VehicleLocation.uuidOrGenerated: String
 
 private const val MIN_ALPHA = 0.33f
 
-fun VehicleLocation.getMapMarkerAlpha(): Float? {
-    return reportTimestamp?.let {
-        (TimeUtils.currentTimeMillis().milliseconds - it).toComponents { minutes, seconds, _ ->
-            when {
-                minutes > 0 -> MIN_ALPHA
-                else -> MapUtils.MAP_MARKER_ALPHA_DEFAULT - (seconds / 60.0f)
-            }.coerceIn(MIN_ALPHA, MapUtils.MAP_MARKER_ALPHA_DEFAULT)
+fun VehicleLocation.getMapMarkerAlpha() =
+    reportTimestampCountdown?.inWholeSeconds?.let { seconds ->
+        when {
+            seconds >= 100L -> MIN_ALPHA
+            else -> MapUtils.MAP_MARKER_ALPHA_DEFAULT - (seconds / 100.0f)
         }
-    }
-}
+    }?.coerceIn(MIN_ALPHA, MapUtils.MAP_MARKER_ALPHA_DEFAULT)
 
 fun VehicleLocation.getMapMarkerTitle(context: Context): String? =
-    reportTimestamp?.let {
-        (TimeUtils.currentTimeMillis().milliseconds - it).inWholeSeconds.let { seconds ->
-            when {
-                seconds >= 100L -> context.getString(R.string.short_minutes_plus_count, seconds.seconds.inWholeMinutes)
-                else -> context.getString(R.string.short_seconds_count, seconds)
-            }
+    reportTimestampCountdown?.inWholeSeconds?.let { seconds ->
+        when {
+            seconds >= 100L -> context.getString(R.string.short_minutes_plus_count, seconds.seconds.inWholeMinutes)
+            else -> context.getString(R.string.short_seconds_count, seconds)
         }
     }
 
