@@ -20,7 +20,7 @@ import org.mtransit.android.common.repository.DefaultPreferenceRepository.Compan
 import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_DAILY
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtilsK
-import org.mtransit.android.commons.toInstant
+import org.mtransit.android.commons.millisToInstant
 import org.mtransit.android.commons.toMillis
 import org.mtransit.android.datasource.DataSourcesCache
 import org.mtransit.android.dev.DemoModeManager
