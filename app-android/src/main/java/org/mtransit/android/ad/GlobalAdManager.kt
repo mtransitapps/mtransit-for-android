@@ -3,8 +3,9 @@ package org.mtransit.android.ad
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.libraries.ads.mobile.sdk.MobileAds
+import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -119,6 +120,7 @@ class GlobalAdManager(
         // https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
+            InitializationConfig.Builder(activity.requireContext().getString(R.string.google_ads_app_id)).build(),
         ) { initializationStatus ->
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
                 MTLog.d(this, "Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")
