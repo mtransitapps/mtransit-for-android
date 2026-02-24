@@ -99,7 +99,7 @@ jobs:
 
       # DOWNLOAD (not PR) AND PARSE (NOT main repo/bike)
       - name: MT download data (& archive)
-        if: ${{ github.event_name != 'pull_request' && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && github.event.inputs.skip-download-data == 'false' }}
+        if: ${{ github.event_name != 'pull_request' && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && github.event.inputs.skip-download-data != 'true' }}
         timeout-minutes: 10
         continue-on-error: true # optional (continue with archive data)
         run: ./download_only.sh
