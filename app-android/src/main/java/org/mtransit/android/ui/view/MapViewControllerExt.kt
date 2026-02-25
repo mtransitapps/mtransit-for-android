@@ -71,7 +71,7 @@ fun MapViewController.updateVehicleLocationMarkers(
 }
 
 fun MapViewController.getPOIZoomGroup(currentZoomGroup: MTMapIconZoomGroup, isFocused: (String) -> Boolean) =
-    focusedOnUUID?.let { if (isFocused(it)) MTMapIconZoomGroup.DEFAULT else MTMapIconZoomGroup.SMALL } ?: currentZoomGroup
+    focusedOnUUID?.let { if (isFocused(it)) MTMapIconZoomGroup.DEFAULT else MTMapIconZoomGroup.MEDIUM } ?: currentZoomGroup
 
 @JvmOverloads
 fun MapViewController.removeMissingVehicleLocationMarkers(
