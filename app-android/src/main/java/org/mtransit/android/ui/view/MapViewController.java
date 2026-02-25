@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view;
 
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
 
@@ -186,11 +187,15 @@ public class MapViewController implements
 
 	private CameraPosition lastCameraPosition;
 
-	private String lastSelectedUUID;
+	@Nullable
+	protected String lastSelectedUUID = null;
 
-	private String focusedOnUUID = null;
+	@Nullable
+	protected String focusedOnUUID = null;
 
 	private boolean locationPermissionGranted = false;
+
+	protected boolean hideMapMarkerSnippet = false;
 
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
@@ -249,6 +254,10 @@ public class MapViewController implements
 
 	public void setDataSourcesRepository(@Nullable DataSourcesRepository dataSourcesRepository) {
 		this.dataSourcesRepository = dataSourcesRepository;
+	}
+
+	public void setHideMapMarkerSnippet(boolean hideMapMarkerSnippet) {
+		this.hideMapMarkerSnippet = hideMapMarkerSnippet;
 	}
 
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -769,14 +778,10 @@ public class MapViewController implements
 	}
 
 	private boolean showClosestPOI() {
-		if (this.deviceLocation == null) {
-			return false; // not handled
-		}
+		if (this.deviceLocation == null) return false; // not handled
 		final MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
 		final POIManager poim = markerProvider == null ? null : markerProvider.getClosestPOI();
-		if (poim == null) {
-			return false; // not handled
-		}
+		if (poim == null) return false; // not handled
 		final LatLngBounds.Builder llb = LatLngBounds.builder();
 		includeLocationAccuracyBounds(llb, this.deviceLocation);
 		final LatLng poimlatLng = POIManagerExtKt.getLatLng(poim);
@@ -791,18 +796,12 @@ public class MapViewController implements
 		return success; // handled or not
 	}
 
-	private boolean showMarkers(boolean anim, boolean includeDeviceLocation) {
-		if (!this.mapLayoutReady) {
-			return false;
-		}
-		if (!this.mapVisible) {
-			return false;
-		}
+	public boolean showMarkers(boolean anim, boolean includeDeviceLocation) {
+		if (!this.mapLayoutReady) return false;
+		if (!this.mapVisible) return false;
 		final LatLngBounds.Builder llb = LatLngBounds.builder();
 		final boolean markersFound = includeMarkersInLatLngBounds(llb);
-		if (!markersFound) {
-			return false; // not shown
-		}
+		if (!markersFound) return false;  // not shown
 		if (includeDeviceLocation) {
 			includeLocationAccuracyBounds(llb, this.deviceLocation);
 		}
@@ -824,9 +823,7 @@ public class MapViewController implements
 	}
 
 	private static void includeLocationAccuracyBounds(@NonNull LatLngBounds.Builder llb, @Nullable Location location) {
-		if (location == null) {
-			return;
-		}
+		if (location == null) return;
 		Location northEastBound = LocationUtils.computeOffset(location, location.getAccuracy(), LocationUtils.HEADING_NORTH_EAST);
 		llb.include(LatLngUtils.fromLocation(northEastBound));
 		Location southEastBound = LocationUtils.computeOffset(location, location.getAccuracy(), LocationUtils.HEADING_SOUTH_EAST);
@@ -1140,8 +1137,9 @@ public class MapViewController implements
 			);
 			final Context context = mapViewController.mapView.getContext();
 			for (MTPOIMarker poiMarker : poiMarkers) {
+				final MTMapIconZoomGroup poiZoomGroup = currentZoomGroup == null ? null : getPOIZoomGroup(mapViewController, currentZoomGroup, poiMarker::hasUUID);
 				final IMarker marker = mapViewController.extendedGoogleMap.addMarker(
-						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.markerLabelShowExtra, currentZoomGroup)
+						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.markerLabelShowExtra, poiZoomGroup)
 				);
 				if (poiMarker.hasUUID(mapViewController.lastSelectedUUID)) {
 					marker.showInfoWindow();
@@ -1181,8 +1179,9 @@ public class MapViewController implements
 					)
 			);
 			for (MTPOIMarker poiMarker : poiMarkers) {
+				final MTMapIconZoomGroup poiZoomGroup = currentZoomGroup == null ? null : getPOIZoomGroup(this, currentZoomGroup, poiMarker::hasUUID);
 				final IMarker marker = this.extendedGoogleMap.addMarker(
-						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, this.markerLabelShowExtra, currentZoomGroup)
+						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, this.markerLabelShowExtra, poiZoomGroup)
 				);
 				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
 					marker.showInfoWindow();

@@ -154,7 +154,7 @@ class POIViewModel @Inject constructor(
                     }.flatten()
                 )
             }
-        }
+        }.distinctUntilChanged()
 
     val poiList: LiveData<List<POIManager>?> = MediatorLiveData2(agency, _poi).switchMap { (agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
@@ -262,7 +262,7 @@ class POIViewModel @Inject constructor(
         var ad = LocationUtils.getNewDefaultAroundDiff()
         var maxDistanceInMeters = NEARBY_CONNECTIONS_INITIAL_COVERAGE
         var nearbyAgencyPOIAdded = false
-        // 1 - try connections only in closest nearby area
+        // 1 - try connections only in the closest nearby area
         while (true) {
             if (maxDistanceInMeters >= LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)) {
                 LocationUtils.incAroundDiff(ad)

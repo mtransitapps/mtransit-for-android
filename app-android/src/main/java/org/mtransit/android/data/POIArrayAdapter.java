@@ -2071,11 +2071,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 		}
 		if (holder.getLocationTv() != null) {
-			if (TextUtils.isEmpty(poim.getLocation())) {
+			if (TextUtils.isEmpty(poim.getLocationString())) {
 				holder.getLocationTv().setVisibility(View.GONE);
 				holder.getLocationTv().setText(null);
 			} else {
-				holder.getLocationTv().setText(poim.getLocation());
+				holder.getLocationTv().setText(poim.getLocationString());
 				holder.getLocationTv().setVisibility(View.VISIBLE);
 			}
 		}

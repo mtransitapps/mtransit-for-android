@@ -358,7 +358,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
         if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
             viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) { vehicleLocations ->
-                context?.let { mapViewController.updateVehicleLocationMarkers(it) }
+                context?.let { mapViewController.updateVehicleLocationMarkers(it, vehicleLocations = vehicleLocations) }
                 if (vehicleLocations.isNullOrEmpty()) {
                     stopVehicleLocationCountdownRefresh()
                 } else {

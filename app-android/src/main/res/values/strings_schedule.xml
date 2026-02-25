@@ -86,8 +86,6 @@
         <item quantity="one">Minute</item>
         <item quantity="other">Minutes</item>
     </plurals>
-    <string name="short_days_count">%dd</string>
-    <string name="short_hours_count">%dh</string>
-    <string name="short_minutes_count">%dm</string>
+    <string name="short_minutes_plus_count">%dm+</string>
     <string name="short_seconds_count">%ds</string>
 </resources>
