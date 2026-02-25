@@ -17,9 +17,9 @@ on:
         required: true
         type: string
       targetTypeId:
-        description: 'Target Type ID'
+        description: 'Target Type ID (0=light rail, 1=subway, 2=train, 3=bus, 4=ferry, 100=bike)'
         required: true
-        type: string
+        type: number
       color:
         description: 'Color (hex without #)'
         required: true
