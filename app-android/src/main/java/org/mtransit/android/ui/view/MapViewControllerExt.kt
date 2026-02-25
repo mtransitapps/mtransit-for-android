@@ -85,10 +85,12 @@ fun MapViewController.removeMissingVehicleLocationMarkers(
 
 fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
     this.vehicleLocationsMarkers.entries.forEach { (_, marker) ->
-        val vehicleLocation = marker.getData<Any?>() as? VehicleLocation ?: return@forEach
-        marker.updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
-        if (!marker.isInfoWindowShown) return@forEach
-        marker.updateTitle(vehicleLocation.getMapMarkerTitle(context))
-        marker.updateSnippet(if (hideMapMarkerSnippet) null else vehicleLocation.getMapMarkerSnippet(context))
+        marker.apply {
+            val vehicleLocation = getData<Any?>() as? VehicleLocation ?: return@forEach
+            updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
+            if (!isInfoWindowShown) return@forEach
+            updateTitle(vehicleLocation.getMapMarkerTitle(context))
+            updateSnippet(if (hideMapMarkerSnippet) null else vehicleLocation.getMapMarkerSnippet(context))
+        }
     }
 }
