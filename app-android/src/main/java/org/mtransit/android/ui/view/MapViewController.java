@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view;
 
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
 
@@ -189,7 +190,8 @@ public class MapViewController implements
 	@Nullable
 	protected String lastSelectedUUID = null;
 
-	private String focusedOnUUID = null;
+	@Nullable
+	protected String focusedOnUUID = null;
 
 	private boolean locationPermissionGranted = false;
 
@@ -1135,8 +1137,9 @@ public class MapViewController implements
 			);
 			final Context context = mapViewController.mapView.getContext();
 			for (MTPOIMarker poiMarker : poiMarkers) {
+				final MTMapIconZoomGroup poiZoomGroup = currentZoomGroup == null ? null : getPOIZoomGroup(mapViewController, currentZoomGroup, poiMarker::hasUUID);
 				final IMarker marker = mapViewController.extendedGoogleMap.addMarker(
-						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.markerLabelShowExtra, currentZoomGroup)
+						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.markerLabelShowExtra, poiZoomGroup)
 				);
 				if (poiMarker.hasUUID(mapViewController.lastSelectedUUID)) {
 					marker.showInfoWindow();
@@ -1176,8 +1179,9 @@ public class MapViewController implements
 					)
 			);
 			for (MTPOIMarker poiMarker : poiMarkers) {
+				final MTMapIconZoomGroup poiZoomGroup = currentZoomGroup == null ? null : getPOIZoomGroup(this, currentZoomGroup, poiMarker::hasUUID);
 				final IMarker marker = this.extendedGoogleMap.addMarker(
-						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, this.markerLabelShowExtra, currentZoomGroup)
+						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, this.markerLabelShowExtra, poiZoomGroup)
 				);
 				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
 					marker.showInfoWindow();

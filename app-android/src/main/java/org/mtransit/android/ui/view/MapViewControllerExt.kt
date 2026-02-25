@@ -3,6 +3,7 @@ package org.mtransit.android.ui.view
 import android.content.Context
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
+import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
 import org.mtransit.android.ui.view.map.countMarkersInside
 import org.mtransit.android.ui.view.map.getMapMarkerAlpha
@@ -49,14 +50,15 @@ fun MapViewController.updateVehicleLocationMarkers(
     vehicleLocations.forEach { vehicleLocation ->
         val iconDef = vehicleDst.vehicleIconDef
         val uuid = vehicleLocation.uuidOrGenerated
+        val poiZoomGroup = getPOIZoomGroup(currentZoomGroup, isFocused = { it == uuid })
         var marker = this.vehicleLocationsMarkers[uuid]
         if (marker == null) { // ADD new
             marker = googleMap.addMarker(
-                vehicleLocation.toExtendedMarkerOptions(context, iconDef, vehicleColorInt, currentZoomGroup, hideMapMarkerSnippet)
+                vehicleLocation.toExtendedMarkerOptions(context, iconDef, vehicleColorInt, poiZoomGroup, hideMapMarkerSnippet)
             )
             this.vehicleLocationsMarkers[uuid] = marker
         } else { // UPDATE existing
-            vehicleLocation.updateMarker(marker, context, iconDef, vehicleColorInt, currentZoomGroup, hideMapMarkerSnippet)
+            vehicleLocation.updateMarker(marker, context, iconDef, vehicleColorInt, poiZoomGroup, hideMapMarkerSnippet)
         }
         if (selectedUuid == uuid) {
             marker.showInfoWindow()
@@ -67,6 +69,9 @@ fun MapViewController.updateVehicleLocationMarkers(
     removeMissingVehicleLocationMarkers(processedVehicleLocationsUUIDs)
     return true
 }
+
+fun MapViewController.getPOIZoomGroup(currentZoomGroup: MTMapIconZoomGroup, isFocused: (String) -> Boolean) =
+    focusedOnUUID?.let { if (isFocused(it)) MTMapIconZoomGroup.DEFAULT else MTMapIconZoomGroup.SMALL } ?: currentZoomGroup
 
 @JvmOverloads
 fun MapViewController.removeMissingVehicleLocationMarkers(
