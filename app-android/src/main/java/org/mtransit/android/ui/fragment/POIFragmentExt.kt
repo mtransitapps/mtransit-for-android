@@ -87,9 +87,8 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
             }
         } else {
             val isShortList = viewModel?.nearbyPOIs?.value != null
-            val nearbySameTypePOIS = viewModel?.nearbyPOIs?.value?.filter { it.poi.type == poim.poi.type }?.takeIf { it.isNotEmpty() }
                 ?: viewModel?.poiList?.value?.filter { it.poi.uuid != poim.poi.uuid }?.takeIf { it.isNotEmpty() }
-            nearbySameTypePOIS?.let { nearbyPOIs ->
+            nearbySameTypePOIs?.let { nearbyPOIs ->
                 val sortedPOIList = nearbyPOIs.sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
                 val nextPOIM = sortedPOIList.getOrNull(0)
                 poiDistanceToNextRelevantPOIM = nextPOIM?.latLng?.distanceToInMeters(poimLatLng)
@@ -120,7 +119,7 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
                 }
             }
         deviceLocation?.let {
-            val maxDistanceToDeviceLocation = poiDistanceToNextRelevantPOIM?.times(2f) ?: Float.MIN_VALUE
+            val maxDistanceToDeviceLocation = poiDistanceToNextRelevantPOIM?.times(2f) ?: 0f
             if (it.distanceTo(poiLocation) <= maxDistanceToDeviceLocation) {
                 add(it.toLatLng())
             }
