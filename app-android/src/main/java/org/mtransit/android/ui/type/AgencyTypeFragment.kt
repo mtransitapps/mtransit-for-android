@@ -13,12 +13,10 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.core.os.bundleOf
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.model.CameraPosition
@@ -245,9 +243,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
         binding = FragmentAgencyTypeBinding.bind(view).apply {
             viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 2
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)

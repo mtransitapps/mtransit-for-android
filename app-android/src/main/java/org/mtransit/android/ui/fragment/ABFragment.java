@@ -347,6 +347,9 @@ public abstract class ABFragment extends MTFragmentX implements
 		EdgeToEdgeKt.applyStatusBarsHeightEdgeToEdge(activity.findViewById(R.id.status_bar_bg));
 		EdgeToEdgeKt.setNavBarThemeEdgeToEdge(activity);
 		EdgeToEdgeKt.setNavBarProtectionEdgeToEdge(activity, isNavBarProtected());
+		if (this instanceof MenuProvider && !hasToolbar()) {
+			requireActivity().addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+		}
 	}
 
 	@Override

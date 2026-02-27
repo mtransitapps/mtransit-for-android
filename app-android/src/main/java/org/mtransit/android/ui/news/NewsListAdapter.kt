@@ -22,11 +22,7 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorWithUserName
 import org.mtransit.android.data.authorityAndUuidT
-import org.mtransit.android.data.authorityT
-import org.mtransit.android.data.getAuthority
-import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.hasVideo
-import org.mtransit.android.data.uuidT
 import org.mtransit.android.databinding.LayoutNewListMomentSeparatorBinding
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.view.common.ImageManager
@@ -266,8 +262,7 @@ class NewsListAdapter(
                     index++ // moment separator
                 }
                 newsList.indexOfFirst {
-                    it.authorityT == authorityAndUuid.getAuthority()
-                            && it.uuidT == authorityAndUuid.getUuid()
+                    it.authorityAndUuidT == authorityAndUuid
                 }.takeIf { it >= 0 }?.let {
                     return index + it
                 }
