@@ -4,6 +4,7 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.MTLog.Loggable
@@ -79,7 +80,7 @@ class InlineBannerAdListener(
         }
         val fragment = this.fragmentWR.get()
         if (fragment == null) {
-            MTLog.d(this, "onAdFailedToLoad() > SKIP (no fragment)")
+            logAdsD(this, "onAdFailedToLoad() > SKIP (no fragment)")
             return
         }
         this.inlineBannerAdManager.setAdBannerLoaded(fragment, false)
@@ -89,10 +90,10 @@ class InlineBannerAdListener(
     override fun onAdLoaded() {
         val adView = this.adViewWR.get()
         val responseInfo = adView?.responseInfo
-        MTLog.d(this, "onAdLoaded() > ad loaded from %s", responseInfo?.mediationAdapterClassName)
+        logAdsD(this, "onAdLoaded() > ad loaded from ${responseInfo?.mediationAdapterClassName}")
         val fragment = this.fragmentWR.get()
         if (fragment == null) {
-            MTLog.d(this, "onAdLoaded() > SKIP (no activity)")
+            logAdsD(this, "onAdLoaded() > SKIP (no activity)")
             return
         }
         this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)

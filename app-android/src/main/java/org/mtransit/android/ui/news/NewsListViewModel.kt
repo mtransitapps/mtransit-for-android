@@ -91,6 +91,20 @@ class NewsListViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
+    private var _fullscreenModeAvailable = MutableLiveData(false)
+    val fullscreenModeAvailable: LiveData<Boolean> = _fullscreenModeAvailable
+
+    fun setFullscreenModeAvailable(fullscreenModeAvailable: Boolean) {
+        _fullscreenModeAvailable.value = fullscreenModeAvailable
+    }
+
+    private var _fullscreenMode = MutableLiveData<Boolean>(false)
+    val fullscreenMode: LiveData<Boolean> = _fullscreenMode
+
+    fun setFullscreenMode(newFullscreenMode: Boolean) {
+        _fullscreenMode.value = newFullscreenMode
+    }
+
     private var _lastReadArticleAuthorityAndUUID = MutableLiveData<AuthorityAndUuid?>(null)
 
     val lastReadArticleAuthorityAndUUID: LiveData<AuthorityAndUuid?> = _lastReadArticleAuthorityAndUUID.distinctUntilChanged()

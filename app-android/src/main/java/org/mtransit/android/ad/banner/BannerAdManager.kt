@@ -8,6 +8,7 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -113,34 +114,34 @@ class BannerAdManager @Inject constructor(
     }
 
     private fun setupBannerAd(activity: IAdScreenActivity, force: Boolean) {
-        MTLog.d(this, "setupAd($force)")
+        logAdsD(this, "setupAd($force)")
         if (!AdConstants.AD_ENABLED) {
-            MTLog.d(this, "setupAd() > SKIP (AD not enabled)")
+            logAdsD(this, "setupAd() > SKIP (AD not enabled)")
             return
         }
         if (!this.globalAdManager.isShowingAds()) {
-            MTLog.d(this, "setupAd() > SKIP (not showing ads)")
+            logAdsD(this, "setupAd() > SKIP (not showing ads)")
             return
         }
         if (force
             && setupBannerAdTask != null // task to cancel or not cancel
             && this.adBannerLoaded != null // state unknown/loading
         ) {
-            MTLog.d(this, "setupAd() > should we cancel?")
+            logAdsD(this, "setupAd() > should we cancel?")
             val minDurationMs = LOAD_ON_SCREEN_RESUMED_MIN_DURATION_SEC.seconds.inWholeMilliseconds
             if (this.adBannerLoadedLastInMs + minDurationMs < TimeUtils.currentTimeMillis()) { // force refresh if ad loaded only
-                MTLog.d(this, "setupAd() > cancelling previous setup ad task...")
+                logAdsD(this, "setupAd() > cancelling previous setup ad task...")
                 TaskUtils.cancelQuietly(setupBannerAdTask, true)
                 setupBannerAdTask = null
             }
         }
         if (setupBannerAdTask == null) {
-            MTLog.d(this, "setupAd() > starting setup ad task...")
+            logAdsD(this, "setupAd() > starting setup ad task...")
             setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)
             TaskUtils.execute(setupBannerAdTask)
             this.adBannerLoaded = null // loading
         }
-        MTLog.d(this, "setupAd() > DONE")
+        logAdsD(this, "setupAd() > DONE")
     }
 
     private fun showBannerAd(activity: IAdScreenActivity) {

@@ -153,9 +153,8 @@ class NewsListAdapter(
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int {
-        return this.momentToNewsList.sumOf { (_, newsList) -> (if (hasSeparator) 1 else 0) + newsList.size }
-    }
+    override fun getItemCount() =
+        this.momentToNewsList.sumOf { (_, newsList) -> (if (hasSeparator) 1 else 0) + newsList.size }
 
     @NewsItemViewType
     override fun getItemViewType(position: Int): Int {
@@ -175,13 +174,12 @@ class NewsListAdapter(
         throw RuntimeException("View type not found at $position! (index:$index)")
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, @NewsItemViewType viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
+    override fun onCreateViewHolder(parent: ViewGroup, @NewsItemViewType viewType: Int) =
+        when (viewType) {
             ITEM_VIEW_TYPE_MOMENT_SEPARATORS -> MomentSeparatorViewHolder.from(parent)
             ITEM_VIEW_TYPE_NEWS -> NewsListItemViewHolder.from(parent)
             else -> throw RuntimeException("Unexpected view type $viewType!")
         }
-    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
@@ -219,6 +217,10 @@ class NewsListAdapter(
         return null
     }
 
+    fun getNewsItem(newAuthorityAndUuid: AuthorityAndUuid?) =
+        getNewsItemPosition(newAuthorityAndUuid)?.let { position ->
+            getNewsItem(position)
+        }
 
     private fun getNewsItem(position: Int): News? {
         var index = 0

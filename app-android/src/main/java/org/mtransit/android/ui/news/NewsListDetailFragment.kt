@@ -3,9 +3,14 @@ package org.mtransit.android.ui.news
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
@@ -13,6 +18,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
@@ -23,11 +29,13 @@ import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsManager
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.getUuid
+import org.mtransit.android.data.hasVideo
 import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.databinding.FragmentNewsListDetailsBinding
 import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
@@ -49,6 +57,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
+    MenuProvider,
     ModuleDisabledAwareFragment {
 
     companion object {
@@ -186,27 +195,26 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     pagerAdapter.getItem(position)?.authorityAndUuidT
                 )
             }
+            updateMenuItemsVisibility()
         }
     }
 
     private var onBackStackChangedListener: FragmentManager.OnBackStackChangedListener? = null
 
-    private fun makeOnBackStackChangedListener() = object : FragmentManager.OnBackStackChangedListener {
-        override fun onBackStackChanged() {
-            binding?.apply {
-                activity?.apply {
-                    if (addToBackStackCalled == true
-                        && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
-                    ) {
-                        if (slidingPaneLayout.isOpen) {
-                            slidingPaneLayout.closePane()
-                            viewModel.cleanSelectedNewsArticle()
-                        }
+    private fun makeOnBackStackChangedListener() = FragmentManager.OnBackStackChangedListener {
+        binding?.apply {
+            activity?.apply {
+                if (addToBackStackCalled == true
+                    && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
+                ) {
+                    if (slidingPaneLayout.isOpen) {
+                        slidingPaneLayout.closePane()
+                        viewModel.cleanSelectedNewsArticle()
                     }
                 }
-                screenToolbarLayout.apply {
-                    updateScreenToolbarNavigationIcon(screenToolbar)
-                }
+            }
+            screenToolbarLayout.apply {
+                updateScreenToolbarNavigationIcon(screenToolbar)
             }
         }
     }
@@ -217,6 +225,9 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (!hasToolbar()) {
+            (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        }
         binding = FragmentNewsListDetailsBinding.bind(view).apply {
             applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             refreshLayout.apply {
@@ -359,6 +370,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             analyticsManager.trackScreenView(this@NewsListDetailFragment)
             val authorityAndUuid = newAuthorityAndUuid ?: return@observe
             selectPagerNewsArticle(authorityAndUuid)
+            listAdapter.getNewsItem(authorityAndUuid).let { newsArticle ->
+                viewModel.setFullscreenModeAvailable(newsArticle?.hasVideo == true)
+            }
+        }
+        viewModel.fullscreenModeAvailable.observe(viewLifecycleOwner) {
+            updateMenuItemsVisibility(fullscreenModeAvailable = it)
+        }
+        viewModel.fullscreenMode.observe(viewLifecycleOwner) { fullscreenMode ->
+            updateMenuItemsVisibility(fullscreenMode = fullscreenMode)
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
@@ -425,6 +445,42 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             initialBackStackEntryCount = supportFragmentManager.backStackEntryCount
         }
     }
+
+    private var fullscreenMenuItem: MenuItem? = null
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_news_details, menu)
+        this.fullscreenMenuItem = menu.findItem(R.id.menu_fullscreen)
+        updateMenuItemsVisibility()
+    }
+
+    override fun onPrepareMenu(menu: Menu) {
+        this.fullscreenMenuItem = menu.findItem(R.id.menu_fullscreen)
+        updateMenuItemsVisibility()
+    }
+
+    private fun updateMenuItemsVisibility(
+        fullscreenMode: Boolean? = attachedViewModel?.fullscreenMode?.value,
+        fullscreenModeAvailable: Boolean? = attachedViewModel?.fullscreenModeAvailable?.value,
+    ) {
+        fullscreenMenuItem?.apply {
+            val isFullscreen = fullscreenMode == true
+            setIcon(if (isFullscreen) R.drawable.ic_baseline_fullscreen_exit_black_24dp else R.drawable.ic_baseline_fullscreen_black_24dp)
+            setTitle(if (isFullscreen) R.string.menu_action_fullscreen_exit else R.string.menu_action_fullscreen)
+            isVisible = fullscreenModeAvailable == true && fullscreenMode != null
+        }
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem) =
+        when (menuItem.itemId) {
+            R.id.menu_fullscreen -> {
+                viewModel.setFullscreenMode(viewModel.fullscreenMode.value == false) // flip
+                updateMenuItemsVisibility()
+                true // handled
+            }
+
+            else -> false // not handled
+        }
 
     override fun onBackPressed(): Boolean {
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {

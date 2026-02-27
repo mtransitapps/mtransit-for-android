@@ -131,7 +131,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        if (!hasToolbar()) {
+            (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        }
         binding = FragmentFavoritesBinding.bind(view).apply {
             applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             listLayout.list.apply {

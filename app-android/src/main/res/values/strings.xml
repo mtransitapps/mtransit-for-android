@@ -144,6 +144,8 @@
     <string name="menu_action_map">Map</string>
     <string name="menu_action_favorite_folder_new">Create new favorite folder</string>
     <string name="menu_action_www">Open Web Browser</string>
+    <string name="menu_action_fullscreen">Open fullscreen</string>
+    <string name="menu_action_fullscreen_exit">Exit fullscreen</string>
     <string name="menu_action_filter">Filter</string>
     <string name="menu_action_show_directions">Directions</string>
     <string name="menu_action_show_today">Today</string>
