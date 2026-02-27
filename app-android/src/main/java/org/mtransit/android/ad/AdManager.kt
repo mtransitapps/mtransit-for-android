@@ -7,9 +7,9 @@ import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdInspectorError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.OnAdInspectorClosedListener
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.BuildConfig
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedAdManager
 import org.mtransit.android.common.IContext
@@ -56,7 +56,7 @@ class AdManager @Inject internal constructor(
         }.build()
             .also {
                 if (BuildConfig.DEBUG) {
-                    MTLog.d(LOG_TAG, "getAdRequest() > test device? %s.", it.isTestDevice(context.requireContext()))
+                    logAdsD(LOG_TAG, "getAdRequest() > test device? ${it.isTestDevice(context.requireContext())}.")
                 }
             }
     }
@@ -129,12 +129,12 @@ class AdManager @Inject internal constructor(
     // endregion Rewarded Ads
 
     override fun openAdInspector() {
-        MobileAds.openAdInspector(this.appContext, OnAdInspectorClosedListener { error: AdInspectorError? ->
+        MobileAds.openAdInspector(this.appContext) { error: AdInspectorError? ->
             if (error == null) {
-                MTLog.d(this@AdManager, "Ad inspector closed.")
+                logAdsD(this@AdManager, "Ad inspector closed.")
             } else {
                 MTLog.w(this@AdManager, "Ad inspector closed: ${error.code} > $error!")
             }
-        })
+        }
     }
 }

@@ -144,6 +144,8 @@
     <string name="menu_action_map">Map</string>
     <string name="menu_action_favorite_folder_new">Create new favorite folder</string>
     <string name="menu_action_www">Open Web Browser</string>
+    <string name="menu_action_fullscreen">Open fullscreen</string>
+    <string name="menu_action_fullscreen_exit">Exit fullscreen</string>
     <string name="menu_action_filter">Filter</string>
     <string name="menu_action_show_directions">Directions</string>
     <string name="menu_action_show_today">Today</string>
@@ -206,7 +208,7 @@
     <string name="lang_pref_fr">Français</string>
     <string name="lang_pref_system_default">System default</string>
     <string name="device_settings_date_and_time_pref_title">Date and time</string>
-    <string name="device_settings_date_and_time_pref_summary">Select 12/24 hour format and make sure the device date, time and timezone are set correctly</string>
+    <string name="device_settings_date_and_time_pref_summary">Select 12/24-hour format and make sure the device date, time and timezone are set correctly</string>
     <string name="device_settings_location_pref_title">Location</string>
     <string name="device_settings_location_pref_summary">Improve the device location detection accuracy</string>
     <string name="device_settings_power_management_pref_title">Power Management</string>

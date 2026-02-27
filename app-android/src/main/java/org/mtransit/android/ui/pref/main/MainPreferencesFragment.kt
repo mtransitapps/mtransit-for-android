@@ -383,7 +383,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                     }
                 )
             }
-            NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+            NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
         }
         viewModel.devModeEnabled.observe(viewLifecycleOwner) { devModeEnabled ->
             val devModeGroupPref = findPreference(MainPreferencesViewModel.DEV_MODE_GROUP_PREF) as? PreferenceCategory ?: return@observe

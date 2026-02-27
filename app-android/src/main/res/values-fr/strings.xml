@@ -147,6 +147,8 @@
     <string name="menu_action_map">Carte</string>
     <string name="menu_action_favorite_folder_new">Créer un nouveau dossier favori</string>
     <string name="menu_action_www">Ouvrir Navigateur</string>
+    <string name="menu_action_fullscreen">Ouvrir plein écran</string>
+    <string name="menu_action_fullscreen_exit">Quitter plein écran</string>
     <string name="menu_action_filter">Filtrer</string>
     <string name="menu_action_show_directions">Itinéraires</string>
     <string name="menu_action_show_today">Aujourd\'hui</string>

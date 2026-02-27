@@ -38,9 +38,7 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable, Men
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
+        (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         binding = FragmentModulesBinding.bind(view).apply {
             (activity as? AppCompatActivity)?.setSupportActionBar(abToolbar)
             (activity as? AppCompatActivity)?.supportActionBar?.apply {

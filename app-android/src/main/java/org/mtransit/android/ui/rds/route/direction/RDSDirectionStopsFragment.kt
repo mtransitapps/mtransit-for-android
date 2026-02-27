@@ -378,7 +378,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             val closestPOIShow = viewModel.closestPOIShown.value
             if (selectedStopId != null || closestPOIShow != true) {
                 if (selectedStopId != null) {
-                    currentSelectedItemIndexUuid = findStopIndexUuid(selectedStopId, poiList) // can be stop for other direction in route fragment
+                    currentSelectedItemIndexUuid = findStopIndexUuid(selectedStopId, poiList) // can be a stop for other direction in route fragment
                 }
                 if (currentSelectedItemIndexUuid == null) {
                     if (closestPOIShow == false) {

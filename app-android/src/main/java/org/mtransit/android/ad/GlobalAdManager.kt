@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedUserManager
 import org.mtransit.android.common.IContext
@@ -76,7 +77,7 @@ class GlobalAdManager(
         }
         consentManager.gatherConsent(theActivity) { formError: UMPFormError? ->
             formError?.let {
-                MTLog.d(this@GlobalAdManager, "Consent not obtained [${formError.errorCode}]: ${formError.message}.")
+                logAdsD(this@GlobalAdManager, "Consent not obtained [${formError.errorCode}]: ${formError.message}.")
             }
             if (consentManager.canRequestAds) {
                 initWithConsent(activity, bannerAdManager)
@@ -92,7 +93,7 @@ class GlobalAdManager(
 
     private fun initWithConsent(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
         if (initialized.getAndSet(true)) {
-            MTLog.d(this, "init() > SKIP (initialized: %s)", this.initialized.get())
+            logAdsD(this, "init() > SKIP (initialized: ${this.initialized.get()})")
             return // SKIP
         }
         try {
@@ -121,7 +122,7 @@ class GlobalAdManager(
             activity.requireActivity(), // some adapters require activity
         ) { initializationStatus ->
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
-                MTLog.d(this, "Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")
+                logAdsD(this, "Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")
             }
             bannerAdManager.refreshBannerAdStatus(activity, force = false)
         }
@@ -139,28 +140,28 @@ class GlobalAdManager(
         if (hasAgenciesEnabled == null) {
             hasAgenciesEnabled = this.dataSourcesRepository.hasAgenciesEnabled()
         }
-        if (this.initialized.get() != true) {
-            MTLog.d(this, "isShowingAds() > Not showing ads (not initialized yet).")
+        if (!this.initialized.get()) {
+            logAdsD(this, "isShowingAds() > Not showing ads (not initialized yet).")
             return false // not showing ads
         }
         // number of agency unknown
         if (hasAgenciesEnabled == false) { // no (real) agency installed
-            MTLog.d(this, "isShowingAds() > Not showing ads (no agency added).")
+            logAdsD(this, "isShowingAds() > Not showing ads (no agency added).")
             return false // not showing ads
         } else if (demoModeManager.enabled) {
-            MTLog.d(this, "isShowingAds() > Not showing ads (demo mode).")
+            logAdsD(this, "isShowingAds() > Not showing ads (demo mode).")
             return false // not showing ads
         }
         if (showingAds == null) { // paying status unknown
-            MTLog.d(this, "isShowingAds() > Not showing ads (paying status unknown).")
+            logAdsD(this, "isShowingAds() > Not showing ads (paying status unknown).")
             return false // not showing ads
         }
-        MTLog.d(this, "isShowingAds() > Showing ads: '$showingAds'.")
+        logAdsD(this, "isShowingAds() > Showing ads: '$showingAds'.")
         if (AdConstants.IGNORE_REWARD_HIDING_BANNER) {
             return showingAds == true
         }
         if (isRewardedNow()) { // rewarded status
-            MTLog.d(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this.rewardedUserManager.getRewardedUntilInMs()}).")
+            logAdsD(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this.rewardedUserManager.getRewardedUntilInMs()}).")
             return false // not showing ads
         }
         return showingAds == true

@@ -1,11 +1,16 @@
 @file:JvmName("NewsFragment") // ANALYTIC
 package org.mtransit.android.ui.news
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
@@ -23,11 +28,13 @@ import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsManager
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.getUuid
+import org.mtransit.android.data.hasVideo
 import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.databinding.FragmentNewsListDetailsBinding
 import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
@@ -49,6 +56,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
+    MenuProvider,
     ModuleDisabledAwareFragment {
 
     companion object {
@@ -191,22 +199,20 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private var onBackStackChangedListener: FragmentManager.OnBackStackChangedListener? = null
 
-    private fun makeOnBackStackChangedListener() = object : FragmentManager.OnBackStackChangedListener {
-        override fun onBackStackChanged() {
-            binding?.apply {
-                activity?.apply {
-                    if (addToBackStackCalled == true
-                        && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
-                    ) {
-                        if (slidingPaneLayout.isOpen) {
-                            slidingPaneLayout.closePane()
-                            viewModel.cleanSelectedNewsArticle()
-                        }
+    private fun makeOnBackStackChangedListener() = FragmentManager.OnBackStackChangedListener {
+        binding?.apply {
+            activity?.apply {
+                if (addToBackStackCalled == true
+                    && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
+                ) {
+                    if (slidingPaneLayout.isOpen) {
+                        slidingPaneLayout.closePane()
+                        viewModel.cleanSelectedNewsArticle()
                     }
                 }
-                screenToolbarLayout.apply {
-                    updateScreenToolbarNavigationIcon(screenToolbar)
-                }
+            }
+            screenToolbarLayout.apply {
+                updateScreenToolbarNavigationIcon(screenToolbar)
             }
         }
     }
@@ -357,8 +363,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 }
             }
             analyticsManager.trackScreenView(this@NewsListDetailFragment)
-            val authorityAndUuid = newAuthorityAndUuid ?: return@observe
-            selectPagerNewsArticle(authorityAndUuid)
+            newAuthorityAndUuid?.let {
+                selectPagerNewsArticle(it)
+            }
+        }
+        viewModel.fullscreenModeAvailable.observe(viewLifecycleOwner) {
+            updateMenuItemsVisibility(fullscreenModeAvailable = it)
+        }
+        viewModel.fullscreenMode.observe(viewLifecycleOwner) { fullscreenMode ->
+            updateMenuItemsVisibility(fullscreenMode = fullscreenMode)
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
@@ -425,6 +438,46 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             initialBackStackEntryCount = supportFragmentManager.backStackEntryCount
         }
     }
+
+    private var fullscreenMenuItem: MenuItem? = null
+    private var mainMenuSearchMenuItem: MenuItem? = null
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_news_details, menu)
+        this.fullscreenMenuItem = menu.findItem(R.id.menu_fullscreen)
+        this.mainMenuSearchMenuItem = menu.findItem(R.id.nav_search)
+        updateMenuItemsVisibility()
+    }
+
+    private fun updateMenuItemsVisibility(
+        fullscreenMode: Boolean? = attachedViewModel?.fullscreenMode?.value,
+        fullscreenModeAvailable: Boolean? = attachedViewModel?.fullscreenModeAvailable?.value,
+    ) {
+        val isFullscreen = fullscreenMode == true && fullscreenModeAvailable == true
+        fullscreenMenuItem?.apply {
+            setIcon(if (isFullscreen) R.drawable.ic_baseline_fullscreen_exit_black_24dp else R.drawable.ic_baseline_fullscreen_black_24dp)
+            setTitle(if (isFullscreen) R.string.menu_action_fullscreen_exit else R.string.menu_action_fullscreen)
+            isVisible = fullscreenModeAvailable == true && fullscreenMode != null
+        }
+        mainMenuSearchMenuItem?.isVisible = !isFullscreen
+        binding?.apply {
+            screenToolbarLayout.screenToolbar.alpha = if (isFullscreen) 0.3f else 1f
+            refreshLayout.isVisible = !isFullscreen
+        }
+        @SuppressLint("DeprecatedCall")
+        @Suppress("DEPRECATION") // deprecated in API Level 30 (Android R) // no [easy] alternative found
+        activity?.window?.decorView?.systemUiVisibility = if (isFullscreen) View.SYSTEM_UI_FLAG_LOW_PROFILE else 0
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem) =
+        when (menuItem.itemId) {
+            R.id.menu_fullscreen -> {
+                viewModel.setFullscreenMode(viewModel.fullscreenMode.value == false) // flip
+                true // handled
+            }
+
+            else -> false // not handled
+        }
 
     override fun onBackPressed(): Boolean {
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {

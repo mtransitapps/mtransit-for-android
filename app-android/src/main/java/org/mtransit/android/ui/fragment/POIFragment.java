@@ -32,7 +32,6 @@ import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -524,9 +523,6 @@ public class POIFragment extends ABFragment implements
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		MTTransitions.postponeEnterTransition(this);
-		requireActivity().addMenuProvider(
-				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
-		);
 		if (FeatureFlags.F_NAVIGATION) {
 			nextMainViewModel = new ViewModelProvider(requireActivity()).get(NextMainViewModel.class);
 		}

@@ -22,11 +22,7 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorWithUserName
 import org.mtransit.android.data.authorityAndUuidT
-import org.mtransit.android.data.authorityT
-import org.mtransit.android.data.getAuthority
-import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.hasVideo
-import org.mtransit.android.data.uuidT
 import org.mtransit.android.databinding.LayoutNewListMomentSeparatorBinding
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.view.common.ImageManager
@@ -153,9 +149,8 @@ class NewsListAdapter(
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int {
-        return this.momentToNewsList.sumOf { (_, newsList) -> (if (hasSeparator) 1 else 0) + newsList.size }
-    }
+    override fun getItemCount() =
+        this.momentToNewsList.sumOf { (_, newsList) -> (if (hasSeparator) 1 else 0) + newsList.size }
 
     @NewsItemViewType
     override fun getItemViewType(position: Int): Int {
@@ -175,13 +170,12 @@ class NewsListAdapter(
         throw RuntimeException("View type not found at $position! (index:$index)")
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, @NewsItemViewType viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
+    override fun onCreateViewHolder(parent: ViewGroup, @NewsItemViewType viewType: Int) =
+        when (viewType) {
             ITEM_VIEW_TYPE_MOMENT_SEPARATORS -> MomentSeparatorViewHolder.from(parent)
             ITEM_VIEW_TYPE_NEWS -> NewsListItemViewHolder.from(parent)
             else -> throw RuntimeException("Unexpected view type $viewType!")
         }
-    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
@@ -219,6 +213,11 @@ class NewsListAdapter(
         return null
     }
 
+    @Suppress("unused")
+    fun getNewsItem(newAuthorityAndUuid: AuthorityAndUuid?) =
+        getNewsItemPosition(newAuthorityAndUuid)?.let { position ->
+            getNewsItem(position)
+        }
 
     private fun getNewsItem(position: Int): News? {
         var index = 0
@@ -264,8 +263,7 @@ class NewsListAdapter(
                     index++ // moment separator
                 }
                 newsList.indexOfFirst {
-                    it.authorityT == authorityAndUuid.getAuthority()
-                            && it.uuidT == authorityAndUuid.getUuid()
+                    it.authorityAndUuidT == authorityAndUuid
                 }.takeIf { it >= 0 }?.let {
                     return index + it
                 }

@@ -3,6 +3,7 @@ package org.mtransit.android.ad.rewarded
 import com.google.android.gms.ads.rewarded.RewardedAd
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdManager.RewardedAdListener
@@ -34,12 +35,12 @@ class RewardedAdManager @Inject constructor(
         set(value) {
             if (value == null) {
                 rewardedAdListenerWR?.let {
-                    MTLog.d(this, "setRewardedAdListener() > clearing %s...", it.get())
+                    logAdsD(this, "setRewardedAdListener() > clearing ${it.get()}...")
                     it.clear()
                 }
                 rewardedAdListenerWR = null
             } else {
-                MTLog.d(this, "setRewardedAdListener() > setting %s...", value)
+                logAdsD(this, "setRewardedAdListener() > setting $value...")
                 rewardedAdListenerWR = WeakReference(value)
             }
         }
@@ -53,7 +54,7 @@ class RewardedAdManager @Inject constructor(
         val theActivity = activity.requireActivity()
         if (this.rewardedAd == null || (this.rewardedAdActivityHashCode != null && this.rewardedAdActivityHashCode != theActivity.hashCode())) {
             this.rewardedAdActivityHashCode = theActivity.hashCode()
-            MTLog.d(this, "loadRewardedAdForActivity() > Loading rewarded ad for ${theActivity::class.java.simpleName}...")
+            logAdsD(this, "loadRewardedAdForActivity() > Loading rewarded ad for ${theActivity::class.java.simpleName}...")
             RewardedAd.load(
                 theActivity,
                 theActivity.getString(R.string.google_ads_rewarded_ad_unit_id),
@@ -66,13 +67,13 @@ class RewardedAdManager @Inject constructor(
             )
             this.defaultPrefRepository.saveAsync(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, loadCounts + 1)
         } else {
-            MTLog.d(this, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${theActivity::class.java.simpleName}...")
+            logAdsD(this, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${theActivity::class.java.simpleName}...")
         }
     }
 
     fun setRewardedAd(rewardedAd: RewardedAd?) {
         if (this.rewardedAdActivityHashCode == null) {
-            MTLog.d(this, "setRewardedAd() > SKIP rewarded ad (no activity) %s.", rewardedAd)
+            logAdsD(this, "setRewardedAd() > SKIP rewarded ad (no activity) $rewardedAd.")
             return // too late
         }
         this.rewardedAd = rewardedAd
@@ -81,7 +82,7 @@ class RewardedAdManager @Inject constructor(
     fun linkRewardedAd(activity: IActivity) {
         val theActivity = activity.requireActivity()
         if (this.rewardedAdActivityHashCode != null && this.rewardedAdActivityHashCode == theActivity.hashCode()) {
-            MTLog.d(this, "linkRewardedAd() > SKIP (same activity)")
+            logAdsD(this, "linkRewardedAd() > SKIP (same activity)")
             return // same activity
         }
         this.rewardedAd = null
@@ -94,7 +95,7 @@ class RewardedAdManager @Inject constructor(
             this.rewardedAd = null
             this.rewardedAdActivityHashCode = null
         } else {
-            MTLog.d(this, "unlinkRewardedAd() > SKIP (not this activity)")
+            logAdsD(this, "unlinkRewardedAd() > SKIP (not this activity)")
         }
     }
 
@@ -104,19 +105,19 @@ class RewardedAdManager @Inject constructor(
         }
         val isNotPayingUser = this.globalAdManager.isShowingAds()
         if (!isNotPayingUser) {
-            MTLog.d(this, "refreshRewardedAdStatus() > SKIP (paying user or unknown)")
+            logAdsD(this, "refreshRewardedAdStatus() > SKIP (paying user or unknown)")
             return
         }
         val listener = this.rewardedAdListener
         if (listener == null) {
-            MTLog.d(this, "refreshRewardedAdStatus() > SKIP (unknown screen)")
+            logAdsD(this, "refreshRewardedAdStatus() > SKIP (unknown screen)")
             return
         }
         if (listener.skipRewardedAd()) {
-            MTLog.d(this, "refreshRewardedAdStatus() > SKIP (not in this screen)")
+            logAdsD(this, "refreshRewardedAdStatus() > SKIP (not in this screen)")
             return
         }
-        MTLog.d(this, "refreshRewardedAdStatus() > Load if necessary...")
+        logAdsD(this, "refreshRewardedAdStatus() > Load if necessary...")
         loadRewardedAdForActivity(activity)
     }
 
@@ -141,7 +142,7 @@ class RewardedAdManager @Inject constructor(
             return false
         }
         val theActivity = activity.requireActivity()
-        MTLog.d(this, "showRewardedAd() > Showing rewarded ad for ${theActivity::class.java.simpleName}...")
+        logAdsD(this, "showRewardedAd() > Showing rewarded ad for ${theActivity::class.java.simpleName}...")
         this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
         val showCounts = this.defaultPrefRepository.getValue(
