@@ -707,7 +707,10 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private suspend fun refreshVehicleLocationProviderProperties(vehicleLocationProviderProperties: VehicleLocationProviderProperties, markUpdated: () -> Unit) {
+    private suspend fun refreshVehicleLocationProviderProperties(
+        vehicleLocationProviderProperties: VehicleLocationProviderProperties,
+        markUpdated: () -> Unit
+    ) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         val pkg = vehicleLocationProviderProperties.pkg
         val authority = vehicleLocationProviderProperties.authority
