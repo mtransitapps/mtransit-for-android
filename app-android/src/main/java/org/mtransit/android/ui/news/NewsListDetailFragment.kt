@@ -195,7 +195,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     pagerAdapter.getItem(position)?.authorityAndUuidT
                 )
             }
-            updateMenuItemsVisibility()
         }
     }
 
@@ -360,9 +359,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             if (newAuthorityAndUuid?.isAuthorityAndUuidValid() == false) {
                 return@observe
             }
-            listAdapter.getNewsItem(newAuthorityAndUuid).let { newsArticle ->
-                viewModel.setFullscreenModeAvailable(newsArticle?.hasVideo == true)
-            }
             (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
             listAdapter.setSelectedArticle(newAuthorityAndUuid)
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
@@ -476,7 +472,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         when (menuItem.itemId) {
             R.id.menu_fullscreen -> {
                 viewModel.setFullscreenMode(viewModel.fullscreenMode.value == false) // flip
-                updateMenuItemsVisibility()
                 true // handled
             }
 

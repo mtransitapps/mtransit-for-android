@@ -48,6 +48,7 @@ import org.mtransit.android.ui.news.image.NewsImagesAdapter
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
@@ -102,8 +103,10 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     lateinit var inlineBannerAdManager: InlineBannerAdManager
 
     private val viewModel by viewModels<NewsDetailsViewModel>()
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
 
     private val parentViewModel by viewModels<NewsListViewModel>({ requireParentFragment() })
+    private val attachedParentViewModel get() = if (isAttached()) parentViewModel else null
 
     private var binding: FragmentNewsDetailsBinding? = null
 
@@ -159,8 +162,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     @SuppressLint("DeprecatedCall")
     private fun updateNewsView(
-        newsArticle: News? = viewModel.newsArticle.value,
-        fullscreenMode: Boolean? = parentViewModel.fullscreenMode.value
+        newsArticle: News? = attachedViewModel?.newsArticle?.value,
+        fullscreenMode: Boolean? = attachedParentViewModel?.fullscreenMode?.value
     ) = binding?.apply {
         _logTag = LOG_TAG + "-" + newsArticle?.uuid
         newsArticle ?: return@apply
