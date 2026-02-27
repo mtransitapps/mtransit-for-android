@@ -5,7 +5,7 @@
         tools:ignore="InsecureBaseConfiguration">
         <!-- WebView may open any url -->
         <trust-anchors>
-            <!-- P}reinstalled system CAs -->
+            <!-- Preinstalled system CAs -->
             <certificates src="system"/>
             <!-- Mozilla included CAs https://wiki.mozilla.org/CA/Included_Certificates -->
             <certificates src="@raw/mozilla_roots_pem"/>
