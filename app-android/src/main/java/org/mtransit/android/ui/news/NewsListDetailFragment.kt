@@ -1,6 +1,7 @@
 @file:JvmName("NewsFragment") // ANALYTIC
 package org.mtransit.android.ui.news
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.Menu
@@ -439,15 +440,12 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     }
 
     private var fullscreenMenuItem: MenuItem? = null
+    private var mainMenuSearchMenuItem: MenuItem? = null
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_news_details, menu)
         this.fullscreenMenuItem = menu.findItem(R.id.menu_fullscreen)
-        updateMenuItemsVisibility()
-    }
-
-    override fun onPrepareMenu(menu: Menu) {
-        this.fullscreenMenuItem = menu.findItem(R.id.menu_fullscreen)
+        this.mainMenuSearchMenuItem = menu.findItem(R.id.nav_search)
         updateMenuItemsVisibility()
     }
 
@@ -455,12 +453,20 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         fullscreenMode: Boolean? = attachedViewModel?.fullscreenMode?.value,
         fullscreenModeAvailable: Boolean? = attachedViewModel?.fullscreenModeAvailable?.value,
     ) {
+        val isFullscreen = fullscreenMode == true && fullscreenModeAvailable == true
         fullscreenMenuItem?.apply {
-            val isFullscreen = fullscreenMode == true
             setIcon(if (isFullscreen) R.drawable.ic_baseline_fullscreen_exit_black_24dp else R.drawable.ic_baseline_fullscreen_black_24dp)
             setTitle(if (isFullscreen) R.string.menu_action_fullscreen_exit else R.string.menu_action_fullscreen)
             isVisible = fullscreenModeAvailable == true && fullscreenMode != null
         }
+        mainMenuSearchMenuItem?.isVisible = !isFullscreen
+        binding?.apply {
+            screenToolbarLayout.screenToolbar.alpha = if (isFullscreen) 0.3f else 1f
+            refreshLayout.isVisible = !isFullscreen
+        }
+        @SuppressLint("DeprecatedCall")
+        @Suppress("DEPRECATION") // deprecated in API Level 30 (Android R) // no [easy] alternative found
+        activity?.window?.decorView?.systemUiVisibility = if (isFullscreen) View.SYSTEM_UI_FLAG_LOW_PROFILE else 0
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem) =
