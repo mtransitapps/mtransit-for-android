@@ -360,6 +360,9 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             if (newAuthorityAndUuid?.isAuthorityAndUuidValid() == false) {
                 return@observe
             }
+            listAdapter.getNewsItem(newAuthorityAndUuid).let { newsArticle ->
+                viewModel.setFullscreenModeAvailable(newsArticle?.hasVideo == true)
+            }
             (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
             listAdapter.setSelectedArticle(newAuthorityAndUuid)
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
@@ -368,10 +371,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 }
             }
             analyticsManager.trackScreenView(this@NewsListDetailFragment)
-            val authorityAndUuid = newAuthorityAndUuid ?: return@observe
-            selectPagerNewsArticle(authorityAndUuid)
-            listAdapter.getNewsItem(authorityAndUuid).let { newsArticle ->
-                viewModel.setFullscreenModeAvailable(newsArticle?.hasVideo == true)
+            newAuthorityAndUuid?.let {
+                selectPagerNewsArticle(it)
             }
         }
         viewModel.fullscreenModeAvailable.observe(viewLifecycleOwner) {
