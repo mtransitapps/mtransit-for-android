@@ -213,6 +213,7 @@ class NewsListAdapter(
         return null
     }
 
+    @Suppress("unused")
     fun getNewsItem(newAuthorityAndUuid: AuthorityAndUuid?) =
         getNewsItemPosition(newAuthorityAndUuid)?.let { position ->
             getNewsItem(position)

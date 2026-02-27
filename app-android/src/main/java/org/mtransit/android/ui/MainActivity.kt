@@ -185,7 +185,7 @@ class MainActivity : MTActivityWithLocation(),
                 onHasAgenciesAddedChanged()
             }
         })
-        this.billingManager.currentSubscription.observe(this, Observer { currentSubscription: String? -> })
+        this.billingManager.currentSubscription.observe(this, Observer { _: String? -> })
         MapUtils.fixScreenFlickering(findViewById<ViewGroup?>(R.id.content_frame))
         ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
     }
@@ -235,7 +235,7 @@ class MainActivity : MTActivityWithLocation(),
         this.abController?.updateAB()
         this.navigationDrawerController?.onResume()
         this.adManager.adaptToScreenSize(this)
-        this.adManager.setRewardedAdListener(this) // used until POI screen is visible // need to pre-load ASAP
+        this.adManager.setRewardedAdListener(this) // used until POI screen is visible // need to preload ASAP
         this.adManager.linkRewardedAd(this)
         this.billingManager.addListener(this) // trigger onBillingResult() w/ current value
         this.billingManager.refreshPurchases()
@@ -244,7 +244,7 @@ class MainActivity : MTActivityWithLocation(),
         this.isMTResumed = true
         if (this.currentUiMode != getResources().configuration.uiMode) {
             Handler(Looper.getMainLooper()).post {
-                NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+                NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             }
         }
         this.lifecycleScope.launch(Dispatchers.IO) {
@@ -470,7 +470,7 @@ class MainActivity : MTActivityWithLocation(),
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (this.currentUiMode != newConfig.uiMode) {
-            NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+            NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             NightModeUtils.recreate(this) // not recreated because uiMode in configChanges AndroidManifest.xml
             return
         }

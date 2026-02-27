@@ -59,6 +59,8 @@ class NewsListViewModel @Inject constructor(
 
         internal const val EXTRA_SELECTED_ARTICLE_AUTHORITY = "extra_selected_article_agency_authority"
         internal const val EXTRA_SELECTED_ARTICLE_UUID = "extra_selected_article_uuid"
+        internal const val EXTRA_FULL_SCREEN_MODE = "extra_full_screen"
+        internal const val EXTRA_FULL_SCREEN_MODE_DEFAULT = false
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -152,11 +154,10 @@ class NewsListViewModel @Inject constructor(
             newsArticles.singleOrNull { it.authorityAndUuidT == selectedNewsArticleAuthorityAndUUID }?.hasVideo == true
         }
 
-    private var _fullscreenMode = MutableLiveData<Boolean>(false)
-    val fullscreenMode: LiveData<Boolean> = _fullscreenMode
+    val fullscreenMode = savedStateHandle.getLiveDataDistinct(EXTRA_FULL_SCREEN_MODE, EXTRA_FULL_SCREEN_MODE_DEFAULT)
 
     fun setFullscreenMode(newFullscreenMode: Boolean) {
-        _fullscreenMode.value = newFullscreenMode
+        savedStateHandle[EXTRA_FULL_SCREEN_MODE] = newFullscreenMode
     }
 
     override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
