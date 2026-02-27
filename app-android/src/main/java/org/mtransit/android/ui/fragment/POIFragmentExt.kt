@@ -87,6 +87,7 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
             }
         } else {
             val isShortList = viewModel?.nearbyPOIs?.value != null
+            val nearbySameTypePOIs = viewModel?.nearbyPOIs?.value?.filter { it.poi.type == poim.poi.type }?.takeIf { it.isNotEmpty() }
                 ?: viewModel?.poiList?.value?.filter { it.poi.uuid != poim.poi.uuid }?.takeIf { it.isNotEmpty() }
             nearbySameTypePOIs?.let { nearbyPOIs ->
                 val sortedPOIList = nearbyPOIs.sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
