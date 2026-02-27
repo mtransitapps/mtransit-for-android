@@ -23,7 +23,6 @@ import org.mtransit.android.ad.IAdScreenFragment
 import org.mtransit.android.ad.inlinebanner.InlineBannerAdManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.HtmlUtils
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
@@ -33,7 +32,6 @@ import org.mtransit.android.data.getTwitterVideoId
 import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.getYouTubeVideoId
 import org.mtransit.android.data.hasImagesOrVideoThumbnail
-import org.mtransit.android.data.hasVideo
 import org.mtransit.android.data.imageUrls
 import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.data.isTwitterVideo
@@ -48,6 +46,7 @@ import org.mtransit.android.ui.news.image.NewsImagesAdapter
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UIFeatureFlags
@@ -420,10 +419,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 thumbnailsListContainer.isVisible = true
             }
         }
-        thumbnailWebView.apply {
-            updateLayoutParams<RelativeLayout.LayoutParams> {
-                height = (if (isFullscreen) root.height else context.resources.getDimension(R.dimen.news_image_height).toInt())
-            }
+        thumbnailWebView.updateLayoutParams<RelativeLayout.LayoutParams> {
+            height = (if (isFullscreen) root.height else context.resources.getDimension(R.dimen.news_image_height).toInt())
         }
     }
 
