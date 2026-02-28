@@ -369,9 +369,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
         viewModel.fullscreenModeAvailable.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(fullscreenModeAvailable = it)
+            updateABColorForFullscreen()
         }
         viewModel.fullscreenMode.observe(viewLifecycleOwner) { fullscreenMode ->
             updateMenuItemsVisibility(fullscreenMode = fullscreenMode)
+            updateABColorForFullscreen()
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
@@ -408,7 +410,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun getABSubtitle(context: Context?) = attachedViewModel?.subTitle?.value ?: super.getABSubtitle(context)
 
-    override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?): Int? {
+        val vm = attachedViewModel ?: return super.getABBgColor(context)
+        val isFullscreen = vm.fullscreenMode.value == true && vm.fullscreenModeAvailable.value == true
+        return if (isFullscreen) {
+            android.graphics.Color.BLACK
+        } else {
+            vm.colorInt.value ?: super.getABBgColor(context)
+        }
+    }
 
     override fun onResume() {
         super.onResume()
@@ -467,6 +477,14 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         @SuppressLint("DeprecatedCall")
         @Suppress("DEPRECATION") // deprecated in API Level 30 (Android R) // no [easy] alternative found
         activity?.window?.decorView?.systemUiVisibility = if (isFullscreen) View.SYSTEM_UI_FLAG_LOW_PROFILE else 0
+    }
+
+    private fun updateABColorForFullscreen() {
+        abController?.setABBgColor(this, getABBgColor(context), true)
+        binding?.screenToolbarLayout?.let { updateScreenToolbarBgColor(it) }
+        if (FeatureFlags.F_NAVIGATION) {
+            nextMainViewModel.setABBgColor(getABBgColor(context))
+        }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem) =
