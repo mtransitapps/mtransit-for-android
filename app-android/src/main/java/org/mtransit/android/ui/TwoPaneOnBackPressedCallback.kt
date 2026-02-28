@@ -32,12 +32,12 @@ class TwoPaneOnBackPressedCallback(
     override fun onPanelSlide(panel: View, slideOffset: Float) {
     }
 
-    override fun onPanelOpened(panel: View) {
+    override fun onPanelOpened(panel: View?) {
         isEnabled = true
         onPanelOpenedCallback()
     }
 
-    override fun onPanelClosed(panel: View) {
+    override fun onPanelClosed(panel: View?) {
         isEnabled = false
         onPanelClosedCallback()
     }
