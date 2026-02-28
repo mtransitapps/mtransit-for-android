@@ -498,6 +498,12 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
 
     override fun onBackPressed(): Boolean {
+        // Exit fullscreen mode if currently in fullscreen
+        val isInFullscreenMode = viewModel.fullscreenMode.value == true && viewModel.fullscreenModeAvailable.value == true
+        if (isInFullscreenMode) {
+            viewModel.setFullscreenMode(false)
+            return true // handled
+        }
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
             return super.onBackPressed()
         }
