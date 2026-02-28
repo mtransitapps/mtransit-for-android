@@ -412,8 +412,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun getABBgColor(context: Context?): Int? {
         val vm = attachedViewModel ?: return super.getABBgColor(context)
-        val isFullscreen = vm.fullscreenMode.value == true && vm.fullscreenModeAvailable.value == true
-        return if (isFullscreen) {
+        val isInFullscreenMode = vm.fullscreenMode.value == true && vm.fullscreenModeAvailable.value == true
+        return if (isInFullscreenMode) {
             android.graphics.Color.BLACK
         } else {
             vm.colorInt.value ?: super.getABBgColor(context)
