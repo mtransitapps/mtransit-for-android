@@ -44,7 +44,7 @@ class DemoModeManager @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = DemoModeManager::class.java.simpleName
+        private val LOG_TAG: String = DemoModeManager::class.java.simpleName
 
         private const val FILTER_AGENCY_AUTHORITY = "filter_agency_authority"
         private const val FILTER_SCREEN = "filter_screen"
@@ -66,7 +66,7 @@ class DemoModeManager @Inject constructor(
         private val AVAILABLE_TIMEZONE_IDS by lazy { TimeZone.getAvailableIDs().toSet() }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val allowedTargeted = listOf(
         appContext.getString(R.string.favorite_authority),

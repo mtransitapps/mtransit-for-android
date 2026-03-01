@@ -24,10 +24,10 @@ class NewsRepository @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsRepository::class.java.simpleName
+        private val LOG_TAG: String = NewsRepository::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     fun loadingNewsArticles(
         providers: List<NewsProviderProperties>?,

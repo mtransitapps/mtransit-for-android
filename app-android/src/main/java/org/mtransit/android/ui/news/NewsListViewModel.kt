@@ -45,7 +45,7 @@ class NewsListViewModel @Inject constructor(
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsListViewModel::class.java.simpleName
+        private val LOG_TAG: String = NewsListViewModel::class.java.simpleName
 
         internal const val EXTRA_COLOR = "extra_color"
         internal val EXTRA_COLOR_DEFAULT: String? = null
@@ -63,7 +63,7 @@ class NewsListViewModel @Inject constructor(
         internal const val EXTRA_FULL_SCREEN_MODE_DEFAULT = false
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val colorInt = savedStateHandle.getLiveDataDistinct(EXTRA_COLOR, EXTRA_COLOR_DEFAULT)
         .map { it?.let { ColorUtils.parseColor(it) } }

@@ -45,7 +45,7 @@ class RDSRouteViewModel @Inject constructor(
 ) : MTViewModelWithLocation() {
 
     companion object {
-        private val LOG_TAG = RDSRouteViewModel::class.java.simpleName
+        private val LOG_TAG: String = RDSRouteViewModel::class.java.simpleName
 
         internal const val EXTRA_AUTHORITY = "extra_authority"
         internal const val EXTRA_ROUTE_ID = "extra_route_id"
@@ -59,7 +59,7 @@ class RDSRouteViewModel @Inject constructor(
         internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM = "extra_map_zoom"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val _authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
     private val _routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)

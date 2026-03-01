@@ -75,7 +75,7 @@ class NextMainActivity : MTActivityWithLocation(),
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName() = TRACKING_SCREEN_NAME
 

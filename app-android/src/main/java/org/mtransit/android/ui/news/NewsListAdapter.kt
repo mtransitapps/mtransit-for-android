@@ -41,7 +41,7 @@ class NewsListAdapter(
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsListAdapter::class.java.simpleName
+        private val LOG_TAG: String = NewsListAdapter::class.java.simpleName
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(ITEM_VIEW_TYPE_MOMENT_SEPARATORS, ITEM_VIEW_TYPE_NEWS)
@@ -67,7 +67,7 @@ class NewsListAdapter(
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val hasSeparator = !horizontal
 

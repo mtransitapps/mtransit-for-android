@@ -275,12 +275,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	@SuppressLint("UnknownNullness") // FIXME
 	public static class LIFOBlockingDeque<E> extends LinkedBlockingDeque<E> implements MTLog.Loggable {
 
-		private static final String TAG = LIFOBlockingDeque.class.getSimpleName();
+		private static final String LOG_TAG = LIFOBlockingDeque.class.getSimpleName();
 
 		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private static final long serialVersionUID = -470545646554946137L;

@@ -67,7 +67,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = HomeFragment::class.java.simpleName
+        private val LOG_TAG: String = HomeFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "Home"
 
@@ -77,7 +77,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
