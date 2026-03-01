@@ -37,7 +37,7 @@
 -dontwarn org.apache.log4j.**
 -dontwarn org.slf4j.**
 
-# FACEBOOK AUDIENCE NETWORK - START
+# AUDIENCE NETWORK - START
 -keep public class com.facebook.ads.** {
    public *;
 }
@@ -46,7 +46,7 @@
 }
 -dontwarn com.facebook.ads.internal.**
 -dontwarn com.facebook.infer.annotation.*
-# FACEBOOK AUDIENCE NETWORK - END
+# AUDIENCE NETWORK - END
 
 # OKHTTP - START
 # https://github.com/square/okhttp/blob/master/okhttp/src/jvmMain/resources/META-INF/proguard/okhttp3.pro
@@ -112,10 +112,9 @@
 # INMOBI - END
 
 # CRASHLYTICS - START
+# https://firebase.google.com/docs/crashlytics/android/get-deobfuscated-reports#config-r8-proguard-dexguard
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
--keep class com.google.firebase.crashlytics.** { *; }
--dontwarn com.google.firebase.crashlytics.**
 # CRASHLYTICS - END
 
 # VUNGLE - START

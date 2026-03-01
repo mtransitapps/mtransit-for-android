@@ -217,7 +217,7 @@
     <string name="feedback_email_pref_title">@string/customer_service</string>
     <string name="feedback_email_pref_summary">Report an issue or suggest a new feature.</string>
     <string name="feedback_store_pref_title">Review on Google Play</string>
-    <string name="feedback_store_pref_summary">Leave a review on the Google Play Store</string>
+    <string name="feedback_store_pref_summary">Leave a review on the Play Store</string>
     <string name="social_pref_cat_title">Social</string>
     <string name="social_facebook_pref_title">Like MonTransit on Facebook</string>
     <string name="social_facebook_pref_summary">facebook.com/MonTransit</string>

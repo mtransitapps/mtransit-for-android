@@ -2,7 +2,7 @@
 
 <img width="25%" height="25%" src="app-android/src/main/play/listings/en-US/graphics/icon/1.png"/>
 
-## Download on Google Play
+## Download on the Play Store
 
 <a href="https://play.google.com/store/apps/details?id=org.mtransit.android"><img width="25%" height="25%" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"/></a>
 

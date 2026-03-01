@@ -220,7 +220,7 @@
     <string name="feedback_email_pref_title">Envoyer un commentaire</string>
     <string name="feedback_email_pref_summary">Signaler un problème ou suggérer une nouvelle fonctionnalité.</string>
     <string name="feedback_store_pref_title">Noter sur Google Play</string>
-    <string name="feedback_store_pref_summary">Laisser une note sur le Google Play Store</string>
+    <string name="feedback_store_pref_summary">Laisser une note sur le Play Store</string>
     <string name="social_pref_cat_title">Social</string>
     <string name="social_facebook_pref_title">Aimer MonTransit sur Facebook</string>
     <string name="social_facebook_pref_summary">facebook.com/MonTransit</string>
