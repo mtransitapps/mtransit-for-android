@@ -39,12 +39,12 @@ import java.util.List;
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
-	private static final String TAG = DelegatingGoogleMap.class.getSimpleName();
+	private static final String LOG_TAG = DelegatingGoogleMap.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	@NonNull
@@ -445,12 +445,12 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 	private class DelegatingInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, MTLog.Loggable {
 
-		private final String TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingInfoWindowAdapter.class.getSimpleName();
+		private final String LOG_TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingInfoWindowAdapter.class.getSimpleName();
 
 		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		@Override
@@ -474,12 +474,12 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 	private class DelegatingOnInfoWindowClickListener implements GoogleMap.OnInfoWindowClickListener, MTLog.Loggable {
 
-		private final String TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingOnInfoWindowClickListener.class.getSimpleName();
+		private final String LOG_TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingOnInfoWindowClickListener.class.getSimpleName();
 
 		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private final OnInfoWindowClickListener onInfoWindowClickListener;
@@ -520,12 +520,12 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 	private class DelegatingOnMarkerClickListener implements GoogleMap.OnMarkerClickListener, MTLog.Loggable {
 
-		private final String TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingOnMarkerClickListener.class.getSimpleName();
+		private final String LOG_TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingOnMarkerClickListener.class.getSimpleName();
 
 		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private final OnMarkerClickListener onMarkerClickListener;

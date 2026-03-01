@@ -17,12 +17,12 @@ import java.util.Set;
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
-	private static final String TAG = DynamicNoClusteringStrategy.class.getSimpleName();
+	private static final String LOG_TAG = DynamicNoClusteringStrategy.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	@NonNull

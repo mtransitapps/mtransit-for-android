@@ -27,12 +27,12 @@ import java.lang.ref.WeakReference;
 
 public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
-	private static final String TAG = "Stack-" + ActionBarController.class.getSimpleName();
+	private static final String LOG_TAG = "Stack-" + ActionBarController.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	@Nullable
