@@ -3,6 +3,7 @@ package org.mtransit.android.ui.news
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -34,7 +35,6 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.getUuid
-import org.mtransit.android.data.hasVideo
 import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.databinding.FragmentNewsListDetailsBinding
 import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
@@ -292,6 +292,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     it.isNestedScrollingEnabled = false
                 }
             }
+            onBackPressedCallback?.init() // at the end
         }
         viewModel.subTitle.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
@@ -301,11 +302,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             }
         }
         viewModel.colorInt.observe(viewLifecycleOwner) {
-            abController?.setABBgColor(this, getABBgColor(context), true)
-            binding?.screenToolbarLayout?.let { updateScreenToolbarBgColor(it) }
-            if (FeatureFlags.F_NAVIGATION) {
-                nextMainViewModel.setABBgColor(getABBgColor(context))
-            }
+            updateABColor()
         }
         viewModel.loading.observe(viewLifecycleOwner) { loading ->
             binding?.refreshLayout?.isRefreshing = loading
@@ -369,9 +366,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
         viewModel.fullscreenModeAvailable.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(fullscreenModeAvailable = it)
+            updateABColor()
         }
         viewModel.fullscreenMode.observe(viewLifecycleOwner) { fullscreenMode ->
             updateMenuItemsVisibility(fullscreenMode = fullscreenMode)
+            updateABColor()
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
@@ -380,6 +379,14 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     binding?.newsContainerLayout?.newsList?.scrollToPosition(0)
                 }
             })
+        }
+    }
+
+    private fun updateABColor() {
+        abController?.setABBgColor(this, getABBgColor(context), true)
+        binding?.screenToolbarLayout?.let { updateScreenToolbarBgColor(it) }
+        if (FeatureFlags.F_NAVIGATION) {
+            nextMainViewModel.setABBgColor(getABBgColor(context))
         }
     }
 
@@ -408,7 +415,10 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun getABSubtitle(context: Context?) = attachedViewModel?.subTitle?.value ?: super.getABSubtitle(context)
 
-    override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) =
+        Color.BLACK.takeIf { attachedViewModel?.fullscreenMode?.value == true && attachedViewModel?.fullscreenModeAvailable?.value == true }
+            ?: attachedViewModel?.colorInt?.value
+            ?: super.getABBgColor(context)
 
     override fun onResume() {
         super.onResume()
@@ -482,6 +492,10 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override fun onBackPressed(): Boolean {
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
             return super.onBackPressed()
+        }
+        if (viewModel.fullscreenMode.value == true) {
+            viewModel.setFullscreenMode(false)
+            return true // handled
         }
         binding?.apply {
             activity?.apply {

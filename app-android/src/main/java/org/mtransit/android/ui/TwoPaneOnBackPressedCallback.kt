@@ -18,7 +18,7 @@ class TwoPaneOnBackPressedCallback(
         private val LOG_TAG = OnBackPressedCallback::class.java.simpleName
     }
 
-    init {
+    fun init() {
         slidingPaneLayout.addPanelSlideListener(this)
     }
 
@@ -29,14 +29,24 @@ class TwoPaneOnBackPressedCallback(
         onPanelHandledBackPressedCallback()
     }
 
+    /**
+     * @param panel view can actually be null in real-life and crash if `init()` called too soon
+     */
     override fun onPanelSlide(panel: View, slideOffset: Float) {
+        // DO NOTHING
     }
 
+    /**
+     * @param panel view can actually be null in real-life and crash if `init()` called too soon
+     */
     override fun onPanelOpened(panel: View) {
         isEnabled = true
         onPanelOpenedCallback()
     }
 
+    /**
+     * @param panel view can actually be null in real-life and crash if `init()` called too soon
+     */
     override fun onPanelClosed(panel: View) {
         isEnabled = false
         onPanelClosedCallback()
