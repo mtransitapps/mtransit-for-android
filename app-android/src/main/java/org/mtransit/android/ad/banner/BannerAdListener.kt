@@ -33,7 +33,7 @@ class BannerAdListener(
     )
 
     companion object {
-        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${BannerAdListener::class.java.simpleName}"
+        private val LOG_TAG = "${AdManager.LOG_TAG}>${BannerAdListener::class.java.simpleName}"
     }
 
     override fun getLogTag() = LOG_TAG

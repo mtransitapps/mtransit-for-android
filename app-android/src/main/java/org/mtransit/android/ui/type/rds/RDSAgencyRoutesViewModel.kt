@@ -41,7 +41,7 @@ class RDSAgencyRoutesViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RDSAgencyRoutesViewModel::class.java.simpleName
+        private val LOG_TAG: String = RDSAgencyRoutesViewModel::class.java.simpleName
 
         internal const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_COLOR_INT = "extra_color_int"

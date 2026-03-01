@@ -16,10 +16,10 @@ class NewsPagerAdapter(
 ) : FragmentStateAdapter(fragment), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsPagerAdapter::class.java.simpleName
+        private val LOG_TAG: String = NewsPagerAdapter::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private var items: List<News> = emptyList()
 

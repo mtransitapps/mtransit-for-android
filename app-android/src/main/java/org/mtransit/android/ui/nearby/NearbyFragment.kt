@@ -61,7 +61,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = NearbyFragment::class.java.simpleName
+        private val LOG_TAG: String = NearbyFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Nearby"
 
@@ -165,7 +165,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 

@@ -58,7 +58,7 @@ import org.mtransit.android.commons.R as commonsR
 class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     companion object {
-        private val LOG_TAG = NewsDetailsFragment::class.java.simpleName
+        private val LOG_TAG: String = NewsDetailsFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(newsArticle: News): NewsDetailsFragment = newInstance(newsArticle.authority, newsArticle.uuid)

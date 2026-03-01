@@ -76,7 +76,7 @@ package org.mtransit.android.ui.poi
 //class POIFragment : ABFragment(R.layout.fragment_poi), DeviceLocationListener, POIDataProvider, TimeChangedListener, FavoriteUpdateListener {
 //
 // companion object {
-// private val LOG_TAG = POIFragment::class.java.simpleName
+// private val LOG_TAG: String = POIFragment::class.java.simpleName
 //
 // private const val PKG_COMMON = "org.mtransit.android."
 //

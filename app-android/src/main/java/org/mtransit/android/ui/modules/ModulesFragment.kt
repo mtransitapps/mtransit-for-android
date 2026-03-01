@@ -24,10 +24,10 @@ import org.mtransit.android.ui.view.common.isVisible
 class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable, MenuProvider {
 
     companion object {
-        private val LOG_TAG = ModulesFragment::class.java.simpleName
+        private val LOG_TAG: String = ModulesFragment::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val viewModel by viewModels<ModulesViewModel>()
 

@@ -46,7 +46,7 @@ class ScheduleAdapter
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = ScheduleAdapter::class.java.simpleName
+        private val LOG_TAG: String = ScheduleAdapter::class.java.simpleName
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(ITEM_VIEW_TYPE_DAY_SEPARATORS, ITEM_VIEW_TYPE_HOUR_SEPARATORS, ITEM_VIEW_TYPE_TIME, ITEM_VIEW_TYPE_LOADING)

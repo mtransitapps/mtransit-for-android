@@ -67,7 +67,7 @@ import kotlin.time.Duration.Companion.seconds
 class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_stops) {
 
     companion object {
-        private val LOG_TAG = RDSDirectionStopsFragment::class.java.simpleName
+        private val LOG_TAG: String = RDSDirectionStopsFragment::class.java.simpleName
 
         // internal const val SHOW_SERVICE_UPDATE_FAB = false
         internal const val SHOW_SERVICE_UPDATE_FAB = true // ON to filter alerts in stop feed to avoid duplicates warnings signs

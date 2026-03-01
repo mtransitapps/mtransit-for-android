@@ -72,13 +72,13 @@ package org.mtransit.android.ui.poi
 //
 //
 // companion object {
-// private val LOG_TAG = POIViewModel::class.java.simpleName
+// private val LOG_TAG: String = POIViewModel::class.java.simpleName
 //
 // internal const val EXTRA_AUTHORITY = "extra_agency_authority"
 // internal const val EXTRA_POI_UUID = "extra_poi_uuid"
 // }
 //
-// override fun getLogTag(): String = LOG_TAG
+// override fun getLogTag() = LOG_TAG
 //
 // val uuid: LiveData<String?> = savedStateHandle.getLiveData<String?>(EXTRA_POI_UUID).distinctUntilChanged()
 //

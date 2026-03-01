@@ -31,12 +31,12 @@ import org.mtransit.android.commons.MTLog;
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 
-	private static final String TAG = GoogleMapWrapper.class.getSimpleName();
+	private static final String LOG_TAG = GoogleMapWrapper.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	@NonNull

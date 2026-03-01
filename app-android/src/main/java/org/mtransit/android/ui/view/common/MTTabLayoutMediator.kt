@@ -26,7 +26,7 @@ class MTTabLayoutMediator @JvmOverloads constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = MTTabLayoutMediator::class.java.simpleName
+        private val LOG_TAG: String = MTTabLayoutMediator::class.java.simpleName
 
         /**
          * see [ViewPager2.setCurrentItem]
@@ -35,7 +35,7 @@ class MTTabLayoutMediator @JvmOverloads constructor(
         private const val MAX_SMOOTH_SCROLL_DIFF = 2
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
 
     private var adapter: RecyclerView.Adapter<*>? = null

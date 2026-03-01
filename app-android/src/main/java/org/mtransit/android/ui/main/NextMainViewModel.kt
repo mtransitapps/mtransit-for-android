@@ -51,7 +51,7 @@ class NextMainViewModel @Inject constructor(
         private val DEFAULT_AB_BG_COLOR: Int? = null
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val hasAgenciesEnabled = this.dataSourcesRepository.readingHasAgenciesEnabled()
 

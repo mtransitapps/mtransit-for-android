@@ -39,7 +39,7 @@ import javax.inject.Inject
 class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes) {
 
     companion object {
-        private val LOG_TAG = RDSAgencyRoutesFragment::class.java.simpleName
+        private val LOG_TAG: String = RDSAgencyRoutesFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(agency : IAgencyUIProperties) =

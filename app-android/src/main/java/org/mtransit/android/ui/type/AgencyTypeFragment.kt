@@ -59,7 +59,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = AgencyTypeFragment::class.java.simpleName
+        private val LOG_TAG: String = AgencyTypeFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Browse"
 
@@ -170,7 +170,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         )
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
 

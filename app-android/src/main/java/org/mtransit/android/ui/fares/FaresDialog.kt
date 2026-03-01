@@ -27,7 +27,7 @@ import javax.inject.Inject
 class FaresDialog : MTBottomSheetDialogFragmentX() {
 
     companion object {
-        private val LOG_TAG = FaresDialog::class.java.simpleName
+        private val LOG_TAG: String = FaresDialog::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
@@ -36,7 +36,7 @@ class FaresDialog : MTBottomSheetDialogFragmentX() {
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository

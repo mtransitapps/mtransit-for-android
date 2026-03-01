@@ -25,7 +25,7 @@ class MainPreferencesViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = MainPreferencesViewModel::class.java.simpleName
+        private val LOG_TAG: String = MainPreferencesViewModel::class.java.simpleName
 
         @Suppress("unused")
         internal const val DEVICE_SETTINGS_GROUP_PREF = "pDeviceSettings"
@@ -67,7 +67,7 @@ class MainPreferencesViewModel @Inject constructor(
         internal const val YOUTUBE_TERMS_OF_SERVICE_PAGE_URL = "https://www.youtube.com/t/terms"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val currentSubscription = billingManager.currentSubscription
     val hasSubscription = billingManager.hasSubscription

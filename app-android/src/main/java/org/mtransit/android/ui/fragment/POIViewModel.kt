@@ -71,7 +71,7 @@ class POIViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = POIViewModel::class.java.simpleName
+        private val LOG_TAG: String = POIViewModel::class.java.simpleName
 
         internal const val EXTRA_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_POI_UUID = "extra_poi_uuid"
@@ -80,7 +80,7 @@ class POIViewModel @Inject constructor(
         private const val NEARBY_CONNECTIONS_MAX_COVERAGE = 2f * LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS.toFloat()
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val uuid = savedStateHandle.getLiveDataDistinct<String>(EXTRA_POI_UUID)
 

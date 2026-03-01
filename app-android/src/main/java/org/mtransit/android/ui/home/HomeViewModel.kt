@@ -81,7 +81,7 @@ class HomeViewModel @Inject constructor(
     ModuleDisabledAwareViewModel {
 
     companion object {
-        private val LOG_TAG = HomeViewModel::class.java.simpleName
+        private val LOG_TAG: String = HomeViewModel::class.java.simpleName
 
         private const val NB_MAX_BY_TYPE = 2
         private const val NB_MAX_BY_TYPE_ONE_TYPE = 6
@@ -93,7 +93,7 @@ class HomeViewModel @Inject constructor(
         // private const val IGNORE_SAME_LOCATION_CHECK = true // DEBUG
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     fun checkIfNetworkLocationRefreshNecessary() {
         viewModelScope.launch {

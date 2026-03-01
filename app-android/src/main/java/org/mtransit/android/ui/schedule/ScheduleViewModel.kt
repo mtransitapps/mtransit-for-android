@@ -47,7 +47,7 @@ class ScheduleViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = ScheduleViewModel::class.java.simpleName
+        private val LOG_TAG: String = ScheduleViewModel::class.java.simpleName
 
         internal const val EXTRA_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_POI_UUID = "extra_poi_uuid"
@@ -68,7 +68,7 @@ class ScheduleViewModel @Inject constructor(
         private const val LOCAL_TIME_ZONE_ID = "local_time_zone_id"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
 

@@ -49,13 +49,13 @@ class MTBillingManager @Inject constructor(
 {
 
     companion object {
-        private val LOG_TAG = MTBillingManager::class.java.simpleName
+        private val LOG_TAG: String = MTBillingManager::class.java.simpleName
 
         private const val PREF_KEY_SUBSCRIPTION = "pSubscription"
         private val PREF_KEY_SUBSCRIPTION_DEFAULT: String? = null
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private var billingClientConnected: Boolean? = false
 

@@ -48,7 +48,7 @@ import javax.inject.Inject
 class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     companion object {
-        private val LOG_TAG = AgencyPOIsFragment::class.java.simpleName
+        private val LOG_TAG: String = AgencyPOIsFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(agency: IAgencyUIProperties, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =

@@ -58,7 +58,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RDSDirectionStopsViewModel::class.java.simpleName
+        private val LOG_TAG: String = RDSDirectionStopsViewModel::class.java.simpleName
 
         internal const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_ROUTE_ID = "extra_route_id"

@@ -61,7 +61,7 @@ class MapViewModel @Inject constructor(
     LocationSettingsAwareViewModel {
 
     companion object {
-        private val LOG_TAG = MapViewModel::class.java.simpleName
+        private val LOG_TAG: String = MapViewModel::class.java.simpleName
 
         internal const val EXTRA_INITIAL_LOCATION = "extra_initial_location"
         internal const val EXTRA_SELECTED_UUID = "extra_selected_uuid"
@@ -69,7 +69,7 @@ class MapViewModel @Inject constructor(
         internal const val EXTRA_INCLUDE_TYPE_ID_DEFAULT: Int = -1
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val initialLocation = savedStateHandle.getLiveDataDistinct<Location?>(EXTRA_INITIAL_LOCATION)
 

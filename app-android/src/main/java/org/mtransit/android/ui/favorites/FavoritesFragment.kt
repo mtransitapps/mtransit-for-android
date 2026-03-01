@@ -52,7 +52,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = FavoritesFragment::class.java.simpleName
+        private val LOG_TAG: String = FavoritesFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "Favorites"
 
@@ -66,7 +66,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         )
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 

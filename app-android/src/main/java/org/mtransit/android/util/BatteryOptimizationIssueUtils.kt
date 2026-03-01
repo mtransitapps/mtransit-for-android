@@ -30,7 +30,7 @@ import org.mtransit.android.commons.R as commonsR
 
 object BatteryOptimizationIssueUtils {
 
-    private val LOG_TAG = BatteryOptimizationIssueUtils::class.java.simpleName
+    private val LOG_TAG: String = BatteryOptimizationIssueUtils::class.java.simpleName
 
     const val DO_NOT_KILL_MY_APP_LABEL = "dontkillmyapp.com"
 

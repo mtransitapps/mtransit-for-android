@@ -20,12 +20,12 @@ import org.mtransit.android.util.DegreeUtils;
 
 public class MTCompassView extends MTView {
 
-	private static final String TAG = MTCompassView.class.getSimpleName();
+	private static final String LOG_TAG = MTCompassView.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private int headingInDegree = -1; // 0-360°

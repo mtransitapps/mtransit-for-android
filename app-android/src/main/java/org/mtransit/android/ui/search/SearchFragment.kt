@@ -45,7 +45,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     OnItemSelectedListener {
 
     companion object {
-        private val LOG_TAG = SearchFragment::class.java.simpleName
+        private val LOG_TAG: String = SearchFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Search"
 
@@ -64,7 +64,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 

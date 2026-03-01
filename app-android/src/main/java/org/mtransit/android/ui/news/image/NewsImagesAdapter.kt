@@ -17,10 +17,10 @@ class NewsImagesAdapter(
 ) : ListAdapter<NewsImage, NewsImagesAdapter.NewsImageItemViewHolder>(NewsImageDiffCallback), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsImagesAdapter::class.java.simpleName
+        private val LOG_TAG: String = NewsImagesAdapter::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsImageItemViewHolder {
         return NewsImageItemViewHolder.from(parent)

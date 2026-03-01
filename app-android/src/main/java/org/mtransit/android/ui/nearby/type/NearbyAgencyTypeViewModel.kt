@@ -40,7 +40,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NearbyAgencyTypeViewModel::class.java.simpleName
+        private val LOG_TAG: String = NearbyAgencyTypeViewModel::class.java.simpleName
 
         internal const val EXTRA_TYPE_ID = "extra_type_id"
 

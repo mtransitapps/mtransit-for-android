@@ -39,10 +39,10 @@ class SplashScreenViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = SplashScreenViewModel::class.java.simpleName
+        private val LOG_TAG: String = SplashScreenViewModel::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     fun onAppOpen() {
         viewModelScope.launch {

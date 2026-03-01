@@ -56,7 +56,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = RDSRouteFragment::class.java.simpleName
+        private val LOG_TAG: String = RDSRouteFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "RTSRoute" // do not change to avoid breaking tracking
 
@@ -151,7 +151,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         )
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName() =
         attachedViewModel?.routeM?.value?.let { "$TRACKING_SCREEN_NAME/${it.authority}/${it.route.id}" }

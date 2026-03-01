@@ -18,7 +18,7 @@ data class MTPOIMarkerIds(
             }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     fun entrySet(): Set<Map.Entry<String?, String?>> = this.uuidsAndAuthority.entries
 
