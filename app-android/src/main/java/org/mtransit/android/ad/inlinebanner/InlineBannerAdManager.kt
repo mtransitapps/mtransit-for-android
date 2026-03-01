@@ -28,7 +28,7 @@ class InlineBannerAdManager @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${InlineBannerAdManager::class.java.simpleName}"
+        private val LOG_TAG = "${AdManager.LOG_TAG}>${InlineBannerAdManager::class.java.simpleName}"
 
         // https://developers.google.com/admob/android/banner/fixed-size
         private const val USE_MEDIUM_RECTANGLE = true

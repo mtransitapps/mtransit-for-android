@@ -33,7 +33,7 @@ class BannerAdManager @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${BannerAdManager::class.java.simpleName}"
+        private val LOG_TAG = "${AdManager.LOG_TAG}>${BannerAdManager::class.java.simpleName}"
 
         private const val LOADED_UNKNOWN = -1L
 

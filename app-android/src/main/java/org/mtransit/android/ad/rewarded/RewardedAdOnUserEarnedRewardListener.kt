@@ -23,7 +23,7 @@ class RewardedAdOnUserEarnedRewardListener(
     )
 
     companion object {
-        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${RewardedAdOnUserEarnedRewardListener::class.java.simpleName}"
+        private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedAdOnUserEarnedRewardListener::class.java.simpleName}"
     }
 
     override fun getLogTag() = LOG_TAG

@@ -25,7 +25,7 @@ class RewardedAdManager @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${RewardedAdManager::class.java.simpleName}"
+        private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedAdManager::class.java.simpleName}"
     }
 
     override fun getLogTag() = LOG_TAG

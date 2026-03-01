@@ -72,7 +72,7 @@ class MainActivity : MTActivityWithLocation(),
     IAdManager.RewardedAdListener {
 
     companion object {
-        private val LOG_TAG: String = "Stack-" + MainActivity::class.java.getSimpleName()
+        private val LOG_TAG = "Stack-" + MainActivity::class.java.getSimpleName()
 
         private const val TRACKING_SCREEN_NAME = "Main"
 
