@@ -1,4 +1,5 @@
 [
+{"name":"100 Mile House Transit (BC Transit)","name_fr":"","location":"100 Mile House, BC, Canada","targetTypeId":"3","color":"00B140","lat":"51.627791","lng":"-121.279630","pkg":"org.mtransit.android.ca_100_mile_house_transit_bus"},
 {"name":"Airdrie Transit","name_fr":"","location":"Airdrie, AB, Canada","targetTypeId":"3","color":"0099CC","lat":"51.286644","lng":"-113.983500","pkg":"org.mtransit.android.ca_airdrie_transit_bus"},
 {"name":"àVélo","name_fr":"àVélo","location":"Québec, QC, Canada","targetTypeId":"100","color":"47D7AC","lat":"46.80","lng":"-71.22","pkg":"org.mtransit.android.ca_quebec_a_velo_bike"},
 {"name":"Barrie Transit","name_fr":"","location":"Barrie, ON, Canada","targetTypeId":"3","color":"336699","lat":"44.387776","lng":"-79.690981","pkg":"org.mtransit.android.ca_barrie_transit_bus"},
