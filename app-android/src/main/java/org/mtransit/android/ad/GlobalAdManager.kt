@@ -2,6 +2,7 @@ package org.mtransit.android.ad
 
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
+import com.google.ads.mediation.pangle.PangleMediationAdapter
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
@@ -21,6 +22,7 @@ import org.mtransit.android.dev.DemoModeManager
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.bytedance.sdk.openadsdk.api.PAGConstant as PanglePAGConstant
 import com.google.android.ump.FormError as UMPFormError
 
 @Singleton
@@ -117,6 +119,8 @@ class GlobalAdManager(
                     .build()
             )
         }
+        PangleMediationAdapter.setGDPRConsent(PanglePAGConstant.PAGGDPRConsentType.PAG_GDPR_CONSENT_TYPE_CONSENT) // EU user consent policy
+        PangleMediationAdapter.setPAConsent(PanglePAGConstant.PAGPAConsentType.PAG_PA_CONSENT_TYPE_CONSENT) // US states privacy laws
         // https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
