@@ -17,10 +17,10 @@ class SearchTypeFilterAdapter @JvmOverloads constructor(
 ) : MTArrayAdapter<DataSourceType?>(context, resource) {
 
     companion object {
-        private val LOG_TAG = SearchTypeFilterAdapter::class.java.simpleName
+        private val LOG_TAG: String = SearchTypeFilterAdapter::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private fun clearSilently() {
         setNotifyOnChange(false)

@@ -51,12 +51,12 @@ import org.mtransit.android.commons.R as commonsR
 class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = MainPreferencesFragment::class.java.simpleName
+        private val LOG_TAG: String = MainPreferencesFragment::class.java.simpleName
 
         private const val FORCE_OPEN_IN_EXTERNAL_BROWSER = false
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository

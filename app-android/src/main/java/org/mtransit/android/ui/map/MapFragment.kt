@@ -48,7 +48,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = MapFragment::class.java.simpleName
+        private val LOG_TAG: String = MapFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Map"
 
@@ -94,7 +94,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         private const val BOTTOM_PADDING_SP = 0
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 

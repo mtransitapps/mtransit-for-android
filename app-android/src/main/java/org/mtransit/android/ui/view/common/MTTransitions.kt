@@ -34,9 +34,9 @@ import org.mtransit.commons.FeatureFlags
  */
 object MTTransitions : MTLog.Loggable {
 
-    private val LOG_TAG = MTTransitions::class.java.simpleName
+    private val LOG_TAG: String = MTTransitions::class.java.simpleName
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     const val DEBUG_TRANSITION = false
     // const val DEBUG_TRANSITION = true // DEBUG

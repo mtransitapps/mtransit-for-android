@@ -34,7 +34,7 @@ import javax.inject.Inject
 class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_type) {
 
     companion object {
-        private val LOG_TAG = NearbyAgencyTypeFragment::class.java.simpleName
+        private val LOG_TAG: String = NearbyAgencyTypeFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(

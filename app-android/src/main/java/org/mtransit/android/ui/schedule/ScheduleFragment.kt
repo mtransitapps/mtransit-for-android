@@ -54,7 +54,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = ScheduleFragment::class.java.simpleName
+        private val LOG_TAG: String = ScheduleFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "Schedule"
 
@@ -93,7 +93,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         )
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 

@@ -37,10 +37,10 @@ class DataSourcesInMemoryCache @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = DataSourcesInMemoryCache::class.java.simpleName
+        private val LOG_TAG: String = DataSourcesInMemoryCache::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val defaultAgencyComparator: Comparator<IAgencyProperties> = IAgencyProperties.SHORT_NAME_COMPARATOR
 

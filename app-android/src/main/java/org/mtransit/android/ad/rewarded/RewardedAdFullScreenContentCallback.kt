@@ -26,7 +26,7 @@ class RewardedAdFullScreenContentCallback(
     )
 
     companion object {
-        private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedAdFullScreenContentCallback::class.java.simpleName}"
+        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${RewardedAdFullScreenContentCallback::class.java.simpleName}"
     }
 
     override fun getLogTag() = LOG_TAG

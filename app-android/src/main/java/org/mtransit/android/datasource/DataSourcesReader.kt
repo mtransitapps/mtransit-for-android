@@ -113,7 +113,7 @@ class DataSourcesReader @Inject constructor(
         private val MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS = TimeUnit.HOURS.toMillis(6L)
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     @get:WorkerThread
     @set:WorkerThread

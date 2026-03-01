@@ -42,7 +42,7 @@ class AppRatingsManager @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = AppRatingsManager::class.java.simpleName
+        private val LOG_TAG: String = AppRatingsManager::class.java.simpleName
 
         const val ALWAYS_SHOW_APP_RATING_REQUEST = false
         // const val ALWAYS_SHOW_APP_RATING_REQUEST = true // DEBUG
@@ -72,7 +72,7 @@ class AppRatingsManager @Inject constructor(
         )
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val hasAgenciesEnabled = dataSourcesRepository.readingHasAgenciesEnabled()
 

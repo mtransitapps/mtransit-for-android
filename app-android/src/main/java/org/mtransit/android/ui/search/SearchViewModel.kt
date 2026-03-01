@@ -40,7 +40,7 @@ class SearchViewModel @Inject constructor(
 ) : MTViewModelWithLocation(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = SearchViewModel::class.java.simpleName
+        private val LOG_TAG: String = SearchViewModel::class.java.simpleName
 
         internal const val EXTRA_QUERY = "extra_query"
         internal const val EXTRA_QUERY_DEFAULT = StringUtils.EMPTY
@@ -61,7 +61,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val _searchableAgencies: LiveData<List<IAgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesBase().map { list ->
         list.filter { agency -> agency.getSupportedType().isSearchable }

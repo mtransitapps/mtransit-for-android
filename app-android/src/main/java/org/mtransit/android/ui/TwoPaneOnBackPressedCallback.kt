@@ -15,14 +15,14 @@ class TwoPaneOnBackPressedCallback(
 ), SlidingPaneLayout.PanelSlideListener, MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = OnBackPressedCallback::class.java.simpleName
+        private val LOG_TAG: String = OnBackPressedCallback::class.java.simpleName
     }
 
     fun init() {
         slidingPaneLayout.addPanelSlideListener(this)
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun handleOnBackPressed() {
         slidingPaneLayout.closePane()

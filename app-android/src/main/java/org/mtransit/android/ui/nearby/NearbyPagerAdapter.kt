@@ -10,10 +10,10 @@ import org.mtransit.android.ui.nearby.type.NearbyAgencyTypeFragment
 class NearbyPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NearbyPagerAdapter::class.java.simpleName
+        private val LOG_TAG: String = NearbyPagerAdapter::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private var types: MutableList<DataSourceType>? = null
 

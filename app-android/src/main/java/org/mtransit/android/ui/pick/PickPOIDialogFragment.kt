@@ -42,7 +42,7 @@ import javax.inject.Inject
 class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationListener, IFragment {
 
     companion object {
-        private val LOG_TAG = PickPOIDialogFragment::class.java.simpleName
+        private val LOG_TAG: String = PickPOIDialogFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
@@ -68,7 +68,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val viewModel by viewModels<PickPOIViewModel>()
     private val attachedViewModel

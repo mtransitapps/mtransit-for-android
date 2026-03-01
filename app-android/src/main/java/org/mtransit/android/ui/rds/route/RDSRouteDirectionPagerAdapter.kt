@@ -11,10 +11,10 @@ import org.mtransit.android.ui.rds.route.direction.RDSDirectionStopsFragment
 class RDSRouteDirectionPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RDSRouteDirectionPagerAdapter::class.java.simpleName
+        private val LOG_TAG: String = RDSRouteDirectionPagerAdapter::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private var routeDirections: MutableList<Direction>? = null
 

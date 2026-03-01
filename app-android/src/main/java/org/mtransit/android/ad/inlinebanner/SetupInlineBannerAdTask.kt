@@ -35,7 +35,7 @@ class SetupInlineBannerAdTask(
     )
 
     companion object {
-        private val LOG_TAG = "${AdManager.LOG_TAG}>${SetupInlineBannerAdTask::class.java.simpleName}"
+        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${SetupInlineBannerAdTask::class.java.simpleName}"
     }
 
     override fun getLogTag() = LOG_TAG

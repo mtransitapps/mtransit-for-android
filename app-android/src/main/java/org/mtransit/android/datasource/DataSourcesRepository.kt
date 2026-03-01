@@ -50,10 +50,10 @@ class DataSourcesRepository @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = DataSourcesRepository::class.java.simpleName
+        private val LOG_TAG: String = DataSourcesRepository::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val defaultAgencies by lazy {
         listOf(

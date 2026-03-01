@@ -60,7 +60,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     ModuleDisabledAwareFragment {
 
     companion object {
-        private val LOG_TAG = NewsListDetailFragment::class.java.simpleName
+        private val LOG_TAG: String = NewsListDetailFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "News"
 
@@ -150,7 +150,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String =
         attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME

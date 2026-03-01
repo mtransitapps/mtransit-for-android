@@ -33,7 +33,7 @@ class NextMainViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = "Stack-" + NextMainViewModel::class.java.simpleName
+        private val LOG_TAG: String = "Stack-" + NextMainViewModel::class.java.simpleName
 
         private const val ITEM_ID_AGENCY_TYPE_START_WITH = "agencytype-"
         private const val ITEM_ID_STATIC_START_WITH = "static-"
@@ -51,7 +51,7 @@ class NextMainViewModel @Inject constructor(
         private val DEFAULT_AB_BG_COLOR: Int? = null
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val hasAgenciesEnabled = this.dataSourcesRepository.readingHasAgenciesEnabled()
 

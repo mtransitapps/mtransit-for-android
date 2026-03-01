@@ -13,13 +13,13 @@ import org.mtransit.android.ui.view.common.toEvent
 class PurchaseFragment : MTFragmentX(R.layout.fragment_purchase) {
 
     companion object {
-        private val LOG_TAG = PurchaseFragment::class.java.simpleName
+        private val LOG_TAG: String = PurchaseFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(): PurchaseFragment = PurchaseFragment()
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val viewModel: PurchaseViewModel by activityViewModels()
 

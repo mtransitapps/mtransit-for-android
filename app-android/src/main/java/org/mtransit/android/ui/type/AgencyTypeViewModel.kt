@@ -45,7 +45,7 @@ class AgencyTypeViewModel @Inject constructor(
     ModuleDisabledAwareViewModel {
 
     companion object {
-        private val LOG_TAG = AgencyTypeViewModel::class.java.simpleName
+        private val LOG_TAG: String = AgencyTypeViewModel::class.java.simpleName
 
         internal const val EXTRA_TYPE_ID = "extra_type_id"
 
@@ -58,7 +58,7 @@ class AgencyTypeViewModel @Inject constructor(
         internal const val EXTRA_SELECTED_UUID = "extra_selected_uuid"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val _typeId = savedStateHandle.getLiveDataDistinct<Int>(EXTRA_TYPE_ID)
 

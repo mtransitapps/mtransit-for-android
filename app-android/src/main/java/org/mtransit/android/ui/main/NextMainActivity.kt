@@ -66,7 +66,7 @@ class NextMainActivity : MTActivityWithLocation(),
     IAdManager.RewardedAdListener {
 
     companion object {
-        private val LOG_TAG = "Stack2-" + NextMainActivity::class.java.simpleName
+        private val LOG_TAG: String = "Stack2-" + NextMainActivity::class.java.simpleName
         private const val TRACKING_SCREEN_NAME = "Main"
 
         @JvmStatic
@@ -75,7 +75,7 @@ class NextMainActivity : MTActivityWithLocation(),
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName() = TRACKING_SCREEN_NAME
 

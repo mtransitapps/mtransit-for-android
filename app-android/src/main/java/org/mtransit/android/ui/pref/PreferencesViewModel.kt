@@ -13,12 +13,12 @@ class PreferencesViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = PreferencesViewModel::class.java.simpleName
+        private val LOG_TAG: String = PreferencesViewModel::class.java.simpleName
 
         internal const val EXTRA_SUPPORT = "extra_support"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val showSupport = savedStateHandle.getLiveDataDistinct(EXTRA_SUPPORT, false)
 

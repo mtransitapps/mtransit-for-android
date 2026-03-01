@@ -14,10 +14,10 @@ class PurchaseViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = PurchaseViewModel::class.java.simpleName
+        private val LOG_TAG: String = PurchaseViewModel::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val closeEvent = MutableLiveData<Event<Boolean>>()
 

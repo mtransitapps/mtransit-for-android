@@ -50,7 +50,7 @@ class GlobalAdManager(
     )
 
     companion object {
-        private val LOG_TAG = "${AdManager.LOG_TAG}>${GlobalAdManager::class.java.simpleName}"
+        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${GlobalAdManager::class.java.simpleName}"
     }
 
     override fun getLogTag() = LOG_TAG

@@ -30,7 +30,7 @@ class PickPOIViewModel @Inject constructor(
 ) : MTViewModelWithLocation() {
 
     companion object {
-        private val LOG_TAG = PickPOIViewModel::class.java.simpleName
+        private val LOG_TAG: String = PickPOIViewModel::class.java.simpleName
 
         internal const val EXTRA_POI_UUIDS = "extra_poi_uuids"
         internal const val EXTRA_POI_AUTHORITIES = "extra_poi_authorities"
@@ -38,7 +38,7 @@ class PickPOIViewModel @Inject constructor(
         private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val _poiUuids = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_UUIDS)
 
