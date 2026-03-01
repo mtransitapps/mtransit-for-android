@@ -1,0 +1,282 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+name: MT update modules
+on:
+  workflow_dispatch: # manual
+    inputs:
+      name:
+        description: 'Module name (English)'
+        required: true
+        type: string
+      name_fr:
+        description: 'Module name (French)'
+        required: false
+        type: string
+        default: ''
+      location:
+        description: 'Location'
+        required: true
+        type: string
+      targetTypeId:
+        description: 'Target Type ID (0=light rail, 1=subway, 2=train, 3=bus, 4=ferry, 100=bike)'
+        required: true
+        type: number
+      color:
+        description: 'Color (hex without #)'
+        required: true
+        type: string
+      lat:
+        description: 'Latitude'
+        required: true
+        type: string
+      lng:
+        description: 'Longitude'
+        required: true
+        type: string
+      pkg:
+        description: 'Package name (e.g., org.mtransit.android.ca_city_agency_type)'
+        required: true
+        type: string
+# gh workflow run mt-update-modules.yml --ref $(git rev-parse --abbrev-ref HEAD) -f name="Test Transit" -f location="Test City, ON, Canada" -f targetTypeId="3" -f color="FF0000" -f lat="43.0" -f lng="-79.0" -f pkg="org.mtransit.android.ca_test_transit_bus"
+# gh run list --workflow=mt-update-modules.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+  pull-requests: write
+env:
+  MT_BOT_USER_NAME: ${{ vars.MT_BOT_USER_NAME }}
+  MT_BOT_USER_EMAIL: ${{ vars.MT_BOT_USER_EMAIL }}
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # repo type
+  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
+  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
+  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+jobs:
+  MT-UPDATE-MODULES-JOB:
+    name: "MT update modules"
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MT_PAT }}
+
+      - name: MT validate inputs
+        run: |
+          echo "Validating inputs..."
+          if [[ -z "${{ github.event.inputs.name }}" ]]; then
+            echo "ERROR: name is required"
+            exit 1
+          fi
+          if [[ -z "${{ github.event.inputs.location }}" ]]; then
+            echo "ERROR: location is required"
+            exit 1
+          fi
+          if [[ -z "${{ github.event.inputs.targetTypeId }}" ]]; then
+            echo "ERROR: targetTypeId is required"
+            exit 1
+          fi
+          if [[ -z "${{ github.event.inputs.color }}" ]]; then
+            echo "ERROR: color is required"
+            exit 1
+          fi
+          if [[ -z "${{ github.event.inputs.lat }}" ]]; then
+            echo "ERROR: lat is required"
+            exit 1
+          fi
+          if [[ -z "${{ github.event.inputs.lng }}" ]]; then
+            echo "ERROR: lng is required"
+            exit 1
+          fi
+          if [[ -z "${{ github.event.inputs.pkg }}" ]]; then
+            echo "ERROR: pkg is required"
+            exit 1
+          fi
+          echo "All required inputs are provided."
+
+      - name: MT extract branch suffix from pkg
+        id: extract-suffix
+        run: |
+          PKG="${{ github.event.inputs.pkg }}"
+          SUFFIX=$(echo "$PKG" | awk -F. '{print $NF}')
+          echo "SUFFIX=${SUFFIX}" >> $GITHUB_OUTPUT
+          echo "Extracted suffix: ${SUFFIX}"
+
+      - name: MT update or add module in modules.json
+        run: |
+          MODULES_FILE="app-android/src/main/res/raw/modules.json"
+          NAME="${{ github.event.inputs.name }}"
+          NAME_FR="${{ github.event.inputs.name_fr }}"
+          LOCATION="${{ github.event.inputs.location }}"
+          TARGET_TYPE_ID="${{ github.event.inputs.targetTypeId }}"
+          COLOR="${{ github.event.inputs.color }}"
+          LAT="${{ github.event.inputs.lat }}"
+          LNG="${{ github.event.inputs.lng }}"
+          PKG="${{ github.event.inputs.pkg }}"
+          
+          echo "Processing module with pkg: $PKG"
+          
+          # Create new module object
+          NEW_MODULE=$(jq -n \
+            --arg name "$NAME" \
+            --arg name_fr "$NAME_FR" \
+            --arg location "$LOCATION" \
+            --arg targetTypeId "$TARGET_TYPE_ID" \
+            --arg color "$COLOR" \
+            --arg lat "$LAT" \
+            --arg lng "$LNG" \
+            --arg pkg "$PKG" \
+            '{name: $name, name_fr: $name_fr, location: $location, targetTypeId: $targetTypeId, color: $color, lat: $lat, lng: $lng, pkg: $pkg}')
+          
+          # Check if module with same pkg exists
+          EXISTING_INDEX=$(jq --arg pkg "$PKG" '[.[] | .pkg] | index($pkg)' "$MODULES_FILE")
+          
+          if [[ "$EXISTING_INDEX" != "null" ]]; then
+            echo "Module with pkg $PKG exists at index $EXISTING_INDEX. Updating..."
+            # Remove the existing module and add the new one, then sort
+            jq --argjson new "$NEW_MODULE" --arg pkg "$PKG" \
+              'map(select(.pkg != $pkg)) + [$new] | sort_by(.name)' \
+              "$MODULES_FILE" > "${MODULES_FILE}.tmp"
+            mv "${MODULES_FILE}.tmp" "$MODULES_FILE"
+            echo "ACTION=updated" >> $GITHUB_ENV
+          else
+            echo "Module with pkg $PKG does not exist. Adding new module..."
+            # Add the new module and sort by name
+            jq --argjson new "$NEW_MODULE" \
+              '. + [$new] | sort_by(.name)' \
+              "$MODULES_FILE" > "${MODULES_FILE}.tmp"
+            mv "${MODULES_FILE}.tmp" "$MODULES_FILE"
+            echo "ACTION=added" >> $GITHUB_ENV
+          fi
+          
+          echo "Module processed successfully."
+
+      - name: MT bump module_db_version
+        run: |
+          MODULES_VALUES_FILE="app-android/src/main/res/values/modules_values.xml"
+          
+          # Extract current version using grep
+          CURRENT_VERSION=$(grep -oP '<integer name="module_db_version">\K[0-9]+(?=</integer>)' "$MODULES_VALUES_FILE")
+          
+          # Validate version was extracted
+          if [[ -z "$CURRENT_VERSION" ]]; then
+            echo "ERROR: Failed to extract current module_db_version"
+            exit 1
+          fi
+          
+          echo "Current module_db_version: $CURRENT_VERSION"
+          
+          # Increment version
+          NEW_VERSION=$((CURRENT_VERSION + 1))
+          echo "New module_db_version: $NEW_VERSION"
+          
+          # Use sed to update the version number
+          sed -i "s/<integer name=\"module_db_version\">${CURRENT_VERSION}<\/integer>/<integer name=\"module_db_version\">${NEW_VERSION}<\/integer>/" "$MODULES_VALUES_FILE"
+          
+          # Verify the update was successful
+          UPDATED_VERSION=$(grep -oP '<integer name="module_db_version">\K[0-9]+(?=</integer>)' "$MODULES_VALUES_FILE")
+          if [[ "$UPDATED_VERSION" != "$NEW_VERSION" ]]; then
+            echo "ERROR: Failed to update module_db_version. Expected $NEW_VERSION but got $UPDATED_VERSION"
+            exit 1
+          fi
+          
+          echo "module_db_version bumped from $CURRENT_VERSION to $NEW_VERSION."
+
+      - name: MT commit changes
+        continue-on-error: true
+        id: mt-commit-changes
+        run: |
+          BRANCH_SUFFIX="${{ steps.extract-suffix.outputs.SUFFIX }}"
+          NEW_BRANCH="${MT_BRANCH_NAME}_update_modules_${BRANCH_SUFFIX}"
+          
+          git add -v -A app-android/src/main/res/raw/modules.json
+          git add -v -A app-android/src/main/res/values/modules_values.xml
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 1 # fail
+          fi
+          
+          git checkout -B "$NEW_BRANCH"
+          git config user.name "$MT_BOT_USER_NAME"
+          git config user.email "$MT_BOT_USER_EMAIL"
+          
+          MODULE_NAME="${{ github.event.inputs.name }}"
+          if [[ "$ACTION" == "updated" ]]; then
+            git commit -m "Update module \`${MODULE_NAME}\` in \`${MT_BRANCH_NAME}\`"
+          else
+            git commit -m "Add module \`${MODULE_NAME}\` to \`${MT_BRANCH_NAME}\`"
+          fi
+          
+          git push -u origin "$NEW_BRANCH" --force
+          exit 0 # success
+
+      - name: MT check if PR exists
+        id: mt-check-pr-exists
+        if: ${{ steps.mt-commit-changes.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          BRANCH_SUFFIX="${{ steps.extract-suffix.outputs.SUFFIX }}"
+          NEW_BRANCH="${MT_BRANCH_NAME}_update_modules_${BRANCH_SUFFIX}"
+          
+          # Fetch the branch to ensure it exists in the remote tracking
+          git fetch origin "$NEW_BRANCH" || true
+          
+          PR_COUNT=$(gh pr list --state open --head "$NEW_BRANCH" | wc -l)
+          echo "Pull requests found: $PR_COUNT."
+          if [[ $PR_COUNT -eq 0 ]]; then
+            exit 1 # fail == PR need to be created
+          else
+            exit 0 # success == PR need to be updated
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT create pull request (if necessary)
+        if: ${{ steps.mt-commit-changes.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'failure' }}
+        run: |
+          BRANCH_SUFFIX="${{ steps.extract-suffix.outputs.SUFFIX }}"
+          NEW_BRANCH="${MT_BRANCH_NAME}_update_modules_${BRANCH_SUFFIX}"
+          MODULE_NAME="${{ github.event.inputs.name }}"
+          
+          if [[ "$ACTION" == "updated" ]]; then
+            COMMIT_MSG="Update module \`${MODULE_NAME}\` in \`${MT_BRANCH_NAME}\`"
+          else
+            COMMIT_MSG="Add module \`${MODULE_NAME}\` to \`${MT_BRANCH_NAME}\`"
+          fi
+          
+          gh pr create --base "${MT_BRANCH_NAME}" --title "$COMMIT_MSG" --body "$COMMIT_MSG" --assignee montransit
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT update pull request (if necessary)
+        if: ${{ steps.mt-commit-changes.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
+        run: |
+          BRANCH_SUFFIX="${{ steps.extract-suffix.outputs.SUFFIX }}"
+          NEW_BRANCH="${MT_BRANCH_NAME}_update_modules_${BRANCH_SUFFIX}"
+          MODULE_NAME="${{ github.event.inputs.name }}"
+          
+          if [[ "$ACTION" == "updated" ]]; then
+            TITLE="Update module \`${MODULE_NAME}\` in \`${MT_BRANCH_NAME}\`"
+          else
+            TITLE="Add module \`${MODULE_NAME}\` to \`${MT_BRANCH_NAME}\`"
+          fi
+          
+          gh pr edit --head "$NEW_BRANCH" --add-assignee montransit --title "$TITLE"
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
