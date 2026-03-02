@@ -416,7 +416,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override fun getABSubtitle(context: Context?) = attachedViewModel?.subTitle?.value ?: super.getABSubtitle(context)
 
     override fun getABBgColor(context: Context?) =
-        Color.BLACK.takeIf { attachedViewModel?.fullscreenMode?.value == true && attachedViewModel?.fullscreenModeAvailable?.value == true }
+        Color.BLACK.takeIf { attachedViewModel?.isFullscreen == true }
             ?: attachedViewModel?.colorInt?.value
             ?: super.getABBgColor(context)
 
@@ -480,8 +480,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     }
 
     override fun onScreenToolbarNavigationClick(v: View) {
-        val isFullscreen = attachedViewModel?.fullscreenMode?.value == true && attachedViewModel?.fullscreenModeAvailable?.value == true
-        if (isFullscreen) {
+        if (attachedViewModel?.isFullscreen == true) {
             viewModel.setFullscreenMode(false)
             return // handled
         }
@@ -538,4 +537,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         super.onDestroy()
         listAdapter.onDestroy(this)
     }
+
+    private val NewsListViewModel.isFullscreen: Boolean get() = fullscreenMode.value == true && fullscreenModeAvailable.value == true
 }
