@@ -37,8 +37,6 @@ import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.databinding.FragmentNewsListDetailsBinding
-import org.mtransit.android.databinding.LayoutScreenToolbarBinding
-import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
 import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
