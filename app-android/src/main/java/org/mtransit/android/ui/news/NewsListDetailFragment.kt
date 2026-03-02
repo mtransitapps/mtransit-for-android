@@ -37,6 +37,7 @@ import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.databinding.FragmentNewsListDetailsBinding
+import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
 import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
@@ -419,6 +420,24 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         Color.BLACK.takeIf { attachedViewModel?.fullscreenMode?.value == true && attachedViewModel?.fullscreenModeAvailable?.value == true }
             ?: attachedViewModel?.colorInt?.value
             ?: super.getABBgColor(context)
+
+    override fun setupScreenToolbar(screenToolbarLayout: org.mtransit.android.databinding.LayoutScreenToolbarBinding) {
+        super.setupScreenToolbar(screenToolbarLayout)
+        // Override navigation click to handle fullscreen mode
+        screenToolbarLayout.screenToolbar.setNavigationOnClickListener {
+            if (viewModel.fullscreenMode.value == true) {
+                // Exit fullscreen mode first
+                viewModel.setFullscreenMode(false)
+            } else {
+                // Normal back navigation
+                if (parentFragmentManager.backStackEntryCount == 0) {
+                    (activity as? MainActivity)?.openDrawer()
+                } else {
+                    parentFragmentManager.popBackStack()
+                }
+            }
+        }
+    }
 
     override fun onResume() {
         super.onResume()
