@@ -156,19 +156,21 @@ public abstract class ABFragment extends MTFragmentX implements
 		setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
+	public void onScreenToolbarNavigationClick(@NonNull View v) {
+		if (getParentFragmentManager().getBackStackEntryCount() == 0) {
+			final MainActivity mainActivity = getMainActivity();
+			if (mainActivity != null) {
+				mainActivity.openDrawer();
+			}
+			return;
+		}
+		getParentFragmentManager().popBackStack();
+	}
+
 	private void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
 		// setup
 		setupScreenToolbarBgColor(appBarLayout, toolbar);
-		toolbar.setNavigationOnClickListener(v -> {
-			if (getParentFragmentManager().getBackStackEntryCount() == 0) {
-				final MainActivity mainActivity = getMainActivity();
-				if (mainActivity != null) {
-					mainActivity.openDrawer();
-				}
-				return;
-			}
-			getParentFragmentManager().popBackStack();
-		});
+		toolbar.setNavigationOnClickListener(this::onScreenToolbarNavigationClick);
 		if (this instanceof MenuProvider) {
 			toolbar.addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 		}
