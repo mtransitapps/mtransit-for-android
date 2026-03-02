@@ -5,7 +5,6 @@ on:
   push:
     branches: # Specify your branches here
       - main # The 'main' branch
-      - 'releases/*' # The release branches
 
 jobs:
   qodana:
