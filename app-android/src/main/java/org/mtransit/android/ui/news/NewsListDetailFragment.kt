@@ -425,7 +425,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override fun setupScreenToolbar(screenToolbarLayout: LayoutScreenToolbarBinding) {
         super.setupScreenToolbar(screenToolbarLayout)
         // Override navigation click to handle fullscreen mode
-        screenToolbarLayout.screenToolbar.setNavigationOnClickListener { v ->
+        screenToolbarLayout.screenToolbar.setNavigationOnClickListener { _ ->
             if (viewModel.fullscreenMode.value == true) {
                 // Exit fullscreen mode first
                 viewModel.setFullscreenMode(false)
