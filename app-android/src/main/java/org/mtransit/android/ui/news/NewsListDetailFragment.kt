@@ -422,24 +422,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             ?: attachedViewModel?.colorInt?.value
             ?: super.getABBgColor(context)
 
-    override fun setupScreenToolbar(screenToolbarLayout: LayoutScreenToolbarBinding) {
-        super.setupScreenToolbar(screenToolbarLayout)
-        // Override navigation click to handle fullscreen mode
-        screenToolbarLayout.screenToolbar.setNavigationOnClickListener { _ ->
-            if (viewModel.fullscreenMode.value == true) {
-                // Exit fullscreen mode first
-                viewModel.setFullscreenMode(false)
-            } else {
-                // Replicate parent class navigation behavior
-                if (parentFragmentManager.backStackEntryCount == 0) {
-                    (activity as? MainActivity)?.openDrawer()
-                } else {
-                    parentFragmentManager.popBackStack()
-                }
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         listAdapter.onResume(this)
@@ -497,6 +479,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         @SuppressLint("DeprecatedCall")
         @Suppress("DEPRECATION") // deprecated in API Level 30 (Android R) // no [easy] alternative found
         activity?.window?.decorView?.systemUiVisibility = if (isFullscreen) View.SYSTEM_UI_FLAG_LOW_PROFILE else 0
+    }
+
+    override fun onScreenToolbarNavigationClick(v: View) {
+        val isFullscreen = attachedViewModel?.fullscreenMode?.value == true && attachedViewModel?.fullscreenModeAvailable?.value == true
+        if (isFullscreen) {
+            viewModel.setFullscreenMode(false)
+            return // handled
+        }
+        super.onScreenToolbarNavigationClick(v)
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem) =
