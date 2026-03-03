@@ -13,6 +13,7 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
+import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.latLng
 import org.mtransit.android.data.location
@@ -60,8 +61,10 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
         if (isRds) {
             viewModel?.poiList?.value?.let { poiList ->
                 poiList.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
-                    val previousPOIM = poiList.getOrNull(poimIndex - 1)
-                    val nextPOIM = poiList.getOrNull(poimIndex + 1)
+                    val sortedPreviousPOIList = poiList.subList(0, poimIndex).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                    val sortedNextPOIList = poiList.subList(poimIndex + 1, poiList.size).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                    val previousPOIM = sortedPreviousPOIList.getOrNull(0)
+                    val nextPOIM = sortedNextPOIList.getOrNull(0)
                     val nextRelevantPOIM = nextPOIM ?: previousPOIM  // next or previous
                     poiDistanceToNextRelevantPOIM = nextRelevantPOIM?.latLng?.distanceToInMeters(poimLatLng)?.coerceAtMost(
                         previousPOIM?.latLng?.distanceToInMeters(poimLatLng) ?: Float.MAX_VALUE
@@ -72,14 +75,14 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
                     previousPOIM?.latLng?.let {
                         add(it)
                     }
-                    for (i in poimIndex + 2 until poiList.size) {
-                        val maxDistance = poiDistanceToNextRelevantPOIM?.times(1.5f) ?: break
-                        val nextNextPOIM = poiList.getOrNull(i)
-                        nextNextPOIM?.latLng?.let {
+                    sortedNextPOIList.forEach { nextNextPOIM ->
+                        val maxDistance = poiDistanceToNextRelevantPOIM?.times(1.5f)
+                            ?: return@let // break
+                        nextNextPOIM.latLng?.let {
                             if (it.distanceToInMeters(poimLatLng) <= maxDistance) {
                                 add(it)
                             } else {
-                                break
+                                return@let // break
                             }
                         }
                     }

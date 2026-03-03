@@ -42,7 +42,6 @@ fun POIManager.distanceToInMeters(other: POIManager) = this.poi.distanceToInMete
 fun POI.distanceToInMeters(other: POI): Float? =
     if (this.hasLocation() && other.hasLocation()) LocationUtils.distanceToInMeters(this.lat, this.lng, other.lat, other.lng) else null
 
-@Suppress("unused")
 fun POIManager.bearingTo(other: POIManager?): Float? = this.poi.bearingTo(other?.poi)
 fun POI.bearingTo(other: POI?): Float? =
     other?.location?.let { this.location?.bearingTo(it) }
