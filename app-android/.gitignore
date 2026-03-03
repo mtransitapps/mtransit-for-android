@@ -48,6 +48,7 @@ proguard/
 /lint.xml
 /listing_pull.sh
 /listing_push.sh
+/module-proguard-rules.pro
 /print_current_next_rts_diff.sh
 /print_git_diff_stat.sh
 /promote.sh
