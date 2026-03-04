@@ -1089,7 +1089,7 @@ public class MapViewController implements
 				zIndex = uuid.equals(mapViewController.focusedOnUUID) ? MAP_MARKER_Z_INDEX_STOP_FOCUSED_ON
 						: MAP_MARKER_Z_INDEX_STOPS_OTHER;
 				iconDef = uuid.equals(mapViewController.focusedOnUUID) ? MTMapIconsProvider.getSelectedDefaultIconDef()
-						: MTMapIconsProvider.getIconDefForRotation(rotation);
+						: MTMapIconsProvider.getIconDefForRotation(rotation, poim.poi);
 				MTPOIMarker currentItem = clusterItems.get(positionTrunc);
 				if (currentItem == null) {
 					currentItem = new MTPOIMarker(position, name, agencyShortName, extra, iconDef, color, secondaryColor, alpha, rotation, zIndex, uuid, authority);
