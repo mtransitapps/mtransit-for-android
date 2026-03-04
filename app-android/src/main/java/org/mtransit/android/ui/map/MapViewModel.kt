@@ -41,7 +41,7 @@ import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.ui.view.map.MTMapIconDef
-import org.mtransit.android.ui.view.map.MTMapIconsProvider.iconDefForRotation
+import org.mtransit.android.ui.view.map.MTMapIconsProvider.getIconDefForRotation
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.util.containsEntirely
 import javax.inject.Inject
@@ -348,7 +348,7 @@ class MapViewModel @Inject constructor(
             extra = (poim.poi as? RouteDirectionStop)?.route?.shortestName
             uuid = poim.poi.uuid
             authority = poim.poi.authority
-            iconDef = rotation.iconDefForRotation
+            iconDef = getIconDefForRotation(rotation, poim.poi)
             color = poim.getColor(dataSourcesRepository)
             secondaryColor = agency.colorInt
             clusterItems[positionTrunc] = clusterItems[positionTrunc]?.apply {

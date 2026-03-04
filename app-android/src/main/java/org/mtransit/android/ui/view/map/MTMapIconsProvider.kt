@@ -1,8 +1,11 @@
 package org.mtransit.android.ui.view.map
 
 import org.mtransit.android.R
+import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.dp
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.commons.FeatureFlags
 
 object MTMapIconsProvider {
 
@@ -46,8 +49,16 @@ object MTMapIconsProvider {
     //@formatter:on
 
     @JvmStatic
-    val Float?.iconDefForRotation: MTMapIconDef
-        get() = if (this != null) arrowIconDef else defaultIconDef
+    fun getIconDefForRotation(rotation: Float?, poi: POI): MTMapIconDef {
+        @Suppress("SimplifyBooleanWithConstants")
+        if (FeatureFlags.F_EXPORT_DIRECTION_STOP_LAST
+            && poi is RouteDirectionStop
+            && poi.isAlwaysLastTripStop
+        ) {
+            return defaultIconDef
+        }
+        return if (rotation != null) arrowIconDef else defaultIconDef
+    }
 
     @JvmStatic
     val DataSourceType?.vehicleIconDef: MTMapIconDef
