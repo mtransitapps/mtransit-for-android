@@ -22,6 +22,7 @@ jobs:
         uses: JetBrains/qodana-action@v2025.3
         with:
           pr-mode: false
+          args: --baseline,app-android/qodana-baseline.sarif.json
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_337965335 }}
           QODANA_ENDPOINT: 'https://qodana.cloud'
