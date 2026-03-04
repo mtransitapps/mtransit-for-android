@@ -50,12 +50,12 @@ object MTMapIconsProvider {
 
     @JvmStatic
     fun getIconDefForRotation(rotation: Float?, poi: POI): MTMapIconDef {
-        if (FeatureFlags.F_EXPORT_DIRECTION_STOP_LAST) {
-            if (poi is RouteDirectionStop) {
-                if (poi.isAlwaysLastTripStop) {
-                    return defaultIconDef
-                }
-            }
+        @Suppress("SimplifyBooleanWithConstants")
+        if (FeatureFlags.F_EXPORT_DIRECTION_STOP_LAST
+            && poi is RouteDirectionStop
+            && poi.isAlwaysLastTripStop
+        ) {
+            return defaultIconDef
         }
         return if (rotation != null) arrowIconDef else defaultIconDef
     }
