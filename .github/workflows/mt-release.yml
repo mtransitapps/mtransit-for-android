@@ -106,7 +106,7 @@ jobs:
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
 
       - name: MT artifact > app-android > APK & AAB
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: app-android-apk-bundle
           path: |
