@@ -275,14 +275,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                             }
                         }
                     }
-                ).also { onBackPressedCallbackNN ->
-                    doOnLayout {
-                        onBackPressedCallbackNN.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-                    }
+                ).also { twoPaneOnBackPressedCallback ->
                     requireActivity().onBackPressedDispatcher.addCallback(
                         viewLifecycleOwner,
-                        onBackPressedCallbackNN,
+                        twoPaneOnBackPressedCallback,
                     )
+                    doOnLayout {
+                        twoPaneOnBackPressedCallback.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
+                        onBackPressedCallback?.init() // at the end
+                    }
                 }
                 lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
             }
@@ -292,7 +293,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     it.isNestedScrollingEnabled = false
                 }
             }
-            onBackPressedCallback?.init() // at the end
         }
         viewModel.subTitle.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
@@ -480,9 +480,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     }
 
     override fun onScreenToolbarNavigationClick(v: View) {
-        if (attachedViewModel?.isFullscreen == true) {
+        if (viewModel.fullscreenMode.value == true) {
             viewModel.setFullscreenMode(false)
-            return // handled
+            if (viewModel.fullscreenModeAvailable.value == true) {
+                return // handled
+            } // ELSE just exit "invisible" full screen mode and continue
         }
         super.onScreenToolbarNavigationClick(v)
     }
@@ -503,7 +505,9 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
         if (viewModel.fullscreenMode.value == true) {
             viewModel.setFullscreenMode(false)
-            return true // handled
+            if (viewModel.fullscreenModeAvailable.value == true) {
+                return true // handled
+            } // ELSE just exit "invisible" full screen mode and continue
         }
         binding?.apply {
             activity?.apply {
