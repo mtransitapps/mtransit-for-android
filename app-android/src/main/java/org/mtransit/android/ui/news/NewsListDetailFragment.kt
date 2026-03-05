@@ -479,16 +479,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         activity?.window?.decorView?.systemUiVisibility = if (isFullscreen) View.SYSTEM_UI_FLAG_LOW_PROFILE else 0
     }
 
-    override fun onScreenToolbarNavigationClick(v: View) {
-        if (viewModel.fullscreenMode.value == true) {
-            viewModel.setFullscreenMode(false)
-            if (viewModel.fullscreenModeAvailable.value == true) {
-                return // handled
-            } // ELSE just exit "invisible" full screen mode and continue
-        }
-        super.onScreenToolbarNavigationClick(v)
-    }
-
     override fun onMenuItemSelected(menuItem: MenuItem) =
         when (menuItem.itemId) {
             R.id.menu_fullscreen -> {
@@ -499,15 +489,28 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             else -> false // not handled
         }
 
+    private fun handleExitFullscreen(): Boolean {
+        if (viewModel.fullscreenMode.value == true) {
+            viewModel.setFullscreenMode(false)
+            // Handled if fullscreen was actually available/visible // ELSE handle back/up navigation as usual
+            return viewModel.fullscreenModeAvailable.value == true
+        }
+        return false // Not in fullscreen mode
+    }
+
+    override fun onScreenToolbarNavigationClick(v: View) {
+        if (handleExitFullscreen()) {
+            return // handled
+        }
+        super.onScreenToolbarNavigationClick(v)
+    }
+
     override fun onBackPressed(): Boolean {
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
             return super.onBackPressed()
         }
-        if (viewModel.fullscreenMode.value == true) {
-            viewModel.setFullscreenMode(false)
-            if (viewModel.fullscreenModeAvailable.value == true) {
-                return true // handled
-            } // ELSE just exit "invisible" full screen mode and continue
+        if (handleExitFullscreen()) {
+            return true // handled
         }
         binding?.apply {
             activity?.apply {
