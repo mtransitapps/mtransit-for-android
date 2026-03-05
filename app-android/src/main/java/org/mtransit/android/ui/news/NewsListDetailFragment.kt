@@ -275,14 +275,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                             }
                         }
                     }
-                ).also { onBackPressedCallbackNN ->
-                    doOnLayout {
-                        onBackPressedCallbackNN.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-                    }
+                ).also { twoPaneOnBackPressedCallback ->
                     requireActivity().onBackPressedDispatcher.addCallback(
                         viewLifecycleOwner,
-                        onBackPressedCallbackNN,
+                        twoPaneOnBackPressedCallback,
                     )
+                    doOnLayout {
+                        twoPaneOnBackPressedCallback.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
+                        onBackPressedCallback?.init() // at the end
+                    }
                 }
                 lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
             }
@@ -292,7 +293,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     it.isNestedScrollingEnabled = false
                 }
             }
-            onBackPressedCallback?.init() // at the end
         }
         viewModel.subTitle.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
@@ -479,14 +479,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         activity?.window?.decorView?.systemUiVisibility = if (isFullscreen) View.SYSTEM_UI_FLAG_LOW_PROFILE else 0
     }
 
-    override fun onScreenToolbarNavigationClick(v: View) {
-        if (attachedViewModel?.isFullscreen == true) {
-            viewModel.setFullscreenMode(false)
-            return // handled
-        }
-        super.onScreenToolbarNavigationClick(v)
-    }
-
     override fun onMenuItemSelected(menuItem: MenuItem) =
         when (menuItem.itemId) {
             R.id.menu_fullscreen -> {
@@ -497,12 +489,27 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             else -> false // not handled
         }
 
+    private fun handleExitFullscreen(): Boolean {
+        if (viewModel.fullscreenMode.value == true) {
+            viewModel.setFullscreenMode(false)
+            // Handled if fullscreen was actually available/visible // ELSE handle back/up navigation as usual
+            return viewModel.fullscreenModeAvailable.value == true
+        }
+        return false // Not in fullscreen mode
+    }
+
+    override fun onScreenToolbarNavigationClick(v: View) {
+        if (handleExitFullscreen()) {
+            return // handled
+        }
+        super.onScreenToolbarNavigationClick(v)
+    }
+
     override fun onBackPressed(): Boolean {
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
             return super.onBackPressed()
         }
-        if (viewModel.fullscreenMode.value == true) {
-            viewModel.setFullscreenMode(false)
+        if (handleExitFullscreen()) {
             return true // handled
         }
         binding?.apply {
