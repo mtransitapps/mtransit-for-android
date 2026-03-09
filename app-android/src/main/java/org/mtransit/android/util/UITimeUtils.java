@@ -195,7 +195,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@NonNull
 	public static String formatTimestamp(@NonNull Context context, @NonNull Timestamp timestamp) {
-		return formatTimestamp(context, timestamp, timestamp.getT());
+		return formatTimestamp(context, timestamp, timestamp.getDepartureT());
 	}
 
 	@NonNull
@@ -516,7 +516,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 			if (timestamp.isNoPickup()) {
 				continue; // skip descent only
 			}
-			firstTimestamp = timestamp.getT();
+			firstTimestamp = timestamp.getDepartureT();
 			break;
 		}
 		if (firstTimestamp < 0) {
@@ -530,7 +530,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 			if (timestamp.isNoPickup()) {
 				continue; // skip descent only
 			}
-			currentTimestamp = timestamp.getT();
+			currentTimestamp = timestamp.getDepartureT();
 			diffInMs = currentTimestamp - previousTimestamp;
 			if (diffInMs > fsTimeSpanMs) {
 				return false; // NOT FREQUENT
@@ -555,7 +555,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		if (diffInMs < MAX_DURATION_DISPLAYED_IN_MS) {
 			return getShortTimeSpanNumber(context, diffInMs, precisionInMs, targetedTimestamp.isRealTime(), targetedTimestamp.isOldSchedule());
 		} else {
-			Pair<CharSequence, CharSequence> shortTimeSpanString = getShortTimeSpanString(context, diffInMs, targetedTimestamp.getT());
+			Pair<CharSequence, CharSequence> shortTimeSpanString = getShortTimeSpanString(context, diffInMs, targetedTimestamp.getDepartureT());
 			return new Pair<>( //
 					getShortTimeSpanStringStyle(context, shortTimeSpanString.first, targetedTimestamp.isOldSchedule()),  //
 					getShortTimeSpanStringStyle(context, shortTimeSpanString.second, targetedTimestamp.isOldSchedule()));

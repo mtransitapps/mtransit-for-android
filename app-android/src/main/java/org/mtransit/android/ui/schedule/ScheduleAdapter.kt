@@ -238,7 +238,7 @@ class ScheduleAdapter
         var dayToHourToTimestamp: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
         val calendar = Calendar.getInstance(localTimeZone)
         for (timestamp in timestamps) {
-            calendar.timeInMillis = timestamp.t
+            calendar.timeInMillis = timestamp.departureT
             if (dayBeginningCalendar == null || !dayBeginningCalendar.isSameDay(calendar)) {
                 dayBeginningCalendar = calendar.beginningOfDay
                 dayToHourToTimestamp = this.dayToHourToTimestamps.firstOrNull { it.first == dayBeginningCalendar.timeInMillis }
@@ -252,7 +252,7 @@ class ScheduleAdapter
             }
             dayToHourToTimestamp?.second?.get(calendar.hourOfTheDay)?.add(timestamp)
             newTimesCount++
-            if (this.nextTimestamp == null && timestamp.t >= this.nowToTheMinute) {
+            if (this.nextTimestamp == null && timestamp.departureT >= this.nowToTheMinute) {
                 this.nextTimestamp = timestamp
             }
         }
@@ -284,7 +284,7 @@ class ScheduleAdapter
         }
         val localTimeZone = this.localTimeZone ?: return NO_POSITION
         var index = 0
-        val date = Date(item.t)
+        val date = Date(item.departureT)
         var thatDate: Date
         var nextDate: Date?
         var nextHourOfTheDay: Int
@@ -305,7 +305,7 @@ class ScheduleAdapter
                         }
                         if (nextDate == null || date.before(nextDate)) {
                             for (hourTime in hourTimes) {
-                                if (item.t == hourTime.t) {
+                                if (item.departureT == hourTime.departureT) {
                                     return index
                                 }
                                 index++ // after
@@ -629,10 +629,10 @@ class ScheduleAdapter
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
-            val nextTimeInMsT = nextTimestamp?.t ?: -1L
+            val nextTimeInMsT = nextTimestamp?.departureT ?: -1L
             if (nowToTheMinuteInMs > 0L) {
-                val compareToNow = nowToTheMinuteInMs - timestamp.t
-                val sameTimestamp = nextTimeInMsT == timestamp.t
+                val compareToNow = nowToTheMinuteInMs - timestamp.departureT
+                val sameTimestamp = nextTimeInMsT == timestamp.departureT
                 if (sameTimestamp
                 ) { // now
                     SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE)

@@ -224,8 +224,8 @@ public class UIScheduleTest {
 		ArrayList<Timestamp> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		// Assert
 		assertEquals(4, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
@@ -241,8 +241,8 @@ public class UIScheduleTest {
 		ArrayList<Timestamp> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		// Assert
 		assertEquals(3, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());
 	}
 
 	@Test
@@ -259,8 +259,8 @@ public class UIScheduleTest {
 		ArrayList<Timestamp> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		// Assert
 		assertEquals(4, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
@@ -279,8 +279,8 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(4, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
@@ -298,8 +298,8 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(3, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());
 	}
 
 	@Test
@@ -318,8 +318,8 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(4, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
@@ -339,8 +339,8 @@ public class UIScheduleTest {
 		// Assert
 		// TODO FIX TEST: code NOT yet compatible with time NOT the minute
 		assertEquals(3, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());
 	}
 
 	@Test
@@ -359,8 +359,8 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(5, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(0L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(3L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(0L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(3L), result.get(1).getDepartureT());
 	}
 
 	@Test
@@ -381,8 +381,8 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(7, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(2L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(2L), result.get(1).getDepartureT());
 	}
 
 	// Kelowna 1 -> Downtown | Stop Queensway Exch
