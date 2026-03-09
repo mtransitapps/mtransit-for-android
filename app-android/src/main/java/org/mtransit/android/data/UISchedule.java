@@ -369,10 +369,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	private Timestamp getLastTimestamp(long before, @Nullable Long optAfter) {
 		Timestamp lastTimestamp = null;
 		for (Timestamp timestamp : getTimestamps()) {
-			if (timestamp.getDepartureT() >= before) {
+			final long departureT = timestamp.getDepartureT();
+			if (departureT >= before) {
 				break;
 			}
-			if (optAfter != null && timestamp.getDepartureT() < optAfter) {
+			if (optAfter != null && departureT < optAfter) {
 				continue; // skip
 			}
 			lastTimestamp = timestamp;
@@ -409,16 +410,17 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		Boolean minCoverageInMsCompleted = optMinCoverageInMs == null ? null : false;
 		Boolean minCountCompleted = optMinCount == null ? null : false;
 		for (Timestamp timestamp : getTimestamps()) {
-			if (optMaxCoverageInMs != null && timestamp.getDepartureT() > after + optMaxCoverageInMs) {
+			final long departureT = timestamp.getDepartureT();
+			if (optMaxCoverageInMs != null && departureT > after + optMaxCoverageInMs) {
 				break; // max coverage date range completed
 			}
-			if (minCoverageInMsCompleted != null && !minCoverageInMsCompleted && timestamp.getDepartureT() > after + optMinCoverageInMs) {
+			if (minCoverageInMsCompleted != null && !minCoverageInMsCompleted && departureT > after + optMinCoverageInMs) {
 				if (minCountCompleted != null && minCountCompleted) {
 					break; // min coverage count (and min coverage date range) completed
 				}
 				minCoverageInMsCompleted = true;
 			}
-			if (!isAfter && timestamp.getDepartureT() >= after) {
+			if (!isAfter && departureT >= after) {
 				isAfter = true;
 			}
 			if (isAfter) {
@@ -522,18 +524,19 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			} else {
 				headSignSSB.insert(0, a11y);
 			}
+			final long departureT = t.getDepartureT();
 			if (lastTimestamp > 0L) {
-				if (!UITimeUtils.isSameDay(lastTimestamp, t.getDepartureT())) {
-					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, t.getDepartureT()));
+				if (!UITimeUtils.isSameDay(lastTimestamp, departureT)) {
+					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT));
 				}
 			} else { // 1st timestamp
-				long diffInMs = t.getDepartureT() - after;
-				if (UITimeUtils.isSameDay(after, t.getDepartureT())) {
+				long diffInMs = departureT - after;
+				if (UITimeUtils.isSameDay(after, departureT)) {
 					dateSSB = new SpannableStringBuilder(context.getString(R.string.today));
 				} else if (diffInMs < TimeUnit.HOURS.toMillis(24L)) {
 					Pair<CharSequence, CharSequence> shortTimeSpam;
 					if (diffInMs < UITimeUtils.MAX_DURATION_DISPLAYED_IN_MS) {
-						shortTimeSpam = UITimeUtils.getShortTimeSpanString(context, diffInMs, t.getDepartureT()); // avoid countdown
+						shortTimeSpam = UITimeUtils.getShortTimeSpanString(context, diffInMs, departureT); // avoid countdown
 					} else {
 						shortTimeSpam = UITimeUtils.getShortTimeSpan(context, diffInMs, t, getUIProviderPrecisionInMs());
 					}
@@ -542,7 +545,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						dateSSB.append(SPACE).append(shortTimeSpam.second);
 					}
 				} else {
-					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, t.getDepartureT()));
+					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT));
 				}
 			}
 			if (ts.previousTimesStartIdx < ts.previousTimesEndIdx // IF previous times list DO
@@ -596,7 +599,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				headSignSSB = SpanUtils.setAll(headSignSSB, SCHEDULE_LIST_TIMES_STYLE);
 			}
 			list.add(new DetailsNextDepartures(timeSSB, headSignSSB, dateSSB));
-			lastTimestamp = t.getDepartureT();
+			lastTimestamp = departureT;
 		}
 		this.scheduleList = list;
 	}
@@ -606,10 +609,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		long afterNext = after;
 		boolean hasNoPickupOnly = CollectionUtils.count(timestamps, timestamp -> !timestamp.isNoPickup()) == 0;
 		for (Timestamp t : timestamps) {
-			if (t.getDepartureT() >= afterNext
+			final long departureT = t.getDepartureT();
+			if (departureT >= afterNext
 					&& !t.isNoPickup()) {
-				if (afterNext < t.getDepartureT()) {
-					afterNext = t.getDepartureT();
+				if (afterNext < departureT) {
+					afterNext = departureT;
 				}
 				break;
 			}
@@ -617,8 +621,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final TimeSections ts = new TimeSections();
 		int idx = 0;
 		for (Timestamp t : timestamps) {
+			final long departureT = t.getDepartureT();
 			if (ts.previousTimeEndIdx == -1) { // IF the previous time end NOT found DO
-				if (t.getDepartureT() >= afterNext) { // IF timestamp after now DO
+				if (departureT >= afterNext) { // IF timestamp after now DO
 					if (ts.previousTimeStartIdx != -1) { // IF the previous time start found DO
 						ts.previousTimeEndIdx = idx; // mark the previous end
 					}
@@ -627,14 +632,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					ts.previousTimeStartIdx = ts.previousTimesEndIdx; // mark previous times list start
 				}
 			}
-			if (t.getDepartureT() < afterNext) { // IF timestamp before now DO
+			if (departureT < afterNext) { // IF timestamp before now DO
 				if (ts.previousTimeEndIdx == -1) { // IF the previous time end NOT found DO
 					if (ts.previousTimesStartIdx == -1) { // IF previous times list start NOT found DO
 						ts.previousTimesStartIdx = idx; // mark previous times list start
 					}
 				}
 			}
-			if (t.getDepartureT() >= afterNext) { // IF timestamp after now DO
+			if (departureT >= afterNext) { // IF timestamp after now DO
 				if (ts.nextTimeStartIdx == -1) { // IF the next time start NOT found DO
 					ts.nextTimeStartIdx = idx; // mark the next time start
 				} else {
@@ -648,7 +653,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				}
 			}
 			idx++;
-			if (t.getDepartureT() >= afterNext) { // IF timestamp after now DO
+			if (departureT >= afterNext) { // IF timestamp after now DO
 				if (!hasNoPickupOnly) {
 					if (t.isNoPickup()) {
 						if (ts.afterNextTimesStartIdx == -1) { // IF other next times list start NOT found DO
@@ -785,8 +790,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			if (ssb.length() > 0) {
 				ssb.append(StringUtils.SPACE_CAR).append(StringUtils.SPACE_CAR);
 			}
+			final long departureT = t.getDepartureT();
 			if (endPreviousTime == -1) {
-				if (t.getDepartureT() >= after) {
+				if (departureT >= after) {
 					if (startPreviousTime != -1) {
 						endPreviousTime = ssb.length();
 					}
@@ -795,21 +801,21 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					startPreviousTime = endPreviousTimes;
 				}
 			}
-			if (t.getDepartureT() < after) {
+			if (departureT < after) {
 				if (endPreviousTime == -1) {
 					if (startPreviousTimes == -1) {
 						startPreviousTimes = ssb.length();
 					}
 				}
 			}
-			if (t.getDepartureT() >= after) {
+			if (departureT >= after) {
 				if (startNextTime == -1) {
 					startNextTime = ssb.length();
 				}
 			}
 			String fTime = UITimeUtils.formatTimestamp(context, t);
 			ssb.append(fTime);
-			if (t.getDepartureT() >= after) {
+			if (departureT >= after) {
 				if (endNextTime == -1) {
 					if (startNextTime != ssb.length()) {
 						endNextTime = ssb.length();
@@ -923,12 +929,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				if (nextTimestampsT.contains(timestamp)) {
 					continue; // skip duplicate time
 				}
+				final long departureT = timestamp.getDepartureT();
 				if (lastTimestamp != null //
-						&& (timestamp.getDepartureT() - lastTimestamp) < MIN_UI_PRECISION_IN_MS) {
+						&& (departureT - lastTimestamp) < MIN_UI_PRECISION_IN_MS) {
 					continue; // skip near duplicate time
 				}
 				nextTimestampsT.add(timestamp);
-				lastTimestamp = timestamp.getDepartureT();
+				lastTimestamp = departureT;
 			}
 		}
 		return nextTimestampsT;
@@ -946,13 +953,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			Long theNextTimestamp = null;
 			Long thePreviousTimestamp = null;
 			for (Timestamp timestamp : nextTimestampsT) {
-				if (timestamp.getDepartureT() < after) {
-					if (thePreviousTimestamp == null || thePreviousTimestamp < timestamp.getDepartureT()) {
-						thePreviousTimestamp = timestamp.getDepartureT();
+				final long departureT = timestamp.getDepartureT();
+				if (departureT < after) {
+					if (thePreviousTimestamp == null || thePreviousTimestamp < departureT) {
+						thePreviousTimestamp = departureT;
 					}
 				} else {
-					if (theNextTimestamp == null || timestamp.getDepartureT() <= theNextTimestamp) {
-						theNextTimestamp = timestamp.getDepartureT();
+					if (theNextTimestamp == null || departureT <= theNextTimestamp) {
+						theNextTimestamp = departureT;
 					}
 				}
 			}

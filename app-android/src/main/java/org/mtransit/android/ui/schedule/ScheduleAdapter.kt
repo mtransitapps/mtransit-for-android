@@ -238,7 +238,8 @@ class ScheduleAdapter
         var dayToHourToTimestamp: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
         val calendar = Calendar.getInstance(localTimeZone)
         for (timestamp in timestamps) {
-            calendar.timeInMillis = timestamp.departureT
+            val departureT = timestamp.departureT
+            calendar.timeInMillis = departureT
             if (dayBeginningCalendar == null || !dayBeginningCalendar.isSameDay(calendar)) {
                 dayBeginningCalendar = calendar.beginningOfDay
                 dayToHourToTimestamp = this.dayToHourToTimestamps.firstOrNull { it.first == dayBeginningCalendar.timeInMillis }
@@ -252,7 +253,7 @@ class ScheduleAdapter
             }
             dayToHourToTimestamp?.second?.get(calendar.hourOfTheDay)?.add(timestamp)
             newTimesCount++
-            if (this.nextTimestamp == null && timestamp.departureT >= this.nowToTheMinute) {
+            if (this.nextTimestamp == null && departureT >= this.nowToTheMinute) {
                 this.nextTimestamp = timestamp
             }
         }
@@ -631,8 +632,9 @@ class ScheduleAdapter
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
             val nextTimeInMsT = nextTimestamp?.departureT ?: -1L
             if (nowToTheMinuteInMs > 0L) {
-                val compareToNow = nowToTheMinuteInMs - timestamp.departureT
-                val sameTimestamp = nextTimeInMsT == timestamp.departureT
+                val departureT = timestamp.departureT
+                val compareToNow = nowToTheMinuteInMs - departureT
+                val sameTimestamp = nextTimeInMsT == departureT
                 if (sameTimestamp
                 ) { // now
                     SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE)
