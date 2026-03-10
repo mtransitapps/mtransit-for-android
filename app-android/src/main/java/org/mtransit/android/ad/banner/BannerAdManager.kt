@@ -36,8 +36,6 @@ class BannerAdManager @Inject constructor(
         private val LOG_TAG = "${AdManager.LOG_TAG}>${BannerAdManager::class.java.simpleName}"
 
         private const val LOADED_UNKNOWN = -1L
-
-        private const val LOAD_ON_SCREEN_RESUMED_MIN_DURATION_SEC = 1
     }
 
     override fun getLogTag() = LOG_TAG
@@ -48,9 +46,21 @@ class BannerAdManager @Inject constructor(
         get() = _adBannerLoadedLastInMs.get()
         set(value) = _adBannerLoadedLastInMs.set(value)
 
-    private var adBannerLoaded: Boolean? = null
+    var adBannerLoaded: Boolean? = null
+        private set
 
     private var setupBannerAdTask: SetupBannerAdTask? = null
+
+    private val loadOnScreenResumeMinDurationSec: Long by lazy {
+        remoteConfigProvider.get(
+            RemoteConfigProvider.AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC,
+            RemoteConfigProvider.AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT
+        )
+    }
+
+    private val loadOnScreenResume: Boolean by lazy {
+        loadOnScreenResumeMinDurationSec > 0L
+    }
 
     fun setAdBannerLoaded(lastInMs: Long, loaded: Boolean?) {
         this.adBannerLoadedLastInMs = lastInMs
@@ -58,6 +68,10 @@ class BannerAdManager @Inject constructor(
     }
 
     fun onResumeScreen(activity: IAdScreenActivity) {
+        if (!loadOnScreenResume) {
+            MTLog.d(this, "onResumeScreen() > SKIP (disabled)")
+            return
+        }
         refreshBannerAdStatus(activity, force = true)
     }
 
@@ -128,7 +142,7 @@ class BannerAdManager @Inject constructor(
             && this.adBannerLoaded != null // state unknown/loading
         ) {
             logAdsD(this, "setupAd() > should we cancel?")
-            val minDurationMs = LOAD_ON_SCREEN_RESUMED_MIN_DURATION_SEC.seconds.inWholeMilliseconds
+            val minDurationMs = loadOnScreenResumeMinDurationSec.seconds.inWholeMilliseconds
             if (this.adBannerLoadedLastInMs + minDurationMs < TimeUtils.currentTimeMillis()) { // force refresh if ad loaded only
                 logAdsD(this, "setupAd() > cancelling previous setup ad task...")
                 TaskUtils.cancelQuietly(setupBannerAdTask, true)
@@ -137,7 +151,7 @@ class BannerAdManager @Inject constructor(
         }
         if (setupBannerAdTask == null) {
             logAdsD(this, "setupAd() > starting setup ad task...")
-            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)
+            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, this.remoteConfigProvider, activity)
             TaskUtils.execute(setupBannerAdTask)
             this.adBannerLoaded = null // loading
         }

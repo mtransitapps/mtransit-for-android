@@ -11,6 +11,7 @@ import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.dev.CrashReporter
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.util.UIFeatureFlags
 import java.lang.ref.WeakReference
 
@@ -19,6 +20,7 @@ class SetupBannerAdTask(
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,
     private val crashReporter: CrashReporter,
+    private val remoteConfigProvider: RemoteConfigProvider,
     private val activityWR: WeakReference<IAdScreenActivity>,
 ) : org.mtransit.android.commons.task.MTCancellableAsyncTask<Void?, Void?, Boolean?>() {
 
@@ -26,12 +28,14 @@ class SetupBannerAdTask(
         globalAdManager: GlobalAdManager,
         bannerAdManager: BannerAdManager,
         crashReporter: CrashReporter,
+        remoteConfigProvider: RemoteConfigProvider,
         activity: IAdScreenActivity,
     ) : this(
         globalAdManager,
         bannerAdManager,
         crashReporter,
-        WeakReference<IAdScreenActivity>(activity),
+        remoteConfigProvider,
+        WeakReference(activity),
     )
 
     companion object {
@@ -43,7 +47,7 @@ class SetupBannerAdTask(
     @WorkerThread
     override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean {
         if (!AdConstants.AD_ENABLED) return false
-        return !isCancelled && this.globalAdManager.isShowingAds() // TODO can be called from any thread
+        return this.globalAdManager.isShowingAds() // TODO can be called from any thread
     }
 
     @MainThread
@@ -59,7 +63,7 @@ class SetupBannerAdTask(
                 }
                 adView.loadAd(AdManager.getAdRequest(activity, collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE))
             }
-        } else { // hide ads
+        } else if (!isShowingAds) { // hide ads
             this.bannerAdManager.hideBannerAd(activity)
         }
     }
@@ -79,7 +83,7 @@ class SetupBannerAdTask(
 
         adView.apply {
             setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once
-            adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView)
+            adListener = BannerAdListener(bannerAdManager, crashReporter, remoteConfigProvider, activity, adView)
         }
         return adView
     }
