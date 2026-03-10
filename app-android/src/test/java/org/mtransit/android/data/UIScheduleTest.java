@@ -207,8 +207,8 @@ public class UIScheduleTest {
 		ArrayList<Timestamp> result = schedule.getNextTimestamps(AFTER_IN_MS - PROVIDER_PRECISION_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		// Assert
 		assertEquals(3, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).t);
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).t);
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
