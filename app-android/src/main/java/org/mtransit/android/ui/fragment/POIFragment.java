@@ -604,7 +604,7 @@ public class POIFragment extends ABFragment implements
 											poim.getColor(dataSourcesRepository),
 											POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 											Collections.singletonList(poim.poi.getAuthority()),
-											NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets(),
+											NewsProviderContract.Filter.makeTargets(poim.poi),
 											null,
 											article.getAuthority(),
 											article.getUUID()
@@ -620,7 +620,7 @@ public class POIFragment extends ABFragment implements
 												poim.getColor(dataSourcesRepository),
 												POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 												Collections.singletonList(poim.poi.getAuthority()),
-												NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets(),
+												NewsProviderContract.Filter.makeTargets(poim.poi),
 												null,
 												article.getAuthority(),
 												article.getUUID()
@@ -823,7 +823,7 @@ public class POIFragment extends ABFragment implements
 								poim.getColor(dataSourcesRepository),
 								POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 								Collections.singletonList(poim.poi.getAuthority()),
-								NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+								NewsProviderContract.Filter.makeTargets(poim.poi)
 						),
 						null,
 						extras
@@ -839,7 +839,7 @@ public class POIFragment extends ABFragment implements
 								poim.getColor(dataSourcesRepository),
 								POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 								Collections.singletonList(poim.poi.getAuthority()),
-								NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+								NewsProviderContract.Filter.makeTargets(poim.poi)
 						),
 						POIFragment.this
 				);

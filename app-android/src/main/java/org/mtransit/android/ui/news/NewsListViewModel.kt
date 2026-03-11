@@ -76,9 +76,10 @@ class NewsListViewModel @Inject constructor(
 
     private val _filterUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_UUIDS, EXTRA_FILTER_UUIDS_DEFAULT)
 
-    private val _filters = MediatorLiveData3(_targetAuthorities, _filterTargets, _filterUUIDs).map {
-        Filters(it.first?.toList(), it.second?.toList(), it.third?.toList())
-    }.distinctUntilChanged()
+    private val _filters = MediatorLiveData3(_targetAuthorities, _filterTargets, _filterUUIDs)
+        .map { (targetAuthorities, filterTargets, filterUUIDs) ->
+            Filters(targetAuthorities?.toList(), filterTargets?.toList(), filterUUIDs?.toList())
+        }.distinctUntilChanged()
 
     private val _allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
 
@@ -109,15 +110,16 @@ class NewsListViewModel @Inject constructor(
 
     val loading: LiveData<Boolean> = _loading
 
-    val newsArticles: LiveData<List<News>?> =
-        MediatorLiveData3(_allNewsProviders, _filters, _refreshRequestedTrigger).switchMap { (allNewsProviders, filters, trigger) ->
+    val newsArticles: LiveData<List<News>?> = MediatorLiveData3(_allNewsProviders, _filters, _refreshRequestedTrigger)
+        .switchMap { (allNewsProviders, vmFilters, _) ->
             _loading.value = true
             newsRepository.loadingNewsArticles(
                 allProviders = allNewsProviders,
-                targetProviderAuthorities = filters?.targetAuthorities,
-                filterTargets = filters?.filterTargets,
-                filterUUIDs = filters?.filterUUIDs,
+                targetProviderAuthorities = vmFilters?.targetAuthorities,
+                filterTargets = vmFilters?.filterTargets,
+                filterUUIDs = vmFilters?.filterUUIDs,
                 comparator = News.NEWS_COMPARATOR,
+                inFocus = vmFilters?.filterTargets?.isNotEmpty() == true,
                 firstLoad = newsArticles.value == null,
                 onSuccess = {
                     _loading.postValue(false)
