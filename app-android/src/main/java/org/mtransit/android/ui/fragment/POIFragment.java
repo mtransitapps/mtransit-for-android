@@ -1192,6 +1192,10 @@ public class POIFragment extends ABFragment implements
 			this.viewModel.refreshAppUpdateAvailable();
 			// this.viewModel.onResumeScreen(this);
 			this.viewModel.startVehicleLocationRefresh();
+			final Collection<VehicleLocation> vehicleLocations = this.viewModel.getVehicleLocations().getValue();
+			if (vehicleLocations != null && !vehicleLocations.isEmpty()) {
+				startVehicleLocationCountdownRefresh(this);
+			}
 		}
 		refreshAppWasDisabledLayout(getView());
 		if (FeatureFlags.F_NAVIGATION) {
