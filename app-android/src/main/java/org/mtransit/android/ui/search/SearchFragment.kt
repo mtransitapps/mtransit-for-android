@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.SearchView.OnQueryTextListener
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,10 +55,10 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             optTypeIdFilter: Int? = null,
         ): SearchFragment {
             return SearchFragment().apply {
-                arguments = bundleOf(
-                    SearchViewModel.EXTRA_QUERY to (optQuery?.trim() ?: SearchViewModel.EXTRA_QUERY_DEFAULT),
-                    SearchViewModel.EXTRA_TYPE_FILTER to optTypeIdFilter,
-                )
+                arguments = Bundle().apply {
+                    putString(SearchViewModel.EXTRA_QUERY, optQuery?.trim() ?: SearchViewModel.EXTRA_QUERY_DEFAULT)
+                    optTypeIdFilter?.let { putInt(SearchViewModel.EXTRA_TYPE_FILTER, it) }
+                }
             }
         }
     }

@@ -6,7 +6,6 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigator
@@ -50,10 +49,10 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             agencyAuthority: String,
             optColorInt: Int? = null,
         ) = RDSAgencyRoutesFragment().apply {
-            arguments = bundleOf(
-                RDSAgencyRoutesViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                RDSAgencyRoutesViewModel.EXTRA_COLOR_INT to optColorInt,
-            )
+            arguments = Bundle().apply {
+                putString(RDSAgencyRoutesViewModel.EXTRA_AGENCY_AUTHORITY, agencyAuthority)
+                optColorInt?.let { putInt(RDSAgencyRoutesViewModel.EXTRA_COLOR_INT, it) }
+            }
         }
     }
 

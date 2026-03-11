@@ -9,7 +9,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
@@ -62,8 +61,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
 
         @JvmStatic
-        fun newInstanceArgs() = bundleOf(
-        )
+        fun newInstanceArgs() = Bundle()
     }
 
     override fun getLogTag() = LOG_TAG

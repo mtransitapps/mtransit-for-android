@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.collection.ArrayMap
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -60,10 +59,10 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             authorities: ArrayList<String>
         ): PickPOIDialogFragment {
             return PickPOIDialogFragment().apply {
-                arguments = bundleOf(
-                    PickPOIViewModel.EXTRA_POI_UUIDS to uuids,
-                    PickPOIViewModel.EXTRA_POI_AUTHORITIES to authorities,
-                )
+                arguments = Bundle().apply {
+                    putStringArrayList(PickPOIViewModel.EXTRA_POI_UUIDS, uuids)
+                    putStringArrayList(PickPOIViewModel.EXTRA_POI_AUTHORITIES, authorities)
+                }
             }
         }
     }

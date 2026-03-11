@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
@@ -160,14 +159,14 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             optMapLng: Double? = null,
             optMapZoom: Float? = null,
             optSelectedUuid: String? = null,
-        ) = bundleOf(
-            AgencyTypeViewModel.EXTRA_TYPE_ID to dstId,
-            AgencyTypeViewModel.EXTRA_SELECTED_AUTHORITY to optSelectedAgencyAuthority,
-            AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
-            AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
-            AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
-            AgencyTypeViewModel.EXTRA_SELECTED_UUID to optSelectedUuid,
-        )
+        ) = Bundle().apply {
+            putInt(AgencyTypeViewModel.EXTRA_TYPE_ID, dstId)
+            putString(AgencyTypeViewModel.EXTRA_SELECTED_AUTHORITY, optSelectedAgencyAuthority)
+            optMapLat?.let { putDouble(AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT, it) }
+            optMapLng?.let { putDouble(AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG, it) }
+            optMapZoom?.let { putFloat(AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM, it) }
+            putString(AgencyTypeViewModel.EXTRA_SELECTED_UUID, optSelectedUuid)
+        }
     }
 
     override fun getLogTag() = LOG_TAG

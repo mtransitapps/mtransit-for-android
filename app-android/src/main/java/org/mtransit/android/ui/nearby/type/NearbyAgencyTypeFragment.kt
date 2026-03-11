@@ -2,7 +2,6 @@ package org.mtransit.android.ui.nearby.type
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -48,9 +47,9 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             typeId: Int,
         ): NearbyAgencyTypeFragment {
             return NearbyAgencyTypeFragment().apply {
-                arguments = bundleOf(
-                    NearbyAgencyTypeViewModel.EXTRA_TYPE_ID to typeId,
-                )
+                arguments = Bundle().apply {
+                    putInt(NearbyAgencyTypeViewModel.EXTRA_TYPE_ID, typeId)
+                }
             }
         }
     }

@@ -10,7 +10,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.annotation.ColorInt
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.view.doOnLayout
@@ -138,15 +137,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             selectedArticleAuthority: String? = null,
             selectedArticleUuid: String? = null,
         ): Bundle {
-            return bundleOf(
-                NewsListViewModel.EXTRA_COLOR to (optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT),
-                NewsListViewModel.EXTRA_SUB_TITLE to subtitle,
-                NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES to (targetAuthorities ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT),
-                NewsListViewModel.EXTRA_FILTER_TARGETS to (filterTargets ?: NewsListViewModel.EXTRA_FILTER_TARGETS_DEFAULT),
-                NewsListViewModel.EXTRA_FILTER_UUIDS to (filterUUIDs ?: NewsListViewModel.EXTRA_FILTER_UUIDS_DEFAULT),
-                NewsListViewModel.EXTRA_SELECTED_ARTICLE_AUTHORITY to selectedArticleAuthority,
-                NewsListViewModel.EXTRA_SELECTED_ARTICLE_UUID to selectedArticleUuid,
-            )
+            return Bundle().apply {
+                putString(NewsListViewModel.EXTRA_COLOR, optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT)
+                putString(NewsListViewModel.EXTRA_SUB_TITLE, subtitle)
+                putStringArray(NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES, targetAuthorities ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT)
+                putStringArray(NewsListViewModel.EXTRA_FILTER_TARGETS, filterTargets ?: NewsListViewModel.EXTRA_FILTER_TARGETS_DEFAULT)
+                putStringArray(NewsListViewModel.EXTRA_FILTER_UUIDS, filterUUIDs ?: NewsListViewModel.EXTRA_FILTER_UUIDS_DEFAULT)
+                putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_AUTHORITY, selectedArticleAuthority)
+                putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_UUID, selectedArticleUuid)
+            }
         }
     }
 

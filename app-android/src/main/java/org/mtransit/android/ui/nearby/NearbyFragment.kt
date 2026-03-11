@@ -12,7 +12,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
@@ -155,13 +154,13 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             optFixedOnColor: String? = null,
         ): Bundle {
             val validNearbyTypeId: Int? = optTypeId?.takeIf { DataSourceType.parseId(it)?.isNearbyScreen == true }
-            return bundleOf(
-                NearbyViewModel.EXTRA_SELECTED_TYPE to (validNearbyTypeId ?: NearbyViewModel.EXTRA_SELECTED_TYPE_DEFAULT),
-                NearbyViewModel.EXTRA_FIXED_ON_LAT to (optFixedOnLat ?: NearbyViewModel.EXTRA_FIXED_ON_LAT_DEFAULT),
-                NearbyViewModel.EXTRA_FIXED_ON_LNG to (optFixedOnLng ?: NearbyViewModel.EXTRA_FIXED_ON_LNG_DEFAULT),
-                NearbyViewModel.EXTRA_FIXED_ON_NAME to (optFixedOnName ?: NearbyViewModel.EXTRA_FIXED_ON_NAME_DEFAULT),
-                NearbyViewModel.EXTRA_FIXED_ON_COLOR to (optFixedOnColor ?: NearbyViewModel.EXTRA_FIXED_ON_COLOR_DEFAULT),
-            )
+            return Bundle().apply {
+                putInt(NearbyViewModel.EXTRA_SELECTED_TYPE, validNearbyTypeId ?: NearbyViewModel.EXTRA_SELECTED_TYPE_DEFAULT)
+                putFloat(NearbyViewModel.EXTRA_FIXED_ON_LAT, optFixedOnLat ?: NearbyViewModel.EXTRA_FIXED_ON_LAT_DEFAULT)
+                putFloat(NearbyViewModel.EXTRA_FIXED_ON_LNG, optFixedOnLng ?: NearbyViewModel.EXTRA_FIXED_ON_LNG_DEFAULT)
+                putString(NearbyViewModel.EXTRA_FIXED_ON_NAME, optFixedOnName ?: NearbyViewModel.EXTRA_FIXED_ON_NAME_DEFAULT)
+                putString(NearbyViewModel.EXTRA_FIXED_ON_COLOR, optFixedOnColor ?: NearbyViewModel.EXTRA_FIXED_ON_COLOR_DEFAULT)
+            }
         }
     }
 

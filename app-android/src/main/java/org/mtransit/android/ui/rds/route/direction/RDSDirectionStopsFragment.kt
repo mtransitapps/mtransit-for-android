@@ -6,8 +6,6 @@ import android.content.res.ColorStateList
 import android.location.Location
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.ColorInt
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
@@ -103,15 +101,15 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             optMapLng: Double? = null,
             optMapZoom: Float? = null,
         ) = RDSDirectionStopsFragment().apply {
-            arguments = bundleOf(
-                RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                RDSDirectionStopsViewModel.EXTRA_ROUTE_ID to routeId,
-                RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to directionId,
-                RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
-                RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
-                RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
-                RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
-            )
+            arguments = Bundle().apply {
+                putString(RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY, agencyAuthority)
+                putLong(RDSDirectionStopsViewModel.EXTRA_ROUTE_ID, routeId)
+                putLong(RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID, directionId)
+                putInt(RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID, optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT)
+                optMapLat?.let { putDouble(RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT, it) }
+                optMapLng?.let { putDouble(RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG, it) }
+                optMapZoom?.let { putFloat(RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM, it) }
+            }
         }
 
         private const val TOP_PADDING_SP = 0
