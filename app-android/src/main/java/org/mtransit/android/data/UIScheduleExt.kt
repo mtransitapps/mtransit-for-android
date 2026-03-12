@@ -9,8 +9,9 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
 fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffSecs: Int): String? {
-    if (originalDepartureDelay.absoluteValue < minDiffSecs.seconds) return null
-    val absDiffMin = originalDepartureDelay.absoluteValue
+    val absDepartureDelay = originalDepartureDelay.absoluteValue
+    if (absDepartureDelay < minDiffSecs.seconds) return null
+    val absDiffMin = absDepartureDelay
         .toDouble(DurationUnit.MINUTES).roundToLong()
     return if (originalDepartureDelay.isPositive()) {
         context.getString(R.string.minutes_late, absDiffMin)
