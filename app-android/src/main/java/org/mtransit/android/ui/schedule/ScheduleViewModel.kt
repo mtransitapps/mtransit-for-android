@@ -17,8 +17,13 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
+import org.mtransit.android.commons.data.arrival
+import org.mtransit.android.commons.data.departure
+import org.mtransit.android.commons.data.hasRealTime
+import org.mtransit.android.commons.data.updateForRealTime
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.status.findClosestTripTimestamp
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
@@ -28,6 +33,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
@@ -88,7 +94,7 @@ class ScheduleViewModel @Inject constructor(
     }
 
     private fun getPOIManager(agency: IAgencyProperties?, uuid: String?) =
-        poiRepository.readingPOIM(agency, uuid, poim.value, onDataSourceRemoved = {
+        poiRepository.readingPOIM(agency, uuid, currentValue = poim.value, onDataSourceRemoved = {
             dataSourceRemovedEvent.postValue(Event(true))
         })
 
@@ -143,12 +149,13 @@ class ScheduleViewModel @Inject constructor(
         savedStateHandle[EXTRA_SCROLLED_TO_NOW] = scrolledToNow
     }
 
-    private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = this.authority.switchMap { authority ->
-        this.dataSourcesRepository.readingScheduleProviders(authority)
-    }
+    private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = this.authority
+        .switchMap { authority ->
+            this.dataSourcesRepository.readingScheduleProviders(authority)
+        }
 
-    val timestamps: LiveData<List<Schedule.Timestamp>?> =
-        MediatorLiveData4(rds, _startsAtInMs, _endsAtInMs, _scheduleProviders).switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
+    private val _scheduleTimestamps: LiveData<List<Schedule.Timestamp>?> = MediatorLiveData4(rds, _startsAtInMs, _endsAtInMs, _scheduleProviders)
+        .switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getTimestamps(rts, startsAtInMs, endsAtInMs, scheduleProviders))
             }
@@ -197,4 +204,53 @@ class ScheduleViewModel @Inject constructor(
     val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
         DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
     ).distinctUntilChanged()
+
+    private val _statusProviders = this.authority
+        .switchMap { authority ->
+            this.dataSourcesRepository.readingStatusProviders(authority)
+        }
+
+    private val _nonScheduleStatusProviders = MediatorLiveData2(_statusProviders, _scheduleProviders)
+        .map { (statusProviders, scheduleProviders) ->
+            scheduleProviders ?: return@map null
+            statusProviders?.filter { statusProvider ->
+                scheduleProviders.none { it.authority == statusProvider.authority }
+            }
+        }
+
+    private val _refreshRTTimestampsTrigger = MutableLiveData<Int>()
+
+    fun triggerRealTimeTimestampRefresh() {
+        MTLog.d(this, "triggerRealTimeTimestampRefresh() > trigger refresh")
+        _refreshRTTimestampsTrigger.value = (_refreshRTTimestampsTrigger.value ?: 0) + 1
+    }
+
+    val rtTimestamps: LiveData<List<Schedule.Timestamp>?> = MediatorLiveData3(poim, _nonScheduleStatusProviders, _refreshRTTimestampsTrigger)
+        .switchMap { (poim, rtStatusProviders) ->
+            liveData(viewModelScope.coroutineContext) {
+                rtStatusProviders ?: return@liveData
+                val statusFilter = poim?.filter ?: return@liveData
+                rtStatusProviders.forEach { statusProvider ->
+                    dataSourceRequestManager.findStatus(statusProvider.authority, statusFilter)?.let { status ->
+                        (status as? Schedule)?.takeIf { it.hasRealTime }?.timestamps?.let {
+                            emit(it)
+                        }
+                    }
+                }
+            }
+        }
+
+    val timestamps = MediatorLiveData2(_scheduleTimestamps, rtTimestamps)
+        .map { (scheduleTimestamps, rtTimestamps) ->
+            scheduleTimestamps ?: return@map null
+            rtTimestamps?.filter { it.isRealTime }?.forEach { rtTimestamp ->
+                val tripId = rtTimestamp.tripId ?: return@forEach
+                val stopSequence = rtTimestamp.stopSequenceOrNull ?: return@forEach
+                val rdsTripTimestamp = scheduleTimestamps.findClosestTripTimestamp(tripId, stopSequence)
+                rdsTripTimestamp?.apply {
+                    updateForRealTime(newArrival = rtTimestamp.arrival, newDeparture = rtTimestamp.departure)
+                }
+            }
+            scheduleTimestamps
+        }
 }

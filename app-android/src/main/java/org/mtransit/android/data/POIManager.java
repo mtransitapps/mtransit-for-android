@@ -272,7 +272,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Nullable
-	private StatusProviderContract.Filter getFilter() {
+	public StatusProviderContract.Filter getFilter() {
 		switch (getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_NONE:
 			return null;

@@ -96,4 +96,5 @@
     <string name="short_seconds_count">%ds</string>
     <string name="minutes_late">%dm en retard</string>
     <string name="minutes_early">%dm en avance</string>
+    <string name="arrival_and">arrival: %s</string>
 </resources>

@@ -90,4 +90,5 @@
     <string name="short_seconds_count">%ds</string>
     <string name="minutes_late">%dm late</string>
     <string name="minutes_early">%dm early</string>
+    <string name="arrival_and">arrivée : %s</string>
 </resources>

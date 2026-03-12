@@ -76,7 +76,6 @@ import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
-import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.dev.DemoModeManager;
@@ -535,7 +534,7 @@ public class POIFragment extends ABFragment implements
 		}));
 		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
-		viewModel.getScheduleProviders().observe(getViewLifecycleOwner(), scheduleProviders -> setupRDSFullScheduleBtn(getView()));
+		viewModel.getHasScheduleProviders().observe(getViewLifecycleOwner(), hasScheduleProviders -> setupRDSFullScheduleBtn(getView()));
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
 		viewModel.getPoiList().observe(getViewLifecycleOwner(), this::onPOIsLoaded);
@@ -739,14 +738,14 @@ public class POIFragment extends ABFragment implements
 		setupNewsLayout(view);
 	}
 
-	private void setupRDSFullScheduleBtn(View view) {
+	private void setupRDSFullScheduleBtn(@Nullable View view) {
 		if (view == null) {
 			return;
 		}
 		final View rdsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		if (rdsScheduleBtn != null) {
-			final Collection<ScheduleProviderProperties> scheduleProviders = this.viewModel == null ? null : this.viewModel.getScheduleProviders().getValue();
-			if (scheduleProviders == null || scheduleProviders.isEmpty()) {
+			final Boolean hasScheduleProviders = this.viewModel == null ? null : this.viewModel.getHasScheduleProviders().getValue();
+			if (hasScheduleProviders == null || !hasScheduleProviders) {
 				rdsScheduleBtn.setVisibility(View.GONE);
 			} else {
 				final POIManager poimForColor = getPoimOrNull();

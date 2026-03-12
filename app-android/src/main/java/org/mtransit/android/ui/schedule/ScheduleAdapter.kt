@@ -11,14 +11,17 @@ import androidx.annotation.IntDef
 import androidx.core.util.forEach
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
+import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.Accessibility
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
+import org.mtransit.android.commons.data.arrivalDiff
 import org.mtransit.android.commons.equalOrAfter
 import org.mtransit.android.data.UISchedule
+import org.mtransit.android.data.getAbsoluteDepartureDiffString
 import org.mtransit.android.data.makeHeading
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
@@ -39,6 +42,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.time.Duration.Companion.minutes
 
 class ScheduleAdapter
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
@@ -614,6 +618,14 @@ class ScheduleAdapter
             }
             val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
             var timeSb = SpannableStringBuilder(formattedTime)
+            timestamp.getAbsoluteDepartureDiffString(context, UISchedule.LATE_EARLY_MIN_DIFF_SEC)?.let {
+                timeSb.append(P1).append(it).append(P2)
+            }
+            if (timestamp.arrivalDiff > 1.minutes) {
+                timeSb.append(P1)
+                    .append(context.getString(R.string.arrival_and, UITimeUtils.formatTimestamp(context, timestamp, timestamp.arrivalT)))
+                    .append(P2)
+            }
             timeSb.append(
                 UIAccessibilityUtils.decorate(
                     context,

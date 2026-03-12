@@ -489,7 +489,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this.scheduleListTimestamp = after;
 	}
 
-	private static final int LATE_EARLY_MIN_DIFF_SEC = 45; // seconds
+	public static final int LATE_EARLY_MIN_DIFF_SEC = 45; // seconds
 
 	private void generateScheduleListTimes(@NonNull Context context,
 										   long after,
