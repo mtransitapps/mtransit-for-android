@@ -94,4 +94,6 @@
     </plurals>
     <string name="short_minutes_plus_count">%dm</string>
     <string name="short_seconds_count">%ds</string>
+    <string name="minutes_late">%dm de retard</string>
+    <string name="minutes_early">%dm en avance</string>
 </resources>
