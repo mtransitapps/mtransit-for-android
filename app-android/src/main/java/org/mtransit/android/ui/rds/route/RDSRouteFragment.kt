@@ -11,7 +11,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
@@ -140,15 +139,15 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             optMapLat: Double? = null,
             optMapLng: Double? = null,
             optMapZoom: Float? = null,
-        ) = bundleOf(
-            RDSRouteViewModel.EXTRA_AUTHORITY to authority,
-            RDSRouteViewModel.EXTRA_ROUTE_ID to routeId,
-            RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID to (optSelectedDirectionId ?: RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID_DEFAULT),
-            RDSRouteViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSRouteViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
-            RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
-            RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
-            RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
-        )
+        ) = Bundle().apply {
+            putString(RDSRouteViewModel.EXTRA_AUTHORITY, authority)
+            putLong(RDSRouteViewModel.EXTRA_ROUTE_ID, routeId)
+            putLong(RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID, optSelectedDirectionId ?: RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID_DEFAULT)
+            putInt(RDSRouteViewModel.EXTRA_SELECTED_STOP_ID, optSelectedStopId ?: RDSRouteViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT)
+            optMapLat?.let { putDouble(RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT, it) }
+            optMapLng?.let { putDouble(RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG, it) }
+            optMapZoom?.let { putFloat(RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM, it) }
+        }
     }
 
     override fun getLogTag() = LOG_TAG

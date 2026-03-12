@@ -2,7 +2,7 @@ package org.mtransit.android.ad
 
 import android.content.Context
 import android.content.res.Configuration
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdInspectorError
 import com.google.android.gms.ads.AdRequest
@@ -48,9 +48,9 @@ class AdManager @Inject internal constructor(
             }
             if (collapsible) {
                 addNetworkExtrasBundle(
-                    AdMobAdapter::class.java, bundleOf(
-                        "collapsible" to "bottom"
-                    )
+                    AdMobAdapter::class.java, Bundle().apply {
+                        putString("collapsible", "bottom")
+                    }
                 )
             }
         }.build()

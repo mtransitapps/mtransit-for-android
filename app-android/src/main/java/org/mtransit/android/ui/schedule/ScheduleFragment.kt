@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -86,11 +85,11 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             uuid: String,
             authority: String,
             optColor: String? = null,
-        ) = bundleOf(
-            ScheduleViewModel.EXTRA_POI_UUID to uuid,
-            ScheduleViewModel.EXTRA_AUTHORITY to authority,
-            ScheduleViewModel.EXTRA_COLOR to (optColor ?: ScheduleViewModel.EXTRA_COLOR_DEFAULT)
-        )
+        ) = Bundle().apply {
+            putString(ScheduleViewModel.EXTRA_POI_UUID, uuid)
+            putString(ScheduleViewModel.EXTRA_AUTHORITY, authority)
+            putString(ScheduleViewModel.EXTRA_COLOR, optColor ?: ScheduleViewModel.EXTRA_COLOR_DEFAULT)
+        }
     }
 
     override fun getLogTag() = LOG_TAG

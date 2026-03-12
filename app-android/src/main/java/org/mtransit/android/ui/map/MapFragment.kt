@@ -10,7 +10,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.model.LatLng
@@ -84,11 +83,11 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             optInitialLocation: Location? = null,
             optSelectedUUID: String? = null,
             optIncludeTypeId: Int? = null,
-        ) = bundleOf(
-            MapViewModel.EXTRA_INITIAL_LOCATION to optInitialLocation,
-            MapViewModel.EXTRA_SELECTED_UUID to optSelectedUUID,
-            MapViewModel.EXTRA_INCLUDE_TYPE_ID to (optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT),
-        )
+        ) = Bundle().apply {
+            putParcelable(MapViewModel.EXTRA_INITIAL_LOCATION, optInitialLocation)
+            putString(MapViewModel.EXTRA_SELECTED_UUID, optSelectedUUID)
+            putInt(MapViewModel.EXTRA_INCLUDE_TYPE_ID, optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT)
+        }
 
         private const val TOP_PADDING_SP = 64
         private const val BOTTOM_PADDING_SP = 0

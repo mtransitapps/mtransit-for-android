@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -52,11 +51,11 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
             authority: String,
             routeId: Long,
             directionId: Long? = null,
-        ) = bundleOf(
-            ServiceUpdatesViewModel.EXTRA_AUTHORITY to authority,
-            ServiceUpdatesViewModel.EXTRA_ROUTE_ID to routeId,
-            ServiceUpdatesViewModel.EXTRA_DIRECTION_ID to directionId,
-        )
+        ) = Bundle().apply {
+            putString(ServiceUpdatesViewModel.EXTRA_AUTHORITY, authority)
+            putLong(ServiceUpdatesViewModel.EXTRA_ROUTE_ID, routeId)
+            directionId?.let { putLong(ServiceUpdatesViewModel.EXTRA_DIRECTION_ID, it) }
+        }
     }
 
     override fun getLogTag() = LOG_TAG

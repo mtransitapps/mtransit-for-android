@@ -12,7 +12,6 @@ import android.webkit.WebView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
@@ -80,10 +79,10 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         fun newInstanceArgs(newsArticle: News) = newInstanceArgs(newsArticle.authority, newsArticle.uuid)
 
         @JvmStatic
-        fun newInstanceArgs(authority: String, uuid: String) = bundleOf(
-            NewsDetailsViewModel.EXTRA_AUTHORITY to authority,
-            NewsDetailsViewModel.EXTRA_NEWS_UUID to uuid,
-        )
+        fun newInstanceArgs(authority: String, uuid: String) = Bundle().apply {
+            putString(NewsDetailsViewModel.EXTRA_AUTHORITY, authority)
+            putString(NewsDetailsViewModel.EXTRA_NEWS_UUID, uuid)
+        }
 
         @JvmStatic
         fun newInstanceArgs(authorityAndUuid: AuthorityAndUuid) = newInstanceArgs(authorityAndUuid.getAuthority(), authorityAndUuid.getUuid())
