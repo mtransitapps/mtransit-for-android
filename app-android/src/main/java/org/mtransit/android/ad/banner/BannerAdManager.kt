@@ -58,7 +58,7 @@ class BannerAdManager @Inject constructor(
         )
     }
 
-    private val loadOnScreenResume: Boolean by lazy {
+    internal val loadOnScreenResume: Boolean by lazy {
         loadOnScreenResumeMinDurationSec > 0L
     }
 

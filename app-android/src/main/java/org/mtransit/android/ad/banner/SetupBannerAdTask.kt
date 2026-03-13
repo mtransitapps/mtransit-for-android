@@ -76,7 +76,12 @@ class SetupBannerAdTask(
             )
             isVisible = false
             id = R.id.ad
-            adUnitId = activity.requireContext().getString(R.string.google_ads_banner_ad_unit_id)
+            adUnitId = activity.requireContext().getString(
+                when {
+                    bannerAdManager.loadOnScreenResume -> R.string.google_ads_banner_manual_refresh_ad_unit_id
+                    else -> R.string.google_ads_banner_ad_unit_id
+                }
+            )
         }
         adLayout.removeAllViews()
         adLayout.addView(adView)

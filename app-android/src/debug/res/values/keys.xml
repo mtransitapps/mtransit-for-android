@@ -2,6 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,TypographyDashes,Typos,InconsistentArrays">
     <string name="google_ads_app_id">ca-app-pub-3940256099942544~3347511713</string> <!-- Google-provided test app id -->
     <string name="google_ads_banner_ad_unit_id">ca-app-pub-3940256099942544/9214589741</string><!-- Google-provided test ad unit - banner -->
+    <string name="google_ads_banner_manual_refresh_ad_unit_id">ca-app-pub-3940256099942544/9214589741</string><!-- Google-provided test ad unit - banner -->
     <string name="google_ads_banner_inline_ad_unit_id">ca-app-pub-3940256099942544/9214589741</string><!-- Google-provided test ad unit - banner -->
     <string name="google_ads_rewarded_ad_unit_id">ca-app-pub-3940256099942544/5224354917</string><!-- Google-provided test ad unit - rewarded -->
     <string-array name="google_ads_test_devices_ids">
