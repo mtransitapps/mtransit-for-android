@@ -8,14 +8,14 @@ import kotlin.math.roundToLong
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
-fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffSecs: Int): String? {
+fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffSecs: Int, short: Boolean): String? {
     val absDepartureDelay = originalDepartureDelay.absoluteValue
     if (absDepartureDelay < minDiffSecs.seconds) return null
     val absDiffMin = absDepartureDelay
         .toDouble(DurationUnit.MINUTES).roundToLong()
     return if (originalDepartureDelay.isPositive()) {
-        context.getString(R.string.minutes_late, absDiffMin)
+        context.getString(if (short) R.string.minutes_late_short else R.string.minutes_late, absDiffMin)
     } else {
-        context.getString(R.string.minutes_early, absDiffMin)
+        context.getString(if (short) R.string.minutes_early_short else R.string.minutes_early, absDiffMin)
     }
 }
