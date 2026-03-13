@@ -214,6 +214,26 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             }
             isEnabled = true
         }
+        (findPreference(MainPreferencesViewModel.DEV_MODE_FIREBASE_INSTALLATION_AUTH_TOKEN_PREF) as? Preference)?.apply {
+            setOnPreferenceClickListener {
+                remoteConfigProvider.getInstallationAuthToken(true) { token ->
+                    summary = token ?: "(none)"
+                    ToastUtils.getNewTouchableToast(
+                        context,
+                        R.drawable.toast_frame_old,
+                        token ?: "(none)",
+                        null,
+                    )?.apply {
+                        @SuppressLint("ClickableViewAccessibility")
+                        setTouchInterceptor { _, _ -> this.dismiss(); true }
+                        setOnDismissListener { this.dismiss() }
+                        ToastUtils.showTouchableToastPx(activity, this, view, 0, 0)
+                    }
+                }
+                true // handled
+            }
+            isEnabled = true
+        }
         (findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference)?.setOnPreferenceClickListener {
             viewModel.resetConsent()
             true // handled
@@ -388,22 +408,26 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         viewModel.devModeEnabled.observe(viewLifecycleOwner) { devModeEnabled ->
             val devModeGroupPref = findPreference(MainPreferencesViewModel.DEV_MODE_GROUP_PREF) as? PreferenceCategory ?: return@observe
             val devModeModulePref = findPreference(MainPreferencesViewModel.DEV_MODE_MODULE_PREF) as? Preference ?: return@observe
+            val devModeFirebaseInstallationAuthTokenPref = findPreference(MainPreferencesViewModel.DEV_MODE_FIREBASE_INSTALLATION_AUTH_TOKEN_PREF) as? Preference ?: return@observe
             val devModeResetConsentPref = findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference ?: return@observe
             val devModeResetRewardedPref = findPreference(MainPreferencesViewModel.DEV_MODE_REWARDED_RESET_PREF) as? Preference ?: return@observe
             val devModeAdInspectorPref = findPreference(MainPreferencesViewModel.DEV_MODE_AD_INSPECTOR_PREF) as? Preference ?: return@observe
             if (devModeEnabled) {
                 devModeGroupPref.isEnabled = true
                 devModeModulePref.isEnabled = true
+                devModeFirebaseInstallationAuthTokenPref.isEnabled = true
                 devModeResetConsentPref.isEnabled = true
                 devModeResetRewardedPref.isEnabled = true
                 devModeAdInspectorPref.isEnabled = true
             } else {
                 devModeGroupPref.isEnabled = false
                 devModeModulePref.isEnabled = false
+                devModeFirebaseInstallationAuthTokenPref.isEnabled = false
                 devModeResetConsentPref.isEnabled = false
                 devModeResetRewardedPref.isEnabled = false
                 devModeAdInspectorPref.isEnabled = false
                 devModeGroupPref.removePreference(devModeModulePref)
+                devModeGroupPref.removePreference(devModeFirebaseInstallationAuthTokenPref)
                 devModeGroupPref.removePreference(devModeResetConsentPref)
                 devModeGroupPref.removePreference(devModeResetRewardedPref)
                 devModeGroupPref.removePreference(devModeAdInspectorPref)

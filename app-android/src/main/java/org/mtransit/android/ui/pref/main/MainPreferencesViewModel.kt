@@ -51,6 +51,7 @@ class MainPreferencesViewModel @Inject constructor(
         internal const val DEV_MODE_GROUP_PREF = "pDevMode"
         internal const val DEV_MODE_MODULE_PREF = "pDevModeModule"
         internal const val DEV_MODE_REMOTE_CONFIG_PREF = "pDevModeRemoteConfig"
+        internal const val DEV_MODE_FIREBASE_INSTALLATION_AUTH_TOKEN_PREF = "pDevModeFirebaseInstallationAuthToken"
         internal const val DEV_MODE_CONSENT_RESET_PREF = "pDevModeConsentReset"
         internal const val DEV_MODE_REWARDED_RESET_PREF = "pDevModeRewardedReset"
         internal const val DEV_MODE_AD_INSPECTOR_PREF = "pDevModeAdInspector"

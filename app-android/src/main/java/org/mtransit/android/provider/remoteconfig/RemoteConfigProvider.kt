@@ -1,6 +1,7 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
+import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
@@ -90,4 +91,16 @@ class RemoteConfigProvider @Inject constructor(
 
     fun getAll(): Map<String, String>? =
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
+
+    fun getInstallationAuthToken(forceRefresh: Boolean, onResult: (String?) -> Unit) {
+        FirebaseInstallations.getInstance().getToken(forceRefresh)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onResult(task.result?.token)
+                } else {
+                    MTLog.w(this, task.exception, "getInstallationAuthToken failed!")
+                    onResult(null)
+                }
+            }
+    }
 }
