@@ -191,9 +191,11 @@ class POIViewModel @Inject constructor(
             }
         )
 
-    val scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
+    private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)
     }
+
+    val hasScheduleProviders = _scheduleProviders.map { it.isNotEmpty() }
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 

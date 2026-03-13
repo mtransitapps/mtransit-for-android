@@ -112,6 +112,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     private fun onTimeChanged() {
         listAdapter.onTimeChanged()
+        attachedViewModel?.triggerRealTimeTimestampRefresh()
         bindLocaleTime(attachedViewModel?.localTimeZone?.value)
     }
 

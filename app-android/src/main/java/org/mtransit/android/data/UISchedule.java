@@ -489,6 +489,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this.scheduleListTimestamp = after;
 	}
 
+	public static final int LATE_EARLY_MIN_DIFF_SEC = 45; // seconds
+
 	private void generateScheduleListTimes(@NonNull Context context,
 										   long after,
 										   @NonNull List<Timestamp> timestamps,
@@ -512,6 +514,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			if (timestampHeading != null) {
 				headSignSSB = new SpannableStringBuilder(timestampHeading);
 			}
+			final String earlyOrLateText = UIScheduleExtKt.getAbsoluteDepartureDiffString(t, context, LATE_EARLY_MIN_DIFF_SEC, headSignSSB != null);
+			if (earlyOrLateText != null) {
+				if (headSignSSB == null) {
+					headSignSSB = new SpannableStringBuilder(earlyOrLateText);
+				} else {
+					headSignSSB.insert(0, "(" + earlyOrLateText + ") ");
+				}
+			}
 			final CharSequence a11y = UIAccessibilityUtils.decorate(
 					context,
 					Accessibility.decorate(Constants.EMPTY, t.getAccessibleOrDefault()),
@@ -519,10 +529,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					UIAccessibilityUtils.ImageSize.MEDIUM,
 					true
 			);
-			if (headSignSSB == null) {
-				headSignSSB = new SpannableStringBuilder(a11y);
-			} else {
-				headSignSSB.insert(0, a11y);
+			if (a11y.length() > 0) {
+				if (headSignSSB == null) {
+					headSignSSB = new SpannableStringBuilder(a11y);
+				} else {
+					headSignSSB.insert(0, a11y);
+				}
 			}
 			final long departureT = t.getDepartureT();
 			if (lastTimestamp > 0L) {

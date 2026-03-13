@@ -181,6 +181,13 @@ class DataSourcesRepository @Inject constructor(
 
     fun getStatusProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getStatusProviders(targetAuthority)
 
+    fun readingStatusProviders(targetAuthority: String?) = liveData {
+        targetAuthority?.let { providerAuthority ->
+            emit(dataSourcesInMemoryCache.getStatusProviders(providerAuthority))
+            emitSource(dataSourcesIOCache.readingStatusProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
+
     fun getStatusProvider(authority: String) = this.dataSourcesInMemoryCache.getStatusProvider(authority)
 
     // endregion

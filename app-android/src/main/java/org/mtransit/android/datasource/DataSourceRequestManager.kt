@@ -14,6 +14,7 @@ import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.provider.news.NewsProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.status.StatusProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.AgencyProperties
@@ -127,6 +128,10 @@ class DataSourceRequestManager(
         trigger: Int
     ): AgencyProperties? = withContext(ioDispatcher) {
         DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, isRDS, logo, pkg, longVersionCode, enabled, trigger)
+    }
+
+    suspend fun findStatus(authority: String, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
+        DataSourceManager.findStatus(appContext, authority, statusFilter)
     }
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
