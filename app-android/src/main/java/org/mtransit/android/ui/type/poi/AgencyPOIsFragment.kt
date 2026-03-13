@@ -11,6 +11,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -120,6 +122,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var adManager: AdManager
 
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
@@ -275,6 +280,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 }
             }
             switchView(showingListInsteadOfMap)
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             listAdapter.setPois(poiList)

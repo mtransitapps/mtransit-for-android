@@ -18,6 +18,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -149,6 +151,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     @Inject
     lateinit var statusLoader: StatusLoader
+
+    @Inject
+    lateinit var adManager: AdManager
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
@@ -339,6 +344,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 stopVehicleLocationCountdownRefresh()
             }
             switchView(showingListInsteadOfMap)
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedMapCameraPosition ->
             selectedMapCameraPosition?.let { cameraPosition ->
