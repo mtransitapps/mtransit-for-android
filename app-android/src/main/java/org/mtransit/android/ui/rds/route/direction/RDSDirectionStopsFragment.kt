@@ -236,6 +236,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             } else if (RDSRouteFragment.SHOW_SERVICE_UPDATE_IN_TOOLBAR) {
                 setIgnoredTargetUUIDs(attachedParentViewModel?.routeM?.value?.route?.allUUIDs)
             }
+            setTimeChangedListener { this@RDSDirectionStopsFragment.onTimeChanged() }
         }
     }
 
@@ -403,6 +404,10 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             switchView()
         }
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun applySelectedIdChanged(
