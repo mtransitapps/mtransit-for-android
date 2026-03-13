@@ -35,6 +35,8 @@ interface IAdManager {
 
     fun onResumeScreen(activity: IAdScreenActivity)
 
+    fun onTimeChanged(activity: IAdScreenActivity)
+
     @Suppress("unused")
     fun resumeAd(activity: IAdScreenActivity)
 

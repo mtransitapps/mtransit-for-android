@@ -75,6 +75,14 @@ class BannerAdManager @Inject constructor(
         refreshBannerAdStatus(activity, force = true)
     }
 
+    fun onTimeChanged(activity: IAdScreenActivity) {
+        if (!loadOnScreenResume) {
+            MTLog.d(this, "onTimeChanged() > SKIP (disabled)")
+            return
+        }
+        refreshBannerAdStatus(activity, force = true)
+    }
+
     @JvmOverloads
     fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
         if (this.globalAdManager.isShowingAds() // showing ads across the app
