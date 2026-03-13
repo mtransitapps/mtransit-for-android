@@ -8,7 +8,7 @@
     <string-array name="google_ads_test_devices_ids">
         <item>9912D21DEAC16B56420FF20B307872D1</item><!-- @mmathieum:Hammerhead -->
         <item>C2009A1CA7ACE9D0E1CC302C1099A224</item><!-- @mmathieum:Taimen -->
-        <item>17EFFABA0710C866389158409762247E</item><!-- @mmathieum:Panther -->
+        <item>17EFFABA0710C866389158409762247E</item><!-- @mmathieum:Cheetah -->
     </string-array>
     <string name="google_maps_api_key">INSERT_GOOGLE_MAPS_API_KEY_HERE</string><!-- DEBUG | Android App restriction -->
     <string-array name="google_places_new_api_key"><!-- DEBUG 2025 $$$ | Android App restriction -->
