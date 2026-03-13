@@ -618,7 +618,7 @@ class ScheduleAdapter
             }
             val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
             var timeSb = SpannableStringBuilder(formattedTime)
-            timestamp.getAbsoluteDepartureDiffString(context, UISchedule.LATE_EARLY_MIN_DIFF_SEC)?.let {
+            timestamp.getAbsoluteDepartureDiffString(context, UISchedule.LATE_EARLY_MIN_DIFF_SEC, short = false)?.let {
                 timeSb.append(P1).append(it).append(P2)
             }
             if (timestamp.arrivalDiff > 1.minutes) {
