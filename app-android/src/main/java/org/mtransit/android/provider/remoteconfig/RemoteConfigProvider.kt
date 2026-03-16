@@ -1,7 +1,7 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
-import com.google.firebase.installations.FirebaseInstallations
+import com.google.firebase.installations.installations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
@@ -49,6 +49,8 @@ class RemoteConfigProvider @Inject constructor(
 
     private val remoteConfig by lazy { Firebase.remoteConfig }
 
+    private val firebaseInstallations by lazy { Firebase.installations }
+
     private val activated = AtomicBoolean(false)
 
     fun init() {
@@ -93,7 +95,7 @@ class RemoteConfigProvider @Inject constructor(
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
 
     fun getInstallationAuthToken(forceRefresh: Boolean, onResult: (String?) -> Unit) {
-        FirebaseInstallations.getInstance().getToken(forceRefresh)
+        firebaseInstallations.getToken(forceRefresh)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     onResult(task.result?.token)
