@@ -9,6 +9,7 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.view.Surface
 import android.widget.AbsListView
+import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.api.SupportFactory
@@ -32,7 +33,7 @@ class SensorManagerImpl @Inject constructor(
     }
 
     private val sensorManager: SensorManager?
-        get() = appContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
+        get() = appContext.getSystemService<SensorManager>()
 
     override fun getLogTag() = LOG_TAG
 

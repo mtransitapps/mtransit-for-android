@@ -1,9 +1,12 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
+import com.google.firebase.installations.InstallationTokenResult
+import com.google.firebase.installations.installations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
+import kotlinx.coroutines.tasks.await
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.MTLog
 import java.util.concurrent.atomic.AtomicBoolean
@@ -48,6 +51,8 @@ class RemoteConfigProvider @Inject constructor(
 
     private val remoteConfig by lazy { Firebase.remoteConfig }
 
+    private val installations by lazy { Firebase.installations }
+
     private val activated = AtomicBoolean(false)
 
     fun init() {
@@ -90,4 +95,7 @@ class RemoteConfigProvider @Inject constructor(
 
     fun getAll(): Map<String, String>? =
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
+
+    suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? =
+        installations.getToken(forceRefresh).await()
 }

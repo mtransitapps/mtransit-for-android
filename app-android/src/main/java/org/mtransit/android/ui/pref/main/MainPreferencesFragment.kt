@@ -3,10 +3,13 @@ package org.mtransit.android.ui.pref.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.getSystemService
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
@@ -214,6 +217,19 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             }
             isEnabled = true
         }
+        (findPreference(MainPreferencesViewModel.DEV_MODE_FB_INSTALLATION_TOKEN_PREF) as? Preference)?.apply {
+            summary = viewModel.fbInstallationsToken.value ?: "(none)"
+            setOnPreferenceClickListener {
+                val token = viewModel.fbInstallationsToken.value
+                token?.let {
+                    val clipboardManager = context.getSystemService<ClipboardManager>()
+                    @SuppressLint("DeprecatedCall")
+                    clipboardManager?.setPrimaryClip(ClipData.newPlainText("Firebase Installation Token", it))
+                }
+                true // handled
+            }
+            isEnabled = true
+        }
         (findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference)?.setOnPreferenceClickListener {
             viewModel.resetConsent()
             true // handled
@@ -319,6 +335,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 bottom = insets.bottom
             )
         }
+        viewModel.fbInstallationsToken.observe(viewLifecycleOwner) { token ->
+            (findPreference(MainPreferencesViewModel.DEV_MODE_FB_INSTALLATION_TOKEN_PREF) as? Preference)?.apply {
+                summary = token ?: "(none)"
+            }
+        }
         viewModel.currentSubscription.observe(viewLifecycleOwner) {
             // do nothing
         }
@@ -388,22 +409,30 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         viewModel.devModeEnabled.observe(viewLifecycleOwner) { devModeEnabled ->
             val devModeGroupPref = findPreference(MainPreferencesViewModel.DEV_MODE_GROUP_PREF) as? PreferenceCategory ?: return@observe
             val devModeModulePref = findPreference(MainPreferencesViewModel.DEV_MODE_MODULE_PREF) as? Preference ?: return@observe
+            val devModeRemoteConfigPref = findPreference(MainPreferencesViewModel.DEV_MODE_REMOTE_CONFIG_PREF) as? Preference ?: return@observe
+            val devModeFBInstallationTokenPref = findPreference(MainPreferencesViewModel.DEV_MODE_FB_INSTALLATION_TOKEN_PREF) as? Preference ?: return@observe
             val devModeResetConsentPref = findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference ?: return@observe
             val devModeResetRewardedPref = findPreference(MainPreferencesViewModel.DEV_MODE_REWARDED_RESET_PREF) as? Preference ?: return@observe
             val devModeAdInspectorPref = findPreference(MainPreferencesViewModel.DEV_MODE_AD_INSPECTOR_PREF) as? Preference ?: return@observe
             if (devModeEnabled) {
                 devModeGroupPref.isEnabled = true
                 devModeModulePref.isEnabled = true
+                devModeRemoteConfigPref.isEnabled = true
+                devModeFBInstallationTokenPref.isEnabled = true
                 devModeResetConsentPref.isEnabled = true
                 devModeResetRewardedPref.isEnabled = true
                 devModeAdInspectorPref.isEnabled = true
             } else {
                 devModeGroupPref.isEnabled = false
                 devModeModulePref.isEnabled = false
+                devModeRemoteConfigPref.isEnabled = false
+                devModeFBInstallationTokenPref.isEnabled = false
                 devModeResetConsentPref.isEnabled = false
                 devModeResetRewardedPref.isEnabled = false
                 devModeAdInspectorPref.isEnabled = false
                 devModeGroupPref.removePreference(devModeModulePref)
+                devModeGroupPref.removePreference(devModeRemoteConfigPref)
+                devModeGroupPref.removePreference(devModeFBInstallationTokenPref)
                 devModeGroupPref.removePreference(devModeResetConsentPref)
                 devModeGroupPref.removePreference(devModeResetRewardedPref)
                 devModeGroupPref.removePreference(devModeAdInspectorPref)

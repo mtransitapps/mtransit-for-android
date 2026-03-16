@@ -249,6 +249,8 @@
     <string name="dev_mode_pref_reset_rewarded_pref_title">REINITIALISER RECOMPENSEE</string>
     <string name="dev_mode_pref_ad_inspector_pref_summary">INSPECTER PUBS</string>
     <string name="dev_mode_pref_ad_inspector_pref_title">INSPECTEUR PUB</string>
+    <string name="dev_mode_pref_firebase_installation_token_pref_summary">OBTENIR LE JETON FIREBASE A/B TESTING</string>
+    <string name="dev_mode_pref_firebase_installation_token_pref_title">JETON INSTALL FIREBASE</string>
     <string name="support_pref_cat_title">Supporter</string>
     <string name="support_subs_pref_title">Supporter MonTransit</string>
     <string name="support_subs_pref_summary">Cacher les publicités et supporter le développement de MonTransit.</string>
