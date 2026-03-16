@@ -1,10 +1,12 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
+import com.google.firebase.installations.InstallationTokenResult
 import com.google.firebase.installations.installations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
+import kotlinx.coroutines.tasks.await
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.MTLog
 import java.util.concurrent.atomic.AtomicBoolean
@@ -94,15 +96,6 @@ class RemoteConfigProvider @Inject constructor(
     fun getAll(): Map<String, String>? =
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
 
-    fun getInstallationToken(forceRefresh: Boolean, onResult: (String?) -> Unit) {
-        installations.getToken(forceRefresh)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    onResult(task.result?.token)
-                } else {
-                    MTLog.w(this, task.exception, "getInstallationToken failed!")
-                    onResult(null)
-                }
-            }
-    }
+    suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? =
+        installations.getToken(forceRefresh).await()
 }
