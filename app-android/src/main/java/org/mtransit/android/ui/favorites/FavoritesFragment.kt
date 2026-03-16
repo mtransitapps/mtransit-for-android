@@ -15,6 +15,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
@@ -99,6 +101,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
+    @Inject
+    lateinit var adManager: AdManager
+
     private var binding: FragmentFavoritesBinding? = null
 
     private val listAdapter: POIArrayAdapter by lazy {
@@ -117,6 +122,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             setShowFavorite(false) // all items in this screen are favorites
             setFavoriteUpdateListener(this@FavoritesFragment)
             setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY)
+            setTimeChangedListener { this@FavoritesFragment.onTimeChanged() }
         }
     }
 
@@ -179,6 +185,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 }
             })
         }
+    }
+
+    private fun onTimeChanged() {
+         (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun updateEmptyLayout(

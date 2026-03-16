@@ -21,6 +21,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.DataSourceTypeId
@@ -49,6 +51,7 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.MapUtils
 import org.mtransit.commons.FeatureFlags
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class NearbyFragment : ABFragment(R.layout.fragment_nearby),
@@ -168,6 +171,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
+    @Inject
+    lateinit var adManager: AdManager
+
     override val viewModel by viewModels<NearbyViewModel>()
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
@@ -231,15 +237,15 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             showSelectedTab()
             switchView()
         }
-        viewModel.selectedTypePosition.observe(viewLifecycleOwner) {
-            it?.let {
-                if (this.lastPageSelected < 0) {
-                    this.lastPageSelected = it
-                    showSelectedTab()
-                    switchView()
-                    onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
-                }
+        viewModel.selectedTypePosition.observe(viewLifecycleOwner) { newSelectedPosition ->
+            newSelectedPosition ?: return@observe
+            if (this.lastPageSelected < 0) {
+                this.lastPageSelected = newSelectedPosition
+                showSelectedTab()
+                switchView()
+                onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
             }
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.isFixedOn.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(isFixedOn = it)

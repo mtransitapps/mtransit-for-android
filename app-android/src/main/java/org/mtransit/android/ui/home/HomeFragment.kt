@@ -18,6 +18,8 @@ import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
@@ -113,6 +115,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
+    lateinit var adManager: AdManager
+
+    @Inject
     lateinit var demoModeManager: DemoModeManager
 
     private var mapMenuItem: MenuItem? = null
@@ -174,6 +179,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             setOnTypeHeaderButtonsClickListener(typeHeaderButtonsClickListener)
             setPois(attachedViewModel?.nearbyPOIs?.value)
             setLocation(attachedViewModel?.deviceLocation?.value)
+            setTimeChangedListener { this@HomeFragment.onTimeChanged() }
         }
     }
 
@@ -260,6 +266,10 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 }
             })
         }
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun switchView() = binding?.apply {

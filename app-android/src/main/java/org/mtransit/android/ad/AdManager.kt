@@ -96,6 +96,8 @@ class AdManager @Inject internal constructor(
 
     override fun onResumeScreen(activity: IAdScreenActivity) = this.bannerAdManager.onResumeScreen(activity)
 
+    override fun onTimeChanged(activity: IAdScreenActivity) = this.bannerAdManager.onTimeChanged(activity)
+
     // endregion Banner Ads
 
     // region Rewarded Ads

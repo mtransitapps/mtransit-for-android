@@ -26,6 +26,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.DataSourceTypeId
@@ -48,6 +50,7 @@ import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
+import javax.inject.Inject
 import kotlin.math.abs
 import org.mtransit.android.commons.R as commonsR
 
@@ -173,6 +176,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     override fun getScreenName(): String = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
 
+    @Inject
+    lateinit var adManager: AdManager
+
     override val viewModel by viewModels<AgencyTypeViewModel>()
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
@@ -289,13 +295,13 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             }
         }
         viewModel.selectedTypeAgencyPosition.observe(viewLifecycleOwner) { newLastPageSelected ->
-            newLastPageSelected?.let {
-                if (this.lastPageSelected < 0) {
-                    this.lastPageSelected = it
-                    showSelectedTab()
-                    onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
-                }
+            newLastPageSelected ?: return@observe
+            if (this.lastPageSelected < 0) {
+                this.lastPageSelected = newLastPageSelected
+                showSelectedTab()
+                onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
             }
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.originalSelectedAgencyAuthority.observe(viewLifecycleOwner) { originalSelectedAgencyAuthority ->
             this.pagerAdapter?.selectedAgencyAuthority = originalSelectedAgencyAuthority

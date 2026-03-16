@@ -7,6 +7,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
@@ -90,6 +92,9 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     lateinit var statusLoader: StatusLoader
 
     @Inject
+    lateinit var adManager: AdManager
+
+    @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     private var binding: FragmentNearbyAgencyTypeBinding? = null
@@ -119,6 +124,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             setInfiniteLoadingListener(infiniteLoadingListener)
             setPois(attachedViewModel?.nearbyPOIs?.value)
             setLocation(attachedParentViewModel?.deviceLocation?.value)
+            setTimeChangedListener { this@NearbyAgencyTypeFragment.onTimeChanged() }
         }
     }
 
@@ -194,6 +200,10 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 }
             }
         }
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun updateEmptyLayout(

@@ -13,6 +13,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ToastUtils
@@ -95,6 +97,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
+    @Inject
+    lateinit var adManager: AdManager
+
     private var binding: FragmentSearchBinding? = null
 
     private val listAdapter: POIArrayAdapter by lazy {
@@ -112,6 +117,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             logTag = this@SearchFragment.logTag
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)
             setPois(emptyList()) // empty search = no result
+            setTimeChangedListener { this@SearchFragment.onTimeChanged() }
         }
     }
 
@@ -176,6 +182,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                     listLayout.isVisible = true
                 }
             }
+            if (!searchResults.isNullOrEmpty()) {
+                (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
+            }
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             listAdapter.setLocation(deviceLocation)
@@ -199,6 +208,10 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             }
             lastDevEnabled = devEnabled
         }
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private var lastDevEnabled: Boolean? = null

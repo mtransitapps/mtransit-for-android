@@ -20,6 +20,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
@@ -162,6 +164,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
+    @Inject
+    lateinit var adManager: AdManager
+
     private var binding: FragmentRdsRouteBinding? = null
 
     private var lastPageSelected = -1
@@ -263,13 +268,13 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             }
         }
         viewModel.currentSelectedRouteDirectionPosition.observe(viewLifecycleOwner) { newSelectedRouteDirectionPosition ->
-            newSelectedRouteDirectionPosition?.let {
-                if (this.lastPageSelected < 0) {
-                    this.lastPageSelected = it
-                    showSelectedTab()
-                    onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
-                }
+            newSelectedRouteDirectionPosition ?: return@observe
+            if (this.lastPageSelected < 0) {
+                this.lastPageSelected = newSelectedRouteDirectionPosition
+                showSelectedTab()
+                onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
             }
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
             if (removed) {

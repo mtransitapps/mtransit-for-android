@@ -1365,6 +1365,10 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onTimeChanged() {
 		resetNowToTheMinute();
+		final Activity activity = getActivity();
+		if (activity instanceof IAdScreenActivity) {
+			this.adManager.onTimeChanged((IAdScreenActivity) activity);
+		}
 	}
 
 	private void resetNowToTheMinute() {
