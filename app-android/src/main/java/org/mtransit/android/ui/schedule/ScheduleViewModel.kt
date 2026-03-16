@@ -17,10 +17,7 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
-import org.mtransit.android.commons.data.arrival
-import org.mtransit.android.commons.data.departure
 import org.mtransit.android.commons.data.hasRealTime
-import org.mtransit.android.commons.data.updateForRealTime
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
 import org.mtransit.android.commons.provider.status.findClosestTripTimestamp
@@ -231,26 +228,25 @@ class ScheduleViewModel @Inject constructor(
                 rtStatusProviders ?: return@liveData
                 val statusFilter = poim?.filter ?: return@liveData
                 rtStatusProviders.forEach { statusProvider ->
-                    dataSourceRequestManager.findStatus(statusProvider.authority, statusFilter)?.let { status ->
-                        (status as? Schedule)?.takeIf { it.hasRealTime }?.timestamps?.let {
-                            emit(it)
-                        }
-                    }
+                    val newStatus = dataSourceRequestManager.findStatus(statusProvider.authority, statusFilter)
+                    emit((newStatus as? Schedule)?.timestamps) // always emit to erase old real-time value
                 }
             }
         }
 
     val timestamps = MediatorLiveData2(_scheduleTimestamps, rtTimestamps)
         .map { (scheduleTimestamps, rtTimestamps) ->
-            scheduleTimestamps ?: return@map null
-            rtTimestamps?.filter { it.isRealTime }?.forEach { rtTimestamp ->
-                val tripId = rtTimestamp.tripId ?: return@forEach
-                val stopSequence = rtTimestamp.stopSequenceOrNull ?: return@forEach
-                val rdsTripTimestamp = scheduleTimestamps.findClosestTripTimestamp(tripId, stopSequence)
-                rdsTripTimestamp?.apply {
-                    updateForRealTime(newArrival = rtTimestamp.arrival, newDeparture = rtTimestamp.departure)
+            val scheduleTimestamps = scheduleTimestamps?.toMutableList() ?: return@map null
+            rtTimestamps
+                ?.filter { it.isRealTime }
+                ?.forEach { rtTimestamp ->
+                    val tripId = rtTimestamp.tripId ?: return@forEach
+                    val stopSequence = rtTimestamp.stopSequenceOrNull ?: return@forEach
+                    val rdsTripTimestamp = scheduleTimestamps.findClosestTripTimestamp(tripId, stopSequence)
+                    scheduleTimestamps.remove(rdsTripTimestamp)
+                    scheduleTimestamps.add(rtTimestamp)
                 }
-            }
+            scheduleTimestamps.sortWith(Schedule.TIMESTAMPS_COMPARATOR)
             scheduleTimestamps
         }
 }

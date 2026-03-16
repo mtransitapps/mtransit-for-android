@@ -122,7 +122,7 @@ class GlobalAdManager(
             activity.requireActivity(), // some adapters require activity
         ) { initializationStatus ->
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
-                logAdsD(this, "Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")
+                logAdsD(this, "onInitializationComplete() > Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")
             }
             bannerAdManager.refreshBannerAdStatus(activity, force = false)
         }

@@ -121,9 +121,11 @@ class ScheduleAdapter
     private var optRds: RouteDirectionStop? = null
 
     var timestamps: List<Schedule.Timestamp>? = null
-        set(value) {
-            if (field == value) return
-            field = value
+        set(newValue) {
+            if (field == newValue) {
+                return
+            }
+            field = newValue
             updateTimes()
         }
 
@@ -241,7 +243,7 @@ class ScheduleAdapter
         var dayBeginningCalendar: Calendar? = null
         var dayToHourToTimestamp: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
         val calendar = Calendar.getInstance(localTimeZone)
-        for (timestamp in timestamps) {
+        timestamps.forEach { timestamp ->
             val departureT = timestamp.departureT
             calendar.timeInMillis = departureT
             if (dayBeginningCalendar == null || !dayBeginningCalendar.isSameDay(calendar)) {
@@ -597,8 +599,8 @@ class ScheduleAdapter
                 return TimeViewHolder(binding)
             }
 
-            private const val P2 = ")"
             private const val P1 = " ("
+            private const val P2 = ")"
 
         }
 
@@ -637,7 +639,7 @@ class ScheduleAdapter
             )
             val timeOnly = timeSb.toString()
             timestamp.makeHeading(context, optRds?.direction?.getHeading(context), small = false)?.let {
-                timeSb.append(P1).append(it).append(P2)
+                timeSb.append(SPACE).append(it)
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)

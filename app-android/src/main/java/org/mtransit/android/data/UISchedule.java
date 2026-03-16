@@ -514,10 +514,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			if (timestampHeading != null) {
 				headSignSSB = new SpannableStringBuilder(timestampHeading);
 			}
-			final String earlyOrLateText = UIScheduleExtKt.getAbsoluteDepartureDiffString(t, context, LATE_EARLY_MIN_DIFF_SEC, headSignSSB != null);
+			final String earlyOrLateText = UIScheduleExtKt.getAbsoluteDepartureDiffString(t, context, LATE_EARLY_MIN_DIFF_SEC, true);
 			if (earlyOrLateText != null) {
 				if (headSignSSB == null) {
-					headSignSSB = new SpannableStringBuilder(earlyOrLateText);
+					headSignSSB = new SpannableStringBuilder("(" + earlyOrLateText + ")");
 				} else {
 					headSignSSB.insert(0, "(" + earlyOrLateText + ") ");
 				}
