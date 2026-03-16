@@ -68,12 +68,11 @@ package org.mtransit.android.ui.poi
 //import org.mtransit.android.util.LinkUtils
 //import org.mtransit.android.util.MapUtils
 //import org.mtransit.android.util.UITimeUtils
-//import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
-//import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver.TimeChangedListener
+//import org.mtransit.android.util.UITimeUtils
 //import javax.inject.Inject
 //
 //@AndroidEntryPoint
-//class POIFragment : ABFragment(R.layout.fragment_poi), DeviceLocationListener, POIDataProvider, TimeChangedListener, FavoriteUpdateListener {
+//class POIFragment : ABFragment(R.layout.fragment_poi), DeviceLocationListener, POIDataProvider, UITimeUtils.TimeChangedReceiver, FavoriteUpdateListener {
 //
 // companion object {
 // private val LOG_TAG: String = POIFragment::class.java.simpleName

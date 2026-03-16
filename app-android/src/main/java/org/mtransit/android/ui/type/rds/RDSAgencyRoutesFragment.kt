@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.FragmentRdsAgencyRoutesBinding
@@ -41,7 +43,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         private val LOG_TAG: String = RDSAgencyRoutesFragment::class.java.simpleName
 
         @JvmStatic
-        fun newInstance(agency : IAgencyUIProperties) =
+        fun newInstance(agency: IAgencyUIProperties) =
             newInstance(agency.authority, agency.colorInt)
 
         @JvmStatic
@@ -66,6 +68,9 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var adManager: AdManager
 
     private var binding: FragmentRdsAgencyRoutesBinding? = null
 
@@ -158,42 +163,42 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                 }
             }
         }
-        viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner) { showingListInsteadOfGrid ->
-            showingListInsteadOfGrid?.let { listInsteadOfGrid ->
-                binding?.apply {
-                    fabListGrid.apply {
-                        @Suppress("LiftReturnOrAssignment")
-                        if (listInsteadOfGrid) { // LIST
-                            setImageResource(R.drawable.switch_action_apps_dark_16dp)
-                            contentDescription = getString(R.string.menu_action_grid)
-                        } else { // GRID
-                            setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
-                            contentDescription = getString(R.string.menu_action_list)
-                        }
+        viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner) { listInsteadOfGrid ->
+            listInsteadOfGrid ?: return@observe
+            binding?.apply {
+                fabListGrid.apply {
+                    @Suppress("LiftReturnOrAssignment")
+                    if (listInsteadOfGrid) { // LIST
+                        setImageResource(R.drawable.switch_action_apps_dark_16dp)
+                        contentDescription = getString(R.string.menu_action_grid)
+                    } else { // GRID
+                        setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
+                        contentDescription = getString(R.string.menu_action_list)
                     }
-                    listGrid.apply {
-                        val scrollPosition = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
-                        if (listInsteadOfGrid) { // LIST
-                            if (layoutManager == null || layoutManager is GridLayoutManager) {
-                                removeItemDecoration(gridItemDecoration)
-                                addItemDecoration(listItemDecoration)
-                                layoutManager = LinearLayoutManager(requireContext())
-                            }
-                        } else { // GRID
-                            if (layoutManager == null || layoutManager !is GridLayoutManager) {
-                                removeItemDecoration(listItemDecoration)
-                                addItemDecoration(gridItemDecoration)
-                                layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns(requireContext(), 64f))
-                            }
-                        }
-                        if (scrollPosition > 0) {
-                            scrollToPosition(scrollPosition)
-                        }
-                    }
-                    listGridAdapter?.setShowingListInsteadOfGrid(showingListInsteadOfGrid)
-                    switchView()
                 }
+                listGrid.apply {
+                    val scrollPosition = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
+                    if (listInsteadOfGrid) { // LIST
+                        if (layoutManager == null || layoutManager is GridLayoutManager) {
+                            removeItemDecoration(gridItemDecoration)
+                            addItemDecoration(listItemDecoration)
+                            layoutManager = LinearLayoutManager(requireContext())
+                        }
+                    } else { // GRID
+                        if (layoutManager == null || layoutManager !is GridLayoutManager) {
+                            removeItemDecoration(listItemDecoration)
+                            addItemDecoration(gridItemDecoration)
+                            layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns(requireContext(), 64f))
+                        }
+                    }
+                    if (scrollPosition > 0) {
+                        scrollToPosition(scrollPosition)
+                    }
+                }
+                listGridAdapter?.setShowingListInsteadOfGrid(listInsteadOfGrid)
+                switchView()
             }
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.routesM.observe(viewLifecycleOwner) { routes ->
             listGridAdapter?.setList(routes)

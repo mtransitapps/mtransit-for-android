@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
@@ -47,6 +49,7 @@ import org.mtransit.android.ui.view.common.startMargin
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
 import java.util.TimeZone
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
@@ -96,6 +99,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
+    @Inject
+    lateinit var adManager: AdManager
+
     private val viewModel by viewModels<ScheduleViewModel>()
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
@@ -114,6 +120,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         listAdapter.onTimeChanged()
         attachedViewModel?.triggerRealTimeTimestampRefresh()
         bindLocaleTime(attachedViewModel?.localTimeZone?.value)
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private val onScrollListener = object : OnScrollListener() {

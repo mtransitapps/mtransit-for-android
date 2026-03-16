@@ -18,6 +18,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -151,6 +153,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     lateinit var statusLoader: StatusLoader
 
     @Inject
+    lateinit var adManager: AdManager
+
+    @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
@@ -231,6 +236,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             } else if (RDSRouteFragment.SHOW_SERVICE_UPDATE_IN_TOOLBAR) {
                 setIgnoredTargetUUIDs(attachedParentViewModel?.routeM?.value?.route?.allUUIDs)
             }
+            setTimeChangedListener { this@RDSDirectionStopsFragment.onTimeChanged() }
         }
     }
 
@@ -339,6 +345,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 stopVehicleLocationCountdownRefresh()
             }
             switchView(showingListInsteadOfMap)
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedMapCameraPosition ->
             selectedMapCameraPosition?.let { cameraPosition ->
@@ -397,6 +404,10 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             switchView()
         }
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun applySelectedIdChanged(

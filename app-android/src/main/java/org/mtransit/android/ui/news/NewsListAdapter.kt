@@ -28,7 +28,6 @@ import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
 import java.util.Locale
 
 class NewsListAdapter(
@@ -73,7 +72,7 @@ class NewsListAdapter(
 
     private val momentToNewsList = mutableListOf<Pair<Long, MutableList<News>>>()
 
-    private val timeChangedReceiver = TimeChangedReceiver { resetNowToTheMinute() }
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { onTimeChanged() }
 
     private var timeChangedReceiverEnabled = false
 
@@ -97,6 +96,10 @@ class NewsListAdapter(
                 timeChangedReceiverEnabled = true
             }
         }
+    }
+
+    private fun onTimeChanged() {
+        resetNowToTheMinute()
     }
 
     private fun disableTimeChangedReceiver(context: IContext) {

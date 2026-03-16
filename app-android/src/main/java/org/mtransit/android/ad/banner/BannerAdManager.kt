@@ -58,7 +58,7 @@ class BannerAdManager @Inject constructor(
         )
     }
 
-    private val loadOnScreenResume: Boolean by lazy {
+    internal val loadOnScreenResume: Boolean by lazy {
         loadOnScreenResumeMinDurationSec > 0L
     }
 
@@ -70,6 +70,14 @@ class BannerAdManager @Inject constructor(
     fun onResumeScreen(activity: IAdScreenActivity) {
         if (!loadOnScreenResume) {
             MTLog.d(this, "onResumeScreen() > SKIP (disabled)")
+            return
+        }
+        refreshBannerAdStatus(activity, force = true)
+    }
+
+    fun onTimeChanged(activity: IAdScreenActivity) {
+        if (!loadOnScreenResume) {
+            MTLog.d(this, "onTimeChanged() > SKIP (disabled)")
             return
         }
         refreshBannerAdStatus(activity, force = true)
@@ -128,13 +136,13 @@ class BannerAdManager @Inject constructor(
     }
 
     private fun setupBannerAd(activity: IAdScreenActivity, force: Boolean) {
-        logAdsD(this, "setupAd($force)")
+        logAdsD(this, "setupAd($force) --------------------")
         if (!AdConstants.AD_ENABLED) {
-            logAdsD(this, "setupAd() > SKIP (AD not enabled)")
+            logAdsD(this, "setupAd() > SKIP (AD not enabled) --------------------")
             return
         }
         if (!this.globalAdManager.isShowingAds()) {
-            logAdsD(this, "setupAd() > SKIP (not showing ads)")
+            logAdsD(this, "setupAd() > SKIP (not showing ads) --------------------")
             return
         }
         if (force
@@ -144,18 +152,24 @@ class BannerAdManager @Inject constructor(
             logAdsD(this, "setupAd() > should we cancel?")
             val minDurationMs = loadOnScreenResumeMinDurationSec.seconds.inWholeMilliseconds
             if (this.adBannerLoadedLastInMs + minDurationMs < TimeUtils.currentTimeMillis()) { // force refresh if ad loaded only
-                logAdsD(this, "setupAd() > cancelling previous setup ad task...")
+                logAdsD(this, "setupAd() > CANCELLING previous setup ad task...")
                 TaskUtils.cancelQuietly(setupBannerAdTask, true)
                 setupBannerAdTask = null
+            } else {
+                logAdsD(this, "setupAd() > not cancelling previous setup ad task...")
             }
+        } else {
+            logAdsD(this, "setupAd() > SKIP (force?$force|setupBannerAdTask?${setupBannerAdTask!=null}|adBannerLoaded:$adBannerLoaded)")
         }
         if (setupBannerAdTask == null) {
-            logAdsD(this, "setupAd() > starting setup ad task...")
+            logAdsD(this, "setupAd() > STARTING setup ad task...")
             setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, this.remoteConfigProvider, activity)
             TaskUtils.execute(setupBannerAdTask)
             this.adBannerLoaded = null // loading
+        } else {
+            logAdsD(this, "setupAd() > SKIP (task already running)")
         }
-        logAdsD(this, "setupAd() > DONE")
+        logAdsD(this, "setupAd() > DONE --------------------")
     }
 
     private fun showBannerAd(activity: IAdScreenActivity) {

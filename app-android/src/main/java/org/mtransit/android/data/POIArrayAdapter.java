@@ -204,6 +204,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private FavoriteManager.FavoriteUpdateListener favoriteUpdateListener = this;
 
+	@Nullable
+	private UITimeUtils.TimeChangedReceiver.TimeChangedListener timeChangedListener = null;
+
 	@NonNull
 	private final MTSensorManager sensorManager;
 	@NonNull
@@ -252,6 +255,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	public void setFavoriteUpdateListener(@NonNull FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
 		this.favoriteUpdateListener = favoriteUpdateListener;
+	}
+
+	public void setTimeChangedListener(@Nullable UITimeUtils.TimeChangedReceiver.TimeChangedListener timeChangedListener) {
+		this.timeChangedListener = timeChangedListener;
 	}
 
 	@SuppressWarnings("unused")
@@ -1995,6 +2002,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@Override
 	public void onTimeChanged() {
 		resetNowToTheMinute();
+		if (this.timeChangedListener != null) {
+			this.timeChangedListener.onTimeChanged();
+		}
 	}
 
 	private final UITimeUtils.TimeChangedReceiver timeChangedReceiver = new UITimeUtils.TimeChangedReceiver(this);
