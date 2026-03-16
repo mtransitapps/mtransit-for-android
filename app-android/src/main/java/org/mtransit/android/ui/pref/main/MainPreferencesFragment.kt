@@ -3,6 +3,9 @@ package org.mtransit.android.ui.pref.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -218,6 +221,10 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             setOnPreferenceClickListener {
                 remoteConfigProvider.getInstallationAuthToken(true) { token ->
                     summary = token ?: "(none)"
+                    token?.let {
+                        (context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)
+                            ?.setPrimaryClip(ClipData.newPlainText("Firebase Installation Auth Token", it))
+                    }
                     ToastUtils.getNewTouchableToast(
                         context,
                         R.drawable.toast_frame_old,
@@ -408,6 +415,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         viewModel.devModeEnabled.observe(viewLifecycleOwner) { devModeEnabled ->
             val devModeGroupPref = findPreference(MainPreferencesViewModel.DEV_MODE_GROUP_PREF) as? PreferenceCategory ?: return@observe
             val devModeModulePref = findPreference(MainPreferencesViewModel.DEV_MODE_MODULE_PREF) as? Preference ?: return@observe
+            val devModeRemoteConfigPref = findPreference(MainPreferencesViewModel.DEV_MODE_REMOTE_CONFIG_PREF) as? Preference ?: return@observe
             val devModeFirebaseInstallationAuthTokenPref = findPreference(MainPreferencesViewModel.DEV_MODE_FIREBASE_INSTALLATION_AUTH_TOKEN_PREF) as? Preference ?: return@observe
             val devModeResetConsentPref = findPreference(MainPreferencesViewModel.DEV_MODE_CONSENT_RESET_PREF) as? Preference ?: return@observe
             val devModeResetRewardedPref = findPreference(MainPreferencesViewModel.DEV_MODE_REWARDED_RESET_PREF) as? Preference ?: return@observe
@@ -415,6 +423,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             if (devModeEnabled) {
                 devModeGroupPref.isEnabled = true
                 devModeModulePref.isEnabled = true
+                devModeRemoteConfigPref.isEnabled = true
                 devModeFirebaseInstallationAuthTokenPref.isEnabled = true
                 devModeResetConsentPref.isEnabled = true
                 devModeResetRewardedPref.isEnabled = true
@@ -422,11 +431,13 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             } else {
                 devModeGroupPref.isEnabled = false
                 devModeModulePref.isEnabled = false
+                devModeRemoteConfigPref.isEnabled = false
                 devModeFirebaseInstallationAuthTokenPref.isEnabled = false
                 devModeResetConsentPref.isEnabled = false
                 devModeResetRewardedPref.isEnabled = false
                 devModeAdInspectorPref.isEnabled = false
                 devModeGroupPref.removePreference(devModeModulePref)
+                devModeGroupPref.removePreference(devModeRemoteConfigPref)
                 devModeGroupPref.removePreference(devModeFirebaseInstallationAuthTokenPref)
                 devModeGroupPref.removePreference(devModeResetConsentPref)
                 devModeGroupPref.removePreference(devModeResetRewardedPref)
