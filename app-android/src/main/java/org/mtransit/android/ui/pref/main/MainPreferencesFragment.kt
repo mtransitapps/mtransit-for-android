@@ -218,24 +218,13 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             isEnabled = true
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_FB_INSTALLATION_TOKEN_PREF) as? Preference)?.apply {
+            summary = viewModel.fbInstallationsToken.value ?: "(none)"
             setOnPreferenceClickListener {
-                remoteConfigProvider.getInstallationToken(true) { token ->
-                    summary = token ?: "(none)"
-                    token?.let {
-                        context.getSystemService<ClipboardManager>()
-                            ?.setPrimaryClip(ClipData.newPlainText("Firebase Installation Token", it))
-                    }
-                    ToastUtils.getNewTouchableToast(
-                        context,
-                        R.drawable.toast_frame_old,
-                        token ?: "(none)",
-                        null,
-                    )?.apply {
-                        @SuppressLint("ClickableViewAccessibility")
-                        setTouchInterceptor { _, _ -> this.dismiss(); true }
-                        setOnDismissListener { this.dismiss() }
-                        ToastUtils.showTouchableToastPx(activity, this, view, 0, 0)
-                    }
+                val token = viewModel.fbInstallationsToken.value
+                token?.let {
+                    val clipboardManager = context.getSystemService<ClipboardManager>()
+                    @SuppressLint("DeprecatedCall")
+                    clipboardManager?.setPrimaryClip(ClipData.newPlainText("Firebase Installation Token", it))
                 }
                 true // handled
             }
@@ -345,6 +334,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             updatePaddingRelative(
                 bottom = insets.bottom
             )
+        }
+        viewModel.fbInstallationsToken.observe(viewLifecycleOwner) { token ->
+            (findPreference(MainPreferencesViewModel.DEV_MODE_FB_INSTALLATION_TOKEN_PREF) as? Preference)?.apply {
+                summary = token ?: "(none)"
+            }
         }
         viewModel.currentSubscription.observe(viewLifecycleOwner) {
             // do nothing
