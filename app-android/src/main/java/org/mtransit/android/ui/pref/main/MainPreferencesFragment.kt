@@ -5,11 +5,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.getSystemService
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
@@ -222,7 +222,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 remoteConfigProvider.getInstallationAuthToken(true) { token ->
                     summary = token ?: "(none)"
                     token?.let {
-                        (context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)
+                        context.getSystemService<ClipboardManager>()
                             ?.setPrimaryClip(ClipData.newPlainText("Firebase Installation Auth Token", it))
                     }
                     ToastUtils.getNewTouchableToast(
