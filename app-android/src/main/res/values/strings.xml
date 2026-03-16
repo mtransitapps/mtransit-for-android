@@ -246,8 +246,8 @@
     <string name="dev_mode_pref_reset_rewarded_pref_title">RESET REWARDED</string>
     <string name="dev_mode_pref_ad_inspector_pref_summary">INSPECT ADS</string>
     <string name="dev_mode_pref_ad_inspector_pref_title">AD INSPECTOR</string>
-    <string name="dev_mode_pref_firebase_installation_auth_token_pref_summary">GET FIREBASE A/B TESTING AUTH TOKEN</string>
-    <string name="dev_mode_pref_firebase_installation_auth_token_pref_title">FIREBASE INSTALLATION AUTH TOKEN</string>
+    <string name="dev_mode_pref_firebase_installation_token_pref_summary">GET FIREBASE A/B TESTING TOKEN</string>
+    <string name="dev_mode_pref_firebase_installation_token_pref_title">FIREBASE INSTALLATION TOKEN</string>
     <string name="support_pref_cat_title">Support</string>
     <string name="support_subs_pref_title">Support MonTransit</string>
     <string name="support_subs_pref_summary">Hide ads and support MonTransit development.</string>

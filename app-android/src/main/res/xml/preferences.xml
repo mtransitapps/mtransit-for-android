@@ -177,9 +177,9 @@
         <!-- FIREBASE INSTALLATION AUTH TOKEN -->
         <Preference
             android:enabled="false"
-            android:key="pDevModeFirebaseInstallationAuthToken"
-            android:summary="@string/dev_mode_pref_firebase_installation_auth_token_pref_summary"
-            android:title="@string/dev_mode_pref_firebase_installation_auth_token_pref_title"
+            android:key="pDevModeFirebaseInstallationToken"
+            android:summary="@string/dev_mode_pref_firebase_installation_token_pref_summary"
+            android:title="@string/dev_mode_pref_firebase_installation_token_pref_title"
             tools:enabled="true" />
         <!-- CONSENT RESET -->
         <Preference

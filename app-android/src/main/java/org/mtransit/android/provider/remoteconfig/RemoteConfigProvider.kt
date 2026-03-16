@@ -49,7 +49,7 @@ class RemoteConfigProvider @Inject constructor(
 
     private val remoteConfig by lazy { Firebase.remoteConfig }
 
-    private val firebaseInstallations by lazy { Firebase.installations }
+    private val installations by lazy { Firebase.installations }
 
     private val activated = AtomicBoolean(false)
 
@@ -94,13 +94,13 @@ class RemoteConfigProvider @Inject constructor(
     fun getAll(): Map<String, String>? =
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
 
-    fun getInstallationAuthToken(forceRefresh: Boolean, onResult: (String?) -> Unit) {
-        firebaseInstallations.getToken(forceRefresh)
+    fun getInstallationToken(forceRefresh: Boolean, onResult: (String?) -> Unit) {
+        installations.getToken(forceRefresh)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     onResult(task.result?.token)
                 } else {
-                    MTLog.w(this, task.exception, "getInstallationAuthToken failed!")
+                    MTLog.w(this, task.exception, "getInstallationToken failed!")
                     onResult(null)
                 }
             }
