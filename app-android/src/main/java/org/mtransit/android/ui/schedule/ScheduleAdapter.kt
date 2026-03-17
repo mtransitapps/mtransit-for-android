@@ -31,7 +31,8 @@ import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.Constants
+import org.mtransit.commons.Constants.EMPTY
+import org.mtransit.commons.Constants.SPACE
 import org.mtransit.commons.beginningOfDay
 import org.mtransit.commons.date
 import org.mtransit.commons.hourOfTheDay
@@ -44,8 +45,8 @@ import java.util.Locale
 import java.util.TimeZone
 import kotlin.time.Duration.Companion.minutes
 
-class ScheduleAdapter
-    : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+class ScheduleAdapter :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
     MTLog.Loggable {
 
@@ -631,7 +632,7 @@ class ScheduleAdapter
             timeSb.append(
                 UIAccessibilityUtils.decorate(
                     context,
-                    Accessibility.decorate(Constants.EMPTY, timestamp.accessibleOrDefault),
+                    Accessibility.decorate(EMPTY, timestamp.accessibleOrDefault),
                     showingAccessibility == true,
                     UIAccessibilityUtils.ImageSize.SMALL,
                     false
