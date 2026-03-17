@@ -31,7 +31,8 @@ import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.Constants
+import org.mtransit.commons.Constants.EMPTY
+import org.mtransit.commons.Constants.SPACE
 import org.mtransit.commons.beginningOfDay
 import org.mtransit.commons.date
 import org.mtransit.commons.hourOfTheDay
@@ -43,9 +44,10 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
-class ScheduleAdapter
-    : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+class ScheduleAdapter :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
     MTLog.Loggable {
 
@@ -121,9 +123,11 @@ class ScheduleAdapter
     private var optRds: RouteDirectionStop? = null
 
     var timestamps: List<Schedule.Timestamp>? = null
-        set(value) {
-            if (field == value) return
-            field = value
+        set(newValue) {
+            if (field == newValue) {
+                return
+            }
+            field = newValue
             updateTimes()
         }
 
@@ -241,7 +245,7 @@ class ScheduleAdapter
         var dayBeginningCalendar: Calendar? = null
         var dayToHourToTimestamp: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
         val calendar = Calendar.getInstance(localTimeZone)
-        for (timestamp in timestamps) {
+        timestamps.forEach { timestamp ->
             val departureT = timestamp.departureT
             calendar.timeInMillis = departureT
             if (dayBeginningCalendar == null || !dayBeginningCalendar.isSameDay(calendar)) {
@@ -597,9 +601,10 @@ class ScheduleAdapter
                 return TimeViewHolder(binding)
             }
 
-            private const val P2 = ")"
             private const val P1 = " ("
+            private const val P2 = ")"
 
+            private val LATE_EARLY_MIN_DIFF = 45.seconds
         }
 
         val context: Context
@@ -618,7 +623,7 @@ class ScheduleAdapter
             }
             val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
             var timeSb = SpannableStringBuilder(formattedTime)
-            timestamp.getAbsoluteDepartureDiffString(context, UISchedule.LATE_EARLY_MIN_DIFF_SEC, short = false)?.let {
+            timestamp.getAbsoluteDepartureDiffString(context, LATE_EARLY_MIN_DIFF, LATE_EARLY_MIN_DIFF, short = false)?.let {
                 timeSb.append(P1).append(it).append(P2)
             }
             if (timestamp.arrivalDiff > 1.minutes) {
@@ -629,7 +634,7 @@ class ScheduleAdapter
             timeSb.append(
                 UIAccessibilityUtils.decorate(
                     context,
-                    Accessibility.decorate(Constants.EMPTY, timestamp.accessibleOrDefault),
+                    Accessibility.decorate(EMPTY, timestamp.accessibleOrDefault),
                     showingAccessibility == true,
                     UIAccessibilityUtils.ImageSize.SMALL,
                     false
@@ -637,7 +642,7 @@ class ScheduleAdapter
             )
             val timeOnly = timeSb.toString()
             timestamp.makeHeading(context, optRds?.direction?.getHeading(context), small = false)?.let {
-                timeSb.append(P1).append(it).append(P2)
+                timeSb.append(SPACE).append(it)
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)

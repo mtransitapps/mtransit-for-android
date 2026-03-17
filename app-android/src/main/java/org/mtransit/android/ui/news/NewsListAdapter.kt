@@ -72,7 +72,11 @@ class NewsListAdapter(
 
     private val momentToNewsList = mutableListOf<Pair<Long, MutableList<News>>>()
 
-    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { onTimeChanged() }
+    private val timeChangedListener = UITimeUtils.TimeChangedReceiver.TimeChangedListener {
+        resetNowToTheMinute()
+    }
+
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver(timeChangedListener) // need to create an object because of WeakReference
 
     private var timeChangedReceiverEnabled = false
 
@@ -96,10 +100,6 @@ class NewsListAdapter(
                 timeChangedReceiverEnabled = true
             }
         }
-    }
-
-    private fun onTimeChanged() {
-        resetNowToTheMinute()
     }
 
     private fun disableTimeChangedReceiver(context: IContext) {

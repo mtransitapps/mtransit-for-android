@@ -112,7 +112,11 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     private var timeChangedReceiverEnabled = false
 
-    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { onTimeChanged() }
+    private val timeChangedListener = UITimeUtils.TimeChangedReceiver.TimeChangedListener {
+        updateNewsView()
+    }
+
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver(timeChangedListener) // need to create an object because of WeakReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -473,10 +477,6 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 updateNewsView() // force update to current time before next change
             }
         }
-    }
-
-    private fun onTimeChanged() {
-        updateNewsView()
     }
 
     private fun disableTimeChangedReceiver() {

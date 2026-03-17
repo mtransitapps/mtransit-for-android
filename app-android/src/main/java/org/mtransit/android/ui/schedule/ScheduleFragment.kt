@@ -114,14 +114,14 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     private var timeChangedReceiverEnabled = false
 
-    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { onTimeChanged() }
-
-    private fun onTimeChanged() {
+    private val timeChangedListener = UITimeUtils.TimeChangedReceiver.TimeChangedListener {
         listAdapter.onTimeChanged()
         attachedViewModel?.triggerRealTimeTimestampRefresh()
         bindLocaleTime(attachedViewModel?.localTimeZone?.value)
         (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
+
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver(timeChangedListener) // need to create an object because of WeakReference
 
     private val onScrollListener = object : OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -280,7 +280,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             context?.let {
                 ContextCompat.registerReceiver(it, timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED)
                 timeChangedReceiverEnabled = true
-                onTimeChanged() // force update to current time before next change
+                timeChangedListener.onTimeChanged() // force update to current time before next change
             } ?: run {
                 MTLog.w(this, "enableTimeChangedReceiver() > SKIP (no context)")
             }

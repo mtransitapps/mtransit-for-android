@@ -220,11 +220,10 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         (findPreference(MainPreferencesViewModel.DEV_MODE_FB_INSTALLATION_TOKEN_PREF) as? Preference)?.apply {
             summary = viewModel.fbInstallationsToken.value ?: "(none)"
             setOnPreferenceClickListener {
-                val token = viewModel.fbInstallationsToken.value
-                token?.let {
+                viewModel.fbInstallationsToken.value?.let { token ->
                     val clipboardManager = context.getSystemService<ClipboardManager>()
                     @SuppressLint("DeprecatedCall")
-                    clipboardManager?.setPrimaryClip(ClipData.newPlainText("Firebase Installation Token", it))
+                    clipboardManager?.setPrimaryClip(ClipData.newPlainText("Firebase Installation Token", token))
                 }
                 true // handled
             }

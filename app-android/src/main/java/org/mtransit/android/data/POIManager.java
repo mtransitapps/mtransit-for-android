@@ -234,7 +234,8 @@ public class POIManager implements LocationPOI,
 
 	@Nullable
 	public POIStatus getStatus(@NonNull StatusLoader statusLoader) {
-		if (this.status == null || this.lastFindStatusTimestampMs < 0L || this.inFocus || !this.status.isUseful()) {
+		if (this.status == null || !this.status.isUseful()
+				|| this.lastFindStatusTimestampMs < 0L || this.inFocus) {
 			findStatus(statusLoader, false);
 		}
 		return this.status;
