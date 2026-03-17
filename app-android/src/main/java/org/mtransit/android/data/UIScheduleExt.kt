@@ -5,12 +5,21 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.originalDepartureDelay
 import kotlin.math.roundToLong
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
-fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffSecs: Int, short: Boolean): String? {
+fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffMs: Long, short: Boolean): String? =
+    getAbsoluteDepartureDiffString(context, minDiffMs.milliseconds, short)
+
+fun Schedule.Timestamp.getAbsoluteDepartureDiffString(
+    context: Context,
+    minDiff: Duration,
+    short: Boolean
+): String? {
     val absDepartureDelay = originalDepartureDelay.absoluteValue
-    if (absDepartureDelay < minDiffSecs.seconds) return null
+    if (absDepartureDelay < minDiff) return null
     val absDiffMin = absDepartureDelay
         .toDouble(DurationUnit.MINUTES).roundToLong()
     return if (originalDepartureDelay.isPositive()) {

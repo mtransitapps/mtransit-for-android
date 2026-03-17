@@ -44,6 +44,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class ScheduleAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
@@ -603,6 +604,8 @@ class ScheduleAdapter :
             private const val P1 = " ("
             private const val P2 = ")"
 
+            private val LATE_EARLY_MIN_DIFF = 45.seconds
+
         }
 
         val context: Context
@@ -621,7 +624,7 @@ class ScheduleAdapter :
             }
             val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
             var timeSb = SpannableStringBuilder(formattedTime)
-            timestamp.getAbsoluteDepartureDiffString(context, UISchedule.LATE_EARLY_MIN_DIFF_SEC, short = false)?.let {
+            timestamp.getAbsoluteDepartureDiffString(context, LATE_EARLY_MIN_DIFF, short = false)?.let {
                 timeSb.append(P1).append(it).append(P2)
             }
             if (timestamp.arrivalDiff > 1.minutes) {

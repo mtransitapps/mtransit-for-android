@@ -489,7 +489,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this.scheduleListTimestamp = after;
 	}
 
-	public static final int LATE_EARLY_MIN_DIFF_SEC = 45; // seconds
+	private static final long LATE_EARLY_MIN_DIFF_MS = TimeUnit.MINUTES.toMillis(5L);
 
 	private void generateScheduleListTimes(@NonNull Context context,
 										   long after,
@@ -514,7 +514,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			if (timestampHeading != null) {
 				headSignSSB = new SpannableStringBuilder(timestampHeading);
 			}
-			final String earlyOrLateText = UIScheduleExtKt.getAbsoluteDepartureDiffString(t, context, LATE_EARLY_MIN_DIFF_SEC, true);
+			final String earlyOrLateText = UIScheduleExtKt.getAbsoluteDepartureDiffString(t, context, LATE_EARLY_MIN_DIFF_MS, true);
 			if (earlyOrLateText != null) {
 				if (headSignSSB == null) {
 					headSignSSB = new SpannableStringBuilder("(" + earlyOrLateText + ")");
