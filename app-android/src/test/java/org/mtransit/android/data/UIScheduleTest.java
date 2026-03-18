@@ -15,7 +15,7 @@ import static junit.framework.Assert.assertEquals;
 
 public class UIScheduleTest {
 
-	private static final String TARGET_UUID = POI.POIUtils.getUUID("authority", 1);
+	private static final String TARGET_UUID = POI.POIUtils.makeUUID("authority", 1);
 	private static final long PROVIDER_PRECISION_IN_MS = TimeUnit.MINUTES.toMillis(1L);
 	private static final long NOW_IN_MS = TimeUnit.SECONDS.toMillis(1534681140L); // Aug 19, 2018 8:19:00 AM EST
 	// private static final long NOW_IN_MS = TimeUnit.SECONDS.toMillis(1000000000L); // Sept 9, 2001 9:46:40 PM EST

@@ -111,7 +111,7 @@ public class Place extends DefaultPOI {
 	@Override
 	public String getUUID() {
 		if (this.uuid == null) {
-			this.uuid = POI.POIUtils.getUUID(getAuthority(), getProviderId());
+			this.uuid = POI.POIUtils.makeUUID(getAuthority(), getProviderId());
 		}
 		return this.uuid;
 	}

@@ -152,7 +152,7 @@ public class Module extends DefaultPOI {
 	@Override
 	public String getUUID() {
 		if (this.uuid == null) {
-			this.uuid = POI.POIUtils.getUUID(getAuthority(), this.pkg);
+			this.uuid = POI.POIUtils.makeUUID(getAuthority(), this.pkg);
 		}
 		return this.uuid;
 	}
