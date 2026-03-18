@@ -73,7 +73,7 @@ public class TextMessage extends DefaultPOI {
 	@Override
 	public String getUUID() {
 		if (this.uuid == null) {
-			this.uuid = POI.POIUtils.getUUID(getAuthority(), getMessageId());
+			this.uuid = POI.POIUtils.makeUUID(getAuthority(), getMessageId());
 		}
 		return this.uuid;
 	}
