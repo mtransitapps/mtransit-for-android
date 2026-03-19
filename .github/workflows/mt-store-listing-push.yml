@@ -1,0 +1,60 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+name: MT store listing > push
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'app-android/src/main/play/listings/**'
+  workflow_dispatch: # manual
+    inputs:
+      allowNonDefault:
+        description: 'Allow running on non-default branch'
+        type: boolean
+        default: false
+        required: false
+# gh workflow run mt-store-listing-push.yml
+# gh workflow run mt-store-listing-push.yml --ref $(git rev-parse --abbrev-ref HEAD) -f allowNonDefault=true
+# gh run list --workflow=mt-store-listing-push.yml
+# gh run watch ; gh browse --branch $(git rev-parse --abbrev-ref HEAD)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # repo type
+  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
+  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
+  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
+  # push to store
+  MT_ORG_PUSH_STORE_ON: ${{ secrets.MT_ORG_PUSH_STORE_ON }}
+  MT_ORG_PUSH_STORE_OFF: ${{ secrets.MT_ORG_PUSH_STORE_OFF }}
+  MT_PUSH_STORE_ON: ${{ secrets.MT_PUSH_STORE_ON }}
+  MT_PUSH_STORE_OFF: ${{ secrets.MT_PUSH_STORE_OFF }}
+jobs:
+  MT-STORE-LISTING-PUSH-JOB:
+    if: ${{ github.ref_name == github.event.repository.default_branch || github.event.inputs.allowNonDefault == 'true' }}
+    name: "MT Store Listing > Push"
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MT_PAT }}
+
+      - name: MT setup
+        id: mt-setup
+        uses: ./.github/actions/setup
+
+      - name: MT push store listing
+        run: ./app-android/listing_push.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
