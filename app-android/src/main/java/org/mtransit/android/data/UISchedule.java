@@ -65,6 +65,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	private static final RelativeSizeSpan NO_SERVICE_SIZE = SpanUtils.getNew200PercentSizeSpan();
 
+	private static final StrikethroughSpan CANCELLED_STYLE = new StrikethroughSpan();
+
 	@ColorInt
 	public static int getDefaultPastTextColor(@NonNull Context context) {
 		return ColorUtils.getTextColorTertiary(context);
@@ -201,16 +203,6 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			noServiceTextAppearance = SpanUtils.getNewSmallTextAppearance(context);
 		}
 		return noServiceTextAppearance;
-	}
-
-	@Nullable
-	private static StrikethroughSpan cancelledTextAppearance = null;
-
-	private static StrikethroughSpan getCancelledTextAppearance() {
-		if (cancelledTextAppearance == null) {
-			cancelledTextAppearance = new StrikethroughSpan();
-		}
-		return cancelledTextAppearance;
 	}
 
 	@Nullable
@@ -788,7 +780,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
 			SpanUtils.setAllNN(timeSSB,
-					getCancelledTextAppearance());
+					CANCELLED_STYLE);
 		}
 		return timeSSB;
 	}
@@ -801,7 +793,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
 			timeCS = SpanUtils.setAll(timeCS,
-					getCancelledTextAppearance());
+					CANCELLED_STYLE);
 		}
 		return timeCS;
 	}
