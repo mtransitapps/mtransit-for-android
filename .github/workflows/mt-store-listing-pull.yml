@@ -1,0 +1,96 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+name: MT store listings > pull
+on:
+  workflow_dispatch: # manual
+# gh workflow run mt-store-listing-pull.yml --ref $(git rev-parse --abbrev-ref HEAD)
+# gh run list --workflow=mt-store-listing-pull.yml
+# gh run watch ; gh browse --branch $(git rev-parse --abbrev-ref HEAD)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  MT_BOT_USER_NAME: ${{ vars.MT_BOT_USER_NAME }}
+  MT_BOT_USER_EMAIL: ${{ vars.MT_BOT_USER_EMAIL }}
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # repo type
+  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
+  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
+  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+jobs:
+  MT-STORE-LISTING-PULL-JOB:
+    name: "MT store listings > pull"
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MT_PAT }}
+
+      - name: MT setup
+        uses: ./.github/actions/setup
+
+      - name: MT pull store listings
+        env:
+          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+        run: ./app-android/listing_pull.sh
+
+      - name: MT commit listing changes
+        continue-on-error: true
+        id: mt-commit-listing
+        run: |
+          git add -v -A app-android/src/main/play/listings
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 1 # fail == no PR needed
+          fi
+          git checkout -B "${MT_BRANCH_NAME}_update_store_listings"
+          git config user.name "$MT_BOT_USER_NAME"
+          git config user.email "$MT_BOT_USER_EMAIL"
+          git commit -m "Update store listings in \`${MT_BRANCH_NAME}\`"
+          git push -u origin "$(git rev-parse --abbrev-ref HEAD)" --force
+          exit 0 # success
+
+      - name: MT check if PR exists
+        id: mt-check-pr-exists
+        if: ${{ steps.mt-commit-listing.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          PR_COUNT=$(gh pr list --state open --head "$(git rev-parse --abbrev-ref HEAD)" | wc -l)
+          echo "Pull requests found: $PR_COUNT."
+          if [[ $PR_COUNT -eq 0 ]]; then
+            exit 1 # fail
+          else
+            exit 0 # success
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT create pull request (if necessary)
+        if: ${{ steps.mt-commit-listing.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'failure' }}
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          gh pr create --base "${MT_BRANCH_NAME}" --title "$COMMIT_MSG" --body "$COMMIT_MSG" --assignee montransit
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT update pull request (if necessary)
+        if: ${{ steps.mt-commit-listing.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          gh pr edit --add-assignee montransit --title "$COMMIT_MSG"
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
