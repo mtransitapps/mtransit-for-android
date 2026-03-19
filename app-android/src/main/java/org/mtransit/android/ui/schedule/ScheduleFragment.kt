@@ -212,8 +212,10 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
         }
-        viewModel.rds.observe(viewLifecycleOwner) { rds ->
-            listAdapter.setRDS(rds)
+        viewModel.poim.observe(viewLifecycleOwner) { poim ->
+            listAdapter.setPOIM(poim)
+        }
+        viewModel.rds.observe(viewLifecycleOwner) { _ ->
             abController?.setABTitle(this, getABTitle(context), false)
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABSubtitle(this, getABSubtitle(context), false)

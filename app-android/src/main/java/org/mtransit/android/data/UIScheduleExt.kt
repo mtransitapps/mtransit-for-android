@@ -3,12 +3,19 @@ package org.mtransit.android.data
 import android.content.Context
 import org.mtransit.android.R
 import org.mtransit.android.commons.data.Schedule
+import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.originalDepartureDelay
 import kotlin.math.roundToLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
+
+fun List<ServiceUpdate>?.findServiceUpdate(tripId: String?): ServiceUpdate? {
+    tripId ?: return null
+    this ?: return null
+    return find { serviceUpdate -> serviceUpdate.targetTripId == tripId }
+}
 
 fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffEarlyMs: Long, minDiffLateMs: Long, short: Boolean): String? =
     getAbsoluteDepartureDiffString(context, minDiffEarlyMs.milliseconds, minDiffLateMs.milliseconds, short)

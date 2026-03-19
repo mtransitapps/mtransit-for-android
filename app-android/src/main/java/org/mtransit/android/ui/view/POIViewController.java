@@ -393,13 +393,13 @@ public class POIViewController implements MTLog.Loggable {
 		});
 	}
 
-	public static void updatePOIStatus(@Nullable View view, @NonNull POIStatus status, @NonNull POIDataProvider dataProvider) {
+	public static void updatePOIStatus(@Nullable View view, @NonNull POIStatus status, @NonNull POIDataProvider dataProvider, @Nullable POIManager optPOIM) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			MTLog.d(LOG_TAG, "updatePOIStatus() > SKIP (no view or view holder)");
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		POICommonStatusViewHolder.updateView(holder.getStatusViewHolder(), status, dataProvider);
+		POICommonStatusViewHolder.updateView(holder.getStatusViewHolder(), status, dataProvider, optPOIM == null ? null : optPOIM.getServiceUpdatesOrNull());
 	}
 
 	public static void updatePOIStatus(@Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {

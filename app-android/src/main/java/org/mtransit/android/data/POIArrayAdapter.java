@@ -422,7 +422,26 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				position += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
+		MTLog.w(this, "getPosition() > Cannot find position for item '%s'!", item == null ? null : item.poi.getUUID());
 		return position;
+	}
+
+	@Nullable
+	public POIManager getItemByUUID(@NonNull String uuid) {
+		if (this.poisByType != null) {
+			for (Integer type : this.poisByType.keySet()) {
+				final List<POIManager> typePOIMs = this.poisByType.get(type);
+				if (typePOIMs != null) {
+					for (POIManager item : typePOIMs) {
+						if (item.poi.getUUID().equals(uuid)) {
+							return item;
+						}
+					}
+				}
+			}
+		}
+		MTLog.w(this, "getItemByUUID() > Cannot find item for uuid '%s'!", uuid);
+		return null;
 	}
 
 	@Nullable
@@ -1115,7 +1134,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (this.showStatus) {
 			final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
 			if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.getUuid())) {
-				POICommonStatusViewHolder.updateView(statusViewHolder, status, this);
+				final POIManager poim = getItemByUUID(status.getTargetUUID());
+				final List<ServiceUpdate> poiServiceUpdates = poim == null ? null : poim.getServiceUpdatesOrNull();
+				POICommonStatusViewHolder.updateView(statusViewHolder, status, this, poiServiceUpdates);
 			} else {
 				notifyDataSetChanged(false);
 			}
