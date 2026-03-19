@@ -1043,7 +1043,7 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return;
 		}
-		POIViewController.updatePOIStatus(getPOIView(view), status, this);
+		POIViewController.updatePOIStatus(getPOIView(view), status, this, getPoimOrNull());
 		POIStatusDetailViewController.updatePOIStatus(getPOIStatusView(view), status, this, getPoimOrNull());
 	}
 

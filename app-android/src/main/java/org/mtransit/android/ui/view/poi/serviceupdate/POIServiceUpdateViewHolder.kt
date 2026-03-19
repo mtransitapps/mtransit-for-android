@@ -30,9 +30,10 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
     }
 
     fun fetchAndUpdate(poim: POIManager, dataProvider: ServiceUpdateLoaderProvider) {
-        val allServiceUpdates = fetch(dataProvider, poim)
-        serviceUpdateImg?.update(allServiceUpdates, dataProvider, other = false)
-        otherServiceUpdateImg?.update(allServiceUpdates, dataProvider, other = true)
+        update(
+            allServiceUpdates = fetch(dataProvider, poim),
+            dataProvider,
+        )
     }
 
     fun fetch(

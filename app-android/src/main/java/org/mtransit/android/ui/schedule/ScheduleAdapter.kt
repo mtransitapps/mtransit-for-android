@@ -20,6 +20,7 @@ import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.arrivalDiff
 import org.mtransit.android.commons.equalOrAfter
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.getAbsoluteDepartureDiffString
 import org.mtransit.android.data.makeHeading
@@ -120,7 +121,7 @@ class ScheduleAdapter :
 
     private var nowToTheMinute: Long = UITimeUtils.currentTimeToTheMinuteMillis()
 
-    private var optRds: RouteDirectionStop? = null
+    private var optPOIM: POIManager? = null
 
     var timestamps: List<Schedule.Timestamp>? = null
         set(newValue) {
@@ -175,8 +176,8 @@ class ScheduleAdapter :
         }
     }
 
-    fun setRDS(rds: RouteDirectionStop?) {
-        this.optRds = rds
+    fun setPOIM(poim: POIManager?) {
+        this.optPOIM = poim
     }
 
     var showingAccessibility: Boolean? = null
@@ -493,7 +494,7 @@ class ScheduleAdapter :
                     getTimestampItem(position),
                     nowToTheMinute,
                     nextTimestamp,
-                    this.optRds,
+                    this.optPOIM,
                     this.showingAccessibility,
                 )
             }
@@ -614,13 +615,14 @@ class ScheduleAdapter :
             timestamp: Schedule.Timestamp? = null,
             nowToTheMinuteInMs: Long = -1L,
             nextTimestamp: Schedule.Timestamp? = null,
-            optRds: RouteDirectionStop? = null,
+            optPOIM: POIManager? = null,
             showingAccessibility: Boolean? = null,
         ) {
             if (timestamp == null) {
                 binding.time.text = null
                 return
             }
+            val optRds = optPOIM?.poi as? RouteDirectionStop
             val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
             var timeSb = SpannableStringBuilder(formattedTime)
             timestamp.getAbsoluteDepartureDiffString(context, LATE_EARLY_MIN_DIFF, LATE_EARLY_MIN_DIFF, short = false)?.let {
@@ -647,6 +649,7 @@ class ScheduleAdapter :
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
+            timeSb = UISchedule.decorateCancelled(timestamp, timeSb, optPOIM?.serviceUpdatesOrNull)
             val nextTimeInMsT = nextTimestamp?.departureT ?: -1L
             if (nowToTheMinuteInMs > 0L) {
                 val departureT = timestamp.departureT

@@ -9,12 +9,13 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
+import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.data.POIManager
 
 interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
 
     @CallSuper
-    fun bind(status: STATUS?, dataProvider: POIStatusDataProvider) {
+    fun bind(status: STATUS?, dataProvider: POIStatusDataProvider, serviceUpdates: List<ServiceUpdate>?) {
         statusV.isVisible = status != null
     }
 
@@ -36,11 +37,16 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
 
     fun fetch(statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIStatusDataProvider): STATUS?
 
-    fun update(statusViewHolder: POICommonStatusViewHolder<*, *>?, status: POIStatus?, dataProvider: POIStatusDataProvider)
+    fun update(
+        statusViewHolder: POICommonStatusViewHolder<*, *>?,
+        status: POIStatus?,
+        dataProvider: POIStatusDataProvider,
+        serviceUpdates: List<ServiceUpdate>?,
+    )
 
     fun fetchAndUpdate(statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIStatusDataProvider) {
         val status = fetch(statusViewHolder, poim, dataProvider)
-        update(statusViewHolder, status, dataProvider)
+        update(statusViewHolder, status, dataProvider, poim.serviceUpdatesOrNull)
     }
 
     var uuid: String
@@ -57,8 +63,13 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
         fun bindStatusV(view: View): View = view.findViewById(R.id.status)
 
         @JvmStatic
-        fun updateView(statusViewHolder: POICommonStatusViewHolder<*, *>?, poiStatus: POIStatus, dataProvider: POIStatusDataProvider) {
-            statusViewHolder?.update(statusViewHolder, poiStatus, dataProvider)
+        fun updateView(
+            statusViewHolder: POICommonStatusViewHolder<*, *>?,
+            poiStatus: POIStatus,
+            dataProvider: POIStatusDataProvider,
+            serviceUpdates: List<ServiceUpdate>?,
+        ) {
+            statusViewHolder?.update(statusViewHolder, poiStatus, dataProvider, serviceUpdates)
         }
 
         @JvmStatic
