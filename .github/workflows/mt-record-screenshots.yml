@@ -123,20 +123,23 @@ jobs:
           echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
           echo "Module app APK assembled successfully at: $APK_FILE"
 
-      - name: MT read timezone from XML resource value (optional)
+      - name: MT read timezone from XML resource value
         id: timezone
         run: |
           TIMEZONE_XML_FILE="app-android/src/main/res/values/gtfs_rts_values_gen.xml"
           if [ -f "$TIMEZONE_XML_FILE" ]; then
+            command -v "xmllint" >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y "libxml2-utils")
             TIMEZONE=$(xmllint --xpath "string(//resources/string[@name='gtfs_rts_timezone']/text())" "$TIMEZONE_XML_FILE" 2>/dev/null || echo "")
             if [ -n "$TIMEZONE" ]; then
               echo "TIMEZONE=${TIMEZONE}" >> $GITHUB_OUTPUT
               echo "Found timezone: '${TIMEZONE}'."
             else
               echo "No timezone found in '$TIMEZONE_XML_FILE' file (ok)."
+              exit 1 # error
             fi
           else
             echo "No '$TIMEZONE_XML_FILE' file found (ok)."
+            exit 1 # error
           fi
 
       - name: MT record screenshots with Android Emulator
