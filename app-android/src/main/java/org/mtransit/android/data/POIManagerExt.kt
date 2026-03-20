@@ -7,7 +7,6 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
 import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.RouteDirectionStop
