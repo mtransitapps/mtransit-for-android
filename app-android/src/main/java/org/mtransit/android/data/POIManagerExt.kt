@@ -7,6 +7,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
 import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.RouteDirectionStop
@@ -30,6 +31,9 @@ fun <P : POI> P.toPOIM(
     setServiceUpdates(serviceUpdates)
     status?.let { setStatus(it) }
 }
+
+val POIManager.dataSourceType: DataSourceType? get() = this.poi.dataSourceType
+val POI.dataSourceType: DataSourceType? get() = this.dataSourceTypeId.let { DataSourceType.parseId(it) }
 
 val POIManager.location: Location? get() = this.poi.location
 val POI.location: Location? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
