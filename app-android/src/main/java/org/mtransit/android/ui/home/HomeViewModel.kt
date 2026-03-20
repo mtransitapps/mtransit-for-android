@@ -288,8 +288,7 @@ class HomeViewModel @Inject constructor(
                 it.remove()
                 continue
             }
-            if (poim.dataSourceType == DataSourceType.TYPE_MODULE
-                && poim.distance > MODULE_MAX_DISTANCE_IN_METER) {
+            if (poim.dataSourceType == DataSourceType.TYPE_MODULE && poim.distance > MODULE_MAX_DISTANCE_IN_METER) {
                 it.remove()
                 continue
             }
