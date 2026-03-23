@@ -766,9 +766,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	public static SpannableStringBuilder decorateOldSchedule(@NonNull Timestamp t,
 															 @NonNull SpannableStringBuilder timeSSB) {
 		if (t.isOldSchedule()) {
-			SpanUtils.setAllNN(timeSSB,
-					SCHEDULE_OLD_SCHEDULE_STYLE
-			);
+			SpanUtils.setAllNN(timeSSB, SCHEDULE_OLD_SCHEDULE_STYLE);
 		}
 		return timeSSB;
 	}
@@ -783,8 +781,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		}
 		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
-			SpanUtils.setAllNN(timeSSB,
-					CANCELLED_STYLE);
+			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
 		}
 		return timeSSB;
 	}
@@ -799,8 +796,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		}
 		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
-			timeCS = SpanUtils.setAll(timeCS,
-					CANCELLED_STYLE);
+			timeCS = SpanUtils.setAll(timeCS, CANCELLED_STYLE);
 		}
 		return timeCS;
 	}
