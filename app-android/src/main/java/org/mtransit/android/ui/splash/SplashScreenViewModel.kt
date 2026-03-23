@@ -3,6 +3,8 @@ package org.mtransit.android.ui.splash
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -52,8 +54,12 @@ class SplashScreenViewModel @Inject constructor(
                 NightModeUtils.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // light for screenshots (demo mode ON)
             }
             analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, getAndUpdateAppOpenCounts())
+            _readyForNextScreen.postValue(true)
         }
     }
+
+    private val _readyForNextScreen = MutableLiveData(false)
+    val readyForNextScreen: LiveData<Boolean> = _readyForNextScreen
 
     private suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
         var appOpenCounts = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
