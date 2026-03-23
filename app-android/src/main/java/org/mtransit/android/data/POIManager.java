@@ -280,7 +280,7 @@ public class POIManager implements LocationPOI,
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (this.poi instanceof RouteDirectionStop) {
 				RouteDirectionStop rds = (RouteDirectionStop) this.poi;
-				ScheduleStatusFilter filter = new ScheduleStatusFilter(this.poi.getUUID(), rds);
+				ScheduleStatusFilter filter = new ScheduleStatusFilter(rds);
 				filter.setLookBehindInMs(UITimeUtils.RECENT_IN_MILLIS);
 				filter.setMaxDataRequests(this.scheduleMaxDataRequests);
 				filter.setIncludeCancelledTimestamps(true);
