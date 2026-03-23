@@ -283,6 +283,7 @@ public class POIManager implements LocationPOI,
 				ScheduleStatusFilter filter = new ScheduleStatusFilter(this.poi.getUUID(), rds);
 				filter.setLookBehindInMs(UITimeUtils.RECENT_IN_MILLIS);
 				filter.setMaxDataRequests(this.scheduleMaxDataRequests);
+				filter.setIncludeCancelledTimestamps(true);
 				return filter;
 			} else {
 				MTLog.w(this, "Schedule filter w/o '%s'!", this.poi);

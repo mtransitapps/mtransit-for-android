@@ -777,6 +777,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	public static SpannableStringBuilder decorateCancelled(@NonNull Timestamp t,
 														   @NonNull SpannableStringBuilder timeSSB,
 														   @Nullable List<ServiceUpdate> serviceUpdates) {
+		if (t.isCancelled()) {
+			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
+			return timeSSB;
+		}
 		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
 			SpanUtils.setAllNN(timeSSB,
@@ -790,6 +794,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	public static CharSequence decorateCancelled(@NonNull Timestamp t,
 												 @NonNull CharSequence timeCS,
 												 @Nullable List<ServiceUpdate> serviceUpdates) {
+		if (t.isCancelled()) {
+			return SpanUtils.setAll(timeCS, CANCELLED_STYLE);
+		}
 		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
 			timeCS = SpanUtils.setAll(timeCS,
