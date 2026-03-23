@@ -18,8 +18,8 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
-import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
@@ -35,6 +35,8 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
+import kotlin.random.Random
 
 @Singleton
 class DemoModeManager @Inject constructor(
@@ -49,6 +51,7 @@ class DemoModeManager @Inject constructor(
         private const val FILTER_AGENCY_AUTHORITY = "filter_agency_authority"
         private const val FILTER_SCREEN = "filter_screen"
         private const val FORCE_LANG = "force_lang"
+
         // overriding current time inside main app doesn't load static/real-time schedule for overridden time
         private const val FORCE_TIMESTAMP_SEC = "force_timestamp_sec"
         private const val FORCE_TIMEZONE = "force_tz"
@@ -62,6 +65,11 @@ class DemoModeManager @Inject constructor(
         const val FILTER_SCREEN_BROWSE = "browse"
 
         const val MIN_POI_HOME_SCREEN = 7
+
+        private const val GPS_COORDINATE_VARIATION_FACTOR_MIN = 7.0
+        private const val GPS_COORDINATE_VARIATION_FACTOR_MAX = 10.0
+        private const val MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION = 0.0007
+        private const val MAX_GPS_COORDINATE_VARIATION = LocationUtils.MIN_AROUND_DIFF + LocationUtils.INC_AROUND_DIFF
 
         private val AVAILABLE_TIMEZONE_IDS by lazy { TimeZone.getAvailableIDs().toSet() }
     }
@@ -96,6 +104,7 @@ class DemoModeManager @Inject constructor(
         var poim: POIManager?
         while (true) {
             val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).apply {
+                addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
             }
             poim = this.dataSourceRequestManager.findPOIMs(agency.authority, filter)
                 .removeAllAnd {
@@ -104,7 +113,6 @@ class DemoModeManager @Inject constructor(
                     } else false
                 }
                 .updateDistanceM(lat, lng)
-                .removeTooFar(LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff))
                 .firstOrNull()
             if (poim != null) {
                 break
@@ -137,10 +145,11 @@ class DemoModeManager @Inject constructor(
     private val forceTimestampMs: Long? get() = forceTimestampSec?.toLongOrNull()?.let { it * 1000L }
 
     private var forceTimeZone: String? = null
-    private val forceTZ: TimeZone get() = forceTimeZone
-        ?.takeIf { it.isNotEmpty() && AVAILABLE_TIMEZONE_IDS.contains(it) }
-        ?.let { TimeZone.getTimeZone(it) }
-        ?: TimeZone.getDefault()
+    private val forceTZ: TimeZone
+        get() = forceTimeZone
+            ?.takeIf { it.isNotEmpty() && AVAILABLE_TIMEZONE_IDS.contains(it) }
+            ?.let { TimeZone.getTimeZone(it) }
+            ?: TimeZone.getDefault()
 
     private var forceTimeFormat: String? = null
     private val isForce24HourFormat: Boolean?
@@ -189,24 +198,42 @@ class DemoModeManager @Inject constructor(
         }
 
         filterAgencyPOIM = filterAgency?.let { agency ->
-            val lat = agency.area.centerLat + ((agency.area.maxLat - agency.area.minLat) / 4.00)
+            var lat = agency.area.centerLat
             val lng = agency.area.centerLng
+            lat += (abs(agency.area.maxLat - agency.area.minLat) / Random.nextDouble(
+                GPS_COORDINATE_VARIATION_FACTOR_MIN,
+                GPS_COORDINATE_VARIATION_FACTOR_MAX
+            )).coerceAtMost(
+                MAX_GPS_COORDINATE_VARIATION
+            )
             findNearbyPOIM(lat, lng, agency)
         }
 
-        filterAgencyLocation = filterAgency?.let { agency ->
-            val isHomeScreen = filterScreen == FILTER_SCREEN_HOME
-            val lat = agency.area.centerLat - if (!isHomeScreen) ((agency.area.maxLat - agency.area.minLat) / 4.00) else 0.00
+        filterAgencyLocation = filterAgency?.let location@{ agency ->
+            filterAgencyPOIM?.let { poim ->
+                val poiLat = poim.lat + Random.nextDouble(-MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION, +MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION)
+                val poiLng = poim.lng + Random.nextDouble(-MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION, +MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION)
+                LatLngBounds.builder()
+                    .include(LatLng(poiLat, poiLng))
+                    .build().center.let {
+                        return@location LocationUtils.getNewLocation(it.latitude, it.longitude, 13f)
+                    }
+            }
+            var lat = agency.area.centerLat
             val lng = agency.area.centerLng
+            if (filterScreen != FILTER_SCREEN_HOME) {
+                lat -= (abs(agency.area.maxLat - agency.area.minLat)
+                        / Random.nextDouble(GPS_COORDINATE_VARIATION_FACTOR_MIN, GPS_COORDINATE_VARIATION_FACTOR_MAX)
+                        ).coerceAtMost(MAX_GPS_COORDINATE_VARIATION)
             findNearbyPOIM(lat, lng, agency)?.let { poim ->
                 LatLngBounds.builder()
                     .include(LatLng(lat, lng))
                     .include(LatLng(poim.lat, poim.lng))
                     .build().center.let {
-                        LocationUtils.getNewLocation(it.latitude, it.longitude, 77f)
+                        return@location LocationUtils.getNewLocation(it.latitude, it.longitude, 77f)
                     }
             }
-            LocationUtils.getNewLocation(lat, lng, 77f)
+            return@location LocationUtils.getNewLocation(lat, lng, 77f)
         }
     }
 

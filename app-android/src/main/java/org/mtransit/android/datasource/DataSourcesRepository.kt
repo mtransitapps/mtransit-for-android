@@ -335,7 +335,7 @@ class DataSourcesRepository @Inject constructor(
         MTLog.i(this@DataSourcesRepository, "update() > Updating... ")
         val updated = dataSourcesReader.update(forcePkg)
         MTLog.i(this@DataSourcesRepository, "update() > Updating...  DONE")
-        MTLog.d(this, "update() > $updated")
+        MTLog.d(this@DataSourcesRepository, "update() > $updated")
         updated
     }
 

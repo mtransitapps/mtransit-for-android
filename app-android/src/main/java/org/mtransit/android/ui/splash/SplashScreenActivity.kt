@@ -41,8 +41,12 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
         if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) LocaleUtils.fixWebViewLocale(this.applicationContext)
-        splashScreen.setKeepOnScreenCondition { true } // Keep the splash screen visible for this Activity
-        showMainActivity()
+        viewModel.readyForNextScreen.observe(this) { readyForNextScreen ->
+            if (readyForNextScreen) {
+                splashScreen.setKeepOnScreenCondition { true } // Keep the splash screen visible for this Activity
+                showMainActivity()
+            }
+        }
     }
 
     private fun showMainActivity() {

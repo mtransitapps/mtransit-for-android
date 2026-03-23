@@ -206,7 +206,7 @@ class DataSourcesReader @Inject constructor(
                 )
             }
         }
-        MTLog.d(this, "update() > $updated")
+        MTLog.d(this@DataSourcesReader, "update() > $updated")
         return updated
     }
 
