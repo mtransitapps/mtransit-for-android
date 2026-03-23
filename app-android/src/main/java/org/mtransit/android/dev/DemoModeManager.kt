@@ -198,6 +198,7 @@ class DemoModeManager @Inject constructor(
         }
 
         filterAgencyPOIM = filterAgency?.let { agency ->
+            if (filterScreen != FILTER_SCREEN_POI) return@let null // SKIP
             var lat = agency.area.centerLat
             val lng = agency.area.centerLng
             lat += (abs(agency.area.maxLat - agency.area.minLat) / Random.nextDouble(
@@ -225,6 +226,7 @@ class DemoModeManager @Inject constructor(
                 lat -= (abs(agency.area.maxLat - agency.area.minLat)
                         / Random.nextDouble(GPS_COORDINATE_VARIATION_FACTOR_MIN, GPS_COORDINATE_VARIATION_FACTOR_MAX)
                         ).coerceAtMost(MAX_GPS_COORDINATE_VARIATION)
+            }
             findNearbyPOIM(lat, lng, agency)?.let { poim ->
                 LatLngBounds.builder()
                     .include(LatLng(lat, lng))
