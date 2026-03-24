@@ -31,15 +31,15 @@ data class RouteManager(
         this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null
     }
 
-    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
+    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>) {
         setServiceUpdates(serviceUpdates)
     }
 
-    fun setServiceUpdates(newServiceUpdates: Collection<ServiceUpdate>?) {
+    fun setServiceUpdates(newServiceUpdates: Collection<ServiceUpdate>) {
         if (this.serviceUpdates.isNotEmpty()) {
             this.serviceUpdates.clear()
         }
-        if (newServiceUpdates != null) {
+        if (newServiceUpdates.isNotEmpty()) {
             this.serviceUpdates.addAll(newServiceUpdates)
             CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
         }

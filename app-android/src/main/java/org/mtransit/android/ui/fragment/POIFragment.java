@@ -92,6 +92,7 @@ import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
+import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
@@ -109,6 +110,7 @@ import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
+import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.UIFeatureFlags;
@@ -140,6 +142,8 @@ public class POIFragment extends ABFragment implements
 		MapViewController.MapListener {
 
 	private static final String LOG_TAG = POIFragment.class.getSimpleName();
+
+	private static final int SERVICE_UPDATE_MAX_LINES = 5;
 
 	@NonNull
 	@Override
@@ -736,6 +740,41 @@ public class POIFragment extends ABFragment implements
 		}
 		updateFabFavorite();
 		setupNewsLayout(view);
+		setupServiceUpdateLayout(view);
+	}
+
+	private void setupServiceUpdateLayout(@Nullable View view) {
+		if (!UIFeatureFlags.F_SERVICE_UPDATE_ELLIPSIZE_IN_POI) {
+			return;
+		}
+		if (view == null) {
+			return;
+		}
+		final View serviceUpdateView = getPOIServiceUpdateView(view);
+		if (serviceUpdateView == null) {
+			return;
+		}
+		final TextView serviceUpdateText = serviceUpdateView.findViewById(R.id.service_update_text);
+		if (serviceUpdateText == null) {
+			return;
+		}
+		serviceUpdateText.setMaxLines(SERVICE_UPDATE_MAX_LINES);
+		serviceUpdateText.setOnClickListener(v -> {
+			final POIManager poim = getPoimOrNull();
+			if (poim == null) {
+				return;
+			}
+			if (FeatureFlags.F_NAVIGATION) {
+				// TODO navigate to dialog
+			} else {
+				FragmentUtils.replaceDialogFragment(
+						getActivity(),
+						FragmentUtils.DIALOG_TAG,
+						ServiceUpdatesDialog.newInstanceForStop(poim.poi.getAuthority(), poim.poi.getUUID()),
+						null
+				);
+			}
+		});
 	}
 
 	private void setupRDSFullScheduleBtn(@Nullable View view) {
@@ -1048,7 +1087,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates) {
 		final View view = getView();
 		if (view == null) {
 			return;
