@@ -126,19 +126,28 @@ jobs:
       - name: MT read timezone from XML resource value
         id: timezone
         run: |
-          TIMEZONE_XML_FILE="app-android/src/main/res/values/gtfs_rts_values_gen.xml"
-          if [ -f "$TIMEZONE_XML_FILE" ]; then
-            command -v "xmllint" >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y "libxml2-utils")
-            TIMEZONE=$(xmllint --xpath "string(//resources/string[@name='gtfs_rts_timezone']/text())" "$TIMEZONE_XML_FILE" 2>/dev/null || echo "")
+          command -v "xmllint" >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y "libxml2-utils")
+          GTFS_TIMEZONE_XML_FILE="app-android/src/main/res/values/gtfs_rts_values_gen.xml"
+          BIKE_TIMEZONE_XML_FILE="app-android/src/main/res/values/bike_station_values.xml"
+          if [ -f "$GTFS_TIMEZONE_XML_FILE" ]; then
+            TIMEZONE=$(xmllint --xpath "string(//resources/string[@name='gtfs_rts_timezone']/text())" "$GTFS_TIMEZONE_XML_FILE" 2>/dev/null || echo "")
             if [ -n "$TIMEZONE" ]; then
+              echo "Found timezone '${TIMEZONE}' in '$GTFS_TIMEZONE_XML_FILE'."
               echo "TIMEZONE=${TIMEZONE}" >> $GITHUB_OUTPUT
-              echo "Found timezone: '${TIMEZONE}'."
             else
-              echo "No timezone found in '$TIMEZONE_XML_FILE' file (ok)."
+              echo "No timezone found in '$GTFS_TIMEZONE_XML_FILE' file."
               exit 1 # error
             fi
+          elif [ -f "$BIKE_TIMEZONE_XML_FILE" ]; then
+            TIMEZONE=$(xmllint --xpath "string(//resources/string[@name='bike_station_timezone']/text())" "$BIKE_TIMEZONE_XML_FILE" 2>/dev/null || echo "")
+            if [ -n "$TIMEZONE" ]; then
+              echo "Found timezone '${TIMEZONE}' in '$BIKE_TIMEZONE_XML_FILE'."
+              echo "TIMEZONE=${TIMEZONE}" >> $GITHUB_OUTPUT
+            else
+              echo "No timezone found in '$BIKE_TIMEZONE_XML_FILE' file (ok, will fallback to UTC)."
+            fi
           else
-            echo "No '$TIMEZONE_XML_FILE' file found (ok)."
+            echo "No '$GTFS_TIMEZONE_XML_FILE' or '$BIKE_TIMEZONE_XML_FILE' file found."
             exit 1 # error
           fi
 
