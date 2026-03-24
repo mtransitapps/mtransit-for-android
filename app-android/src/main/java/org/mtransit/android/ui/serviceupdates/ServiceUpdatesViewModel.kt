@@ -16,6 +16,7 @@ import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.provider.poi.POIProviderContract
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.toRouteDirectionM
 import org.mtransit.android.data.toRouteM
 import org.mtransit.android.datasource.DataSourceRequestManager
@@ -65,12 +66,19 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    val holder: LiveData<ServiceUpdatesHolder> = MediatorLiveData4(_authority, _route, _direction, _poiUuid).switchMap { (authority, route, direction, poiUuid) ->
+    private val _poim: LiveData<POIManager?> = MediatorLiveData2(_authority, _poiUuid).switchMap { (authority, poiUuid) ->
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            authority ?: return@liveData
+            poiUuid ?: return@liveData
+            emit(dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(poiUuid)))
+        }
+    }
+
+    val holder: LiveData<ServiceUpdatesHolder> = MediatorLiveData4(_authority, _route, _direction, _poim).switchMap { (authority, route, direction, poim) ->
         liveData(viewModelScope.coroutineContext) {
             authority ?: return@liveData
-            val holder: ServiceUpdatesHolder = if (poiUuid != null) {
-                dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(poiUuid))
-                    ?: return@liveData
+            val holder: ServiceUpdatesHolder = if (poim != null) {
+                poim
             } else {
                 route ?: return@liveData
                 direction?.let {
