@@ -68,10 +68,11 @@ proguard/
 /src/main/play/listings/fr-FR/title.txt
 /src/main/play/listings/fr-FR/short-description.txt
 /src/main/play/listings/fr-FR/full-description.txt
-/src/main/res/mipmap-*/module_app_icon.png
+/src/main/res/mipmap-*/module_app_icon*
 /src/main/res/values/bike_station_strings.xml
 /src/main/res/values/strings.xml
 /src/main/res/values/gtfs_rts_strings.xml
+/src/main/res/values/module_app_icon_color.xml
 /src/main/res/values/parent_agency_values.xml
 /src/main/res/values-fr/bike_station_strings.xml
 /src/main/res/values-fr/strings.xml
