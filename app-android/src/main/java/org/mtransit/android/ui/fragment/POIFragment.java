@@ -740,12 +740,13 @@ public class POIFragment extends ABFragment implements
 		}
 		updateFabFavorite();
 		setupNewsLayout(view);
-		if (UIFeatureFlags.F_SERVICE_UPDATE_ELLIPSIZE_IN_POI) {
-			setupPOIServiceUpdateView(view);
-		}
+		setupServiceUpdateLayout(view);
 	}
 
-	private void setupPOIServiceUpdateView(@Nullable View view) {
+	private void setupServiceUpdateLayout(@Nullable View view) {
+		if (!UIFeatureFlags.F_SERVICE_UPDATE_ELLIPSIZE_IN_POI) {
+			return;
+		}
 		if (view == null) {
 			return;
 		}
@@ -754,21 +755,25 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		final TextView serviceUpdateText = serviceUpdateView.findViewById(R.id.service_update_text);
-		if (serviceUpdateText != null) {
-			serviceUpdateText.setMaxLines(SERVICE_UPDATE_MAX_LINES);
-			serviceUpdateText.setEllipsize(TextUtils.TruncateAt.END);
+		if (serviceUpdateText == null) {
+			return;
 		}
-		serviceUpdateView.setOnClickListener(v -> {
+		serviceUpdateText.setMaxLines(SERVICE_UPDATE_MAX_LINES);
+		serviceUpdateText.setOnClickListener(v -> {
 			final POIManager poim = getPoimOrNull();
 			if (poim == null) {
 				return;
 			}
-			FragmentUtils.replaceDialogFragment(
-					getActivity(),
-					FragmentUtils.DIALOG_TAG,
-					ServiceUpdatesDialog.newInstanceForStop(poim.poi.getAuthority(), poim.poi.getUUID()),
-					null
-			);
+			if (FeatureFlags.F_NAVIGATION) {
+				// TODO navigate to dialog
+			} else {
+				FragmentUtils.replaceDialogFragment(
+						getActivity(),
+						FragmentUtils.DIALOG_TAG,
+						ServiceUpdatesDialog.newInstanceForStop(poim.poi.getAuthority(), poim.poi.getUUID()),
+						null
+				);
+			}
 		});
 	}
 
@@ -1082,7 +1087,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates) {
 		final View view = getView();
 		if (view == null) {
 			return;

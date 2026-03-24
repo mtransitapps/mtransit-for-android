@@ -788,7 +788,7 @@ package org.mtransit.android.ui.poi
 // // }
 // }
 //
-// override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
+// override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>) {
 // MTLog.v(this, "onServiceUpdatesLoaded($targetUUID, $serviceUpdates)")
 // // T ODO this serviceUpdates needs to be added to view model POI Manager
 // //

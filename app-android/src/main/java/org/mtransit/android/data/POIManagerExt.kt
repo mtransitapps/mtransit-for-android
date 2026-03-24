@@ -27,7 +27,7 @@ fun <P : POI> P.toPOIM(
     serviceUpdates: List<ServiceUpdate>? = null,
     status: POIStatus? = null
 ) = POIManager(this).apply {
-    setServiceUpdates(serviceUpdates)
+    serviceUpdates?.let { setServiceUpdates(serviceUpdates) }
     status?.let { setStatus(it) }
 }
 

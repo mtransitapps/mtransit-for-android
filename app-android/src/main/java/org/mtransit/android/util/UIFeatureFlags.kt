@@ -48,5 +48,4 @@ object UIFeatureFlags {
 
     const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = false
     // const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = true // WIP
-
 }

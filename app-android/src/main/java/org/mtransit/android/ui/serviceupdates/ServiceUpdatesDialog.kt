@@ -137,14 +137,17 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
         poiServiceUpdate.apply {
             val serviceUpdatesHTMLText = UIServiceUpdates.makeServiceUpdatesHTMLText(context, serviceUpdates)
             val hasServiceUpdatesToShow = serviceUpdatesHTMLText.isNotEmpty()
-            val hasWarning = UIServiceUpdates.hasWarnings(serviceUpdates)
-            serviceUpdateText.setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdatesHTMLText), false), TextView.BufferType.SPANNABLE)
-            serviceUpdateText.movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+            serviceUpdateText.apply {
+                val hasWarning = UIServiceUpdates.hasWarnings(serviceUpdates)
+                setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdatesHTMLText), false), TextView.BufferType.SPANNABLE)
+                movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
+                    this@ServiceUpdatesDialog.dismiss()
+                    LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+                }
+                setBackgroundResource(
+                    if (hasWarning) R.drawable.service_update_warning else R.drawable.service_update_info
+                )
             }
-            serviceUpdateText.setBackgroundResource(
-                if (hasWarning) R.drawable.service_update_warning else R.drawable.service_update_info
-            )
             setSourceLabelTextView(sourceLabel, serviceUpdates)
             root.isVisible = hasServiceUpdatesToShow
             emptyLayout.isVisible = !hasServiceUpdatesToShow

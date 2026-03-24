@@ -317,23 +317,22 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates) {
 		setServiceUpdates(serviceUpdates);
 	}
 
-	public void setServiceUpdates(@Nullable Collection<ServiceUpdate> newServiceUpdates) {
+	public void setServiceUpdates(@NonNull Collection<ServiceUpdate> newServiceUpdates) {
 		if (this.serviceUpdates == null) {
 			this.serviceUpdates = new ArrayList<>();
 		} else {
 			this.serviceUpdates.clear();
 		}
-		if (newServiceUpdates != null) {
+		if (!newServiceUpdates.isEmpty()) {
 			this.serviceUpdates.addAll(newServiceUpdates);
 			CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@Nullable
 	public List<ServiceUpdate> getServiceUpdatesOrNull() {
 		return this.serviceUpdates;
