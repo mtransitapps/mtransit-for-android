@@ -56,6 +56,25 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
             putLong(ServiceUpdatesViewModel.EXTRA_ROUTE_ID, routeId)
             directionId?.let { putLong(ServiceUpdatesViewModel.EXTRA_DIRECTION_ID, it) }
         }
+
+        @JvmStatic
+        fun newInstanceForStop(
+            authority: String,
+            poiUUID: String,
+        ): ServiceUpdatesDialog {
+            return ServiceUpdatesDialog().apply {
+                arguments = newInstanceArgsForStop(authority, poiUUID)
+            }
+        }
+
+        @JvmStatic
+        fun newInstanceArgsForStop(
+            authority: String,
+            poiUUID: String,
+        ) = Bundle().apply {
+            putString(ServiceUpdatesViewModel.EXTRA_AUTHORITY, authority)
+            putString(ServiceUpdatesViewModel.EXTRA_POI_UUID, poiUUID)
+        }
     }
 
     override fun getLogTag() = LOG_TAG

@@ -15,14 +15,16 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.toRouteDirectionM
 import org.mtransit.android.data.toRouteM
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.serviceupdate.POIManagerHolder
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
-import org.mtransit.android.ui.view.common.MediatorLiveData3
+import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -37,12 +39,14 @@ class ServiceUpdatesViewModel @Inject constructor(
         internal const val EXTRA_AUTHORITY = "extra_authority"
         internal const val EXTRA_ROUTE_ID = "extra_route_id"
         internal const val EXTRA_DIRECTION_ID = "extra_direction_id"
+        internal const val EXTRA_POI_UUID = "extra_poi_uuid"
     }
 
     override fun getLogTag() = LOG_TAG
 
     private val _authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
     private val _routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)
+    private val _poiUuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
 
     private val _directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
 
@@ -62,13 +66,19 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    val holder: LiveData<ServiceUpdatesHolder> = MediatorLiveData3(_authority, _route, _direction).switchMap { (authority, route, direction) ->
+    val holder: LiveData<ServiceUpdatesHolder> = MediatorLiveData4(_authority, _route, _direction, _poiUuid).switchMap { (authority, route, direction, poiUuid) ->
         liveData(viewModelScope.coroutineContext) {
             authority ?: return@liveData
-            route ?: return@liveData
-            val holder: ServiceUpdatesHolder = direction?.let {
-                RouteDirection(route, it).toRouteDirectionM(authority)
-            } ?: route.toRouteM(authority)
+            val holder: ServiceUpdatesHolder = if (poiUuid != null) {
+                val poim = dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(poiUuid))
+                    ?: return@liveData
+                POIManagerHolder(poim)
+            } else {
+                route ?: return@liveData
+                direction?.let {
+                    RouteDirection(route, it).toRouteDirectionM(authority)
+                } ?: route.toRouteM(authority)
+            }
             emit(
                 holder
                     .apply {
