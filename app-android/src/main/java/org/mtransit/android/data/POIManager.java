@@ -40,6 +40,7 @@ import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.POIFragment;
@@ -55,6 +56,7 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.WeakHashMap;
@@ -62,6 +64,7 @@ import java.util.WeakHashMap;
 @SuppressWarnings({"WeakerAccess"})
 public class POIManager implements LocationPOI,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener,
+		ServiceUpdatesHolder,
 		MTLog.Loggable {
 
 	private static final String LOG_TAG = POIManager.class.getSimpleName();
@@ -308,6 +311,7 @@ public class POIManager implements LocationPOI,
 	@NonNull
 	private final WeakHashMap<ServiceUpdateLoader.ServiceUpdateLoaderListener, Object> serviceUpdateLoaderListenersWR = new WeakHashMap<>();
 
+	@Override
 	public void addServiceUpdateLoaderListener(@NonNull ServiceUpdateLoader.ServiceUpdateLoaderListener serviceUpdateLoaderListener) {
 		this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null);
 	}
@@ -335,15 +339,17 @@ public class POIManager implements LocationPOI,
 		return this.serviceUpdates;
 	}
 
-	@Nullable
+	@NonNull
+	@Override
 	public List<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(serviceUpdateLoader, false);
 		}
-		if (ignoredUUIDsOrUnknown == null) return null; // IF filter not ready DO wait for filter
-		return CollectionUtils.filterN(this.serviceUpdates, serviceUpdate ->
+		if (ignoredUUIDsOrUnknown == null) return Collections.emptyList(); // IF filter not ready DO wait for filter
+		final List<ServiceUpdate> filtered = CollectionUtils.filterN(this.serviceUpdates, serviceUpdate ->
 				!ignoredUUIDsOrUnknown.contains(serviceUpdate.getTargetUUID())
 		);
+		return filtered != null ? filtered : Collections.emptyList();
 	}
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")

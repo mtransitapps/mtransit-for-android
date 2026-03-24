@@ -20,7 +20,6 @@ import org.mtransit.android.data.toRouteDirectionM
 import org.mtransit.android.data.toRouteM
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.task.ServiceUpdateLoader
-import org.mtransit.android.task.serviceupdate.POIManagerHolder
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
@@ -70,9 +69,8 @@ class ServiceUpdatesViewModel @Inject constructor(
         liveData(viewModelScope.coroutineContext) {
             authority ?: return@liveData
             val holder: ServiceUpdatesHolder = if (poiUuid != null) {
-                val poim = dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(poiUuid))
+                dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(poiUuid))
                     ?: return@liveData
-                POIManagerHolder(poim)
             } else {
                 route ?: return@liveData
                 direction?.let {
