@@ -9,50 +9,151 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-env:
-  # git branches & sha
-  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
-  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
-  # repo type
-  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
-  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
-  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
-  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
-  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
-  # git commit & push
-  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
-  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
-  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
-  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
 jobs:
   MT-CHECK-DATA-OUTDATED-JOB:
     # if: ${{ env.MT_IS_MAIN_REPO != 'true' &&  env.MT_IS_AGENCY_BIKE != 'true' }} # can NOT use env here:
     if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && ! contains(github.repository, '-bike-') }}
     name: "MT Check Data Outdated"
-    timeout-minutes: 20
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
-      - name: MT check out main repository code (with submodules)
+      - name: MT check out main repository code
         uses: actions/checkout@v6
         with:
-          submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
-          fetch-depth: 0 # fetch all (not required util release build)
-
-      - name: MT setup
-        id: mt-setup
-        uses: ./.github/actions/setup
+          fetch-depth: 1 # shallow clone - only latest commit needed
 
       - name: MT check if data is outdated & trigger download
         continue-on-error: true
         run: |
-          if ./agency-parser/check_data_outdated.sh; then
-            echo ">> Data is up-to-date.";
-          else
-            echo ">> Data is outdated. Triggering mt-download-data.yml workflow...";
+          echo ">> Checking if data is outdated..."
+
+          # Check if app-android directory exists
+          APP_ANDROID_DIR="app-android/src/main"
+          if [[ ! -d "${APP_ANDROID_DIR}" ]]; then
+            echo ">> No app-android directory found. Data check not applicable."
+            exit 0
+          fi
+
+          # Get current timestamp in seconds
+          NOW_TIMESTAMP_SEC=$(date +%s)
+          echo "> Current timestamp: '${NOW_TIMESTAMP_SEC}'"
+
+          # Check current and next data files
+          CURRENT_VALUES="${APP_ANDROID_DIR}/res-current/values/current_gtfs_rts_values_gen.xml"
+          NEXT_VALUES="${APP_ANDROID_DIR}/res-next/values/next_gtfs_rts_values_gen.xml"
+
+          # Prefer "next" file if available, otherwise fallback to "current"
+          DEPLOYED_LAST_DEPARTURE_SEC=""
+          DATA_FILE_USED=""
+
+          if [[ -f "${NEXT_VALUES}" ]]; then
+            DEPLOYED_LAST_DEPARTURE_SEC=$(grep -oE 'name="next_gtfs_rts_last_departure_in_sec">[0-9]+' "${NEXT_VALUES}" | grep -oE '[0-9]+')
+            DATA_FILE_USED="next"
+            if [[ -n "${DEPLOYED_LAST_DEPARTURE_SEC}" ]]; then
+              echo "> Using next data file."
+            else
+              echo "> Next data file found but timestamp not found."
+            fi
+          elif [[ -f "${CURRENT_VALUES}" ]]; then
+            DEPLOYED_LAST_DEPARTURE_SEC=$(grep -oE 'name="current_gtfs_rts_last_departure_in_sec">[0-9]+' "${CURRENT_VALUES}" | grep -oE '[0-9]+')
+            DATA_FILE_USED="current"
+            if [[ -n "${DEPLOYED_LAST_DEPARTURE_SEC}" ]]; then
+              echo "> Using current data file."
+            else
+              echo "> Current data file found but timestamp not found."
+            fi
+          fi
+
+          # Validate that extracted value is a positive integer (guard against malformed XML)
+          if [[ -n "${DEPLOYED_LAST_DEPARTURE_SEC}" ]] && ! [[ "${DEPLOYED_LAST_DEPARTURE_SEC}" =~ ^[0-9]+$ ]]; then
+            echo ">> Invalid timestamp value found: '${DEPLOYED_LAST_DEPARTURE_SEC}'. Cannot determine if data is outdated."
+            DEPLOYED_LAST_DEPARTURE_SEC=""
+          fi
+
+          if [[ -z "${DEPLOYED_LAST_DEPARTURE_SEC}" ]]; then
+            if [[ ! -f "${NEXT_VALUES}" ]] && [[ ! -f "${CURRENT_VALUES}" ]]; then
+              echo ">> No data files found. Cannot determine if data is outdated."
+            else
+              echo ">> Data files found but last departure timestamp not found. Cannot determine if data is outdated."
+            fi
+            exit 0 # Exit code 0 - avoid triggering sync when uncertain
+          fi
+
+          echo "> Deployed last departure timestamp: '${DEPLOYED_LAST_DEPARTURE_SEC}' (from ${DATA_FILE_USED})"
+
+          # Check if deployed data is not outdated (last departure is in the future)
+          if [[ "${DEPLOYED_LAST_DEPARTURE_SEC}" -gt "${NOW_TIMESTAMP_SEC}" ]]; then
+            DIFF_SEC=$((DEPLOYED_LAST_DEPARTURE_SEC - NOW_TIMESTAMP_SEC))
+            DIFF_DAYS=$((DIFF_SEC / 86400))
+            echo ">> Deployed data has not expired. Last departure will be in ${DIFF_DAYS} days."
+            echo ">> Data is not outdated. Sync not recommended."
+            exit 0 # Exit code 0 indicates data is not outdated
+          fi
+
+          DIFF_SEC=$((NOW_TIMESTAMP_SEC - DEPLOYED_LAST_DEPARTURE_SEC))
+          DIFF_DAYS=$((DIFF_SEC / 86400))
+          echo ">> Deployed data has expired! Last departure was ${DIFF_DAYS} days ago."
+          echo ">> Data is OUTDATED. Sync recommended. Looking for available archives..."
+
+          # Check archive directory for available data
+          ARCHIVE_DIR="agency-parser/archive"
+          echo "> Archive dir: '${ARCHIVE_DIR}'"
+
+          if [[ ! -d "${ARCHIVE_DIR}" ]]; then
+            echo ">> No archive directory found. Cannot check for newer data."
+            echo ">> Data is up-to-date (based on deployed data only)."
+            exit 0 # No archive, so we can't determine if newer data available
+          fi
+
+          # Find archives (requires bash 4+ for mapfile, available on ubuntu-latest)
+          mapfile -t ARCHIVES < <(find "${ARCHIVE_DIR}" -name "*.zip" -type f 2>/dev/null | sort)
+          echo "> Archives found: ${#ARCHIVES[@]}"
+
+          if [[ "${#ARCHIVES[@]}" -eq 0 ]]; then
+            echo ">> No archives available. Data cannot be updated."
+            echo ">> Data is up-to-date (based on deployed data only)."
+            exit 0
+          fi
+
+          # Check if any archive has data that extends beyond the deployed last departure
+          ARCHIVE_HAS_NEWER_DATA=false
+
+          for ARCHIVE in "${ARCHIVES[@]}"; do
+            ARCHIVE_BASENAME=$(basename "${ARCHIVE}")
+            ARCHIVE_BASENAME_NO_EXT="${ARCHIVE_BASENAME%.*}"
+
+            # Validate archive date format
+            if ! [[ "${ARCHIVE_BASENAME_NO_EXT}" =~ ^[0-9]{8}-[0-9]{8}$ ]]; then
+              echo "> Archive: ${ARCHIVE_BASENAME}"
+              echo "  - WARNING: Archive filename doesn't match expected format (YYYYMMDD-YYYYMMDD.zip)"
+              continue
+            fi
+
+            ARCHIVE_START_DATE=${ARCHIVE_BASENAME_NO_EXT:0:8}
+            ARCHIVE_END_DATE=${ARCHIVE_BASENAME_NO_EXT:9:8}
+            echo "> Archive: ${ARCHIVE_BASENAME} (${ARCHIVE_START_DATE} to ${ARCHIVE_END_DATE})"
+
+            # Convert archive end date (YYYYMMDD) to timestamp at end of day (GNU date, available on ubuntu-latest)
+            ARCHIVE_END_TIMESTAMP=$(date -d "${ARCHIVE_END_DATE} 23:59:59" +%s 2>/dev/null)
+
+            if [[ -n "${ARCHIVE_END_TIMESTAMP}" ]]; then
+              echo "  - Archive end timestamp: ${ARCHIVE_END_TIMESTAMP}"
+              # If archive has data beyond what's currently deployed, we need to sync
+              if [[ "${ARCHIVE_END_TIMESTAMP}" -gt "${DEPLOYED_LAST_DEPARTURE_SEC}" ]]; then
+                echo "  - Archive has newer data than deployed!"
+                ARCHIVE_HAS_NEWER_DATA=true
+                break # Found newer data, no need to check other archives
+              fi
+            fi
+          done
+
+          # Determine if data is outdated based on archive availability
+          if [[ "${ARCHIVE_HAS_NEWER_DATA}" == true ]]; then
+            echo ">> Archive contains newer data. Data is OUTDATED. Triggering mt-download-data.yml workflow..."
             gh workflow run mt-download-data.yml
+          else
+            echo ">> Data is up-to-date."
           fi
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
