@@ -407,22 +407,6 @@ class MainActivity : MTActivityWithLocation(),
         this.adManager.adaptToScreenSize(this, getResources().configuration)
     }
 
-    @Suppress("OVERRIDE_DEPRECATION")
-    override fun onBackPressed() {
-        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-            @Suppress("DEPRECATION")
-            return super.onBackPressed()
-        }
-        if (this.navigationDrawerController?.onBackPressed() == true) {
-            return
-        }
-        if (currentABFragment?.onBackPressed() == true) {
-            return
-        }
-        @Suppress("DEPRECATION")
-        super.onBackPressed()
-    }
-
     fun updateNavigationDrawerToggleIndicator() {
         this.navigationDrawerController?.setDrawerToggleIndicatorEnabled(getBackStackEntryCount() < 1)
     }
