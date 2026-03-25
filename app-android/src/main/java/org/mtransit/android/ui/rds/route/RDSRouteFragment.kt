@@ -36,7 +36,6 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
@@ -219,11 +218,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                     tabs.elevation = it
                 }
             }
-            attachedViewModel?.colorInt?.value?.let {
-                routeDirectionBackground.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
-            }
+            updateABColor()
             showSelectedTab()
-            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge()
+            setupScreenToolbar(screenToolbarLayout, screenToolbar)
         }
         viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->
             this.pagerAdapter?.selectedStopId = selectedStopId
@@ -239,27 +236,22 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                 view,
                 routeM?.route?.let { "r_" + it.authority + "_" + it.id }
             )
-            attachedViewModel?.colorInt?.value?.let {
-                binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
-            }
-            abController?.setABBgColor(this, getABBgColor(context), false)
+            updateABColor()
             abController?.setABTitle(this, getABTitle(context), false)
+            binding?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABReady(this, isABReady, true)
             updateServiceUpdateImg(routeM = routeM)
         }
         viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
             updateServiceUpdateImg()
         })
-        viewModel.colorInt.observe(viewLifecycleOwner) { it ->
-            it?.let {
-                binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
-            }
-            abController?.setABBgColor(this, getABBgColor(context), true)
+        viewModel.colorInt.observe(viewLifecycleOwner) {
+            updateABColor()
         }
         viewModel.routeDirections.observe(viewLifecycleOwner) { routeDirections ->
             if (pagerAdapter?.setRouteDirections(routeDirections) == true) {
                 showSelectedTab()
-                abController?.setABBgColor(this, getABBgColor(context), true)
+                updateABColor()
             } else {
                 switchView()
             }
@@ -281,6 +273,15 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
+    }
+
+    private fun updateABColor() {
+        abController?.setABBgColor(this, getABBgColor(context), true)
+        binding?.apply {
+            getABBgColor(context)?.let { routeDirectionBackground.setBackgroundColor(it) }
+            updateScreenToolbarBgColor(screenToolbarLayout, screenToolbar)
+        }
+        // TODO ? if (FeatureFlags.F_NAVIGATION) nextMainViewModel.setABBgColor(getABBgColor(context))
     }
 
     private var serviceUpdateImg: MenuItem? = null
@@ -393,16 +394,21 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         switchView()
     }
 
+    override fun hasToolbar() = true
+
     override fun isABReady() = attachedViewModel?.routeM?.value != null
 
-    override fun isABStatusBarTransparent() = true
+    override fun isABStatusBarTransparent() = !hasToolbar()
 
-    override fun isABOverrideGradient() = true
+    override fun isABOverrideGradient() = !hasToolbar()
 
-    override fun getABTitle(context: Context?): CharSequence? {
-        return attachedViewModel?.routeM?.value?.let { makeABTitle(it.route) }
+    override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value
+        ?.let { UIColorUtils.adaptBackgroundColorToLightText(context, it) }
+        ?: super.getABBgColor(context)
+
+    override fun getABTitle(context: Context?) =
+        attachedViewModel?.routeM?.value?.let { makeABTitle(it.route) }
             ?: super.getABTitle(context)
-    }
 
     private fun makeABTitle(route: Route): CharSequence {
         var ssb = SpannableStringBuilder()
