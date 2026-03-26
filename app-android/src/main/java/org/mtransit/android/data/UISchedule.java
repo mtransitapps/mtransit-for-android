@@ -518,7 +518,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		}
 	}
 
-	private static final long EARLY_MIN_DIFF_MS = TimeUnit.MINUTES.toMillis(2L);
+	private static final long EARLY_MIN_DIFF_MS = TimeUnit.MINUTES.toMillis(1L);
 	private static final long LATE_MIN_DIFF_MS = TimeUnit.MINUTES.toMillis(5L);
 
 	private void generateScheduleListTimes(
