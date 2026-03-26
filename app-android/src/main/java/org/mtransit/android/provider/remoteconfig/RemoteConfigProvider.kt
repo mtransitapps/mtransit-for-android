@@ -103,10 +103,10 @@ class RemoteConfigProvider @Inject constructor(
     suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
         installations.getToken(forceRefresh).await()
     } catch (e: FirebaseInstallationsException) {
-        MTLog.w(this, e, "Error while getting installation token!")
+        MTLog.w(this, e, "Firebase installation error while getting installation token!")
         null
     } catch (e: IOException) {
-        MTLog.w(this, e, "Error while getting installation token!")
+        MTLog.w(this, e, "I/O Error while getting installation token!")
         null
     }
 }
