@@ -1,6 +1,7 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
+import com.google.firebase.installations.FirebaseInstallationsException
 import com.google.firebase.installations.InstallationTokenResult
 import com.google.firebase.installations.installations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -12,6 +13,7 @@ import org.mtransit.android.commons.MTLog
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.jvm.Throws
 
 @Singleton
 class RemoteConfigProvider @Inject constructor(
@@ -96,6 +98,10 @@ class RemoteConfigProvider @Inject constructor(
     fun getAll(): Map<String, String>? =
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
 
-    suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? =
+     suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
         installations.getToken(forceRefresh).await()
+    } catch (e: Exception) {
+        MTLog.w(this, e, "Error while getting installation token!")
+        null
+    }
 }
