@@ -106,7 +106,7 @@ class MainPreferencesViewModel @Inject constructor(
 
     fun fetchFirebaseInstallationToken() {
         viewModelScope.launch(Dispatchers.IO) {
-            _fbInstallationsToken.postValue(remoteConfigProvider.getInstallationToken(true)?.token)
+            _fbInstallationsToken.postValue(remoteConfigProvider.getInstallationToken(false)?.token)
         }
     }
 
