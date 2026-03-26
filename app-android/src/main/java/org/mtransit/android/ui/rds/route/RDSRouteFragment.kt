@@ -278,7 +278,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     private fun updateABColor() {
         abController?.setABBgColor(this, getABBgColor(context), true)
         binding?.apply {
-            getABBgColor(context)?.let { routeDirectionBackground.setBackgroundColor(it) }
+            getABBgColor(context)?.let { routeDirectionBackground.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(context, it)) }
             updateScreenToolbarBgColor(screenToolbarLayout, screenToolbar)
         }
         // TODO ? if (FeatureFlags.F_NAVIGATION) nextMainViewModel.setABBgColor(getABBgColor(context))
