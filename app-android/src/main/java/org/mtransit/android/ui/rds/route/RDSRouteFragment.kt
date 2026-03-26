@@ -11,12 +11,14 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -40,6 +42,7 @@ import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
+import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
@@ -218,7 +221,6 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                     tabs.elevation = it
                 }
             }
-            updateABColor()
             showSelectedTab()
             setupScreenToolbar(screenToolbarLayout, screenToolbar)
         }
@@ -236,7 +238,6 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                 view,
                 routeM?.route?.let { "r_" + it.authority + "_" + it.id }
             )
-            updateABColor()
             abController?.setABTitle(this, getABTitle(context), false)
             binding?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABReady(this, isABReady, true)
@@ -246,12 +247,11 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             updateServiceUpdateImg()
         })
         viewModel.colorInt.observe(viewLifecycleOwner) {
-            updateABColor()
+            updateScreenToolbarBgColor()
         }
         viewModel.routeDirections.observe(viewLifecycleOwner) { routeDirections ->
             if (pagerAdapter?.setRouteDirections(routeDirections) == true) {
                 showSelectedTab()
-                updateABColor()
             } else {
                 switchView()
             }
@@ -275,14 +275,15 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         })
     }
 
-    private fun updateABColor() {
-        val abBgColor = getABBgColor(context)
-        abController?.setABBgColor(this, abBgColor, true)
-        binding?.apply {
-            abBgColor?.let { routeDirectionBackground.setBackgroundColor(it) }
-            updateScreenToolbarBgColor(screenToolbarLayout, screenToolbar)
+    private fun updateScreenToolbarBgColor() =
+        binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout, screenToolbar) }
+
+    override fun updateScreenToolbarBgColor(appBarLayout: AppBarLayout, toolbar: Toolbar) {
+        super.updateScreenToolbarBgColor(appBarLayout, toolbar)
+        getToolbarAndTabsBgColor(context)?.let {
+            activity?.setStatusBarBgColorEdgeToEdge(it)
+            binding?.toolbarAndTabsBackground?.setBackgroundColor(it)
         }
-        // TODO ? if (FeatureFlags.F_NAVIGATION) nextMainViewModel.setABBgColor(getABBgColor(context))
     }
 
     private var serviceUpdateImg: MenuItem? = null
@@ -403,9 +404,8 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
     override fun isABOverrideGradient() = !hasToolbar()
 
-    override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value
+    private fun getToolbarAndTabsBgColor(context: Context?): Int? = attachedViewModel?.colorInt?.value
         ?.let { UIColorUtils.adaptBackgroundColorToLightText(context, it) }
-        ?: super.getABBgColor(context)
 
     override fun getABTitle(context: Context?) =
         attachedViewModel?.routeM?.value?.let { makeABTitle(it.route) }

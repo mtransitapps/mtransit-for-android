@@ -18,10 +18,12 @@
         <!-- CollapsingToolbarLayout == FrameLayout -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            tools:layout_scrollEffect="none"
+            tools:layout_scrollFlags="scroll|enterAlways|snap">
 
             <View
-                android:id="@+id/route_direction_background"
+                android:id="@+id/toolbar_and_tabs_background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:foreground="@drawable/route_direction_gradient"
@@ -41,8 +43,6 @@
                     android:background="@color/transparent"
                     android:minHeight="?attr/actionBarSize"
                     android:theme="@style/MTThemeOverlay"
-                    tools:layout_scrollEffect="none"
-                    tools:layout_scrollFlags="scroll|enterAlways|snap"
                     tools:menu="@menu/menu_main"
                     tools:navigationIcon="@drawable/ic_drawer_menu_24px"
                     tools:title="Screen title" />

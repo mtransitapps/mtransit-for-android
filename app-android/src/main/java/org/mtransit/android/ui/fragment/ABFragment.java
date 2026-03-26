@@ -111,6 +111,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarBgColor(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
+	@CallSuper
 	public void updateScreenToolbarBgColor(
 			@SuppressWarnings("unused") @NonNull AppBarLayout appBarLayout,
 			@SuppressWarnings("unused") @NonNull Toolbar toolbar) {
