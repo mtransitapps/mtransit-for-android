@@ -28,9 +28,9 @@ fun Schedule.Timestamp.getAbsoluteDepartureDiffString(
 ): String? {
     val absDepartureDelay = originalDepartureDelay.absoluteValue
     if (originalDepartureDelay.isPositive()) {
-        if (absDepartureDelay < minDiffLate) return null
+        if (absDepartureDelay <= minDiffLate) return null
     } else {
-        if (absDepartureDelay < minDiffEarly) return null
+        if (absDepartureDelay <= minDiffEarly) return null
     }
     val absDiffMin = absDepartureDelay
         .toDouble(DurationUnit.MINUTES).roundToLong()
