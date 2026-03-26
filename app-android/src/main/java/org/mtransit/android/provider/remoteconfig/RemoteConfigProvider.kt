@@ -14,7 +14,6 @@ import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.jvm.Throws
 
 @Singleton
 class RemoteConfigProvider @Inject constructor(
@@ -54,7 +53,6 @@ class RemoteConfigProvider @Inject constructor(
 
     private val remoteConfig by lazy { Firebase.remoteConfig }
 
-    @get:Throws(FirebaseInstallationsException::class)
     private val installations by lazy { Firebase.installations }
 
     private val activated = AtomicBoolean(false)
