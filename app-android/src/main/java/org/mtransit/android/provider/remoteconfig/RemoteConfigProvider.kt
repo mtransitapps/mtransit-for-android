@@ -10,6 +10,7 @@ import com.google.firebase.remoteconfig.remoteConfigSettings
 import kotlinx.coroutines.tasks.await
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.MTLog
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -53,6 +54,7 @@ class RemoteConfigProvider @Inject constructor(
 
     private val remoteConfig by lazy { Firebase.remoteConfig }
 
+    @get:Throws(FirebaseInstallationsException::class)
     private val installations by lazy { Firebase.installations }
 
     private val activated = AtomicBoolean(false)
@@ -100,7 +102,10 @@ class RemoteConfigProvider @Inject constructor(
 
     suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
         installations.getToken(forceRefresh).await()
-    } catch (e: Exception) {
+    } catch (e: FirebaseInstallationsException) {
+        MTLog.w(this, e, "Error while getting installation token!")
+        null
+    } catch (e: IOException) {
         MTLog.w(this, e, "Error while getting installation token!")
         null
     }
