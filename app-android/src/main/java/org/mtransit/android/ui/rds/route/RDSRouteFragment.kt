@@ -11,12 +11,14 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -36,11 +38,11 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
+import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
@@ -219,11 +221,8 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                     tabs.elevation = it
                 }
             }
-            attachedViewModel?.colorInt?.value?.let {
-                routeDirectionBackground.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
-            }
             showSelectedTab()
-            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge()
+            setupScreenToolbar(screenToolbarLayout, screenToolbar)
         }
         viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->
             this.pagerAdapter?.selectedStopId = selectedStopId
@@ -239,27 +238,20 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                 view,
                 routeM?.route?.let { "r_" + it.authority + "_" + it.id }
             )
-            attachedViewModel?.colorInt?.value?.let {
-                binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
-            }
-            abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
+            binding?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABReady(this, isABReady, true)
             updateServiceUpdateImg(routeM = routeM)
         }
         viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
             updateServiceUpdateImg()
         })
-        viewModel.colorInt.observe(viewLifecycleOwner) { it ->
-            it?.let {
-                binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
-            }
-            abController?.setABBgColor(this, getABBgColor(context), true)
+        viewModel.colorInt.observe(viewLifecycleOwner) {
+            updateScreenToolbarBgColor()
         }
         viewModel.routeDirections.observe(viewLifecycleOwner) { routeDirections ->
             if (pagerAdapter?.setRouteDirections(routeDirections) == true) {
                 showSelectedTab()
-                abController?.setABBgColor(this, getABBgColor(context), true)
             } else {
                 switchView()
             }
@@ -281,6 +273,17 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
+    }
+
+    private fun updateScreenToolbarBgColor() =
+        binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout, screenToolbar) }
+
+    override fun updateScreenToolbarBgColor(appBarLayout: AppBarLayout, toolbar: Toolbar) {
+        super.updateScreenToolbarBgColor(appBarLayout, toolbar)
+        getToolbarAndTabsBgColor(context)?.let {
+            activity?.setStatusBarBgColorEdgeToEdge(it)
+            binding?.toolbarAndTabsBackground?.setBackgroundColor(it)
+        }
     }
 
     private var serviceUpdateImg: MenuItem? = null
@@ -393,16 +396,20 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         switchView()
     }
 
+    override fun hasToolbar() = true
+
     override fun isABReady() = attachedViewModel?.routeM?.value != null
 
-    override fun isABStatusBarTransparent() = true
+    override fun isABStatusBarTransparent() = !hasToolbar()
 
-    override fun isABOverrideGradient() = true
+    override fun isABOverrideGradient() = !hasToolbar()
 
-    override fun getABTitle(context: Context?): CharSequence? {
-        return attachedViewModel?.routeM?.value?.let { makeABTitle(it.route) }
+    private fun getToolbarAndTabsBgColor(context: Context?): Int? = attachedViewModel?.colorInt?.value
+        ?.let { UIColorUtils.adaptBackgroundColorToLightText(context, it) }
+
+    override fun getABTitle(context: Context?) =
+        attachedViewModel?.routeM?.value?.let { makeABTitle(it.route) }
             ?: super.getABTitle(context)
-    }
 
     private fun makeABTitle(route: Route): CharSequence {
         var ssb = SpannableStringBuilder()

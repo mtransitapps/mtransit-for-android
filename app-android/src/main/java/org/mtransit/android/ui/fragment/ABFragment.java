@@ -111,7 +111,8 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarBgColor(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
-	private void updateScreenToolbarBgColor(
+	@CallSuper
+	public void updateScreenToolbarBgColor(
 			@SuppressWarnings("unused") @NonNull AppBarLayout appBarLayout,
 			@SuppressWarnings("unused") @NonNull Toolbar toolbar) {
 		final Integer bgColorInt = getABBgColor(getContext());
@@ -167,7 +168,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		getParentFragmentManager().popBackStack();
 	}
 
-	private void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+	public void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
 		// setup
 		setupScreenToolbarBgColor(appBarLayout, toolbar);
 		toolbar.setNavigationOnClickListener(this::onScreenToolbarNavigationClick);
