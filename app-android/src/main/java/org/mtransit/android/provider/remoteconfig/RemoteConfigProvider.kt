@@ -98,7 +98,7 @@ class RemoteConfigProvider @Inject constructor(
     fun getAll(): Map<String, String>? =
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
 
-     suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
+    suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
         installations.getToken(forceRefresh).await()
     } catch (e: Exception) {
         MTLog.w(this, e, "Error while getting installation token!")
