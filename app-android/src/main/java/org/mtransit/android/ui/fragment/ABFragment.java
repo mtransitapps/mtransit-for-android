@@ -83,9 +83,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		super(contentLayoutId);
 	}
 
-	public boolean hasToolbar() {
-		return false; // WIP: will show main activity Action Bar
-	}
+	public abstract boolean hasToolbar();
 
 	public void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar) {
 		updateScreenToolbarNavigationIcon(toolbar, getParentFragmentManager().getBackStackEntryCount());

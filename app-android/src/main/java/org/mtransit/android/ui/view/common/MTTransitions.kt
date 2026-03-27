@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.transition.Transition
+import androidx.viewbinding.ViewBinding
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialContainerTransform
 import org.mtransit.android.R
@@ -116,10 +117,13 @@ object MTTransitions : MTLog.Loggable {
     }
 
     @JvmStatic
+    fun startPostponedEnterTransitionOnPreDraw(viewBinding: ViewBinding?, fragment: Fragment?) {
+        startPostponedEnterTransitionOnPreDraw(viewBinding?.root, fragment)
+    }
+
+    @JvmStatic
     fun startPostponedEnterTransitionOnPreDraw(view: View?, fragment: Fragment?) {
-        if (!FeatureFlags.F_TRANSITION) {
-            return
-        }
+        if (!FeatureFlags.F_TRANSITION) return
         (view as? ViewGroup)?.doOnPreDraw {
             fragment?.startPostponedEnterTransition()
         }

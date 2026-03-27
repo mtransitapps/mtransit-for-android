@@ -53,13 +53,15 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
-	@SuppressWarnings("unused")
+	@Nullable
+	public static ViewBinding getLayoutViewBinding(@NonNull POIManager poim, @NonNull ViewStub viewStub) {
+		return getLayoutViewBinding(poim.getStatusType(), viewStub);
+	}
+
 	@Nullable
 	public static ViewBinding getLayoutViewBinding(int poiStatusType, @NonNull ViewStub viewStub) {
 		final Integer layoutResId = getLayoutResId(poiStatusType);
-		if (layoutResId == null) {
-			return null;
-		}
+		if (layoutResId == null) return null;
 		viewStub.setLayoutResource(layoutResId);
 		switch (poiStatusType) {
 		case POI.ITEM_STATUS_TYPE_NONE:
@@ -75,6 +77,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	@Nullable
 	public static Integer getLayoutResId(@NonNull POIManager poim) {
 		return getLayoutResId(poim.getStatusType());
