@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/context_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:background="#0000FF"
     tools:context=".ui.nearby.NearbyFragment">
 
     <include
@@ -12,30 +13,28 @@
         layout="@layout/layout_screen_toolbar"
         tools:background="#FF00FF" />
 
-    <RelativeLayout
+    <!-- TABS -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@id/tabs"
+        style="@style/Widget.MaterialComponents.TabLayout.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/MTThemeOverlay"
+        android:visibility="gone"
+        app:tabContentStart="@dimen/tab_content_start"
+        app:tabGravity="start"
+        app:tabIndicatorColor="?attr/colorOnPrimary"
+        app:tabMinWidth="0dp"
+        app:tabMode="scrollable"
+        app:tabTextAppearance="@style/MTTabTextStyle"
+        tools:background="#FF00FF"
+        tools:visibility="visible" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/context_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:background="#0000FF">
-
-        <!-- TABS -->
-        <com.google.android.material.tabs.TabLayout
-            android:id="@id/tabs"
-            style="@style/Widget.MaterialComponents.TabLayout.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_alignParentTop="true"
-            android:theme="@style/MTThemeOverlay"
-            android:visibility="gone"
-            app:tabContentStart="@dimen/tab_content_start"
-            app:tabGravity="start"
-            app:tabIndicatorColor="?attr/colorOnPrimary"
-            app:tabMinWidth="0dp"
-            app:tabMode="scrollable"
-            app:tabTextAppearance="@style/MTTabTextStyle"
-            tools:background="#FF00FF"
-            tools:visibility="visible" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <!-- LOADING -->
         <include
@@ -43,7 +42,6 @@
             layout="@layout/layout_loading_large"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/tabs"
             android:visibility="gone"
             tools:visibility="visible" />
 
@@ -52,7 +50,6 @@
             android:id="@id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/tabs"
             android:orientation="horizontal"
             android:visibility="visible"
             tools:layout="@layout/fragment_nearby_agency_type"
@@ -64,10 +61,9 @@
             layout="@layout/layout_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/tabs"
             android:visibility="gone"
             tools:visibility="visible" />
 
-    </RelativeLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

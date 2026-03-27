@@ -287,9 +287,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         getABBgColor(context)?.let {
             activity?.setStatusBarBgColorEdgeToEdge(it)
             binding?.tabs?.setBackgroundColor(it)
-        }
-        if (FeatureFlags.F_NAVIGATION) {
-            nextMainViewModel.setABBgColor(getABBgColor(context))
+            if (FeatureFlags.F_NAVIGATION) {
+                nextMainViewModel.setABBgColor(it)
+            }
         }
     }
 
