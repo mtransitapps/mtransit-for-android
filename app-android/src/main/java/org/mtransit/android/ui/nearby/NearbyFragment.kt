@@ -12,12 +12,14 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -33,7 +35,6 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareFragment
 import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionUI
@@ -45,8 +46,8 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFra
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
+import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
 import org.mtransit.android.ui.view.common.MTTransitions
-import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.MapUtils
@@ -230,19 +231,19 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
             showSelectedTab()
             switchView()
-            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge()
+            setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.availableTypes.observe(viewLifecycleOwner) {
             pagerAdapter?.setTypes(it)
             showSelectedTab()
-            switchView()
+            binding?.switchView()
         }
         viewModel.selectedTypePosition.observe(viewLifecycleOwner) { newSelectedPosition ->
             newSelectedPosition ?: return@observe
             if (this.lastPageSelected < 0) {
                 this.lastPageSelected = newSelectedPosition
                 showSelectedTab()
-                switchView()
+                binding?.switchView()
                 onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
             }
             (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
@@ -254,23 +255,21 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             updateMenuItemsVisibility(hasAgenciesAdded = it)
         }
         viewModel.fixedOnName.observe(viewLifecycleOwner) {
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABTitle(this, getABTitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABTitle(getABTitle(context))
             }
         }
         viewModel.fixedOnColorInt.observe(viewLifecycleOwner) {
-            abController?.setABBgColor(this, getABBgColor(context), true)
-            if (FeatureFlags.F_NAVIGATION) {
-                nextMainViewModel.setABBgColor(getABBgColor(context))
-            }
-            setupTabTheme(abBgColor = it)
+            updateScreenToolbarBgColor()
         }
         LocationSettingsUI.onViewCreated(this)
         LocationPermissionUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
         NewLocationUI.onViewCreated(this)
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -280,36 +279,41 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         }
     }
 
-    private fun setupTabTheme(abBgColor: Int? = getABBgColor(context)) = binding?.apply {
-        tabs.setBackgroundColor(
-            abBgColor.takeUnless { it == Color.TRANSPARENT }
-                ?: getDefaultABBgColor(context)
-        )
+    private fun updateScreenToolbarBgColor() =
+        binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
+
+    override fun updateScreenToolbarBgColor(appBarLayout: AppBarLayout, toolbar: Toolbar) {
+        super.updateScreenToolbarBgColor(appBarLayout, toolbar)
+        getABBgColor(context)?.let {
+            activity?.setStatusBarBgColorEdgeToEdge(it)
+            binding?.tabs?.setBackgroundColor(it)
+            if (FeatureFlags.F_NAVIGATION) {
+                nextMainViewModel.setABBgColor(it)
+            }
+        }
     }
 
-    private fun switchView() {
-        binding?.apply {
-            when {
-                lastPageSelected < 0 || pagerAdapter?.isReady() != true -> { // LOADING
-                    emptyLayout.isVisible = false
-                    viewPager.isVisible = false
-                    tabs.isVisible = false
-                    loadingLayout.isVisible = true
-                }
+    private fun FragmentNearbyBinding.switchView() {
+        when {
+            lastPageSelected < 0 || pagerAdapter?.isReady() != true -> { // LOADING
+                emptyLayout.isVisible = false
+                viewPager.isVisible = false
+                tabs.isVisible = false
+                loadingLayout.isVisible = true
+            }
 
-                pagerAdapter?.itemCount == 0 -> { // EMPTY
-                    loadingLayout.isVisible = false
-                    viewPager.isVisible = false
-                    tabs.isVisible = false
-                    emptyLayout.isVisible = true
-                }
+            pagerAdapter?.itemCount == 0 -> { // EMPTY
+                loadingLayout.isVisible = false
+                viewPager.isVisible = false
+                tabs.isVisible = false
+                emptyLayout.isVisible = true
+            }
 
-                else -> { // LOADED
-                    loadingLayout.isVisible = false
-                    emptyLayout.isVisible = false
-                    tabs.isVisible = true
-                    viewPager.isVisible = true
-                }
+            else -> { // LOADED
+                loadingLayout.isVisible = false
+                emptyLayout.isVisible = false
+                tabs.isVisible = true
+                viewPager.isVisible = true
             }
         }
     }
@@ -389,24 +393,24 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         }
     }
 
-    override fun getABTitle(context: Context?): CharSequence? {
-        return attachedViewModel?.fixedOnName?.value
+    override fun hasToolbar() = true
+
+    override fun getABTitle(context: Context?) =
+        attachedViewModel?.fixedOnName?.value
             ?: context?.getString(R.string.nearby)
             ?: super.getABTitle(context)
-    }
 
-    override fun getABBgColor(context: Context?): Int? {
-        return attachedViewModel?.fixedOnColorInt?.value
+    override fun getABBgColor(context: Context?) =
+        attachedViewModel?.fixedOnColorInt?.value
+            ?.takeUnless { it == Color.TRANSPARENT }
             ?: super.getABBgColor(context)
-    }
 
-    override fun getABSubtitle(context: Context?): CharSequence? {
-        return attachedViewModel?.nearbyLocationAddress?.value ?: super.getABSubtitle(context)
-    }
+    override fun getABSubtitle(context: Context?) =
+        attachedViewModel?.nearbyLocationAddress?.value ?: super.getABSubtitle(context)
 
     override fun onResume() {
         super.onResume()
-        switchView()
+        binding?.switchView()
         viewModel.refreshLocationPermissionNeeded()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
