@@ -213,11 +213,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                     }
                 }
             }
+            setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             listAdapter.setLocation(it)
         }
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
+            binding?.apply { updateScreenToolbarSubtitle(screenToolbarLayout.screenToolbar) }
             abController?.setABSubtitle(this, getABSubtitle(context), true)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -367,12 +369,16 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
+    override fun hasToolbar(): Boolean = true
+
     override fun getABTitle(context: Context?) =
         if (attachedViewModel?.isFullDemo() == true) "MonTransit"
         else context?.getString(R.string.app_name) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) =
-        this.attachedViewModel?.nearbyLocationAddress?.value ?: context?.getString(commonsR.string.ellipsis) ?: super.getABSubtitle(context)
+        this.attachedViewModel?.nearbyLocationAddress?.value
+            ?: context?.getString(commonsR.string.ellipsis)
+            ?: super.getABSubtitle(context)
 
     override fun onDestroyView() {
         super.onDestroyView()
