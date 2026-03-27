@@ -812,7 +812,7 @@ public class POIFragment extends ABFragment implements
 
 	private void setupMoreNewsButton() {
 		if (this.binding == null) return;
-		final View moreBtn = binding.poiNews.newsTitle.moreBtn;
+		final View moreBtn = binding.poiNews.newsTitleLayout.moreBtn;
 		moreBtn.setOnClickListener(v -> {
 			final POIManager poim = getPoimOrNull();
 			if (poim == null) return;
@@ -852,7 +852,7 @@ public class POIFragment extends ABFragment implements
 				);
 			}
 		});
-		binding.poiNews.newsTitle.moreSectionTitle.setOnClickListener(v -> moreBtn.performClick());
+		binding.poiNews.newsTitleLayout.moreSectionTitle.setOnClickListener(v -> moreBtn.performClick());
 		moreBtn.setVisibility(View.VISIBLE);
 	}
 

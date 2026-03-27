@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <include
-        android:id="@+id/news_title"
+        android:id="@+id/news_title_layout"
         layout="@layout/layout_poi_news_title" />
 
     <androidx.recyclerview.widget.RecyclerView
