@@ -231,7 +231,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
             showSelectedTab()
             switchView()
-            setupScreenToolbar(screenToolbarLayout, screenToolbar)
+            setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.availableTypes.observe(viewLifecycleOwner) {
             pagerAdapter?.setTypes(it)
@@ -255,7 +255,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             updateMenuItemsVisibility(hasAgenciesAdded = it)
         }
         viewModel.fixedOnName.observe(viewLifecycleOwner) {
-            binding?.screenToolbar?.let { updateScreenToolbarTitle(it) }
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABTitle(this, getABTitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABTitle(getABTitle(context))
@@ -269,7 +269,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         ModuleDisabledUI.onViewCreated(this)
         NewLocationUI.onViewCreated(this)
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
-            binding?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -280,12 +280,13 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     }
 
     private fun updateScreenToolbarBgColor() =
-        binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout, screenToolbar) }
+        binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
 
     override fun updateScreenToolbarBgColor(appBarLayout: AppBarLayout, toolbar: Toolbar) {
         super.updateScreenToolbarBgColor(appBarLayout, toolbar)
         getABBgColor(context)?.let {
             activity?.setStatusBarBgColorEdgeToEdge(it)
+            binding?.tabs?.setBackgroundColor(it)
         }
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABBgColor(getABBgColor(context))
