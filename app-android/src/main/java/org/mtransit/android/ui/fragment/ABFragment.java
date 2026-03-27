@@ -107,6 +107,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		toolbar.setSubtitle(getABSubtitle(getContext()));
 	}
 
+	@CallSuper
 	public void updateScreenToolbarBgColor(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
 		updateScreenToolbarBgColor(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
