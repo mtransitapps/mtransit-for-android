@@ -5,12 +5,14 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include layout="@layout/layout_poi_app_was_disabled_title" />
+    <include
+        android:id="@+id/appWasDisabledTitleLayout"
+        layout="@layout/layout_poi_app_was_disabled_title" />
 
     <TextView
         android:id="@+id/appWasDisabledBtn"
+        style="@style/MTTextSurfaceBody"
         android:visibility="visible"
-        tools:text="@string/battery_optimization_samsung_use_device_care"
-        style="@style/MTTextSurfaceBody" />
+        tools:text="@string/battery_optimization_samsung_use_device_care" />
 
 </LinearLayout>

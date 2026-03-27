@@ -182,8 +182,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		final View view = binding.getRoot();
 		EdgeToEdgeKt.applyStatusBarsInsetsEdgeToEdge(view);
 		setupScreenToolbar(binding.screenToolbarLayout);
-		updateScreenToolbarBgColor(binding.screenToolbarLayout);
-		updateScreenToolbarOverrideGradient(binding.screenToolbarLayout);
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) binding.screenContent.getLayoutParams();
 			params.setBehavior(null);

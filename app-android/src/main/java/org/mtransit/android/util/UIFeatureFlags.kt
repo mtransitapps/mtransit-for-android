@@ -46,6 +46,6 @@ object UIFeatureFlags {
     // const val F_CONSUME_VEHICLE_LOCATION = FeatureFlags.F_EXPORT_TRIP_ID && false
     const val F_CONSUME_VEHICLE_LOCATION = FeatureFlags.F_EXPORT_TRIP_ID && true
 
-    // const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = false
-    const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = true
+    const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = false
+    // const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = true // no need for now, better show horizontal pager like news
 }

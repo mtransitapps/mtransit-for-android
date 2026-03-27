@@ -6,7 +6,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include layout="@layout/layout_poi_news_title" />
+    <include
+        android:id="@+id/news_title_layout"
+        layout="@layout/layout_poi_news_title" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/news_list"

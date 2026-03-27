@@ -83,9 +83,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		super(contentLayoutId);
 	}
 
-	public boolean hasToolbar() {
-		return false; // WIP: will show main activity Action Bar
-	}
+	public abstract boolean hasToolbar();
 
 	public void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar) {
 		updateScreenToolbarNavigationIcon(toolbar, getParentFragmentManager().getBackStackEntryCount());
@@ -107,11 +105,13 @@ public abstract class ABFragment extends MTFragmentX implements
 		toolbar.setSubtitle(getABSubtitle(getContext()));
 	}
 
+	@CallSuper
 	public void updateScreenToolbarBgColor(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
 		updateScreenToolbarBgColor(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
-	private void updateScreenToolbarBgColor(
+	@CallSuper
+	public void updateScreenToolbarBgColor(
 			@SuppressWarnings("unused") @NonNull AppBarLayout appBarLayout,
 			@SuppressWarnings("unused") @NonNull Toolbar toolbar) {
 		final Integer bgColorInt = getABBgColor(getContext());
@@ -124,7 +124,8 @@ public abstract class ABFragment extends MTFragmentX implements
 		}
 	}
 
-	void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
+	@SuppressWarnings("unused")
+	public void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
 		updateScreenToolbarOverrideGradient(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
@@ -167,7 +168,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		getParentFragmentManager().popBackStack();
 	}
 
-	private void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+	public void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
 		// setup
 		setupScreenToolbarBgColor(appBarLayout, toolbar);
 		toolbar.setNavigationOnClickListener(this::onScreenToolbarNavigationClick);

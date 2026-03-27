@@ -2,6 +2,13 @@
 name: MT sync code & data # download & parse
 on:
   pull_request: # automatically skip download data & app release
+    types:
+      - opened # default
+      - synchronize # default
+      - reopened # default
+      - ready_for_review # draft -> ready
+    paths-ignore:
+      - 'app-android/src/main/play/**'
   workflow_dispatch: # manual
     inputs:
       skip-download-data:
@@ -75,7 +82,7 @@ jobs:
   MT-SYNC-CODE-DATA-JOB:
     name: "MT Sync Code & Data"
     # if: ${{ env.MT_IS_MAIN_REPO != 'true' }} # can NOT use env here:
-    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') }}
+    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     # timeout-minutes: 45
     timeout-minutes: 90
     runs-on: ubuntu-latest

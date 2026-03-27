@@ -78,7 +78,7 @@ class AdManager @Inject internal constructor(
     }
 
     private fun onShowingAdsUpdated(activity: IAdScreenActivity) {
-        this.bannerAdManager.refreshBannerAdStatus(activity)
+        this.bannerAdManager.refreshBannerAdStatus(activity, force = false)
         refreshRewardedAdStatus(activity)
     }
 
