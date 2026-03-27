@@ -369,7 +369,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
-    override fun hasToolbar(): Boolean = true
+    override fun hasToolbar() = true
 
     override fun getABTitle(context: Context?) =
         if (attachedViewModel?.isFullDemo() == true) "MonTransit"

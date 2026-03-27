@@ -82,7 +82,6 @@ import org.mtransit.android.databinding.LayoutPoiAppUpdateBinding;
 import org.mtransit.android.databinding.LayoutPoiAppWasDisabledBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
 import org.mtransit.android.databinding.LayoutPoiRewardedAdBinding;
-import org.mtransit.android.databinding.LayoutPoiServiceUpdateBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.dev.DemoModeManager;
