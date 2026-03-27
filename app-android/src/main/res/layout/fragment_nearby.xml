@@ -1,46 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/context_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="#0000FF"
     tools:context=".ui.nearby.NearbyFragment">
 
-    <View
-        android:id="@+id/fragment_status_bar_bg"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        tools:background="#80FF00FF"
-        tools:layout_height="28dp"
-        tools:visibility="visible" />
-
-    <!-- TABS -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@id/tabs"
-        style="@style/Widget.MaterialComponents.TabLayout.Colored"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/screen_toolbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_below="@id/fragment_status_bar_bg"
-        android:layout_marginTop="@dimen/action_bar_size_static"
-        android:theme="@style/MTThemeOverlay"
-        android:visibility="gone"
-        app:tabContentStart="@dimen/tab_content_start"
-        app:tabGravity="start"
-        app:tabIndicatorColor="?attr/colorOnPrimary"
-        app:tabMinWidth="0dp"
-        app:tabMode="scrollable"
-        app:tabTextAppearance="@style/MTTabTextStyle"
-        tools:background="#FF00FF"
-        tools:visibility="visible" />
+        android:fitsSystemWindows="true"
+        app:liftOnScroll="true"
+        tools:background="#00FF00">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/context_view"
+        <!-- AppBarLayout == LinearLayout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:layout_scrollEffect="none"
+            tools:layout_scrollFlags="scroll|enterAlways|snap">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/screen_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:minHeight="?attr/actionBarSize"
+                android:theme="@style/MTThemeOverlay"
+                tools:menu="@menu/menu_main"
+                tools:navigationIcon="@drawable/ic_drawer_menu_24px"
+                tools:title="Screen title" />
+
+            <!-- TABS -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@id/tabs"
+                style="@style/Widget.MaterialComponents.TabLayout.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:theme="@style/MTThemeOverlay"
+                android:visibility="gone"
+                app:tabContentStart="@dimen/tab_content_start"
+                app:tabGravity="start"
+                app:tabIndicatorColor="?attr/colorOnPrimary"
+                app:tabMinWidth="0dp"
+                app:tabMode="scrollable"
+                app:tabTextAppearance="@style/MTTabTextStyle"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tabs">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:background="#0000FF">
+
         <!-- LOADING -->
         <include
             android:id="@id/loading_layout"
@@ -49,6 +69,7 @@
             android:layout_height="match_parent"
             android:visibility="gone"
             tools:visibility="visible" />
+
         <!-- VIEWPAGER -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@id/view_pager"
@@ -56,7 +77,9 @@
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:visibility="visible"
+            tools:layout="@layout/fragment_nearby_agency_type"
             tools:visibility="visible" />
+
         <!-- EMPTY -->
         <include
             android:id="@id/empty_layout"
@@ -65,5 +88,7 @@
             android:layout_height="match_parent"
             android:visibility="gone"
             tools:visibility="visible" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</RelativeLayout>
+
+    </RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
