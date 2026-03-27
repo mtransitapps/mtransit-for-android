@@ -54,6 +54,11 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	@Nullable
+	public static ViewBinding getLayoutViewBinding(@NonNull POIManager poim, @NonNull ViewStub viewStub) {
+		return getLayoutViewBinding(poim.getStatusType(), viewStub);
+	}
+
+	@Nullable
 	public static ViewBinding getLayoutViewBinding(int poiStatusType, @NonNull ViewStub viewStub) {
 		final Integer layoutResId = getLayoutResId(poiStatusType);
 		if (layoutResId == null) return null;
@@ -70,6 +75,12 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 		MTLog.w(LOG_TAG, "getLayoutViewBinding() > Unknown view type for status %s!", poiStatusType);
 		return null;
+	}
+
+	@SuppressWarnings("unused")
+	@Nullable
+	public static Integer getLayoutResId(@NonNull POIManager poim) {
+		return getLayoutResId(poim.getStatusType());
 	}
 
 	@Nullable

@@ -904,7 +904,7 @@ public class POIFragment extends ABFragment implements
 		final POIManager poim = getPoimOrNull();
 		if (this.binding == null || poim == null) return null;
 		if (poiStatusBinding == null) {
-			poiStatusBinding = POIStatusDetailViewController.getLayoutViewBinding(poim.getStatusType(), this.binding.poiStatusDetailStub);
+			poiStatusBinding = POIStatusDetailViewController.getLayoutViewBinding(poim, this.binding.poiStatusDetailStub);
 		}
 		return poiStatusBinding;
 	}
