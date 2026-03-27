@@ -12,14 +12,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -31,6 +29,7 @@ import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
+import org.mtransit.android.databinding.LayoutScreenToolbarBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
@@ -262,7 +261,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
         }
         viewModel.fixedOnColorInt.observe(viewLifecycleOwner) {
-            updateScreenToolbarBgColor()
+            binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
         }
         LocationSettingsUI.onViewCreated(this)
         LocationPermissionUI.onViewCreated(this)
@@ -279,11 +278,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         }
     }
 
-    private fun updateScreenToolbarBgColor() =
-        binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
-
-    override fun updateScreenToolbarBgColor(appBarLayout: AppBarLayout, toolbar: Toolbar) {
-        super.updateScreenToolbarBgColor(appBarLayout, toolbar)
+    override fun updateScreenToolbarBgColor(screenToolbarLayout: LayoutScreenToolbarBinding) {
+        super.updateScreenToolbarBgColor(screenToolbarLayout)
         getABBgColor(context)?.let {
             activity?.setStatusBarBgColorEdgeToEdge(it)
             binding?.tabs?.setBackgroundColor(it)

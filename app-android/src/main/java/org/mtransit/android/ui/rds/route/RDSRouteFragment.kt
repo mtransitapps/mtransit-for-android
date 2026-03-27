@@ -283,6 +283,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         getToolbarAndTabsBgColor(context)?.let {
             activity?.setStatusBarBgColorEdgeToEdge(it)
             binding?.toolbarAndTabsBackground?.setBackgroundColor(it)
+            // TODO ? if (FeatureFlags.F_NAVIGATION) nextMainViewModel.setABBgColor(it)
         }
     }
 
