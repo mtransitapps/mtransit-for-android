@@ -25,7 +25,6 @@ import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MTDialog
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
@@ -33,7 +32,6 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.map.IMarker
 import org.mtransit.android.util.UIFeatureFlags
@@ -179,9 +177,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
-            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge(
-                initialHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
-            )
+            setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
             location?.let {
@@ -329,13 +325,13 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun isNavBarProtected() = false
 
+    override fun hasToolbar() = true
+
     override fun isABStatusBarTransparent() = true
 
     override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE
 
-    override fun getABTitle(context: Context?): CharSequence? {
-        return context?.let { makeABTitle(it) } ?: super.getABTitle(null)
-    }
+    override fun getABTitle(context: Context?) = context?.let { makeABTitle(it) } ?: super.getABTitle(null)
 
     private fun makeABTitle(context: Context): CharSequence {
         return (attachedViewModel?.filterTypeIds?.value?.let { it.ifEmpty { null } } // empty = all

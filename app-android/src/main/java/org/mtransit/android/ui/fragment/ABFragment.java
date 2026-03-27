@@ -126,7 +126,8 @@ public abstract class ABFragment extends MTFragmentX implements
 		}
 	}
 
-	void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
+	@SuppressWarnings("unused")
+	public void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
 		updateScreenToolbarOverrideGradient(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
