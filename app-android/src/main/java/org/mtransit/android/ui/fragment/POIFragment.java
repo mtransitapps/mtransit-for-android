@@ -21,7 +21,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
@@ -29,6 +28,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
@@ -38,6 +38,7 @@ import androidx.navigation.fragment.FragmentNavigator;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewbinding.ViewBinding;
 
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
@@ -76,6 +77,12 @@ import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
+import org.mtransit.android.databinding.FragmentPoiBinding;
+import org.mtransit.android.databinding.LayoutPoiAppUpdateBinding;
+import org.mtransit.android.databinding.LayoutPoiAppWasDisabledBinding;
+import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
+import org.mtransit.android.databinding.LayoutPoiRewardedAdBinding;
+import org.mtransit.android.databinding.LayoutPoiServiceUpdateBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.dev.DemoModeManager;
@@ -84,6 +91,7 @@ import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -265,28 +273,29 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void applyNewAgency() {
-		if (getAgencyOrNull() == null) {
-			return;
-		}
+		if (getAgencyOrNull() == null) return;
 		final Context context = getContext();
-		if (context == null) {
-			return;
-		}
+		if (context == null) return;
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			POIStatusDetailViewController.updateView(getPOIStatusView(getView()), poim, this);
+			POIStatusDetailViewController.updateView(getPOIStatusView(), poim, this);
 		}
-		if (getAbController() != null) {
-			getAbController().setABTitle(this, getABTitle(context), false);
-			getAbController().setABReady(this, isABReady(), true);
+		final ActionBarController abController = getAbController();
+		if (abController != null) {
+			abController.setABTitle(this, getABTitle(context), false);
+			abController.setABReady(this, isABReady(), true);
+		}
+		final Toolbar screenToolbar = binding == null ? null : binding.screenToolbarLayout.screenToolbar;
+		if (screenToolbar != null) {
+			updateScreenToolbarTitle(screenToolbar);
 		}
 		if (FeatureFlags.F_NAVIGATION) {
 			if (nextMainViewModel != null) {
 				nextMainViewModel.setABTitle(getABTitle(context));
 			}
 		}
-		refreshAppUpdateLayout(getView());
-		refreshAppWasDisabledLayout(getView());
+		refreshAppUpdateLayout();
+		refreshAppWasDisabledLayout();
 		if (viewModel != null) {
 			viewModel.refreshAppUpdateAvailable();
 		}
@@ -329,15 +338,14 @@ public class POIFragment extends ABFragment implements
 			MTLog.d(this, "onPOIMLoaded() > SKIP (no POI)");
 			return; // SKIP
 		}
-		if (this.poim != null
-				&& this.poim.poi.equals(newPOIM.poi)) {
+		if (this.poim != null && this.poim.poi.equals(newPOIM.poi)) {
 			MTLog.d(this, "onPOIMLoaded() > SKIP (same POI)");
-			MTTransitions.startPostponedEnterTransitionOnPreDraw(getView(), this);
+			MTTransitions.startPostponedEnterTransitionOnPreDraw(this.binding, this);
 			return; // SKIP
 		}
 		this.poim = newPOIM;
 		applyNewPoim();
-		MTTransitions.startPostponedEnterTransitionOnPreDraw(getView(), this);
+		MTTransitions.startPostponedEnterTransitionOnPreDraw(this.binding, this);
 	}
 
 	private void applyNewPoim() {
@@ -358,17 +366,16 @@ public class POIFragment extends ABFragment implements
 			this.adapter.clear();
 		}
 		resetFavorite();
-		final View view = getView();
 		this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());
-		POIViewController.updateView(getPOIView(view), this.poim, this);
-		POIStatusDetailViewController.updateView(getPOIStatusView(view), this.poim, this);
-		POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), this.poim, this);
-		setupRDSFullScheduleBtn(view);
-		setupMoreNewsButton(view);
-		setupAppUpdateButton(view);
-		setupAppWasDisabledButton(view);
-		setupRewardedAdButton(view);
-		setupMoreNearbyButton(view);
+		POIViewController.updateView(getPOIView(), this.poim, this);
+		POIStatusDetailViewController.updateView(getPOIStatusView(), this.poim, this);
+		POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(), this.poim, this);
+		setupRDSFullScheduleBtn();
+		setupMoreNewsButton();
+		setupAppUpdateButton();
+		setupAppWasDisabledButton();
+		setupRewardedAdButton();
+		setupMoreNearbyButton();
 		updateFabFavorite();
 		setupNearbyList();
 	}
@@ -378,7 +385,7 @@ public class POIFragment extends ABFragment implements
 			MTLog.d(this, "onNewsLoaded() > SKIP (no news)");
 			return;
 		}
-		final View poiNewsView = getPOINewsView(getView());
+		final View poiNewsView = this.binding == null ? null : this.binding.poiNews.getRoot();
 		if (poiNewsView != null) {
 			poiNewsView.setVisibility(news.isEmpty() ? View.GONE : View.VISIBLE);
 		}
@@ -522,9 +529,13 @@ public class POIFragment extends ABFragment implements
 		return inflater.inflate(R.layout.fragment_poi, container, false);
 	}
 
+	private @Nullable FragmentPoiBinding binding = null;
+
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		this.binding = FragmentPoiBinding.bind(view);
+		setupView();
 		MTTransitions.postponeEnterTransition(this);
 		if (FeatureFlags.F_NAVIGATION) {
 			nextMainViewModel = new ViewModelProvider(requireActivity()).get(NextMainViewModel.class);
@@ -538,14 +549,13 @@ public class POIFragment extends ABFragment implements
 		}));
 		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
-		viewModel.getHasScheduleProviders().observe(getViewLifecycleOwner(), hasScheduleProviders -> setupRDSFullScheduleBtn(getView()));
+		viewModel.getHasScheduleProviders().observe(getViewLifecycleOwner(), hasScheduleProviders -> setupRDSFullScheduleBtn());
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
 		viewModel.getPoiList().observe(getViewLifecycleOwner(), this::onPOIsLoaded);
 		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
 			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
 		}
-		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
@@ -569,15 +579,16 @@ public class POIFragment extends ABFragment implements
 
 	private void onPOIsLoaded(@Nullable List<POIManager> poiList) {
 		this.mapViewController.notifyMarkerChanged(this);
-		this.mapViewController.showMap(getView());
+		this.mapViewController.showMap(this.binding == null ? null : this.binding.getRoot());
 	}
 
-	private void setupNewsLayout(@NonNull View view) {
-		final RecyclerView newsList = view.findViewById(R.id.news_list);
+	private void setupNewsLayout() {
+		if (this.binding == null) return;
+		final RecyclerView newsList = this.binding.poiNews.newsList;
 		final PagerSnapHelper snapHelper = new PagerSnapHelper();
 		snapHelper.attachToRecyclerView(newsList);
 		newsList.setAdapter(getNewsListAdapter());
-		setupMoreNewsButton(view);
+		setupMoreNewsButton();
 	}
 
 	@Nullable
@@ -672,21 +683,15 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void hideNearbyList(boolean invisibleInsteadOfGone) {
-		View view = getView();
-		if (view == null) {
-			return;
-		}
-		view.findViewById(R.id.poi_nearby_pois_title).setVisibility(invisibleInsteadOfGone ? View.INVISIBLE : View.GONE);
-		view.findViewById(R.id.poi_nearby_pois_list).setVisibility(invisibleInsteadOfGone ? View.INVISIBLE : View.GONE);
+		if (this.binding == null) return;
+		this.binding.poiNearbyPoisTitle.getRoot().setVisibility(invisibleInsteadOfGone ? View.INVISIBLE : View.GONE);
+		this.binding.poiNearbyPoisList.setVisibility(invisibleInsteadOfGone ? View.INVISIBLE : View.GONE);
 	}
 
 	private void showNearbyList() {
-		View view = getView();
-		if (view == null) {
-			return;
-		}
-		view.findViewById(R.id.poi_nearby_pois_title).setVisibility(View.VISIBLE);
-		view.findViewById(R.id.poi_nearby_pois_list).setVisibility(View.VISIBLE);
+		if (this.binding == null) return;
+		this.binding.poiNearbyPoisTitle.getRoot().setVisibility(View.VISIBLE);
+		this.binding.poiNearbyPoisList.setVisibility(View.VISIBLE);
 	}
 
 	private void initAdapters(IFragment activity) {
@@ -704,66 +709,43 @@ public class POIFragment extends ABFragment implements
 		this.adapter.setLogTag(getLogTag());
 	}
 
-	private void setupView(View view) {
-		if (view == null) {
-			return;
-		}
-		final Resources resources = view.getContext().getResources();
-		final View fragmentStatusBarBg = view.findViewById(R.id.fragment_status_bar_bg);
-		if (fragmentStatusBarBg != null) {
-			EdgeToEdgeKt.applyStatusBarsHeightEdgeToEdge(fragmentStatusBarBg, resources.getDimensionPixelSize(R.dimen.action_bar_size_static));
-		}
-		final MapView map = view.findViewById(R.id.map);
-		if (map != null) {
-			EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
-					resources.getDimensionPixelSize(R.dimen.large_header_height)
-			);
-		}
+	private void setupView() {
+		if (this.binding == null) return;
+		setupScreenToolbar(this.binding.screenToolbarLayout);
+		final Resources resources = this.binding.getRoot().getContext().getResources();
+		final MapView map = this.binding.map;
+		EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
+				resources.getDimensionPixelSize(R.dimen.large_header_height)
+		);
 		if (this.adapter != null) {
-			this.adapter.setManualScrollView(view.findViewById(R.id.scroll_view));
-			this.adapter.setManualLayout(view.findViewById(R.id.poi_nearby_pois_list));
+			this.adapter.setManualScrollView(this.binding.scrollView);
+			this.adapter.setManualLayout(this.binding.poiNearbyPoisList);
 		}
-		final FloatingActionButton fabFavorite = view.findViewById(R.id.fab_favorite);
-		if (fabFavorite != null) {
-			fabFavorite.setOnClickListener(v -> {
-						POIManager poim = getPoimOrNull();
-						if (poim != null && poim.isFavoritable()) {
-							this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
-						}
+		this.binding.fabFavorite.setOnClickListener(v -> {
+					POIManager poim = getPoimOrNull();
+					if (poim != null && poim.isFavoritable()) {
+						this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
 					}
-			);
-			EdgeToEdgeKt.setUpFabEdgeToEdge(
-					fabFavorite,
-					R.dimen.fab_auto_margin_end,
-					R.dimen.fab_auto_margin_bottom
-			);
-		}
+				}
+		);
+		EdgeToEdgeKt.setUpFabEdgeToEdge(
+				this.binding.fabFavorite,
+				R.dimen.fab_auto_margin_end,
+				R.dimen.fab_auto_margin_bottom
+		);
 		updateFabFavorite();
-		setupNewsLayout(view);
-		setupServiceUpdateLayout(view);
+		setupNewsLayout();
+		setupServiceUpdateLayout();
 	}
 
-	private void setupServiceUpdateLayout(@Nullable View view) {
-		if (!UIFeatureFlags.F_SERVICE_UPDATE_ELLIPSIZE_IN_POI) {
-			return;
-		}
-		if (view == null) {
-			return;
-		}
-		final View serviceUpdateView = getPOIServiceUpdateView(view);
-		if (serviceUpdateView == null) {
-			return;
-		}
-		final TextView serviceUpdateText = serviceUpdateView.findViewById(R.id.service_update_text);
-		if (serviceUpdateText == null) {
-			return;
-		}
+	private void setupServiceUpdateLayout() {
+		if (!UIFeatureFlags.F_SERVICE_UPDATE_ELLIPSIZE_IN_POI) return;
+		if (this.binding == null) return;
+		final TextView serviceUpdateText = this.binding.poiServiceUpdate.serviceUpdateText;
 		serviceUpdateText.setMaxLines(SERVICE_UPDATE_MAX_LINES);
 		serviceUpdateText.setOnClickListener(v -> {
 			final POIManager poim = getPoimOrNull();
-			if (poim == null) {
-				return;
-			}
+			if (poim == null) return;
 			if (FeatureFlags.F_NAVIGATION) {
 				// TODO navigate to dialog
 			} else {
@@ -777,76 +759,64 @@ public class POIFragment extends ABFragment implements
 		});
 	}
 
-	private void setupRDSFullScheduleBtn(@Nullable View view) {
-		if (view == null) {
+	private void setupRDSFullScheduleBtn() {
+		if (this.binding == null) return;
+		final ViewBinding poiStatusBinding = getPOIStatusBinding();
+		final LayoutPoiDetailStatusScheduleBinding scheduleStatusBinding =
+				(poiStatusBinding instanceof LayoutPoiDetailStatusScheduleBinding) ? (LayoutPoiDetailStatusScheduleBinding) poiStatusBinding : null;
+		if (scheduleStatusBinding == null) return;
+		final View rdsScheduleBtn = scheduleStatusBinding.poiDetailStatusScheduleTitle.fullScheduleBtn;
+		final Boolean hasScheduleProviders = this.viewModel == null ? null : this.viewModel.getHasScheduleProviders().getValue();
+		if (hasScheduleProviders == null || !hasScheduleProviders) {
+			rdsScheduleBtn.setVisibility(View.GONE);
 			return;
 		}
-		final View rdsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
-		if (rdsScheduleBtn != null) {
-			final Boolean hasScheduleProviders = this.viewModel == null ? null : this.viewModel.getHasScheduleProviders().getValue();
-			if (hasScheduleProviders == null || !hasScheduleProviders) {
-				rdsScheduleBtn.setVisibility(View.GONE);
-			} else {
-				final POIManager poimForColor = getPoimOrNull();
-				if (poimForColor != null) {
-					final int poiColor = poimForColor.getColor(dataSourcesRepository);
-					rdsScheduleBtn.setBackgroundColor(poiColor);
-				}
-				rdsScheduleBtn.setOnClickListener(v -> {
-					final POIManager poim = getPoimOrNull();
-					if (poim == null || !(poim.poi instanceof RouteDirectionStop)) {
-						MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RDS)");
-						return;
-					}
-					poiRepository.push(poim);
-					if (FeatureFlags.F_NAVIGATION) {
-						final NavController navController = NavHostFragment.findNavController(this);
-						FragmentNavigator.Extras extras = null;
-						if (FeatureFlags.F_TRANSITION) {
-							extras = new FragmentNavigator.Extras.Builder()
-									// TODO button? .addSharedElement(view, view.getTransitionName())
-									.build();
-						}
-						NavControllerExtKt.navigateF(navController,
-								R.id.nav_to_schedule_screen,
-								ScheduleFragment.newInstanceArgs(poim, dataSourcesRepository),
-								null,
-								extras
-						);
-					} else {
-						final FragmentActivity activity = getActivity();
-						if (activity == null) {
-							MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
-							return;
-						}
-						((MainActivity) activity).addFragmentToStack(
-								ScheduleFragment.newInstance(poim, dataSourcesRepository),
-								POIFragment.this);
-					}
-				});
-				rdsScheduleBtn.setVisibility(View.VISIBLE);
-			}
+		final POIManager poimForColor = getPoimOrNull();
+		if (poimForColor != null) {
+			final int poiColor = poimForColor.getColor(dataSourcesRepository);
+			rdsScheduleBtn.setBackgroundColor(poiColor);
 		}
-	}
-
-	private void setupMoreNewsButton(View view) {
-		if (view == null) {
-			return;
-		}
-		View newsView = view.findViewById(R.id.poi_news);
-		View moreBtn = newsView == null ? null : newsView.findViewById(R.id.moreBtn);
-		View titleMoreLayout = newsView == null ? null : newsView.findViewById(R.id.moreSectionTitle);
-		if (moreBtn == null) {
-			if (titleMoreLayout != null) {
-				titleMoreLayout.setClickable(false);
-			}
-			return;
-		}
-		moreBtn.setOnClickListener(v -> {
+		rdsScheduleBtn.setOnClickListener(v -> {
 			final POIManager poim = getPoimOrNull();
-			if (poim == null) {
+			if (poim == null || !(poim.poi instanceof RouteDirectionStop)) {
+				MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RDS)");
 				return;
 			}
+			poiRepository.push(poim);
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = NavHostFragment.findNavController(this);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							// TODO button? .addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				NavControllerExtKt.navigateF(navController,
+						R.id.nav_to_schedule_screen,
+						ScheduleFragment.newInstanceArgs(poim, dataSourcesRepository),
+						null,
+						extras
+				);
+			} else {
+				final FragmentActivity activity = getActivity();
+				if (activity == null) {
+					MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
+					return;
+				}
+				((MainActivity) activity).addFragmentToStack(
+						ScheduleFragment.newInstance(poim, dataSourcesRepository),
+						POIFragment.this);
+			}
+		});
+		rdsScheduleBtn.setVisibility(View.VISIBLE);
+	}
+
+	private void setupMoreNewsButton() {
+		if (this.binding == null) return;
+		final View moreBtn = binding.poiNews.newsTitle.moreBtn;
+		moreBtn.setOnClickListener(v -> {
+			final POIManager poim = getPoimOrNull();
+			if (poim == null) return;
 			if (FeatureFlags.F_NAVIGATION) {
 				final NavController navController = NavHostFragment.findNavController(this);
 				FragmentNavigator.Extras extras = null;
@@ -883,29 +853,16 @@ public class POIFragment extends ABFragment implements
 				);
 			}
 		});
-		if (titleMoreLayout != null) {
-			titleMoreLayout.setOnClickListener(v -> moreBtn.performClick());
-		}
+		binding.poiNews.newsTitle.moreSectionTitle.setOnClickListener(v -> moreBtn.performClick());
 		moreBtn.setVisibility(View.VISIBLE);
 	}
 
-	private void setupMoreNearbyButton(View view) {
-		if (view == null) {
-			return;
-		}
-		View nearbyView = view.findViewById(R.id.poi_nearby_pois_title);
-		View moreBtn = nearbyView == null ? null : nearbyView.findViewById(R.id.moreBtn);
-		//noinspection UnnecessaryLocalVariable
-		View titleMoreLayout = nearbyView;
-		if (moreBtn == null) {
-			titleMoreLayout.setClickable(false);
-			return;
-		}
+	private void setupMoreNearbyButton() {
+		if (this.binding == null) return;
+		final View moreBtn = binding.poiNearbyPoisTitle.moreBtn;
 		moreBtn.setOnClickListener(v -> {
 			final POIManager poim = getPoimOrNull();
-			if (poim == null) {
-				return;
-			}
+			if (poim == null) return;
 			if (FeatureFlags.F_NAVIGATION) {
 				final NavController navController = NavHostFragment.findNavController(this);
 				FragmentNavigator.Extras extras = null;
@@ -922,57 +879,47 @@ public class POIFragment extends ABFragment implements
 				);
 			} else {
 				final Activity activity = getActivity();
-				if (!(activity instanceof MainActivity)) {
-					return;
-				}
+				if (!(activity instanceof MainActivity)) return;
 				((MainActivity) activity).addFragmentToStack(
 						NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository),
 						POIFragment.this
 				);
 			}
 		});
-		titleMoreLayout.setOnClickListener(v -> moreBtn.performClick());
+		binding.poiNearbyPoisTitle.getRoot().setOnClickListener(v -> moreBtn.performClick());
 		moreBtn.setVisibility(View.VISIBLE);
 	}
 
+	private @Nullable ViewBinding poiStatusBinding = null;
+
+	// TODO @Deprecated
 	@Nullable
-	private View getPOIStatusView(View view) {
+	private View getPOIStatusView() {
+		final ViewBinding poiStatusBinding = getPOIStatusBinding();
+		return poiStatusBinding == null ? null : poiStatusBinding.getRoot();
+	}
+
+	@Nullable
+	private ViewBinding getPOIStatusBinding() {
 		final POIManager poim = getPoimOrNull();
-		if (view == null || poim == null) {
-			return null;
+		if (this.binding == null || poim == null) return null;
+		if (poiStatusBinding == null) {
+			poiStatusBinding = POIStatusDetailViewController.getLayoutViewBinding(poim.getStatusType(), this.binding.poiStatusDetailStub);
 		}
-		if (view.findViewById(R.id.poi_status_detail) == null) { // IF NOT present/inflated DO
-			final Integer layoutResId = POIStatusDetailViewController.getLayoutResId(poim);
-			if (layoutResId != null) {
-				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).setLayoutResource(layoutResId);
-				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).inflate(); // inflate
-				setupRDSFullScheduleBtn(view);
-			}
-		}
-		return view.findViewById(R.id.poi_status_detail);
+		return poiStatusBinding;
 	}
 
+	// TODO @Deprecated
 	@Nullable
-	private View getPOIServiceUpdateView(@Nullable View view) {
-		if (view == null) {
-			return null;
-		}
-		return view.findViewById(R.id.poi_service_update);
+	private View getPOIServiceUpdateView() {
+		if (this.binding == null) return null;
+		return this.binding.poiServiceUpdate.getRoot();
 	}
 
-	@Nullable
-	private View getPOIAppUpdateView(@Nullable View view) {
-		if (view == null) {
-			return null;
-		}
-		return view.findViewById(R.id.poi_app_update);
-	}
-
-	private void setupAppUpdateButton(@Nullable View view) {
-		if (view == null) {
-			return;
-		}
-		view.findViewById(R.id.appUpdateBtn).setOnClickListener(v -> {
+	private void setupAppUpdateButton() {
+		final View appUpdateBtn = this.binding == null ? null : this.binding.poiAppUpdate.appUpdateBtn;
+		if (appUpdateBtn == null) return;
+		appUpdateBtn.setOnClickListener(v -> {
 			final Activity activity = getActivity();
 			if (activity == null) {
 				return;
@@ -993,23 +940,11 @@ public class POIFragment extends ABFragment implements
 		});
 	}
 
-	@Nullable
-	private View getPOIAppWasDisabledView(@Nullable View view) {
-		if (view == null) {
-			return null;
-		}
-		return view.findViewById(R.id.poi_module_was_disabled);
-	}
-
-	private void setupAppWasDisabledButton(@Nullable View view) {
-		if (view == null) {
-			return;
-		}
-		view.findViewById(R.id.appWasDisabledBtn).setOnClickListener(v -> {
+	private void setupAppWasDisabledButton() {
+		if (this.binding == null) return;
+		this.binding.poiModuleWasDisabled.appWasDisabledBtn.setOnClickListener(v -> {
 			final Activity activity = getActivity();
-			if (activity == null) {
-				return;
-			}
+			if (activity == null) return;
 			if (viewModel != null) {
 				viewModel.onBatteryOptimizationSettingsOpened();
 			}
@@ -1018,28 +953,10 @@ public class POIFragment extends ABFragment implements
 		});
 	}
 
-	@Nullable
-	private View getPOINewsView(@Nullable View view) {
-		if (view == null) {
-			return null;
-		}
-		return view.findViewById(R.id.poi_news);
-	}
-
-	@Nullable
-	private View getPOIRewardedAdView(@Nullable View view) {
-		if (view == null) {
-			return null;
-		}
-		return view.findViewById(R.id.poi_rewarded_ad);
-	}
-
-	private void setupRewardedAdButton(@Nullable View view) {
-		if (view == null) {
-			return;
-		}
-		view.findViewById(R.id.rewardedAdsBtn).setOnClickListener(v ->
-				onRewardedAdButtonClick(view.getContext())
+	private void setupRewardedAdButton() {
+		if (this.binding == null) return;
+		this.binding.poiRewardedAd.rewardedAdsBtn.setOnClickListener(v ->
+				onRewardedAdButtonClick(v.getContext())
 		);
 	}
 
@@ -1055,45 +972,43 @@ public class POIFragment extends ABFragment implements
 			ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_not_ready);
 			return;
 		}
-		final View view = getView();
-		if (view != null) {
-			view.findViewById(R.id.rewardedAdsBtn).setEnabled(false);
+		if (this.binding != null) {
+			this.binding.poiRewardedAd.rewardedAdsBtn.setEnabled(false);
 		}
 		this.adManager.showRewardedAd((IAdScreenActivity) activity);
 	}
 
+	private @Nullable ViewBinding poiViewBinding = null;
+
+	// TODO @Deprecated
 	@Nullable
-	private View getPOIView(@Nullable View view) {
+	private View getPOIView() {
+		final ViewBinding poiViewBinding = getPOIViewBinding();
+		return poiViewBinding == null ? null : poiViewBinding.getRoot();
+	}
+
+	@Nullable
+	private ViewBinding getPOIViewBinding() {
 		final POIManager poim = getPoimOrNull();
-		if (view == null || poim == null) {
-			return null;
+		if (this.binding == null || poim == null) return null;
+		if (poiViewBinding == null) { // IF NOT present/inflated DO
+			poiViewBinding = POIViewController.getLayoutViewBinding(poim, this.binding.thisPoiStub);
 		}
-		if (view.findViewById(R.id.this_poi) == null) { // IF NOT present/inflated DO
-			final int layoutResId = POIViewController.getLayoutResId(poim);
-			((ViewStub) view.findViewById(R.id.this_poi_stub)).setLayoutResource(layoutResId);
-			((ViewStub) view.findViewById(R.id.this_poi_stub)).inflate(); // inflate
-		}
-		return view.findViewById(R.id.this_poi);
+		return poiViewBinding;
 	}
 
 	@Override
 	public void onStatusLoaded(@NonNull POIStatus status) {
-		final View view = getView();
-		if (view == null) {
-			return;
-		}
-		POIViewController.updatePOIStatus(getPOIView(view), status, this, getPoimOrNull());
-		POIStatusDetailViewController.updatePOIStatus(getPOIStatusView(view), status, this, getPoimOrNull());
+		if (this.binding == null) return;
+		POIViewController.updatePOIStatus(getPOIView(), status, this, getPoimOrNull());
+		POIStatusDetailViewController.updatePOIStatus(getPOIStatusView(), status, this, getPoimOrNull());
 	}
 
 	@Override
 	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates) {
-		final View view = getView();
-		if (view == null) {
-			return;
-		}
-		POIViewController.updateServiceUpdatesView(getPOIView(view), serviceUpdates, this);
-		POIServiceUpdateViewController.updateServiceUpdate(getPOIServiceUpdateView(view), serviceUpdates, this);
+		if (this.binding == null) return;
+		POIViewController.updateServiceUpdatesView(getPOIView(), serviceUpdates, this);
+		POIServiceUpdateViewController.updateServiceUpdate(getPOIServiceUpdateView(), serviceUpdates, this);
 	}
 
 	@Override
@@ -1133,7 +1048,7 @@ public class POIFragment extends ABFragment implements
 			final POIManager poim = getPoimOrNull();
 			if (poim != null) {
 				LocationUtils.updateDistanceWithString(requireContext(), poim, newLocation);
-				POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
+				POIViewController.updatePOIDistanceAndCompass(getPOIView(), poim, this);
 			}
 			this.mapViewController.onDeviceLocationChanged(this.deviceLocation);
 			if (this.adapter != null) {
@@ -1189,14 +1104,13 @@ public class POIFragment extends ABFragment implements
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
+			POIViewController.updatePOIDistanceAndCompass(getPOIView(), poim, this);
 		}
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		View view = getView();
 		resetFavorite(); // force refresh
 		getFavoriteFolderId();
 		enableTimeChangedReceiver();
@@ -1210,22 +1124,22 @@ public class POIFragment extends ABFragment implements
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			POIViewController.updateView(getPOIView(view), poim, this);
-			POIStatusDetailViewController.updateView(getPOIStatusView(view), poim, this);
-			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), poim, this);
-			setupRDSFullScheduleBtn(view);
-			setupMoreNewsButton(view);
-			setupAppUpdateButton(view);
-			setupAppWasDisabledButton(view);
-			setupRewardedAdButton(view);
-			setupMoreNearbyButton(view);
+			POIViewController.updateView(getPOIView(), poim, this);
+			POIStatusDetailViewController.updateView(getPOIStatusView(), poim, this);
+			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(), poim, this);
+			setupRDSFullScheduleBtn();
+			setupMoreNewsButton();
+			setupAppUpdateButton();
+			setupAppWasDisabledButton();
+			setupRewardedAdButton();
+			setupMoreNearbyButton();
 			setupNearbyList();
 		}
 		onDeviceLocationChanged(((MTActivityWithLocation) requireActivity()).getDeviceLocation());
 		this.adManager.setRewardedAdListener(this);
 		this.adManager.refreshRewardedAdStatus((IActivity) requireActivity());
-		refreshRewardedLayout(getView());
-		refreshAppUpdateLayout(getView());
+		refreshRewardedLayout();
+		refreshAppUpdateLayout();
 		if (this.viewModel != null) {
 			this.viewModel.refreshAppUpdateAvailable();
 			// this.viewModel.onResumeScreen(this);
@@ -1235,7 +1149,7 @@ public class POIFragment extends ABFragment implements
 				startVehicleLocationCountdownRefresh(this);
 			}
 		}
-		refreshAppWasDisabledLayout(getView());
+		refreshAppWasDisabledLayout();
 		if (FeatureFlags.F_NAVIGATION) {
 			if (nextMainViewModel != null) {
 				nextMainViewModel.setABBgColor(getABBgColor(getContext()));
@@ -1250,29 +1164,24 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public void onRewardedAdStatusChanged() {
-		View view = getView();
-		if (view != null) {
-			refreshRewardedLayout(view);
-		}
+		refreshRewardedLayout();
 	}
 
 	@NonNull
 	private final ThreadSafeDateFormatter rewardedAdDateFormatter = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM);
 
-	private void refreshRewardedLayout(@Nullable View view) {
-		final View rewardedLayout = getPOIRewardedAdView(view);
-		if (rewardedLayout == null) {
-			return;
-		}
-		final TextView rewardedAdTitleTv = rewardedLayout.findViewById(R.id.rewardAdTitle);
-		final TextView rewardedAdsBtn = rewardedLayout.findViewById(R.id.rewardedAdsBtn);
+	private void refreshRewardedLayout() {
+		final LayoutPoiRewardedAdBinding rewardedLayout = this.binding == null ? null : this.binding.poiRewardedAd;
+		if (rewardedLayout == null) return;
+		final TextView rewardedAdTitleTv = rewardedLayout.rewardedAdsTitleLayout.rewardAdTitle;
+		final TextView rewardedAdsBtn = rewardedLayout.rewardedAdsBtn;
 
 		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
 		final boolean rewardedNow = this.adManager.isRewardedNow();
 		final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
 		final int rewardedAmount = this.adManager.getRewardedAdAmount();
 
-		rewardedLayout.setVisibility(availableToShow ? View.VISIBLE : View.GONE);
+		rewardedLayout.getRoot().setVisibility(availableToShow ? View.VISIBLE : View.GONE);
 
 		if (rewardedNow) {
 			rewardedAdTitleTv.setText(getString(
@@ -1301,8 +1210,8 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
-	private void refreshAppUpdateLayout(@Nullable View view) {
-		final View appUpdateLayout = getPOIAppUpdateView(view);
+	private void refreshAppUpdateLayout() {
+		final LayoutPoiAppUpdateBinding appUpdateLayout = this.binding == null ? null : this.binding.poiAppUpdate;
 		if (appUpdateLayout == null) {
 			MTLog.d(this, "refreshAppUpdateLayout() > SKIP (no layout)");
 			return;
@@ -1315,15 +1224,15 @@ public class POIFragment extends ABFragment implements
 		}
 		final String pkg = agency == null ? "" : agency.getPkg();
 		if (appUpdateAvailable) {
-			if (appUpdateLayout.getVisibility() != View.VISIBLE) {
-				appUpdateLayout.setVisibility(View.VISIBLE);
+			if (appUpdateLayout.getRoot().getVisibility() != View.VISIBLE) {
+				appUpdateLayout.getRoot().setVisibility(View.VISIBLE);
 				this.analyticsManager.logEvent(AnalyticsEvents.SHOWED_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
 						.put(AnalyticsEvents.Params.PKG, pkg)
 				);
 			}
 		} else {
-			if (appUpdateLayout.getVisibility() != View.GONE) {
-				appUpdateLayout.setVisibility(View.GONE);
+			if (appUpdateLayout.getRoot().getVisibility() != View.GONE) {
+				appUpdateLayout.getRoot().setVisibility(View.GONE);
 				this.analyticsManager.logEvent(AnalyticsEvents.HIDDEN_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
 						.put(AnalyticsEvents.Params.PKG, pkg)
 				);
@@ -1331,8 +1240,8 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
-	private void refreshAppWasDisabledLayout(@Nullable View view) {
-		final View appWasDisabledLayout = getPOIAppWasDisabledView(view);
+	private void refreshAppWasDisabledLayout() {
+		final LayoutPoiAppWasDisabledBinding appWasDisabledLayout = this.binding == null ? null : this.binding.poiModuleWasDisabled;
 		if (appWasDisabledLayout == null) {
 			MTLog.d(this, "refreshAppWasDisabledLayout() > SKIP (no layout)");
 			return;
@@ -1350,19 +1259,19 @@ public class POIFragment extends ABFragment implements
 			appWasDisabled = false; // always false (demo mode ON)
 		}
 		if (appWasDisabled) {
-			final Resources resources = appWasDisabledLayout.getContext().getResources();
-			final TextView appWasDisabledTitleTv = appWasDisabledLayout.findViewById(R.id.appWasDisabledTitle);
-			final TextView appWasDisabledBtn = appWasDisabledLayout.findViewById(R.id.appWasDisabledBtn);
+			final Resources resources = appWasDisabledLayout.getRoot().getContext().getResources();
+			final TextView appWasDisabledTitleTv = appWasDisabledLayout.appWasDisabledTitleLayout.appWasDisabledTitle;
+			final TextView appWasDisabledBtn = appWasDisabledLayout.appWasDisabledBtn;
 			final int agencyCount = this.dataSourcesRepository.getAllAgenciesCount();
 			appWasDisabledTitleTv.setText(resources.getQuantityString(R.plurals.app_disabled_issue_title, agencyCount, agencyCount));
 			appWasDisabledBtn.setText(R.string.battery_optimization_samsung_use_device_care);
-			if (appWasDisabledLayout.getVisibility() != View.VISIBLE) {
-				appWasDisabledLayout.setVisibility(View.VISIBLE);
+			if (appWasDisabledLayout.getRoot().getVisibility() != View.VISIBLE) {
+				appWasDisabledLayout.getRoot().setVisibility(View.VISIBLE);
 				this.analyticsManager.logEvent(AnalyticsEvents.SHOWED_APP_WAS_DISABLED_POI, null);
 			}
 		} else {
-			if (appWasDisabledLayout.getVisibility() != View.GONE) {
-				appWasDisabledLayout.setVisibility(View.GONE);
+			if (appWasDisabledLayout.getRoot().getVisibility() != View.GONE) {
+				appWasDisabledLayout.getRoot().setVisibility(View.GONE);
 				this.analyticsManager.logEvent(AnalyticsEvents.HIDDEN_APP_WAS_DISABLED_POI, null);
 			}
 		}
@@ -1413,14 +1322,13 @@ public class POIFragment extends ABFragment implements
 	private void resetNowToTheMinute() {
 		MTLog.i(this, "Refreshing UI data...");
 		this.nowToTheMinute = UITimeUtils.currentTimeToTheMinuteMillis();
-		final View view = getView();
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			final View poiView = getPOIView(view);
+			final View poiView = getPOIView();
 			POIViewController.updatePOIStatus(poiView, poim, this);
 			POIViewController.updatePOIServiceUpdate(poiView, poim, this);
-			POIStatusDetailViewController.updateView(getPOIStatusView(view), poim, this);
-			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), poim, this);
+			POIStatusDetailViewController.updateView(getPOIStatusView(), poim, this);
+			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(), poim, this);
 		}
 	}
 
@@ -1588,36 +1496,33 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void updateFabFavorite() {
-		final View view = getView();
-		final FloatingActionButton fabFavorite = view == null ? null : view.findViewById(R.id.fab_favorite);
-		if (fabFavorite == null) {
+		if (this.binding == null) return;
+		final FloatingActionButton fabFavorite = this.binding.fabFavorite;
+		final POIManager poim = getPoimOrNull();
+		if (poim == null || !poim.isFavoritable()) {
+			fabFavorite.hide();
 			return;
 		}
-		final POIManager poim = getPoimOrNull();
-		if (poim != null && poim.isFavoritable()) {
-			final boolean isFav = isFavorite();
-			@DrawableRes int iconResId;
-			@StringRes int contentDescriptionResId;
-			if (isFav) {
-				iconResId = R.drawable.ic_star_black_24dp;
-				if (this.favoriteManager.isUsingFavoriteFolders()) {
-					contentDescriptionResId = R.string.menu_action_edit_favorite;
-				} else {
-					contentDescriptionResId = R.string.menu_action_remove_favorite;
-				}
+		final boolean isFav = isFavorite();
+		@DrawableRes int iconResId;
+		@StringRes int contentDescriptionResId;
+		if (isFav) {
+			iconResId = R.drawable.ic_star_black_24dp;
+			if (this.favoriteManager.isUsingFavoriteFolders()) {
+				contentDescriptionResId = R.string.menu_action_edit_favorite;
 			} else {
-				iconResId = R.drawable.ic_star_border_black_24dp;
-				contentDescriptionResId = R.string.menu_action_add_favorite;
+				contentDescriptionResId = R.string.menu_action_remove_favorite;
 			}
-			fabFavorite.setImageResource(iconResId);
-			fabFavorite.setContentDescription(getString(contentDescriptionResId));
-			final int poiColor = poim.getColor(dataSourcesRepository);
-			fabFavorite.setBackgroundTintList(ColorStateList.valueOf(poiColor));
-			fabFavorite.setRippleColor(poiColor);
-			fabFavorite.show();
 		} else {
-			fabFavorite.hide();
+			iconResId = R.drawable.ic_star_border_black_24dp;
+			contentDescriptionResId = R.string.menu_action_add_favorite;
 		}
+		fabFavorite.setImageResource(iconResId);
+		fabFavorite.setContentDescription(getString(contentDescriptionResId));
+		final int poiColor = poim.getColor(dataSourcesRepository);
+		fabFavorite.setBackgroundTintList(ColorStateList.valueOf(poiColor));
+		fabFavorite.setRippleColor(poiColor);
+		fabFavorite.show();
 	}
 
 	private void updateFaresMenuItem() {
@@ -1635,7 +1540,7 @@ public class POIFragment extends ABFragment implements
 			final AgencyProperties agency = getAgencyOrNull();
 			final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
 			if (!TextUtils.isEmpty(faresWebUrl)) {
-				LinkUtils.open(getView(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true);
+				LinkUtils.open(this.binding == null ? null : this.binding.getRoot(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true);
 				return true; // handled
 			}
 		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
@@ -1648,7 +1553,7 @@ public class POIFragment extends ABFragment implements
 					optSrcLat = this.deviceLocation.getLatitude();
 					optSrcLng = this.deviceLocation.getLongitude();
 				}
-				MapUtils.showDirection(getView(), requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName());
+				MapUtils.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName());
 				return true; // handled
 			}
 		}
@@ -1661,8 +1566,13 @@ public class POIFragment extends ABFragment implements
 		updateFabFavorite();
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			POIViewController.updateView(getPOIView(getView()), poim, this);
+			POIViewController.updateView(getPOIView(), poim, this);
 		}
+	}
+
+	@Override
+	public boolean hasToolbar() {
+		return true;
 	}
 
 	@Override
@@ -1674,12 +1584,8 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public CharSequence getABTitle(@Nullable Context context) {
 		final AgencyProperties agency = getAgencyOrNull();
-		if (agency != null) {
-			return agency.getShortName();
-		}
-		if (context == null) {
-			return super.getABTitle(null);
-		}
+		if (agency != null) return agency.getShortName();
+		if (context == null) return super.getABTitle(null);
 		return context.getString(org.mtransit.android.commons.R.string.ellipsis);
 	}
 
@@ -1702,6 +1608,9 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
+		this.binding = null;
+		this.poiViewBinding = null;
+		this.poiStatusBinding = null;
 		if (this.adapter != null) {
 			this.adapter.onDestroyView();
 		}

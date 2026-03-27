@@ -6,12 +6,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.util.LruCache
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
+import androidx.viewbinding.ViewBinding
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -61,21 +61,24 @@ object MapUtils : Loggable {
     // https://developers.google.com/maps/documentation/urls/android-intents
     // ex: https://maps.google.com/maps?saddr=Montreal,+Quebec&daddr=Toronto,+Ontario&dirflg=r
     private const val MAP_DIRECTION_URL_PART_1 = "https://maps.google.com/maps"
+
     @Suppress("SpellCheckingInspection")
     private const val MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM = "saddr"
+
     @Suppress("SpellCheckingInspection")
     private const val MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM = "daddr"
+
     @Suppress("SpellCheckingInspection")
     private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "dirflg"
     private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE = "r"
 
     @JvmStatic
     fun showDirection(
-        view: View? = null,
+        binding: ViewBinding? = null,
         activity: Activity,
-        optDestLat: Double?, optDestLng: Double?,
-        optSrcLat: Double?, optSrcLng: Double?,
-        optQuery: String?,
+        optDestLat: Double? = null, optDestLng: Double? = null,
+        optSrcLat: Double? = null, optSrcLng: Double? = null,
+        optQuery: String? = null,
     ) {
         val useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity) && PreferenceUtils.getPrefDefault(
             activity,
@@ -85,7 +88,7 @@ object MapUtils : Loggable {
         val gmmIntentUri = getMapsDirectionUrl(optDestLat, optDestLng, optSrcLat, optSrcLng, optQuery)
         if (useInternalWebBrowser) {
             LinkUtils.open(
-                view,
+                binding?.root,
                 activity,
                 gmmIntentUri.toString(),
                 activity.getString(R.string.google_maps),
@@ -112,6 +115,7 @@ object MapUtils : Loggable {
     }.build()
 
     private const val GOOGLE_MAPS_PKG = "com.google.android.apps.maps"
+
     @Suppress("SpellCheckingInspection")
     private const val GOOGLE_MAPS_LITE_PKG = "com.google.android.apps.mapslite"
 

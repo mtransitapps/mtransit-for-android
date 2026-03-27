@@ -361,13 +361,11 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
                 locationPick ?: return false // not handled
                 viewModel.onShowDirectionClick()
                 MapUtils.showDirection(
-                    view,
-                    requireActivity(),
-                    locationPick.latitude,
-                    locationPick.longitude,
-                    null,
-                    null,
-                    viewModel.fixedOnName.value
+                    binding = binding,
+                    activity = requireActivity(),
+                    optDestLat = locationPick.latitude,
+                    optDestLng = locationPick.longitude,
+                    optQuery = viewModel.fixedOnName.value
                 )
                 true // handled
             }
