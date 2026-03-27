@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -403,10 +404,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
-    private fun updateABColorNow() {
-        updateABColor(delayInMs = 0L)
-    }
-
     override fun updateScreenToolbarBgColor(screenToolbarLayout: LayoutScreenToolbarBinding) {
         super.updateScreenToolbarBgColor(screenToolbarLayout)
         getABBgColor(context)?.let {
@@ -416,13 +413,17 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         }
     }
 
+    private fun updateABColorNow() = updateABColor(delayInMs = 0L)
+
     fun updateABColor(delayInMs: Long = 50L) {
         if (updateABColorJob?.isActive == true) return // SKIP (already planned)
-        updateABColorJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) { // CPU
+        updateABColorJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) { // UI
             if (abBgColorInt != null && delayInMs > 0L) {
                 delay(delayInMs) // debounce
             }
-            abBgColorInt = getNewABBgColorInt()
+            abBgColorInt = withContext(Dispatchers.Default) { // CPU
+                getNewABBgColorInt()
+            }
             binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
         }
     }
