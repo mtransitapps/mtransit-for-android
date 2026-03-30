@@ -54,7 +54,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
@@ -111,6 +110,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -1238,7 +1238,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 				frameLayout.addView(itemView);
 				View selectorView = new View(getContext());
-				SupportFactory.get().setBackground(selectorView, ThemeUtils.obtainStyledDrawable(getContext(), android.R.attr.selectableItemBackground));
+				selectorView.setBackground(ThemeUtils.obtainStyledDrawable(getContext(), android.R.attr.selectableItemBackground));
 				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 				frameLayout.addView(selectorView);
 				final int position = i;
@@ -2208,7 +2208,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							|| //
 							(this.favUUIDsFolderIds != null //
 									&& this.favUUIDsFolderIds.containsKey(uid) //
-									&& !SupportFactory.get().equals(this.favUUIDsFolderIds.get(uid), favorite.getFolderId())) //
+									&& !Objects.equals(this.favUUIDsFolderIds.get(uid), favorite.getFolderId())) //
 					) {
 						newFav = true;
 						updatedFav = true;
