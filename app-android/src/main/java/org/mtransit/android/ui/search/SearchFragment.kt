@@ -141,8 +141,8 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 onItemSelectedListener = this@SearchFragment
                 adapter = typeFilterAdapter
             }
-            setupScreenToolbar(screenToolbarLayout)
         }
+        setupScreenToolbar() // w/ binding
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
                 emptyLayout.isVisible = false // hide by default
@@ -200,7 +200,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             listAdapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
         }
         viewModel.searchHasFocus.observe(viewLifecycleOwner) {
-            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
+            updateScreenToolbarCustomView()
         }
         viewModel.devEnabled.observe(viewLifecycleOwner) { devEnabled ->
             if (lastDevEnabled != null && lastDevEnabled != devEnabled) {
@@ -240,13 +240,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         viewModel.onScreenVisible()
-        binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
+        updateScreenToolbarCustomView()
     }
 
     override fun onPause() {
         super.onPause()
         listAdapter.onPause()
-        binding?.screenToolbarLayout?.screenToolbar?.let { resetScreenToolbarCustomView(it) }
+        resetScreenToolbarCustomView()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
@@ -265,6 +265,8 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     }
 
     override fun hasToolbar() = true
+    override fun getToolbar() = binding?.screenToolbarLayout?.screenToolbar
+    override fun getAppBarLayout() = binding?.screenToolbarLayout?.screenToolbarLayout
 
     override fun isABReady() = searchView != null
 

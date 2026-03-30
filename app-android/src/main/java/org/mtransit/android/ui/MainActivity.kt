@@ -14,6 +14,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -39,6 +40,7 @@ import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.databinding.ActivityMainBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
@@ -51,6 +53,7 @@ import org.mtransit.android.ui.search.SearchFragment.Companion.newInstance
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
+import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.start
 import org.mtransit.android.ui.view.common.startMargin
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
@@ -58,7 +61,6 @@ import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.NightModeUtils
 import org.mtransit.android.util.UIFeatureFlags
-import java.lang.Exception
 import java.util.WeakHashMap
 import javax.inject.Inject
 
@@ -142,6 +144,9 @@ class MainActivity : MTActivityWithLocation(),
 
     private var currentUiMode = -1
 
+    var binding: ActivityMainBinding? = null
+        private set
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
@@ -150,12 +155,14 @@ class MainActivity : MTActivityWithLocation(),
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         this.currentUiMode = getResources().configuration.uiMode
         LocaleUtils.onCreateActivity(this)
-        setContentView(R.layout.activity_main)
-        findViewById<View>(R.id.main_content).applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
-            updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                startMargin = insets.start
-                endMargin = insets.end
-                bottomMargin = insets.bottom
+        binding = ActivityMainBinding.inflate(layoutInflater).apply {
+            setContentView(root)
+            mainContent.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
+                updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    startMargin = insets.start
+                    endMargin = insets.end
+                    bottomMargin = insets.bottom
+                }
             }
         }
         this.abController = ActionBarController(this)
@@ -186,7 +193,7 @@ class MainActivity : MTActivityWithLocation(),
             }
         })
         this.billingManager.currentSubscription.observe(this, Observer { _: String? -> })
-        MapUtils.fixScreenFlickering(findViewById<ViewGroup?>(R.id.content_frame))
+        binding?.apply { MapUtils.fixScreenFlickering(contentFrame) }
         ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
     }
 
@@ -227,7 +234,7 @@ class MainActivity : MTActivityWithLocation(),
 
     protected override fun onStart() {
         super.onStart()
-        this.navigationDrawerController?.onStart()
+        this.navigationDrawerController?.onStart(this)
     }
 
     protected override fun onResume() {
@@ -338,8 +345,8 @@ class MainActivity : MTActivityWithLocation(),
             incBackEntryCount()
         }
         showContentFrameAsLoaded()
+        FragmentUtils.executePendingTransactions(this, null)
         this.abController?.apply {
-            FragmentUtils.executePendingTransactions(this@MainActivity, null)
             setAB(newFragment)
             updateAB()
         }
@@ -347,8 +354,10 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     fun showContentFrameAsLoaded() {
-        findViewById<View?>(R.id.content_frame_loading)?.isVisible = false
-        findViewById<View?>(R.id.content_frame)?.isVisible = true
+        binding?.apply {
+            contentFrameLoading.isVisible = false
+            contentFrame.isVisible = true
+        }
     }
 
     fun addFragmentToStack(
@@ -391,20 +400,20 @@ class MainActivity : MTActivityWithLocation(),
         return FragmentUtils.isCurrentFragmentVisible(this, R.id.content_frame, fragment)
     }
 
-    override val currentFragment: Fragment?
-        get() = FragmentUtils.getFragment(this, R.id.content_frame)
+    override val currentFragment: Fragment? get() = FragmentUtils.getFragment(this, R.id.content_frame)
 
-    private val currentABFragment: ABFragment?
-        get() = currentFragment as? ABFragment
+    private val currentABFragment: ABFragment? get() = currentFragment as? ABFragment
 
+    @MainThread
     override fun onBackStackChanged() {
         resetBackStackEntryCount()
-        abController?.apply {
-            setAB(currentFragment as ABFragment?)
-            updateAB()
-        }
         this.navigationDrawerController?.onBackStackChanged(getBackStackEntryCount())
         this.adManager.adaptToScreenSize(this, getResources().configuration)
+        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) return
+        abController?.apply {
+            setAB(currentABFragment)
+            updateAB()
+        }
     }
 
     fun updateNavigationDrawerToggleIndicator() {
