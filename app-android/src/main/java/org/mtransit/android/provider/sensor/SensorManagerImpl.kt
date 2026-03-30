@@ -1,5 +1,6 @@
 package org.mtransit.android.provider.sensor
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.GeomagneticField
 import android.hardware.Sensor
@@ -156,6 +157,7 @@ class SensorManagerImpl @Inject constructor(
         val defaultDisplay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             aActivity.display
         } else {
+            @SuppressLint("DeprecatedCall")
             @Suppress("DEPRECATION")
             aActivity.windowManager.defaultDisplay
         }
