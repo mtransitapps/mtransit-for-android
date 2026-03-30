@@ -1,5 +1,6 @@
 package org.mtransit.android.provider.sensor
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.GeomagneticField
 import android.hardware.Sensor
@@ -7,12 +8,12 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
+import android.os.Build
 import android.view.Surface
 import android.widget.AbsListView
 import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.api.SupportFactory
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.IFragment
 import java.util.concurrent.TimeUnit
@@ -153,7 +154,13 @@ class SensorManagerImpl @Inject constructor(
         axis[0] = SensorManager.AXIS_X
         axis[1] = SensorManager.AXIS_Y
         val aActivity = activity.getActivity() ?: return null
-        val defaultDisplay = SupportFactory.get().getDefaultDisplay(aActivity)
+        val defaultDisplay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            aActivity.display
+        } else {
+            @SuppressLint("DeprecatedCall")
+            @Suppress("DEPRECATION")
+            aActivity.windowManager.defaultDisplay
+        }
         when (defaultDisplay?.rotation) {
             Surface.ROTATION_0 -> {
                 // DO NOTHING
