@@ -329,7 +329,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun isABStatusBarTransparent() = true
 
-    override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE
+    override fun isABOverrideGradient() = hasToolbar() || UIFeatureFlags.F_EDGE_TO_EDGE
 
     override fun getABTitle(context: Context?) = context?.let { makeABTitle(it) } ?: super.getABTitle(null)
 

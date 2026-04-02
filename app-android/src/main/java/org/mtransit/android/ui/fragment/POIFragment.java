@@ -1595,7 +1595,7 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean isABOverrideGradient() {
-		return UIFeatureFlags.F_EDGE_TO_EDGE;
+		return hasToolbar() || UIFeatureFlags.F_EDGE_TO_EDGE;
 	}
 
 	@Override
