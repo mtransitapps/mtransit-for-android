@@ -212,11 +212,13 @@ public class POIManager implements LocationPOI,
 			MTLog.w(this, "setStatus() > Unexpected status '%s'!", newStatus);
 			return false; // no change
 		}
-		if (this.status != null && this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
-			return false; // no change
-		}
-		if (this.status != null && !this.status.isNoData() && newStatus.isNoData()) {
-			return false; // keep status w/ data
+		if (this.status != null && this.status.isUseful()) {
+			if (this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
+				return false; // no change
+			}
+			if (!this.status.isNoData() && newStatus.isNoData()) {
+				return false; // keep status w/ data
+			}
 		}
 		this.status = newStatus;
 		return true; // change
