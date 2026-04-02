@@ -44,6 +44,7 @@
         layout="@layout/layout_screen_toolbar" />
 
     <include
+        android:id="@+id/map_type_switch"
         style="@style/MTMapTypeSwitch.AboveGoogleLogo"
         layout="@layout/view_map_type_switch" />
 

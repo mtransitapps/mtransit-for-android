@@ -28,6 +28,8 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.MenuProvider;
 import androidx.webkit.WebViewClientCompat;
 
+import com.google.android.material.appbar.AppBarLayout;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.Constants;
@@ -128,7 +130,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (newCurrentUrl != null && !newCurrentUrl.equals(this.currentUrl)) {
 			this.currentUrl = newCurrentUrl;
 		}
-		final WebView webView = binding == null ? null : binding.webView;
+		final WebView webView = this.binding == null ? null : this.binding.webView;
 		if (webView != null && bundles.length > 0) {
 			webView.restoreState(bundles[0]);
 		}
@@ -145,7 +147,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (!TextUtils.isEmpty(this.currentUrl)) {
 			outState.putString(EXTRA_URL_CURRENT, this.currentUrl);
 		}
-		final WebView webView = binding == null ? null : binding.webView;
+		final WebView webView = this.binding == null ? null : this.binding.webView;
 		if (webView != null) {
 			webView.saveState(outState);
 		}
@@ -158,12 +160,12 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		this.binding = FragmentWebBrowserBinding.bind(view);
-		setupView(binding);
+		setupView();
 		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
 			final OnBackPressedCallback callback = new OnBackPressedCallback(false) {
 				@Override
 				public void handleOnBackPressed() {
-					final WebView webView = binding == null ? null : binding.webView;
+					final WebView webView = WebBrowserFragment.this.binding == null ? null : WebBrowserFragment.this.binding.webView;
 					if (webView != null && webView.canGoBack()) {
 						webView.goBack();
 					}
@@ -175,25 +177,23 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
-	private void setupView(@Nullable FragmentWebBrowserBinding binding) {
-		if (binding == null) {
-			return;
-		}
-		final View view = binding.getRoot();
+	private void setupView() {
+		if (this.binding == null) return;
+		final View view = this.binding.getRoot();
 		EdgeToEdgeKt.applyStatusBarsInsetsEdgeToEdge(view);
-		setupScreenToolbar(binding.screenToolbarLayout);
+		setupScreenToolbar(); // w/ binding
 		if (FileUtils.isImageURL(this.initialUrl)) {
-			final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) binding.screenContent.getLayoutParams();
+			final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) this.binding.screenContent.getLayoutParams();
 			params.setBehavior(null);
-			binding.screenContent.setLayoutParams(params);
-			binding.screenToolbarLayout.screenToolbarLayout.setLiftOnScroll(false);
-			binding.screenToolbarLayout.screenToolbarLayout.setOutlineProvider(null);
+			this.binding.screenContent.setLayoutParams(params);
+			this.binding.screenToolbarLayout.screenToolbarLayout.setLiftOnScroll(false);
+			this.binding.screenToolbarLayout.screenToolbarLayout.setOutlineProvider(null);
 			final MainActivity mainActivity = getMainActivity();
 			if (mainActivity != null) {
 				EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(getMainActivity(), getDefaultABBgColor(view.getContext()));
 			}
 		}
-		final WebView webView = binding.webView;
+		final WebView webView = this.binding.webView;
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setSupportZoom(true);
 		webView.getSettings().setBuiltInZoomControls(true);
@@ -212,22 +212,9 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	private OnBackPressedCallback onBackPressedCallback = null;
 
 	@Override
-	public boolean onBackPressed() {
-		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			return super.onBackPressed();
-		}
-		final WebView webView = binding == null ? null : binding.webView;
-		if (webView != null && webView.canGoBack()) {
-			webView.goBack();
-			return true; // handled
-		}
-		return super.onBackPressed();
-	}
-
-	@Override
 	public void onResume() {
 		super.onResume();
-		final WebView webView = binding == null ? null : binding.webView;
+		final WebView webView = this.binding == null ? null : this.binding.webView;
 		if (webView != null) {
 			if (TextUtils.isEmpty(this.currentUrl)) {
 				webView.loadUrl(this.initialUrl);
@@ -241,7 +228,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public void onPause() {
 		super.onPause();
-		final WebView webView = binding == null ? null : binding.webView;
+		final WebView webView = this.binding == null ? null : this.binding.webView;
 		if (webView != null) {
 			webView.onPause();
 		}
@@ -256,14 +243,14 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		final WebView webView = binding == null ? null : binding.webView;
+		final WebView webView = this.binding == null ? null : this.binding.webView;
 		if (webView != null) {
 			webView.destroy();
 		}
 	}
 
 	private void onProgressChanged(int newProgress) {
-		final ProgressBar progressBar = binding == null ? null : binding.progressBar;
+		final ProgressBar progressBar = this.binding == null ? null : this.binding.progressBar;
 		if (progressBar != null) {
 			progressBar.setProgress(newProgress);
 			if (newProgress < 100) {
@@ -293,10 +280,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (abController != null) {
 			abController.setABTitle(this, getABTitle(getContext()), true);
 		}
-		final Toolbar screenToolbar = binding == null ? null : binding.screenToolbarLayout.screenToolbar;
-		if (screenToolbar != null) {
-			updateScreenToolbarTitle(screenToolbar);
-		}
+		updateScreenToolbarTitle();
 	}
 
 	private void onURLChanged(String url) {
@@ -305,10 +289,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (abController != null) {
 			abController.setABSubtitle(this, getABSubtitle(getContext()), true);
 		}
-		final Toolbar screenToolbar = binding == null ? null : binding.screenToolbarLayout.screenToolbar;
-		if (screenToolbar != null) {
-			updateScreenToolbarSubtitle(screenToolbar);
-		}
+		updateScreenToolbarSubtitle();
 	}
 
 	// TODO later view model
@@ -321,6 +302,20 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public boolean hasToolbar() {
 		return true;
+	}
+
+	@Nullable
+	@Override
+	public Toolbar getToolbar() {
+		if (this.binding == null) return null;
+		return this.binding.screenToolbarLayout.screenToolbar;
+	}
+
+	@Nullable
+	@Override
+	public AppBarLayout getAppBarLayout() {
+		if (this.binding == null) return null;
+		return this.binding.screenToolbarLayout.screenToolbarLayout;
 	}
 
 	@Nullable

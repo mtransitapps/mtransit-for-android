@@ -140,7 +140,10 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             return Bundle().apply {
                 putString(NewsListViewModel.EXTRA_COLOR, optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT)
                 putString(NewsListViewModel.EXTRA_SUB_TITLE, subtitle)
-                putStringArray(NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES, targetAuthorities ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT)
+                putStringArray(
+                    NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES,
+                    targetAuthorities ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT
+                )
                 putStringArray(NewsListViewModel.EXTRA_FILTER_TARGETS, filterTargets ?: NewsListViewModel.EXTRA_FILTER_TARGETS_DEFAULT)
                 putStringArray(NewsListViewModel.EXTRA_FILTER_UUIDS, filterUUIDs ?: NewsListViewModel.EXTRA_FILTER_UUIDS_DEFAULT)
                 putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_AUTHORITY, selectedArticleAuthority)
@@ -210,9 +213,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     }
                 }
             }
-            screenToolbarLayout.apply {
-                updateScreenToolbarNavigationIcon(screenToolbar)
-            }
+            updateScreenToolbarNavigationIcon()
         }
     }
 
@@ -280,22 +281,22 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                         twoPaneOnBackPressedCallback,
                     )
                     doOnLayout {
-                        twoPaneOnBackPressedCallback.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-                        onBackPressedCallback?.init() // at the end
+                        addPanelSlideListener(twoPaneOnBackPressedCallback)
+                        twoPaneOnBackPressedCallback.setEnabledState()
                     }
                 }
                 lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
             }
-            setupScreenToolbar(screenToolbarLayout)
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
                 viewPager.children.find { it is RecyclerView }?.let {
                     it.isNestedScrollingEnabled = false
                 }
             }
         }
+        setupScreenToolbar() // w/ binding
         viewModel.subTitle.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
-            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
+            updateScreenToolbarSubtitle()
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
             }
@@ -383,7 +384,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private fun updateABColor() {
         abController?.setABBgColor(this, getABBgColor(context), true)
-        binding?.screenToolbarLayout?.let { updateScreenToolbarBgColor(it) }
+        updateScreenToolbarBgColor()
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABBgColor(getABBgColor(context))
         }
@@ -409,6 +410,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override fun hasAds() = UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS
 
     override fun hasToolbar() = true
+    override fun getToolbar() = binding?.screenToolbarLayout?.screenToolbar
+    override fun getAppBarLayout() = binding?.screenToolbarLayout?.screenToolbarLayout
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
 
@@ -431,9 +434,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        binding?.apply {
-            onBackPressedCallback?.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-        }
+        onBackPressedCallback?.setEnabledState()
     }
 
     override fun onPause() {
@@ -502,26 +503,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             return // handled
         }
         super.onScreenToolbarNavigationClick(v)
-    }
-
-    override fun onBackPressed(): Boolean {
-        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-            return super.onBackPressed()
-        }
-        if (handleExitFullscreen()) {
-            return true // handled
-        }
-        binding?.apply {
-            activity?.apply {
-                if (supportFragmentManager.backStackEntryCount == (initialBackStackEntryCount + 1)) {
-                    if (slidingPaneLayout.isOpen) {
-                        slidingPaneLayout.closePane()
-                        viewModel.cleanSelectedNewsArticle()
-                    }
-                }
-            }
-        }
-        return super.onBackPressed()
     }
 
     override fun onDestroyView() {
