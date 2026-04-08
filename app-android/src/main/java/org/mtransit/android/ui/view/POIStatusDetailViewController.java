@@ -326,7 +326,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static final long MIN_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(1L);
-	private static final long MAX_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(86L);
+	private static final long MAX_COVERAGE_IN_MS = TimeUnit.DAYS.toMillis(5L);
 
 	private static void updateScheduleView(@NonNull Context context,
 										   @NonNull CommonStatusViewHolder statusViewHolder,
