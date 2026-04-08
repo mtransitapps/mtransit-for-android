@@ -483,7 +483,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			this.scheduleListTimestamp = after;
 			return;
 		}
-		addListTimestamps(after, timestamps);
+		addLastTimestamps(after, timestamps);
 		generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign, showingAccessibilityInfo, serviceUpdates);
 		this.scheduleListTimestamp = after;
 	}
@@ -508,7 +508,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this.scheduleList.add(new DetailsNextDepartures(ssb));
 	}
 
-	private void addListTimestamps(long after, ArrayList<Timestamp> timestamps) {
+	private void addLastTimestamps(long after, ArrayList<Timestamp> timestamps) {
 		final Timestamp lastTimestamp = getLastTimestamp(after, after - TimeUnit.MINUTES.toMillis(60L));
 		if (lastTimestamp != null && !timestamps.contains(lastTimestamp)) {
 			if (!lastTimestamp.isNoPickup()
