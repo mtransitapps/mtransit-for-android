@@ -134,6 +134,7 @@ class KeysManager @Inject constructor(
                 }
             }
             // CUSTOM
+            authority.endsWith("$debugS.mybus") -> getKeyEntry(context, KeysIds.CA_SUDBURY_TRANSIT_AUTH_TOKEN)?.let { mapOf(it) }
             authority.endsWith("$debugS.winnipeg_transit") -> getKeyEntry(context, KeysIds.CA_WINNIPEG_TRANSIT_API_KEY)?.let { mapOf(it) }
             else -> {
                 if (DEBUGGING_KEYS) MTLog.d(LOG_TAG, "No key for '$authority'.")
