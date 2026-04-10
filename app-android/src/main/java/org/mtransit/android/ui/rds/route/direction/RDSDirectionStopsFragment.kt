@@ -339,6 +339,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 applySelectedIdChanged()
                 mapViewController.onResume()
                 viewModel.startVehicleLocationRefresh()
+                if (!viewModel.vehicleLocationsDistinct.value.isNullOrEmpty()) {
+                    startVehicleLocationCountdownRefresh()
+                }
             } else { // LIST
                 mapViewController.onPause()
                 viewModel.stopVehicleLocationRefresh()
@@ -544,6 +547,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         if (viewModel.mapVisible(context)) {
             mapViewController.onResume()
             viewModel.startVehicleLocationRefresh()
+            if (!viewModel.vehicleLocationsDistinct.value.isNullOrEmpty()) {
+                startVehicleLocationCountdownRefresh()
+            }
         } else {
             viewModel.stopVehicleLocationRefresh()
             stopVehicleLocationCountdownRefresh()
