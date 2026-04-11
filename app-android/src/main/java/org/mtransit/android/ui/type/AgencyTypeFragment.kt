@@ -34,7 +34,6 @@ import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.FragmentAgencyTypeBinding
-import org.mtransit.android.databinding.LayoutScreenToolbarBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
@@ -273,8 +272,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 }
             }
             showSelectedTab()
-            setupScreenToolbar(screenToolbarLayout)
         }
+        setupScreenToolbar() // w/ binding
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
             if (pagerAdapter?.setAgencies(agencies) == true) {
                 showSelectedTab()
@@ -296,7 +295,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             }
         }
         viewModel.title.observe(viewLifecycleOwner) {
-            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
+            updateScreenToolbarTitle()
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
         }
@@ -404,8 +403,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
-    override fun updateScreenToolbarBgColor(screenToolbarLayout: LayoutScreenToolbarBinding) {
-        super.updateScreenToolbarBgColor(screenToolbarLayout)
+    override fun updateScreenToolbarBgColor() {
+        super.updateScreenToolbarBgColor()
         getABBgColor(context)?.let {
             activity?.setStatusBarBgColorEdgeToEdge(it)
             binding?.tabs?.setBackgroundColor(it)
@@ -424,11 +423,13 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             abBgColorInt = withContext(Dispatchers.Default) { // CPU
                 getNewABBgColorInt()
             }
-            binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
+            updateScreenToolbarBgColor()
         }
     }
 
     override fun hasToolbar() = true
+    override fun getToolbar() = binding?.screenToolbarLayout?.screenToolbar
+    override fun getAppBarLayout() = binding?.screenToolbarLayout?.screenToolbarLayout
 
     override fun isABReady() =
         attachedViewModel?.title?.value != null

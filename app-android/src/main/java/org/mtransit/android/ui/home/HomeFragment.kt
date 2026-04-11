@@ -213,13 +213,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                     }
                 }
             }
-            setupScreenToolbar(screenToolbarLayout)
         }
+        setupScreenToolbar() // w/ binding
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             listAdapter.setLocation(it)
         }
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
-            binding?.apply { updateScreenToolbarSubtitle(screenToolbarLayout.screenToolbar) }
+             updateScreenToolbarSubtitle()
             abController?.setABSubtitle(this, getABSubtitle(context), true)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -370,6 +370,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     }
 
     override fun hasToolbar() = true
+    override fun getToolbar() = binding?.screenToolbarLayout?.screenToolbar
+    override fun getAppBarLayout() = binding?.screenToolbarLayout?.screenToolbarLayout
 
     override fun getABTitle(context: Context?) =
         if (attachedViewModel?.isFullDemo() == true) "MonTransit"

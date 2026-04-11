@@ -33,8 +33,8 @@ import org.mtransit.android.ad.IAdScreenActivity;
 import org.mtransit.android.ad.IAdScreenFragment;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.databinding.LayoutScreenToolbarBinding;
 import org.mtransit.android.rate.AppRatingsManager;
 import org.mtransit.android.rate.AppRatingsUIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -43,7 +43,6 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI;
-import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.WeakHashMap;
@@ -85,60 +84,80 @@ public abstract class ABFragment extends MTFragmentX implements
 
 	public abstract boolean hasToolbar();
 
-	public void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar) {
-		updateScreenToolbarNavigationIcon(toolbar, getParentFragmentManager().getBackStackEntryCount());
+	@Nullable
+	public abstract Toolbar getToolbar();
+
+	@Nullable
+	public abstract AppBarLayout getAppBarLayout();
+
+	@Nullable
+	private Integer initialBackStackEntryCount = null;
+
+	@CallSuper
+	@Override
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
+		final FragmentActivity activity = getActivity();
+		if (activity != null) {
+			this.initialBackStackEntryCount = activity.getSupportFragmentManager().getBackStackEntryCount();
+		}
 	}
 
-	private void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar, int backStackEntryCount) {
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		this.initialBackStackEntryCount = null;
+	}
+
+	public void updateScreenToolbarNavigationIcon() {
+		final Toolbar toolbar = getToolbar();
+		if (toolbar == null) return;
+		if (initialBackStackEntryCount == null) return;
 		toolbar.setNavigationIcon(
-				backStackEntryCount <= 0 ?
+				initialBackStackEntryCount <= 0 ?
 						R.drawable.ic_drawer_menu_24px :
 						R.drawable.ic_arrow_back_24
 		);
 	}
 
-	public void updateScreenToolbarTitle(@NonNull Toolbar toolbar) {
+	public void updateScreenToolbarTitle() {
+		final Toolbar toolbar = getToolbar();
+		if (toolbar == null) return;
 		toolbar.setTitle(getABTitle(getContext()));
 	}
 
-	public void updateScreenToolbarSubtitle(@NonNull Toolbar toolbar) {
+	public void updateScreenToolbarSubtitle() {
+		final Toolbar toolbar = getToolbar();
+		if (toolbar == null) return;
 		toolbar.setSubtitle(getABSubtitle(getContext()));
 	}
 
 	@CallSuper
-	public void updateScreenToolbarBgColor(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
-		updateScreenToolbarBgColor(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
-	}
-
-	@CallSuper
-	public void updateScreenToolbarBgColor(
-			@SuppressWarnings("unused") @NonNull AppBarLayout appBarLayout,
-			@SuppressWarnings("unused") @NonNull Toolbar toolbar) {
+	public void updateScreenToolbarBgColor() {
 		final Integer bgColorInt = getABBgColor(getContext());
 		if (bgColorInt != null) {
 			getBgDrawable().setFillColor(ColorStateList.valueOf(bgColorInt));
 			final MainActivity mainActivity = getMainActivity();
-			if (mainActivity != null) {
+			if (isResumed() && mainActivity != null) {
 				EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(getMainActivity(), bgColorInt);
 			}
 		}
 	}
 
-	@SuppressWarnings("unused")
-	public void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
-		updateScreenToolbarOverrideGradient(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
-	}
-
-	private void updateScreenToolbarOverrideGradient(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+	public void updateScreenToolbarOverrideGradient() {
+		final AppBarLayout appBarLayout = getAppBarLayout();
+		if (appBarLayout == null) return;
 		final boolean overrideGradient = isABOverrideGradient();
 		if (overrideGradient) {
 			appBarLayout.setBackground(AppCompatResources.getDrawable(appBarLayout.getContext(), R.drawable.ab_gradient));
 		} else {
-			setupScreenToolbarBgColor(appBarLayout, toolbar);
+			setupScreenToolbarBgColor();
 		}
 	}
 
-	private void setupScreenToolbarBgColor(@NonNull AppBarLayout appBarLayout, @SuppressWarnings("unused") @NonNull Toolbar toolbar) {
+	private void setupScreenToolbarBgColor() {
+		final AppBarLayout appBarLayout = getAppBarLayout();
+		if (appBarLayout == null) return;
 		appBarLayout.setBackground(getBgDrawable());
 	}
 
@@ -153,8 +172,24 @@ public abstract class ABFragment extends MTFragmentX implements
 		return this.bgDrawable;
 	}
 
-	public void setupScreenToolbar(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
-		setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
+	public void setupScreenToolbar() {
+		final Toolbar toolbar = getToolbar();
+		if (toolbar == null) return;
+		// setup
+		setupScreenToolbarBgColor();
+		toolbar.setNavigationOnClickListener(this::onScreenToolbarNavigationClick);
+		if (this instanceof MenuProvider) {
+			toolbar.addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+		}
+		inflateMainMenu();
+		toolbar.setOnMenuItemClickListener(this::onScreenToolbarMenuItemClick);
+		// initial UI
+		updateScreenToolbarNavigationIcon();
+		updateScreenToolbarTitle();
+		updateScreenToolbarSubtitle();
+		updateScreenToolbarOverrideGradient();
+		updateScreenToolbarBgColor();
+		updateScreenToolbarCustomView();
 	}
 
 	public void onScreenToolbarNavigationClick(@NonNull View v) {
@@ -168,26 +203,10 @@ public abstract class ABFragment extends MTFragmentX implements
 		getParentFragmentManager().popBackStack();
 	}
 
-	public void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
-		// setup
-		setupScreenToolbarBgColor(appBarLayout, toolbar);
-		toolbar.setNavigationOnClickListener(this::onScreenToolbarNavigationClick);
-		if (this instanceof MenuProvider) {
-			toolbar.addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
-		}
-		inflateMainMenu(toolbar);
-		toolbar.setOnMenuItemClickListener(this::onScreenToolbarMenuItemClick);
-		// initial UI
-		updateScreenToolbarNavigationIcon(toolbar);
-		updateScreenToolbarTitle(toolbar);
-		updateScreenToolbarSubtitle(toolbar);
-		updateScreenToolbarOverrideGradient(appBarLayout, toolbar);
-		updateScreenToolbarBgColor(appBarLayout, toolbar);
-		updateScreenToolbarCustomView(toolbar);
-	}
-
 	// R.menu.menu_main
-	private void inflateMainMenu(@NonNull Toolbar toolbar) {
+	private void inflateMainMenu() {
+		final Toolbar toolbar = getToolbar();
+		if (toolbar == null) return;
 		final MenuItem searchMenuItem = toolbar.getMenu().add(Menu.NONE, R.id.nav_search, 999, R.string.menu_action_search);
 		searchMenuItem.setIcon(R.drawable.ic_search_black_24dp);
 		searchMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
@@ -273,9 +292,11 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Nullable
 	private View currentScreenToolbarCustomView = null;
 
-	public void updateScreenToolbarCustomView(@NonNull Toolbar toolbar) {
+	public void updateScreenToolbarCustomView() {
+		final Toolbar toolbar = getToolbar();
+		if (toolbar == null) return;
 		final View customView = getABCustomView();
-		setScreenToolbarCustomView(toolbar, customView);
+		setScreenToolbarCustomView(customView);
 		if (customView == null) {
 			return;
 		}
@@ -291,7 +312,9 @@ public abstract class ABFragment extends MTFragmentX implements
 		}
 	}
 
-	private void setScreenToolbarCustomView(@NonNull Toolbar toolbar, @Nullable View customView) {
+	private void setScreenToolbarCustomView(@Nullable View customView) {
+		final Toolbar toolbar = getToolbar();
+		if (toolbar == null) return;
 		if (this.currentScreenToolbarCustomView == customView) {
 			return; // no change
 		}
@@ -304,8 +327,8 @@ public abstract class ABFragment extends MTFragmentX implements
 		}
 	}
 
-	public void resetScreenToolbarCustomView(@NonNull Toolbar toolbar) {
-		setScreenToolbarCustomView(toolbar, null);
+	public void resetScreenToolbarCustomView() {
+		setScreenToolbarCustomView(null);
 	}
 
 	public boolean isABDisplayHomeAsUpEnabled() {
@@ -371,6 +394,10 @@ public abstract class ABFragment extends MTFragmentX implements
 			abController.setAB(this);
 			abController.updateAB();
 		}
+		if (hasToolbar()) {
+			updateScreenToolbarBgColor(); // status bar color
+			updateScreenToolbarNavigationIcon();
+		}
 		sharedAppRatingsManager.getShouldShowAppRatingRequest(this).observe(this, shouldShow -> {
 			if (!shouldShow) {
 				return;
@@ -386,14 +413,6 @@ public abstract class ABFragment extends MTFragmentX implements
 				return kotlin.Unit.INSTANCE;
 			});
 		});
-	}
-
-	public boolean onBackPressed() {
-		//noinspection IfStatementWithIdenticalBranches
-		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			return false; // processed
-		}
-		return false; // not processed
 	}
 
 	@CallSuper

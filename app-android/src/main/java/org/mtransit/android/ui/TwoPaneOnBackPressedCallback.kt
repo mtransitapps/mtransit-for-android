@@ -2,6 +2,7 @@ package org.mtransit.android.ui
 
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.MainThread
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import org.mtransit.android.commons.MTLog
 
@@ -10,19 +11,20 @@ class TwoPaneOnBackPressedCallback(
     private val onPanelHandledBackPressedCallback: () -> Unit,
     private val onPanelOpenedCallback: () -> Unit,
     private val onPanelClosedCallback: () -> Unit,
-) : OnBackPressedCallback(
-    slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-), SlidingPaneLayout.PanelSlideListener, MTLog.Loggable {
+) : OnBackPressedCallback(enabled = false),
+    SlidingPaneLayout.PanelSlideListener,
+    MTLog.Loggable {
 
     companion object {
         private val LOG_TAG: String = TwoPaneOnBackPressedCallback::class.java.simpleName
     }
 
-    fun init() {
-        slidingPaneLayout.addPanelSlideListener(this)
-    }
-
     override fun getLogTag() = LOG_TAG
+
+    @MainThread
+    fun setEnabledState(enabled: Boolean = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen) {
+        isEnabled = enabled
+    }
 
     override fun handleOnBackPressed() {
         slidingPaneLayout.closePane()

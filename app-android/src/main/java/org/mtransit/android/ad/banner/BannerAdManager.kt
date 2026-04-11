@@ -69,7 +69,7 @@ class BannerAdManager @Inject constructor(
 
     fun onResumeScreen(activity: IAdScreenActivity) {
         if (!loadOnScreenResume) {
-            MTLog.d(this, "onResumeScreen() > SKIP (disabled)")
+            logAdsD(this, "onResumeScreen() > SKIP (disabled)")
             return
         }
         refreshBannerAdStatus(activity, force = true)
@@ -77,7 +77,7 @@ class BannerAdManager @Inject constructor(
 
     fun onTimeChanged(activity: IAdScreenActivity) {
         if (!loadOnScreenResume) {
-            MTLog.d(this, "onTimeChanged() > SKIP (disabled)")
+            logAdsD(this, "onTimeChanged() > SKIP (disabled)")
             return
         }
         refreshBannerAdStatus(activity, force = true)
