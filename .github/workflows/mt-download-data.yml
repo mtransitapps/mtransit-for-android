@@ -64,8 +64,8 @@ jobs:
           if ./agency-parser/check_data_outdated.sh; then
             echo ">> Data is up-to-date.";
           else
-            echo ">> Data is outdated. Triggering mt-sync-code-data.yml workflow...";
-            gh workflow run mt-sync-code-data.yml
+            echo ">> Data is outdated. Triggering mt-sync-code-data.yml workflow (skip download data)...";
+            gh workflow run mt-sync-code-data.yml -f skip-download-data=true
           fi
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
