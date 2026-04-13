@@ -32,8 +32,12 @@ import org.mtransit.commons.FeatureFlags
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
-fun POIFragment.startVehicleLocationCountdownRefresh() {
+@JvmOverloads
+fun POIFragment.startVehicleLocationCountdownRefresh(
+    vehicleLocations: Collection<VehicleLocation>? = viewModel?.vehicleLocations?.value,
+) {
     if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+    if (vehicleLocations.isNullOrEmpty()) return
     _vehicleLocationCountdownRefreshJob?.cancel()
     _vehicleLocationCountdownRefreshJob = viewModel?.viewModelScope?.launch {
         while (true) {
