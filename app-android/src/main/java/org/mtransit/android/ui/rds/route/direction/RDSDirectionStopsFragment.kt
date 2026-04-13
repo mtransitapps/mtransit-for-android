@@ -28,6 +28,7 @@ import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.findClosestPOISIdxUuid
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
@@ -339,7 +340,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 applySelectedIdChanged()
                 mapViewController.onResume()
                 viewModel.startVehicleLocationRefresh()
-                startVehicleLocationCountdownRefreshIfLoaded()
+                startVehicleLocationCountdownRefresh()
             } else { // LIST
                 mapViewController.onPause()
                 viewModel.stopVehicleLocationRefresh()
@@ -364,12 +365,12 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             // DO NOTHING
         }
         if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
-            viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) { vehicleLocations ->
+            viewModel.vehicleLocations.observe(viewLifecycleOwner) { vehicleLocations ->
                 context?.let { mapViewController.updateVehicleLocationMarkers(it, vehicleLocations = vehicleLocations) }
-                if (vehicleLocations.isNullOrEmpty()) {
-                    stopVehicleLocationCountdownRefresh()
+                if (viewModel.mapVisible(context) && !vehicleLocations.isNullOrEmpty()) {
+                    startVehicleLocationCountdownRefresh(vehicleLocations)
                 } else {
-                    startVehicleLocationCountdownRefresh()
+                    stopVehicleLocationCountdownRefresh()
                 }
             }
             parentViewModel.colorInt.observe(viewLifecycleOwner) {
@@ -545,7 +546,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         if (viewModel.mapVisible(context)) {
             mapViewController.onResume()
             viewModel.startVehicleLocationRefresh()
-            startVehicleLocationCountdownRefreshIfLoaded()
+            startVehicleLocationCountdownRefresh()
         } else {
             viewModel.stopVehicleLocationRefresh()
             stopVehicleLocationCountdownRefresh()
@@ -557,14 +558,11 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     private var _vehicleLocationCountdownRefreshJob: Job? = null
 
-    private fun startVehicleLocationCountdownRefreshIfLoaded() {
-        if (viewModel.vehicleLocationsDistinct.value?.isNotEmpty() == true) {
-            startVehicleLocationCountdownRefresh()
-        }
-    }
-
-    private fun startVehicleLocationCountdownRefresh() {
+    private fun startVehicleLocationCountdownRefresh(
+        vehicleLocations: Collection<VehicleLocation>? = viewModel.vehicleLocations.value,
+    ) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+        if (vehicleLocations.isNullOrEmpty()) return
         _vehicleLocationCountdownRefreshJob?.cancel()
         _vehicleLocationCountdownRefreshJob = viewModel.viewModelScope.launch {
             while (true) {

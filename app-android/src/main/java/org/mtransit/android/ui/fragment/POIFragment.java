@@ -572,7 +572,7 @@ public class POIFragment extends ABFragment implements
 		if (vehicleLocations == null || vehicleLocations.isEmpty()) {
 			stopVehicleLocationCountdownRefresh(this);
 		} else {
-			startVehicleLocationCountdownRefresh(this);
+			startVehicleLocationCountdownRefresh(this, vehicleLocations);
 		}
 	}
 
@@ -1143,10 +1143,7 @@ public class POIFragment extends ABFragment implements
 			this.viewModel.refreshAppUpdateAvailable();
 			// this.viewModel.onResumeScreen(this);
 			this.viewModel.startVehicleLocationRefresh();
-			final Collection<VehicleLocation> vehicleLocations = this.viewModel.getVehicleLocations().getValue();
-			if (vehicleLocations != null && !vehicleLocations.isEmpty()) {
-				startVehicleLocationCountdownRefresh(this);
-			}
+			startVehicleLocationCountdownRefresh(this);
 		}
 		refreshAppWasDisabledLayout();
 		if (FeatureFlags.F_NAVIGATION) {
