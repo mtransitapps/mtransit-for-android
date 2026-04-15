@@ -29,7 +29,6 @@ import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
-import org.mtransit.android.databinding.LayoutScreenToolbarBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
@@ -230,8 +229,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
             showSelectedTab()
             switchView()
-            setupScreenToolbar(screenToolbarLayout)
         }
+        setupScreenToolbar() // w/ binding
         viewModel.availableTypes.observe(viewLifecycleOwner) {
             pagerAdapter?.setTypes(it)
             showSelectedTab()
@@ -254,21 +253,21 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             updateMenuItemsVisibility(hasAgenciesAdded = it)
         }
         viewModel.fixedOnName.observe(viewLifecycleOwner) {
-            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
+            updateScreenToolbarTitle()
             abController?.setABTitle(this, getABTitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABTitle(getABTitle(context))
             }
         }
         viewModel.fixedOnColorInt.observe(viewLifecycleOwner) {
-            binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
+            updateScreenToolbarBgColor()
         }
         LocationSettingsUI.onViewCreated(this)
         LocationPermissionUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
         NewLocationUI.onViewCreated(this)
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
-            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
+            updateScreenToolbarSubtitle()
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -278,8 +277,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         }
     }
 
-    override fun updateScreenToolbarBgColor(screenToolbarLayout: LayoutScreenToolbarBinding) {
-        super.updateScreenToolbarBgColor(screenToolbarLayout)
+    override fun updateScreenToolbarBgColor() {
+        super.updateScreenToolbarBgColor()
         getABBgColor(context)?.let {
             activity?.setStatusBarBgColorEdgeToEdge(it)
             binding?.tabs?.setBackgroundColor(it)
@@ -388,6 +387,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     }
 
     override fun hasToolbar() = true
+    override fun getToolbar() = binding?.screenToolbarLayout?.screenToolbar
+    override fun getAppBarLayout() = binding?.screenToolbarLayout?.screenToolbarLayout
 
     override fun getABTitle(context: Context?) =
         attachedViewModel?.fixedOnName?.value

@@ -14,12 +14,14 @@ import androidx.fragment.app.FragmentTransaction;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.commons.FeatureFlags;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings("WeakerAccess")
 public final class FragmentUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = FragmentUtils.class.getSimpleName();
 
 	public static final String DIALOG_TAG = "dialog";
+
+	private static final String BACK_STACK_NAME = "main";
 
 	@NonNull
 	@Override
@@ -64,6 +66,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
 	}
 
+	@SuppressWarnings("unused")
 	public static void replaceFragment(@Nullable FragmentActivity fa,
 									   @IdRes int containerViewId,
 									   @NonNull Fragment fragment,
@@ -116,7 +119,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 			}
 			ft.replace(containerViewId, fragment);
 			if (addToStack) {
-				ft.addToBackStack(null);
+				ft.addToBackStack(BACK_STACK_NAME);
 			}
 			ft.commit();
 		} catch (IllegalStateException ise) {
@@ -128,6 +131,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static void replaceFragment(@Nullable FragmentActivity fa,
 									   @IdRes int containerViewId,
 									   @NonNull Fragment fragment,
@@ -151,7 +155,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 			FragmentTransaction ft = fm.beginTransaction();
 			ft.replace(containerViewId, fragment);
 			if (addToStack) {
-				ft.addToBackStack(null);
+				ft.addToBackStack(BACK_STACK_NAME);
 			}
 			ft.commit();
 		} catch (IllegalStateException ise) {
@@ -188,7 +192,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(LOG_TAG, "replaceDialogFragment() > remove old dialog %s", prev);
 				ft.remove(prev);
 			}
-			ft.addToBackStack(null);
+			ft.addToBackStack(BACK_STACK_NAME);
 			if (dialogFragment != null) {
 				MTLog.d(LOG_TAG, "replaceDialogFragment() > add new dialog %s", dialogFragment);
 				dialogFragment.show(ft, tag);

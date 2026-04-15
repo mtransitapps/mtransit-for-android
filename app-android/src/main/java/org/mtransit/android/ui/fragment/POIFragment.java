@@ -43,6 +43,7 @@ import androidx.viewbinding.ViewBinding;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.mtransit.android.R;
@@ -284,10 +285,7 @@ public class POIFragment extends ABFragment implements
 			abController.setABTitle(this, getABTitle(context), false);
 			abController.setABReady(this, isABReady(), true);
 		}
-		final Toolbar screenToolbar = binding == null ? null : binding.screenToolbarLayout.screenToolbar;
-		if (screenToolbar != null) {
-			updateScreenToolbarTitle(screenToolbar);
-		}
+		updateScreenToolbarTitle();
 		if (FeatureFlags.F_NAVIGATION) {
 			if (nextMainViewModel != null) {
 				nextMainViewModel.setABTitle(getABTitle(context));
@@ -710,7 +708,7 @@ public class POIFragment extends ABFragment implements
 
 	private void setupView() {
 		if (this.binding == null) return;
-		setupScreenToolbar(this.binding.screenToolbarLayout);
+		setupScreenToolbar(); // w/ binding
 		final Resources resources = this.binding.getRoot().getContext().getResources();
 		final MapView map = this.binding.map;
 		EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
@@ -1569,6 +1567,20 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public boolean hasToolbar() {
 		return true;
+	}
+
+	@Nullable
+	@Override
+	public Toolbar getToolbar() {
+		if (this.binding == null) return null;
+		return this.binding.screenToolbarLayout.screenToolbar;
+	}
+
+	@Nullable
+	@Override
+	public AppBarLayout getAppBarLayout() {
+		if (this.binding == null) return null;
+		return this.binding.screenToolbarLayout.screenToolbarLayout;
 	}
 
 	@Override
