@@ -28,7 +28,6 @@ import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsManager
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
@@ -517,6 +516,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     if (slidingPaneLayout.isOpen) {
                         slidingPaneLayout.closePane()
                         viewModel.cleanSelectedNewsArticle()
+                        return true // handled
                     }
                 }
             }
