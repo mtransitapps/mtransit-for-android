@@ -9,6 +9,8 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.SearchView.OnQueryTextListener
+import androidx.activity.OnBackPressedCallback
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,8 +72,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<SearchViewModel>()
-    private val attachedViewModel
-        get() = if (isAttached()) viewModel else null
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -116,7 +117,6 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         ).apply {
             logTag = this@SearchFragment.logTag
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)
-            setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE) // default: no type filter selected = show type headers
             setPois(emptyList()) // empty search = no result
             setTimeChangedListener { this@SearchFragment.onTimeChanged() }
         }
@@ -127,6 +127,12 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     override fun onAttach(context: Context) {
         super.onAttach(context)
         this.listAdapter.setActivity(this)
+    }
+
+    private val onBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
+        override fun handleOnBackPressed() {
+            onUpBackPressed()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -143,6 +149,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 adapter = typeFilterAdapter
             }
             setupScreenToolbar(screenToolbarLayout)
+            requireActivity().onBackPressedDispatcher.addCallback(
+                viewLifecycleOwner,
+                onBackPressedCallback,
+            )
+            root.doOnLayout {
+                onBackPressedCallback.isEnabled = viewModel.typeFilter.value != null
+            }
         }
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
@@ -199,6 +212,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 isVisible = dst != null
             }
             listAdapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
+            onBackPressedCallback.isEnabled = dst != null
         }
         viewModel.searchHasFocus.observe(viewLifecycleOwner) {
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
@@ -209,6 +223,23 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             }
             lastDevEnabled = devEnabled
         }
+    }
+
+    override fun onScreenToolbarNavigationClick(v: View) {
+        if (onUpBackPressed()) {
+            return // handled
+        }
+        super.onScreenToolbarNavigationClick(v)
+    }
+
+    private fun onUpBackPressed(): Boolean {
+        attachedViewModel?.let { viewModel ->
+            if (viewModel.typeFilter.value != null) {
+                viewModel.setTypeFilter(null)
+                return true // handled
+            }
+        }
+        return false
     }
 
     private fun onTimeChanged() {
