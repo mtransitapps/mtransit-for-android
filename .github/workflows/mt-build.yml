@@ -70,7 +70,7 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.1.0
 
       - name: MT test
         run: ./test_only.sh
@@ -107,7 +107,7 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.1.0
 
       - name: MT lint
         run: ./lint_only.sh
@@ -143,7 +143,7 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.1.0
 
       - name: MT assemble release (APK & ABB)
         run: ./assemble_release.sh

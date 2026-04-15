@@ -39,7 +39,7 @@ jobs:
           token: ${{ secrets.MT_PAT }}
 
       - name: MT setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.1.0
 
       - name: MT pull store listings
         env:
