@@ -10,7 +10,6 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.SearchView.OnQueryTextListener
 import androidx.activity.OnBackPressedCallback
-import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
@@ -153,9 +152,6 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 viewLifecycleOwner,
                 onBackPressedCallback,
             )
-            root.doOnLayout {
-                onBackPressedCallback.isEnabled = viewModel.typeFilter.value != null
-            }
         }
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
