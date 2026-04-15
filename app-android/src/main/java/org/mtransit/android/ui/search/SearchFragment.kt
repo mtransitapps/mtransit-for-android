@@ -116,6 +116,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         ).apply {
             logTag = this@SearchFragment.logTag
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)
+            setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE) // default: no type filter selected = show type headers
             setPois(emptyList()) // empty search = no result
             setTimeChangedListener { this@SearchFragment.onTimeChanged() }
         }
