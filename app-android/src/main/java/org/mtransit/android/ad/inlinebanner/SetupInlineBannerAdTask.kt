@@ -7,9 +7,9 @@ import androidx.core.view.isVisible
 import com.google.android.gms.ads.AdView
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.ui.view.common.IFragment
 import java.lang.ref.WeakReference
@@ -41,7 +41,7 @@ class SetupInlineBannerAdTask(
     override fun getLogTag() = LOG_TAG
 
     @WorkerThread
-    override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean? {
+    override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean {
         if (!AdConstants.AD_ENABLED) {
             return false
         }
@@ -50,13 +50,13 @@ class SetupInlineBannerAdTask(
 
     @MainThread
     override fun onPostExecuteNotCancelledMT(result: Boolean?) {
-        val isShowingAds = result
+        val isShowingAds = result == true
         val activity = this.fragmentWR.get()
         if (activity == null) {
-            MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no activity)")
+            logAdsD(this, "onPostExecuteNotCancelledMT() > SKIP (no activity)")
             return
         }
-        if (isShowingAds == true && !isCancelled) { // show ads
+        if (isShowingAds && !isCancelled) { // show ads
             val adLayout = this.inlineBannerAdManager.getAdLayout(activity)
             if (adLayout != null) {
                 var adView = this.inlineBannerAdManager.getAdView(adLayout)

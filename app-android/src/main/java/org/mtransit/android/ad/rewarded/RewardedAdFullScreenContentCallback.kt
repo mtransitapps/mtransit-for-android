@@ -2,8 +2,8 @@ package org.mtransit.android.ad.rewarded
 
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.FullScreenContentCallback
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.MTLog.Loggable
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.ui.view.common.IActivity
@@ -45,7 +45,7 @@ class RewardedAdFullScreenContentCallback(
     }
 
     override fun onAdDismissedFullScreenContent() {
-        MTLog.d(this, "onAdDismissedFullScreenContent() > Rewarded ad dismissed.")
+        logAdsD(this, "onAdDismissedFullScreenContent() > Rewarded ad dismissed.")
         this.rewardedAdManager.setRewardedAd(null) // clear dismissed ad
     }
 }

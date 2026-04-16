@@ -11,14 +11,18 @@ import androidx.annotation.IntDef
 import androidx.core.util.forEach
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
+import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.Accessibility
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
+import org.mtransit.android.commons.data.arrivalDiff
 import org.mtransit.android.commons.equalOrAfter
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
+import org.mtransit.android.data.getAbsoluteDepartureDiffString
 import org.mtransit.android.data.makeHeading
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
@@ -28,7 +32,8 @@ import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.Constants
+import org.mtransit.commons.Constants.EMPTY
+import org.mtransit.commons.Constants.SPACE
 import org.mtransit.commons.beginningOfDay
 import org.mtransit.commons.date
 import org.mtransit.commons.hourOfTheDay
@@ -39,14 +44,16 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
-class ScheduleAdapter
-    : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+class ScheduleAdapter :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = ScheduleAdapter::class.java.simpleName
+        private val LOG_TAG: String = ScheduleAdapter::class.java.simpleName
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(ITEM_VIEW_TYPE_DAY_SEPARATORS, ITEM_VIEW_TYPE_HOUR_SEPARATORS, ITEM_VIEW_TYPE_TIME, ITEM_VIEW_TYPE_LOADING)
@@ -114,12 +121,14 @@ class ScheduleAdapter
 
     private var nowToTheMinute: Long = UITimeUtils.currentTimeToTheMinuteMillis()
 
-    private var optRds: RouteDirectionStop? = null
+    private var optPOIM: POIManager? = null
 
     var timestamps: List<Schedule.Timestamp>? = null
-        set(value) {
-            if (field == value) return
-            field = value
+        set(newValue) {
+            if (field == newValue) {
+                return
+            }
+            field = newValue
             updateTimes()
         }
 
@@ -167,8 +176,8 @@ class ScheduleAdapter
         }
     }
 
-    fun setRDS(rds: RouteDirectionStop?) {
-        this.optRds = rds
+    fun setPOIM(poim: POIManager?) {
+        this.optPOIM = poim
     }
 
     var showingAccessibility: Boolean? = null
@@ -237,8 +246,9 @@ class ScheduleAdapter
         var dayBeginningCalendar: Calendar? = null
         var dayToHourToTimestamp: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
         val calendar = Calendar.getInstance(localTimeZone)
-        for (timestamp in timestamps) {
-            calendar.timeInMillis = timestamp.t
+        timestamps.forEach { timestamp ->
+            val departureT = timestamp.departureT
+            calendar.timeInMillis = departureT
             if (dayBeginningCalendar == null || !dayBeginningCalendar.isSameDay(calendar)) {
                 dayBeginningCalendar = calendar.beginningOfDay
                 dayToHourToTimestamp = this.dayToHourToTimestamps.firstOrNull { it.first == dayBeginningCalendar.timeInMillis }
@@ -252,7 +262,7 @@ class ScheduleAdapter
             }
             dayToHourToTimestamp?.second?.get(calendar.hourOfTheDay)?.add(timestamp)
             newTimesCount++
-            if (this.nextTimestamp == null && timestamp.t >= this.nowToTheMinute) {
+            if (this.nextTimestamp == null && departureT >= this.nowToTheMinute) {
                 this.nextTimestamp = timestamp
             }
         }
@@ -284,7 +294,7 @@ class ScheduleAdapter
         }
         val localTimeZone = this.localTimeZone ?: return NO_POSITION
         var index = 0
-        val date = Date(item.t)
+        val date = Date(item.departureT)
         var thatDate: Date
         var nextDate: Date?
         var nextHourOfTheDay: Int
@@ -305,7 +315,7 @@ class ScheduleAdapter
                         }
                         if (nextDate == null || date.before(nextDate)) {
                             for (hourTime in hourTimes) {
-                                if (item.t == hourTime.t) {
+                                if (item.departureT == hourTime.departureT) {
                                     return index
                                 }
                                 index++ // after
@@ -484,7 +494,7 @@ class ScheduleAdapter
                     getTimestampItem(position),
                     nowToTheMinute,
                     nextTimestamp,
-                    this.optRds,
+                    this.optPOIM,
                     this.showingAccessibility,
                 )
             }
@@ -592,9 +602,10 @@ class ScheduleAdapter
                 return TimeViewHolder(binding)
             }
 
-            private const val P2 = ")"
             private const val P1 = " ("
+            private const val P2 = ")"
 
+            private val LATE_EARLY_MIN_DIFF = 45.seconds
         }
 
         val context: Context
@@ -604,19 +615,28 @@ class ScheduleAdapter
             timestamp: Schedule.Timestamp? = null,
             nowToTheMinuteInMs: Long = -1L,
             nextTimestamp: Schedule.Timestamp? = null,
-            optRds: RouteDirectionStop? = null,
+            optPOIM: POIManager? = null,
             showingAccessibility: Boolean? = null,
         ) {
             if (timestamp == null) {
                 binding.time.text = null
                 return
             }
+            val optRds = optPOIM?.poi as? RouteDirectionStop
             val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
             var timeSb = SpannableStringBuilder(formattedTime)
+            timestamp.getAbsoluteDepartureDiffString(context, LATE_EARLY_MIN_DIFF, LATE_EARLY_MIN_DIFF, short = false)?.let {
+                timeSb.append(P1).append(it).append(P2)
+            }
+            if (timestamp.arrivalDiff > 1.minutes) {
+                timeSb.append(P1)
+                    .append(context.getString(R.string.arrival_and, UITimeUtils.formatTimestamp(context, timestamp, timestamp.arrivalT)))
+                    .append(P2)
+            }
             timeSb.append(
                 UIAccessibilityUtils.decorate(
                     context,
-                    Accessibility.decorate(Constants.EMPTY, timestamp.accessibleOrDefault),
+                    Accessibility.decorate(EMPTY, timestamp.accessibleOrDefault),
                     showingAccessibility == true,
                     UIAccessibilityUtils.ImageSize.SMALL,
                     false
@@ -624,15 +644,17 @@ class ScheduleAdapter
             )
             val timeOnly = timeSb.toString()
             timestamp.makeHeading(context, optRds?.direction?.getHeading(context), small = false)?.let {
-                timeSb.append(P1).append(it).append(P2)
+                timeSb.append(SPACE).append(it)
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
-            val nextTimeInMsT = nextTimestamp?.t ?: -1L
+            timeSb = UISchedule.decorateCancelled(timestamp, timeSb, optPOIM?.serviceUpdatesOrNull)
+            val nextTimeInMsT = nextTimestamp?.departureT ?: -1L
             if (nowToTheMinuteInMs > 0L) {
-                val compareToNow = nowToTheMinuteInMs - timestamp.t
-                val sameTimestamp = nextTimeInMsT == timestamp.t
+                val departureT = timestamp.departureT
+                val compareToNow = nowToTheMinuteInMs - departureT
+                val sameTimestamp = nextTimeInMsT == departureT
                 if (sameTimestamp
                 ) { // now
                     SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE)

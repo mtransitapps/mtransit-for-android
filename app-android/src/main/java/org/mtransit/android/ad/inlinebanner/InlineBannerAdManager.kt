@@ -6,6 +6,7 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdScreenFragment
@@ -41,6 +42,7 @@ class InlineBannerAdManager @Inject constructor(
 
     @JvmOverloads
     fun refreshBannerAdStatus(fragment: IFragment, adScreenFragment: IAdScreenFragment?, force: Boolean = false) {
+        @Suppress("SimplifyBooleanWithConstants")
         if (this.globalAdManager.isShowingAds() // showing ads across the app
             && (UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS && adScreenFragment?.hasAds() == true) // this specific screen does include ads already
         ) {
@@ -87,7 +89,7 @@ class InlineBannerAdManager @Inject constructor(
             return
         }
         if (!this.globalAdManager.isShowingAds()) {
-            MTLog.d(this, "setupBannerAd() > SKIP (not showing ads)")
+            logAdsD(this, "setupBannerAd() > SKIP (not showing ads)")
             return
         }
         if (force) {

@@ -42,30 +42,45 @@ jobs:
           token: ${{ secrets.MT_PAT }}
           fetch-depth: 0 # fetch all (not required util release build)
 
+      - name: Check if config/input_url file exists
+        id: check-input-url
+        run: |
+          if [[ -f "config/input_url" || -f "app-android/config/input_url" ]]; then
+            echo "has_input_url=true" >> "$GITHUB_OUTPUT"
+          else
+            echo ">> No input_url file found. Skipping remaining steps."
+            echo "has_input_url=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: MT setup
+        if: steps.check-input-url.outputs.has_input_url == 'true'
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
         with:
           code-sync: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
 
       - name: MT commit code change
+        if: steps.check-input-url.outputs.has_input_url == 'true'
         run: ./commit_code_change.sh
 
       - name: MT download data (& archive)
+        if: steps.check-input-url.outputs.has_input_url == 'true'
         run: ./agency-parser/download.sh
         timeout-minutes: 20
 
       - name: MT push commits
+        if: steps.check-input-url.outputs.has_input_url == 'true'
         run: ./push_commits.sh
 
-      - name: MT check if data is outdated & trigger sync
+      - name: MT check if data is outdated or new data downloaded & trigger sync
+        if: steps.check-input-url.outputs.has_input_url == 'true'
         continue-on-error: true
         run: |
-          if ./agency-parser/check_data_outdated.sh; then
-            echo ">> Data is up-to-date.";
+          if [[ "${MT_SKIP_PUSH_COMMIT}" != false ]] && ./agency-parser/check_data_not_outdated.sh; then
+            echo ">> No new data downloaded and data is up-to-date. No sync needed.";
           else
-            echo ">> Data is outdated. Triggering mt-sync-code-data.yml workflow...";
-            gh workflow run mt-sync-code-data.yml
+            echo ">> New data downloaded or data is outdated. Triggering mt-sync-code-data.yml workflow (skip download data)...";
+            gh workflow run mt-sync-code-data.yml -f skip-download-data=true
           fi
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}

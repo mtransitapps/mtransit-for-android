@@ -4,6 +4,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.MTLog.Loggable
@@ -21,7 +22,7 @@ class RewardedAdLoadCallback(
     override fun getLogTag() = LOG_TAG
 
     override fun onAdLoaded(rewardedAd: RewardedAd) {
-        MTLog.d(this, "onAdLoaded() > Rewarded ad loaded from %s.", rewardedAd.responseInfo.mediationAdapterClassName)
+        logAdsD(this, "onAdLoaded() > Rewarded ad loaded from ${rewardedAd.responseInfo.mediationAdapterClassName}.")
         this.rewardedAdManager.setRewardedAd(rewardedAd)
         val listener = this.rewardedAdManager.rewardedAdListener
         listener?.onRewardedAdStatusChanged()

@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.MenuProvider;
-import androidx.lifecycle.Lifecycle;
 import androidx.webkit.WebViewClientCompat;
 
 import org.mtransit.android.R;
@@ -158,7 +157,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		requireActivity().addMenuProvider(this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 		this.binding = FragmentWebBrowserBinding.bind(view);
 		setupView(binding);
 		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
@@ -184,8 +182,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		final View view = binding.getRoot();
 		EdgeToEdgeKt.applyStatusBarsInsetsEdgeToEdge(view);
 		setupScreenToolbar(binding.screenToolbarLayout);
-		updateScreenToolbarBgColor(binding.screenToolbarLayout);
-		updateScreenToolbarOverrideGradient(binding.screenToolbarLayout);
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) binding.screenContent.getLayoutParams();
 			params.setBehavior(null);

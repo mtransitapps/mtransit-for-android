@@ -25,7 +25,7 @@ import kotlin.getValue
 class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
 
     companion object {
-        private val LOG_TAG = PurchaseActivity::class.java.simpleName
+        private val LOG_TAG: String = PurchaseActivity::class.java.simpleName
 
         @JvmStatic
         fun newInstance(context: Context): Intent {
@@ -33,7 +33,7 @@ class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val viewModel by viewModels<PurchaseViewModel>()
 

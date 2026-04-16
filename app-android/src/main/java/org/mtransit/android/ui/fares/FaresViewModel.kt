@@ -17,12 +17,12 @@ class FaresViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = FaresViewModel::class.java.simpleName
+        private val LOG_TAG: String = FaresViewModel::class.java.simpleName
 
         private val UNSUPPORTED_TYPE = listOf(DataSourceType.TYPE_PLACE, DataSourceType.TYPE_MODULE)
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
 
     private val _filteredAgencies = dataSourcesRepository.readingAllAgencies().map { agencies ->

@@ -29,7 +29,7 @@ import javax.inject.Inject
 class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
 
     companion object {
-        private val LOG_TAG = PreferencesActivity::class.java.simpleName
+        private val LOG_TAG: String = PreferencesActivity::class.java.simpleName
 
         @JvmOverloads
         @JvmStatic
@@ -43,7 +43,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)

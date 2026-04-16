@@ -1,11 +1,16 @@
 package org.mtransit.android.provider.remoteconfig
 
 import com.google.firebase.Firebase
+import com.google.firebase.installations.FirebaseInstallationsException
+import com.google.firebase.installations.InstallationTokenResult
+import com.google.firebase.installations.installations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
+import kotlinx.coroutines.tasks.await
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.MTLog
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,8 +25,12 @@ class RemoteConfigProvider @Inject constructor(
         // const val AD_BANNER_LOAD_ON_SCREEN_RESUME = "mt_ad_banner_load_on_screen_resume" // -> true is outperforming Baseline by 95% after 2 weeks
         // const val AD_BANNER_LOAD_ON_SCREEN_RESUME_DEFAULT = false
 
-        // const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC = "mt_ad_banner_load_on_screen_resume_min_duration_sec"
-        // const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT = 1L // -> 1 second is outperforming Baseline (-1=disabled) by 114% (& 2,3,5,7,10)
+        const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC = "mt_ad_banner_load_on_screen_resume_min_duration_sec"
+        const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT = 1L // -> 1 second is outperforming Baseline (-1=disabled) by 114% (& 2,3,5,7,10)
+
+        const val AD_BANNER_KEEP_OLD_AD_VISIBLE = "mt_ad_banner_keep_old_ad_visible"
+        const val AD_BANNER_KEEP_OLD_AD_VISIBLE_DEFAULT = false
+        // const val AD_BANNER_KEEP_OLD_AD_VISIBLE_DEFAULT = true // DEBUG
 
         const val AD_BANNER_LARGE = "mt_ad_banner_large"
         const val AD_BANNER_LARGE_DEFAULT = false
@@ -29,17 +38,22 @@ class RemoteConfigProvider @Inject constructor(
         @Deprecated("use ALLOW_TWITTER_NEWS_CACHED instead")
         const val ALLOW_TWITTER_NEWS_FOR_FREE = "mt_twitter_news_free"
         const val ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT = false
+        // const val ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT = true // DEBUG
 
         const val ALLOW_TWITTER_NEWS_CACHED = "mt_twitter_news_cached"
         const val ALLOW_TWITTER_NEWS_CACHED_DEFAULT = false
+        // const val ALLOW_TWITTER_NEWS_CACHED_DEFAULT = true // DEBUG
 
         const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS = "mt_vehicle_location_refresh_min_ms"
         const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT = 30_000L // 30 seconds
+        // const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT = 10_000L // DEBUG
     }
 
     override fun getLogTag() = LOG_TAG
 
     private val remoteConfig by lazy { Firebase.remoteConfig }
+
+    private val installations by lazy { Firebase.installations }
 
     private val activated = AtomicBoolean(false)
 
@@ -83,4 +97,14 @@ class RemoteConfigProvider @Inject constructor(
 
     fun getAll(): Map<String, String>? =
         remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
+
+    suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
+        installations.getToken(forceRefresh).await()
+    } catch (e: FirebaseInstallationsException) {
+        MTLog.w(this, e, "Firebase installation error while getting installation token!")
+        null
+    } catch (e: IOException) {
+        MTLog.w(this, e, "I/O Error while getting installation token!")
+        null
+    }
 }

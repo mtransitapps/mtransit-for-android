@@ -11,12 +11,12 @@ import java.util.List;
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class NoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
-	private static final String TAG = NoClusteringStrategy.class.getSimpleName();
+	private static final String LOG_TAG = NoClusteringStrategy.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public NoClusteringStrategy(List<DelegatingMarker> markers) {

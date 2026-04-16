@@ -9,19 +9,18 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
@@ -50,13 +49,14 @@ import org.mtransit.android.ui.view.common.startMargin
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
 import java.util.TimeZone
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = ScheduleFragment::class.java.simpleName
+        private val LOG_TAG: String = ScheduleFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "Schedule"
 
@@ -88,16 +88,19 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             uuid: String,
             authority: String,
             optColor: String? = null,
-        ) = bundleOf(
-            ScheduleViewModel.EXTRA_POI_UUID to uuid,
-            ScheduleViewModel.EXTRA_AUTHORITY to authority,
-            ScheduleViewModel.EXTRA_COLOR to (optColor ?: ScheduleViewModel.EXTRA_COLOR_DEFAULT)
-        )
+        ) = Bundle().apply {
+            putString(ScheduleViewModel.EXTRA_POI_UUID, uuid)
+            putString(ScheduleViewModel.EXTRA_AUTHORITY, authority)
+            putString(ScheduleViewModel.EXTRA_COLOR, optColor ?: ScheduleViewModel.EXTRA_COLOR_DEFAULT)
+        }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
+
+    @Inject
+    lateinit var adManager: AdManager
 
     private val viewModel by viewModels<ScheduleViewModel>()
     private val attachedViewModel
@@ -111,12 +114,14 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     private var timeChangedReceiverEnabled = false
 
-    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { onTimeChanged() }
-
-    private fun onTimeChanged() {
+    private val timeChangedListener = UITimeUtils.TimeChangedReceiver.TimeChangedListener {
         listAdapter.onTimeChanged()
+        attachedViewModel?.triggerRealTimeTimestampRefresh()
         bindLocaleTime(attachedViewModel?.localTimeZone?.value)
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
+
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver(timeChangedListener) // need to create an object because of WeakReference
 
     private val onScrollListener = object : OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -133,9 +138,6 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
         binding = FragmentScheduleInfiniteBinding.bind(view).apply {
             applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             list.apply {
@@ -210,8 +212,10 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
         }
-        viewModel.rds.observe(viewLifecycleOwner) { rds ->
-            listAdapter.setRDS(rds)
+        viewModel.poim.observe(viewLifecycleOwner) { poim ->
+            listAdapter.setPOIM(poim)
+        }
+        viewModel.rds.observe(viewLifecycleOwner) { _ ->
             abController?.setABTitle(this, getABTitle(context), false)
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABSubtitle(this, getABSubtitle(context), false)
@@ -278,7 +282,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             context?.let {
                 ContextCompat.registerReceiver(it, timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED)
                 timeChangedReceiverEnabled = true
-                onTimeChanged() // force update to current time before next change
+                timeChangedListener.onTimeChanged() // force update to current time before next change
             } ?: run {
                 MTLog.w(this, "enableTimeChangedReceiver() > SKIP (no context)")
             }

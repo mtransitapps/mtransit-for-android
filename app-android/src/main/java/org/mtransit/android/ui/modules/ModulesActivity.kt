@@ -16,7 +16,7 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
 
     companion object {
 
-        private val LOG_TAG = ModulesActivity::class.java.simpleName
+        private val LOG_TAG: String = ModulesActivity::class.java.simpleName
 
         @JvmStatic
         fun newInstance(context: Context): Intent {
@@ -24,7 +24,7 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdgeMT()

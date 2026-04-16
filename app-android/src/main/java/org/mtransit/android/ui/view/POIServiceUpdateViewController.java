@@ -19,10 +19,11 @@ import org.mtransit.android.data.UIServiceUpdates;
 import org.mtransit.android.databinding.LayoutPoiServiceUpdateBinding;
 import org.mtransit.android.ui.common.UISourceLabelUtils;
 import org.mtransit.android.util.LinkUtils;
+import org.mtransit.android.util.UIFeatureFlags;
 
 import java.util.List;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings("WeakerAccess")
 public class POIServiceUpdateViewController implements MTLog.Loggable {
 
 	private static final String LOG_TAG = POIServiceUpdateViewController.class.getSimpleName();
@@ -33,6 +34,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
+	@SuppressWarnings("unused")
 	@NonNull
 	public static ViewBinding getLayoutViewBinding(@NonNull ViewStub viewStub) {
 		viewStub.setLayoutResource(getLayoutResId());
@@ -52,8 +54,9 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		view.setTag(serviceUpdatesListViewHolder);
 	}
 
+	@SuppressWarnings("unused")
 	public static void updateView(@Nullable View view,
-								  @Nullable List<ServiceUpdate> serviceUpdates,
+								  @NonNull List<ServiceUpdate> serviceUpdates,
 								  @NonNull POIDataProvider dataProvider) {
 		if (view == null) {
 			MTLog.d(LOG_TAG, "updateView() > SKIP (no view)");
@@ -82,7 +85,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 
 	private static void updateView(@NonNull Context context,
 								   @Nullable ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
-								   @Nullable List<ServiceUpdate> serviceUpdates,
+								   @NonNull List<ServiceUpdate> serviceUpdates,
 								   @NonNull POIDataProvider dataProvider) {
 		if (!dataProvider.isShowingStatus() || serviceUpdatesListViewHolder == null) {
 			if (serviceUpdatesListViewHolder != null) {
@@ -107,7 +110,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 	}
 
 	public static void updateServiceUpdate(@Nullable View view,
-										   @Nullable List<ServiceUpdate> serviceUpdates,
+										   @NonNull List<ServiceUpdate> serviceUpdates,
 										   @NonNull POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof ServiceUpdatesListViewHolder)) {
 			MTLog.d(LOG_TAG, "updateView() > SKIP (no view holder)");
@@ -119,7 +122,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 
 	private static void updateServiceUpdatesView2(@NonNull Context context,
 												  @Nullable ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
-												  @Nullable List<ServiceUpdate> serviceUpdates,
+												  @NonNull List<ServiceUpdate> serviceUpdates,
 												  @NonNull POIDataProvider dataProvider) {
 		if (serviceUpdatesListViewHolder != null) {
 			if (dataProvider.isShowingServiceUpdates()) {
@@ -159,13 +162,17 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 
 	private static void updateServiceUpdatesView(@NonNull Context context,
 												 @NonNull ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
-												 @Nullable List<ServiceUpdate> serviceUpdates,
+												 @NonNull List<ServiceUpdate> serviceUpdates,
 												 @NonNull POIDataProvider dataProvider) {
 		final String serviceUpdateHTMLText = UIServiceUpdates.makeServiceUpdatesHTMLText(context, serviceUpdates);
 		final boolean hasServiceUpdatesToShow = !serviceUpdateHTMLText.isEmpty();
 		final boolean hasWarnings = UIServiceUpdates.hasWarnings(serviceUpdates);
-		serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdateHTMLText), false), TextView.BufferType.SPANNABLE);
-		serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptor.getInstance(dataProvider));
+		if (UIFeatureFlags.F_SERVICE_UPDATE_ELLIPSIZE_IN_POI) {
+			serviceUpdatesListViewHolder.messagesTv.setText(HtmlUtils.fromHtml(serviceUpdateHTMLText));
+		} else {
+			serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdateHTMLText), false), TextView.BufferType.SPANNABLE);
+			serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptor.getInstance(dataProvider));
+		}
 		serviceUpdatesListViewHolder.messagesTv.setBackgroundResource(
 				hasWarnings ? R.drawable.service_update_warning
 						: R.drawable.service_update_info

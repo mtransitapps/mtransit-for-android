@@ -54,7 +54,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
@@ -111,6 +110,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -204,6 +204,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private FavoriteManager.FavoriteUpdateListener favoriteUpdateListener = this;
 
+	@Nullable
+	private UITimeUtils.TimeChangedReceiver.TimeChangedListener timeChangedListener = null;
+
 	@NonNull
 	private final MTSensorManager sensorManager;
 	@NonNull
@@ -252,6 +255,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	public void setFavoriteUpdateListener(@NonNull FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
 		this.favoriteUpdateListener = favoriteUpdateListener;
+	}
+
+	public void setTimeChangedListener(@Nullable UITimeUtils.TimeChangedReceiver.TimeChangedListener timeChangedListener) {
+		this.timeChangedListener = timeChangedListener;
 	}
 
 	@SuppressWarnings("unused")
@@ -415,7 +422,26 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				position += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
+		MTLog.w(this, "getPosition() > Cannot find position for item '%s'!", item == null ? null : item.poi.getUUID());
 		return position;
+	}
+
+	@Nullable
+	public POIManager getItemByUUID(@NonNull String uuid) {
+		if (this.poisByType != null) {
+			for (Integer type : this.poisByType.keySet()) {
+				final List<POIManager> typePOIMs = this.poisByType.get(type);
+				if (typePOIMs != null) {
+					for (POIManager item : typePOIMs) {
+						if (item.poi.getUUID().equals(uuid)) {
+							return item;
+						}
+					}
+				}
+			}
+		}
+		MTLog.w(this, "getItemByUUID() > Cannot find item for uuid '%s'!", uuid);
+		return null;
 	}
 
 	@Nullable
@@ -1108,7 +1134,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (this.showStatus) {
 			final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
 			if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.getUuid())) {
-				POICommonStatusViewHolder.updateView(statusViewHolder, status, this);
+				final POIManager poim = getItemByUUID(status.getTargetUUID());
+				final List<ServiceUpdate> poiServiceUpdates = poim == null ? null : poim.getServiceUpdatesOrNull();
+				POICommonStatusViewHolder.updateView(statusViewHolder, status, this, poiServiceUpdates);
 			} else {
 				notifyDataSetChanged(false);
 			}
@@ -1116,7 +1144,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates) {
 		if (this.showServiceUpdate) {
 			final POIServiceUpdateViewHolder serviceUpdateViewHolder = this.poiServiceUpdateViewHoldersWR.get(targetUUID);
 			if (serviceUpdateViewHolder != null && targetUUID.equals(serviceUpdateViewHolder.getUuid())) {
@@ -1210,7 +1238,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 				frameLayout.addView(itemView);
 				View selectorView = new View(getContext());
-				SupportFactory.get().setBackground(selectorView, ThemeUtils.obtainStyledDrawable(getContext(), android.R.attr.selectableItemBackground));
+				selectorView.setBackground(ThemeUtils.obtainStyledDrawable(getContext(), android.R.attr.selectableItemBackground));
 				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 				frameLayout.addView(selectorView);
 				final int position = i;
@@ -1995,6 +2023,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@Override
 	public void onTimeChanged() {
 		resetNowToTheMinute();
+		if (this.timeChangedListener != null) {
+			this.timeChangedListener.onTimeChanged();
+		}
 	}
 
 	private final UITimeUtils.TimeChangedReceiver timeChangedReceiver = new UITimeUtils.TimeChangedReceiver(this);
@@ -2071,11 +2102,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 		}
 		if (holder.getLocationTv() != null) {
-			if (TextUtils.isEmpty(poim.getLocation())) {
+			if (TextUtils.isEmpty(poim.getLocationString())) {
 				holder.getLocationTv().setVisibility(View.GONE);
 				holder.getLocationTv().setText(null);
 			} else {
-				holder.getLocationTv().setText(poim.getLocation());
+				holder.getLocationTv().setText(poim.getLocationString());
 				holder.getLocationTv().setVisibility(View.VISIBLE);
 			}
 		}
@@ -2177,7 +2208,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							|| //
 							(this.favUUIDsFolderIds != null //
 									&& this.favUUIDsFolderIds.containsKey(uid) //
-									&& !SupportFactory.get().equals(this.favUUIDsFolderIds.get(uid), favorite.getFolderId())) //
+									&& !Objects.equals(this.favUUIDsFolderIds.get(uid), favorite.getFolderId())) //
 					) {
 						newFav = true;
 						updatedFav = true;

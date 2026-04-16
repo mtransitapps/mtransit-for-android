@@ -113,7 +113,7 @@ class DataSourcesReader @Inject constructor(
         private val MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS = TimeUnit.HOURS.toMillis(6L)
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     @get:WorkerThread
     @set:WorkerThread
@@ -206,7 +206,7 @@ class DataSourcesReader @Inject constructor(
                 )
             }
         }
-        MTLog.d(this, "update() > $updated")
+        MTLog.d(this@DataSourcesReader, "update() > $updated")
         return updated
     }
 
@@ -707,7 +707,10 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private suspend fun refreshVehicleLocationProviderProperties(vehicleLocationProviderProperties: VehicleLocationProviderProperties, markUpdated: () -> Unit) {
+    private suspend fun refreshVehicleLocationProviderProperties(
+        vehicleLocationProviderProperties: VehicleLocationProviderProperties,
+        markUpdated: () -> Unit
+    ) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         val pkg = vehicleLocationProviderProperties.pkg
         val authority = vehicleLocationProviderProperties.authority

@@ -71,7 +71,7 @@ class POIViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = POIViewModel::class.java.simpleName
+        private val LOG_TAG: String = POIViewModel::class.java.simpleName
 
         internal const val EXTRA_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_POI_UUID = "extra_poi_uuid"
@@ -80,7 +80,7 @@ class POIViewModel @Inject constructor(
         private const val NEARBY_CONNECTIONS_MAX_COVERAGE = 2f * LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS.toFloat()
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val uuid = savedStateHandle.getLiveDataDistinct<String>(EXTRA_POI_UUID)
 
@@ -154,7 +154,7 @@ class POIViewModel @Inject constructor(
                     }.flatten()
                 )
             }
-        }
+        }.distinctUntilChanged()
 
     val poiList: LiveData<List<POIManager>?> = MediatorLiveData2(agency, _poi).switchMap { (agency, poi) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
@@ -191,9 +191,11 @@ class POIViewModel @Inject constructor(
             }
         )
 
-    val scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
+    private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)
     }
+
+    val hasScheduleProviders = _scheduleProviders.map { it.isNotEmpty() }
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
@@ -262,7 +264,7 @@ class POIViewModel @Inject constructor(
         var ad = LocationUtils.getNewDefaultAroundDiff()
         var maxDistanceInMeters = NEARBY_CONNECTIONS_INITIAL_COVERAGE
         var nearbyAgencyPOIAdded = false
-        // 1 - try connections only in closest nearby area
+        // 1 - try connections only in the closest nearby area
         while (true) {
             if (maxDistanceInMeters >= LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)) {
                 LocationUtils.incAroundDiff(ad)

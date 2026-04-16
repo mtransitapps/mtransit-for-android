@@ -10,16 +10,16 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
@@ -69,7 +69,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = HomeFragment::class.java.simpleName
+        private val LOG_TAG: String = HomeFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "Home"
 
@@ -79,7 +79,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
@@ -113,6 +113,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var adManager: AdManager
 
     @Inject
     lateinit var demoModeManager: DemoModeManager
@@ -176,6 +179,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             setOnTypeHeaderButtonsClickListener(typeHeaderButtonsClickListener)
             setPois(attachedViewModel?.nearbyPOIs?.value)
             setLocation(attachedViewModel?.deviceLocation?.value)
+            setTimeChangedListener { this@HomeFragment.onTimeChanged() }
         }
     }
 
@@ -190,9 +194,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
         binding = FragmentHomeBinding.bind(view).apply {
             applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             listLayout.list.apply {
@@ -212,11 +213,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                     }
                 }
             }
+            setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             listAdapter.setLocation(it)
         }
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
+            binding?.apply { updateScreenToolbarSubtitle(screenToolbarLayout.screenToolbar) }
             abController?.setABSubtitle(this, getABSubtitle(context), true)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -265,6 +268,10 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 }
             })
         }
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun switchView() = binding?.apply {
@@ -362,12 +369,16 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
+    override fun hasToolbar() = true
+
     override fun getABTitle(context: Context?) =
         if (attachedViewModel?.isFullDemo() == true) "MonTransit"
         else context?.getString(R.string.app_name) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) =
-        this.attachedViewModel?.nearbyLocationAddress?.value ?: context?.getString(commonsR.string.ellipsis) ?: super.getABSubtitle(context)
+        this.attachedViewModel?.nearbyLocationAddress?.value
+            ?: context?.getString(commonsR.string.ellipsis)
+            ?: super.getABSubtitle(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

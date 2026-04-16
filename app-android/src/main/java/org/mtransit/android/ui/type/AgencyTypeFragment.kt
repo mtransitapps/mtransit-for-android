@@ -12,13 +12,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
-import androidx.core.os.bundleOf
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.model.CameraPosition
@@ -29,28 +26,31 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.FragmentAgencyTypeBinding
+import org.mtransit.android.databinding.LayoutScreenToolbarBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.nearby.NearbyFragment
+import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
-import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
+import javax.inject.Inject
 import kotlin.math.abs
 import org.mtransit.android.commons.R as commonsR
 
@@ -61,7 +61,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = AgencyTypeFragment::class.java.simpleName
+        private val LOG_TAG: String = AgencyTypeFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Browse"
 
@@ -79,27 +79,35 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
         @JvmOverloads
         @JvmStatic
-        fun newInstance(dst: DataSourceType, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =
-            newInstance(
-                dst.id,
-                optSelectedAgencyAuthority,
-                optMapCameraPosition?.target?.latitude,
-                optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom,
-                optSelectedUuid,
-            )
+        fun newInstance(
+            dst: DataSourceType,
+            optSelectedAgencyAuthority: String? = null,
+            optMapCameraPosition: CameraPosition? = null,
+            optSelectedUuid: String? = null,
+        ) = newInstance(
+            dst.id,
+            optSelectedAgencyAuthority,
+            optMapCameraPosition?.target?.latitude,
+            optMapCameraPosition?.target?.longitude,
+            optMapCameraPosition?.zoom,
+            optSelectedUuid,
+        )
 
         @JvmOverloads
         @JvmStatic
-        fun newInstance(@DataSourceTypeId.DataSourceType dstId: Int, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =
-            newInstance(
-                dstId,
-                optSelectedAgencyAuthority,
-                optMapCameraPosition?.target?.latitude,
-                optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom,
-                optSelectedUuid,
-            )
+        fun newInstance(
+            @DataSourceTypeId.DataSourceType dstId: Int,
+            optSelectedAgencyAuthority: String? = null,
+            optMapCameraPosition: CameraPosition? = null,
+            optSelectedUuid: String? = null,
+        ) = newInstance(
+            dstId,
+            optSelectedAgencyAuthority,
+            optMapCameraPosition?.target?.latitude,
+            optMapCameraPosition?.target?.longitude,
+            optMapCameraPosition?.zoom,
+            optSelectedUuid,
+        )
 
         @JvmStatic
         fun newInstance(
@@ -127,15 +135,19 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
         @JvmOverloads
         @JvmStatic
-        fun newInstanceArgs(dst: DataSourceType, optSelectedAgencyAuthority: String? = null, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =
-            newInstanceArgs(
-                dst.id,
-                optSelectedAgencyAuthority,
-                optMapCameraPosition?.target?.latitude,
-                optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom,
-                optSelectedUuid,
-            )
+        fun newInstanceArgs(
+            dst: DataSourceType,
+            optSelectedAgencyAuthority: String? = null,
+            optMapCameraPosition: CameraPosition? = null,
+            optSelectedUuid: String? = null,
+        ) = newInstanceArgs(
+            dst.id,
+            optSelectedAgencyAuthority,
+            optMapCameraPosition?.target?.latitude,
+            optMapCameraPosition?.target?.longitude,
+            optMapCameraPosition?.zoom,
+            optSelectedUuid,
+        )
 
         @JvmOverloads
         @JvmStatic
@@ -162,19 +174,22 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             optMapLng: Double? = null,
             optMapZoom: Float? = null,
             optSelectedUuid: String? = null,
-        ) = bundleOf(
-            AgencyTypeViewModel.EXTRA_TYPE_ID to dstId,
-            AgencyTypeViewModel.EXTRA_SELECTED_AUTHORITY to optSelectedAgencyAuthority,
-            AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
-            AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
-            AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
-            AgencyTypeViewModel.EXTRA_SELECTED_UUID to optSelectedUuid,
-        )
+        ) = Bundle().apply {
+            putInt(AgencyTypeViewModel.EXTRA_TYPE_ID, dstId)
+            putString(AgencyTypeViewModel.EXTRA_SELECTED_AUTHORITY, optSelectedAgencyAuthority)
+            optMapLat?.let { putDouble(AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT, it) }
+            optMapLng?.let { putDouble(AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG, it) }
+            optMapZoom?.let { putFloat(AgencyTypeViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM, it) }
+            putString(AgencyTypeViewModel.EXTRA_SELECTED_UUID, optSelectedUuid)
+        }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
+
+    @Inject
+    lateinit var adManager: AdManager
 
     override val viewModel by viewModels<AgencyTypeViewModel>()
     override val attachedViewModel
@@ -245,9 +260,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
         binding = FragmentAgencyTypeBinding.bind(view).apply {
             viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 2
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
@@ -261,9 +273,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 }
             }
             showSelectedTab()
-            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge(
-                initialHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
-            )
+            setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
             if (pagerAdapter?.setAgencies(agencies) == true) {
@@ -279,13 +289,14 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 )
                 updateABColorNow()
             } else {
-                switchView()
+                binding?.switchView()
             }
             agencies?.let {
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
         }
         viewModel.title.observe(viewLifecycleOwner) {
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
         }
@@ -295,13 +306,13 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             }
         }
         viewModel.selectedTypeAgencyPosition.observe(viewLifecycleOwner) { newLastPageSelected ->
-            newLastPageSelected?.let {
-                if (this.lastPageSelected < 0) {
-                    this.lastPageSelected = it
-                    showSelectedTab()
-                    onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
-                }
+            newLastPageSelected ?: return@observe
+            if (this.lastPageSelected < 0) {
+                this.lastPageSelected = newLastPageSelected
+                showSelectedTab()
+                onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
             }
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.originalSelectedAgencyAuthority.observe(viewLifecycleOwner) { originalSelectedAgencyAuthority ->
             this.pagerAdapter?.selectedAgencyAuthority = originalSelectedAgencyAuthority
@@ -315,29 +326,27 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         ModuleDisabledUI.onViewCreated(this)
     }
 
-    private fun switchView() {
-        binding?.apply {
-            when {
-                lastPageSelected < 0 || pagerAdapter?.isReady() != true -> { // LOADING
-                    emptyLayout.isVisible = false
-                    viewPager.isVisible = false
-                    tabs.isVisible = false
-                    loadingLayout.isVisible = true
-                }
+    private fun FragmentAgencyTypeBinding.switchView() {
+        when {
+            lastPageSelected < 0 || pagerAdapter?.isReady() != true -> { // LOADING
+                emptyLayout.isVisible = false
+                viewPager.isVisible = false
+                tabs.isVisible = false
+                loadingLayout.isVisible = true
+            }
 
-                pagerAdapter?.itemCount == 0 -> { // EMPTY
-                    loadingLayout.isVisible = false
-                    viewPager.isVisible = false
-                    tabs.isVisible = false
-                    emptyLayout.isVisible = true
-                }
+            pagerAdapter?.itemCount == 0 -> { // EMPTY
+                loadingLayout.isVisible = false
+                viewPager.isVisible = false
+                tabs.isVisible = false
+                emptyLayout.isVisible = true
+            }
 
-                else -> { // LOADED
-                    loadingLayout.isVisible = false
-                    emptyLayout.isVisible = false
-                    tabs.isVisible = viewModel.tabsVisible.value == true
-                    viewPager.isVisible = true
-                }
+            else -> { // LOADED
+                loadingLayout.isVisible = false
+                emptyLayout.isVisible = false
+                tabs.isVisible = viewModel.tabsVisible.value == true
+                viewPager.isVisible = true
             }
         }
     }
@@ -360,7 +369,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         }
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
         updateABColorNow()
-        switchView()
+        binding?.switchView()
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -382,7 +391,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     override fun onResume() {
         super.onResume()
-        switchView()
+        binding?.switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }
@@ -395,44 +404,44 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
-    private fun updateABColorNow() {
-        updateABColor(delayInMs = 0L)
+    override fun updateScreenToolbarBgColor(screenToolbarLayout: LayoutScreenToolbarBinding) {
+        super.updateScreenToolbarBgColor(screenToolbarLayout)
+        getABBgColor(context)?.let {
+            activity?.setStatusBarBgColorEdgeToEdge(it)
+            binding?.tabs?.setBackgroundColor(it)
+            // TODO if (FeatureFlags.F_NAVIGATION) nextMainViewModel.setABBgColor(it)
+        }
     }
 
+    private fun updateABColorNow() = updateABColor(delayInMs = 0L)
+
     fun updateABColor(delayInMs: Long = 50L) {
-        if (updateABColorJob?.isActive == true) {
-            return // SKIP (already planned)
-        }
-        updateABColorJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) { // CPU
+        if (updateABColorJob?.isActive == true) return // SKIP (already planned)
+        updateABColorJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) { // UI
             if (abBgColorInt != null && delayInMs > 0L) {
                 delay(delayInMs) // debounce
             }
-            abBgColorInt = getNewABBgColorInt()?.also { abBgColorInt ->
-                withContext(Dispatchers.Main) { // UI
-                    binding?.tabs?.setBackgroundColor(abBgColorInt)
-                    abController?.apply {
-                        setABBgColor(this@AgencyTypeFragment, abBgColorInt, false)
-                        updateABBgColor()
-                    }
-                }
+            abBgColorInt = withContext(Dispatchers.Default) { // CPU
+                getNewABBgColorInt()
             }
-            updateABColorJob?.cancel()
+            binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
         }
     }
 
-    override fun isABReady() = attachedViewModel?.title?.value != null
+    override fun hasToolbar() = true
 
-    override fun getABTitle(context: Context?): CharSequence? {
-        return attachedViewModel?.title?.value
+    override fun isABReady() =
+        attachedViewModel?.title?.value != null
+
+    override fun getABTitle(context: Context?) =
+        attachedViewModel?.title?.value
             ?: context?.getString(commonsR.string.ellipsis)
             ?: super.getABTitle(context)
-    }
 
     @ColorInt
-    override fun getABBgColor(context: Context?): Int? {
-        return abBgColorInt
+    override fun getABBgColor(context: Context?) =
+        abBgColorInt
             ?: super.getABBgColor(context)
-    }
 
     @ColorInt
     @WorkerThread

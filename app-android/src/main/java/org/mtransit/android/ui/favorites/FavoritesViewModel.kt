@@ -55,12 +55,12 @@ class FavoritesViewModel @Inject constructor(
     ModuleDisabledAwareViewModel {
 
     companion object {
-        private val LOG_TAG = FavoritesViewModel::class.java.simpleName
+        private val LOG_TAG: String = FavoritesViewModel::class.java.simpleName
 
         private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     fun onFavoriteUpdated() {
         _favoriteUpdatedTrigger.value = (_favoriteUpdatedTrigger.value ?: 0) + 1

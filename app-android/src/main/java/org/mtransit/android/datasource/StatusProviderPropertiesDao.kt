@@ -20,4 +20,7 @@ interface StatusProviderPropertiesDao : BaseDao<StatusProviderProperties> {
 
     @Query("SELECT * FROM status_provider_properties WHERE target_authority = :targetAuthority")
     suspend fun getTargetAuthorityStatusProvider(targetAuthority: String): List<StatusProviderProperties>
+
+    @Query("SELECT * FROM status_provider_properties WHERE target_authority = :targetAuthority")
+    fun readingTargetAuthorityStatusProviders(targetAuthority: String?): LiveData<List<StatusProviderProperties>>
 }

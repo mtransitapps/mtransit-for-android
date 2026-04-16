@@ -27,6 +27,7 @@ import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteDirectionStop;
+import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.data.UISchedule.DetailsNextDepartures;
@@ -37,10 +38,11 @@ import org.mtransit.android.ui.common.UISourceLabelUtils;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings("WeakerAccess")
 public class POIStatusDetailViewController implements MTLog.Loggable {
 
 	private static final String LOG_TAG = POIStatusDetailViewController.class.getSimpleName();
@@ -52,11 +54,14 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	@Nullable
+	public static ViewBinding getLayoutViewBinding(@NonNull POIManager poim, @NonNull ViewStub viewStub) {
+		return getLayoutViewBinding(poim.getStatusType(), viewStub);
+	}
+
+	@Nullable
 	public static ViewBinding getLayoutViewBinding(int poiStatusType, @NonNull ViewStub viewStub) {
 		final Integer layoutResId = getLayoutResId(poiStatusType);
-		if (layoutResId == null) {
-			return null;
-		}
+		if (layoutResId == null) return null;
 		viewStub.setLayoutResource(layoutResId);
 		switch (poiStatusType) {
 		case POI.ITEM_STATUS_TYPE_NONE:
@@ -72,6 +77,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	@Nullable
 	public static Integer getLayoutResId(@NonNull POIManager poim) {
 		return getLayoutResId(poim.getStatusType());
@@ -119,11 +125,6 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		initCommonStatusViewHolderHolder(appStatusViewHolder, view);
 		appStatusViewHolder.textTv = view.findViewById(R.id.textTv);
 		view.setTag(appStatusViewHolder);
-	}
-
-	private static void initAvailabilityPercentViewHolder(@NonNull View view,
-														  @NonNull POIDataProvider dataProvider) {
-		initAvailabilityPercentViewHolder(null, view, dataProvider);
 	}
 
 	private static void initAvailabilityPercentViewHolder(@Nullable POIManager poim,
@@ -196,56 +197,6 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updateColorView(@Nullable View view,
-									   int statusType,
-									   @Nullable Integer color,
-									   @NonNull POIDataProvider dataProvider) {
-		if (view == null) {
-			MTLog.d(LOG_TAG, "updateColorView() > SKIP (no view)");
-			return;
-		}
-		if (view.getTag() == null || !(view.getTag() instanceof CommonStatusViewHolder)) {
-			initViewHolder(statusType, view, dataProvider);
-		}
-		switch (statusType) {
-		case POI.ITEM_STATUS_TYPE_NONE:
-		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-		case POI.ITEM_STATUS_TYPE_APP:
-			break;
-		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) view.getTag();
-			if (availabilityPercentStatusViewHolder != null && color != null) {
-				availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter(
-						color,
-						PorterDuff.Mode.SRC_IN
-				);
-			}
-			break;
-		default:
-			MTLog.w(LOG_TAG, "initViewHolder() > Unknown view status type for status %s!", statusType);
-		}
-	}
-
-	private static void initViewHolder(int statusType,
-									   @NonNull View view,
-									   @NonNull POIDataProvider dataProvider) {
-		switch (statusType) {
-		case POI.ITEM_STATUS_TYPE_NONE:
-			break;
-		case POI.ITEM_STATUS_TYPE_APP:
-			initAppStatusViewHolder(view);
-			break;
-		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			initScheduleViewHolder(view);
-			break;
-		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			initAvailabilityPercentViewHolder(view, dataProvider);
-			break;
-		default:
-			MTLog.w(LOG_TAG, "initViewHolder() > Unknown view status type for status %s!", statusType);
-		}
-	}
-
 	public static void updateView(@Nullable View view,
 								  @NonNull POIManager poim,
 								  @NonNull POIDataProvider dataProvider) {
@@ -258,53 +209,6 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 		CommonStatusViewHolder holder = (CommonStatusViewHolder) view.getTag();
 		updateView(view.getContext(), holder, poim, dataProvider);
-	}
-
-	public static void updateView(@Nullable View view,
-								  int poiStatusType,
-								  @Nullable POIStatus poiStatus,
-								  @Nullable POI poi,
-								  @NonNull POIDataProvider dataProvider) {
-		if (view == null) {
-			MTLog.d(LOG_TAG, "updateView() > SKIP (no view)");
-			return;
-		}
-		if (view.getTag() == null || !(view.getTag() instanceof CommonStatusViewHolder)) {
-			initViewHolder(poiStatusType, view, dataProvider);
-		}
-		CommonStatusViewHolder holder = (CommonStatusViewHolder) view.getTag();
-		updateView(view.getContext(), holder, poiStatusType, poiStatus, poi, dataProvider);
-	}
-
-	private static void updateView(@NonNull Context context,
-								   @Nullable CommonStatusViewHolder statusViewHolder,
-								   int poiStatusType,
-								   @Nullable POIStatus poiStatus,
-								   @Nullable POI poi,
-								   @NonNull POIDataProvider dataProvider) {
-		if (!dataProvider.isShowingStatus() || statusViewHolder == null) {
-			if (statusViewHolder != null) {
-				setStatusView(statusViewHolder, false);
-			}
-			return;
-		}
-		switch (poiStatusType) {
-		case POI.ITEM_STATUS_TYPE_NONE:
-			setStatusView(statusViewHolder, false);
-			break;
-		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			updateAvailabilityPercentView(context, statusViewHolder, poiStatus, dataProvider);
-			break;
-		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			updateScheduleView(context, statusViewHolder, poiStatus, poi, dataProvider);
-			break;
-		case POI.ITEM_STATUS_TYPE_APP:
-			updateAppStatusView(context, statusViewHolder, poiStatus, dataProvider);
-			break;
-		default:
-			MTLog.w(LOG_TAG, "Unexpected status type '%s'!", poiStatusType);
-			setStatusView(statusViewHolder, false);
-		}
 	}
 
 	private static void updateView(@NonNull Context context,
@@ -349,17 +253,6 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateAppStatusView(@NonNull Context context,
-											@NonNull CommonStatusViewHolder statusViewHolder,
-											@Nullable POIStatus poiStatus,
-											@NonNull POIDataProvider dataProvider) {
-		if (dataProvider.isShowingStatus() && statusViewHolder instanceof AppStatusViewHolder) {
-			updateAppStatusView(context, statusViewHolder, poiStatus);
-		} else {
-			setStatusView(statusViewHolder, false);
-		}
-	}
-
 	private static void updateAppStatusView(@NonNull Context context, CommonStatusViewHolder statusViewHolder, POIStatus status) {
 		final AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
 		if (status instanceof AppStatus) {
@@ -379,17 +272,6 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		if (dataProvider.isShowingStatus() && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAvailabilityPercentView(context, statusViewHolder, poim.getStatus(dataProvider.providesStatusLoader()));
-		} else {
-			setStatusView(statusViewHolder, false);
-		}
-	}
-
-	private static void updateAvailabilityPercentView(@NonNull Context context,
-													  @NonNull CommonStatusViewHolder statusViewHolder,
-													  @Nullable POIStatus poiStatus,
-													  @NonNull POIDataProvider dataProvider) {
-		if (dataProvider.isShowingStatus() && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
-			updateAvailabilityPercentView(context, statusViewHolder, poiStatus);
 		} else {
 			setStatusView(statusViewHolder, false);
 		}
@@ -443,35 +325,16 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateScheduleView(@NonNull Context context,
-										   @NonNull CommonStatusViewHolder statusViewHolder,
-										   @Nullable POIStatus poiStatus,
-										   @Nullable POI poi,
-										   @NonNull POIDataProvider dataProvider) {
-		if (dataProvider.isShowingStatus() && statusViewHolder instanceof ScheduleStatusViewHolder) {
-			updateScheduleView(context, statusViewHolder, poiStatus, dataProvider, poi);
-		} else {
-			setStatusView(statusViewHolder, false);
-		}
-	}
-
 	private static final long MIN_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(1L);
-	private static final long MAX_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(86L);
+	private static final long MAX_COVERAGE_IN_MS = TimeUnit.DAYS.toMillis(5L);
 
 	private static void updateScheduleView(@NonNull Context context,
 										   @NonNull CommonStatusViewHolder statusViewHolder,
 										   @Nullable POIStatus status,
 										   @NonNull POIDataProvider dataProvider,
 										   @Nullable POIManager optPOIM) {
-		updateScheduleView(context, statusViewHolder, status, dataProvider, optPOIM == null ? null : optPOIM.poi);
-
-	}
-
-	private static void updateScheduleView(@NonNull Context context,
-										   @NonNull CommonStatusViewHolder statusViewHolder,
-										   @Nullable POIStatus status,
-										   @NonNull POIDataProvider dataProvider,
-										   @Nullable POI optPOI) {
+		final POI optPOI = optPOIM == null ? null : optPOIM.poi;
+		final List<ServiceUpdate> serviceUpdates = optPOIM == null ? null : optPOIM.getServiceUpdatesOrNull();
 		ArrayList<DetailsNextDepartures> nextDeparturesList = null;
 		TimeZone localTimeZone = null;
 		if (status instanceof UISchedule) {
@@ -484,7 +347,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 					15,
 					30,
 					defaultHeadSign,
-					dataProvider.isShowingAccessibilityInfo()
+					dataProvider.isShowingAccessibilityInfo(),
+					serviceUpdates
 			);
 			localTimeZone = schedule.getTimeZone();
 		}

@@ -34,7 +34,7 @@ class RDSAgencyRoutesAdapter(
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RDSAgencyRoutesAdapter::class.java.simpleName
+        private val LOG_TAG: String = RDSAgencyRoutesAdapter::class.java.simpleName
     }
 
     private var theLogTag: String = LOG_TAG

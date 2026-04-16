@@ -29,7 +29,7 @@ import org.mtransit.android.commons.R as commonsR
 class FeedbackDialog : MTBottomSheetDialogFragmentX() {
 
     companion object {
-        private val LOG_TAG = FeedbackDialog::class.java.simpleName
+        private val LOG_TAG: String = FeedbackDialog::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
@@ -38,7 +38,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository

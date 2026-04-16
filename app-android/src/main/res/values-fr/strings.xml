@@ -147,6 +147,8 @@
     <string name="menu_action_map">Carte</string>
     <string name="menu_action_favorite_folder_new">Créer un nouveau dossier favori</string>
     <string name="menu_action_www">Ouvrir Navigateur</string>
+    <string name="menu_action_fullscreen">Ouvrir plein écran</string>
+    <string name="menu_action_fullscreen_exit">Quitter plein écran</string>
     <string name="menu_action_filter">Filtrer</string>
     <string name="menu_action_show_directions">Itinéraires</string>
     <string name="menu_action_show_today">Aujourd\'hui</string>
@@ -218,7 +220,7 @@
     <string name="feedback_email_pref_title">Envoyer un commentaire</string>
     <string name="feedback_email_pref_summary">Signaler un problème ou suggérer une nouvelle fonctionnalité.</string>
     <string name="feedback_store_pref_title">Noter sur Google Play</string>
-    <string name="feedback_store_pref_summary">Laisser une note sur le Google Play Store</string>
+    <string name="feedback_store_pref_summary">Laisser une note sur le Play Store</string>
     <string name="social_pref_cat_title">Social</string>
     <string name="social_facebook_pref_title">Aimer MonTransit sur Facebook</string>
     <string name="social_facebook_pref_summary">facebook.com/MonTransit</string>
@@ -247,6 +249,8 @@
     <string name="dev_mode_pref_reset_rewarded_pref_title">REINITIALISER RECOMPENSEE</string>
     <string name="dev_mode_pref_ad_inspector_pref_summary">INSPECTER PUBS</string>
     <string name="dev_mode_pref_ad_inspector_pref_title">INSPECTEUR PUB</string>
+    <string name="dev_mode_pref_firebase_installation_token_pref_summary">OBTENIR LE JETON FIREBASE A/B TESTING</string>
+    <string name="dev_mode_pref_firebase_installation_token_pref_title">JETON INSTALL FIREBASE</string>
     <string name="support_pref_cat_title">Supporter</string>
     <string name="support_subs_pref_title">Supporter MonTransit</string>
     <string name="support_subs_pref_summary">Cacher les publicités et supporter le développement de MonTransit.</string>

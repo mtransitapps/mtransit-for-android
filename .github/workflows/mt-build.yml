@@ -70,12 +70,12 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
 
       - name: MT test
         run: ./test_only.sh
       - name: MT artifact > tests XML results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
           name: test-xml-results
@@ -84,7 +84,7 @@ jobs:
             */build/test-results/*.xml
             */build/reports/*.xml
       - name: MT artifact > HTML reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
           name: test-html-reports
@@ -107,19 +107,19 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
 
       - name: MT lint
         run: ./lint_only.sh
       - name: MT artifact > lint XML results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
           name: lint-xml-results
           path: |
             */build/reports/*.xml
       - name: MT artifact > lint HTML reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
           name: lint-html-reports
@@ -143,14 +143,14 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
 
       - name: MT assemble release (APK & ABB)
         run: ./assemble_release.sh
         env:
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
       - name: MT artifact > app-android > APK & ABB
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: app-android-apk-bundle
           path: |

@@ -2,21 +2,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources,InconsistentArrays,TypographyDashes">
     <string name="youtube_target_for_poi_authority" />
     <string name="youtube_color">0761A5</string><!-- Vancouver TransLink BLUE -->
-    <string-array name="youtube_channels_username">
-        <item>TransLink</item>
-    </string-array>
-    <string-array name="youtube_channels_id">
-        <item>UCfbbmkzSU-uPI4SQnnSwBiQ</item>
-    </string-array>
-    <string-array name="youtube_channels_uploads_playlist_id">
-        <item>UUfbbmkzSU-uPI4SQnnSwBiQ</item>
-    </string-array>
-    <string-array name="youtube_channels_author_icon">
-        <item>https://yt3.ggpht.com/iNZ7Fqxl3fH09_Oo84VpGvyHnbE5_phBkuVnm6kgSjWbTUyCwF9W29JTByIoLmoyjsypODKQ=s88-c-k-c0x00ffffff-no-rj</item>
-    </string-array>
-    <string-array name="youtube_channels_author_name">
-        <item>TransLink</item>
-    </string-array>
     <string-array name="youtube_channels_author_url">
         <item>https://www.youtube.com/user/TransLink</item>
     </string-array>

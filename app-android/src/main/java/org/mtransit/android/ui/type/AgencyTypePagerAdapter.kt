@@ -12,10 +12,10 @@ import org.mtransit.android.ui.type.rds.RDSAgencyRoutesFragment
 class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = AgencyTypePagerAdapter::class.java.simpleName
+        private val LOG_TAG: String = AgencyTypePagerAdapter::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private var agencies: MutableList<IAgencyUIProperties>? = null
 

@@ -22,11 +22,11 @@ import javax.inject.Inject
 open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Trackable {
 
     companion object {
-        private val LOG_TAG = SplashScreenActivity::class.java.simpleName
+        private val LOG_TAG: String = SplashScreenActivity::class.java.simpleName
         private const val TRACKING_SCREEN_NAME = "Splash"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName() = TRACKING_SCREEN_NAME
 
@@ -41,8 +41,14 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
         if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) LocaleUtils.fixWebViewLocale(this.applicationContext)
-        splashScreen.setKeepOnScreenCondition { true } // Keep the splash screen visible for this Activity
-        showMainActivity()
+        splashScreen.setKeepOnScreenCondition { // Keep the splash screen visible for this Activity
+            viewModel.readyForNextScreen.value != true
+        }
+        viewModel.readyForNextScreen.observe(this) { readyForNextScreen ->
+            if (readyForNextScreen) {
+                showMainActivity()
+            }
+        }
     }
 
     private fun showMainActivity() {

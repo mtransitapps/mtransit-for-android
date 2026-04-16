@@ -5,13 +5,14 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -48,7 +49,7 @@ import javax.inject.Inject
 class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     companion object {
-        private val LOG_TAG = AgencyPOIsFragment::class.java.simpleName
+        private val LOG_TAG: String = AgencyPOIsFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(agency: IAgencyUIProperties, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =
@@ -70,14 +71,14 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             optMapZoom: Float? = null,
             optSelectedUuid: String? = null,
         ) = AgencyPOIsFragment().apply {
-            arguments = bundleOf(
-                AgencyPOIsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                AgencyPOIsViewModel.EXTRA_COLOR_INT to optColorInt,
-                AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
-                AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
-                AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
-                AgencyPOIsViewModel.EXTRA_SELECTED_UUID to optSelectedUuid,
-            )
+            arguments = Bundle().apply {
+                putString(AgencyPOIsViewModel.EXTRA_AGENCY_AUTHORITY, agencyAuthority)
+                optColorInt?.let { putInt(AgencyPOIsViewModel.EXTRA_COLOR_INT, it) }
+                optMapLat?.let { putDouble(AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT, it) }
+                optMapLng?.let { putDouble(AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG, it) }
+                optMapZoom?.let { putFloat(AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM, it) }
+                putString(AgencyPOIsViewModel.EXTRA_SELECTED_UUID, optSelectedUuid)
+            }
         }
 
         private const val TOP_PADDING_SP = 0
@@ -121,6 +122,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var adManager: AdManager
 
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
@@ -276,6 +280,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 }
             }
             switchView(showingListInsteadOfMap)
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             listAdapter.setPois(poiList)

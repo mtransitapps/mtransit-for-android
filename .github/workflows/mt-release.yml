@@ -78,6 +78,7 @@ jobs:
   MT-RELEASE-JOB:
     if: ${{ github.ref_name == github.event.repository.default_branch || github.event.inputs.allowNonDefault == 'true' }}
     name: "MT Release"
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - name: MT check out main repository code (with submodules)
@@ -89,7 +90,7 @@ jobs:
 
       - name: MT setup
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
 
       - name: MT enable app release
         run: |
@@ -106,7 +107,7 @@ jobs:
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
 
       - name: MT artifact > app-android > APK & AAB
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: app-android-apk-bundle
           path: |
@@ -141,3 +142,38 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+
+      - name: MT check screenshot age
+        id: mt-check-screenshot-age
+        continue-on-error: true
+        run: |
+          SCREENSHOT_DIR="app-android/src/main/play/listings/en-US/graphics/phone-screenshots"
+          THREE_MONTHS_DAYS=90
+          THREE_MONTHS_SECONDS=$(( THREE_MONTHS_DAYS * 24 * 60 * 60 ))
+          if [[ ! -d "$SCREENSHOT_DIR" ]]; then
+            echo "Directory '$SCREENSHOT_DIR' does not exist."
+            echo "TRIGGER_SCREENSHOTS=false" >> $GITHUB_OUTPUT
+            exit 1 # fail step (unexpected state)
+          fi
+          LAST_COMMIT_TIMESTAMP=$(git log -1 --format="%ct" -- "$SCREENSHOT_DIR" 2>/dev/null)
+          if [[ -z "$LAST_COMMIT_TIMESTAMP" ]]; then
+            echo "No commits found for '$SCREENSHOT_DIR'."
+            echo "TRIGGER_SCREENSHOTS=false" >> $GITHUB_OUTPUT
+            exit 1 # fail step (unexpected state)
+          fi
+          CURRENT_TIMESTAMP=$(date +%s)
+          AGE_SECONDS=$(( CURRENT_TIMESTAMP - LAST_COMMIT_TIMESTAMP ))
+          if [[ $AGE_SECONDS -gt $THREE_MONTHS_SECONDS ]]; then
+            echo "Screenshots are $(( AGE_SECONDS / 86400 )) day(s) old (older than ${THREE_MONTHS_DAYS} days), triggering screenshot recording."
+            echo "TRIGGER_SCREENSHOTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "Screenshots are $(( AGE_SECONDS / 86400 )) day(s) old (within ${THREE_MONTHS_DAYS} days), skipping."
+            echo "TRIGGER_SCREENSHOTS=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: MT trigger record screenshots workflow
+        if: ${{ steps.mt-check-screenshot-age.outputs.TRIGGER_SCREENSHOTS == 'true' }}
+        run: |
+          gh workflow run mt-record-screenshots.yml --ref "${{ env.MT_BRANCH_NAME }}"
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}

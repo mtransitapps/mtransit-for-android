@@ -4,17 +4,20 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.MTLog.Loggable
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.dev.CrashReporter
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import java.lang.ref.WeakReference
 
 class BannerAdListener(
     private val bannerAdManager: BannerAdManager,
     private val crashReporter: CrashReporter,
+    private val remoteConfigProvider: RemoteConfigProvider,
     private val activityWR: WeakReference<IAdScreenActivity>,
     private val adViewWR: WeakReference<AdView>,
 ) : AdListener(), Loggable {
@@ -22,23 +25,32 @@ class BannerAdListener(
     constructor(
         bannerAdManager: BannerAdManager,
         crashReporter: CrashReporter,
+        remoteConfigProvider: RemoteConfigProvider,
         adScreenActivity: IAdScreenActivity,
         adView: AdView,
     ) : this(
         bannerAdManager,
         crashReporter,
+        remoteConfigProvider,
         WeakReference(adScreenActivity),
         WeakReference(adView)
     )
 
     companion object {
-        private val LOG_TAG: String = "${AdManager.LOG_TAG}>${BannerAdListener::class.java.simpleName}"
+        private val LOG_TAG = "${AdManager.LOG_TAG}>${BannerAdListener::class.java.simpleName}"
     }
 
     override fun getLogTag() = LOG_TAG
 
+    private val keepOldAdVisible: Boolean by lazy {
+        remoteConfigProvider.get(
+            RemoteConfigProvider.AD_BANNER_KEEP_OLD_AD_VISIBLE,
+            RemoteConfigProvider.AD_BANNER_KEEP_OLD_AD_VISIBLE_DEFAULT
+        )
+    }
+
     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-        MTLog.d(this, "onAdFailedToLoad(%s)", loadAdError)
+        logAdsD(this, "onAdFailedToLoad($loadAdError)")
         when (loadAdError.code) {
             AdRequest.ERROR_CODE_APP_ID_MISSING -> this.crashReporter.w(
                 this,
@@ -79,24 +91,28 @@ class BannerAdListener(
             AdRequest.ERROR_CODE_NO_FILL -> MTLog.w(this, "Failed to received ad! No fill error code: '%s' (%s).", loadAdError.code, loadAdError)
             else -> this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", loadAdError.code, loadAdError)
         }
+        if (keepOldAdVisible && this.bannerAdManager.adBannerLoaded == true) {
+            logAdsD(this, "onAdFailedToLoad() > keep old ad visible")
+            return // keep old ad visible
+        }
         this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), false) // wait until next try, even if failed
         val activity = this.activityWR.get()
         if (activity == null) {
-            MTLog.d(this, "onAdFailedToLoad() > SKIP (no activity)")
+            logAdsD(this, "onAdFailedToLoad() > SKIP (no activity)")
             return
         }
         this.bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
     }
 
     override fun onAdLoaded() {
-        MTLog.d(this, "onAdLoaded()")
+        logAdsD(this, "onAdLoaded()")
         val adView = this.adViewWR.get()
         val responseInfo = adView?.responseInfo
-        MTLog.d(this, "onAdLoaded() > ad loaded from ${responseInfo?.mediationAdapterClassName} (collapsible:${adView?.isCollapsible})")
+        logAdsD(this, "onAdLoaded() > ad loaded from ${responseInfo?.mediationAdapterClassName} (collapsible:${adView?.isCollapsible})")
         this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
         val activity = this.activityWR.get()
         if (activity == null) {
-            MTLog.d(this, "onAdLoaded() > SKIP (no activity)")
+            logAdsD(this, "onAdLoaded() > SKIP (no activity)")
             return
         }
         this.bannerAdManager.adaptToScreenSize(

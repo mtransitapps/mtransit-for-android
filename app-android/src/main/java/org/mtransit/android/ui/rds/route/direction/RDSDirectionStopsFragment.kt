@@ -7,7 +7,6 @@ import android.location.Location
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.ColorInt
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
@@ -19,6 +18,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -27,6 +28,7 @@ import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.findClosestPOISIdxUuid
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
@@ -67,7 +69,7 @@ import kotlin.time.Duration.Companion.seconds
 class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_stops) {
 
     companion object {
-        private val LOG_TAG = RDSDirectionStopsFragment::class.java.simpleName
+        private val LOG_TAG: String = RDSDirectionStopsFragment::class.java.simpleName
 
         // internal const val SHOW_SERVICE_UPDATE_FAB = false
         internal const val SHOW_SERVICE_UPDATE_FAB = true // ON to filter alerts in stop feed to avoid duplicates warnings signs
@@ -103,15 +105,15 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             optMapLng: Double? = null,
             optMapZoom: Float? = null,
         ) = RDSDirectionStopsFragment().apply {
-            arguments = bundleOf(
-                RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                RDSDirectionStopsViewModel.EXTRA_ROUTE_ID to routeId,
-                RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID to directionId,
-                RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
-                RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
-                RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
-                RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
-            )
+            arguments = Bundle().apply {
+                putString(RDSDirectionStopsViewModel.EXTRA_AGENCY_AUTHORITY, agencyAuthority)
+                putLong(RDSDirectionStopsViewModel.EXTRA_ROUTE_ID, routeId)
+                putLong(RDSDirectionStopsViewModel.EXTRA_DIRECTION_ID, directionId)
+                putInt(RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID, optSelectedStopId ?: RDSDirectionStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT)
+                optMapLat?.let { putDouble(RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT, it) }
+                optMapLng?.let { putDouble(RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG, it) }
+                optMapZoom?.let { putFloat(RDSDirectionStopsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM, it) }
+            }
         }
 
         private const val TOP_PADDING_SP = 0
@@ -150,6 +152,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     @Inject
     lateinit var statusLoader: StatusLoader
+
+    @Inject
+    lateinit var adManager: AdManager
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
@@ -232,6 +237,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             } else if (RDSRouteFragment.SHOW_SERVICE_UPDATE_IN_TOOLBAR) {
                 setIgnoredTargetUUIDs(attachedParentViewModel?.routeM?.value?.route?.allUUIDs)
             }
+            setTimeChangedListener { this@RDSDirectionStopsFragment.onTimeChanged() }
         }
     }
 
@@ -334,12 +340,14 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 applySelectedIdChanged()
                 mapViewController.onResume()
                 viewModel.startVehicleLocationRefresh()
+                startVehicleLocationCountdownRefresh()
             } else { // LIST
                 mapViewController.onPause()
                 viewModel.stopVehicleLocationRefresh()
                 stopVehicleLocationCountdownRefresh()
             }
             switchView(showingListInsteadOfMap)
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedMapCameraPosition ->
             selectedMapCameraPosition?.let { cameraPosition ->
@@ -357,12 +365,12 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             // DO NOTHING
         }
         if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
-            viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) { vehicleLocations ->
-                context?.let { mapViewController.updateVehicleLocationMarkers(it) }
-                if (vehicleLocations.isNullOrEmpty()) {
-                    stopVehicleLocationCountdownRefresh()
+            viewModel.vehicleLocations.observe(viewLifecycleOwner) { vehicleLocations ->
+                context?.let { mapViewController.updateVehicleLocationMarkers(it, vehicleLocations = vehicleLocations) }
+                if (viewModel.mapVisible(context) && !vehicleLocations.isNullOrEmpty()) {
+                    startVehicleLocationCountdownRefresh(vehicleLocations)
                 } else {
-                    startVehicleLocationCountdownRefresh()
+                    stopVehicleLocationCountdownRefresh()
                 }
             }
             parentViewModel.colorInt.observe(viewLifecycleOwner) {
@@ -378,7 +386,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             val closestPOIShow = viewModel.closestPOIShown.value
             if (selectedStopId != null || closestPOIShow != true) {
                 if (selectedStopId != null) {
-                    currentSelectedItemIndexUuid = findStopIndexUuid(selectedStopId, poiList) // can be stop for other direction in route fragment
+                    currentSelectedItemIndexUuid = findStopIndexUuid(selectedStopId, poiList) // can be a stop for other direction in route fragment
                 }
                 if (currentSelectedItemIndexUuid == null) {
                     if (closestPOIShow == false) {
@@ -398,6 +406,10 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             switchView()
         }
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun applySelectedIdChanged(
@@ -534,6 +546,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         if (viewModel.mapVisible(context)) {
             mapViewController.onResume()
             viewModel.startVehicleLocationRefresh()
+            startVehicleLocationCountdownRefresh()
         } else {
             viewModel.stopVehicleLocationRefresh()
             stopVehicleLocationCountdownRefresh()
@@ -545,8 +558,11 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     private var _vehicleLocationCountdownRefreshJob: Job? = null
 
-    private fun startVehicleLocationCountdownRefresh() {
+    private fun startVehicleLocationCountdownRefresh(
+        vehicleLocations: Collection<VehicleLocation>? = viewModel.vehicleLocations.value,
+    ) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+        if (vehicleLocations.isNullOrEmpty()) return
         _vehicleLocationCountdownRefreshJob?.cancel()
         _vehicleLocationCountdownRefreshJob = viewModel.viewModelScope.launch {
             while (true) {

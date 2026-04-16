@@ -9,8 +9,11 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
+import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.latLng
 import org.mtransit.android.data.location
@@ -21,6 +24,7 @@ import org.mtransit.android.ui.view.common.navigateF
 import org.mtransit.android.ui.view.map.countPOIInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.position
+import org.mtransit.android.ui.view.map.toLatLng
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIFeatureFlags
@@ -28,8 +32,12 @@ import org.mtransit.commons.FeatureFlags
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
-fun POIFragment.startVehicleLocationCountdownRefresh() {
+@JvmOverloads
+fun POIFragment.startVehicleLocationCountdownRefresh(
+    vehicleLocations: Collection<VehicleLocation>? = viewModel?.vehicleLocations?.value,
+) {
     if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+    if (vehicleLocations.isNullOrEmpty()) return
     _vehicleLocationCountdownRefreshJob?.cancel()
     _vehicleLocationCountdownRefreshJob = viewModel?.viewModelScope?.launch {
         while (true) {
@@ -45,38 +53,93 @@ fun POIFragment.stopVehicleLocationCountdownRefresh() {
     _vehicleLocationCountdownRefreshJob = null
 }
 
-const val MAX_DISTANCE_TIMES = 3
-
 val POIFragment.visibleMarkersLocationList: Collection<LatLng>
-    get() {
-        val poim = this.poim ?: return emptySet()
-        val poimLatLng = poim.latLng ?: return emptySet()
-        val visibleMarkersLocations = mutableSetOf<LatLng>()
-        visibleMarkersLocations.add(poimLatLng)
-        var nextRelevantPOIM: POIManager? = null
-        viewModel?.poiList?.value?.let { poiList ->
-            poiList.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
-                val previousPOIM = poiList.getOrNull(poimIndex - 1)
-                nextRelevantPOIM = poiList.getOrNull(poimIndex + 1) ?: previousPOIM  // next or previous
-                nextRelevantPOIM?.latLng?.let { visibleMarkersLocations.add(it) }
-                previousPOIM?.latLng?.let { visibleMarkersLocations.add(it) }
-            }
-        }
-        val maxVehicleDistanceInMeters: Float? = run {
-            val distanceToNextRelevantPOIM = nextRelevantPOIM?.latLng?.distanceToInMeters(poimLatLng)
-                ?.times(MAX_DISTANCE_TIMES)
-            val distanceToDeviceLocation = poim.poi.location?.let { deviceLocation?.distanceTo(it) } // in meters
-            max(distanceToNextRelevantPOIM ?: 0f, distanceToDeviceLocation ?: 0f)
-        }.takeIf { it > 0f }
-        viewModel?.vehicleLocations?.value
-            ?.sortedBy { it.position.distanceToInMeters(poimLatLng) } // closest first
-            ?.forEach { vehicleLocation ->
-                if (maxVehicleDistanceInMeters != null && vehicleLocation.position.distanceToInMeters(poimLatLng) <= maxVehicleDistanceInMeters) {
-                    visibleMarkersLocations.add(vehicleLocation.position)
+    get() = buildSet {
+        val poim = poim ?: return@buildSet
+        val poimLatLng = poim.latLng ?: return@buildSet
+        val poiLocation = poim.poi.location ?: return@buildSet
+        val isRds = poim.poi is RouteDirectionStop
+        add(poimLatLng)
+        val poiDistanceToDeviceLocationInMeters = deviceLocation?.distanceTo(poiLocation) // in meters
+        var poiDistanceToNextRelevantPOIM: Float? = null
+        if (isRds) {
+            viewModel?.poiList?.value?.let { poiList ->
+                poiList.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
+                    val sortedPreviousPOIList = poiList.subList(0, poimIndex).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                    val sortedNextPOIList = poiList.subList(poimIndex + 1, poiList.size).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                    val previousPOIM = sortedPreviousPOIList.getOrNull(0)
+                    val nextPOIM = sortedNextPOIList.getOrNull(0)
+                    val nextRelevantPOIM = nextPOIM ?: previousPOIM  // next or previous
+                    poiDistanceToNextRelevantPOIM = nextRelevantPOIM?.latLng?.distanceToInMeters(poimLatLng)?.coerceAtMost(
+                        previousPOIM?.latLng?.distanceToInMeters(poimLatLng) ?: Float.MAX_VALUE
+                    )
+                    nextPOIM?.latLng?.let {
+                        add(it)
+                    }
+                    previousPOIM?.latLng?.let {
+                        add(it)
+                    }
+                    sortedNextPOIList.forEach { nextNextPOIM ->
+                        val maxDistance = poiDistanceToNextRelevantPOIM?.times(1.5f)
+                            ?: return@let // break
+                        nextNextPOIM.latLng?.let {
+                            if (it.distanceToInMeters(poimLatLng) <= maxDistance) {
+                                add(it)
+                            } else {
+                                return@let // break
+                            }
+                        }
+                    }
                 }
             }
-        return visibleMarkersLocations
+        } else {
+            val isShortList = viewModel?.nearbyPOIs?.value != null
+            val nearbySameTypePOIs = viewModel?.nearbyPOIs?.value?.filter { it.poi.type == poim.poi.type }?.takeIf { it.isNotEmpty() }
+                ?: viewModel?.poiList?.value?.filter { it.poi.uuid != poim.poi.uuid }?.takeIf { it.isNotEmpty() }
+            nearbySameTypePOIs?.let { nearbyPOIs ->
+                val sortedPOIList = nearbyPOIs.sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                val nextPOIM = sortedPOIList.getOrNull(0)
+                poiDistanceToNextRelevantPOIM = nextPOIM?.latLng?.distanceToInMeters(poimLatLng)
+                for (nextNextPOIM in sortedPOIList) {
+                    val maxDistance = poiDistanceToNextRelevantPOIM?.times(2.0f)?.coerceAtLeast(250f) ?: break
+                    nextNextPOIM.latLng?.let {
+                        if (isShortList || it.distanceToInMeters(poimLatLng) <= maxDistance) {
+                            add(it)
+                            if (!isShortList && size >= 3) {
+                                break
+                            }
+                        } else {
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        val maxVehicleDistanceInMeters = max(
+            poiDistanceToNextRelevantPOIM?.times(3f)?.coerceAtMost(poiDistanceToDeviceLocationInMeters?.times(3f) ?: Float.MAX_VALUE) ?: 0f,
+            poiDistanceToDeviceLocationInMeters?.coerceAtMost(poiDistanceToNextRelevantPOIM?.times(3f) ?: Float.MAX_VALUE) ?: 0f
+        ).takeIf { it > 0f }
+        viewModel?.vehicleLocations?.value
+            ?.minByOrNull { it.position.distanceToInMeters(poimLatLng) }
+            ?.let { vehicleLocation ->
+                if (maxVehicleDistanceInMeters != null && vehicleLocation.position.distanceToInMeters(poimLatLng) <= maxVehicleDistanceInMeters) {
+                    add(vehicleLocation.position)
+                }
+            }
+        deviceLocation?.let {
+            val maxDistanceToDeviceLocation = poiDistanceToNextRelevantPOIM?.times(2f) ?: 0f
+            if (it.distanceTo(poiLocation) <= maxDistanceToDeviceLocation) {
+                add(it.toLatLng())
+            }
+        }
     }
+
+fun POIFragment.getClosestVehicleLocationUuid(
+    vehicleLocations: Collection<VehicleLocation>? = viewModel?.vehicleLocations?.value
+): String? {
+    val poimLatLng = poim?.latLng ?: return null
+    return vehicleLocations?.minByOrNull { it.position.distanceToInMeters(poimLatLng) }?.uuid
+}
 
 private val MAP_MARKER_ALPHA_FOCUS_1: Float? = null // 1.00f // DEFAULT
 private const val MAP_MARKER_ALPHA_FOCUS_2 = 0.75f

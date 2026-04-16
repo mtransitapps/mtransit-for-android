@@ -1,0 +1,111 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+name: MT check data outdated
+on:
+  workflow_dispatch: # manual
+  schedule:
+    - cron: '0 12 * * 0,1,3,4,6' # Mon, Wed, Thu, Sat & Sun @ 12pm UTC # https://crontab.guru/#0_12_*_*_0,1,3,4,6
+# gh workflow run mt-check-data-outdated.yml --ref $(git rev-parse --abbrev-ref HEAD)
+# gh run list --workflow=mt-check-data-outdated.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  MT-CHECK-DATA-OUTDATED-JOB:
+    # if: ${{ env.MT_IS_MAIN_REPO != 'true' &&  env.MT_IS_AGENCY_BIKE != 'true' }} # can NOT use env here:
+    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && ! contains(github.repository, '-bike-') }}
+    name: "MT Check Data Outdated"
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MT_PAT }}
+          fetch-depth: 1 # shallow clone - only latest commit needed
+
+      - name: Check if config/input_url file exists
+        id: check-input-url
+        run: |
+          if [[ -f "config/input_url" || -f "app-android/config/input_url" ]]; then
+            echo "has_input_url=true" >> "$GITHUB_OUTPUT"
+          else
+            echo ">> No input_url file found. Skipping remaining steps."
+            echo "has_input_url=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: MT check if data is outdated & trigger download
+        if: steps.check-input-url.outputs.has_input_url == 'true'
+        continue-on-error: true
+        run: |
+          echo ">> Checking if data is outdated..."
+
+          # Check if app-android directory exists
+          APP_ANDROID_DIR="app-android/src/main"
+          if [[ ! -d "${APP_ANDROID_DIR}" ]]; then
+            echo ">> No app-android directory found. Data check not applicable."
+            exit 0
+          fi
+
+          # Get current timestamp in seconds
+          NOW_TIMESTAMP_SEC=$(date +%s)
+          echo "> Current timestamp: '${NOW_TIMESTAMP_SEC}'"
+
+          # Check current and next data files
+          CURRENT_VALUES="${APP_ANDROID_DIR}/res-current/values/current_gtfs_rts_values_gen.xml"
+          NEXT_VALUES="${APP_ANDROID_DIR}/res-next/values/next_gtfs_rts_values_gen.xml"
+
+          # Prefer "next" file if available, otherwise fallback to "current"
+          DEPLOYED_LAST_DEPARTURE_SEC=""
+          DATA_FILE_USED=""
+
+          if [[ -f "${NEXT_VALUES}" ]]; then
+            DEPLOYED_LAST_DEPARTURE_SEC=$(grep -oE 'name="next_gtfs_rts_last_departure_in_sec">[0-9]+' "${NEXT_VALUES}" | grep -oE '[0-9]+')
+            DATA_FILE_USED="next"
+            if [[ -n "${DEPLOYED_LAST_DEPARTURE_SEC}" ]]; then
+              echo "> Using next data file."
+            else
+              echo "> Next data file found but timestamp not found."
+            fi
+          elif [[ -f "${CURRENT_VALUES}" ]]; then
+            DEPLOYED_LAST_DEPARTURE_SEC=$(grep -oE 'name="current_gtfs_rts_last_departure_in_sec">[0-9]+' "${CURRENT_VALUES}" | grep -oE '[0-9]+')
+            DATA_FILE_USED="current"
+            if [[ -n "${DEPLOYED_LAST_DEPARTURE_SEC}" ]]; then
+              echo "> Using current data file."
+            else
+              echo "> Current data file found but timestamp not found."
+            fi
+          fi
+
+          # Validate that extracted value is a positive integer (guard against malformed XML)
+          if [[ -n "${DEPLOYED_LAST_DEPARTURE_SEC}" ]] && ! [[ "${DEPLOYED_LAST_DEPARTURE_SEC}" =~ ^[0-9]+$ ]]; then
+            echo ">> Invalid timestamp value found: '${DEPLOYED_LAST_DEPARTURE_SEC}'. Cannot determine if data is outdated."
+            DEPLOYED_LAST_DEPARTURE_SEC=""
+          fi
+
+          if [[ -z "${DEPLOYED_LAST_DEPARTURE_SEC}" ]]; then
+            if [[ ! -f "${NEXT_VALUES}" ]] && [[ ! -f "${CURRENT_VALUES}" ]]; then
+              echo ">> No data files found. Cannot determine if data is outdated."
+            else
+              echo ">> Data files found but last departure timestamp not found. Cannot determine if data is outdated."
+            fi
+            exit 0 # Exit code 0 - avoid triggering sync when uncertain
+          fi
+
+          echo "> Deployed last departure timestamp: '${DEPLOYED_LAST_DEPARTURE_SEC}' (from ${DATA_FILE_USED})"
+
+          # Check if deployed data is not outdated (last departure is in the future)
+          if [[ "${DEPLOYED_LAST_DEPARTURE_SEC}" -gt "${NOW_TIMESTAMP_SEC}" ]]; then
+            DIFF_SEC=$((DEPLOYED_LAST_DEPARTURE_SEC - NOW_TIMESTAMP_SEC))
+            DIFF_DAYS=$((DIFF_SEC / 86400))
+            echo ">> Deployed data has not expired. Last departure will be in ${DIFF_DAYS} days."
+            echo ">> Data is not outdated. Sync not recommended."
+            exit 0 # Exit code 0 indicates data is not outdated
+          fi
+
+          DIFF_SEC=$((NOW_TIMESTAMP_SEC - DEPLOYED_LAST_DEPARTURE_SEC))
+          DIFF_DAYS=$((DIFF_SEC / 86400))
+          echo ">> Deployed data has expired! Last departure was ${DIFF_DAYS} days ago."
+          echo ">> Data is OUTDATED. Triggering mt-download-data.yml workflow..."
+          gh workflow run mt-download-data.yml
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}

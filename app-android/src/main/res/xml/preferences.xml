@@ -174,6 +174,13 @@
             android:summary="@string/dev_mode_pref_remote_config_pref_summary"
             android:title="@string/dev_mode_pref_remote_config_pref_title"
             tools:enabled="true" />
+        <!-- FIREBASE INSTALLATION AUTH TOKEN -->
+        <Preference
+            android:enabled="false"
+            android:key="pDevModeFirebaseInstallationToken"
+            android:summary="@string/dev_mode_pref_firebase_installation_token_pref_summary"
+            android:title="@string/dev_mode_pref_firebase_installation_token_pref_title"
+            tools:enabled="true" />
         <!-- CONSENT RESET -->
         <Preference
             android:enabled="false"

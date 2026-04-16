@@ -2,14 +2,14 @@ package org.mtransit.android.ad
 
 import android.content.Context
 import android.content.res.Configuration
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdInspectorError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.OnAdInspectorClosedListener
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.BuildConfig
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedAdManager
 import org.mtransit.android.common.IContext
@@ -48,15 +48,15 @@ class AdManager @Inject internal constructor(
             }
             if (collapsible) {
                 addNetworkExtrasBundle(
-                    AdMobAdapter::class.java, bundleOf(
-                        "collapsible" to "bottom"
-                    )
+                    AdMobAdapter::class.java, Bundle().apply {
+                        putString("collapsible", "bottom")
+                    }
                 )
             }
         }.build()
             .also {
                 if (BuildConfig.DEBUG) {
-                    MTLog.d(LOG_TAG, "getAdRequest() > test device? %s.", it.isTestDevice(context.requireContext()))
+                    logAdsD(LOG_TAG, "getAdRequest() > test device? ${it.isTestDevice(context.requireContext())}.")
                 }
             }
     }
@@ -78,7 +78,7 @@ class AdManager @Inject internal constructor(
     }
 
     private fun onShowingAdsUpdated(activity: IAdScreenActivity) {
-        this.bannerAdManager.refreshBannerAdStatus(activity)
+        this.bannerAdManager.refreshBannerAdStatus(activity, force = false)
         refreshRewardedAdStatus(activity)
     }
 
@@ -95,6 +95,8 @@ class AdManager @Inject internal constructor(
     override fun destroyAd(activity: IAdScreenActivity) = this.bannerAdManager.destroyAd(activity)
 
     override fun onResumeScreen(activity: IAdScreenActivity) = this.bannerAdManager.onResumeScreen(activity)
+
+    override fun onTimeChanged(activity: IAdScreenActivity) = this.bannerAdManager.onTimeChanged(activity)
 
     // endregion Banner Ads
 
@@ -129,12 +131,12 @@ class AdManager @Inject internal constructor(
     // endregion Rewarded Ads
 
     override fun openAdInspector() {
-        MobileAds.openAdInspector(this.appContext, OnAdInspectorClosedListener { error: AdInspectorError? ->
+        MobileAds.openAdInspector(this.appContext) { error: AdInspectorError? ->
             if (error == null) {
-                MTLog.d(this@AdManager, "Ad inspector closed.")
+                logAdsD(this@AdManager, "Ad inspector closed.")
             } else {
                 MTLog.w(this@AdManager, "Ad inspector closed: ${error.code} > $error!")
             }
-        })
+        }
     }
 }

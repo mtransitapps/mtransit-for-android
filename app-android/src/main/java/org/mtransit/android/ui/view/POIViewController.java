@@ -72,7 +72,11 @@ public class POIViewController implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
-	@SuppressWarnings("unused")
+	@NonNull
+	public static ViewBinding getLayoutViewBinding(@NonNull POIManager poim, @NonNull ViewStub viewStub) {
+		return getLayoutViewBinding(poim.poi.getType(), poim.getStatusType(), viewStub);
+	}
+
 	@NonNull
 	public static ViewBinding getLayoutViewBinding(int poiType, int poiStatusType, @NonNull ViewStub viewStub) {
 		viewStub.setLayoutResource(getLayoutResId(poiType, poiStatusType));
@@ -93,6 +97,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@LayoutRes
 	public static int getLayoutResId(@NonNull POIManager poim) {
 		return getLayoutResId(poim.poi.getType(), poim.getStatusType());
@@ -393,13 +398,13 @@ public class POIViewController implements MTLog.Loggable {
 		});
 	}
 
-	public static void updatePOIStatus(@Nullable View view, @NonNull POIStatus status, @NonNull POIDataProvider dataProvider) {
+	public static void updatePOIStatus(@Nullable View view, @NonNull POIStatus status, @NonNull POIDataProvider dataProvider, @Nullable POIManager optPOIM) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			MTLog.d(LOG_TAG, "updatePOIStatus() > SKIP (no view or view holder)");
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		POICommonStatusViewHolder.updateView(holder.getStatusViewHolder(), status, dataProvider);
+		POICommonStatusViewHolder.updateView(holder.getStatusViewHolder(), status, dataProvider, optPOIM == null ? null : optPOIM.getServiceUpdatesOrNull());
 	}
 
 	public static void updatePOIStatus(@Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
@@ -415,7 +420,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	public static void updateServiceUpdatesView(@Nullable View view,
-												@Nullable List<ServiceUpdate> serviceUpdates,
+												@NonNull List<ServiceUpdate> serviceUpdates,
 												@NonNull POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			MTLog.d(LOG_TAG, "updateServiceUpdatesView() > SKIP (no view or view holder)");
@@ -455,9 +460,6 @@ public class POIViewController implements MTLog.Loggable {
 			MTLog.d(LOG_TAG, "updatePOIDistanceAndCompass() > skip (no poi or view holder)");
 			return;
 		}
-		if (holder.getCompassV() != null) {
-			holder.getCompassV().setLatLng(poi.getLat(), poi.getLng());
-		}
 		if (holder.getDistanceTv() != null) {
 			if (poim.getDistanceString() != null) {
 				if (!poim.getDistanceString().equals(holder.getDistanceTv().getText())) {
@@ -469,20 +471,23 @@ public class POIViewController implements MTLog.Loggable {
 				holder.getDistanceTv().setText(null);
 			}
 		}
-		if (holder.getDistanceTv().getVisibility() == View.VISIBLE) {
-			if (dataProvider.getDeviceLocation() != null
-					&& dataProvider.getLastCompassInDegree() != null
-					&& dataProvider.getLocationDeclination() != null
-					&& dataProvider.getDeviceLocation().getAccuracy() <= poim.getDistance()) {
-				holder.getCompassV().generateAndSetHeadingN(
-						dataProvider.getDeviceLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
+		if (holder.getCompassV() != null) {
+			holder.getCompassV().setLatLng(poi.getLat(), poi.getLng());
+			if (holder.getDistanceTv() != null && holder.getDistanceTv().getVisibility() == View.VISIBLE) {
+				if (dataProvider.getDeviceLocation() != null
+						&& dataProvider.getLastCompassInDegree() != null
+						&& dataProvider.getLocationDeclination() != null
+						&& dataProvider.getDeviceLocation().getAccuracy() <= poim.getDistance()) {
+					holder.getCompassV().generateAndSetHeadingN(
+							dataProvider.getDeviceLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
+				} else {
+					holder.getCompassV().resetHeading();
+				}
+				holder.getCompassV().setVisibility(View.VISIBLE);
 			} else {
 				holder.getCompassV().resetHeading();
+				holder.getCompassV().setVisibility(View.GONE);
 			}
-			holder.getCompassV().setVisibility(View.VISIBLE);
-		} else {
-			holder.getCompassV().resetHeading();
-			holder.getCompassV().setVisibility(View.GONE);
 		}
 	}
 

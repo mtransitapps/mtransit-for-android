@@ -58,7 +58,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RDSDirectionStopsViewModel::class.java.simpleName
+        private val LOG_TAG: String = RDSDirectionStopsViewModel::class.java.simpleName
 
         internal const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_ROUTE_ID = "extra_route_id"
@@ -155,9 +155,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
                     }.flatten()
                 )
             }
-        }
-
-    val vehicleLocationsDistinct = vehicleLocations.distinctUntilChanged()
+        }.distinctUntilChanged()
 
     val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
         .map { if (it < 0) null else it }

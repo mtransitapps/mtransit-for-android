@@ -10,6 +10,7 @@ import com.google.android.ump.FormError
 import com.google.android.ump.UserMessagingPlatform
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.commons.MTLog
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -50,8 +51,8 @@ class AdsConsentManager @Inject constructor(
                         AdConstants.DEBUG_CONSENT_GEOGRAPHY?.let {
                             setDebugGeography(it)
                             setForceTesting(true)
-                            context.resources.getStringArray(R.array.google_ads_test_devices_ids).forEach {
-                                addTestDeviceHashedId(it)
+                            context.resources.getStringArray(R.array.google_ads_test_devices_ids).forEach { testDeviceHashedId ->
+                                addTestDeviceHashedId(testDeviceHashedId)
                             }
                         }
                     }.build()
@@ -61,11 +62,11 @@ class AdsConsentManager @Inject constructor(
         consentInformation.requestConsentInfoUpdate(
             activity, consentRequestParams,
             {
-                MTLog.d(this, "Consent information successfully updated.")
+                logAdsD(this, "Consent information successfully updated.")
                 loadAndShowConsentFormIfRequired(activity, onConsentGatheringCompleteListener)
             },
             { requestConsentError ->
-                MTLog.d(this, "Error updating consent information: $requestConsentError")
+                logAdsD(this, "Error updating consent information: $requestConsentError")
                 onConsentGatheringCompleteListener.consentGatheringComplete(requestConsentError)
             },
         )

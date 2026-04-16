@@ -21,12 +21,12 @@ public class MTSearchView extends SearchView implements MTLog.Loggable,
 		SearchView.OnCloseListener,
 		SearchView.OnQueryTextListener {
 
-	private static final String TAG = MTSearchView.class.getSimpleName();
+	private static final String LOG_TAG = MTSearchView.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public MTSearchView(@Nullable MainActivity mainActivity, @NonNull Context context) {

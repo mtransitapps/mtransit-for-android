@@ -50,10 +50,10 @@ class DataSourcesRepository @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = DataSourcesRepository::class.java.simpleName
+        private val LOG_TAG: String = DataSourcesRepository::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val defaultAgencies by lazy {
         listOf(
@@ -180,6 +180,13 @@ class DataSourcesRepository @Inject constructor(
     fun getAllStatusProviders() = this.dataSourcesInMemoryCache.getAllStatusProviders()
 
     fun getStatusProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getStatusProviders(targetAuthority)
+
+    fun readingStatusProviders(targetAuthority: String?) = liveData {
+        targetAuthority?.let { providerAuthority ->
+            emit(dataSourcesInMemoryCache.getStatusProviders(providerAuthority))
+            emitSource(dataSourcesIOCache.readingStatusProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
 
     fun getStatusProvider(authority: String) = this.dataSourcesInMemoryCache.getStatusProvider(authority)
 
@@ -328,7 +335,7 @@ class DataSourcesRepository @Inject constructor(
         MTLog.i(this@DataSourcesRepository, "update() > Updating... ")
         val updated = dataSourcesReader.update(forcePkg)
         MTLog.i(this@DataSourcesRepository, "update() > Updating...  DONE")
-        MTLog.d(this, "update() > $updated")
+        MTLog.d(this@DataSourcesRepository, "update() > $updated")
         updated
     }
 

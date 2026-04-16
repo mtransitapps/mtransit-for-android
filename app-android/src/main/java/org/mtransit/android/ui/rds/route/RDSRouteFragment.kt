@@ -11,18 +11,19 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
-import androidx.core.view.MenuHost
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
@@ -37,11 +38,11 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
+import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
@@ -58,7 +59,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = RDSRouteFragment::class.java.simpleName
+        private val LOG_TAG: String = RDSRouteFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "RTSRoute" // do not change to avoid breaking tracking
 
@@ -142,18 +143,18 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             optMapLat: Double? = null,
             optMapLng: Double? = null,
             optMapZoom: Float? = null,
-        ) = bundleOf(
-            RDSRouteViewModel.EXTRA_AUTHORITY to authority,
-            RDSRouteViewModel.EXTRA_ROUTE_ID to routeId,
-            RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID to (optSelectedDirectionId ?: RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID_DEFAULT),
-            RDSRouteViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RDSRouteViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
-            RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT to optMapLat,
-            RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG to optMapLng,
-            RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM to optMapZoom,
-        )
+        ) = Bundle().apply {
+            putString(RDSRouteViewModel.EXTRA_AUTHORITY, authority)
+            putLong(RDSRouteViewModel.EXTRA_ROUTE_ID, routeId)
+            putLong(RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID, optSelectedDirectionId ?: RDSRouteViewModel.EXTRA_SELECTED_DIRECTION_ID_DEFAULT)
+            putInt(RDSRouteViewModel.EXTRA_SELECTED_STOP_ID, optSelectedStopId ?: RDSRouteViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT)
+            optMapLat?.let { putDouble(RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT, it) }
+            optMapLng?.let { putDouble(RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG, it) }
+            optMapZoom?.let { putFloat(RDSRouteViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM, it) }
+        }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName() =
         attachedViewModel?.routeM?.value?.let { "$TRACKING_SCREEN_NAME/${it.authority}/${it.route.id}" }
@@ -164,6 +165,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var adManager: AdManager
 
     private var binding: FragmentRdsRouteBinding? = null
 
@@ -203,9 +207,6 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
         binding = FragmentRdsRouteBinding.bind(view).apply {
             viewPager.apply {
                 viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 1
@@ -220,11 +221,8 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                     tabs.elevation = it
                 }
             }
-            attachedViewModel?.colorInt?.value?.let {
-                routeDirectionBackground.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
-            }
             showSelectedTab()
-            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge()
+            setupScreenToolbar(screenToolbarLayout, screenToolbar)
         }
         viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->
             this.pagerAdapter?.selectedStopId = selectedStopId
@@ -240,27 +238,20 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                 view,
                 routeM?.route?.let { "r_" + it.authority + "_" + it.id }
             )
-            attachedViewModel?.colorInt?.value?.let {
-                binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
-            }
-            abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
+            binding?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABReady(this, isABReady, true)
             updateServiceUpdateImg(routeM = routeM)
         }
         viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
             updateServiceUpdateImg()
         })
-        viewModel.colorInt.observe(viewLifecycleOwner) { it ->
-            it?.let {
-                binding?.routeDirectionBackground?.setBackgroundColor(UIColorUtils.adaptBackgroundColorToLightText(view.context, it))
-            }
-            abController?.setABBgColor(this, getABBgColor(context), true)
+        viewModel.colorInt.observe(viewLifecycleOwner) {
+            updateScreenToolbarBgColor()
         }
         viewModel.routeDirections.observe(viewLifecycleOwner) { routeDirections ->
             if (pagerAdapter?.setRouteDirections(routeDirections) == true) {
                 showSelectedTab()
-                abController?.setABBgColor(this, getABBgColor(context), true)
             } else {
                 switchView()
             }
@@ -269,19 +260,31 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             }
         }
         viewModel.currentSelectedRouteDirectionPosition.observe(viewLifecycleOwner) { newSelectedRouteDirectionPosition ->
-            newSelectedRouteDirectionPosition?.let {
-                if (this.lastPageSelected < 0) {
-                    this.lastPageSelected = it
-                    showSelectedTab()
-                    onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
-                }
+            newSelectedRouteDirectionPosition ?: return@observe
+            if (this.lastPageSelected < 0) {
+                this.lastPageSelected = newSelectedRouteDirectionPosition
+                showSelectedTab()
+                onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
             }
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
+    }
+
+    private fun updateScreenToolbarBgColor() =
+        binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout, screenToolbar) }
+
+    override fun updateScreenToolbarBgColor(appBarLayout: AppBarLayout, toolbar: Toolbar) {
+        super.updateScreenToolbarBgColor(appBarLayout, toolbar)
+        getToolbarAndTabsBgColor(context)?.let {
+            activity?.setStatusBarBgColorEdgeToEdge(it)
+            binding?.toolbarAndTabsBackground?.setBackgroundColor(it)
+            // TODO ? if (FeatureFlags.F_NAVIGATION) nextMainViewModel.setABBgColor(it)
+        }
     }
 
     private var serviceUpdateImg: MenuItem? = null
@@ -394,16 +397,20 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         switchView()
     }
 
+    override fun hasToolbar() = true
+
     override fun isABReady() = attachedViewModel?.routeM?.value != null
 
-    override fun isABStatusBarTransparent() = true
+    override fun isABStatusBarTransparent() = !hasToolbar()
 
-    override fun isABOverrideGradient() = true
+    override fun isABOverrideGradient() = !hasToolbar()
 
-    override fun getABTitle(context: Context?): CharSequence? {
-        return attachedViewModel?.routeM?.value?.let { makeABTitle(it.route) }
+    private fun getToolbarAndTabsBgColor(context: Context?): Int? = attachedViewModel?.colorInt?.value
+        ?.let { UIColorUtils.adaptBackgroundColorToLightText(context, it) }
+
+    override fun getABTitle(context: Context?) =
+        attachedViewModel?.routeM?.value?.let { makeABTitle(it.route) }
             ?: super.getABTitle(context)
-    }
 
     private fun makeABTitle(route: Route): CharSequence {
         var ssb = SpannableStringBuilder()

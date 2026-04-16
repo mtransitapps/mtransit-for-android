@@ -10,6 +10,7 @@ enum class MTMapIconZoomGroup(
 ) : MTLog.Loggable {
 
     DEFAULT(maxCount = 10),
+    MEDIUM,
     SMALL(maxZoom = 13.0f, minCount = 10)
     ;
 

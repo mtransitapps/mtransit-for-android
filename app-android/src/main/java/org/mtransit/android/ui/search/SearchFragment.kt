@@ -9,11 +9,13 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.SearchView.OnQueryTextListener
-import androidx.core.os.bundleOf
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ToastUtils
@@ -45,7 +47,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     OnItemSelectedListener {
 
     companion object {
-        private val LOG_TAG = SearchFragment::class.java.simpleName
+        private val LOG_TAG: String = SearchFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Search"
 
@@ -56,21 +58,20 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             optTypeIdFilter: Int? = null,
         ): SearchFragment {
             return SearchFragment().apply {
-                arguments = bundleOf(
-                    SearchViewModel.EXTRA_QUERY to (optQuery?.trim() ?: SearchViewModel.EXTRA_QUERY_DEFAULT),
-                    SearchViewModel.EXTRA_TYPE_FILTER to optTypeIdFilter,
-                )
+                arguments = Bundle().apply {
+                    putString(SearchViewModel.EXTRA_QUERY, optQuery?.trim() ?: SearchViewModel.EXTRA_QUERY_DEFAULT)
+                    optTypeIdFilter?.let { putInt(SearchViewModel.EXTRA_TYPE_FILTER, it) }
+                }
             }
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<SearchViewModel>()
-    private val attachedViewModel
-        get() = if (isAttached()) viewModel else null
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -96,6 +97,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
+    @Inject
+    lateinit var adManager: AdManager
+
     private var binding: FragmentSearchBinding? = null
 
     private val listAdapter: POIArrayAdapter by lazy {
@@ -113,6 +117,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             logTag = this@SearchFragment.logTag
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)
             setPois(emptyList()) // empty search = no result
+            setTimeChangedListener { this@SearchFragment.onTimeChanged() }
         }
     }
 
@@ -121,6 +126,12 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     override fun onAttach(context: Context) {
         super.onAttach(context)
         this.listAdapter.setActivity(this)
+    }
+
+    private val onBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
+        override fun handleOnBackPressed() {
+            onUpBackPressed()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -137,6 +148,10 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 adapter = typeFilterAdapter
             }
             setupScreenToolbar(screenToolbarLayout)
+            requireActivity().onBackPressedDispatcher.addCallback(
+                viewLifecycleOwner,
+                onBackPressedCallback,
+            )
         }
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
@@ -177,6 +192,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                     listLayout.isVisible = true
                 }
             }
+            if (!searchResults.isNullOrEmpty()) {
+                (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
+            }
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             listAdapter.setLocation(deviceLocation)
@@ -190,6 +208,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 isVisible = dst != null
             }
             listAdapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
+            onBackPressedCallback.isEnabled = dst != null
         }
         viewModel.searchHasFocus.observe(viewLifecycleOwner) {
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
@@ -200,6 +219,27 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             }
             lastDevEnabled = devEnabled
         }
+    }
+
+    override fun onScreenToolbarNavigationClick(v: View) {
+        if (onUpBackPressed()) {
+            return // handled
+        }
+        super.onScreenToolbarNavigationClick(v)
+    }
+
+    private fun onUpBackPressed(): Boolean {
+        attachedViewModel?.let { viewModel ->
+            if (viewModel.typeFilter.value != null) {
+                viewModel.setTypeFilter(null)
+                return true // handled
+            }
+        }
+        return false
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private var lastDevEnabled: Boolean? = null
