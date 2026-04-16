@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
+import androidx.annotation.MainThread
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
@@ -75,6 +76,7 @@ class BannerAdManager @Inject constructor(
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
+    @MainThread
     @JvmOverloads
     fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
         if (this.globalAdManager.isShowingAds() // showing ads across the app
@@ -91,6 +93,7 @@ class BannerAdManager @Inject constructor(
         }
     }
 
+    @MainThread
     fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
         if (!AdConstants.AD_ENABLED) {
             return
@@ -164,6 +167,7 @@ class BannerAdManager @Inject constructor(
         logAdsD(this, "setupAd() > DONE --------------------")
     }
 
+    @MainThread
     private fun showBannerAd(activity: IAdScreenActivity) {
         val adLayout = getAdLayout(activity)
         if (adLayout != null) {
@@ -173,6 +177,7 @@ class BannerAdManager @Inject constructor(
         }
     }
 
+    @MainThread
     fun hideBannerAd(activity: IAdScreenActivity) {
         val adLayout = getAdLayout(activity)
         if (adLayout != null) {
