@@ -2,8 +2,8 @@ package org.mtransit.android.ad.inlinebanner
 
 import android.os.Build
 import android.view.ViewGroup
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
+import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -144,7 +144,6 @@ class InlineBannerAdManager @Inject constructor(
         val adLayout = getAdLayout(viewFinder)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
-            adView?.resume()
         }
     }
 
@@ -162,7 +161,6 @@ class InlineBannerAdManager @Inject constructor(
         val adLayout = getAdLayout(viewFinder)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
-            adView?.pause()
         }
     }
 

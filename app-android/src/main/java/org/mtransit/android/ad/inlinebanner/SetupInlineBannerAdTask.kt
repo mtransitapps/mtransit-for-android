@@ -2,9 +2,10 @@ package org.mtransit.android.ad.inlinebanner
 
 import android.view.ViewGroup
 import androidx.annotation.MainThread
+import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import androidx.core.view.isVisible
-import com.google.android.gms.ads.AdView
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -63,30 +64,32 @@ class SetupInlineBannerAdTask(
                 if (adView == null) {
                     adView = makeNewAdView(activity, adLayout)
                 }
-                adView.loadAd(AdManager.getAdRequest(activity))
+                adView.loadAd(
+                    adRequest = AdManager.getBannerAdRequest(
+                        adUnitId = activity.requireActivity().getString(adUnitStringResId),
+                        adSize = inlineBannerAdManager.getAdSize(activity),
+                    ),
+                    adLoadCallback = InlineBannerAdListener(inlineBannerAdManager, crashReporter, activity)
+                )
             }
         } else { // hide ads
             this.inlineBannerAdManager.hideBannerAd(activity)
         }
     }
 
-    private fun makeNewAdView(fragment: IFragment, adLayout: ViewGroup): AdView {
-        val adView = AdView(fragment.requireContext()).apply {
+    @get:StringRes
+    private val adUnitStringResId: Int get() = R.string.google_ads_banner_inline_ad_unit_id
+
+    private fun makeNewAdView(fragment: IFragment, adLayout: ViewGroup) =
+        AdView(fragment.requireContext()).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             isVisible = false
             id = R.id.inline_banner_ad
-            adUnitId = fragment.requireContext().getString(R.string.google_ads_banner_inline_ad_unit_id)
+        }.also {
+            adLayout.removeAllViews()
+            adLayout.addView(it)
         }
-        adLayout.removeAllViews()
-        adLayout.addView(adView)
-
-        adView.apply {
-            setAdSize(inlineBannerAdManager.getAdSize(fragment)) // ad size can only be set once
-            adListener = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment, adView)
-        }
-        return adView
-    }
 }

@@ -17,12 +17,12 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog.Loggable
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.ResourceUtils
 
 @Suppress("unused")
-object MapUtils : Loggable {
+object MapUtils : MTLog.Loggable {
 
     private val LOG_TAG: String = MapUtils::class.java.simpleName
 

@@ -1,20 +1,16 @@
 package org.mtransit.android.ad
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
-import com.google.ads.mediation.admob.AdMobAdapter
-import com.google.android.gms.ads.AdInspectorError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
-import dagger.hilt.android.qualifiers.ApplicationContext
-import org.mtransit.android.BuildConfig
+import com.google.android.libraries.ads.mobile.sdk.MobileAds
+import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest
+import com.google.android.libraries.ads.mobile.sdk.common.AdInspectorError
+import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedAdManager
-import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.MTLog.Loggable
 import org.mtransit.android.ui.view.common.IActivity
 import javax.inject.Inject
 
@@ -32,33 +28,33 @@ import javax.inject.Inject
  * - https://developers.google.com/admob/android/test-ads
  */
 class AdManager @Inject internal constructor(
-    @param:ApplicationContext private val appContext: Context,
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,
     private val rewardedAdManager: RewardedAdManager,
-) : IAdManager, Loggable {
+) : IAdManager, MTLog.Loggable {
 
     companion object {
 
         val LOG_TAG: String = AdManager::class.java.simpleName
 
-        fun getAdRequest(context: IContext, collapsible: Boolean = false) = AdRequest.Builder().apply {
-            for (keyword in AdConstants.KEYWORDS) {
-                addKeyword(keyword)
-            }
+        fun getAdRequest(
+            adUnitId: String,
+        ) = AdRequest.Builder(adUnitId).apply {
+            AdConstants.KEYWORDS.forEach { addKeyword(it) }
+        }.build()
+
+        fun getBannerAdRequest(
+            adUnitId: String,
+            adSize: AdSize,
+            collapsible: Boolean = false,
+        ) = BannerAdRequest.Builder(adUnitId, adSize).apply {
+            AdConstants.KEYWORDS.forEach { addKeyword(it) }
             if (collapsible) {
-                addNetworkExtrasBundle(
-                    AdMobAdapter::class.java, Bundle().apply {
-                        putString("collapsible", "bottom")
-                    }
-                )
+                setGoogleExtrasBundle(Bundle().apply {
+                    putString("collapsible", "bottom")
+                })
             }
         }.build()
-            .also {
-                if (BuildConfig.DEBUG) {
-                    logAdsD(LOG_TAG, "getAdRequest() > test device? ${it.isTestDevice(context.requireContext())}.")
-                }
-            }
     }
 
     override fun getLogTag() = LOG_TAG
@@ -131,7 +127,7 @@ class AdManager @Inject internal constructor(
     // endregion Rewarded Ads
 
     override fun openAdInspector() {
-        MobileAds.openAdInspector(this.appContext) { error: AdInspectorError? ->
+        MobileAds.openAdInspector { error: AdInspectorError? ->
             if (error == null) {
                 logAdsD(this@AdManager, "Ad inspector closed.")
             } else {

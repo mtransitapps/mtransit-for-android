@@ -2,9 +2,8 @@ package org.mtransit.android.ad
 
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
+import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -111,17 +110,16 @@ class GlobalAdManager(
         if (AdConstants.DEBUG) {
             MobileAds.setRequestConfiguration(
                 RequestConfiguration.Builder()
-                    .setTestDeviceIds(
+                    .setTestDeviceIds( // Android emulators are automatically configured as test devices.
                         listOf(*activity.requireContext().resources.getStringArray(R.array.google_ads_test_devices_ids))
-                                + listOf(AdRequest.DEVICE_ID_EMULATOR)
                     )
                     .build()
             )
         }
-        // https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk
+        // https://developers.google.com/admob/android/next-gen/quick-start
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
-            InitializationConfig.Builder(activity.requireContext().getString(R.string.google_ads_app_id)).build(),
+            InitializationConfig.Builder(applicationId = activity.requireContext().getString(R.string.google_ads_app_id)).build(),
         ) { initializationStatus ->
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
                 logAdsD(this, "onInitializationComplete() > Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")

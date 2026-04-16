@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
+import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -189,7 +189,6 @@ class BannerAdManager @Inject constructor(
         val adLayout = getAdLayout(activity)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
-            adView?.resume()
         }
     }
 
@@ -200,7 +199,6 @@ class BannerAdManager @Inject constructor(
         val adLayout = getAdLayout(activity)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
-            adView?.pause()
         }
     }
 
