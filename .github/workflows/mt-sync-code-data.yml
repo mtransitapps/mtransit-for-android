@@ -52,6 +52,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 env:
+  MT_BOT_USER_NAME: ${{ vars.MT_BOT_USER_NAME }}
+  MT_BOT_USER_EMAIL: ${{ vars.MT_BOT_USER_EMAIL }}
   # git branches & sha
   MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
   MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
@@ -106,7 +108,7 @@ jobs:
 
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.1.2
         with:
           code-sync: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
 
@@ -117,6 +119,7 @@ jobs:
       # DOWNLOAD (not PR) AND PARSE (NOT main repo/bike)
       - name: MT download data (& archive)
         if: ${{ github.event_name != 'pull_request' && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && github.event.inputs.skip-download-data != 'true' }}
+        id: mt-download-data
         timeout-minutes: 10
         continue-on-error: true # optional (continue with archive data)
         run: ./download_only.sh
@@ -146,12 +149,26 @@ jobs:
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./parse_list_change.sh
 
+      - name: MT check if image generation required
+        id: mt-check-image-gen-required
+        continue-on-error: true
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
+        run: |
+          RESULT=$(git status --porcelain -- "app-android/src/main/res/values/gtfs_rts_values_gen.xml" | wc -l)
+          if [ "$RESULT" -gt 0 ]; then
+            echo "Image generation required.";
+            exit 0 # success
+          else
+            echo "No image generation required.";
+            exit 1 # fail
+          fi
+
       - name: MT push commits
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./push_commits.sh
 
       - name: MT artifact > GTFS files
-        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }} # even if tests fails
+        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && steps.mt-download-data.conclusion != 'skipped' }} # even if tests fails
         uses: actions/upload-artifact@v7
         with:
           name: gtfs
@@ -161,7 +178,7 @@ jobs:
           retention-days: 31
 
       - name: MT artifact > GTFS validator results
-        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }} # even if tests fails
+        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && steps.mt-download-data.conclusion != 'skipped' }} # even if tests fails
         uses: actions/upload-artifact@v7
         with:
           name: gtfs-validator-results
@@ -173,6 +190,26 @@ jobs:
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./commit_data_change.sh
       # ----------
+
+      - name: MT generate images if required
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && steps.mt-check-image-gen-required.outcome == 'success' }}
+        run: |
+          ./commons/code_setup.sh;
+        env:
+          MT_GENERATE_IMAGES: true
+
+      - name: MT commit image change (if added/updated)
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
+        run: |
+          git add -v -A -- ':(glob)**/*.png'
+          if git diff --staged --quiet; then
+            echo "No new images to commit."
+          else
+            echo "Committing generated images.";
+            git config user.name "$MT_BOT_USER_NAME"
+            git config user.email "$MT_BOT_USER_EMAIL"
+            git commit -m "CI: update generated images"
+          fi
 
       - name: MT set app release required (or not)
         if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}

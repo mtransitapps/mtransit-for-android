@@ -39,7 +39,7 @@ jobs:
           token: ${{ secrets.MT_PAT }}
 
       - name: MT setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.1.2
 
       - name: MT pull store listings
         env:
@@ -55,7 +55,7 @@ jobs:
             echo "No changes to commit."
             exit 1 # fail == no PR needed
           fi
-          git checkout -B "${MT_BRANCH_NAME}_update_store_listings"
+          git switch -C "${MT_BRANCH_NAME}_update_store_listings"
           git config user.name "$MT_BOT_USER_NAME"
           git config user.email "$MT_BOT_USER_EMAIL"
           git commit -m "Update store listings in \`${MT_BRANCH_NAME}\`"

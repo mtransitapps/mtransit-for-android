@@ -55,7 +55,7 @@ jobs:
       - name: MT setup
         if: steps.check-input-url.outputs.has_input_url == 'true'
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.0.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.1.2
         with:
           code-sync: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
 
