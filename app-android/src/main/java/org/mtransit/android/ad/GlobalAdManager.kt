@@ -9,11 +9,13 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedUserManager
 import org.mtransit.android.common.IContext
+import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
@@ -51,6 +53,8 @@ class GlobalAdManager(
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${GlobalAdManager::class.java.simpleName}"
+
+        private const val GOOGLE_ADS_TEST_IDS_START_WITH = "ca-app-pub-3940256099942544"
     }
 
     override fun getLogTag() = LOG_TAG
@@ -113,11 +117,20 @@ class GlobalAdManager(
     @WorkerThread
     private fun initOnBackgroundThread(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
         // https://developers.google.com/admob/android/next-gen/quick-start
+        val appId = activity.requireContext().getString(R.string.google_ads_app_id)
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
-            InitializationConfig.Builder(applicationId = activity.requireContext().getString(R.string.google_ads_app_id)).build(),
+            InitializationConfig.Builder(applicationId = appId)
+                .apply {
+                    if (Constants.DEBUG && BuildConfig.DEBUG) {
+                        if (appId.startsWith(GOOGLE_ADS_TEST_IDS_START_WITH)) {
+                            disableMediationAdapterInitialization() // all will fail/timeout
+                        }
+                    }
+                }
+                .build(),
         ) { initializationStatus ->
-            if (AdConstants.DEBUG) {
+            if (Constants.DEBUG && BuildConfig.DEBUG) {
                 MobileAds.setRequestConfiguration(
                     RequestConfiguration.Builder()
                         .setTestDeviceIds( // Android emulators are automatically configured as test devices.
@@ -126,6 +139,8 @@ class GlobalAdManager(
                         .build()
                 )
             }
+            this.initialized.set(true)
+            this.initializing.set(false)
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
                 logAdsD(
                     this@GlobalAdManager,
@@ -134,7 +149,6 @@ class GlobalAdManager(
             }
             bannerAdManager.refreshBannerAdStatus(activity, force = false)
         }
-        this.initialized.set(true)
     }
 
     fun setShowingAds(showingAds: Boolean?) {
