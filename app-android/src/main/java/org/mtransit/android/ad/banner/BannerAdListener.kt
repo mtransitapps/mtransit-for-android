@@ -108,8 +108,7 @@ class BannerAdListener(
     override fun onAdLoaded(ad: BannerAd) {
         super.onAdLoaded(ad)
         logAdsD(this, "onAdLoaded($ad)")
-        val responseInfo = ad.getResponseInfo()
-        logAdsD(this, "onAdLoaded() > ad loaded from ${responseInfo.adapterClassName} ")
+        logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName} ")
         this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
         val activity = this.activityWR.get()
         if (activity == null) {

@@ -89,8 +89,7 @@ class InlineBannerAdListener(
 
     override fun onAdLoaded(ad: BannerAd) {
         super.onAdLoaded(ad)
-        val responseInfo = ad.getResponseInfo()
-        logAdsD(this, "onAdLoaded() > ad loaded from ${responseInfo.adapterClassName}")
+        logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName}")
         val fragment = this.fragmentWR.get()
         if (fragment == null) {
             logAdsD(this, "onAdLoaded() > SKIP (no activity)")
