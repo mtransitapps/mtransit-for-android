@@ -112,6 +112,19 @@ jobs:
         with:
           code-sync: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
 
+      - name: MT commit image change (if added/updated)
+        if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
+        run: |
+          git add -v -A -- ':(glob)**/*.png'
+          if git diff --staged --quiet; then
+            echo "No new images to commit."
+          else
+            echo "Committing generated images.";
+            git config user.name "$MT_BOT_USER_NAME"
+            git config user.email "$MT_BOT_USER_EMAIL"
+            git commit -m "CI: update generated images"
+          fi
+
       - name: MT commit code change
         if: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
         run: ./commit_code_change.sh
