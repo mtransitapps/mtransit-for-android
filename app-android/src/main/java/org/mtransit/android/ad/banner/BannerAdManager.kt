@@ -95,15 +95,9 @@ class BannerAdManager @Inject constructor(
 
     @MainThread
     fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        if (!this.globalAdManager.isShowingAds()) {
-            return
-        }
-        if (activity.currentAdFragment?.hasAds() == true) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
+        if (!this.globalAdManager.isShowingAds()) return
+        if (activity.currentAdFragment?.hasAds() == true) return
         if (isEnoughSpaceForBanner(configuration)) {
             if (this.adBannerLoaded == true) {
                 resumeAd(activity)
@@ -116,15 +110,9 @@ class BannerAdManager @Inject constructor(
     }
 
     fun isEnoughSpaceForBanner(configuration: Configuration?): Boolean {
-        if (FeatureFlags.F_NAVIGATION) {
-            return true // always show
-        }
-        if (configuration == null) {
-            return false
-        }
-        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            return true
-        }
+        if (FeatureFlags.F_NAVIGATION) return true // always show
+        if (configuration == null) return false
+        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) return true
         val sizeMask = configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK
         val smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL
         return !smallScreen
@@ -187,24 +175,12 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    fun resumeAd(activity: IAdScreenActivity) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-        }
+    fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) {
+        // DO NOTHING
     }
 
-    fun pauseAd(activity: IAdScreenActivity) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-        }
+    fun pauseAd(@Suppress("unused") activity: IAdScreenActivity) {
+        // DO NOTHING
     }
 
     fun getAdLayout(activity: IAdScreenActivity): ViewGroup? =
@@ -217,9 +193,7 @@ class BannerAdManager @Inject constructor(
         adLayout.findViewById(R.id.ad)
 
     fun destroyAd(activity: IAdScreenActivity) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
         val adLayout = getAdLayout(activity)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
@@ -238,15 +212,9 @@ class BannerAdManager @Inject constructor(
     }
 
     fun getBannerHeightInPx(activity: IAdScreenActivity?): Int {
-        if (this.adBannerLoaded != true) {
-            return 0 // ad not loaded
-        }
-        if (!this.globalAdManager.isShowingAds()) {
-            return 0 // not showing ads (0 agency installed, paying user...)
-        }
-        if (activity == null) {
-            return 0 // can't measure w/o context
-        }
+        if (this.adBannerLoaded != true) return 0 // ad not loaded
+        if (!this.globalAdManager.isShowingAds()) return 0 // not showing ads (0 agency installed, paying user...)
+        if (activity == null) return 0 // can't measure w/o context
         val adSize = getAdSize(activity)
         return adSize.getHeightInPixels(activity.requireContext())
     }

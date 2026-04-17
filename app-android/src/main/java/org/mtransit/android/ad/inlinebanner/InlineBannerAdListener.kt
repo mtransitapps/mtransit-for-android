@@ -3,6 +3,9 @@ package org.mtransit.android.ad.inlinebanner
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
@@ -79,7 +82,9 @@ class InlineBannerAdListener(
             return
         }
         this.inlineBannerAdManager.setAdBannerLoaded(fragment, false)
-        this.inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
+        CoroutineScope(Dispatchers.Main).launch {
+            inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
+        }
     }
 
     override fun onAdLoaded(ad: BannerAd) {
@@ -92,8 +97,10 @@ class InlineBannerAdListener(
             return
         }
         this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
-        this.inlineBannerAdManager.adaptToScreenSize(
-            fragment,
-        ) // showing ads if hidden because of no-fill/network error
+        CoroutineScope(Dispatchers.Main).launch {
+            inlineBannerAdManager.adaptToScreenSize(
+                fragment,
+            ) // showing ads if hidden because of no-fill/network error
+        }
     }
 }

@@ -104,9 +104,7 @@ class RewardedAdManager @Inject constructor(
     }
 
     fun refreshRewardedAdStatus(activity: IActivity) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
         val isNotPayingUser = this.globalAdManager.isShowingAds()
         if (!isNotPayingUser) {
             logAdsD(this, "refreshRewardedAdStatus() > SKIP (paying user or unknown)")

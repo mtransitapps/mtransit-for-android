@@ -29,10 +29,10 @@ class SetupInlineBannerAdTask(
         crashReporter: CrashReporter,
         fragment: IFragment,
     ) : this(
-        globalAdManager,
-        inlineBannerAdManager,
-        crashReporter,
-        WeakReference<IFragment>(fragment),
+        globalAdManager = globalAdManager,
+        inlineBannerAdManager = inlineBannerAdManager,
+        crashReporter = crashReporter,
+        fragmentWR = WeakReference(fragment),
     )
 
     companion object {
@@ -43,9 +43,7 @@ class SetupInlineBannerAdTask(
 
     @WorkerThread
     override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean {
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
+        if (!AdConstants.AD_ENABLED) return false
         return !isCancelled && this.globalAdManager.isShowingAds() // TODO can be called from any thread
     }
 

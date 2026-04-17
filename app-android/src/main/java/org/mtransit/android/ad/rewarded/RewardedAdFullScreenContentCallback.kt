@@ -20,9 +20,9 @@ class RewardedAdFullScreenContentCallback(
         crashReporter: CrashReporter,
         activity: IActivity,
     ) : this(
-        rewardedAdManager,
-        crashReporter,
-        WeakReference(activity),
+        rewardedAdManager = rewardedAdManager,
+        crashReporter = crashReporter,
+        activityWR = WeakReference(activity),
     )
 
     companion object {
