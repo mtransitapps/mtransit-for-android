@@ -26,6 +26,16 @@ on:
         type: boolean
         default: false
         required: false
+      skipStoreAll:
+        description: 'Skip all store releases'
+        type: boolean
+        default: false
+        required: false
+      skipStoreProduction:
+        description: 'Skip production store release'
+        type: boolean
+        default: false
+        required: false
       reset-current-schedule:
         description: 'Reset current schedule before parsing (delete all schedule files)'
         type: boolean
@@ -189,7 +199,9 @@ jobs:
           mkdir -p $MT_TEMP_DIR;
           MT_APP_RELEASE_REQUIRED_FILE="$MT_TEMP_DIR/mt_app_release_required";
           if [ -f "$MT_APP_RELEASE_REQUIRED_FILE" ] && [ "$(cat "$MT_APP_RELEASE_REQUIRED_FILE")" = "true" ]; then
-            gh workflow run mt-release.yml
+            gh workflow run mt-release.yml \
+              -f skipStoreAll=${{ github.event.inputs.skipStoreAll || 'false' }} \
+              -f skipStoreProduction=${{ github.event.inputs.skipStoreProduction || 'false' }}
           fi
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
