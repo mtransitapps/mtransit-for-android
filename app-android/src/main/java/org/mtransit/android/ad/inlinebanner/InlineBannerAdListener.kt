@@ -3,9 +3,6 @@ package org.mtransit.android.ad.inlinebanner
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
@@ -82,7 +79,7 @@ class InlineBannerAdListener(
             return
         }
         this.inlineBannerAdManager.setAdBannerLoaded(fragment, false)
-        CoroutineScope(Dispatchers.Main).launch {
+        fragment.getActivity()?.runOnUiThread {
             inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
         }
     }
@@ -92,11 +89,11 @@ class InlineBannerAdListener(
         logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName}")
         val fragment = this.fragmentWR.get()
         if (fragment == null) {
-            logAdsD(this, "onAdLoaded() > SKIP (no activity)")
+            logAdsD(this, "onAdLoaded() > SKIP (no fragment)")
             return
         }
         this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
-        CoroutineScope(Dispatchers.Main).launch {
+        fragment.getActivity()?.runOnUiThread {
             inlineBannerAdManager.adaptToScreenSize(
                 fragment,
             ) // showing ads if hidden because of no-fill/network error

@@ -3,9 +3,6 @@ package org.mtransit.android.ad.banner
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -100,7 +97,7 @@ class BannerAdListener(
             logAdsD(this, "onAdFailedToLoad() > SKIP (no activity)")
             return
         }
-        CoroutineScope(Dispatchers.Main).launch {
+        activity.activity?.runOnUiThread {
             bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
         }
     }
@@ -115,7 +112,7 @@ class BannerAdListener(
             logAdsD(this, "onAdLoaded() > SKIP (no activity)")
             return
         }
-        CoroutineScope(Dispatchers.Main).launch {
+        activity.activity?.runOnUiThread {
             bannerAdManager.adaptToScreenSize(
                 activity,
             ) // showing ads if hidden because of no-fill/network error
