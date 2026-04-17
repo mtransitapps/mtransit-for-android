@@ -2,9 +2,10 @@ package org.mtransit.android.ad.banner
 
 import android.view.ViewGroup
 import androidx.annotation.MainThread
+import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import androidx.core.view.isVisible
-import com.google.android.gms.ads.AdView
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
@@ -61,35 +62,37 @@ class SetupBannerAdTask(
                 if (adView == null) {
                     adView = makeNewAdView(activity, adLayout)
                 }
-                adView.loadAd(AdManager.getAdRequest(activity, collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE))
+                adView.loadAd(
+                    adRequest = AdManager.getBannerAdRequest(
+                        adUnitId = activity.requireActivity().getString(adUnitStringResId),
+                        adSize = bannerAdManager.getAdSize(activity),
+                        collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE
+                    ),
+                    adLoadCallback = BannerAdListener(bannerAdManager, crashReporter, remoteConfigProvider, activity)
+                )
             }
         } else if (!isShowingAds) { // hide ads
             this.bannerAdManager.hideBannerAd(activity)
         }
     }
 
-    private fun makeNewAdView(activity: IAdScreenActivity, adLayout: ViewGroup): AdView {
-        val adView = AdView(activity.requireActivity()).apply {
+    @get:StringRes
+    private val adUnitStringResId: Int
+        get() = when {
+            bannerAdManager.loadOnScreenResume -> R.string.google_ads_banner_manual_refresh_ad_unit_id
+            else -> R.string.google_ads_banner_ad_unit_id
+        }
+
+    private fun makeNewAdView(activity: IAdScreenActivity, adLayout: ViewGroup) =
+        AdView(activity.requireActivity()).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             isVisible = false
             id = R.id.ad
-            adUnitId = activity.requireContext().getString(
-                when {
-                    bannerAdManager.loadOnScreenResume -> R.string.google_ads_banner_manual_refresh_ad_unit_id
-                    else -> R.string.google_ads_banner_ad_unit_id
-                }
-            )
+        }.also {
+            adLayout.removeAllViews()
+            adLayout.addView(it)
         }
-        adLayout.removeAllViews()
-        adLayout.addView(adView)
-
-        adView.apply {
-            setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once
-            adListener = BannerAdListener(bannerAdManager, crashReporter, remoteConfigProvider, activity, adView)
-        }
-        return adView
-    }
 }

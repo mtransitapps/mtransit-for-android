@@ -1,6 +1,7 @@
 package org.mtransit.android.ad.rewarded
 
 import android.widget.Toast
+import androidx.annotation.MainThread
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.common.IContext
@@ -45,9 +46,7 @@ class RewardedUserManager @Inject constructor(
     private var rewardedUntilInMs: Long? = null
 
     fun getRewardedUntilInMs(): Long {
-        if (!AdConstants.AD_ENABLED) {
-            return Long.MAX_VALUE // forever
-        }
+        if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever
         if (this.rewardedUntilInMs == null) {
             this.rewardedUntilInMs = this.defaultPrefRepository.getValue(
                 DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
@@ -70,15 +69,12 @@ class RewardedUserManager @Inject constructor(
     }
 
     fun isRewardedNow(): Boolean {
-        if (!AdConstants.AD_ENABLED) {
-            return true
-        }
-        if (this.demoModeManager.enabled) {
-            return true
-        }
+        if (!AdConstants.AD_ENABLED) return true
+        if (this.demoModeManager.enabled) return true
         return getRewardedUntilInMs() > TimeUtils.currentTimeMillis()
     }
 
+    @MainThread
     fun rewardUser(newRewardInMs: Long, context: IContext?) {
         val currentRewardedUntilOrNow = maxOf(getRewardedUntilInMs(), TimeUtils.currentTimeMillis())
         setRewardedUntilInMs(currentRewardedUntilOrNow + newRewardInMs)
@@ -90,15 +86,9 @@ class RewardedUserManager @Inject constructor(
     }
 
     fun shouldSkipRewardedAd(): Boolean {
-        if (!this.dailyUser) {
-            return true // always skip for non-daily users
-        }
-        if (this.hasLowLoadShowRatio) {
-            return true // too much loads for too less shows
-        }
-        if (!isRewardedNow()) {
-            return false // never skip for non-rewarded users
-        }
+        if (!this.dailyUser) return true // always skip for non-daily users
+        if (this.hasLowLoadShowRatio) return true // too much loads for not enough shows
+        if (!isRewardedNow()) return false // never skip for non-rewarded users
         val rewardedUntilInMs = getRewardedUntilInMs()
         val skipRewardedAdUntilInMs = TimeUtils.currentTimeMillis() -
                 TimeUnit.HOURS.toMillis(1L) + // accounts for "recent" rewards

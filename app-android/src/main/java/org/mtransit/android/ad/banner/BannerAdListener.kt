@@ -1,14 +1,12 @@
 package org.mtransit.android.ad.banner
 
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.MTLog.Loggable
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
@@ -19,21 +17,18 @@ class BannerAdListener(
     private val crashReporter: CrashReporter,
     private val remoteConfigProvider: RemoteConfigProvider,
     private val activityWR: WeakReference<IAdScreenActivity>,
-    private val adViewWR: WeakReference<AdView>,
-) : AdListener(), Loggable {
+) : AdLoadCallback<BannerAd>, MTLog.Loggable {
 
     constructor(
         bannerAdManager: BannerAdManager,
         crashReporter: CrashReporter,
         remoteConfigProvider: RemoteConfigProvider,
         adScreenActivity: IAdScreenActivity,
-        adView: AdView,
     ) : this(
-        bannerAdManager,
-        crashReporter,
-        remoteConfigProvider,
-        WeakReference(adScreenActivity),
-        WeakReference(adView)
+        bannerAdManager = bannerAdManager,
+        crashReporter = crashReporter,
+        remoteConfigProvider = remoteConfigProvider,
+        activityWR = WeakReference(adScreenActivity),
     )
 
     companion object {
@@ -49,47 +44,48 @@ class BannerAdListener(
         )
     }
 
-    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-        logAdsD(this, "onAdFailedToLoad($loadAdError)")
-        when (loadAdError.code) {
-            AdRequest.ERROR_CODE_APP_ID_MISSING -> this.crashReporter.w(
+    override fun onAdFailedToLoad(adError: LoadAdError) {
+        super.onAdFailedToLoad(adError)
+        logAdsD(this, "onAdFailedToLoad($adError)")
+        when (adError.code) {
+            LoadAdError.ErrorCode.APP_ID_MISSING -> this.crashReporter.w(
                 this,
                 "Failed to received ad! App ID missing: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
+                adError.code,
+                adError
             )
 
-            AdRequest.ERROR_CODE_INTERNAL_ERROR -> MTLog.w( // network error...
+            LoadAdError.ErrorCode.INTERNAL_ERROR -> MTLog.w( // network error...
                 this,
                 "Failed to received ad! Internal error code: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
+                adError.code,
+                adError
             )
 
-            AdRequest.ERROR_CODE_INVALID_REQUEST -> this.crashReporter.w(
+            LoadAdError.ErrorCode.INVALID_REQUEST -> this.crashReporter.w(
                 this,
                 "Failed to received ad! Invalid request error code: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
+                adError.code,
+                adError
             )
 
-            AdRequest.ERROR_CODE_REQUEST_ID_MISMATCH -> this.crashReporter.w(
+            LoadAdError.ErrorCode.REQUEST_ID_MISMATCH -> this.crashReporter.w(
                 this,
                 "Failed to received ad! Request ID mismatch error code: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
+                adError.code,
+                adError
             )
 
-            AdRequest.ERROR_CODE_NETWORK_ERROR -> MTLog.w(this, "Failed to received ad! Network error code: '%s' (%s).", loadAdError.code, loadAdError)
-            AdRequest.ERROR_CODE_MEDIATION_NO_FILL -> MTLog.w(
-                this,
-                "Failed to received ad! Mediation no fill error code: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
-            )
+            LoadAdError.ErrorCode.NETWORK_ERROR -> MTLog.w(this, "Failed to received ad! Network error code: '%s' (%s).", adError.code, adError)
 
-            AdRequest.ERROR_CODE_NO_FILL -> MTLog.w(this, "Failed to received ad! No fill error code: '%s' (%s).", loadAdError.code, loadAdError)
-            else -> this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", loadAdError.code, loadAdError)
+            LoadAdError.ErrorCode.NO_FILL -> MTLog.w(this, "Failed to received ad! No fill error code: '%s' (%s).", adError.code, adError)
+
+            LoadAdError.ErrorCode.TIMEOUT,
+            LoadAdError.ErrorCode.CANCELLED,
+            LoadAdError.ErrorCode.NOT_FOUND,
+            LoadAdError.ErrorCode.INVALID_AD_RESPONSE,
+            LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,
+                -> this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", adError.code, adError)
         }
         if (keepOldAdVisible && this.bannerAdManager.adBannerLoaded == true) {
             logAdsD(this, "onAdFailedToLoad() > keep old ad visible")
@@ -101,22 +97,25 @@ class BannerAdListener(
             logAdsD(this, "onAdFailedToLoad() > SKIP (no activity)")
             return
         }
-        this.bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
+        activity.activity?.runOnUiThread {
+            bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
+        }
     }
 
-    override fun onAdLoaded() {
-        logAdsD(this, "onAdLoaded()")
-        val adView = this.adViewWR.get()
-        val responseInfo = adView?.responseInfo
-        logAdsD(this, "onAdLoaded() > ad loaded from ${responseInfo?.mediationAdapterClassName} (collapsible:${adView?.isCollapsible})")
+    override fun onAdLoaded(ad: BannerAd) {
+        super.onAdLoaded(ad)
+        logAdsD(this, "onAdLoaded($ad)")
+        logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName} ")
         this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
         val activity = this.activityWR.get()
         if (activity == null) {
             logAdsD(this, "onAdLoaded() > SKIP (no activity)")
             return
         }
-        this.bannerAdManager.adaptToScreenSize(
-            activity,
-        ) // showing ads if hidden because of no-fill/network error
+        activity.activity?.runOnUiThread {
+            bannerAdManager.adaptToScreenSize(
+                activity,
+            ) // showing ads if hidden because of no-fill/network error
+        }
     }
 }

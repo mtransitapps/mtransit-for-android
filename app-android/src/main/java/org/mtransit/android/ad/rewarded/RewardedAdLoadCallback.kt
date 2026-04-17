@@ -1,19 +1,17 @@
 package org.mtransit.android.ad.rewarded
 
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.rewarded.RewardedAd
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.MTLog.Loggable
 import org.mtransit.android.dev.CrashReporter
 
 class RewardedAdLoadCallback(
     private val rewardedAdManager: RewardedAdManager,
     private val crashReporter: CrashReporter
-) : RewardedAdLoadCallback(), Loggable {
+) : AdLoadCallback<RewardedAd>, MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedAdLoadCallback::class.java.simpleName}"
@@ -21,54 +19,68 @@ class RewardedAdLoadCallback(
 
     override fun getLogTag() = LOG_TAG
 
-    override fun onAdLoaded(rewardedAd: RewardedAd) {
-        logAdsD(this, "onAdLoaded() > Rewarded ad loaded from ${rewardedAd.responseInfo.mediationAdapterClassName}.")
-        this.rewardedAdManager.setRewardedAd(rewardedAd)
+    override fun onAdLoaded(ad: RewardedAd) {
+        super.onAdLoaded(ad)
+        logAdsD(this, "onAdLoaded() > Rewarded ad loaded from ${ad.getResponseInfo().adapterClassName}.")
+        this.rewardedAdManager.setRewardedAd(ad)
         val listener = this.rewardedAdManager.rewardedAdListener
         listener?.onRewardedAdStatusChanged()
     }
 
-    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+    override fun onAdFailedToLoad(adError: LoadAdError) {
+        super.onAdFailedToLoad(adError)
         this.rewardedAdManager.setRewardedAd(null)
         val listener = this.rewardedAdManager.rewardedAdListener
         listener?.onRewardedAdStatusChanged()
-        when (loadAdError.code) {
-            AdRequest.ERROR_CODE_APP_ID_MISSING -> this.crashReporter.w(
+        when (adError.code) {
+            LoadAdError.ErrorCode.APP_ID_MISSING -> this.crashReporter.w(
                 this,
                 "Failed to received rewarded ad! App ID missing: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
+                adError.code,
+                adError
             )
 
-            AdRequest.ERROR_CODE_INTERNAL_ERROR -> this.crashReporter.w(
+            LoadAdError.ErrorCode.INTERNAL_ERROR -> this.crashReporter.w(
                 this,
                 "Failed to received rewarded ad! Internal error code: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
+                adError.code,
+                adError
             )
 
-            AdRequest.ERROR_CODE_INVALID_REQUEST -> this.crashReporter.w(
+            LoadAdError.ErrorCode.INVALID_REQUEST -> this.crashReporter.w(
                 this,
                 "Failed to received rewarded ad! Invalid request error code: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
+                adError.code,
+                adError
             )
 
-            AdRequest.ERROR_CODE_NETWORK_ERROR -> MTLog.w(
+            LoadAdError.ErrorCode.REQUEST_ID_MISMATCH -> this.crashReporter.w(
+                this,
+                "Failed to received rewarded ad! Request ID mismatch error code: '%s' (%s).",
+                adError.code,
+                adError
+            )
+
+            LoadAdError.ErrorCode.NETWORK_ERROR -> MTLog.w(
                 this,
                 "Failed to received rewarded ad! Network error code: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
+                adError.code,
+                adError
             )
 
-            AdRequest.ERROR_CODE_NO_FILL -> this.crashReporter.w(
+            LoadAdError.ErrorCode.NO_FILL -> this.crashReporter.w(
                 this,
                 "Failed to received rewarded ad! No fill error code: '%s' (%s).",
-                loadAdError.code,
-                loadAdError
+                adError.code,
+                adError
             )
 
-            else -> this.crashReporter.w(this, "Failed to received rewarded ad! Error code: '%s' (%s).", loadAdError.code, loadAdError)
+            LoadAdError.ErrorCode.TIMEOUT,
+            LoadAdError.ErrorCode.CANCELLED,
+            LoadAdError.ErrorCode.NOT_FOUND,
+            LoadAdError.ErrorCode.INVALID_AD_RESPONSE,
+            LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,
+                -> this.crashReporter.w(this, "Failed to received rewarded ad! Error code: '%s' (%s).", adError.code, adError)
         }
     }
 }

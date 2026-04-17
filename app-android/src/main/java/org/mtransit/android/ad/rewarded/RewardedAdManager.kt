@@ -1,6 +1,7 @@
 package org.mtransit.android.ad.rewarded
 
-import com.google.android.gms.ads.rewarded.RewardedAd
+import androidx.annotation.StringRes
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -56,9 +57,9 @@ class RewardedAdManager @Inject constructor(
             this.rewardedAdActivityHashCode = theActivity.hashCode()
             logAdsD(this, "loadRewardedAdForActivity() > Loading rewarded ad for ${theActivity::class.java.simpleName}...")
             RewardedAd.load(
-                theActivity,
-                theActivity.getString(R.string.google_ads_rewarded_ad_unit_id),
-                AdManager.getAdRequest(activity),
+                AdManager.getAdRequest(
+                    adUnitId = theActivity.getString(adUnitStringResId)
+                ),
                 RewardedAdLoadCallback(this, this.crashReporter)
             )
             val loadCounts = this.defaultPrefRepository.getValue(
@@ -70,6 +71,9 @@ class RewardedAdManager @Inject constructor(
             logAdsD(this, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${theActivity::class.java.simpleName}...")
         }
     }
+
+    @get:StringRes
+    private val adUnitStringResId: Int get() = R.string.google_ads_rewarded_ad_unit_id
 
     fun setRewardedAd(rewardedAd: RewardedAd?) {
         if (this.rewardedAdActivityHashCode == null) {
@@ -100,9 +104,7 @@ class RewardedAdManager @Inject constructor(
     }
 
     fun refreshRewardedAdStatus(activity: IActivity) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
         val isNotPayingUser = this.globalAdManager.isShowingAds()
         if (!isNotPayingUser) {
             logAdsD(this, "refreshRewardedAdStatus() > SKIP (paying user or unknown)")
@@ -122,28 +124,19 @@ class RewardedAdManager @Inject constructor(
     }
 
     fun isRewardedAdAvailableToShow(): Boolean {
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
-        if (this.demoModeManager.enabled) {
-            return false
-        }
-        if (this.rewardedAd == null) { // do not trigger creation + loading
-            return false
-        }
+        if (!AdConstants.AD_ENABLED) return false
+        if (this.demoModeManager.enabled) return false
+        if (this.rewardedAd == null) return false // do not trigger creation + loading
         return true
     }
 
     fun showRewardedAd(activity: IActivity): Boolean {
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
-        if (this.rewardedAd == null) { // do not trigger creation + loading
-            return false
-        }
+        if (!AdConstants.AD_ENABLED) return false
+        if (this.rewardedAd == null) return false // do not trigger creation + loading
+
         val theActivity = activity.requireActivity()
         logAdsD(this, "showRewardedAd() > Showing rewarded ad for ${theActivity::class.java.simpleName}...")
-        this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
+        this.rewardedAd?.adEventCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
         val showCounts = this.defaultPrefRepository.getValue(
             DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS,

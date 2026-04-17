@@ -2,18 +2,20 @@ package org.mtransit.android.ad
 
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.libraries.ads.mobile.sdk.MobileAds
+import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration
+import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedUserManager
 import org.mtransit.android.common.IContext
+import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
@@ -51,11 +53,14 @@ class GlobalAdManager(
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${GlobalAdManager::class.java.simpleName}"
+
+        private const val GOOGLE_ADS_TEST_IDS_START_WITH = "ca-app-pub-3940256099942544"
     }
 
     override fun getLogTag() = LOG_TAG
 
     private val initialized = AtomicBoolean(false)
+    private val initializing = AtomicBoolean(false)
 
     private var showingAds: Boolean? = null
     private var hasAgenciesEnabled: Boolean? = null
@@ -67,9 +72,7 @@ class GlobalAdManager(
     }
 
     fun init(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
         val theActivity = activity.activity
         if (theActivity == null) {
             MTLog.w(this, "Trying to initialized w/o activity!")
@@ -92,8 +95,12 @@ class GlobalAdManager(
     }
 
     private fun initWithConsent(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (initialized.getAndSet(true)) {
-            logAdsD(this, "init() > SKIP (initialized: ${this.initialized.get()})")
+        if (initialized.get()) {
+            logAdsD(this, "initWithConsent() > SKIP (initialized: ${this.initialized.get()})")
+            return // SKIP
+        }
+        if (initializing.getAndSet(true)) {
+            logAdsD(this, "initWithConsent() > SKIP (initializing: ${this.initializing.get()})")
             return // SKIP
         }
         try {
@@ -107,22 +114,34 @@ class GlobalAdManager(
 
     @WorkerThread
     private fun initOnBackgroundThread(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (AdConstants.DEBUG) {
-            MobileAds.setRequestConfiguration(
-                RequestConfiguration.Builder()
-                    .setTestDeviceIds(
-                        listOf(*activity.requireContext().resources.getStringArray(R.array.google_ads_test_devices_ids))
-                                + listOf(AdRequest.DEVICE_ID_EMULATOR)
-                    )
-                    .build()
-            )
-        }
-        // https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk
+        // https://developers.google.com/admob/android/next-gen/quick-start
+        val appId = activity.requireContext().getString(R.string.google_ads_app_id)
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
+            InitializationConfig.Builder(applicationId = appId)
+                .apply {
+                    if (Constants.DEBUG && BuildConfig.DEBUG) {
+                        setRequestConfiguration(
+                            RequestConfiguration.Builder()
+                                .setTestDeviceIds( // Android emulators are automatically configured as test devices.
+                                    listOf(*activity.requireContext().resources.getStringArray(R.array.google_ads_test_devices_ids))
+                                )
+                                .build()
+                        )
+                        if (appId.startsWith(GOOGLE_ADS_TEST_IDS_START_WITH)) {
+                            disableMediationAdapterInitialization() // all will fail/timeout
+                        }
+                    }
+                }
+                .build(),
         ) { initializationStatus ->
+            this.initialized.set(true)
+            this.initializing.set(false)
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
-                logAdsD(this, "onInitializationComplete() > Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")
+                logAdsD(
+                    this@GlobalAdManager,
+                    "onAdapterInitializationComplete() > Adapter name: $adapterClass, Status: ${status.initializationState}, Description: ${status.description}, Latency: ${status.latency}"
+                )
             }
             bannerAdManager.refreshBannerAdStatus(activity, force = false)
         }
@@ -134,9 +153,7 @@ class GlobalAdManager(
 
     @AnyThread
     fun isShowingAds(): Boolean {
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
+        if (!AdConstants.AD_ENABLED) return false
         if (hasAgenciesEnabled == null) {
             hasAgenciesEnabled = this.dataSourcesRepository.hasAgenciesEnabled()
         }
