@@ -72,9 +72,7 @@ class GlobalAdManager(
     }
 
     fun init(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
         val theActivity = activity.activity
         if (theActivity == null) {
             MTLog.w(this, "Trying to initialized w/o activity!")
@@ -123,6 +121,13 @@ class GlobalAdManager(
             InitializationConfig.Builder(applicationId = appId)
                 .apply {
                     if (Constants.DEBUG && BuildConfig.DEBUG) {
+                        setRequestConfiguration(
+                            RequestConfiguration.Builder()
+                                .setTestDeviceIds( // Android emulators are automatically configured as test devices.
+                                    listOf(*activity.requireContext().resources.getStringArray(R.array.google_ads_test_devices_ids))
+                                )
+                                .build()
+                        )
                         if (appId.startsWith(GOOGLE_ADS_TEST_IDS_START_WITH)) {
                             disableMediationAdapterInitialization() // all will fail/timeout
                         }
@@ -130,15 +135,6 @@ class GlobalAdManager(
                 }
                 .build(),
         ) { initializationStatus ->
-            if (Constants.DEBUG && BuildConfig.DEBUG) {
-                MobileAds.setRequestConfiguration(
-                    RequestConfiguration.Builder()
-                        .setTestDeviceIds( // Android emulators are automatically configured as test devices.
-                            listOf(*activity.requireContext().resources.getStringArray(R.array.google_ads_test_devices_ids))
-                        )
-                        .build()
-                )
-            }
             this.initialized.set(true)
             this.initializing.set(false)
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
@@ -157,9 +153,7 @@ class GlobalAdManager(
 
     @AnyThread
     fun isShowingAds(): Boolean {
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
+        if (!AdConstants.AD_ENABLED) return false
         if (hasAgenciesEnabled == null) {
             hasAgenciesEnabled = this.dataSourcesRepository.hasAgenciesEnabled()
         }
