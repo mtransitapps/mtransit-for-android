@@ -60,7 +60,7 @@ class RewardedAdManager @Inject constructor(
                 AdManager.getAdRequest(
                     adUnitId = theActivity.getString(adUnitStringResId)
                 ),
-                RewardedAdLoadCallback(this, this.crashReporter, activity)
+                RewardedAdLoadCallback(this, this.crashReporter)
             )
             val loadCounts = this.defaultPrefRepository.getValue(
                 DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS,

@@ -2,7 +2,6 @@ package org.mtransit.android.ad
 
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.annotation.MainThread
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest
@@ -83,7 +82,6 @@ class AdManager @Inject internal constructor(
 
     override fun getBannerHeightInPx(activity: IAdScreenActivity?) = this.bannerAdManager.getBannerHeightInPx(activity)
 
-    @MainThread
     override fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration?) = this.bannerAdManager.adaptToScreenSize(activity, configuration)
 
     override fun pauseAd(activity: IAdScreenActivity) = this.bannerAdManager.pauseAd(activity)

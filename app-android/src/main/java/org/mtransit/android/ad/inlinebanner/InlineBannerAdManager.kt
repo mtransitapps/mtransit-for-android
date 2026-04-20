@@ -2,7 +2,7 @@ package org.mtransit.android.ad.inlinebanner
 
 import android.os.Build
 import android.view.ViewGroup
-import androidx.annotation.MainThread
+import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
@@ -114,7 +114,7 @@ class InlineBannerAdManager @Inject constructor(
         // DO NOTHING
     }
 
-    @MainThread
+    @AnyThread
     fun adaptToScreenSize(fragment: IFragment) {
         if (!AdConstants.AD_ENABLED) return
         if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) return
@@ -130,24 +130,21 @@ class InlineBannerAdManager @Inject constructor(
         // DO NOTHING
     }
 
-    @MainThread
+    @AnyThread
     private fun showBannerAd(viewFinder: IViewFinder) {
-        val adLayout = getAdLayout(viewFinder)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adView?.isVisibleOnce = true
-            adLayout.isVisibleOnce = true
-        }
+        val adLayout = getAdLayout(viewFinder) ?: return
+        adLayout.post { adLayout.isVisibleOnce = true }
+        val adView = getAdView(adLayout) ?: return
+        adView.post { adView.isVisibleOnce = true }
+
     }
 
-    @MainThread
+    @AnyThread
     internal fun hideBannerAd(viewFinder: IViewFinder) {
-        val adLayout = getAdLayout(viewFinder)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adLayout.isVisibleOnce = false
-            adView?.isVisibleOnce = false
-        }
+        val adLayout = getAdLayout(viewFinder) ?: return
+        adLayout.post { adLayout.isVisibleOnce = false }
+        val adView = getAdView(adLayout) ?: return
+        adView.post { adView.isVisibleOnce = false }
     }
 
     internal fun getAdSize(fragment: IFragment): AdSize = with(fragment.requireActivity()) {

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
-import androidx.annotation.MainThread
+import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
@@ -76,7 +76,7 @@ class BannerAdManager @Inject constructor(
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
-    @MainThread
+    @AnyThread
     @JvmOverloads
     fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
         if (this.globalAdManager.isShowingAds() // showing ads across the app
@@ -93,7 +93,7 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    @MainThread
+    @AnyThread
     fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
         if (!AdConstants.AD_ENABLED) return
         if (!this.globalAdManager.isShowingAds()) return
@@ -142,7 +142,7 @@ class BannerAdManager @Inject constructor(
                 logAdsD(this, "setupAd() > not cancelling previous setup ad task...")
             }
         } else {
-            logAdsD(this, "setupAd() > SKIP (force?$force|setupBannerAdTask?${setupBannerAdTask!=null}|adBannerLoaded:$adBannerLoaded)")
+            logAdsD(this, "setupAd() > SKIP (force?$force|setupBannerAdTask?${setupBannerAdTask != null}|adBannerLoaded:$adBannerLoaded)")
         }
         if (setupBannerAdTask == null) {
             logAdsD(this, "setupAd() > STARTING setup ad task...")
@@ -155,24 +155,20 @@ class BannerAdManager @Inject constructor(
         logAdsD(this, "setupAd() > DONE --------------------")
     }
 
-    @MainThread
+    @AnyThread
     private fun showBannerAd(activity: IAdScreenActivity) {
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adView?.isVisibleOnce = true
-            adLayout.isVisibleOnce = true
-        }
+        val adLayout = getAdLayout(activity) ?: return
+        adLayout.post { adLayout.isVisibleOnce = true }
+        val adView = getAdView(adLayout) ?: return
+        adView.post { adView.isVisibleOnce = true }
     }
 
-    @MainThread
+    @AnyThread
     fun hideBannerAd(activity: IAdScreenActivity) {
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adLayout.isVisibleOnce = false
-            adView?.isVisibleOnce = false
-        }
+        val adLayout = getAdLayout(activity) ?: return
+        adLayout.post { adLayout.isVisibleOnce = false }
+        val adView = getAdView(adLayout) ?: return
+        adView.post { adView.isVisibleOnce = false }
     }
 
     fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) {
