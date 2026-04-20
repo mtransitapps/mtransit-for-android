@@ -71,7 +71,7 @@ class BannerAdManager @Inject constructor(
 
     @MainThread
     fun onResumeScreen(activity: IAdScreenActivity) {
-        logAdsD(this, "onTimeChanged($activity)")
+        logAdsD(this, "onResumeScreen($activity)")
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
