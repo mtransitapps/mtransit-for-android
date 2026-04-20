@@ -145,8 +145,8 @@ class InlineBannerAdManager @Inject constructor(
     @MainThread
     internal fun hideBannerAd(viewFinder: IViewFinder) {
         getAdLayout(viewFinder)?.let { adLayout ->
-            getAdView(adLayout)?.isVisibleOnce = false
             adLayout.isVisibleOnce = false
+            getAdView(adLayout)?.isVisibleOnce = false
         }
     }
 

@@ -171,8 +171,8 @@ class BannerAdManager @Inject constructor(
     @MainThread
     fun hideBannerAd(activity: IAdScreenActivity) {
         getAdLayout(activity)?.let { adLayout ->
-            getAdView(adLayout)?.isVisibleOnce = false
             adLayout.isVisibleOnce = false
+            getAdView(adLayout)?.isVisibleOnce = false
         }
     }
 
