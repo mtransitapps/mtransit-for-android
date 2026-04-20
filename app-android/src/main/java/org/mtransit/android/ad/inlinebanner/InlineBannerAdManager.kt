@@ -18,6 +18,7 @@ import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.IViewFinder
 import org.mtransit.android.ui.view.common.isVisibleOnce
 import org.mtransit.android.util.UIFeatureFlags
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,9 +38,11 @@ class InlineBannerAdManager @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    private val inlineAdBannerLoaded = mutableMapOf<Int, AtomicBoolean>()
+    @get:AnyThread
+    private val inlineAdBannerLoaded = ConcurrentHashMap<Int, AtomicBoolean>()
 
-    private val setupInlineBannerAdTasks = mutableMapOf<Int, SetupInlineBannerAdTask>()
+    @get:AnyThread
+    private val setupInlineBannerAdTasks = ConcurrentHashMap<Int, SetupInlineBannerAdTask>()
 
     @AnyThread
     @JvmOverloads
