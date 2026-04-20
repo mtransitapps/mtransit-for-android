@@ -6,7 +6,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.mtransit.android.BuildConfig;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.ServiceUpdate;
@@ -119,7 +119,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	static {
 		Set<String> collection = new HashSet<>();
-		collection.add("org.mtransit.android.ca_montreal_stm_subway" + (BuildConfig.DEBUG ? ".debug" : "")); // + ".stminfo"
+		collection.add("org.mtransit.android.ca_montreal_stm_subway" + (Constants.IS_DEBUG_BUILD ? ".debug" : "") + ".gtfs"); // + ".stminfo"
 		ROUTE_DIRECTION_NOT_SUPPORTED = collection;
 	}
 
@@ -144,8 +144,9 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	static {
 		Set<String> collection = new HashSet<>();
-		collection.add("org.mtransit.android.ca_laval_stl_bus" + (BuildConfig.DEBUG ? ".debug" : "")); // + ".nextbus"
-		collection.add("org.mtransit.android.ca_montreal_stm_bus" + (BuildConfig.DEBUG ? ".debug" : "")); // + ".stminfoapi"
+		collection.add("org.mtransit.android.ca_laval_stl_bus" + (Constants.IS_DEBUG_BUILD ? ".debug" : "") + ".gtfs"); // + ".nextbus"
+		// STM buses now uses new GTFS-like API
+		// collection.add("org.mtransit.android.ca_montreal_stm_bus" + (Constants.IS_DEBUG_BUILD ? ".debug" : "") + ".gtfs"); // + ".stminfoapi"
 		ROUTE_NOT_SUPPORTED = collection;
 	}
 

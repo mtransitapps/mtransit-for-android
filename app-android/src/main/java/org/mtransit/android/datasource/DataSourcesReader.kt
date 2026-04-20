@@ -9,10 +9,10 @@ import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.mtransit.android.BuildConfig
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.getAllInstalledProvidersWithMetaData
@@ -50,7 +50,7 @@ class DataSourcesReader @Inject constructor(
         private val LOG_TAG: String = DataSourcesReader::class.java.simpleName
 
         @Suppress("SpellCheckingInspection")
-        private val NOT_SUPPORTED_APPS_PKG: List<String> = if (BuildConfig.DEBUG) listOf(
+        private val NOT_SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) listOf(
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
             "org.mtransit.android.ca_fort_erie_transit_bus.debug", // not supported anymore
             "org.mtransit.android.ca_haut_st_laurent_cithsl_bus.debug", // not supported anymore
