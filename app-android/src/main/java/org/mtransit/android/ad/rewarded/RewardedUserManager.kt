@@ -1,7 +1,6 @@
 package org.mtransit.android.ad.rewarded
 
 import android.widget.Toast
-import androidx.annotation.AnyThread
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
@@ -10,6 +9,7 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,21 +43,24 @@ class RewardedUserManager @Inject constructor(
         newHasLowLoadShowRatio
     }
 
-    private var rewardedUntilInMs: Long? = null
+    private var rewardedUntilInMs = AtomicLong(-1L)
+    private val validRewardedUntilInMs: Long? get() = this.rewardedUntilInMs.get().takeUnless { it < 0L }
 
     fun getRewardedUntilInMs(): Long {
         if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever
-        if (this.rewardedUntilInMs == null) {
-            this.rewardedUntilInMs = this.defaultPrefRepository.getValue(
-                DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
-                DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
+        if (this.validRewardedUntilInMs == null) {
+            this.rewardedUntilInMs.set(
+                this.defaultPrefRepository.getValue(
+                    DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
+                    DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
+                )
             )
         }
-        return this.rewardedUntilInMs ?: Long.MAX_VALUE
+        return this.validRewardedUntilInMs ?: Long.MAX_VALUE
     }
 
     fun setRewardedUntilInMs(newRewardedUntilInMs: Long) {
-        this.rewardedUntilInMs = newRewardedUntilInMs
+        this.rewardedUntilInMs.set(newRewardedUntilInMs)
         this.defaultPrefRepository.saveAsync(
             DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
             newRewardedUntilInMs
@@ -74,7 +77,6 @@ class RewardedUserManager @Inject constructor(
         return getRewardedUntilInMs() > TimeUtils.currentTimeMillis()
     }
 
-    @AnyThread
     fun rewardUser(newRewardInMs: Long, activity: IActivity?) {
         val currentRewardedUntilOrNow = maxOf(getRewardedUntilInMs(), TimeUtils.currentTimeMillis())
         setRewardedUntilInMs(currentRewardedUntilOrNow + newRewardInMs)
@@ -109,5 +111,4 @@ class RewardedUserManager @Inject constructor(
         val rewardType = TimeUnit.DAYS // TODO custom type? rewardItem.getType()
         return rewardType.toMillis(rewardAmount.toLong())
     }
-
 }

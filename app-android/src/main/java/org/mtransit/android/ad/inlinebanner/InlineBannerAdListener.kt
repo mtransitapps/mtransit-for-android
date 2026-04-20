@@ -1,5 +1,6 @@
 package org.mtransit.android.ad.inlinebanner
 
+import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
@@ -32,6 +33,7 @@ class InlineBannerAdListener(
 
     override fun getLogTag() = LOG_TAG
 
+    @AnyThread
     override fun onAdFailedToLoad(adError: LoadAdError) {
         super.onAdFailedToLoad(adError)
         when (adError.code) {
@@ -75,18 +77,23 @@ class InlineBannerAdListener(
         }
         this.fragmentWR.get()?.let { fragment ->
             this.inlineBannerAdManager.setAdBannerLoaded(fragment, false)
-            inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
+            fragment.getActivity()?.runOnUiThread {
+                this.inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
+            }
         }
     }
 
+    @AnyThread
     override fun onAdLoaded(ad: BannerAd) {
         super.onAdLoaded(ad)
         logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName}")
         this.fragmentWR.get()?.let { fragment ->
             this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
-            inlineBannerAdManager.adaptToScreenSize(
-                fragment,
-            ) // showing ads if hidden because of no-fill/network error
+            fragment.getActivity()?.runOnUiThread {
+                this.inlineBannerAdManager.adaptToScreenSize(
+                    fragment,
+                ) // showing ads if hidden because of no-fill/network error
+            }
         }
     }
 }

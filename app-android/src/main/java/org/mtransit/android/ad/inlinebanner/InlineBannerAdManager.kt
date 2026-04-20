@@ -2,7 +2,7 @@ package org.mtransit.android.ad.inlinebanner
 
 import android.os.Build
 import android.view.ViewGroup
-import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
@@ -38,13 +38,11 @@ class InlineBannerAdManager @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    @get:AnyThread
     private val inlineAdBannerLoaded = ConcurrentHashMap<Int, AtomicBoolean>()
 
-    @get:AnyThread
     private val setupInlineBannerAdTasks = ConcurrentHashMap<Int, SetupInlineBannerAdTask>()
 
-    @AnyThread
+    @MainThread
     @JvmOverloads
     fun refreshBannerAdStatus(fragment: IFragment, adScreenFragment: IAdScreenFragment?, force: Boolean = false) {
         @Suppress("SimplifyBooleanWithConstants")
@@ -114,11 +112,12 @@ class InlineBannerAdManager @Inject constructor(
     fun getAdView(adLayout: ViewGroup): AdView? =
         adLayout.findViewById(R.id.inline_banner_ad)
 
+    @MainThread
     fun onResume(@Suppress("unused") fragment: IFragment) {
         // DO NOTHING
     }
 
-    @AnyThread
+    @MainThread
     fun adaptToScreenSize(fragment: IFragment) {
         if (!AdConstants.AD_ENABLED) return
         if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) return
@@ -130,27 +129,24 @@ class InlineBannerAdManager @Inject constructor(
         }
     }
 
+    @MainThread
     fun onPause(@Suppress("unused") viewFinder: IViewFinder) {
         // DO NOTHING
     }
 
-    @AnyThread
+    @MainThread
     private fun showBannerAd(viewFinder: IViewFinder) {
         getAdLayout(viewFinder)?.let { adLayout ->
-            adLayout.post {
-                adLayout.isVisibleOnce = true
-                getAdView(adLayout)?.isVisibleOnce = true
-            }
+            getAdView(adLayout)?.isVisibleOnce = true
+            adLayout.isVisibleOnce = true
         }
     }
 
-    @AnyThread
+    @MainThread
     internal fun hideBannerAd(viewFinder: IViewFinder) {
         getAdLayout(viewFinder)?.let { adLayout ->
-            adLayout.post {
-                adLayout.isVisibleOnce = false
-                getAdView(adLayout)?.isVisibleOnce = false
-            }
+            getAdView(adLayout)?.isVisibleOnce = false
+            adLayout.isVisibleOnce = false
         }
     }
 

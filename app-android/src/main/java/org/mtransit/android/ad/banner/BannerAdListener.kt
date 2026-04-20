@@ -1,5 +1,6 @@
 package org.mtransit.android.ad.banner
 
+import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
@@ -44,6 +45,7 @@ class BannerAdListener(
         )
     }
 
+    @AnyThread
     override fun onAdFailedToLoad(adError: LoadAdError) {
         super.onAdFailedToLoad(adError)
         logAdsD(this, "onAdFailedToLoad($adError)")
@@ -93,10 +95,13 @@ class BannerAdListener(
         }
         this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), false) // wait until next try, even if failed
         this.activityWR.get()?.let { activity ->
-            bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
+            activity.activity?.runOnUiThread {
+                bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
+            }
         }
     }
 
+    @AnyThread
     override fun onAdLoaded(ad: BannerAd) {
         super.onAdLoaded(ad)
         logAdsD(this, "onAdLoaded($ad)")

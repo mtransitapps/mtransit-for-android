@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
-import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
@@ -161,30 +160,28 @@ class BannerAdManager @Inject constructor(
         logAdsD(this, "setupAd() > DONE --------------------")
     }
 
-    @AnyThread
+    @MainThread
     private fun showBannerAd(activity: IAdScreenActivity) {
         getAdLayout(activity)?.let { adLayout ->
-            adLayout.post {
-                adLayout.isVisibleOnce = true
-                getAdView(adLayout)?.isVisibleOnce = true
-            }
+            getAdView(adLayout)?.isVisibleOnce = true
+            adLayout.isVisibleOnce = true
         }
     }
 
-    @AnyThread
+    @MainThread
     fun hideBannerAd(activity: IAdScreenActivity) {
         getAdLayout(activity)?.let { adLayout ->
-            adLayout.post {
-                adLayout.isVisibleOnce = false
-                getAdView(adLayout)?.isVisibleOnce = false
-            }
+            getAdView(adLayout)?.isVisibleOnce = false
+            adLayout.isVisibleOnce = false
         }
     }
 
+    @MainThread
     fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) {
         // DO NOTHING
     }
 
+    @MainThread
     fun pauseAd(@Suppress("unused") activity: IAdScreenActivity) {
         // DO NOTHING
     }
