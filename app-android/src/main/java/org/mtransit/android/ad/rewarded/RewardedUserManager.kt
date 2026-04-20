@@ -47,15 +47,13 @@ class RewardedUserManager @Inject constructor(
 
     fun getRewardedUntilInMs(): Long {
         if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever
-        var current = this.rewardedUntilInMs.get()
-        if (current == -1L) {
-            current = this.defaultPrefRepository.getValue(
+        return this.rewardedUntilInMs.updateAndGet { cached ->
+            if (cached != -1L) return@updateAndGet cached
+            return@updateAndGet this.defaultPrefRepository.getValue(
                 DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
                 DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
             )
-            this.rewardedUntilInMs.compareAndSet(-1L, current)
-        }
-        return current.takeUnless { it < 0L } ?: DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
+        }.takeUnless { it < 0L } ?: DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
     }
 
     fun setRewardedUntilInMs(newRewardedUntilInMs: Long) {
