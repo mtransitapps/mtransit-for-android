@@ -44,19 +44,18 @@ class RewardedUserManager @Inject constructor(
     }
 
     private var rewardedUntilInMs = AtomicLong(-1L)
-    private val validRewardedUntilInMs: Long? get() = this.rewardedUntilInMs.get().takeUnless { it < 0L }
 
     fun getRewardedUntilInMs(): Long {
         if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever
-        if (this.validRewardedUntilInMs == null) {
-            this.rewardedUntilInMs.set(
-                this.defaultPrefRepository.getValue(
-                    DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
-                    DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
-                )
+        var current = this.rewardedUntilInMs.get()
+        if (current == -1L) {
+            current = this.defaultPrefRepository.getValue(
+                DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
+                DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
             )
+            this.rewardedUntilInMs.compareAndSet(-1L, current)
         }
-        return this.validRewardedUntilInMs ?: Long.MAX_VALUE
+        return current.takeUnless { it < 0L } ?: DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
     }
 
     fun setRewardedUntilInMs(newRewardedUntilInMs: Long) {
