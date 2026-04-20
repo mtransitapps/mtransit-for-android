@@ -94,18 +94,14 @@ class GlobalAdManager(
     }
 
     private fun initWithConsent(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        logAdsD(this, "initWithConsent() > this.initialized: ${this.initialized.get()}")
         if (initialized.get()) {
-            // if (initialized.getAndSet(true)) {
             logAdsD(this, "initWithConsent() > SKIP (initialized: ${this.initialized.get()})")
             return // SKIP
         }
-        logAdsD(this, "initWithConsent() > this.initializing: ${this.initializing.get()}")
         if (initializing.getAndSet(true)) {
             logAdsD(this, "initWithConsent() > SKIP (initializing: ${this.initializing.get()})")
             return // SKIP
         }
-        logAdsD(this, "initWithConsent() > this.initializing: ${this.initializing.get()}")
         try {
             CoroutineScope(ioDispatcher).launch {
                 initOnBackgroundThread(activity, bannerAdManager)
@@ -117,7 +113,6 @@ class GlobalAdManager(
 
     @WorkerThread
     private fun initOnBackgroundThread(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        logAdsD(this, "initOnBackgroundThread()")
         // https://developers.google.com/admob/android/next-gen/quick-start
         val appId = activity.requireContext().getString(R.string.google_ads_app_id)
         MobileAds.initialize(
@@ -139,29 +134,16 @@ class GlobalAdManager(
                 }
                 .build(),
         ) { initializationStatus ->
-            logAdsD(this@GlobalAdManager, "onAdapterInitializationComplete() (latency: ${initializationStatus.totalLatency})")
-            logAdsD(this@GlobalAdManager, "onAdapterInitializationComplete() > this.initialized: ${this.initialized.get()}")
             this.initialized.set(true)
-            logAdsD(this@GlobalAdManager, "onAdapterInitializationComplete() > this.initialized: ${this.initialized.get()}")
-            logAdsD(this@GlobalAdManager, "onAdapterInitializationComplete() > this.initializing: ${this.initializing.get()}")
             this.initializing.set(false)
-            logAdsD(this@GlobalAdManager, "onAdapterInitializationComplete() > this.initializing: ${this.initializing.get()}")
-            logAdsD(this@GlobalAdManager, "onAdapterInitializationComplete() > Adapter status(es) [${initializationStatus.adapterStatusMap.size}]:")
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
                 logAdsD(
                     this@GlobalAdManager,
                     "onAdapterInitializationComplete() > Adapter name: $adapterClass, Status: ${status.initializationState}, Description: ${status.description}, Latency: ${status.latency}"
                 )
             }
-            // withContext(Dispatchers.Main) {
             bannerAdManager.refreshBannerAdStatus(activity, force = false)
-            // }
-            logAdsD(this@GlobalAdManager, "onAdapterInitializationComplete() - DONE")
         }
-        // logAdsD(this@GlobalAdManager, "initOnBackgroundThread() > this.initialized: ${this.initialized.get()}")
-        // this.initialized.set(true)
-        // logAdsD(this@GlobalAdManager, "initOnBackgroundThread() > this.initialized: ${this.initialized.get()}")
-        logAdsD(this, "initOnBackgroundThread() - DONE")
     }
 
     fun setShowingAds(showingAds: Boolean?) {
@@ -170,13 +152,10 @@ class GlobalAdManager(
 
     @AnyThread
     fun isShowingAds(): Boolean {
-        logAdsD(this, "isShowingAds()")
         if (!AdConstants.AD_ENABLED) return false
         if (hasAgenciesEnabled == null) {
             hasAgenciesEnabled = this.dataSourcesRepository.hasAgenciesEnabled()
         }
-        logAdsD(this, "isShowingAds() > this.initialized: ${this.initialized.get()}")
-        logAdsD(this, "isShowingAds() > this.initializing: ${this.initializing.get()}")
         if (!this.initialized.get()) {
             logAdsD(this, "isShowingAds() > Not showing ads (not initialized yet).")
             return false // not showing ads
