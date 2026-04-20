@@ -1163,9 +1163,9 @@ public class POIFragment extends ABFragment implements
 	@AnyThread
 	@Override
 	public void onRewardedAdStatusChanged() {
-		final View root = this.binding == null ? null : this.binding.getRoot();
-		if (root == null) return;
-		root.post(this::refreshRewardedLayout);
+		final View view = getView();
+		if (view == null) return;
+		view.post(this::refreshRewardedLayout);
 	}
 
 	@NonNull
