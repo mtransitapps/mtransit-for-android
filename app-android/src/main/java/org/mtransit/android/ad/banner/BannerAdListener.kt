@@ -93,9 +93,7 @@ class BannerAdListener(
         }
         this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), false) // wait until next try, even if failed
         this.activityWR.get()?.let { activity ->
-            activity.activity?.runOnUiThread {
-                bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
-            }
+            bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
         }
     }
 

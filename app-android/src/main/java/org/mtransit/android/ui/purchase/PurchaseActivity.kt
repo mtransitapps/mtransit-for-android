@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
+import androidx.annotation.MainThread
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
@@ -66,6 +67,7 @@ class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
         }
     }
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment
 }

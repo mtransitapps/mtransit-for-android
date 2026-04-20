@@ -41,6 +41,7 @@ class InlineBannerAdManager @Inject constructor(
 
     private val setupInlineBannerAdTasks = mutableMapOf<Int, SetupInlineBannerAdTask>()
 
+    @AnyThread
     @JvmOverloads
     fun refreshBannerAdStatus(fragment: IFragment, adScreenFragment: IAdScreenFragment?, force: Boolean = false) {
         @Suppress("SimplifyBooleanWithConstants")

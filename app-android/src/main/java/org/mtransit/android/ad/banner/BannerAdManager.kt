@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
 import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
@@ -68,17 +69,22 @@ class BannerAdManager @Inject constructor(
         this.adBannerLoaded = loaded
     }
 
+    @MainThread
     fun onResumeScreen(activity: IAdScreenActivity) {
+        logAdsD(this, "onTimeChanged($activity)")
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
+    @MainThread
     fun onTimeChanged(activity: IAdScreenActivity) {
+        logAdsD(this, "onTimeChanged($activity)")
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
-    @AnyThread
+    @MainThread
     @JvmOverloads
     fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
+        logAdsD(this, "refreshBannerAdStatus($force)")
         if (this.globalAdManager.isShowingAds() // showing ads across the app
             && activity.currentAdFragment?.hasAds() == false // this specific screen doesn't include ads already
         ) {
@@ -93,7 +99,7 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    @AnyThread
+    @MainThread
     fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
         if (!AdConstants.AD_ENABLED) return
         if (!this.globalAdManager.isShowingAds()) return

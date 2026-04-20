@@ -15,6 +15,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -393,6 +394,7 @@ class MainActivity : MTActivityWithLocation(),
         return FragmentUtils.isCurrentFragmentVisible(this, R.id.content_frame, fragment)
     }
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = FragmentUtils.getFragment(this, R.id.content_frame)
 

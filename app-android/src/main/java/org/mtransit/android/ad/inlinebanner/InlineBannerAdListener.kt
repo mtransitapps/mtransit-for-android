@@ -75,9 +75,7 @@ class InlineBannerAdListener(
         }
         this.fragmentWR.get()?.let { fragment ->
             this.inlineBannerAdManager.setAdBannerLoaded(fragment, false)
-            fragment.getActivity()?.runOnUiThread {
-                inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
-            }
+            inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
         }
     }
 
@@ -86,11 +84,9 @@ class InlineBannerAdListener(
         logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName}")
         this.fragmentWR.get()?.let { fragment ->
             this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
-            fragment.getActivity()?.runOnUiThread {
-                inlineBannerAdManager.adaptToScreenSize(
-                    fragment,
-                ) // showing ads if hidden because of no-fill/network error
-            }
+            inlineBannerAdManager.adaptToScreenSize(
+                fragment,
+            ) // showing ads if hidden because of no-fill/network error
         }
     }
 }
