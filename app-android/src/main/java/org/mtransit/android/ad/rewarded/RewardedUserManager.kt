@@ -1,14 +1,14 @@
 package org.mtransit.android.ad.rewarded
 
 import android.widget.Toast
-import androidx.annotation.MainThread
+import androidx.annotation.AnyThread
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
-import org.mtransit.android.common.IContext
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -74,15 +74,19 @@ class RewardedUserManager @Inject constructor(
         return getRewardedUntilInMs() > TimeUtils.currentTimeMillis()
     }
 
-    @MainThread
-    fun rewardUser(newRewardInMs: Long, context: IContext?) {
+    @AnyThread
+    fun rewardUser(newRewardInMs: Long, activity: IActivity?) {
         val currentRewardedUntilOrNow = maxOf(getRewardedUntilInMs(), TimeUtils.currentTimeMillis())
         setRewardedUntilInMs(currentRewardedUntilOrNow + newRewardInMs)
-        ToastUtils.makeTextAndShowCentered(
-            context?.context,
-            R.string.support_watch_rewarded_ad_successful_message,
-            Toast.LENGTH_LONG
-        )
+        activity?.activity?.let { activity ->
+            activity.runOnUiThread {
+                ToastUtils.makeTextAndShowCentered(
+                    activity,
+                    R.string.support_watch_rewarded_ad_successful_message,
+                    Toast.LENGTH_LONG
+                )
+            }
+        }
     }
 
     fun shouldSkipRewardedAd(): Boolean {
