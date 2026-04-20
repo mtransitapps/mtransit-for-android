@@ -92,13 +92,10 @@ class BannerAdListener(
             return // keep old ad visible
         }
         this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), false) // wait until next try, even if failed
-        val activity = this.activityWR.get()
-        if (activity == null) {
-            logAdsD(this, "onAdFailedToLoad() > SKIP (no activity)")
-            return
-        }
-        activity.activity?.runOnUiThread {
-            bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
+        this.activityWR.get()?.let { activity ->
+            activity.activity?.runOnUiThread {
+                bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
+            }
         }
     }
 
@@ -107,15 +104,12 @@ class BannerAdListener(
         logAdsD(this, "onAdLoaded($ad)")
         logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName} ")
         this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
-        val activity = this.activityWR.get()
-        if (activity == null) {
-            logAdsD(this, "onAdLoaded() > SKIP (no activity)")
-            return
-        }
-        activity.activity?.runOnUiThread {
-            bannerAdManager.adaptToScreenSize(
-                activity,
-            ) // showing ads if hidden because of no-fill/network error
+        this.activityWR.get()?.let { activity ->
+            activity.activity?.runOnUiThread {
+                bannerAdManager.adaptToScreenSize(
+                    activity,
+                ) // showing ads if hidden because of no-fill/network error
+            }
         }
     }
 }

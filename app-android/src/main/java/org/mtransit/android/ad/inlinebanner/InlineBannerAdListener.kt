@@ -73,30 +73,24 @@ class InlineBannerAdListener(
             LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,
                 -> this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", adError.code, adError)
         }
-        val fragment = this.fragmentWR.get()
-        if (fragment == null) {
-            logAdsD(this, "onAdFailedToLoad() > SKIP (no fragment)")
-            return
-        }
-        this.inlineBannerAdManager.setAdBannerLoaded(fragment, false)
-        fragment.getActivity()?.runOnUiThread {
-            inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
+        this.fragmentWR.get()?.let { fragment ->
+            this.inlineBannerAdManager.setAdBannerLoaded(fragment, false)
+            fragment.getActivity()?.runOnUiThread {
+                inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
+            }
         }
     }
 
     override fun onAdLoaded(ad: BannerAd) {
         super.onAdLoaded(ad)
         logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName}")
-        val fragment = this.fragmentWR.get()
-        if (fragment == null) {
-            logAdsD(this, "onAdLoaded() > SKIP (no fragment)")
-            return
-        }
-        this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
-        fragment.getActivity()?.runOnUiThread {
-            inlineBannerAdManager.adaptToScreenSize(
-                fragment,
-            ) // showing ads if hidden because of no-fill/network error
+        this.fragmentWR.get()?.let { fragment ->
+            this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
+            fragment.getActivity()?.runOnUiThread {
+                inlineBannerAdManager.adaptToScreenSize(
+                    fragment,
+                ) // showing ads if hidden because of no-fill/network error
+            }
         }
     }
 }

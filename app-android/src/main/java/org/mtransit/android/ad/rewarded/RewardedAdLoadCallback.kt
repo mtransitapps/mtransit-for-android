@@ -7,11 +7,24 @@ import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.dev.CrashReporter
+import org.mtransit.android.ui.view.common.IActivity
+import java.lang.ref.WeakReference
 
 class RewardedAdLoadCallback(
     private val rewardedAdManager: RewardedAdManager,
-    private val crashReporter: CrashReporter
+    private val crashReporter: CrashReporter,
+    private val activityWR: WeakReference<IActivity>,
 ) : AdLoadCallback<RewardedAd>, MTLog.Loggable {
+
+    constructor(
+        rewardedAdManager: RewardedAdManager,
+        crashReporter: CrashReporter,
+        activity: IActivity,
+    ) : this(
+        rewardedAdManager = rewardedAdManager,
+        crashReporter = crashReporter,
+        activityWR = WeakReference(activity),
+    )
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedAdLoadCallback::class.java.simpleName}"
@@ -23,15 +36,14 @@ class RewardedAdLoadCallback(
         super.onAdLoaded(ad)
         logAdsD(this, "onAdLoaded() > Rewarded ad loaded from ${ad.getResponseInfo().adapterClassName}.")
         this.rewardedAdManager.setRewardedAd(ad)
-        val listener = this.rewardedAdManager.rewardedAdListener
-        listener?.onRewardedAdStatusChanged()
+        this.activityWR.get()?.activity?.runOnUiThread {
+            this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
+        }
     }
 
     override fun onAdFailedToLoad(adError: LoadAdError) {
         super.onAdFailedToLoad(adError)
         this.rewardedAdManager.setRewardedAd(null)
-        val listener = this.rewardedAdManager.rewardedAdListener
-        listener?.onRewardedAdStatusChanged()
         when (adError.code) {
             LoadAdError.ErrorCode.APP_ID_MISSING -> this.crashReporter.w(
                 this,
@@ -81,6 +93,9 @@ class RewardedAdLoadCallback(
             LoadAdError.ErrorCode.INVALID_AD_RESPONSE,
             LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,
                 -> this.crashReporter.w(this, "Failed to received rewarded ad! Error code: '%s' (%s).", adError.code, adError)
+        }
+        this.activityWR.get()?.activity?.runOnUiThread {
+            this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
         }
     }
 }

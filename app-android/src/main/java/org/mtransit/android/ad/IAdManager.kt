@@ -1,6 +1,7 @@
 package org.mtransit.android.ad
 
 import android.content.res.Configuration
+import androidx.annotation.MainThread
 import org.mtransit.android.ui.view.common.IActivity
 
 interface IAdManager {
@@ -57,6 +58,7 @@ interface IAdManager {
     fun shouldSkipRewardedAd(): Boolean
 
     interface RewardedAdListener {
+        @MainThread
         fun onRewardedAdStatusChanged()
 
         fun skipRewardedAd(): Boolean
