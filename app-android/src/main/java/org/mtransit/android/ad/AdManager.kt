@@ -65,20 +65,16 @@ class AdManager @Inject internal constructor(
     }
 
     override fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity) {
-        logAdsD(this, "onHasAgenciesEnabledUpdated($hasAgenciesEnabled)")
         this.globalAdManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
         onShowingAdsUpdated(activity)
     }
 
     override fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity) {
-        logAdsD(this, "setShowingAds($newShowingAds)")
         this.globalAdManager.setShowingAds(newShowingAds)
         onShowingAdsUpdated(activity)
     }
 
-    @MainThread
     private fun onShowingAdsUpdated(activity: IAdScreenActivity) {
-        logAdsD(this, "onShowingAdsUpdated()")
         this.bannerAdManager.refreshBannerAdStatus(activity, force = false)
         refreshRewardedAdStatus(activity)
     }
