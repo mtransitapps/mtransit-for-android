@@ -9,7 +9,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
@@ -120,7 +119,7 @@ class GlobalAdManager(
             activity.requireActivity(), // some adapters require activity
             InitializationConfig.Builder(applicationId = appId)
                 .apply {
-                    if (Constants.DEBUG && BuildConfig.DEBUG) {
+                    if (Constants.DEBUG && Constants.IS_DEBUG_BUILD) {
                         setRequestConfiguration(
                             RequestConfiguration.Builder()
                                 .setTestDeviceIds( // Android emulators are automatically configured as test devices.
