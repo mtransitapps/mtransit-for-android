@@ -1,5 +1,6 @@
 package org.mtransit.android.ad.rewarded
 
+import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd
@@ -7,24 +8,11 @@ import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.dev.CrashReporter
-import org.mtransit.android.ui.view.common.IActivity
-import java.lang.ref.WeakReference
 
 class RewardedAdLoadCallback(
     private val rewardedAdManager: RewardedAdManager,
     private val crashReporter: CrashReporter,
-    private val activityWR: WeakReference<IActivity>,
 ) : AdLoadCallback<RewardedAd>, MTLog.Loggable {
-
-    constructor(
-        rewardedAdManager: RewardedAdManager,
-        crashReporter: CrashReporter,
-        activity: IActivity,
-    ) : this(
-        rewardedAdManager = rewardedAdManager,
-        crashReporter = crashReporter,
-        activityWR = WeakReference(activity),
-    )
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedAdLoadCallback::class.java.simpleName}"
@@ -32,18 +20,19 @@ class RewardedAdLoadCallback(
 
     override fun getLogTag() = LOG_TAG
 
+    @AnyThread
     override fun onAdLoaded(ad: RewardedAd) {
         super.onAdLoaded(ad)
         logAdsD(this, "onAdLoaded() > Rewarded ad loaded from ${ad.getResponseInfo().adapterClassName}.")
         this.rewardedAdManager.setRewardedAd(ad)
-        this.activityWR.get()?.activity?.runOnUiThread {
-            this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
-        }
+        this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
     }
 
+    @AnyThread
     override fun onAdFailedToLoad(adError: LoadAdError) {
         super.onAdFailedToLoad(adError)
         this.rewardedAdManager.setRewardedAd(null)
+        this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
         when (adError.code) {
             LoadAdError.ErrorCode.APP_ID_MISSING -> this.crashReporter.w(
                 this,
@@ -93,9 +82,6 @@ class RewardedAdLoadCallback(
             LoadAdError.ErrorCode.INVALID_AD_RESPONSE,
             LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,
                 -> this.crashReporter.w(this, "Failed to received rewarded ad! Error code: '%s' (%s).", adError.code, adError)
-        }
-        this.activityWR.get()?.activity?.runOnUiThread {
-            this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
         }
     }
 }

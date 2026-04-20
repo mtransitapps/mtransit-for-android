@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -373,13 +374,12 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		return rewardedUntilInMs > skipRewardedAdUntilInMs;
 	}
 
-	@MainThread
+	@AnyThread
 	@Override
 	public void onRewardedAdStatusChanged() {
-		View view = getView();
-		if (view != null) {
-			refreshRewardedLayout(view);
-		}
+		final View view = getView();
+		if (view == null) return;
+		view.post(() -> refreshRewardedLayout(view));
 	}
 
 	@Override

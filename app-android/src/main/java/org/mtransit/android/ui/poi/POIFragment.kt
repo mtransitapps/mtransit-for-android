@@ -13,7 +13,7 @@ package org.mtransit.android.ui.poi
 //import android.view.MenuInflater
 //import android.view.MenuItem
 //import android.view.View
-//import androidx.annotation.MainThread
+//import androidx.annotation.AnyThread
 //import androidx.core.os.bundleOf
 //import androidx.core.view.isVisible
 //import androidx.fragment.app.viewModels
@@ -245,7 +245,7 @@ package org.mtransit.android.ui.poi
 // }
 //
 // private val rewardedAdListener = object : RewardedAdListener {
-// @MainThread
+// @AnyThread
 // override fun onRewardedAdStatusChanged() {
 // viewModel.onRewardedAdStatusChanged()
 // }

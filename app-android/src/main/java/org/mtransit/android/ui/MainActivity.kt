@@ -14,7 +14,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.MainThread
+import androidx.annotation.AnyThread
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -264,7 +264,7 @@ class MainActivity : MTActivityWithLocation(),
         this.navigationDrawerController?.setVisibleMenuItems()
     }
 
-    @MainThread
+    @AnyThread
     override fun onRewardedAdStatusChanged() {
         // DO NOTHING
     }
