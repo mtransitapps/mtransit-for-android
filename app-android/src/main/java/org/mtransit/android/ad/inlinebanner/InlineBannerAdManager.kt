@@ -136,19 +136,22 @@ class InlineBannerAdManager @Inject constructor(
 
     @AnyThread
     private fun showBannerAd(viewFinder: IViewFinder) {
-        val adLayout = getAdLayout(viewFinder) ?: return
-        adLayout.post { adLayout.isVisibleOnce = true }
-        val adView = getAdView(adLayout) ?: return
-        adView.post { adView.isVisibleOnce = true }
-
+        getAdLayout(viewFinder)?.let { adLayout ->
+            adLayout.post {
+                adLayout.isVisibleOnce = true
+                getAdView(adLayout)?.isVisibleOnce = true
+            }
+        }
     }
 
     @AnyThread
     internal fun hideBannerAd(viewFinder: IViewFinder) {
-        val adLayout = getAdLayout(viewFinder) ?: return
-        adLayout.post { adLayout.isVisibleOnce = false }
-        val adView = getAdView(adLayout) ?: return
-        adView.post { adView.isVisibleOnce = false }
+        getAdLayout(viewFinder)?.let { adLayout ->
+            adLayout.post {
+                adLayout.isVisibleOnce = false
+                getAdView(adLayout)?.isVisibleOnce = false
+            }
+        }
     }
 
     internal fun getAdSize(fragment: IFragment): AdSize = with(fragment.requireActivity()) {

@@ -163,18 +163,22 @@ class BannerAdManager @Inject constructor(
 
     @AnyThread
     private fun showBannerAd(activity: IAdScreenActivity) {
-        val adLayout = getAdLayout(activity) ?: return
-        adLayout.post { adLayout.isVisibleOnce = true }
-        val adView = getAdView(adLayout) ?: return
-        adView.post { adView.isVisibleOnce = true }
+        getAdLayout(activity)?.let { adLayout ->
+            adLayout.post {
+                adLayout.isVisibleOnce = true
+                getAdView(adLayout)?.isVisibleOnce = true
+            }
+        }
     }
 
     @AnyThread
     fun hideBannerAd(activity: IAdScreenActivity) {
-        val adLayout = getAdLayout(activity) ?: return
-        adLayout.post { adLayout.isVisibleOnce = false }
-        val adView = getAdView(adLayout) ?: return
-        adView.post { adView.isVisibleOnce = false }
+        getAdLayout(activity)?.let { adLayout ->
+            adLayout.post {
+                adLayout.isVisibleOnce = false
+                getAdView(adLayout)?.isVisibleOnce = false
+            }
+        }
     }
 
     fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) {
