@@ -13,12 +13,12 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedUserManager
-import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -201,8 +201,8 @@ class GlobalAdManager(
         return this.rewardedUserManager.isRewardedNow()
     }
 
-    fun rewardUser(newRewardInMs: Long, context: IContext?) {
-        this.rewardedUserManager.rewardUser(newRewardInMs, context)
+    fun rewardUser(newRewardInMs: Long, activity: IActivity?) {
+        this.rewardedUserManager.rewardUser(newRewardInMs, activity)
     }
 
     fun shouldSkipRewardedAd(): Boolean {

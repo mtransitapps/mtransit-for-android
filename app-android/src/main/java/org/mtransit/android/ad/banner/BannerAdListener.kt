@@ -1,5 +1,6 @@
 package org.mtransit.android.ad.banner
 
+import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
@@ -44,6 +45,7 @@ class BannerAdListener(
         )
     }
 
+    @AnyThread
     override fun onAdFailedToLoad(adError: LoadAdError) {
         super.onAdFailedToLoad(adError)
         logAdsD(this, "onAdFailedToLoad($adError)")
@@ -91,31 +93,26 @@ class BannerAdListener(
             logAdsD(this, "onAdFailedToLoad() > keep old ad visible")
             return // keep old ad visible
         }
-        this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), false) // wait until next try, even if failed
-        val activity = this.activityWR.get()
-        if (activity == null) {
-            logAdsD(this, "onAdFailedToLoad() > SKIP (no activity)")
-            return
-        }
-        activity.activity?.runOnUiThread {
-            bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
+        this.activityWR.get()?.let { activity ->
+            activity.activity?.runOnUiThread {
+                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), false) // wait until next try, even if failed
+                this.bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
+            }
         }
     }
 
+    @AnyThread
     override fun onAdLoaded(ad: BannerAd) {
         super.onAdLoaded(ad)
         logAdsD(this, "onAdLoaded($ad)")
         logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName} ")
-        this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
-        val activity = this.activityWR.get()
-        if (activity == null) {
-            logAdsD(this, "onAdLoaded() > SKIP (no activity)")
-            return
-        }
-        activity.activity?.runOnUiThread {
-            bannerAdManager.adaptToScreenSize(
-                activity,
-            ) // showing ads if hidden because of no-fill/network error
+        this.activityWR.get()?.let { activity ->
+            this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
+            activity.activity?.runOnUiThread {
+                this.bannerAdManager.adaptToScreenSize(
+                    activity,
+                ) // showing ads if hidden because of no-fill/network error
+            }
         }
     }
 }

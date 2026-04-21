@@ -4,6 +4,7 @@ package org.mtransit.android.ui.splash
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.annotation.MainThread
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -83,5 +84,6 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
         finish()
     }
 
+    @get:MainThread
     override val currentFragment: Fragment? = null
 }

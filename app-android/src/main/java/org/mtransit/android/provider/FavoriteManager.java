@@ -483,13 +483,13 @@ public class FavoriteManager implements MTLog.Loggable {
 									final @Nullable String optUpdatedFkId,
 									final @Nullable Integer optFavoriteFolderId) {
 		@SuppressLint("InflateParams") // dialog
-		View view = LayoutInflater.from(activity).inflate(R.layout.layout_favorites_folder_edit, null, false);
+		final View view = LayoutInflater.from(activity).inflate(R.layout.layout_favorites_folder_edit, null, false);
 		final EditText newFolderNameTv = view.findViewById(R.id.folder_name);
 		new MTDialog.Builder(activity)
 				.setView(view) //
 				.setPositiveButton(R.string.favorite_folder_new_create, (dialog, id) -> {
-					String newFolderName = newFolderNameTv.getText().toString();
-					Favorite.Folder createdFolder = addFolder(activity, newFolderName, TextUtils.isEmpty(optUpdatedFkId) ? listener : null);
+					final String newFolderName = newFolderNameTv.getText().toString();
+					final Favorite.Folder createdFolder = addFolder(activity, newFolderName, TextUtils.isEmpty(optUpdatedFkId) ? listener : null);
 					if (createdFolder != null && optUpdatedFkId != null && !optUpdatedFkId.isEmpty()) {
 						if (optFavoriteFolderId != null && optFavoriteFolderId >= 0) { // move favorite
 							updateFavoriteFolder(activity, optUpdatedFkId, createdFolder.getId(), listener);

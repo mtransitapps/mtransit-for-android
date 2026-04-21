@@ -25,6 +25,8 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.AnyThread;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -1158,9 +1160,12 @@ public class POIFragment extends ABFragment implements
 		return this.adManager.shouldSkipRewardedAd();
 	}
 
+	@AnyThread
 	@Override
 	public void onRewardedAdStatusChanged() {
-		refreshRewardedLayout();
+		final View view = getView();
+		if (view == null) return;
+		view.post(this::refreshRewardedLayout);
 	}
 
 	@NonNull

@@ -8,7 +8,6 @@ import androidx.core.view.isVisible
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
-import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.dev.CrashReporter
@@ -49,29 +48,22 @@ class SetupInlineBannerAdTask(
 
     @MainThread
     override fun onPostExecuteNotCancelledMT(result: Boolean?) {
+        val fragment = this.fragmentWR.get() ?: return
         val isShowingAds = result == true
-        val activity = this.fragmentWR.get()
-        if (activity == null) {
-            logAdsD(this, "onPostExecuteNotCancelledMT() > SKIP (no activity)")
-            return
-        }
         if (isShowingAds && !isCancelled) { // show ads
-            val adLayout = this.inlineBannerAdManager.getAdLayout(activity)
-            if (adLayout != null) {
-                var adView = this.inlineBannerAdManager.getAdView(adLayout)
-                if (adView == null) {
-                    adView = makeNewAdView(activity, adLayout)
-                }
+            this.inlineBannerAdManager.getAdLayout(fragment)?.let { adLayout ->
+                val adView = this.inlineBannerAdManager.getAdView(adLayout)
+                    ?: makeNewAdView(fragment, adLayout)
                 adView.loadAd(
                     adRequest = AdManager.getBannerAdRequest(
-                        adUnitId = activity.requireActivity().getString(adUnitStringResId),
-                        adSize = inlineBannerAdManager.getAdSize(activity),
+                        adUnitId = fragment.requireActivity().getString(adUnitStringResId),
+                        adSize = inlineBannerAdManager.getAdSize(fragment),
                     ),
-                    adLoadCallback = InlineBannerAdListener(inlineBannerAdManager, crashReporter, activity)
+                    adLoadCallback = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment)
                 )
             }
         } else { // hide ads
-            this.inlineBannerAdManager.hideBannerAd(activity)
+            this.inlineBannerAdManager.hideBannerAd(fragment)
         }
     }
 
