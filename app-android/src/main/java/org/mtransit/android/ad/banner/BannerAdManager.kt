@@ -26,6 +26,7 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
 
 // Anchored adaptive banner
+@MainThread
 @Singleton
 class BannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
@@ -68,19 +69,16 @@ class BannerAdManager @Inject constructor(
         this.adBannerLoaded = loaded
     }
 
-    @MainThread
     fun onResumeScreen(activity: IAdScreenActivity) {
         logAdsD(this, "onResumeScreen($activity)")
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
-    @MainThread
     fun onTimeChanged(activity: IAdScreenActivity) {
         logAdsD(this, "onTimeChanged($activity)")
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
-    @MainThread
     @JvmOverloads
     fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
         logAdsD(this, "refreshBannerAdStatus($force)")
@@ -98,7 +96,6 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    @MainThread
     fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
         if (!AdConstants.AD_ENABLED) return
         if (!this.globalAdManager.isShowingAds()) return
@@ -160,7 +157,6 @@ class BannerAdManager @Inject constructor(
         logAdsD(this, "setupAd() > DONE --------------------")
     }
 
-    @MainThread
     private fun showBannerAd(activity: IAdScreenActivity) {
         getAdLayout(activity)?.let { adLayout ->
             getAdView(adLayout)?.isVisibleOnce = true
@@ -168,7 +164,6 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    @MainThread
     fun hideBannerAd(activity: IAdScreenActivity) {
         getAdLayout(activity)?.let { adLayout ->
             adLayout.isVisibleOnce = false
@@ -176,12 +171,10 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    @MainThread
     fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) {
         // DO NOTHING
     }
 
-    @MainThread
     fun pauseAd(@Suppress("unused") activity: IAdScreenActivity) {
         // DO NOTHING
     }

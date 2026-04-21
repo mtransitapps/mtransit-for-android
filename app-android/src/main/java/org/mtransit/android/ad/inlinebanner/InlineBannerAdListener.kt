@@ -76,8 +76,8 @@ class InlineBannerAdListener(
                 -> this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", adError.code, adError)
         }
         this.fragmentWR.get()?.let { fragment ->
-            this.inlineBannerAdManager.setAdBannerLoaded(fragment, false)
             fragment.getActivity()?.runOnUiThread {
+                this.inlineBannerAdManager.setAdBannerLoaded(fragment, false)
                 this.inlineBannerAdManager.hideBannerAd(fragment) // hiding ads until next AUTOMATIC ad refresh
             }
         }
@@ -88,8 +88,8 @@ class InlineBannerAdListener(
         super.onAdLoaded(ad)
         logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName}")
         this.fragmentWR.get()?.let { fragment ->
-            this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
             fragment.getActivity()?.runOnUiThread {
+                this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
                 this.inlineBannerAdManager.adaptToScreenSize(
                     fragment,
                 ) // showing ads if hidden because of no-fill/network error

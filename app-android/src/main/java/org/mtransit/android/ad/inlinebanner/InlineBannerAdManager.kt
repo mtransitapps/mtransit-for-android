@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@MainThread
 @Singleton
 class InlineBannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
@@ -42,7 +43,6 @@ class InlineBannerAdManager @Inject constructor(
 
     private val setupInlineBannerAdTasks = ConcurrentHashMap<Int, SetupInlineBannerAdTask>()
 
-    @MainThread
     @JvmOverloads
     fun refreshBannerAdStatus(fragment: IFragment, adScreenFragment: IAdScreenFragment?, force: Boolean = false) {
         @Suppress("SimplifyBooleanWithConstants")
@@ -112,12 +112,10 @@ class InlineBannerAdManager @Inject constructor(
     fun getAdView(adLayout: ViewGroup): AdView? =
         adLayout.findViewById(R.id.inline_banner_ad)
 
-    @MainThread
     fun onResume(@Suppress("unused") fragment: IFragment) {
         // DO NOTHING
     }
 
-    @MainThread
     fun adaptToScreenSize(fragment: IFragment) {
         if (!AdConstants.AD_ENABLED) return
         if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) return
@@ -129,12 +127,10 @@ class InlineBannerAdManager @Inject constructor(
         }
     }
 
-    @MainThread
     fun onPause(@Suppress("unused") viewFinder: IViewFinder) {
         // DO NOTHING
     }
 
-    @MainThread
     private fun showBannerAd(viewFinder: IViewFinder) {
         getAdLayout(viewFinder)?.let { adLayout ->
             getAdView(adLayout)?.isVisibleOnce = true
@@ -142,7 +138,6 @@ class InlineBannerAdManager @Inject constructor(
         }
     }
 
-    @MainThread
     internal fun hideBannerAd(viewFinder: IViewFinder) {
         getAdLayout(viewFinder)?.let { adLayout ->
             adLayout.isVisibleOnce = false
