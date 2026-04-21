@@ -553,7 +553,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@NonNull
 	private View getInfiniteLoadingView(@Nullable View convertView, @NonNull ViewGroup parent) {
-		if (!(convertView != null && convertView.getTag() instanceof InfiniteLoadingViewHolder)) {
+		if (convertView == null || !(convertView.getTag() instanceof InfiniteLoadingViewHolder)) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_infinite_loading, parent, false);
 			final InfiniteLoadingViewHolder holder = new InfiniteLoadingViewHolder();
 			holder.progressBar = convertView.findViewById(R.id.progress_bar);
@@ -1602,7 +1602,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@NonNull
 	private View getTypeHeaderView(@NonNull final DataSourceType type, @Nullable View convertView, @NonNull ViewGroup parent) {
-		if (!(convertView != null && convertView.getTag() instanceof TypeHeaderViewHolder)) {
+		if (convertView == null || !(convertView.getTag() instanceof TypeHeaderViewHolder)) {
 			final int layoutRes = getTypeHeaderLayoutResId();
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
 			TypeHeaderViewHolder holder = new TypeHeaderViewHolder();
@@ -1644,7 +1644,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private View getFavoriteFolderHeaderView(final @NonNull Favorite.Folder favoriteFolder,
 											 @Nullable View convertView,
 											 @NonNull ViewGroup parent) {
-		if (!(convertView != null && convertView.getTag() instanceof FavoriteFolderHeaderViewHolder)) {
+		if (convertView == null || !(convertView.getTag() instanceof FavoriteFolderHeaderViewHolder)) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_header_with_delete, parent, false);
 			FavoriteFolderHeaderViewHolder holder = new FavoriteFolderHeaderViewHolder();
 			holder.nameTv = convertView.findViewById(R.id.name);
