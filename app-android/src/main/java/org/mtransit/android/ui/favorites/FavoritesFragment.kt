@@ -188,7 +188,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     }
 
     private fun onTimeChanged() {
-         (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun updateEmptyLayout(
@@ -245,8 +245,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
-                val activity = activity ?: return false
-                this.favoriteManager.showAddFolderDialog(activity, this, null, null)
+                activity?.let {
+                    this.favoriteManager.showAddFolderDialog(it, this, null, null)
+                }
                 true // handled
             }
 

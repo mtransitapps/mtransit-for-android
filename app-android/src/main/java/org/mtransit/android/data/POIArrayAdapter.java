@@ -315,7 +315,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	/**
 	 * @see #getViewTypeCount()
 	 */
-	@SuppressWarnings("SwitchStatementWithTooFewBranches")
 	@Override
 	public int getItemViewType(int position) {
 		final POIManager poim = getItem(position);
@@ -768,17 +767,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return (MaterialButton) LayoutPoiListBrowseHeaderButtonBinding.inflate(this.layoutInflater, root, false).getRoot();
 	}
 
-	@SuppressWarnings("UnusedReturnValue")
-	@NonNull
-	private View updateCommonViewManual(@NonNull POIManager poim, @NonNull View convertView) {
+	private void updateCommonViewManual(@NonNull POIManager poim, @NonNull View convertView) {
 		if (!(convertView.getTag() instanceof CommonViewHolder)) {
-			return convertView;
+			return;
 		}
-		CommonViewHolder holder = (CommonViewHolder) convertView.getTag();
+		final CommonViewHolder holder = (CommonViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
 		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, this);
-		return convertView;
 	}
 
 	@Override
@@ -1605,7 +1601,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (convertView == null || !(convertView.getTag() instanceof TypeHeaderViewHolder)) {
 			final int layoutRes = getTypeHeaderLayoutResId();
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
-			TypeHeaderViewHolder holder = new TypeHeaderViewHolder();
+			final TypeHeaderViewHolder holder = new TypeHeaderViewHolder();
 			holder.nameTv = convertView.findViewById(R.id.name);
 			holder.nearbyBtn = convertView.findViewById(R.id.nearbyBtn);
 			holder.allBtn = convertView.findViewById(R.id.allBtn);
@@ -1652,7 +1648,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.deleteBtn = convertView.findViewById(R.id.deleteBtn);
 			convertView.setTag(holder);
 		}
-		FavoriteFolderHeaderViewHolder holder = (FavoriteFolderHeaderViewHolder) convertView.getTag();
+		final FavoriteFolderHeaderViewHolder holder = (FavoriteFolderHeaderViewHolder) convertView.getTag();
 		holder.nameTv.setText(favoriteFolder.getName());
 		if (holder.renameBtn != null) {
 			holder.renameBtn.setOnClickListener(view -> {
@@ -1678,14 +1674,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@NonNull
 	private View getBasicPOIView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
-		if (convertView == null) {
+		if (convertView == null || !(convertView.getTag() instanceof BasicPOIViewHolder)) {
 			convertView = this.layoutInflater.inflate(getBasicPOILayout(poim.getStatusType()), parent, false);
 			final BasicPOIViewHolder holder = initBasicViewHolder(convertView, poim.poi.getUUID());
 			holder.setStatusViewHolder(POICommonStatusViewHolder.init(poim.poi, convertView));
 			holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poim.poi, convertView));
 			convertView.setTag(holder);
 		}
-		updateBasicPOIView(poim, convertView);
+		final BasicPOIViewHolder holder = (BasicPOIViewHolder) convertView.getTag();
+		updateCommonView(holder, poim);
+		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
+		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, this);
 		return convertView;
 	}
 
@@ -1708,16 +1707,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private final WeakHashMap<MTCompassView, View> compassImgsWR = new WeakHashMap<>();
 
-	@SuppressWarnings("UnusedReturnValue")
-	@NonNull
-	private View updateBasicPOIView(@NonNull POIManager poim, @NonNull View convertView) {
-		BasicPOIViewHolder holder = (BasicPOIViewHolder) convertView.getTag();
-		updateCommonView(holder, poim);
-		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
-		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, this);
-		return convertView;
-	}
-
 	@LayoutRes
 	private int getRDSLayout(int status) {
 		int layoutRes = R.layout.layout_poi_rds;
@@ -1736,18 +1725,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@NonNull
 	private View getPlaceView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
-		if (convertView == null) {
+		if (convertView == null || !(convertView.getTag() instanceof PlaceViewHolder)) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_place, parent, false);
 			final PlaceViewHolder holder = initPlaceViewHolder(convertView, poim.poi.getUUID());
 			convertView.setTag(holder);
 		}
-		updatePlaceView(poim, convertView);
-		return convertView;
-	}
-
-	@SuppressWarnings("UnusedReturnValue")
-	@NonNull
-	private View updatePlaceView(@NonNull POIManager poim, @NonNull View convertView) {
 		final PlaceViewHolder holder = (PlaceViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		initPlaceExtra(poim, holder);
@@ -1775,40 +1757,26 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@NonNull
 	private View getTextMessageView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
-		if (convertView == null) {
+		if (convertView == null || !(convertView.getTag() instanceof TextMessageViewHolder)) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_basic, parent, false);
 			final TextMessageViewHolder holder = initTextMessageViewHolder(convertView, poim.poi.getUUID());
 			convertView.setTag(holder);
 		}
-		updateTextMessageView(poim, convertView);
-		return convertView;
-	}
-
-	@SuppressWarnings("UnusedReturnValue")
-	@NonNull
-	private View updateTextMessageView(@NonNull POIManager poim, @NonNull View convertView) {
-		TextMessageViewHolder holder = (TextMessageViewHolder) convertView.getTag();
+		final TextMessageViewHolder holder = (TextMessageViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		return convertView;
 	}
 
 	@NonNull
 	private View getModuleView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
-		if (convertView == null) {
+		if (convertView == null || !(convertView.getTag() instanceof ModuleViewHolder)) {
 			convertView = this.layoutInflater.inflate(getModuleLayout(poim.getStatusType()), parent, false);
 			final ModuleViewHolder holder = initModuleViewHolder(convertView, poim.poi.getUUID());
 			holder.setStatusViewHolder(POICommonStatusViewHolder.init(poim.poi, convertView));
 			holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poim.poi, convertView));
 			convertView.setTag(holder);
 		}
-		updateModuleView(poim, convertView);
-		return convertView;
-	}
-
-	@SuppressWarnings("UnusedReturnValue")
-	@NonNull
-	private View updateModuleView(@NonNull POIManager poim, @NonNull View convertView) {
-		ModuleViewHolder holder = (ModuleViewHolder) convertView.getTag();
+		final ModuleViewHolder holder = (ModuleViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		updateModuleExtra(poim, holder);
 		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
@@ -1851,26 +1819,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@UiThread
 	@NonNull
 	private View getRouteDirectionStopView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
-		if (convertView == null) {
+		if (convertView == null || !(convertView.getTag() instanceof RouteDirectionStopViewHolder)) {
 			convertView = this.layoutInflater.inflate(getRDSLayout(poim.getStatusType()), parent, false);
 			final RouteDirectionStopViewHolder holder = initRDSViewHolder(convertView, poim.poi.getUUID());
 			holder.setStatusViewHolder(POICommonStatusViewHolder.init(poim.poi, convertView));
 			holder.setServiceUpdateViewHolder(POIServiceUpdateViewHolder.init(poim.poi, convertView, convertView.findViewById(R.id.route_direction_service_update_img)));
 			convertView.setTag(holder);
 		}
-		updateRouteDirectionStopView(poim, convertView);
-		return convertView;
-	}
-
-	@SuppressWarnings("UnusedReturnValue")
-	@UiThread
-	@NonNull
-	private View updateRouteDirectionStopView(@NonNull POIManager poim, @NonNull View convertView) {
-		if (!(convertView.getTag() instanceof RouteDirectionStopViewHolder)) {
-			CrashUtils.w(this, "updateRouteDirectionStopView() > unexpected holder class '%s'! (%s)", convertView.getTag(), getLogTag());
-			return convertView;
-		}
-		RouteDirectionStopViewHolder holder = (RouteDirectionStopViewHolder) convertView.getTag();
+		final RouteDirectionStopViewHolder holder = (RouteDirectionStopViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
 		updateRDSExtra(poim, holder);
 		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
