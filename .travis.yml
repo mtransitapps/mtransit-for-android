@@ -50,8 +50,8 @@ cache:
 before_install:
   - sudo apt-get update
   - sudo apt-get -y install gawk # GNU Awk v4+ required
-  - chmod +x checkout_submodules.sh
-  - ./checkout_submodules.sh
+  - chmod +x submodules_init.sh
+  - ./submodules_init.sh
   - chmod +x commons/sync.sh
   - ./commons/sync.sh
   - mkdir "$ANDROID_HOME/licenses" || true
