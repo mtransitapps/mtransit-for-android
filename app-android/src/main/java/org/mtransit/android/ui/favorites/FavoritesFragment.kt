@@ -245,7 +245,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
-                this.favoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
+                val activity = activity ?: return false
+                this.favoriteManager.showAddFolderDialog(activity, this, null, null)
                 true // handled
             }
 
