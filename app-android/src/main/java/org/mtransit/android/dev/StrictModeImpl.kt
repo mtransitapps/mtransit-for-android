@@ -13,12 +13,8 @@ class StrictModeImpl @Inject constructor(
 ) : IStrictMode {
 
     override fun setup() {
-        if (BuildConfig.STRICT_MODE_OFF) {
-            return
-        }
-        if (!BuildConfig.DEBUG) {
-            return
-        }
+        if (BuildConfig.STRICT_MODE_OFF) return
+        if (!BuildConfig.DEBUG) return
         StrictMode.setThreadPolicy(
             StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()

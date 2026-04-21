@@ -379,10 +379,8 @@ public class FavoriteManager implements MTLog.Loggable {
 
 	@Nullable
 	private Favorite addFavorite(@NonNull Context context, @NonNull Favorite newFavorite) {
-		Uri uri = context.getContentResolver().insert(getFavoriteContentUri(context), newFavorite.toContentValues());
-		if (uri == null) {
-			return null;
-		}
+		final Uri uri = context.getContentResolver().insert(getFavoriteContentUri(context), newFavorite.toContentValues());
+		if (uri == null) return null;
 		return findFavorite(context, uri, null);
 	}
 

@@ -127,9 +127,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
-		if (ROUTE_DIRECTION_NOT_SUPPORTED.contains(routeDirectionM.getAuthority())) {
-			return true; // not skipped // not supported
-		}
+		if (ROUTE_DIRECTION_NOT_SUPPORTED.contains(routeDirectionM.getAuthority())) return true; // not skipped // not supported
 		return findServiceUpdate(
 				routeDirectionM.getAuthority(),
 				routeDirectionM.getRouteDirection().getUUID(),
@@ -154,9 +152,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
-		if (ROUTE_NOT_SUPPORTED.contains(routeM.getAuthority())) {
-			return true; // not skipped // not supported
-		}
+		if (ROUTE_NOT_SUPPORTED.contains(routeM.getAuthority())) return true; // not skipped // not supported
 		return findServiceUpdate(
 				routeM.getAuthority(),
 				routeM.getRoute().getUUID(),
@@ -173,17 +169,11 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 									  @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									  @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									  boolean skipIfBusy) {
-		if (skipIfBusy && isBusy()) {
-			return false;
-		}
+		if (skipIfBusy && isBusy()) return false;
 		final Collection<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(targetAuthority);
-		if (providers.isEmpty()) {
-			return true;
-		}
+		if (providers.isEmpty()) return true;
 		for (ServiceUpdateProviderProperties provider : providers) {
-			if (provider == null) {
-				continue;
-			}
+			if (provider == null) continue;
 			new ServiceUpdateFetcherCallable(this.appContext,
 					listeners,
 					provider,

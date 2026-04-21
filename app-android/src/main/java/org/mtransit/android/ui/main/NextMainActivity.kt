@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -293,6 +294,7 @@ class NextMainActivity : MTActivityWithLocation(),
         // TODO later
     }
 
+    @AnyThread
     override fun onRewardedAdStatusChanged() {
         // DO NOTHING
     }

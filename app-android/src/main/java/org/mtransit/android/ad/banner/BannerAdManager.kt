@@ -96,6 +96,7 @@ class BannerAdManager @Inject constructor(
         }
     }
 
+    @MainThread
     fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
         if (!AdConstants.AD_ENABLED) return
         if (!this.globalAdManager.isShowingAds()) return
