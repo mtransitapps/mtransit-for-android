@@ -43,6 +43,7 @@ jobs:
       GRADLE_OPTS: -Xmx5432m -Dorg.gradle.jvmargs="-Xms1g -Xmx5432m -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
       TERM: xterm-256color
       TZ: "America/Toronto"
+      GIT_LFS_SKIP_SMUDGE: "1"
     steps:
       - run:
           name: APT install - gawk & libxml2-utils
