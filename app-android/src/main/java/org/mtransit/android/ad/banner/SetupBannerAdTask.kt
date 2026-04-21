@@ -56,12 +56,9 @@ class SetupBannerAdTask(
         val activity = this.activityWR.get() ?: return
         val isShowingAds = result == true
         if (isShowingAds && !isCancelled) { // show ads
-            val adLayout = this.bannerAdManager.getAdLayout(activity)
-            if (adLayout != null) {
-                var adView = this.bannerAdManager.getAdView(adLayout)
-                if (adView == null) {
-                    adView = makeNewAdView(activity, adLayout)
-                }
+            this.bannerAdManager.getAdLayout(activity)?.let { adLayout ->
+                val adView = this.bannerAdManager.getAdView(adLayout)
+                    ?: makeNewAdView(activity, adLayout)
                 adView.loadAd(
                     adRequest = AdManager.getBannerAdRequest(
                         adUnitId = activity.requireActivity().getString(adUnitStringResId),

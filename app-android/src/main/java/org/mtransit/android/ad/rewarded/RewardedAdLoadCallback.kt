@@ -1,5 +1,6 @@
 package org.mtransit.android.ad.rewarded
 
+import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
 import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd
@@ -10,7 +11,7 @@ import org.mtransit.android.dev.CrashReporter
 
 class RewardedAdLoadCallback(
     private val rewardedAdManager: RewardedAdManager,
-    private val crashReporter: CrashReporter
+    private val crashReporter: CrashReporter,
 ) : AdLoadCallback<RewardedAd>, MTLog.Loggable {
 
     companion object {
@@ -19,19 +20,19 @@ class RewardedAdLoadCallback(
 
     override fun getLogTag() = LOG_TAG
 
+    @AnyThread
     override fun onAdLoaded(ad: RewardedAd) {
         super.onAdLoaded(ad)
         logAdsD(this, "onAdLoaded() > Rewarded ad loaded from ${ad.getResponseInfo().adapterClassName}.")
         this.rewardedAdManager.setRewardedAd(ad)
-        val listener = this.rewardedAdManager.rewardedAdListener
-        listener?.onRewardedAdStatusChanged()
+        this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
     }
 
+    @AnyThread
     override fun onAdFailedToLoad(adError: LoadAdError) {
         super.onAdFailedToLoad(adError)
         this.rewardedAdManager.setRewardedAd(null)
-        val listener = this.rewardedAdManager.rewardedAdListener
-        listener?.onRewardedAdStatusChanged()
+        this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
         when (adError.code) {
             LoadAdError.ErrorCode.APP_ID_MISSING -> this.crashReporter.w(
                 this,

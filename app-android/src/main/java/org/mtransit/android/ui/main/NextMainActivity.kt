@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -334,6 +335,7 @@ class NextMainActivity : MTActivityWithLocation(),
 
     override fun getLastLocationSettingsResolution() = this.locationSettingsResolution
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment // TODO ?
 

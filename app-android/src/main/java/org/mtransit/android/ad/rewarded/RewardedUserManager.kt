@@ -1,15 +1,15 @@
 package org.mtransit.android.ad.rewarded
 
 import android.widget.Toast
-import androidx.annotation.MainThread
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
-import org.mtransit.android.common.IContext
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,6 +18,10 @@ class RewardedUserManager @Inject constructor(
     private val defaultPrefRepository: DefaultPreferenceRepository,
     private val demoModeManager: DemoModeManager,
 ) {
+
+    companion object {
+        private const val REWARDED_UNTIL_NO_VALUE = -1L
+    }
 
     val dailyUser: Boolean by lazy {
         this.defaultPrefRepository.getValue(
@@ -43,25 +47,22 @@ class RewardedUserManager @Inject constructor(
         newHasLowLoadShowRatio
     }
 
-    private var rewardedUntilInMs: Long? = null
+    private var rewardedUntilInMs = AtomicLong(REWARDED_UNTIL_NO_VALUE)
 
     fun getRewardedUntilInMs(): Long {
         if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever
-        if (this.rewardedUntilInMs == null) {
-            this.rewardedUntilInMs = this.defaultPrefRepository.getValue(
+        return this.rewardedUntilInMs.updateAndGet { cached ->
+            if (cached != REWARDED_UNTIL_NO_VALUE) cached
+            else this.defaultPrefRepository.getValue(
                 DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
-                DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
+                DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT,
             )
-        }
-        return this.rewardedUntilInMs ?: Long.MAX_VALUE
+        }.takeUnless { it < 0L } ?: DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
     }
 
     fun setRewardedUntilInMs(newRewardedUntilInMs: Long) {
-        this.rewardedUntilInMs = newRewardedUntilInMs
-        this.defaultPrefRepository.saveAsync(
-            DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
-            newRewardedUntilInMs
-        )
+        this.rewardedUntilInMs.set(newRewardedUntilInMs)
+        this.defaultPrefRepository.saveAsync(DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL, newRewardedUntilInMs)
     }
 
     fun resetRewarded() {
@@ -74,15 +75,18 @@ class RewardedUserManager @Inject constructor(
         return getRewardedUntilInMs() > TimeUtils.currentTimeMillis()
     }
 
-    @MainThread
-    fun rewardUser(newRewardInMs: Long, context: IContext?) {
+    fun rewardUser(newRewardInMs: Long, activity: IActivity?) {
         val currentRewardedUntilOrNow = maxOf(getRewardedUntilInMs(), TimeUtils.currentTimeMillis())
         setRewardedUntilInMs(currentRewardedUntilOrNow + newRewardInMs)
-        ToastUtils.makeTextAndShowCentered(
-            context?.context,
-            R.string.support_watch_rewarded_ad_successful_message,
-            Toast.LENGTH_LONG
-        )
+        activity?.activity?.let { activity ->
+            activity.runOnUiThread {
+                ToastUtils.makeTextAndShowCentered(
+                    activity,
+                    R.string.support_watch_rewarded_ad_successful_message,
+                    Toast.LENGTH_LONG
+                )
+            }
+        }
     }
 
     fun shouldSkipRewardedAd(): Boolean {
@@ -105,5 +109,4 @@ class RewardedUserManager @Inject constructor(
         val rewardType = TimeUnit.DAYS // TODO custom type? rewardItem.getType()
         return rewardType.toMillis(rewardAmount.toLong())
     }
-
 }
