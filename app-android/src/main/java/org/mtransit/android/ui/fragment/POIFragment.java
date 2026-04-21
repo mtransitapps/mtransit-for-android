@@ -24,8 +24,8 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.AnyThread;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1171,6 +1171,7 @@ public class POIFragment extends ABFragment implements
 	@NonNull
 	private final ThreadSafeDateFormatter rewardedAdDateFormatter = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM);
 
+	@MainThread
 	private void refreshRewardedLayout() {
 		final LayoutPoiRewardedAdBinding rewardedLayout = this.binding == null ? null : this.binding.poiRewardedAd;
 		if (rewardedLayout == null) return;

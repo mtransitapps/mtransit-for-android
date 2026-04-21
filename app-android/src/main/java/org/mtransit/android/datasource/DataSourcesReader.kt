@@ -149,39 +149,22 @@ class DataSourcesReader @Inject constructor(
     private val newsProviderTargetMetaData by lazy { appContext.getString(commonsR.string.news_provider_target) }
 
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
-        if (pkg.isNullOrBlank()) {
-            return false
-        }
+        if (pkg.isNullOrBlank()) return false
         if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
-            MTLog.d(this, "isAProvider() > SKIP not supported '$pkg .")
+            MTLog.d(this, "isAProvider() > SKIP not supported '$pkg'.")
             return false
         }
         pm.getInstalledProvidersWithMetaData(pkg)?.forEach { providerInfo ->
             val providerMetaData: Bundle = providerInfo.metaData ?: return@forEach
-            if (providerMetaData.isKeyMT(agencyProviderMetaData)) {
-                return true
-            }
-            if (agencyOnly) {
-                return false
-            }
-            if (providerMetaData.isKeyMT(statusProviderMetaData)) {
-                return true
-            }
-            if (providerMetaData.isKeyMT(scheduleProviderMetaData)) {
-                return true
-            }
-            if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
-                return true
-            }
-            if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
-                if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
-                    return true
-                }
-            }
+            if (providerMetaData.isKeyMT(agencyProviderMetaData)) return true
+            if (agencyOnly) return false
+            if (providerMetaData.isKeyMT(statusProviderMetaData)) return true
+            if (providerMetaData.isKeyMT(scheduleProviderMetaData)) return true
+            if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) return true
+            @Suppress("SimplifyBooleanWithConstants")
+            if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION && providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) return true
             @Suppress("RedundantIf")
-            if (providerMetaData.isKeyMT(newsProviderMetaData)) {
-                return true
-            }
+            if (providerMetaData.isKeyMT(newsProviderMetaData)) return true
             return false
         }
         return false
@@ -269,9 +252,7 @@ class DataSourcesReader @Inject constructor(
         @Suppress("DEPRECATION") // DO request all PKG providers info
         pm.getAllInstalledProvidersWithMetaData().forEach pkg@{ packageInfo ->
             val pkg = packageInfo.packageName
-            if (!pm.isAppEnabled(pkg)) {
-                return@pkg // skip unknown disabled (processed before)
-            }
+            if (!pm.isAppEnabled(pkg)) return@pkg // skip unknown disabled (processed before)
             if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
                 MTLog.d(this, "lookForNewDataSources() > SKIP not supported '$pkg .")
                 return@pkg // skip not supported
@@ -430,7 +411,7 @@ class DataSourcesReader @Inject constructor(
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
         val knownVehicleLocationProviderProperties = dataSourcesDatabase.vehicleLocationProviderPropertiesDao().getAllVehicleLocationProvider()
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
-        // AGENCY (only one properties kept in cache even when uninstalled/disabled to save refreshing data)
+        // AGENCY (only 1 property kept in cache even when uninstalled/disabled to save refreshing data)
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().forEach { agencyProperties ->
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
@@ -440,7 +421,7 @@ class DataSourcesReader @Inject constructor(
                     dataSourcesDatabase.agencyPropertiesDao().delete(it)
                     markUpdated()
                 }
-                MTLog.d(this, "updateKnownActiveDataSources > SKIP not supported '$pkg .")
+                MTLog.d(this, "updateKnownActiveDataSources() > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
             if (!pm.isAppInstalled(pkg)) { // APP UNINSTALLED

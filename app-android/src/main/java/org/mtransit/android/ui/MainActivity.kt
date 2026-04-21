@@ -60,7 +60,6 @@ import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.NightModeUtils
 import org.mtransit.android.util.UIFeatureFlags
-import java.lang.Exception
 import java.util.WeakHashMap
 import javax.inject.Inject
 
