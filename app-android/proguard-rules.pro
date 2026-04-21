@@ -1,7 +1,10 @@
-# Produces useful obfuscated stack traces
-# http://proguard.sourceforge.net/manual/examples.html#stacktrace
+# Producing useful obfuscated stack traces
+# https://www.guardsquare.com/manual/configuration/examples#stacktrace
 -renamesourcefileattribute SourceFile
--keepattributes LineNumberTable,SourceFile,EnclosingMethod,InnerClasses,Signature,AnnotationDefault,RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations
+-keepattributes LineNumberTable
+-keepattributes SourceFile
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
 
 ## Do not obfuscate the class files since open source (DEBUG only)
 #-dontobfuscate
