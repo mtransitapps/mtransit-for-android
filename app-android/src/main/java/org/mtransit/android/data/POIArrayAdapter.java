@@ -1642,7 +1642,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 											 @NonNull ViewGroup parent) {
 		if (convertView == null || !(convertView.getTag() instanceof FavoriteFolderHeaderViewHolder)) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_header_with_delete, parent, false);
-			FavoriteFolderHeaderViewHolder holder = new FavoriteFolderHeaderViewHolder();
+			final FavoriteFolderHeaderViewHolder holder = new FavoriteFolderHeaderViewHolder();
 			holder.nameTv = convertView.findViewById(R.id.name);
 			holder.renameBtn = convertView.findViewById(R.id.renameBtn);
 			holder.deleteBtn = convertView.findViewById(R.id.deleteBtn);
