@@ -12,32 +12,32 @@ on:
   workflow_dispatch: # manual
     inputs:
       skip-download-data:
-        description: 'Skip trying to download new data (use data archive)'
+        description: 'Download new data > SKIP trying (use data archive)'
         type: boolean
         default: false
         required: false
       skip-app-release:
-        description: 'Skip app release (event if data change or latest release old)'
+        description: 'App release > SKIP (event if data change or latest release old)'
         type: boolean
         default: false
         required: false
       force-app-release:
-        description: 'Force app release (even if no data change and latest release recent)'
+        description: 'App release > FORCE (even if no data change and latest release recent)'
         type: boolean
         default: false
         required: false
       skipStoreAll:
-        description: 'Skip all store releases'
+        description: 'Store release > SKIP all'
         type: boolean
         default: false
         required: false
       skipStoreProduction:
-        description: 'Skip production store release'
+        description: 'Store release > SKIP production'
         type: boolean
         default: false
         required: false
       reset-current-schedule:
-        description: 'Reset current schedule before parsing (delete all schedule files)'
+        description: 'Data > reset current schedule before parsing (delete all schedule files)'
         type: boolean
         default: false
         required: false
