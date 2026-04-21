@@ -19,6 +19,10 @@ class RewardedUserManager @Inject constructor(
     private val demoModeManager: DemoModeManager,
 ) {
 
+    companion object {
+        private const val REWARDED_UNTIL_NO_VALUE = -1L
+    }
+
     val dailyUser: Boolean by lazy {
         this.defaultPrefRepository.getValue(
             DefaultPreferenceRepository.PREF_USER_DAILY,
@@ -43,25 +47,22 @@ class RewardedUserManager @Inject constructor(
         newHasLowLoadShowRatio
     }
 
-    private var rewardedUntilInMs = AtomicLong(-1L)
+    private var rewardedUntilInMs = AtomicLong(REWARDED_UNTIL_NO_VALUE)
 
     fun getRewardedUntilInMs(): Long {
         if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever
         return this.rewardedUntilInMs.updateAndGet { cached ->
-            if (cached != -1L) return@updateAndGet cached
-            return@updateAndGet this.defaultPrefRepository.getValue(
+            if (cached != REWARDED_UNTIL_NO_VALUE) cached
+            else this.defaultPrefRepository.getValue(
                 DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
-                DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
+                DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT,
             )
         }.takeUnless { it < 0L } ?: DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
     }
 
     fun setRewardedUntilInMs(newRewardedUntilInMs: Long) {
         this.rewardedUntilInMs.set(newRewardedUntilInMs)
-        this.defaultPrefRepository.saveAsync(
-            DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
-            newRewardedUntilInMs
-        )
+        this.defaultPrefRepository.saveAsync(DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL, newRewardedUntilInMs)
     }
 
     fun resetRewarded() {
