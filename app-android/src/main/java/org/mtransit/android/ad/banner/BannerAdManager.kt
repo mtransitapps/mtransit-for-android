@@ -26,6 +26,7 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
 
 // Anchored adaptive banner
+@MainThread
 @Singleton
 class BannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
@@ -69,16 +70,18 @@ class BannerAdManager @Inject constructor(
     }
 
     fun onResumeScreen(activity: IAdScreenActivity) {
+        logAdsD(this, "onResumeScreen($activity)")
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
     fun onTimeChanged(activity: IAdScreenActivity) {
+        logAdsD(this, "onTimeChanged($activity)")
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
-    @MainThread
     @JvmOverloads
     fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
+        logAdsD(this, "refreshBannerAdStatus($force)")
         if (this.globalAdManager.isShowingAds() // showing ads across the app
             && activity.currentAdFragment?.hasAds() == false // this specific screen doesn't include ads already
         ) {
@@ -93,7 +96,6 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    @MainThread
     fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
         if (!AdConstants.AD_ENABLED) return
         if (!this.globalAdManager.isShowingAds()) return
@@ -142,7 +144,7 @@ class BannerAdManager @Inject constructor(
                 logAdsD(this, "setupAd() > not cancelling previous setup ad task...")
             }
         } else {
-            logAdsD(this, "setupAd() > SKIP (force?$force|setupBannerAdTask?${setupBannerAdTask!=null}|adBannerLoaded:$adBannerLoaded)")
+            logAdsD(this, "setupAd() > SKIP (force?$force|setupBannerAdTask?${setupBannerAdTask != null}|adBannerLoaded:$adBannerLoaded)")
         }
         if (setupBannerAdTask == null) {
             logAdsD(this, "setupAd() > STARTING setup ad task...")
@@ -155,23 +157,17 @@ class BannerAdManager @Inject constructor(
         logAdsD(this, "setupAd() > DONE --------------------")
     }
 
-    @MainThread
     private fun showBannerAd(activity: IAdScreenActivity) {
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adView?.isVisibleOnce = true
+        getAdLayout(activity)?.let { adLayout ->
+            getAdView(adLayout)?.isVisibleOnce = true
             adLayout.isVisibleOnce = true
         }
     }
 
-    @MainThread
     fun hideBannerAd(activity: IAdScreenActivity) {
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
+        getAdLayout(activity)?.let { adLayout ->
             adLayout.isVisibleOnce = false
-            adView?.isVisibleOnce = false
+            getAdView(adLayout)?.isVisibleOnce = false
         }
     }
 

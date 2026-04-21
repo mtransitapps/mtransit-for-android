@@ -33,16 +33,21 @@ class RewardedAdFullScreenContentCallback(
 
     override fun onAdShowedFullScreenContent() { // Ad was shown
         this.rewardedAdManager.setRewardedAd(null) // clear showed ad
-        val activity = this.activityWR.get()
-        val theActivity = activity?.activity
-        if (theActivity != null && !theActivity.isDestroyed && !theActivity.isFinishing) {
-            this.rewardedAdManager.refreshRewardedAdStatus(activity)
+        this.activityWR.get()?.let { activity ->
+            activity.activity?.takeIf { !it.isDestroyed && !it.isFinishing }?.let {
+                this.rewardedAdManager.refreshRewardedAdStatus(activity)
+            }
         }
     }
 
     override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) {
         super.onAdFailedToShowFullScreenContent(fullScreenContentError)
-        this.crashReporter.w(this, "Failed to show rewarded ad! %s: '%s' (%s).", fullScreenContentError.code, fullScreenContentError.message, fullScreenContentError.mediationAdError)
+        this.crashReporter.w(
+            this,
+            "Failed to show rewarded ad! ${fullScreenContentError.code}: " +
+                    "'${fullScreenContentError.message}' " +
+                    "(${fullScreenContentError.mediationAdError})."
+        )
     }
 
     override fun onAdDismissedFullScreenContent() {
