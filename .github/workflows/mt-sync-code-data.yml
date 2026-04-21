@@ -243,7 +243,7 @@ jobs:
         run: ./push_commits.sh
 
       - name: MT trigger release if required
-        if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
+        if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' && github.ref_name == env.MT_DEFAULT_BRANCH_NAME }}
         run: |
           MT_TEMP_DIR=".mt";
           mkdir -p $MT_TEMP_DIR;
