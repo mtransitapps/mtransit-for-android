@@ -172,10 +172,8 @@ class InlineBannerAdManager @Inject constructor(
     fun destroyAd(fragment: IFragment) {
         if (!AdConstants.AD_ENABLED) return
         if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) return
-        val adLayout = getAdLayout(fragment)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            if (adView != null) {
+        getAdLayout(fragment)?.let { adLayout ->
+            getAdView(adLayout)?.let { adView ->
                 try {
                     adView.removeAllViews()
                     adView.destroy()
