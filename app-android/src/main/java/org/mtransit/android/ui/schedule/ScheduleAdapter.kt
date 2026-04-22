@@ -22,6 +22,7 @@ import org.mtransit.android.commons.data.arrivalDiff
 import org.mtransit.android.commons.equalOrAfter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
+import org.mtransit.android.data.decorateRealTimes
 import org.mtransit.android.data.getAbsoluteDepartureDiffString
 import org.mtransit.android.data.makeHeading
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
@@ -605,9 +606,6 @@ class ScheduleAdapter :
             private const val P2 = ")"
 
             private val LATE_EARLY_MIN_DIFF = 45.seconds
-
-            // Supports Android string placeholders (%s and positional %1$s) in translated resources.
-            private val STRING_PLACEHOLDER_REGEX = Regex("%(\\d+\\$)?s")
         }
 
         val context: Context
@@ -631,22 +629,16 @@ class ScheduleAdapter :
                 timeSb.append(P1).append(it).append(P2)
             }
             if (timestamp.arrivalDiff > 1.minutes) {
-                val formattedArrivalTime = UITimeUtils.formatTimestamp(context, timestamp, timestamp.arrivalT)
-                val arrivalTimeSb = UISchedule.decorateRealTime(
-                    context,
-                    timestamp,
-                    formattedArrivalTime,
-                    SpannableStringBuilder(formattedArrivalTime)
-                )
-                val arrivalAnd = SpannableStringBuilder(context.getText(R.string.arrival_and))
-                val placeholder = STRING_PLACEHOLDER_REGEX.find(arrivalAnd)
-                if (placeholder != null) {
-                    arrivalAnd.replace(placeholder.range.first, placeholder.range.last + 1, arrivalTimeSb)
-                } else {
-                    arrivalAnd.append(arrivalTimeSb)
-                }
                 timeSb.append(P1)
-                    .append(arrivalAnd)
+                    .append(
+                        context.getString(
+                            R.string.arrival_and,
+                            UITimeUtils.cleanNoRealTime( // cannot have multiple real-time image in 1 Spannable
+                                false,
+                                UITimeUtils.formatTimestamp(context, timestamp, timestamp.arrivalT)
+                            )
+                        )
+                    )
                     .append(P2)
             }
             timeSb.append(
@@ -663,7 +655,7 @@ class ScheduleAdapter :
                 timeSb.append(SPACE).append(it)
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
-            timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
+            timeSb.decorateRealTimes(context, timestamp, formattedTime)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
             timeSb = UISchedule.decorateCancelled(timestamp, timeSb, optPOIM?.serviceUpdatesOrNull)
             val nextTimeInMsT = nextTimestamp?.departureT ?: -1L

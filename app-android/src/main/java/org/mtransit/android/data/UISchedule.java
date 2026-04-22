@@ -638,7 +638,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			}
 			UITimeUtils.cleanTimes(timeSSB);
 			timeSSB = SpanUtils.setAll(timeSSB, SCHEDULE_LIST_TIMES_SIZE);
-			timeSSB = decorateRealTime(context, t, fTime, timeSSB);
+			timeSSB = decorateRealTimes(timeSSB, context, t, fTime);
 			decorateOldSchedule(t, timeSSB);
 			decorateCancelled(t, timeSSB, serviceUpdates);
 			if (headSignSSB != null && headSignSSB.length() > 0) {
@@ -743,23 +743,6 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			}
 		}
 		return ts;
-	}
-
-	@NonNull
-	public static SpannableStringBuilder decorateRealTime(@NonNull Context context,
-														  @NonNull Timestamp t,
-														  @NonNull String fTime,
-														  @NonNull SpannableStringBuilder timeSSB) {
-		if (t.isRealTime()) {
-			int start = fTime.indexOf(UITimeUtils.REAL_TIME_CHAR);
-			int end = start + 1;
-			timeSSB = SpanUtils.set(timeSSB,
-					start,
-					end,
-					getRealTimeImage(context)
-			);
-		}
-		return timeSSB;
 	}
 
 	@NonNull
