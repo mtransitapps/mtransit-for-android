@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("WeakerAccess")
 public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = UITimeUtils.class.getSimpleName();
@@ -187,32 +188,6 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return DateUtils.getRelativeTimeSpanString(timeInThePastInMs, nowInMs, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
 	}
 
-	@SuppressWarnings("unused")
-	@NonNull
-	public static String formatTime(@NonNull Context context, long timeInMs, @NonNull String timeZone) {
-		return formatTime(context, timeInMs, TimeZone.getTimeZone(timeZone));
-	}
-
-	@NonNull
-	public static String formatTimestamp(@NonNull Context context, @NonNull Timestamp timestamp) {
-		return formatTimestamp(context, timestamp, timestamp.getDepartureT());
-	}
-
-	@NonNull
-	public static String formatTimestamp(@NonNull Context context, @NonNull Timestamp timestamp, long timestampInMs) {
-		final String localTimeZone = timestamp.getLocalTimeZone();
-		if (localTimeZone != null) {
-			return cleanNoRealTime(timestamp.isRealTime(),
-					formatTime(context, timestampInMs, TimeZone.getTimeZone(localTimeZone))
-			);
-		} else {
-			return cleanNoRealTime(timestamp.isRealTime(),
-					formatTime(context, timestampInMs)
-			);
-		}
-	}
-
-	@SuppressWarnings("WeakerAccess")
 	@NonNull
 	public static String formatTime(@NonNull Context context, long timeInMs, @NonNull TimeZone timeZone) {
 		return getFormatTimeTZ(context, timeInMs, timeZone).formatThreadSafe(timeInMs);
@@ -547,6 +522,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return true; // FREQUENT
 	}
 
+	@SuppressLint("KotlinPairNotCreated")
 	@NonNull
 	public static Pair<CharSequence, CharSequence> getShortTimeSpan(@NonNull Context context,
 																	long diffInMs,
@@ -574,6 +550,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				shortTimeSpan1SSB, shortTimeSpan2SSB);
 	}
 
+	@SuppressLint("KotlinPairNotCreated")
 	@NonNull
 	static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(@NonNull Context context, long diffInMs, long precisionInMs,
 																   boolean isRealTime, boolean isOldSchedule,
@@ -721,6 +698,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		}
 	}
 
+	@SuppressLint("KotlinPairNotCreated")
 	@NonNull
 	public static Pair<CharSequence, CharSequence> getShortTimeSpanString(@NonNull Context context, long diffInMs, long targetedTimestamp) {
 		long now = targetedTimestamp - diffInMs;

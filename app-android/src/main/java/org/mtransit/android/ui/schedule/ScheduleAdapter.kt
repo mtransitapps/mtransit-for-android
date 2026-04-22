@@ -32,6 +32,7 @@ import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.android.util.formatTimestamp
 import org.mtransit.commons.Constants.EMPTY
 import org.mtransit.commons.Constants.SPACE
 import org.mtransit.commons.beginningOfDay
@@ -623,14 +624,23 @@ class ScheduleAdapter :
                 return
             }
             val optRds = optPOIM?.poi as? RouteDirectionStop
-            val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
+            val formattedTime = timestamp.formatTimestamp(context)
             var timeSb = SpannableStringBuilder(formattedTime)
             timestamp.getAbsoluteDepartureDiffString(context, LATE_EARLY_MIN_DIFF, LATE_EARLY_MIN_DIFF, short = false)?.let {
                 timeSb.append(P1).append(it).append(P2)
             }
             if (timestamp.arrivalDiff > 1.minutes) {
                 timeSb.append(P1)
-                    .append(context.getString(R.string.arrival_and, UITimeUtils.formatTimestamp(context, timestamp, timestamp.arrivalT)))
+                    .append(
+                        context.getString(
+                            R.string.arrival_and,
+                            timestamp.formatTimestamp(
+                                context = context,
+                                timestampInMs = timestamp.arrivalT,
+                                realTime = false // cannot have multiple real-time image in 1 Spannable
+                            )
+                        )
+                    )
                     .append(P2)
             }
             timeSb.append(

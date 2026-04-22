@@ -48,6 +48,7 @@ import org.mtransit.android.ui.view.common.start
 import org.mtransit.android.ui.view.common.startMargin
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.android.util.formatTime
 import java.util.TimeZone
 import javax.inject.Inject
 
@@ -227,9 +228,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
     private fun bindLocaleTime(localTimeZone: TimeZone?) = binding?.apply {
         localTimeZone?.let {
             val nowInMs = UITimeUtils.currentTimeToTheMinuteMillis()
-            UITimeUtils.formatTime(context, nowInMs, it)
+            formatTime(context, nowInMs, it)
                 .takeIf { timeLocalTimeZone ->
-                    timeLocalTimeZone != UITimeUtils.formatTime(context, nowInMs, TimeZone.getDefault())
+                    timeLocalTimeZone != formatTime(context, nowInMs, TimeZone.getDefault())
                 }
         }.let { localTimeDifferent ->
             localTime.apply {

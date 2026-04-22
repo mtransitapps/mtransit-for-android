@@ -33,6 +33,7 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.util.UIAccessibilityUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.android.util.UITimeUtilsExtKt;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.Constants;
 
@@ -541,7 +542,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			idx++;
 			SpannableStringBuilder headSignSSB = null;
 			SpannableStringBuilder dateSSB = null;
-			final String fTime = UITimeUtils.formatTimestamp(context, t);
+			final String fTime = UITimeUtilsExtKt.formatTimestamp(t, context);
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			final CharSequence timestampHeading = DirectionExtKt.makeHeading(t, context, optDefaultHeadSign, true);
 			if (timestampHeading != null) {
@@ -887,7 +888,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					startNextTime = ssb.length();
 				}
 			}
-			String fTime = UITimeUtils.formatTimestamp(context, t);
+			String fTime = UITimeUtilsExtKt.formatTimestamp(t, context);
 			ssb.append(fTime);
 			if (departureT >= after) {
 				if (endNextTime == -1) {
