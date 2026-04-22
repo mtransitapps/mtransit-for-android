@@ -1,38 +1,15 @@
 package org.mtransit.android.data
 
 import android.content.Context
-import android.text.SpannableStringBuilder
 import org.mtransit.android.R
-import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.originalDepartureDelay
-import org.mtransit.android.commons.data.toStringShort
-import org.mtransit.android.data.UISchedule.getRealTimeImage
-import org.mtransit.android.util.UITimeUtils
 import kotlin.math.roundToLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
-
-fun SpannableStringBuilder.decorateRealTimes(
-    context: Context,
-    t: Schedule.Timestamp,
-    fTime: String,
-) = this.apply {
-    if (t.isRealTime) {
-        var start = fTime.indexOf(UITimeUtils.REAL_TIME_CHAR)
-        while (start >= 0) {
-            SpanUtils.setNN(
-                this,
-                start,
-                start + 1,
-                getRealTimeImage(context)
-            )
-            start = fTime.indexOf(UITimeUtils.REAL_TIME_CHAR, start + 1)
-        }
-    }
-}
 
 fun List<ServiceUpdate>?.findServiceUpdate(tripId: String?): ServiceUpdate? {
     tripId ?: return null
