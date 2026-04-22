@@ -63,6 +63,7 @@ class ScheduleAdapter :
         private const val ITEM_VIEW_TYPE_HOUR_SEPARATORS = 1
         private const val ITEM_VIEW_TYPE_TIME = 2
         private const val ITEM_VIEW_TYPE_LOADING = 3
+        private val STRING_PLACEHOLDER_REGEX = Regex("%(\\d+\\$)?s")
 
         private const val HOUR_SEPARATORS_COUNT = 24
 
@@ -637,10 +638,13 @@ class ScheduleAdapter :
                     SpannableStringBuilder(formattedArrivalTime)
                 )
                 val arrivalAnd = SpannableStringBuilder(context.getText(R.string.arrival_and))
-                val index = arrivalAnd.indexOf("%s")
-                if (index != -1) {
-                    arrivalAnd.replace(index, index + 2, arrivalTimeSb)
+                val placeholder = STRING_PLACEHOLDER_REGEX.find(arrivalAnd)
+                if (placeholder != null) {
+                    arrivalAnd.replace(placeholder.range.first, placeholder.range.last + 1, arrivalTimeSb)
                 } else {
+                    if (arrivalAnd.isNotEmpty() && !arrivalAnd.last().isWhitespace()) {
+                        arrivalAnd.append(SPACE)
+                    }
                     arrivalAnd.append(arrivalTimeSb)
                 }
                 timeSb.append(P1)
