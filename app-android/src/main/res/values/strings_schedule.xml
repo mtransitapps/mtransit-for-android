@@ -92,5 +92,5 @@
     <string name="minutes_late_short">L:%dm</string>
     <string name="minutes_early">%dm early</string>
     <string name="minutes_early_short">E:%dm</string>
-    <string name="arrival_and">arrival: %s</string>
+    <string name="arrival_and">arrival: </string>
 </resources>
