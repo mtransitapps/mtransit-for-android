@@ -5,6 +5,7 @@ import android.widget.TextView
 import androidx.core.util.PatternsCompat
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.distinctByOriginalId
@@ -59,11 +60,12 @@ object UISourceLabelUtils : MTLog.Loggable {
         ?.distinct()
         ?.let { sourceLabels ->
             readFromSource?.let {
+                val now = TimeUtils.currentTimeMillis()
                 context.resources.getQuantityString(
                     R.plurals.source_label_and_sources_and_time,
                     sourceLabels.size,
                     sourceLabels.joinToString(),
-                    UITimeUtils.formatRelativeTime(it.toMillis())
+                    UITimeUtils.formatRelativeTime(it.toMillis().coerceAtMost(now), now)
                 )
             } ?: run {
                 context.resources.getQuantityString(
