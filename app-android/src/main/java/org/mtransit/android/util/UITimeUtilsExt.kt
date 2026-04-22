@@ -5,26 +5,40 @@ import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.Schedule
 import java.util.TimeZone
 
-fun Schedule.Timestamp.formatTime(
+@JvmOverloads
+fun Schedule.Timestamp.formatTimestamp(
     context: Context,
     timestampInMs: Long = this.departureT,
     realTime: Boolean = this.isRealTime,
-    localTimeZone: String? = this.localTimeZone,
-) = formatTimestamp(
+    localTimeZoneId: String? = this.localTimeZoneId,
+) = formatTime(
     context = context,
     timestampInMs = timestampInMs,
     realTime = realTime,
-    localTimeZone = localTimeZone
+    localTimeZoneId = localTimeZoneId
 )
 
-fun formatTimestamp(
+@JvmOverloads
+fun formatTime(
     context: Context,
     timestampInMs: Long,
-    realTime: Boolean,
-    localTimeZone: String?,
+    localTimeZoneId: String?,
+    realTime: Boolean = false,
+) = formatTime(
+    context = context,
+    timestampInMs = timestampInMs,
+    localTimeZone = localTimeZoneId?.let { TimeZone.getTimeZone(it) },
+    realTime = realTime
+)
+
+@JvmOverloads
+fun formatTime(
+    context: Context,
+    timestampInMs: Long,
+    localTimeZone: TimeZone?,
+    realTime: Boolean = false,
 ) = TimeUtils.cleanNoRealTime(
     realTime,
-    localTimeZone?.let {
-        UITimeUtils.formatTime(context, timestampInMs, TimeZone.getTimeZone(it))
-    } ?: UITimeUtils.formatTime(context, timestampInMs)
+    localTimeZone?.let { UITimeUtils.formatTime(context, timestampInMs, localTimeZone) }
+        ?: UITimeUtils.formatTime(context, timestampInMs)
 )

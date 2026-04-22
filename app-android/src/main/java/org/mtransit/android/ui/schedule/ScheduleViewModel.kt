@@ -192,7 +192,7 @@ class ScheduleViewModel @Inject constructor(
                 hasProviderTimestampsReturned = true
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _scheduleSourceLabel.postValue(scheduleTimestamps.sourceLabel)
-                    scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZone }?.let { localTimeZoneId ->
+                    scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZoneId }?.let { localTimeZoneId ->
                         this._localTimeZoneId.postValue(localTimeZoneId)
                     }
                     return scheduleTimestamps.timestamps
