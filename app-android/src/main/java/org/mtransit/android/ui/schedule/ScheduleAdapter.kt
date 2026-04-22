@@ -629,8 +629,12 @@ class ScheduleAdapter :
                 timeSb.append(P1).append(it).append(P2)
             }
             if (timestamp.arrivalDiff > 1.minutes) {
+                val formattedArrivalTime = UITimeUtils.cleanNoRealTime(
+                    false,
+                    UITimeUtils.formatTimestamp(context, timestamp, timestamp.arrivalT)
+                )
                 timeSb.append(P1)
-                    .append(context.getString(R.string.arrival_and, UITimeUtils.formatTimestamp(context, timestamp, timestamp.arrivalT)))
+                    .append(context.getString(R.string.arrival_and, formattedArrivalTime))
                     .append(P2)
             }
             timeSb.append(
