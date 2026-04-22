@@ -205,14 +205,16 @@ jobs:
       # ----------
 
       - name: MT generate images if required
+        id: mt-image-gen
         if: ${{ env.MT_IS_MAIN_REPO != 'true' && steps.mt-check-image-gen-required.outcome == 'success' }}
+        continue-on-error: true # nice to have
         run: |
           ./commons/code_setup.sh;
         env:
           MT_GENERATE_IMAGES: true
 
       - name: MT commit image change (if added/updated)
-        if: ${{ env.MT_IS_MAIN_REPO != 'true' }}
+        if: ${{ steps.mt-image-gen.outcome == 'success' && env.MT_IS_MAIN_REPO != 'true' }}
         run: |
           git add -v -A -- ':(glob)**/*.png'
           if git diff --staged --quiet; then
