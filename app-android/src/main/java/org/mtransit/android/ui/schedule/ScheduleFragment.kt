@@ -174,9 +174,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         viewModel.scrolledToNow.observe(viewLifecycleOwner) {
             // NOTHING
         }
-        viewModel.sourceLabel.observe(viewLifecycleOwner) { sourceLabel ->
+        viewModel.sourceLabelAndReadFromSource.observe(viewLifecycleOwner) { (sourceLabel, readFromSource) ->
             binding?.apply {
-                UISourceLabelUtils.setSourceLabelTextView(this.sourceLabel, sourceLabel)
+                UISourceLabelUtils.setSourceLabelTextView(this.sourceLabel, readFromSource, sourceLabel)
             }
         }
         viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->

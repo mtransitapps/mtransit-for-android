@@ -8,7 +8,6 @@ import org.mtransit.android.commons.data.originalDepartureDelay
 import kotlin.math.roundToLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
 fun List<ServiceUpdate>?.findServiceUpdate(tripId: String?): ServiceUpdate? {
