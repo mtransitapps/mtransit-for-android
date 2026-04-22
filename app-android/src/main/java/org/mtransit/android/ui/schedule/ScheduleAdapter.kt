@@ -636,9 +636,15 @@ class ScheduleAdapter :
                     formattedArrivalTime,
                     SpannableStringBuilder(formattedArrivalTime)
                 )
+                val arrivalAnd = SpannableStringBuilder(context.getText(R.string.arrival_and))
+                val index = arrivalAnd.indexOf("%s")
+                if (index != -1) {
+                    arrivalAnd.replace(index, index + 2, arrivalTimeSb)
+                } else {
+                    arrivalAnd.append(arrivalTimeSb)
+                }
                 timeSb.append(P1)
-                    .append(context.getString(R.string.arrival_and))
-                    .append(arrivalTimeSb)
+                    .append(arrivalAnd)
                     .append(P2)
             }
             timeSb.append(

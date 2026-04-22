@@ -98,5 +98,5 @@
     <string name="minutes_late_short">R:%dm</string>
     <string name="minutes_early">%dm en avance</string>
     <string name="minutes_early_short">A:%dm</string>
-    <string name="arrival_and">arrivée : </string>
+    <string name="arrival_and">arrivée : %s</string>
 </resources>
