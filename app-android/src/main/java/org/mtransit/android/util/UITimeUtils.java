@@ -184,7 +184,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	private static CharSequence formatRelativeTime(long timeInThePastInMs, long nowInMs) {
+	public static CharSequence formatRelativeTime(long timeInThePastInMs, long nowInMs) {
 		return DateUtils.getRelativeTimeSpanString(timeInThePastInMs, nowInMs, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
 	}
 
