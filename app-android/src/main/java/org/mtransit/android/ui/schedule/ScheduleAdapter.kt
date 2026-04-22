@@ -64,6 +64,7 @@ class ScheduleAdapter :
         private const val ITEM_VIEW_TYPE_HOUR_SEPARATORS = 1
         private const val ITEM_VIEW_TYPE_TIME = 2
         private const val ITEM_VIEW_TYPE_LOADING = 3
+
         private const val HOUR_SEPARATORS_COUNT = 24
 
         private val SCHEDULE_LIST_TIMES_PAST_STYLE = SpanUtils.getNewNormalStyleSpan()
