@@ -6,8 +6,8 @@
 -keepattributes EnclosingMethod
 -keepattributes InnerClasses
 
-## Do not obfuscate the class files since open source (DEBUG only)
-#-dontobfuscate
+# Do not obfuscate the class files since open source (DEBUG only)
+-dontobfuscate
 
 # CRASHLYTICS - START
 # https://firebase.google.com/docs/crashlytics/android/get-deobfuscated-reports#config-r8-proguard-dexguard
