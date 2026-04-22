@@ -28,7 +28,7 @@ object UISourceLabelUtils : MTLog.Loggable {
             ?.mapNotNull {
                 it.sourceLabel.takeIf { label ->
                     @Suppress("UselessCallOnNotNull") // sourceLabel is Java field not 100% NonNull?
-                    label.isNullOrBlank() && isUrl(label)
+                    !label.isNullOrBlank() && isUrl(label)
                 }
             }
             ?.let {
