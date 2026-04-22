@@ -32,6 +32,7 @@ import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.android.util.formatTime
 import org.mtransit.commons.Constants.EMPTY
 import org.mtransit.commons.Constants.SPACE
 import org.mtransit.commons.beginningOfDay
@@ -633,9 +634,10 @@ class ScheduleAdapter :
                     .append(
                         context.getString(
                             R.string.arrival_and,
-                            UITimeUtils.cleanNoRealTime( // cannot have multiple real-time image in 1 Spannable
-                                false,
-                                UITimeUtils.formatTimestamp(context, timestamp, timestamp.arrivalT)
+                            timestamp.formatTime(
+                                context,
+                                timestamp.arrivalT,
+                                realTime = false // cannot have multiple real-time image in 1 Spannable
                             )
                         )
                     )
