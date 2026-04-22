@@ -20,7 +20,7 @@ import org.mtransit.android.data.UIServiceUpdates
 import org.mtransit.android.databinding.FragmentDialogServiceUpdatesBinding
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
-import org.mtransit.android.ui.common.UISourceLabelUtils.setSourceLabelTextView
+import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -148,7 +148,7 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
                     if (hasWarning) R.drawable.service_update_warning else R.drawable.service_update_info
                 )
             }
-            setSourceLabelTextView(sourceLabel, serviceUpdates)
+            UISourceLabelUtils.setSourceLabelTextView(sourceLabel, serviceUpdates)
             root.isVisible = hasServiceUpdatesToShow
             emptyLayout.isVisible = !hasServiceUpdatesToShow
         }

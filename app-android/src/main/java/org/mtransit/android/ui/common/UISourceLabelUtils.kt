@@ -8,7 +8,11 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.distinctByOriginalId
+import org.mtransit.android.commons.data.readFromSource
+import org.mtransit.android.commons.toMillis
 import org.mtransit.android.ui.view.common.textAndVisibility
+import org.mtransit.android.util.UITimeUtils
+import kotlin.time.Instant
 
 object UISourceLabelUtils : MTLog.Loggable {
 
@@ -21,10 +25,14 @@ object UISourceLabelUtils : MTLog.Loggable {
         serviceUpdates
             ?.distinctByOriginalId()
             ?.filter { it.shouldDisplay() }
-            ?.mapNotNull { it.sourceLabel }
-            ?.filter { it.isNotBlank() && isUrl(it) }
+            ?.mapNotNull {
+                it.sourceLabel.takeIf { label ->
+                    @Suppress("UselessCallOnNotNull") // sourceLabel is Java field not 100% NonNull?
+                    label.isNullOrBlank() && isUrl(label)
+                }
+            }
             ?.let {
-                setSourceLabelTextView(textView, *it.toTypedArray())
+                setSourceLabelTextView(textView, readFromSource = null, *it.toTypedArray())
             }
     }
 
@@ -37,23 +45,32 @@ object UISourceLabelUtils : MTLog.Loggable {
     }
 
     @JvmStatic
-    fun setSourceLabelTextView(textView: TextView, status: POIStatus?) = setSourceLabelTextView(textView, status?.sourceLabel)
+    fun setSourceLabelTextView(textView: TextView, status: POIStatus?) = setSourceLabelTextView(textView, status?.readFromSource, status?.sourceLabel)
 
     @JvmStatic
-    fun setSourceLabelTextView(textView: TextView, vararg sourceLabels: String?) {
-        textView.textAndVisibility = getSourceLabelText(textView.context, *sourceLabels)
+    fun setSourceLabelTextView(textView: TextView, readFromSource: Instant? = null, vararg sourceLabels: String?) {
+        textView.textAndVisibility = getSourceLabelText(textView.context, readFromSource, *sourceLabels)
     }
 
     @JvmStatic
-    fun getSourceLabelText(context: Context, vararg sourceLabels: String?) = sourceLabels
+    fun getSourceLabelText(context: Context, readFromSource: Instant? = null, vararg sourceLabels: String?) = sourceLabels
         .filter { it?.isNotBlank() == true }
         .takeIf { it.isNotEmpty() }
         ?.distinct()
-        ?.let {
-            context.resources.getQuantityString(
-                R.plurals.source_label_and_sources,
-                it.size,
-                it.joinToString()
-            )
+        ?.let { sourceLabels ->
+            readFromSource?.let {
+                context.resources.getQuantityString(
+                    R.plurals.source_label_and_sources_and_time,
+                    sourceLabels.size,
+                    sourceLabels.joinToString(),
+                    UITimeUtils.formatRelativeTime(it.toMillis())
+                )
+            } ?: run {
+                context.resources.getQuantityString(
+                    R.plurals.source_label_and_sources,
+                    sourceLabels.size,
+                    sourceLabels.joinToString()
+                )
+            }
         }
 }
