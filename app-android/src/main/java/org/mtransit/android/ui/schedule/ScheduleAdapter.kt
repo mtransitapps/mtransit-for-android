@@ -63,9 +63,6 @@ class ScheduleAdapter :
         private const val ITEM_VIEW_TYPE_HOUR_SEPARATORS = 1
         private const val ITEM_VIEW_TYPE_TIME = 2
         private const val ITEM_VIEW_TYPE_LOADING = 3
-        // Supports Android string placeholders (%s and positional %1$s) in translated resources.
-        private val STRING_PLACEHOLDER_REGEX = Regex("%(\\d+\\$)?s")
-
         private const val HOUR_SEPARATORS_COUNT = 24
 
         private val SCHEDULE_LIST_TIMES_PAST_STYLE = SpanUtils.getNewNormalStyleSpan()
@@ -608,6 +605,9 @@ class ScheduleAdapter :
             private const val P2 = ")"
 
             private val LATE_EARLY_MIN_DIFF = 45.seconds
+
+            // Supports Android string placeholders (%s and positional %1$s) in translated resources.
+            private val STRING_PLACEHOLDER_REGEX = Regex("%(\\d+\\$)?s")
         }
 
         val context: Context
