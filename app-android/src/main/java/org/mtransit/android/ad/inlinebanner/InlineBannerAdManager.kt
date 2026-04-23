@@ -115,8 +115,19 @@ class InlineBannerAdManager @Inject constructor(
     fun getAdView(adLayout: ViewGroup): AdView? =
         adLayout.findViewById(R.id.inline_banner_ad)
 
-    fun onResume(@Suppress("unused") fragment: IFragment) {
-        // DO NOTHING
+    @MainThread
+    fun onResume(viewFinder: IViewFinder) {
+        resumeAd(viewFinder)
+    }
+
+    @MainThread
+    // fun resumeAd(@Suppress("unused") viewFinder: IViewFinder) { #gmaNextGen
+    // DO NOTHING #gmaNextGen
+    fun resumeAd(viewFinder: IViewFinder) {
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(viewFinder)?.let { adLayout ->
+            getAdView(adLayout)?.resume()
+        }
     }
 
     fun adaptToScreenSize(fragment: IFragment) {
@@ -130,8 +141,19 @@ class InlineBannerAdManager @Inject constructor(
         }
     }
 
-    fun onPause(@Suppress("unused") viewFinder: IViewFinder) {
-        // DO NOTHING
+    @MainThread
+    fun onPause(viewFinder: IViewFinder) {
+        pauseAd(viewFinder)
+    }
+
+    @MainThread
+    // fun pauseAd(@Suppress("unused") viewFinder: IViewFinder) { #gmaNextGen
+    // DO NOTHING #gmaNextGen
+    fun pauseAd(viewFinder: IViewFinder) {
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(viewFinder)?.let { adLayout ->
+            getAdView(adLayout)?.pause()
+        }
     }
 
     private fun showBannerAd(viewFinder: IViewFinder) {

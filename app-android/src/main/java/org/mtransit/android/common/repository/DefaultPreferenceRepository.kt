@@ -2,7 +2,7 @@ package org.mtransit.android.common.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.annotation.MainThread
+import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
@@ -110,7 +110,7 @@ class DefaultPreferenceRepository @Inject constructor(
         return PreferenceUtils.getPrefDefault(requireContext(), key, defaultValue)
     }
 
-    @MainThread
+    @AnyThread
     override fun saveAsync(key: String, value: Boolean?) {
         PreferenceUtils.savePrefDefaultAsync(requireContext(), key, value)
     }
@@ -125,7 +125,7 @@ class DefaultPreferenceRepository @Inject constructor(
         return PreferenceUtils.getPrefDefaultNN(requireContext(), key, defaultValue)
     }
 
-    @MainThread
+    @AnyThread
     override fun saveAsync(key: String, value: String?) {
         PreferenceUtils.savePrefDefaultAsync(requireContext(), key, value)
     }
@@ -135,7 +135,7 @@ class DefaultPreferenceRepository @Inject constructor(
         return PreferenceUtils.getPrefDefault(requireContext(), key, defaultValue)
     }
 
-    @MainThread
+    @AnyThread
     override fun saveAsync(key: String, value: Int) {
         PreferenceUtils.savePrefDefaultAsync(requireContext(), key, value)
     }
@@ -145,7 +145,7 @@ class DefaultPreferenceRepository @Inject constructor(
         return PreferenceUtils.getPrefDefault(requireContext(), key, defaultValue)
     }
 
-    @MainThread
+    @AnyThread
     override fun saveAsync(key: String, value: Long) {
         PreferenceUtils.savePrefDefaultAsync(requireContext(), key, value)
     }

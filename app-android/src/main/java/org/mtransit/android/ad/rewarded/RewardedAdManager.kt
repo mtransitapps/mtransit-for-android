@@ -1,6 +1,7 @@
 package org.mtransit.android.ad.rewarded
 
 import androidx.annotation.StringRes
+import androidx.annotation.WorkerThread
 import com.google.android.gms.ads.rewarded.RewardedAd
 // import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd #gmaNextGen
 import org.mtransit.android.R
@@ -52,6 +53,7 @@ class RewardedAdManager @Inject constructor(
     private var rewardedAd: RewardedAd? = null
     private var rewardedAdActivityHashCode: Int? = null
 
+    @WorkerThread
     fun loadRewardedAdForActivity(activity: IActivity) {
         val theActivity = activity.requireActivity()
         if (this.rewardedAd == null || (this.rewardedAdActivityHashCode != null && this.rewardedAdActivityHashCode != theActivity.hashCode())) {
@@ -106,6 +108,7 @@ class RewardedAdManager @Inject constructor(
         }
     }
 
+    @WorkerThread
     fun refreshRewardedAdStatus(activity: IActivity) {
         if (!AdConstants.AD_ENABLED) return
         val isNotPayingUser = this.globalAdManager.isShowingAds()

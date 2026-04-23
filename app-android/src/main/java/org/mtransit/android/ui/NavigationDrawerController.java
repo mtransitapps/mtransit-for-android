@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -271,13 +272,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 
 		private void selectItemId(@Nullable String itemId) {
-			if (TextUtils.isEmpty(itemId)) {
-				return;
-			}
+			if (TextUtils.isEmpty(itemId)) return;
 			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
-			if (navigationDrawerController == null) {
-				return;
-			}
+			if (navigationDrawerController == null) return;
 			final Integer navItemId = navigationDrawerController.getScreenNavItemId(itemId);
 			navigationDrawerController.selectItem(navItemId, false);
 		}
@@ -342,7 +339,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.allAgencyTypes = getNewFilteredAgencyTypes();
 	}
 
-	@WorkerThread
+	@AnyThread // reads from cache
 	@NonNull
 	private List<DataSourceType> getNewFilteredAgencyTypes() {
 		//noinspection deprecation // FIXME

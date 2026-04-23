@@ -3,6 +3,7 @@ package org.mtransit.android.ad
 import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
@@ -22,6 +23,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -67,12 +69,23 @@ class GlobalAdManager(
 
     private var showingAds: Boolean? = null
     private var hasAgenciesEnabled: Boolean? = null
+    private var _rewardedUntilInMs: Long? = null
+    private var _rewardedNow: Boolean? = null
 
     init {
         this.dataSourcesRepository.readingHasAgenciesEnabled().observeForever { hasAgenciesEnabled ->
             this.hasAgenciesEnabled = hasAgenciesEnabled
         }
+        this.rewardedUserManager.rewardedUntilInMsLive.observeForever { rewardedUntilInMs ->
+            this._rewardedUntilInMs = rewardedUntilInMs
+        }
+        this.rewardedUserManager.rewardedNowLive.observeForever { rewardedNow ->
+            this._rewardedNow = rewardedNow
+        }
     }
+
+    val rewardedUntilInMs: LiveData<Long> get() = this.rewardedUserManager.rewardedUntilInMsLive
+    val rewardedNow: LiveData<Boolean> get() = this.rewardedUserManager.rewardedNowLive
 
     fun init(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
         if (!AdConstants.AD_ENABLED) return
@@ -193,8 +206,8 @@ class GlobalAdManager(
         if (AdConstants.IGNORE_REWARD_HIDING_BANNER) {
             return showingAds == true
         }
-        if (isRewardedNow()) { // rewarded status
-            logAdsD(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this.rewardedUserManager.getRewardedUntilInMs()}).")
+        if (this._rewardedNow != false) { // rewarded status
+            logAdsD(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this._rewardedUntilInMs?.toDateTimeLog()}).")
             return false // not showing ads
         }
         return showingAds == true
@@ -206,33 +219,30 @@ class GlobalAdManager(
 
     // region Rewarded
 
-    fun getRewardedUntilInMs(): Long {
-        return this.rewardedUserManager.getRewardedUntilInMs()
-    }
+    @WorkerThread
+    fun getRewardedUntilInMs() = this.rewardedUserManager.getRewardedUntilInMs()
 
+    @AnyThread
     fun resetRewarded() {
         this.rewardedUserManager.resetRewarded()
     }
 
-    fun isRewardedNow(): Boolean {
-        return this.rewardedUserManager.isRewardedNow()
-    }
+    @WorkerThread
+    fun isRewardedNow() = this.rewardedUserManager.isRewardedNow()
 
+    @WorkerThread
     fun rewardUser(newRewardInMs: Long, activity: IActivity?) {
         this.rewardedUserManager.rewardUser(newRewardInMs, activity)
     }
 
-    fun shouldSkipRewardedAd(): Boolean {
-        return this.rewardedUserManager.shouldSkipRewardedAd()
-    }
+    @WorkerThread
+    fun shouldSkipRewardedAd() = this.rewardedUserManager.shouldSkipRewardedAd()
 
-    fun getRewardedAdAmount(): Int {
-        return this.rewardedUserManager.getRewardedAdAmount()
-    }
+    @AnyThread
+    fun getRewardedAdAmount() = this.rewardedUserManager.getRewardedAdAmount()
 
-    fun getRewardedAdAmountInMs(): Long {
-        return this.rewardedUserManager.getRewardedAdAmountInMs()
-    }
+    @AnyThread
+    fun getRewardedAdAmountInMs() = this.rewardedUserManager.getRewardedAdAmountInMs()
 
     // endregion Rewarded
 }

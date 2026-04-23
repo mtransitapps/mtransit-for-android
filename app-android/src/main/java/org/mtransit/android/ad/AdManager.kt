@@ -1,15 +1,16 @@
 package org.mtransit.android.ad
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdInspectorError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.MobileAds
-import dagger.hilt.android.qualifiers.ApplicationContext
 // import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
 // import com.google.android.libraries.ads.mobile.sdk.banner.AdSize #gmaNextGen
 // import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest #gmaNextGen
@@ -36,7 +37,6 @@ import javax.inject.Inject
  * - https://developers.google.com/admob/android/test-ads
  */
 class AdManager @Inject internal constructor(
-    @param:ApplicationContext private val appContext: Context,
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,
     private val rewardedAdManager: RewardedAdManager,
@@ -114,35 +114,43 @@ class AdManager @Inject internal constructor(
 
     // region Rewarded Ads
 
+    override val rewardedUntilInMsLive: LiveData<Long> get() = this.globalAdManager.rewardedUntilInMs
+    override val rewardedNowLive: LiveData<Boolean> get() = this.globalAdManager.rewardedNow
+
+    @WorkerThread
     override fun getRewardedUntilInMs() = this.globalAdManager.getRewardedUntilInMs()
 
     override fun resetRewarded() = this.globalAdManager.resetRewarded()
 
+    @WorkerThread
     override fun isRewardedNow() = this.globalAdManager.isRewardedNow()
 
     override fun setRewardedAdListener(rewardedAdListener: IAdManager.RewardedAdListener?) {
         this.rewardedAdManager.rewardedAdListener = rewardedAdListener
     }
 
+    @WorkerThread
     override fun shouldSkipRewardedAd() = this.globalAdManager.shouldSkipRewardedAd()
 
     override fun linkRewardedAd(activity: IActivity) = this.rewardedAdManager.linkRewardedAd(activity)
 
     override fun unlinkRewardedAd(activity: IActivity) = this.rewardedAdManager.unlinkRewardedAd(activity)
 
+    @WorkerThread
     override fun refreshRewardedAdStatus(activity: IActivity) = this.rewardedAdManager.refreshRewardedAdStatus(activity)
 
     override fun isRewardedAdAvailableToShow() = this.rewardedAdManager.isRewardedAdAvailableToShow()
 
     override fun showRewardedAd(activity: IActivity) = this.rewardedAdManager.showRewardedAd(activity)
 
+    @AnyThread
     override fun getRewardedAdAmount() = this.globalAdManager.getRewardedAdAmount()
 
     override fun getRewardedAdAmountInMs() = this.globalAdManager.getRewardedAdAmountInMs()
 
     // endregion Rewarded Ads
 
-    override fun openAdInspector(activity:IActivity) {
+    override fun openAdInspector(activity: IActivity) {
         // MobileAds.openAdInspector { error: AdInspectorError? -> #gmaNextGen
         MobileAds.openAdInspector(activity.requireActivity()) { error: AdInspectorError? ->
             if (error == null) {

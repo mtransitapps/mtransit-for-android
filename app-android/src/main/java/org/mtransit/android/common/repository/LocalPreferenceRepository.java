@@ -3,7 +3,7 @@ package org.mtransit.android.common.repository;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.annotation.MainThread;
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -116,7 +116,7 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 		return PreferenceUtils.getPrefLcl(requireContext(), key, defaultValue);
 	}
 
-	@MainThread
+	@AnyThread
 	@Override
 	public void saveAsync(@NonNull String key, @Nullable Boolean value) {
 		PreferenceUtils.savePrefLclAsync(requireContext(), key, value);
@@ -136,7 +136,7 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 		return PreferenceUtils.getPrefLclNN(requireContext(), key, defaultValue);
 	}
 
-	@MainThread
+	@AnyThread
 	@Override
 	public void saveAsync(@NonNull String key, @Nullable String value) {
 		PreferenceUtils.savePrefLclAsync(requireContext(), key, value);
@@ -148,7 +148,7 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 		return PreferenceUtils.getPrefLcl(requireContext(), key, defaultValue);
 	}
 
-	@MainThread
+	@AnyThread
 	@Override
 	public void saveAsync(@NonNull String key, int value) {
 		PreferenceUtils.savePrefLclAsync(requireContext(), key, value);
@@ -160,7 +160,7 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 		return PreferenceUtils.getPrefLcl(requireContext(), key, defaultValue);
 	}
 
-	@MainThread
+	@AnyThread
 	@Override
 	public void saveAsync(@NonNull String key, long value) {
 		PreferenceUtils.savePrefLclAsync(requireContext(), key, value);
