@@ -142,9 +142,9 @@ class AdManager @Inject internal constructor(
 
     // endregion Rewarded Ads
 
-    override fun openAdInspector() {
+    override fun openAdInspector(activity:IActivity) {
         // MobileAds.openAdInspector { error: AdInspectorError? -> #gmaNextGen
-        MobileAds.openAdInspector(this.appContext) { error: AdInspectorError? ->
+        MobileAds.openAdInspector(activity.requireActivity()) { error: AdInspectorError? ->
             if (error == null) {
                 logAdsD(this@AdManager, "Ad inspector closed.")
             } else {

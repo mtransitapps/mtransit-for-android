@@ -53,7 +53,7 @@ interface IAdManager {
 
     fun setRewardedAdListener(rewardedAdListener: RewardedAdListener?)
 
-    fun openAdInspector()
+    fun openAdInspector(activity: IActivity)
 
     fun shouldSkipRewardedAd(): Boolean
 
