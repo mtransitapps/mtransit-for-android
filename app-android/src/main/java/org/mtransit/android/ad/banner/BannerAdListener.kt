@@ -79,7 +79,8 @@ class BannerAdListener(
                 // LoadAdError.ErrorCode.NETWORK_ERROR -> #gmaNextGen
                 MTLog.w(this, "Failed to received ad! Network error code: '${adError.code}' ($adError).")
 
-            AdRequest.ERROR_CODE_MEDIATION_NO_FILL ->
+            AdRequest.ERROR_CODE_MEDIATION_NO_FILL,
+            AdRequest.ERROR_CODE_NO_FILL ->
                 // LoadAdError.ErrorCode.NO_FILL -> #gmaNextGen
                 MTLog.w(this, "Failed to received ad! No fill error code: '${adError.code}' ($adError).")
 
