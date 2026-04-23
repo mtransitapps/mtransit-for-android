@@ -110,12 +110,13 @@ class BannerAdListener(
     override fun onAdLoaded() {
         super.onAdLoaded()
         logAdsD(this, "onAdLoaded()")
-        // val responseInfo = ad.getResponseInfo().adapterClassName #gmaNextGen
-        val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName
-        logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName ")
+        // val adapterClassName = ad.getResponseInfo().adapterClassName #gmaNextGen
+        // logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName ")
         this.activityWR.get()?.let { activity ->
             this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
             activity.activity?.runOnUiThread {
+                val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName
+                logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName ")
                 this.bannerAdManager.adaptToScreenSize(
                     activity,
                 ) // showing ads if hidden because of no-fill/network error

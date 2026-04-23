@@ -91,11 +91,12 @@ class InlineBannerAdListener(
     // super.onAdLoaded(ad) #gmaNextGen
     override fun onAdLoaded() {
         super.onAdLoaded()
-        // val responseInfo = ad.getResponseInfo().adapterClassName #gmaNextGen
-        val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName
-        logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName")
+        // val adapterClassName = ad.getResponseInfo().adapterClassName #gmaNextGen
+        // logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName") #gmaNextGen
         this.fragmentWR.get()?.let { fragment ->
             fragment.getActivity()?.runOnUiThread {
+                val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName
+                logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName")
                 this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
                 this.inlineBannerAdManager.adaptToScreenSize(
                     fragment,
