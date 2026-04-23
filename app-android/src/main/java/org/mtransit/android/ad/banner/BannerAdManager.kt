@@ -174,12 +174,18 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) {
-        // DO NOTHING
+    fun resumeAd(activity: IAdScreenActivity) {
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(activity)?.let { adLayout ->
+            getAdView(adLayout)?.resume()
+        }
     }
 
-    fun pauseAd(@Suppress("unused") activity: IAdScreenActivity) {
-        // DO NOTHING
+    fun pauseAd(activity: IAdScreenActivity) {
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(activity)?.let { adLayout ->
+            getAdView(adLayout)?.pause()
+        }
     }
 
     fun getAdLayout(activity: IAdScreenActivity): ViewGroup? =
