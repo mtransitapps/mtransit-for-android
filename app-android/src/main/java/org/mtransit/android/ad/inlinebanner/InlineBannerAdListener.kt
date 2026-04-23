@@ -48,28 +48,28 @@ class InlineBannerAdListener(
         when (adError.code) {
             AdRequest.ERROR_CODE_APP_ID_MISSING ->
                 // LoadAdError.ErrorCode.APP_ID_MISSING -> #gmaNextGen
-                this.crashReporter.w(this, "Failed to received ad! App ID missing: '${adError.code}' ($adError).")
+                this.crashReporter.w(this, "Failed to receive ad! App ID missing: '${adError.code}' ($adError).")
 
             AdRequest.ERROR_CODE_INTERNAL_ERROR ->
                 // LoadAdError.ErrorCode.INTERNAL_ERROR -> #gmaNextGen
-                this.crashReporter.w(this, "Failed to received ad! Internal error code: '${adError.code}' ($adError).")
+                this.crashReporter.w(this, "Failed to receive ad! Internal error code: '${adError.code}' ($adError).")
 
             AdRequest.ERROR_CODE_INVALID_REQUEST ->
                 // LoadAdError.ErrorCode.INVALID_REQUEST -> #gmaNextGen
-                this.crashReporter.w(this, "Failed to received ad! Invalid request error code: '${adError.code}' ($adError).")
+                this.crashReporter.w(this, "Failed to receive ad! Invalid request error code: '${adError.code}' ($adError).")
 
             AdRequest.ERROR_CODE_REQUEST_ID_MISMATCH ->
                 // LoadAdError.ErrorCode.REQUEST_ID_MISMATCH -> #gmaNextGen
-                this.crashReporter.w(this, "Failed to received ad! Request ID mismatch error code: '${adError.code}' ($adError).")
+                this.crashReporter.w(this, "Failed to receive ad! Request ID mismatch error code: '${adError.code}' ($adError).")
 
             AdRequest.ERROR_CODE_NETWORK_ERROR ->
                 // LoadAdError.ErrorCode.NETWORK_ERROR -> #gmaNextGen
-                MTLog.w(this, "Failed to received ad! Network error code: '${adError.code}' ($adError).")
+                MTLog.w(this, "Failed to receive ad! Network error code: '${adError.code}' ($adError).")
 
             AdRequest.ERROR_CODE_MEDIATION_NO_FILL,
             AdRequest.ERROR_CODE_NO_FILL ->
                 // LoadAdError.ErrorCode.NO_FILL -> #gmaNextGen
-                MTLog.w(this, "Failed to received ad! No fill error code: '${adError.code}' ($adError).")
+                MTLog.w(this, "Failed to receive ad! No fill error code: '${adError.code}' ($adError).")
 
             // LoadAdError.ErrorCode.TIMEOUT, #gmaNextGen
             // LoadAdError.ErrorCode.CANCELLED, #gmaNextGen
@@ -77,7 +77,7 @@ class InlineBannerAdListener(
             // LoadAdError.ErrorCode.INVALID_AD_RESPONSE, #gmaNextGen
             // LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,#gmaNextGen
             else
-                -> this.crashReporter.w(this, "Failed to received ad! Error code: '${adError.code}' ($adError).")
+                -> this.crashReporter.w(this, "Failed to receive ad! Error code: '${adError.code}' ($adError).")
         }
         this.fragmentWR.get()?.let { fragment ->
             fragment.getActivity()?.runOnUiThread {

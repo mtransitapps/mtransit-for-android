@@ -124,7 +124,7 @@ class GlobalAdManager(
             )
             .build()
 
-    // private fun InitializationConfig.Builder.disableMediationAdapterInit(@Suppress("unused") context: Context, appId: String) { #gmeNextGen
+    // private fun InitializationConfig.Builder.disableMediationAdapterInit(@Suppress("unused") context: Context, appId: String) { #gmaNextGen
     private fun disableMediationAdapterInit(context: Context, appId: String) {
         if (appId.startsWith(GOOGLE_ADS_TEST_IDS_START_WITH)) {
             // disableMediationAdapterInitialization() // all will fail/timeout #gmaNextGen
