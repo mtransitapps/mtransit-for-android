@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
+import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
@@ -71,6 +72,7 @@ class BannerAdManager @Inject constructor(
         this.adBannerLoaded = loaded
     }
 
+    @MainThread
     fun onResumeScreen(activity: IAdScreenActivity) {
         logAdsD(this, "onResumeScreen($activity)")
         refreshBannerAdStatus(activity, force = loadOnScreenResume)
@@ -123,6 +125,7 @@ class BannerAdManager @Inject constructor(
         return !smallScreen
     }
 
+    @AnyThread
     private fun setupBannerAd(activity: IAdScreenActivity, force: Boolean) {
         logAdsD(this, "setupAd($force) --------------------")
         if (!AdConstants.AD_ENABLED) {
@@ -160,6 +163,7 @@ class BannerAdManager @Inject constructor(
         logAdsD(this, "setupAd() > DONE --------------------")
     }
 
+    @MainThread
     private fun showBannerAd(activity: IAdScreenActivity) {
         getAdLayout(activity)?.let { adLayout ->
             getAdView(adLayout)?.isVisibleOnce = true
@@ -167,6 +171,7 @@ class BannerAdManager @Inject constructor(
         }
     }
 
+    @MainThread
     fun hideBannerAd(activity: IAdScreenActivity) {
         getAdLayout(activity)?.let { adLayout ->
             adLayout.isVisibleOnce = false
@@ -174,12 +179,24 @@ class BannerAdManager @Inject constructor(
         }
     }
 
-    fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) {
-        // DO NOTHING
+    @MainThread
+    // fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) { #gmaNextGen
+    // DO NOTHING #gmaNextGen
+    fun resumeAd(activity: IAdScreenActivity) {
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(activity)?.let { adLayout ->
+            getAdView(adLayout)?.resume()
+        }
     }
 
-    fun pauseAd(@Suppress("unused") activity: IAdScreenActivity) {
-        // DO NOTHING
+    @MainThread
+    // fun pauseAd(@Suppress("unused") activity: IAdScreenActivity) { #gmaNextGen
+    // DO NOTHING #gmaNextGen
+    fun pauseAd(activity: IAdScreenActivity) {
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(activity)?.let { adLayout ->
+            getAdView(adLayout)?.pause()
+        }
     }
 
     fun getAdLayout(activity: IAdScreenActivity): ViewGroup? =

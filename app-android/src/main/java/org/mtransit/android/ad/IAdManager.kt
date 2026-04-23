@@ -2,6 +2,8 @@ package org.mtransit.android.ad
 
 import android.content.res.Configuration
 import androidx.annotation.AnyThread
+import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 import org.mtransit.android.ui.view.common.IActivity
 
 interface IAdManager {
@@ -45,22 +47,29 @@ interface IAdManager {
 
     fun destroyAd(activity: IAdScreenActivity)
 
+    val rewardedUntilInMsLive: LiveData<Long>
+    val rewardedNowLive: LiveData<Boolean>
+
+    @WorkerThread
     fun getRewardedUntilInMs(): Long
 
     fun resetRewarded()
 
+    @WorkerThread
     fun isRewardedNow(): Boolean
 
     fun setRewardedAdListener(rewardedAdListener: RewardedAdListener?)
 
     fun openAdInspector(activity: IActivity)
 
+    @WorkerThread
     fun shouldSkipRewardedAd(): Boolean
 
     interface RewardedAdListener {
         @AnyThread
         fun onRewardedAdStatusChanged()
 
+        @WorkerThread
         fun skipRewardedAd(): Boolean
     }
 }

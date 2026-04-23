@@ -19,6 +19,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
@@ -40,7 +41,6 @@ import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.ui.view.common.IActivity;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +69,11 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	}
 
 	@NonNull
-	private final Observer<String> currentSubObserver = s -> { /* do nothing */ };
+	private final Observer<String> noOpStringObserver = s -> { /* do nothing */ };
+	@NonNull
+	private final Observer<Boolean> noOpBooleanObserver = s -> { /* do nothing */ };
+	@NonNull
+	private final Observer<Long> noOpLongObserver = s -> { /* do nothing */ };
 
 	@Nullable
 	private Observer<Map<String, ProductDetails>> newProductDetailsObserver;
@@ -112,8 +116,10 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.newProductDetailsObserver = this::onNewProductId;
-		getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);
+		getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.noOpStringObserver);
 		getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X
+		getEntryPoint(requireContext()).adManager().getRewardedUntilInMsLive().observeForever(this.noOpLongObserver); // NOT ANDROID X
+		getEntryPoint(requireContext()).adManager().getRewardedNowLive().observeForever(this.noOpBooleanObserver); // NOT ANDROID X
 	}
 
 	@Override
@@ -123,9 +129,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	}
 
 	private void setupView(View view) {
-		if (view == null) {
-			return;
-		}
+		if (view == null) return;
 		view.findViewById(R.id.buyBtn).setOnClickListener(v ->
 				onBuyBtnClick(v.getContext())
 		);
@@ -175,7 +179,9 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		if (this.newProductDetailsObserver != null) {
 			getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);
 		}
-		getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);
+		getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.noOpStringObserver);
+		getEntryPoint(requireContext()).adManager().getRewardedUntilInMsLive().removeObserver(this.noOpLongObserver);
+		getEntryPoint(requireContext()).adManager().getRewardedNowLive().removeObserver(this.noOpBooleanObserver);
 	}
 
 	@Override
@@ -305,10 +311,10 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		iAdManager.linkRewardedAd(this);
 		iAdManager.refreshRewardedAdStatus(this);
 		showLoading();
-		View view = getView();
+		final View view = getView();
 		if (view != null) {
-			((Button) view.findViewById(R.id.downloadOrOpenPaidTasksBtn)).setText( //
-					PackageManagerUtils.isAppInstalled(view.getContext(), PAID_TASKS_PKG) ? //
+			((Button) view.findViewById(R.id.downloadOrOpenPaidTasksBtn)).setText(
+					PackageManagerUtils.isAppInstalled(view.getContext(), PAID_TASKS_PKG) ?
 							R.string.support_paid_tasks_incentive_open_btn
 							: R.string.support_paid_tasks_incentive_download_btn);
 			refreshRewardedLayout(view);
@@ -324,9 +330,17 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@MainThread
 	private void refreshRewardedLayout(@NonNull View view) {
 		final IAdManager adManager = getEntryPoint(view.getContext()).adManager();
+		final Boolean rewardedNow = adManager.getRewardedNowLive().getValue();
+		if (rewardedNow == null) {
+			MTLog.w(this, "refreshRewardedLayout() > skip (rewardedNow is null)");
+			return;
+		}
+		final Long rewardedUntilInMs = adManager.getRewardedUntilInMsLive().getValue();
+		if (rewardedUntilInMs == null) {
+			MTLog.w(this, "refreshRewardedLayout() > skip (rewardedUntilInMs is null)");
+			return;
+		}
 		final boolean availableToShow = adManager.isRewardedAdAvailableToShow();
-		final boolean rewardedNow = adManager.isRewardedNow();
-		final long rewardedUntilInMs = adManager.getRewardedUntilInMs();
 		final int rewardedAmount = adManager.getRewardedAdAmount();
 
 		final View rewardedDivider = view.findViewById(R.id.paidTasksDivider2);
@@ -361,12 +375,11 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		}
 	}
 
+	@WorkerThread
 	@Override
 	public boolean skipRewardedAd() {
 		final IAdManager adManager = getEntryPoint(requireContext()).adManager();
-		if (!adManager.isRewardedNow()) {
-			return false; // never skip for non-rewarded users
-		}
+		if (!adManager.isRewardedNow()) return false; // never skip for non-rewarded users
 		final long rewardedUntilInMs = adManager.getRewardedUntilInMs();
 		final long skipRewardedAdUntilInMs = TimeUtils.currentTimeMillis()
 				- TimeUnit.HOURS.toMillis(1L) // accounts for "recent" rewards
@@ -509,7 +522,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				defaultPeriodS = periodS;
 			}
 		}
-		Collections.sort(this.periods, (lPeriodS, rPeriodS) -> {
+		this.periods.sort((lPeriodS, rPeriodS) -> {
 			try {
 				String lPriceCat = PurchaseDialogFragment.this.periodSToPeriodCat.get(lPeriodS);
 				int lIndexOf = SORTED_PERIOD_CAT.indexOf(lPriceCat);
@@ -521,7 +534,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				return 0;
 			}
 		});
-		Collections.sort(this.prices, (lPriceS, rPeriods) -> {
+		this.prices.sort((lPriceS, rPeriods) -> {
 			try {
 				String lPriceCat = PurchaseDialogFragment.this.priceSToPriceCat.get(lPriceS);
 				int lIndexOf = lPriceCat == null || !TextUtils.isDigitsOnly(lPriceCat) ? -1 : Integer.parseInt(lPriceCat);

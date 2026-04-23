@@ -15,6 +15,7 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -299,9 +300,8 @@ class NextMainActivity : MTActivityWithLocation(),
         // DO NOTHING
     }
 
-    override fun skipRewardedAd(): Boolean {
-        return adManager.shouldSkipRewardedAd()
-    }
+    @WorkerThread
+    override fun skipRewardedAd() = adManager.shouldSkipRewardedAd()
 
     var isMTResumed = false
 

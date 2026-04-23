@@ -30,6 +30,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.WorkerThread;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
@@ -557,6 +558,8 @@ public class POIFragment extends ABFragment implements
 		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
 			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
 		}
+		this.adManager.getRewardedUntilInMsLive().observe(getViewLifecycleOwner(), rewardedUntilInMs -> refreshRewardedLayout());
+		this.adManager.getRewardedNowLive().observe(getViewLifecycleOwner(), rewardedNow -> refreshRewardedLayout());
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
@@ -1155,6 +1158,7 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
+	@WorkerThread
 	@Override
 	public boolean skipRewardedAd() {
 		return this.adManager.shouldSkipRewardedAd();
@@ -1175,13 +1179,15 @@ public class POIFragment extends ABFragment implements
 	private void refreshRewardedLayout() {
 		final LayoutPoiRewardedAdBinding rewardedLayout = this.binding == null ? null : this.binding.poiRewardedAd;
 		if (rewardedLayout == null) return;
+		final Long rewardedUntilInMs = this.adManager.getRewardedUntilInMsLive().getValue();
+		if (rewardedUntilInMs == null) return;
+		final Boolean rewardedNow = this.adManager.getRewardedNowLive().getValue();
+		if (rewardedNow == null) return;
+		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
+		final int rewardedAmount = this.adManager.getRewardedAdAmount();
+
 		final TextView rewardedAdTitleTv = rewardedLayout.rewardedAdsTitleLayout.rewardAdTitle;
 		final TextView rewardedAdsBtn = rewardedLayout.rewardedAdsBtn;
-
-		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
-		final boolean rewardedNow = this.adManager.isRewardedNow();
-		final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
-		final int rewardedAmount = this.adManager.getRewardedAdAmount();
 
 		rewardedLayout.getRoot().setVisibility(availableToShow ? View.VISIBLE : View.GONE);
 
