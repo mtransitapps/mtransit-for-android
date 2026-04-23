@@ -1,10 +1,14 @@
 package org.mtransit.android.ad
 
+import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
-import com.google.android.libraries.ads.mobile.sdk.MobileAds
-import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration
-import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
+// import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig #gmaNextGen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -111,28 +115,41 @@ class GlobalAdManager(
         }
     }
 
+    private fun makeAdsRequestConfig(context: Context) =
+        RequestConfiguration.Builder()
+            .setTestDeviceIds(
+                listOf(*context.resources.getStringArray(R.array.google_ads_test_devices_ids))
+                        + listOf(AdRequest.DEVICE_ID_EMULATOR)
+                // Android emulators are automatically configured as test devices. #gmaNextGen
+            )
+            .build()
+
+    // private fun InitializationConfig.Builder.disableMediationAdapterInit(@Suppress("unused") context: Context, appId: String) { #gmaNextGen
+    private fun disableMediationAdapterInit(context: Context, appId: String) {
+        if (appId.startsWith(GOOGLE_ADS_TEST_IDS_START_WITH)) {
+            // disableMediationAdapterInitialization() // all will fail/timeout #gmaNextGen
+            MobileAds.disableMediationAdapterInitialization(context) // all will fail/timeout
+        }
+    }
+
     @WorkerThread
     private fun initOnBackgroundThread(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
         // https://developers.google.com/admob/android/next-gen/quick-start
-        val appId = activity.requireContext().getString(R.string.google_ads_app_id)
+        val context = activity.requireContext()
+        val appId = context.getString(R.string.google_ads_app_id)
+        // val initConfig = InitializationConfig.Builder(applicationId = appId) #gmaNextGen
+        //     .apply { #gmaNextGen
+        if (Constants.DEBUG && Constants.IS_DEBUG_BUILD) {
+            // setRequestConfiguration(makeAdsRequestConfig(context)) #gmaNextGen
+            MobileAds.setRequestConfiguration(makeAdsRequestConfig(context))
+            disableMediationAdapterInit(context, appId)
+        }
+        //     } #gmaNextGen
+        // } #gmaNextGen
+        // .build() #gmaNextGen
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
-            InitializationConfig.Builder(applicationId = appId)
-                .apply {
-                    if (Constants.DEBUG && Constants.IS_DEBUG_BUILD) {
-                        setRequestConfiguration(
-                            RequestConfiguration.Builder()
-                                .setTestDeviceIds( // Android emulators are automatically configured as test devices.
-                                    listOf(*activity.requireContext().resources.getStringArray(R.array.google_ads_test_devices_ids))
-                                )
-                                .build()
-                        )
-                        if (appId.startsWith(GOOGLE_ADS_TEST_IDS_START_WITH)) {
-                            disableMediationAdapterInitialization() // all will fail/timeout
-                        }
-                    }
-                }
-                .build(),
+            // initConfig, #gmaNextGen
         ) { initializationStatus ->
             this.initialized.set(true)
             this.initializing.set(false)

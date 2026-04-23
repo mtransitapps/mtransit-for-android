@@ -1,13 +1,20 @@
 package org.mtransit.android.ad
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.annotation.MainThread
-import com.google.android.libraries.ads.mobile.sdk.MobileAds
-import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
-import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest
-import com.google.android.libraries.ads.mobile.sdk.common.AdInspectorError
-import com.google.android.libraries.ads.mobile.sdk.common.AdRequest
+import com.google.ads.mediation.admob.AdMobAdapter
+import com.google.android.gms.ads.AdInspectorError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.MobileAds
+import dagger.hilt.android.qualifiers.ApplicationContext
+// import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdSize #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.AdInspectorError #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.AdRequest #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedAdManager
@@ -29,6 +36,7 @@ import javax.inject.Inject
  * - https://developers.google.com/admob/android/test-ads
  */
 class AdManager @Inject internal constructor(
+    @param:ApplicationContext private val appContext: Context,
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,
     private val rewardedAdManager: RewardedAdManager,
@@ -39,21 +47,27 @@ class AdManager @Inject internal constructor(
         val LOG_TAG: String = AdManager::class.java.simpleName
 
         fun getAdRequest(
-            adUnitId: String,
-        ) = AdRequest.Builder(adUnitId).apply {
+            @Suppress("unused") adUnitId: String,
+            // ) = AdRequest.Builder(adUnitId).apply { #gmaNextGen
+        ) = AdRequest.Builder().apply {
             AdConstants.KEYWORDS.forEach { addKeyword(it) }
         }.build()
 
         fun getBannerAdRequest(
-            adUnitId: String,
-            adSize: AdSize,
+            @Suppress("unused") adUnitId: String,
+            @Suppress("unused") adSize: AdSize,
             collapsible: Boolean = false,
-        ) = BannerAdRequest.Builder(adUnitId, adSize).apply {
+            // ) = BannerAdRequest.Builder(adUnitId, adSize).apply { #gmaNextGen
+        ) = AdRequest.Builder().apply {
             AdConstants.KEYWORDS.forEach { addKeyword(it) }
             if (collapsible) {
-                setGoogleExtrasBundle(Bundle().apply {
-                    putString("collapsible", "bottom")
-                })
+                // setGoogleExtrasBundle( #gmaNextGen
+                addNetworkExtrasBundle(
+                    AdMobAdapter::class.java,
+                    Bundle().apply {
+                        putString("collapsible", "bottom")
+                    }
+                )
             }
         }.build()
     }
@@ -128,8 +142,9 @@ class AdManager @Inject internal constructor(
 
     // endregion Rewarded Ads
 
-    override fun openAdInspector() {
-        MobileAds.openAdInspector { error: AdInspectorError? ->
+    override fun openAdInspector(activity:IActivity) {
+        // MobileAds.openAdInspector { error: AdInspectorError? -> #gmaNextGen
+        MobileAds.openAdInspector(activity.requireActivity()) { error: AdInspectorError? ->
             if (error == null) {
                 logAdsD(this@AdManager, "Ad inspector closed.")
             } else {

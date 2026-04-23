@@ -41,6 +41,7 @@ import org.mtransit.android.ui.feedback.FeedbackDialog
 import org.mtransit.android.ui.modules.ModulesActivity
 import org.mtransit.android.ui.pref.PreferencesViewModel
 import org.mtransit.android.ui.setUpListEdgeToEdge
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
@@ -238,7 +239,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             true // handled
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_AD_INSPECTOR_PREF) as? Preference)?.setOnPreferenceClickListener {
-            viewModel.openAdInspector()
+            (activity as? IActivity)?.let { viewModel.openAdInspector(it) }
             true // handled
         }
         (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_POWER_MANAGEMENT_PREF) as? Preference)?.apply {

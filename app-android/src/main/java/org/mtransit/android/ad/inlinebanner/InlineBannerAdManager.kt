@@ -3,8 +3,10 @@ package org.mtransit.android.ad.inlinebanner
 import android.os.Build
 import android.view.ViewGroup
 import androidx.annotation.MainThread
-import com.google.android.libraries.ads.mobile.sdk.banner.AdSize
-import com.google.android.libraries.ads.mobile.sdk.banner.AdView
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdSize #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdView #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD

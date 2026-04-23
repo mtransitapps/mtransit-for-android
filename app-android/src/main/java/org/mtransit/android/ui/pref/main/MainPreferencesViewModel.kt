@@ -16,6 +16,7 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.LanguageManager
 import javax.inject.Inject
 
@@ -118,8 +119,8 @@ class MainPreferencesViewModel @Inject constructor(
         adManager.resetRewarded()
     }
 
-    fun openAdInspector() {
-        adManager.openAdInspector()
+    fun openAdInspector(activity: IActivity) {
+        adManager.openAdInspector(activity)
     }
 
     fun refreshData() {
