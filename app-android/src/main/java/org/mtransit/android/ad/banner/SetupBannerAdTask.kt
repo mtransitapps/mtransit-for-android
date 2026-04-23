@@ -5,7 +5,8 @@ import androidx.annotation.MainThread
 import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import androidx.core.view.isVisible
-import com.google.android.libraries.ads.mobile.sdk.banner.AdView
+import com.google.android.gms.ads.AdView
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdView #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
@@ -60,12 +61,13 @@ class SetupBannerAdTask(
                 val adView = this.bannerAdManager.getAdView(adLayout)
                     ?: makeNewAdView(activity, adLayout)
                 adView.loadAd(
-                    adRequest = AdManager.getBannerAdRequest(
+                    // adRequest =
+                    AdManager.getBannerAdRequest(
                         adUnitId = activity.requireActivity().getString(adUnitStringResId),
                         adSize = bannerAdManager.getAdSize(activity),
                         collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE
                     ),
-                    adLoadCallback = BannerAdListener(bannerAdManager, crashReporter, remoteConfigProvider, activity)
+                    // adLoadCallback = BannerAdListener(bannerAdManager, crashReporter, remoteConfigProvider, activity) #gmaNextGen
                 )
             }
         } else if (!isShowingAds) { // hide ads
@@ -88,8 +90,12 @@ class SetupBannerAdTask(
             )
             isVisible = false
             id = R.id.ad
+            adUnitId = activity.requireContext().getString(adUnitStringResId)
         }.also {
             adLayout.removeAllViews()
             adLayout.addView(it)
+        }.apply {
+            setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once
+            adListener = BannerAdListener(bannerAdManager, crashReporter, remoteConfigProvider, activity, adView = this)
         }
 }

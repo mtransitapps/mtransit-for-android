@@ -1,7 +1,10 @@
 package org.mtransit.android.ad.rewarded
 
-import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
-import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAdEventCallback
+
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.FullScreenContentCallback
+// import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAdEventCallback #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
@@ -13,7 +16,9 @@ class RewardedAdFullScreenContentCallback(
     private val rewardedAdManager: RewardedAdManager,
     private val crashReporter: CrashReporter,
     private val activityWR: WeakReference<IActivity>,
-) : RewardedAdEventCallback, MTLog.Loggable {
+    // ) : RewardedAdEventCallback, #gmaNextGen
+) : FullScreenContentCallback(),
+    MTLog.Loggable {
 
     constructor(
         rewardedAdManager: RewardedAdManager,
@@ -40,13 +45,15 @@ class RewardedAdFullScreenContentCallback(
         }
     }
 
-    override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) {
+    // override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) { #gmaNextGen
+    override fun onAdFailedToShowFullScreenContent(fullScreenContentError: AdError) {
         super.onAdFailedToShowFullScreenContent(fullScreenContentError)
         this.crashReporter.w(
             this,
             "Failed to show rewarded ad! ${fullScreenContentError.code}: " +
                     "'${fullScreenContentError.message}' " +
-                    "(${fullScreenContentError.mediationAdError})."
+                    // "(${fullScreenContentError.mediationAdError})." #gmaNextGen
+                    "(${fullScreenContentError.domain})."
         )
     }
 

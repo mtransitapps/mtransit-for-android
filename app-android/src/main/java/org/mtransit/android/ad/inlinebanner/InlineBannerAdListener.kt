@@ -1,9 +1,13 @@
 package org.mtransit.android.ad.inlinebanner
 
 import androidx.annotation.AnyThread
-import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd
-import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
-import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+// import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
@@ -15,16 +19,21 @@ class InlineBannerAdListener(
     private val inlineBannerAdManager: InlineBannerAdManager,
     private val crashReporter: CrashReporter,
     private val fragmentWR: WeakReference<IFragment>,
-) : AdLoadCallback<BannerAd>, MTLog.Loggable {
+    private val adViewWR: WeakReference<AdView>,
+    // ) : AdLoadCallback<BannerAd>, #gmaNextGen
+) : AdListener(),
+    MTLog.Loggable {
 
     constructor(
         inlineBannerAdManager: InlineBannerAdManager,
         crashReporter: CrashReporter,
         fragment: IFragment,
+        adView: AdView,
     ) : this(
         inlineBannerAdManager = inlineBannerAdManager,
         crashReporter = crashReporter,
         fragmentWR = WeakReference(fragment),
+        adViewWR = WeakReference(adView)
     )
 
     companion object {
@@ -37,43 +46,37 @@ class InlineBannerAdListener(
     override fun onAdFailedToLoad(adError: LoadAdError) {
         super.onAdFailedToLoad(adError)
         when (adError.code) {
-            LoadAdError.ErrorCode.APP_ID_MISSING -> this.crashReporter.w(
-                this,
-                "Failed to received ad! App ID missing: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_APP_ID_MISSING ->
+                // LoadAdError.ErrorCode.APP_ID_MISSING -> #gmaNextGen
+                this.crashReporter.w(this, "Failed to received ad! App ID missing: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.INTERNAL_ERROR -> this.crashReporter.w(
-                this,
-                "Failed to received ad! Internal error code: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_INTERNAL_ERROR ->
+                // LoadAdError.ErrorCode.INTERNAL_ERROR -> #gmaNextGen
+                this.crashReporter.w(this, "Failed to received ad! Internal error code: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.INVALID_REQUEST -> this.crashReporter.w(
-                this,
-                "Failed to received ad! Invalid request error code: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_INVALID_REQUEST ->
+                // LoadAdError.ErrorCode.INVALID_REQUEST -> #gmaNextGen
+                this.crashReporter.w(this, "Failed to received ad! Invalid request error code: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.REQUEST_ID_MISMATCH -> this.crashReporter.w(
-                this,
-                "Failed to received ad! Request ID mismatch error code: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_REQUEST_ID_MISMATCH ->
+                // LoadAdError.ErrorCode.REQUEST_ID_MISMATCH -> #gmaNextGen
+                this.crashReporter.w(this, "Failed to received ad! Request ID mismatch error code: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.NETWORK_ERROR -> MTLog.w(this, "Failed to received ad! Network error code: '%s' (%s).", adError.code, adError)
+            AdRequest.ERROR_CODE_NETWORK_ERROR ->
+                // LoadAdError.ErrorCode.NETWORK_ERROR -> #gmaNextGen
+                MTLog.w(this, "Failed to received ad! Network error code: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.NO_FILL -> MTLog.w(this, "Failed to received ad! No fill error code: '%s' (%s).", adError.code, adError)
-            LoadAdError.ErrorCode.TIMEOUT,
-            LoadAdError.ErrorCode.CANCELLED,
-            LoadAdError.ErrorCode.NOT_FOUND,
-            LoadAdError.ErrorCode.INVALID_AD_RESPONSE,
-            LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,
-                -> this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", adError.code, adError)
+            AdRequest.ERROR_CODE_MEDIATION_NO_FILL ->
+                // LoadAdError.ErrorCode.NO_FILL -> #gmaNextGen
+                MTLog.w(this, "Failed to received ad! No fill error code: '${adError.code}' ($adError).")
+
+            // LoadAdError.ErrorCode.TIMEOUT, #gmaNextGen
+            // LoadAdError.ErrorCode.CANCELLED, #gmaNextGen
+            // LoadAdError.ErrorCode.NOT_FOUND, #gmaNextGen
+            // LoadAdError.ErrorCode.INVALID_AD_RESPONSE, #gmaNextGen
+            // LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,#gmaNextGen
+            else
+                -> this.crashReporter.w(this, "Failed to received ad! Error code: '${adError.code}' ($adError).")
         }
         this.fragmentWR.get()?.let { fragment ->
             fragment.getActivity()?.runOnUiThread {
@@ -84,9 +87,13 @@ class InlineBannerAdListener(
     }
 
     @AnyThread
-    override fun onAdLoaded(ad: BannerAd) {
-        super.onAdLoaded(ad)
-        logAdsD(this, "onAdLoaded() > ad loaded from ${ad.getResponseInfo().adapterClassName}")
+    // override fun onAdLoaded(ad: BannerAd) { #gmaNextGen
+    // super.onAdLoaded(ad) #gmaNextGen
+    override fun onAdLoaded() {
+        super.onAdLoaded()
+        // val responseInfo = ad.getResponseInfo().adapterClassName #gmaNextGen
+        val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName
+        logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName")
         this.fragmentWR.get()?.let { fragment ->
             fragment.getActivity()?.runOnUiThread {
                 this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)

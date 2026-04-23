@@ -5,7 +5,8 @@ import androidx.annotation.MainThread
 import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import androidx.core.view.isVisible
-import com.google.android.libraries.ads.mobile.sdk.banner.AdView
+import com.google.android.gms.ads.AdView
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdView #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
@@ -55,11 +56,12 @@ class SetupInlineBannerAdTask(
                 val adView = this.inlineBannerAdManager.getAdView(adLayout)
                     ?: makeNewAdView(fragment, adLayout)
                 adView.loadAd(
-                    adRequest = AdManager.getBannerAdRequest(
+                    // adRequest =
+                    AdManager.getBannerAdRequest(
                         adUnitId = fragment.requireActivity().getString(adUnitStringResId),
                         adSize = inlineBannerAdManager.getAdSize(fragment),
                     ),
-                    adLoadCallback = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment)
+                    // adLoadCallback = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment) #gmaNextGen
                 )
             }
         } else { // hide ads
@@ -78,8 +80,12 @@ class SetupInlineBannerAdTask(
             )
             isVisible = false
             id = R.id.inline_banner_ad
+            adUnitId = fragment.requireContext().getString(adUnitStringResId)
         }.also {
             adLayout.removeAllViews()
             adLayout.addView(it)
+        }.apply {
+            setAdSize(inlineBannerAdManager.getAdSize(fragment)) // ad size can only be set once
+            adListener = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment, adView = this)
         }
 }

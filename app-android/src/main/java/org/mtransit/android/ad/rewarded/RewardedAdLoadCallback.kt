@@ -1,9 +1,13 @@
 package org.mtransit.android.ad.rewarded
 
 import androidx.annotation.AnyThread
-import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback
-import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError
-import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+// import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
@@ -12,7 +16,9 @@ import org.mtransit.android.dev.CrashReporter
 class RewardedAdLoadCallback(
     private val rewardedAdManager: RewardedAdManager,
     private val crashReporter: CrashReporter,
-) : AdLoadCallback<RewardedAd>, MTLog.Loggable {
+    // ) : AdLoadCallback<RewardedAd>, #gmaNextGen
+) : RewardedAdLoadCallback(),
+    MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedAdLoadCallback::class.java.simpleName}"
@@ -23,7 +29,9 @@ class RewardedAdLoadCallback(
     @AnyThread
     override fun onAdLoaded(ad: RewardedAd) {
         super.onAdLoaded(ad)
-        logAdsD(this, "onAdLoaded() > Rewarded ad loaded from ${ad.getResponseInfo().adapterClassName}.")
+        // val adapterClassName = ad.getResponseInfo().adapterClassName #gmaNextGen
+        val adapterClassName = ad.responseInfo.mediationAdapterClassName
+        logAdsD(this, "onAdLoaded() > Rewarded ad loaded from $adapterClassName.")
         this.rewardedAdManager.setRewardedAd(ad)
         this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
     }
@@ -34,54 +42,37 @@ class RewardedAdLoadCallback(
         this.rewardedAdManager.setRewardedAd(null)
         this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
         when (adError.code) {
-            LoadAdError.ErrorCode.APP_ID_MISSING -> this.crashReporter.w(
-                this,
-                "Failed to received rewarded ad! App ID missing: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_APP_ID_MISSING ->
+                // LoadAdError.ErrorCode.APP_ID_MISSING -> #gmaNextGen
+                this.crashReporter.w(this, "Failed to received rewarded ad! App ID missing: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.INTERNAL_ERROR -> this.crashReporter.w(
-                this,
-                "Failed to received rewarded ad! Internal error code: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_INTERNAL_ERROR ->
+                // LoadAdError.ErrorCode.INTERNAL_ERROR -> #gmaNextGen
+                this.crashReporter.w(this, "Failed to received rewarded ad! Internal error code: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.INVALID_REQUEST -> this.crashReporter.w(
-                this,
-                "Failed to received rewarded ad! Invalid request error code: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_INVALID_REQUEST ->
+                // LoadAdError.ErrorCode.INVALID_REQUEST -> #gmaNextGen
+                this.crashReporter.w(this, "Failed to received rewarded ad! Invalid request error code: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.REQUEST_ID_MISMATCH -> this.crashReporter.w(
-                this,
-                "Failed to received rewarded ad! Request ID mismatch error code: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_REQUEST_ID_MISMATCH ->
+                // LoadAdError.ErrorCode.REQUEST_ID_MISMATCH -> #gmaNextGen
+                this.crashReporter.w(this, "Failed to received rewarded ad! Request ID mismatch error code: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.NETWORK_ERROR -> MTLog.w(
-                this,
-                "Failed to received rewarded ad! Network error code: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_NETWORK_ERROR ->
+                // LoadAdError.ErrorCode.NETWORK_ERROR -> #gmaNextGen
+                MTLog.w(this, "Failed to received rewarded ad! Network error code: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.NO_FILL -> this.crashReporter.w(
-                this,
-                "Failed to received rewarded ad! No fill error code: '%s' (%s).",
-                adError.code,
-                adError
-            )
+            AdRequest.ERROR_CODE_MEDIATION_NO_FILL ->
+                // LoadAdError.ErrorCode.NO_FILL -> #gmaNextGen
+                this.crashReporter.w(this, "Failed to received rewarded ad! No fill error code: '${adError.code}' ($adError).")
 
-            LoadAdError.ErrorCode.TIMEOUT,
-            LoadAdError.ErrorCode.CANCELLED,
-            LoadAdError.ErrorCode.NOT_FOUND,
-            LoadAdError.ErrorCode.INVALID_AD_RESPONSE,
-            LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,
-                -> this.crashReporter.w(this, "Failed to received rewarded ad! Error code: '%s' (%s).", adError.code, adError)
+            // LoadAdError.ErrorCode.TIMEOUT, #gmaNextGen
+            // LoadAdError.ErrorCode.CANCELLED, #gmaNextGen
+            // LoadAdError.ErrorCode.NOT_FOUND, #gmaNextGen
+            // LoadAdError.ErrorCode.INVALID_AD_RESPONSE, #gmaNextGen
+            // LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,#gmaNextGen
+            else
+                -> this.crashReporter.w(this, "Failed to received rewarded ad! Error code: '${adError.code}' ($adError).")
         }
     }
 }

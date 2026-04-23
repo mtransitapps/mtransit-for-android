@@ -1,7 +1,9 @@
 package org.mtransit.android.ad.rewarded
 
-import com.google.android.libraries.ads.mobile.sdk.rewarded.OnUserEarnedRewardListener
-import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardItem
+import com.google.android.gms.ads.OnUserEarnedRewardListener
+import com.google.android.gms.ads.rewarded.RewardItem
+// import com.google.android.libraries.ads.mobile.sdk.rewarded.OnUserEarnedRewardListener #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardItem #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager

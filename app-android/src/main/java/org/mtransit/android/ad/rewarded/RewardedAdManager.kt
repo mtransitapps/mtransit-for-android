@@ -1,7 +1,8 @@
 package org.mtransit.android.ad.rewarded
 
 import androidx.annotation.StringRes
-import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAd
+// import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -57,6 +58,8 @@ class RewardedAdManager @Inject constructor(
             this.rewardedAdActivityHashCode = theActivity.hashCode()
             logAdsD(this, "loadRewardedAdForActivity() > Loading rewarded ad for ${theActivity::class.java.simpleName}...")
             RewardedAd.load(
+                theActivity,
+                theActivity.getString(adUnitStringResId),
                 AdManager.getAdRequest(
                     adUnitId = theActivity.getString(adUnitStringResId)
                 ),
@@ -136,7 +139,8 @@ class RewardedAdManager @Inject constructor(
 
         val theActivity = activity.requireActivity()
         logAdsD(this, "showRewardedAd() > Showing rewarded ad for ${theActivity::class.java.simpleName}...")
-        this.rewardedAd?.adEventCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
+        // this.rewardedAd?.adEventCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity) #gmaNextGen
+        this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
         val showCounts = this.defaultPrefRepository.getValue(
             DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS,
