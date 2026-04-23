@@ -62,7 +62,8 @@ class RewardedAdLoadCallback(
                 // LoadAdError.ErrorCode.NETWORK_ERROR -> #gmaNextGen
                 MTLog.w(this, "Failed to received rewarded ad! Network error code: '${adError.code}' ($adError).")
 
-            AdRequest.ERROR_CODE_MEDIATION_NO_FILL ->
+            AdRequest.ERROR_CODE_MEDIATION_NO_FILL,
+            AdRequest.ERROR_CODE_NO_FILL ->
                 // LoadAdError.ErrorCode.NO_FILL -> #gmaNextGen
                 this.crashReporter.w(this, "Failed to received rewarded ad! No fill error code: '${adError.code}' ($adError).")
 
