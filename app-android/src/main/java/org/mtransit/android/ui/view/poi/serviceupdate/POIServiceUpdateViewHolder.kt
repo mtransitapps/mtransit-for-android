@@ -30,26 +30,27 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
     }
 
     fun fetchAndUpdate(poim: POIManager, dataProvider: ServiceUpdateLoaderProvider) {
-        val allServiceUpdates = fetch(dataProvider, poim)
-        serviceUpdateImg?.update(allServiceUpdates, dataProvider, other = false)
-        otherServiceUpdateImg?.update(allServiceUpdates, dataProvider, other = true)
+        update(
+            allServiceUpdates = fetch(dataProvider, poim),
+            dataProvider,
+        )
     }
 
     fun fetch(
         dataProvider: ServiceUpdateLoaderProvider,
         poim: POIManager
-    ): List<ServiceUpdate>? {
+    ): List<ServiceUpdate> {
         return if (dataProvider.isShowingServiceUpdates && serviceUpdateImg != null) {
             poim.addServiceUpdateLoaderListener(dataProvider)
             poim.getServiceUpdates(
                 dataProvider.providesServiceUpdateLoader(),
                 emptyList() // filter later
             )
-        } else null
+        } else emptyList()
     }
 
     fun update(
-        allServiceUpdates: List<ServiceUpdate>?,
+        allServiceUpdates: List<ServiceUpdate>,
         dataProvider: ServiceUpdateLoaderProvider,
     ) {
         serviceUpdateImg?.update(allServiceUpdates, dataProvider, other = false)
@@ -57,7 +58,7 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
     }
 
     private fun ImageView.update(
-        allServiceUpdates: List<ServiceUpdate>?,
+        allServiceUpdates: List<ServiceUpdate>,
         dataProvider: ServiceUpdateLoaderProvider,
         other: Boolean,
     ) {
@@ -66,12 +67,12 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
             return
         }
         val filteredServiceUpdates = allServiceUpdates
-            ?.filter { !dataProvider.ignoredTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID) }
-            ?.filter {
+            .filter { !dataProvider.ignoredTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID) }
+            .filter {
                 if (other) ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
                 else !ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
             }
-            ?.distinctByOriginalId()
+            .distinctByOriginalId()
         val (isWarning, isInfo) = filteredServiceUpdates.isSeverityWarningInfo()
         if (isWarning) {
             this.setImageResource(R.drawable.ic_warning_on_surface_16dp)
@@ -102,7 +103,7 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
         @JvmStatic
         fun updateView(
             serviceUpdateViewHolder: POIServiceUpdateViewHolder?,
-            allServiceUpdates: List<ServiceUpdate>?,
+            allServiceUpdates: List<ServiceUpdate>,
             dataProvider: ServiceUpdateLoaderProvider
         ) {
             serviceUpdateViewHolder?.update(allServiceUpdates, dataProvider)

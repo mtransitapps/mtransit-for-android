@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources,InconsistentArrays">
-    <integer name="twitter_db_version">11</integer>
     <string name="twitter_target_for_poi_authority" />
     <string name="twitter_color">000000</string>
     <string-array name="twitter_screen_names">
@@ -8,15 +7,6 @@
     </string-array>
     <string-array name="twitter_screen_names_id">
         <item>329993645</item>
-    </string-array>
-    <string-array name="twitter_screen_names_lang">
-        <item>@string/news_provider_language_unknown_show_all</item>
-    </string-array>
-    <string-array name="twitter_screen_names_colors">
-        <item>@string/twitter_color</item>
-    </string-array>
-    <string-array name="twitter_screen_names_target">
-        <item>@string/twitter_target_for_poi_authority</item>
     </string-array>
     <integer-array name="twitter_screen_names_severity">
         <item>@integer/news_provider_severity_none</item>

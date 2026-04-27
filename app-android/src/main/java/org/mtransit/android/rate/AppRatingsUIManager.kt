@@ -19,13 +19,13 @@ import org.mtransit.android.commons.MTLog
 
 object AppRatingsUIManager : MTLog.Loggable {
 
-    private val LOG_TAG = AppRatingsUIManager::class.java.simpleName
+    private val LOG_TAG: String = AppRatingsUIManager::class.java.simpleName
 
     private const val TESTING_WITH_FAKE_REVIEW_MANAGER = false
 
     private const val USE_PLAY_API = true
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     @JvmStatic
     fun showAppRatingsUI(activity: Activity, analyticsManager: IAnalyticsManager, onAppRatingDisplayed: (Boolean) -> (Unit)) {

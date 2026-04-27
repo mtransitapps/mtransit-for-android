@@ -1,6 +1,7 @@
 package org.mtransit.android.ad
 
 import android.content.res.Configuration
+import androidx.annotation.AnyThread
 import org.mtransit.android.ui.view.common.IActivity
 
 interface IAdManager {
@@ -35,6 +36,8 @@ interface IAdManager {
 
     fun onResumeScreen(activity: IAdScreenActivity)
 
+    fun onTimeChanged(activity: IAdScreenActivity)
+
     @Suppress("unused")
     fun resumeAd(activity: IAdScreenActivity)
 
@@ -50,11 +53,12 @@ interface IAdManager {
 
     fun setRewardedAdListener(rewardedAdListener: RewardedAdListener?)
 
-    fun openAdInspector()
+    fun openAdInspector(activity: IActivity)
 
     fun shouldSkipRewardedAd(): Boolean
 
     interface RewardedAdListener {
+        @AnyThread
         fun onRewardedAdStatusChanged()
 
         fun skipRewardedAd(): Boolean

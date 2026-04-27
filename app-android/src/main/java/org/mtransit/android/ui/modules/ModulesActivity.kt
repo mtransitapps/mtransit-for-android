@@ -4,6 +4,7 @@ package org.mtransit.android.ui.modules
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -16,7 +17,7 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
 
     companion object {
 
-        private val LOG_TAG = ModulesActivity::class.java.simpleName
+        private val LOG_TAG: String = ModulesActivity::class.java.simpleName
 
         @JvmStatic
         fun newInstance(context: Context): Intent {
@@ -24,7 +25,7 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdgeMT()
@@ -33,6 +34,7 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
         super.onCreate(savedInstanceState)
     }
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment
 

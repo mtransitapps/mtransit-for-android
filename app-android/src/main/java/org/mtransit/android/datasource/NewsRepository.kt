@@ -24,10 +24,10 @@ class NewsRepository @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsRepository::class.java.simpleName
+        private val LOG_TAG: String = NewsRepository::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     fun loadingNewsArticles(
         providers: List<NewsProviderProperties>?,
@@ -42,6 +42,7 @@ class NewsRepository @Inject constructor(
         poi?.let {
             NewsProviderContract.Filter
                 .getNewTargetFilter(poi)
+                .setInFocus(true) // focuses on POI
                 .setMinCreatedAtInMs(
                     UITimeUtils.currentTimeMillis() -
                             if (demoModeManager.enabled) {
@@ -65,20 +66,21 @@ class NewsRepository @Inject constructor(
         filterUUIDs: List<String>?,
         comparator: Comparator<News>,
         firstLoad: Boolean,
+        inFocus: Boolean = false,
         let: ((List<News>) -> List<News>?) = { it },
         onSuccess: (() -> Unit)? = null,
         coroutineContext: CoroutineContext,
     ) = loadingNewsArticles(
         providers = allProviders?.filter {
-            targetProviderAuthorities != null // SKIP
+            targetProviderAuthorities != null // SKIP (bundle extra not read yet)
                     && (targetProviderAuthorities.isEmpty() || targetProviderAuthorities.contains(it.targetAuthority))
         },
         filter = when {
-            filterUUIDs == null || filterTargets == null -> null // SKIP
+            filterUUIDs == null || filterTargets == null -> null // SKIP (bundle extra not read yet)
             filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs)
             filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets)
             else -> NewsProviderContract.Filter.getNewEmptyFilter()
-        },
+        }?.apply { setInFocus(inFocus) },
         comparator,
         firstLoad,
         let,
@@ -96,7 +98,7 @@ class NewsRepository @Inject constructor(
         coroutineContext: CoroutineContext,
     ) = liveData(coroutineContext) {
         if (providers == null || filter == null) {
-            return@liveData // SKIP
+            return@liveData // SKIP (bundle extra not read yet)
         }
         // 1 - cache only
         if (firstLoad) {

@@ -41,7 +41,7 @@ import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.ui.view.map.MTMapIconDef
-import org.mtransit.android.ui.view.map.MTMapIconsProvider.iconDefForRotation
+import org.mtransit.android.ui.view.map.MTMapIconsProvider.getIconDefForRotation
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.util.containsEntirely
 import javax.inject.Inject
@@ -61,7 +61,7 @@ class MapViewModel @Inject constructor(
     LocationSettingsAwareViewModel {
 
     companion object {
-        private val LOG_TAG = MapViewModel::class.java.simpleName
+        private val LOG_TAG: String = MapViewModel::class.java.simpleName
 
         internal const val EXTRA_INITIAL_LOCATION = "extra_initial_location"
         internal const val EXTRA_SELECTED_UUID = "extra_selected_uuid"
@@ -69,7 +69,7 @@ class MapViewModel @Inject constructor(
         internal const val EXTRA_INCLUDE_TYPE_ID_DEFAULT: Int = -1
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val initialLocation = savedStateHandle.getLiveDataDistinct<Location?>(EXTRA_INITIAL_LOCATION)
 
@@ -348,7 +348,7 @@ class MapViewModel @Inject constructor(
             extra = (poim.poi as? RouteDirectionStop)?.route?.shortestName
             uuid = poim.poi.uuid
             authority = poim.poi.authority
-            iconDef = rotation.iconDefForRotation
+            iconDef = getIconDefForRotation(rotation, poim.poi)
             color = poim.getColor(dataSourcesRepository)
             secondaryColor = agency.colorInt
             clusterItems[positionTrunc] = clusterItems[positionTrunc]?.apply {

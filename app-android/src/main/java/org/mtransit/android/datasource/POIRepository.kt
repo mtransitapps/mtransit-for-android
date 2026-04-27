@@ -40,10 +40,10 @@ class POIRepository(
     )
 
     companion object {
-        private val LOG_TAG = POIRepository::class.java.simpleName
+        private val LOG_TAG: String = POIRepository::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val authorityUUIDtoPOIMCache = LruCache<Pair<String, String>, POIManager>(10)
 

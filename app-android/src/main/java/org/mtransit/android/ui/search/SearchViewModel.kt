@@ -40,12 +40,16 @@ class SearchViewModel @Inject constructor(
 ) : MTViewModelWithLocation(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = SearchViewModel::class.java.simpleName
+        private val LOG_TAG: String = SearchViewModel::class.java.simpleName
 
         internal const val EXTRA_QUERY = "extra_query"
         internal const val EXTRA_QUERY_DEFAULT = StringUtils.EMPTY
+
         internal const val EXTRA_TYPE_FILTER = "extra_type_filter"
+        private val EXTRA_TYPE_FILTER_DEFAULT: Int? = null // default need to trigger initial UI
+
         internal const val EXTRA_SEARCH_HAS_FOCUS = "extra_search_has_focus"
+        private const val EXTRA_SEARCH_HAS_FOCUS_DEFAULT = true // default need to trigger initial UI
 
         @Suppress("SpellCheckingInspection")
         private const val DEV_QUERY = "MTDEV"
@@ -61,7 +65,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val _searchableAgencies: LiveData<List<IAgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesBase().map { list ->
         list.filter { agency -> agency.getSupportedType().isSearchable }
@@ -122,7 +126,7 @@ class SearchViewModel @Inject constructor(
         savedStateHandle[EXTRA_TYPE_FILTER] = typeFilterId
     }
 
-    private val _typeFilterId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_TYPE_FILTER)
+    private val _typeFilterId = savedStateHandle.getLiveDataDistinct(EXTRA_TYPE_FILTER, EXTRA_TYPE_FILTER_DEFAULT)
 
     val typeFilter: LiveData<DataSourceType?> = _typeFilterId.map { typeId ->
         typeId?.let { DataSourceType.parseId(typeId) }
@@ -132,7 +136,7 @@ class SearchViewModel @Inject constructor(
         savedStateHandle[EXTRA_SEARCH_HAS_FOCUS] = focus
     }
 
-    private val _searchHasFocus = savedStateHandle.getLiveDataDistinct(EXTRA_SEARCH_HAS_FOCUS, true)
+    private val _searchHasFocus = savedStateHandle.getLiveDataDistinct(EXTRA_SEARCH_HAS_FOCUS, EXTRA_SEARCH_HAS_FOCUS_DEFAULT)
 
     val searchHasFocus: LiveData<Boolean> = _searchHasFocus
 

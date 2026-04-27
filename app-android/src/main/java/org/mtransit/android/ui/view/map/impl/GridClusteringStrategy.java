@@ -23,12 +23,12 @@ import java.util.List;
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
-	private static final String TAG = GridClusteringStrategy.class.getSimpleName();
+	private static final String LOG_TAG = GridClusteringStrategy.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final boolean DEBUG_GRID = false;

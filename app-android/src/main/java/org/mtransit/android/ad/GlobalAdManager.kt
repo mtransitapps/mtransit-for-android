@@ -1,22 +1,28 @@
 package org.mtransit.android.ad
 
+import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+// import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig #gmaNextGen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedUserManager
-import org.mtransit.android.common.IContext
+import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -50,11 +56,14 @@ class GlobalAdManager(
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${GlobalAdManager::class.java.simpleName}"
+
+        private const val GOOGLE_ADS_TEST_IDS_START_WITH = "ca-app-pub-3940256099942544"
     }
 
     override fun getLogTag() = LOG_TAG
 
     private val initialized = AtomicBoolean(false)
+    private val initializing = AtomicBoolean(false)
 
     private var showingAds: Boolean? = null
     private var hasAgenciesEnabled: Boolean? = null
@@ -66,9 +75,7 @@ class GlobalAdManager(
     }
 
     fun init(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
         val theActivity = activity.activity
         if (theActivity == null) {
             MTLog.w(this, "Trying to initialized w/o activity!")
@@ -76,7 +83,7 @@ class GlobalAdManager(
         }
         consentManager.gatherConsent(theActivity) { formError: UMPFormError? ->
             formError?.let {
-                MTLog.d(this@GlobalAdManager, "Consent not obtained [${formError.errorCode}]: ${formError.message}.")
+                logAdsD(this@GlobalAdManager, "Consent not obtained [${formError.errorCode}]: ${formError.message}.")
             }
             if (consentManager.canRequestAds) {
                 initWithConsent(activity, bannerAdManager)
@@ -91,8 +98,12 @@ class GlobalAdManager(
     }
 
     private fun initWithConsent(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (initialized.getAndSet(true)) {
-            MTLog.d(this, "init() > SKIP (initialized: %s)", this.initialized.get())
+        if (initialized.get()) {
+            logAdsD(this, "initWithConsent() > SKIP (initialized: ${this.initialized.get()})")
+            return // SKIP
+        }
+        if (initializing.getAndSet(true)) {
+            logAdsD(this, "initWithConsent() > SKIP (initializing: ${this.initializing.get()})")
             return // SKIP
         }
         try {
@@ -104,24 +115,49 @@ class GlobalAdManager(
         }
     }
 
+    private fun makeAdsRequestConfig(context: Context) =
+        RequestConfiguration.Builder()
+            .setTestDeviceIds(
+                listOf(*context.resources.getStringArray(R.array.google_ads_test_devices_ids))
+                        + listOf(AdRequest.DEVICE_ID_EMULATOR)
+                // Android emulators are automatically configured as test devices. #gmaNextGen
+            )
+            .build()
+
+    // private fun InitializationConfig.Builder.disableMediationAdapterInit(@Suppress("unused") context: Context, appId: String) { #gmaNextGen
+    private fun disableMediationAdapterInit(context: Context, appId: String) {
+        if (appId.startsWith(GOOGLE_ADS_TEST_IDS_START_WITH)) {
+            // disableMediationAdapterInitialization() // all will fail/timeout #gmaNextGen
+            MobileAds.disableMediationAdapterInitialization(context) // all will fail/timeout
+        }
+    }
+
     @WorkerThread
     private fun initOnBackgroundThread(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (AdConstants.DEBUG) {
-            MobileAds.setRequestConfiguration(
-                RequestConfiguration.Builder()
-                    .setTestDeviceIds(
-                        listOf(*activity.requireContext().resources.getStringArray(R.array.google_ads_test_devices_ids))
-                                + listOf(AdRequest.DEVICE_ID_EMULATOR)
-                    )
-                    .build()
-            )
+        // https://developers.google.com/admob/android/next-gen/quick-start
+        val context = activity.requireContext()
+        val appId = context.getString(R.string.google_ads_app_id)
+        // val initConfig = InitializationConfig.Builder(applicationId = appId) #gmaNextGen
+        //     .apply { #gmaNextGen
+        if (Constants.DEBUG && Constants.IS_DEBUG_BUILD) {
+            // setRequestConfiguration(makeAdsRequestConfig(context)) #gmaNextGen
+            MobileAds.setRequestConfiguration(makeAdsRequestConfig(context))
+            disableMediationAdapterInit(context, appId)
         }
-        // https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk
+        //     } #gmaNextGen
+        // } #gmaNextGen
+        // .build() #gmaNextGen
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
+            // initConfig, #gmaNextGen
         ) { initializationStatus ->
+            this.initialized.set(true)
+            this.initializing.set(false)
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
-                MTLog.d(this, "Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")
+                logAdsD(
+                    this@GlobalAdManager,
+                    "onAdapterInitializationComplete() > Adapter name: $adapterClass, Status: ${status.initializationState}, Description: ${status.description}, Latency: ${status.latency}"
+                )
             }
             bannerAdManager.refreshBannerAdStatus(activity, force = false)
         }
@@ -133,34 +169,32 @@ class GlobalAdManager(
 
     @AnyThread
     fun isShowingAds(): Boolean {
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
+        if (!AdConstants.AD_ENABLED) return false
         if (hasAgenciesEnabled == null) {
             hasAgenciesEnabled = this.dataSourcesRepository.hasAgenciesEnabled()
         }
-        if (this.initialized.get() != true) {
-            MTLog.d(this, "isShowingAds() > Not showing ads (not initialized yet).")
+        if (!this.initialized.get()) {
+            logAdsD(this, "isShowingAds() > Not showing ads (not initialized yet).")
             return false // not showing ads
         }
         // number of agency unknown
         if (hasAgenciesEnabled == false) { // no (real) agency installed
-            MTLog.d(this, "isShowingAds() > Not showing ads (no agency added).")
+            logAdsD(this, "isShowingAds() > Not showing ads (no agency added).")
             return false // not showing ads
         } else if (demoModeManager.enabled) {
-            MTLog.d(this, "isShowingAds() > Not showing ads (demo mode).")
+            logAdsD(this, "isShowingAds() > Not showing ads (demo mode).")
             return false // not showing ads
         }
         if (showingAds == null) { // paying status unknown
-            MTLog.d(this, "isShowingAds() > Not showing ads (paying status unknown).")
+            logAdsD(this, "isShowingAds() > Not showing ads (paying status unknown).")
             return false // not showing ads
         }
-        MTLog.d(this, "isShowingAds() > Showing ads: '$showingAds'.")
+        logAdsD(this, "isShowingAds() > Showing ads: '$showingAds'.")
         if (AdConstants.IGNORE_REWARD_HIDING_BANNER) {
             return showingAds == true
         }
         if (isRewardedNow()) { // rewarded status
-            MTLog.d(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this.rewardedUserManager.getRewardedUntilInMs()}).")
+            logAdsD(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this.rewardedUserManager.getRewardedUntilInMs()}).")
             return false // not showing ads
         }
         return showingAds == true
@@ -184,8 +218,8 @@ class GlobalAdManager(
         return this.rewardedUserManager.isRewardedNow()
     }
 
-    fun rewardUser(newRewardInMs: Long, context: IContext?) {
-        this.rewardedUserManager.rewardUser(newRewardInMs, context)
+    fun rewardUser(newRewardInMs: Long, activity: IActivity?) {
+        this.rewardedUserManager.rewardUser(newRewardInMs, activity)
     }
 
     fun shouldSkipRewardedAd(): Boolean {

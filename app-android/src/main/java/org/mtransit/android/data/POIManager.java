@@ -40,6 +40,7 @@ import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.POIFragment;
@@ -55,6 +56,7 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.WeakHashMap;
@@ -62,6 +64,7 @@ import java.util.WeakHashMap;
 @SuppressWarnings({"WeakerAccess"})
 public class POIManager implements LocationPOI,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener,
+		ServiceUpdatesHolder,
 		MTLog.Loggable {
 
 	private static final String LOG_TAG = POIManager.class.getSimpleName();
@@ -160,9 +163,9 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Nullable
-	public String getLocation() {
+	public String getLocationString() {
 		if (this.poi instanceof Module) {
-			return ((Module) this.poi).getLocation();
+			return ((Module) this.poi).getLocationString();
 		}
 		return null;
 	}
@@ -209,11 +212,13 @@ public class POIManager implements LocationPOI,
 			MTLog.w(this, "setStatus() > Unexpected status '%s'!", newStatus);
 			return false; // no change
 		}
-		if (this.status != null && this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
-			return false; // no change
-		}
-		if (this.status != null && !this.status.isNoData() && newStatus.isNoData()) {
-			return false; // keep status w/ data
+		if (this.status != null && this.status.isUseful()) {
+			if (this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
+				return false; // no change
+			}
+			if (!this.status.isNoData() && newStatus.isNoData()) {
+				return false; // keep status w/ data
+			}
 		}
 		this.status = newStatus;
 		return true; // change
@@ -234,7 +239,8 @@ public class POIManager implements LocationPOI,
 
 	@Nullable
 	public POIStatus getStatus(@NonNull StatusLoader statusLoader) {
-		if (this.status == null || this.lastFindStatusTimestampMs < 0L || this.inFocus || !this.status.isUseful()) {
+		if (this.status == null || !this.status.isUseful()
+				|| this.lastFindStatusTimestampMs < 0L || this.inFocus) {
 			findStatus(statusLoader, false);
 		}
 		return this.status;
@@ -272,16 +278,17 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Nullable
-	private StatusProviderContract.Filter getFilter() {
+	public StatusProviderContract.Filter getFilter() {
 		switch (getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_NONE:
 			return null;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (this.poi instanceof RouteDirectionStop) {
 				RouteDirectionStop rds = (RouteDirectionStop) this.poi;
-				ScheduleStatusFilter filter = new ScheduleStatusFilter(this.poi.getUUID(), rds);
+				ScheduleStatusFilter filter = new ScheduleStatusFilter(rds);
 				filter.setLookBehindInMs(UITimeUtils.RECENT_IN_MILLIS);
 				filter.setMaxDataRequests(this.scheduleMaxDataRequests);
+				filter.setIncludeCancelledTimestamps(true);
 				return filter;
 			} else {
 				MTLog.w(this, "Schedule filter w/o '%s'!", this.poi);
@@ -306,42 +313,44 @@ public class POIManager implements LocationPOI,
 	@NonNull
 	private final WeakHashMap<ServiceUpdateLoader.ServiceUpdateLoaderListener, Object> serviceUpdateLoaderListenersWR = new WeakHashMap<>();
 
+	@Override
 	public void addServiceUpdateLoaderListener(@NonNull ServiceUpdateLoader.ServiceUpdateLoaderListener serviceUpdateLoaderListener) {
 		this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null);
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates) {
 		setServiceUpdates(serviceUpdates);
 	}
 
-	public void setServiceUpdates(@Nullable Collection<ServiceUpdate> newServiceUpdates) {
+	public void setServiceUpdates(@NonNull Collection<ServiceUpdate> newServiceUpdates) {
 		if (this.serviceUpdates == null) {
 			this.serviceUpdates = new ArrayList<>();
 		} else {
 			this.serviceUpdates.clear();
 		}
-		if (newServiceUpdates != null) {
+		if (!newServiceUpdates.isEmpty()) {
 			this.serviceUpdates.addAll(newServiceUpdates);
 			CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@Nullable
 	public List<ServiceUpdate> getServiceUpdatesOrNull() {
 		return this.serviceUpdates;
 	}
 
-	@Nullable
+	@NonNull
+	@Override
 	public List<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(serviceUpdateLoader, false);
 		}
-		if (ignoredUUIDsOrUnknown == null) return null; // IF filter not ready DO wait for filter
-		return CollectionUtils.filterN(this.serviceUpdates, serviceUpdate ->
+		if (ignoredUUIDsOrUnknown == null) return Collections.emptyList(); // IF filter not ready DO wait for filter
+		final List<ServiceUpdate> filtered = CollectionUtils.filterN(this.serviceUpdates, serviceUpdate ->
 				!ignoredUUIDsOrUnknown.contains(serviceUpdate.getTargetUUID())
 		);
+		return filtered != null ? filtered : Collections.emptyList();
 	}
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")

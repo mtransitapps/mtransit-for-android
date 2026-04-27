@@ -1,11 +1,16 @@
 @file:JvmName("NewsFragment") // ANALYTIC
 package org.mtransit.android.ui.news
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.annotation.ColorInt
-import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
@@ -49,10 +54,11 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
+    MenuProvider,
     ModuleDisabledAwareFragment {
 
     companion object {
-        private val LOG_TAG = NewsListDetailFragment::class.java.simpleName
+        private val LOG_TAG: String = NewsListDetailFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "News"
 
@@ -130,19 +136,19 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             selectedArticleAuthority: String? = null,
             selectedArticleUuid: String? = null,
         ): Bundle {
-            return bundleOf(
-                NewsListViewModel.EXTRA_COLOR to (optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT),
-                NewsListViewModel.EXTRA_SUB_TITLE to subtitle,
-                NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES to (targetAuthorities ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT),
-                NewsListViewModel.EXTRA_FILTER_TARGETS to (filterTargets ?: NewsListViewModel.EXTRA_FILTER_TARGETS_DEFAULT),
-                NewsListViewModel.EXTRA_FILTER_UUIDS to (filterUUIDs ?: NewsListViewModel.EXTRA_FILTER_UUIDS_DEFAULT),
-                NewsListViewModel.EXTRA_SELECTED_ARTICLE_AUTHORITY to selectedArticleAuthority,
-                NewsListViewModel.EXTRA_SELECTED_ARTICLE_UUID to selectedArticleUuid,
-            )
+            return Bundle().apply {
+                putString(NewsListViewModel.EXTRA_COLOR, optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT)
+                putString(NewsListViewModel.EXTRA_SUB_TITLE, subtitle)
+                putStringArray(NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES, targetAuthorities ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT)
+                putStringArray(NewsListViewModel.EXTRA_FILTER_TARGETS, filterTargets ?: NewsListViewModel.EXTRA_FILTER_TARGETS_DEFAULT)
+                putStringArray(NewsListViewModel.EXTRA_FILTER_UUIDS, filterUUIDs ?: NewsListViewModel.EXTRA_FILTER_UUIDS_DEFAULT)
+                putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_AUTHORITY, selectedArticleAuthority)
+                putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_UUID, selectedArticleUuid)
+            }
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String =
         attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
@@ -191,22 +197,20 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private var onBackStackChangedListener: FragmentManager.OnBackStackChangedListener? = null
 
-    private fun makeOnBackStackChangedListener() = object : FragmentManager.OnBackStackChangedListener {
-        override fun onBackStackChanged() {
-            binding?.apply {
-                activity?.apply {
-                    if (addToBackStackCalled == true
-                        && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
-                    ) {
-                        if (slidingPaneLayout.isOpen) {
-                            slidingPaneLayout.closePane()
-                            viewModel.cleanSelectedNewsArticle()
-                        }
+    private fun makeOnBackStackChangedListener() = FragmentManager.OnBackStackChangedListener {
+        binding?.apply {
+            activity?.apply {
+                if (addToBackStackCalled == true
+                    && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
+                ) {
+                    if (slidingPaneLayout.isOpen) {
+                        slidingPaneLayout.closePane()
+                        viewModel.cleanSelectedNewsArticle()
                     }
                 }
-                screenToolbarLayout.apply {
-                    updateScreenToolbarNavigationIcon(screenToolbar)
-                }
+            }
+            screenToolbarLayout.apply {
+                updateScreenToolbarNavigationIcon(screenToolbar)
             }
         }
     }
@@ -269,14 +273,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                             }
                         }
                     }
-                ).also { onBackPressedCallbackNN ->
-                    doOnLayout {
-                        onBackPressedCallbackNN.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-                    }
+                ).also { twoPaneOnBackPressedCallback ->
                     requireActivity().onBackPressedDispatcher.addCallback(
                         viewLifecycleOwner,
-                        onBackPressedCallbackNN,
+                        twoPaneOnBackPressedCallback,
                     )
+                    doOnLayout {
+                        twoPaneOnBackPressedCallback.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
+                        onBackPressedCallback?.init() // at the end
+                    }
                 }
                 lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
             }
@@ -295,11 +300,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             }
         }
         viewModel.colorInt.observe(viewLifecycleOwner) {
-            abController?.setABBgColor(this, getABBgColor(context), true)
-            binding?.screenToolbarLayout?.let { updateScreenToolbarBgColor(it) }
-            if (FeatureFlags.F_NAVIGATION) {
-                nextMainViewModel.setABBgColor(getABBgColor(context))
-            }
+            updateABColor()
         }
         viewModel.loading.observe(viewLifecycleOwner) { loading ->
             binding?.refreshLayout?.isRefreshing = loading
@@ -357,8 +358,17 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 }
             }
             analyticsManager.trackScreenView(this@NewsListDetailFragment)
-            val authorityAndUuid = newAuthorityAndUuid ?: return@observe
-            selectPagerNewsArticle(authorityAndUuid)
+            newAuthorityAndUuid?.let {
+                selectPagerNewsArticle(it)
+            }
+        }
+        viewModel.fullscreenModeAvailable.observe(viewLifecycleOwner) {
+            updateMenuItemsVisibility(fullscreenModeAvailable = it)
+            updateABColor()
+        }
+        viewModel.fullscreenMode.observe(viewLifecycleOwner) { fullscreenMode ->
+            updateMenuItemsVisibility(fullscreenMode = fullscreenMode)
+            updateABColor()
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
@@ -367,6 +377,14 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     binding?.newsContainerLayout?.newsList?.scrollToPosition(0)
                 }
             })
+        }
+    }
+
+    private fun updateABColor() {
+        abController?.setABBgColor(this, getABBgColor(context), true)
+        binding?.screenToolbarLayout?.let { updateScreenToolbarBgColor(it) }
+        if (FeatureFlags.F_NAVIGATION) {
+            nextMainViewModel.setABBgColor(getABBgColor(context))
         }
     }
 
@@ -395,7 +413,10 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun getABSubtitle(context: Context?) = attachedViewModel?.subTitle?.value ?: super.getABSubtitle(context)
 
-    override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) =
+        Color.BLACK.takeIf { attachedViewModel?.isFullscreen == true }
+            ?: attachedViewModel?.colorInt?.value
+            ?: super.getABBgColor(context)
 
     override fun onResume() {
         super.onResume()
@@ -426,9 +447,68 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
     }
 
+    private var fullscreenMenuItem: MenuItem? = null
+    private var mainMenuSearchMenuItem: MenuItem? = null
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_news_details, menu)
+        this.fullscreenMenuItem = menu.findItem(R.id.menu_fullscreen)
+        this.mainMenuSearchMenuItem = menu.findItem(R.id.nav_search)
+        updateMenuItemsVisibility()
+    }
+
+    private fun updateMenuItemsVisibility(
+        fullscreenMode: Boolean? = attachedViewModel?.fullscreenMode?.value,
+        fullscreenModeAvailable: Boolean? = attachedViewModel?.fullscreenModeAvailable?.value,
+    ) {
+        val isFullscreen = fullscreenMode == true && fullscreenModeAvailable == true
+        fullscreenMenuItem?.apply {
+            setIcon(if (isFullscreen) R.drawable.ic_baseline_fullscreen_exit_black_24dp else R.drawable.ic_baseline_fullscreen_black_24dp)
+            setTitle(if (isFullscreen) R.string.menu_action_fullscreen_exit else R.string.menu_action_fullscreen)
+            isVisible = fullscreenModeAvailable == true && fullscreenMode != null
+        }
+        mainMenuSearchMenuItem?.isVisible = !isFullscreen
+        binding?.apply {
+            screenToolbarLayout.screenToolbar.alpha = if (isFullscreen) 0.3f else 1f
+            refreshLayout.isVisible = !isFullscreen
+        }
+        @SuppressLint("DeprecatedCall")
+        @Suppress("DEPRECATION") // deprecated in API Level 30 (Android R) // no [easy] alternative found
+        activity?.window?.decorView?.systemUiVisibility = if (isFullscreen) View.SYSTEM_UI_FLAG_LOW_PROFILE else 0
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem) =
+        when (menuItem.itemId) {
+            R.id.menu_fullscreen -> {
+                viewModel.setFullscreenMode(viewModel.fullscreenMode.value == false) // flip
+                true // handled
+            }
+
+            else -> false // not handled
+        }
+
+    private fun handleExitFullscreen(): Boolean {
+        if (viewModel.fullscreenMode.value == true) {
+            viewModel.setFullscreenMode(false)
+            // Handled if fullscreen was actually available/visible // ELSE handle back/up navigation as usual
+            return viewModel.fullscreenModeAvailable.value == true
+        }
+        return false // Not in fullscreen mode
+    }
+
+    override fun onScreenToolbarNavigationClick(v: View) {
+        if (handleExitFullscreen()) {
+            return // handled
+        }
+        super.onScreenToolbarNavigationClick(v)
+    }
+
     override fun onBackPressed(): Boolean {
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
             return super.onBackPressed()
+        }
+        if (handleExitFullscreen()) {
+            return true // handled
         }
         binding?.apply {
             activity?.apply {
@@ -436,6 +516,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     if (slidingPaneLayout.isOpen) {
                         slidingPaneLayout.closePane()
                         viewModel.cleanSelectedNewsArticle()
+                        return true // handled
                     }
                 }
             }
@@ -462,4 +543,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         super.onDestroy()
         listAdapter.onDestroy(this)
     }
+
+    private val NewsListViewModel.isFullscreen: Boolean get() = fullscreenMode.value == true && fullscreenModeAvailable.value == true
 }

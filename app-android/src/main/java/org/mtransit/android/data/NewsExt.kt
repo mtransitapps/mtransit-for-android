@@ -29,6 +29,7 @@ val News.authorWithUserName: String
         authorUsername?.takeIf { it.isNotBlank() }?.let { append(" ($it)") }
     }
 
+@Suppress("unused")
 val News.sourceLabelWithUserName: String
     get() = buildString {
         authorUsername?.takeIf { it.isNotBlank() }?.let { append("$it - ") }
@@ -102,11 +103,14 @@ fun makeYouTubeEmbedVideoPlayerUrl(videoId: String, autoPlay: Boolean, mute: Boo
     appendQueryParameter("autoplay", if (autoPlay) TRUE else FALSE)
     appendQueryParameter("fs", FALSE) // full screen
     appendQueryParameter("controls", TRUE) // needs native control
+    @Suppress("SpellCheckingInspection")
     appendQueryParameter("modestbranding", TRUE) // deprecated (less YouTube branding)
     appendQueryParameter("rel", FALSE) // only related videos from same channel
+    @Suppress("SpellCheckingInspection")
     appendQueryParameter("showinfo", FALSE) // deprecated (no video title)
+    @Suppress("SpellCheckingInspection")
     appendQueryParameter("disablekb", FALSE) // keyboard control
-    appendQueryParameter("mute", if (mute) TRUE else FALSE) // muted by default if auto-play
+    appendQueryParameter("mute", if (mute) TRUE else FALSE) // muted by default if autoplay
     appendQueryParameter("hl", Locale.getDefault().language) // language
 }.build().toString()
 

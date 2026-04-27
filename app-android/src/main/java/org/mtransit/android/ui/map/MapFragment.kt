@@ -10,11 +10,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.core.os.bundleOf
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,10 +30,8 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.map.IMarker
 import org.mtransit.android.util.UIFeatureFlags
@@ -50,7 +45,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = MapFragment::class.java.simpleName
+        private val LOG_TAG: String = MapFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Map"
 
@@ -86,17 +81,17 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             optInitialLocation: Location? = null,
             optSelectedUUID: String? = null,
             optIncludeTypeId: Int? = null,
-        ) = bundleOf(
-            MapViewModel.EXTRA_INITIAL_LOCATION to optInitialLocation,
-            MapViewModel.EXTRA_SELECTED_UUID to optSelectedUUID,
-            MapViewModel.EXTRA_INCLUDE_TYPE_ID to (optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT),
-        )
+        ) = Bundle().apply {
+            putParcelable(MapViewModel.EXTRA_INITIAL_LOCATION, optInitialLocation)
+            putString(MapViewModel.EXTRA_SELECTED_UUID, optSelectedUUID)
+            putInt(MapViewModel.EXTRA_INCLUDE_TYPE_ID, optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT)
+        }
 
         private const val TOP_PADDING_SP = 64
         private const val BOTTOM_PADDING_SP = 0
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
@@ -179,15 +174,10 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
-            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge(
-                initialHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
-            )
+            setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
             location?.let {
@@ -335,13 +325,13 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun isNavBarProtected() = false
 
+    override fun hasToolbar() = true
+
     override fun isABStatusBarTransparent() = true
 
-    override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE
+    override fun isABOverrideGradient() = hasToolbar() || UIFeatureFlags.F_EDGE_TO_EDGE
 
-    override fun getABTitle(context: Context?): CharSequence? {
-        return context?.let { makeABTitle(it) } ?: super.getABTitle(null)
-    }
+    override fun getABTitle(context: Context?) = context?.let { makeABTitle(it) } ?: super.getABTitle(null)
 
     private fun makeABTitle(context: Context): CharSequence {
         return (attachedViewModel?.filterTypeIds?.value?.let { it.ifEmpty { null } } // empty = all

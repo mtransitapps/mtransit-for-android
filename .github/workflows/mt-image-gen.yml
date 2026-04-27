@@ -1,0 +1,127 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+name: MT generate images
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'app-android/src/main/res/values/gtfs_rts_values_gen.xml' # gtfs_rts_color | gtfs_rts_agency_type
+      - 'app-android/src/main/res/values/bike_station_values.xml' # bike_station_color | bike_station_agency_type
+      - 'config/gtfs/agency.json' # target_route_type_id | default_color
+      - 'config/agency_name' # feature graphic
+      - 'config/cities' # feature graphic
+      - 'config/state' # feature graphic
+  workflow_dispatch: # manual
+    inputs:
+      commitDirectly:
+        description: 'Commit directly to current branch (without PR)'
+        required: false
+        default: false
+        type: boolean
+# gh workflow run mt-image-gen.yml --ref $(git rev-parse --abbrev-ref HEAD)
+# gh workflow run mt-image-gen.yml --ref $(git rev-parse --abbrev-ref HEAD) -f commitDirectly=true
+# gh run list --workflow=mt-image-gen.yml
+# gh run watch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  MT_BOT_USER_NAME: ${{ vars.MT_BOT_USER_NAME }}
+  MT_BOT_USER_EMAIL: ${{ vars.MT_BOT_USER_EMAIL }}
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # repo type
+  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
+  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
+  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+jobs:
+  MT-GENERATE-IMAGES-JOB:
+    name: "MT generate images"
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MT_PAT }}
+
+      - name: MT setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.2.1
+        with:
+          image-gen: true
+
+      - name: MT commit images
+        continue-on-error: true
+        id: mt-commit-images
+        run: |
+          # Check if images were generated
+          IMAGE_COUNT=$(git status --porcelain -- ':(glob)**/*.png' | wc -l)
+          if [ "$IMAGE_COUNT" -gt 0 ]; then
+            echo "Found $IMAGE_COUNT changed PNG file(s)."
+            git add -v -A -- ':(glob)**/*.png'
+            if git diff --staged --quiet; then
+              echo "No new images to commit."
+              exit 1 # fail == no PR needed
+            fi
+            git config user.name "$MT_BOT_USER_NAME"
+            git config user.email "$MT_BOT_USER_EMAIL"
+            if [ "${{ github.event.inputs.commitDirectly }}" = "true" ]; then
+              echo "Committing directly to current branch: ${MT_BRANCH_NAME}"
+              git commit -m "Update images in \`${MT_BRANCH_NAME}\`"
+              git push origin "${MT_BRANCH_NAME}"
+              exit 1 # fail == no PR needed
+            else
+              echo "Creating new branch and preparing for PR: ${MT_BRANCH_NAME}_update_images"
+              git switch -C "${MT_BRANCH_NAME}_update_images"
+              git commit -m "Update images in \`${MT_BRANCH_NAME}\`"
+              git push -u origin "${MT_BRANCH_NAME}_update_images" --force
+            fi
+            exit 0 # success == PR needed
+          else
+            echo "No PNG changes found."
+            exit 1 # fail == no PR needed
+          fi
+
+      - name: MT check if PR exists
+        id: mt-check-pr-exists
+        if: ${{ steps.mt-commit-images.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          # Fetch the branch to ensure it exists in the remote tracking
+          git fetch origin "${MT_BRANCH_NAME}_update_images" || true
+          PR_COUNT=$(gh pr list --state open --head "${MT_BRANCH_NAME}_update_images" | wc -l)
+          echo "Pull requests found: $PR_COUNT."
+          if [[ $PR_COUNT -eq 0 ]]; then
+            exit 1 # fail == PR need to be created
+          else
+            exit 0 # success == PR need to be updated
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT create pull request (if necessary)
+        if: ${{ steps.mt-commit-images.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'failure' }}
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          gh pr create --base "${MT_BRANCH_NAME}" --title "$COMMIT_MSG" --body "$COMMIT_MSG" --assignee montransit
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT update pull request (if necessary)
+        if: ${{ steps.mt-commit-images.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
+        run: |
+          gh pr edit --add-assignee montransit --title "Update images in \`${MT_BRANCH_NAME}\`"
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}

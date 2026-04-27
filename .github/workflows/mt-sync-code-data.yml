@@ -2,25 +2,42 @@
 name: MT sync code & data # download & parse
 on:
   pull_request: # automatically skip download data & app release
+    types:
+      - opened # default
+      - synchronize # default
+      - reopened # default
+      - ready_for_review # draft -> ready
+    paths-ignore:
+      - 'app-android/src/main/play/**'
   workflow_dispatch: # manual
     inputs:
       skip-download-data:
-        description: 'Skip trying to download new data (use data archive)'
+        description: 'Download new data > SKIP trying (use data archive)'
         type: boolean
         default: false
         required: false
       skip-app-release:
-        description: 'Skip app release (event if data change or latest release old)'
+        description: 'App release > SKIP (event if data change or latest release old)'
         type: boolean
         default: false
         required: false
       force-app-release:
-        description: 'Force app release (even if no data change and latest release recent)'
+        description: 'App release > FORCE (even if no data change and latest release recent)'
+        type: boolean
+        default: false
+        required: false
+      skipStoreAll:
+        description: 'Store release > SKIP all'
+        type: boolean
+        default: false
+        required: false
+      skipStoreProduction:
+        description: 'Store release > SKIP production'
         type: boolean
         default: false
         required: false
       reset-current-schedule:
-        description: 'Reset current schedule before parsing (delete all schedule files)'
+        description: 'Data > reset current schedule before parsing (delete all schedule files)'
         type: boolean
         default: false
         required: false
@@ -35,6 +52,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 env:
+  MT_BOT_USER_NAME: ${{ vars.MT_BOT_USER_NAME }}
+  MT_BOT_USER_EMAIL: ${{ vars.MT_BOT_USER_EMAIL }}
   # git branches & sha
   MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
   MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
@@ -75,12 +94,12 @@ jobs:
   MT-SYNC-CODE-DATA-JOB:
     name: "MT Sync Code & Data"
     # if: ${{ env.MT_IS_MAIN_REPO != 'true' }} # can NOT use env here:
-    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') }}
+    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     # timeout-minutes: 45
     timeout-minutes: 90
     runs-on: ubuntu-latest
     steps:
-      - name: MT check out main repository code (no submodules)
+      - name: MT check out main repository code (with submodules)
         uses: actions/checkout@v6
         with:
           submodules: true # required to set right token
@@ -89,9 +108,22 @@ jobs:
 
       - name: MT setup
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.2.1
         with:
           code-sync: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
+
+      - name: MT commit image change (if added/updated)
+        if: ${{ env.MT_IS_MAIN_REPO != 'true' }}
+        run: |
+          git add -v -A -- ':(glob)**/*.png'
+          if git diff --staged --quiet; then
+            echo "No new images to commit."
+          else
+            echo "Committing generated images.";
+            git config user.name "$MT_BOT_USER_NAME"
+            git config user.email "$MT_BOT_USER_EMAIL"
+            git commit -m "CI: update generated images"
+          fi
 
       - name: MT commit code change
         if: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
@@ -99,7 +131,8 @@ jobs:
 
       # DOWNLOAD (not PR) AND PARSE (NOT main repo/bike)
       - name: MT download data (& archive)
-        if: ${{ github.event_name != 'pull_request' && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && github.event.inputs.skip-download-data == 'false' }}
+        if: ${{ github.event_name != 'pull_request' && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && github.event.inputs.skip-download-data != 'true' }}
+        id: mt-download-data
         timeout-minutes: 10
         continue-on-error: true # optional (continue with archive data)
         run: ./download_only.sh
@@ -129,13 +162,27 @@ jobs:
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./parse_list_change.sh
 
+      - name: MT check if image generation required
+        id: mt-check-image-gen-required
+        continue-on-error: true
+        if: ${{ env.MT_IS_MAIN_REPO != 'true' }}
+        run: |
+          RESULT=$(git status --porcelain -- "app-android/src/main/res/values/gtfs_rts_values_gen.xml" | wc -l)
+          if [ "$RESULT" -gt 0 ]; then
+            echo "Image generation required.";
+            exit 0 # success
+          else
+            echo "No image generation required.";
+            exit 1 # fail
+          fi
+
       - name: MT push commits
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./push_commits.sh
 
       - name: MT artifact > GTFS files
-        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }} # even if tests fails
-        uses: actions/upload-artifact@v6
+        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && steps.mt-download-data.conclusion != 'skipped' }} # even if tests fails
+        uses: actions/upload-artifact@v7
         with:
           name: gtfs
           path: |
@@ -144,8 +191,8 @@ jobs:
           retention-days: 31
 
       - name: MT artifact > GTFS validator results
-        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }} # even if tests fails
-        uses: actions/upload-artifact@v6
+        if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && steps.mt-download-data.conclusion != 'skipped' }} # even if tests fails
+        uses: actions/upload-artifact@v7
         with:
           name: gtfs-validator-results
           path: |
@@ -156,6 +203,28 @@ jobs:
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         run: ./commit_data_change.sh
       # ----------
+
+      - name: MT generate images if required
+        id: mt-image-gen
+        if: ${{ env.MT_IS_MAIN_REPO != 'true' && steps.mt-check-image-gen-required.outcome == 'success' }}
+        continue-on-error: true # nice to have
+        run: |
+          ./commons/code_setup.sh;
+        env:
+          MT_GENERATE_IMAGES: true
+
+      - name: MT commit image change (if added/updated)
+        if: ${{ steps.mt-image-gen.outcome == 'success' && env.MT_IS_MAIN_REPO != 'true' }}
+        run: |
+          git add -v -A -- ':(glob)**/*.png'
+          if git diff --staged --quiet; then
+            echo "No new images to commit."
+          else
+            echo "Committing generated images.";
+            git config user.name "$MT_BOT_USER_NAME"
+            git config user.email "$MT_BOT_USER_EMAIL"
+            git commit -m "CI: update generated images"
+          fi
 
       - name: MT set app release required (or not)
         if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
@@ -172,28 +241,19 @@ jobs:
           MT_SKIP_PUSH_COMMIT=false;
           echo "MT_SKIP_PUSH_COMMIT=$MT_SKIP_PUSH_COMMIT" >> "$GITHUB_ENV";
 
-      - name: MT assemble release (APK & ABB)
-        if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
-        run: ./assemble_release.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
-          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
-
-      - name: MT artifact > app-android > APK & ABB
-        if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
-        uses: actions/upload-artifact@v6
-        with:
-          name: app-android-apk-bundle
-          path: |
-            app-android/build/outputs/apk
-            app-android/build/outputs/bundle
-
       - name: MT push commits
         run: ./push_commits.sh
 
-      - name: MT Publish release (?)
-        if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' }}
-        run: ./publish_app_release.sh
+      - name: MT trigger release if required
+        if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' && github.ref_name == env.MT_DEFAULT_BRANCH_NAME }}
+        run: |
+          MT_TEMP_DIR=".mt";
+          mkdir -p $MT_TEMP_DIR;
+          MT_APP_RELEASE_REQUIRED_FILE="$MT_TEMP_DIR/mt_app_release_required";
+          if [ -f "$MT_APP_RELEASE_REQUIRED_FILE" ] && [ "$(cat "$MT_APP_RELEASE_REQUIRED_FILE")" = "true" ]; then
+            gh workflow run mt-release.yml \
+              -f skipStoreAll=${{ github.event.inputs.skipStoreAll || 'false' }} \
+              -f skipStoreProduction=${{ github.event.inputs.skipStoreProduction || 'false' }}
+          fi
         env:
-          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
-          MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
+          GH_TOKEN: ${{ secrets.MT_PAT }}

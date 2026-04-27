@@ -27,12 +27,12 @@ import java.lang.ref.WeakReference;
 
 public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
-	private static final String TAG = "Stack-" + ActionBarController.class.getSimpleName();
+	private static final String LOG_TAG = "Stack-" + ActionBarController.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	@Nullable
@@ -194,9 +194,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setABReady(@Nullable Fragment source, boolean ready, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentReady = ready;
 		if (update) {
 			updateABDrawerClosed();
@@ -204,9 +202,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setABTitle(@Nullable Fragment source, @Nullable CharSequence title, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentTitle = title;
 		if (update) {
 			updateABDrawerClosed();
@@ -214,9 +210,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setABSubtitle(@Nullable Fragment source, @Nullable CharSequence subtitle, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentSubtitle = subtitle;
 		if (update) {
 			updateABDrawerClosed();
@@ -224,9 +218,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setABBgColor(@Nullable Fragment source, @ColorInt @Nullable Integer bgColor, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentBgColor = bgColor;
 		if (update) {
 			updateABDrawerClosed();
@@ -244,9 +236,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setABCustomView(@Nullable Fragment source, @Nullable View customView, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentCustomView = customView;
 		if (update) {
 			updateABDrawerClosed();
@@ -254,9 +244,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setABCustomViewFocusable(@Nullable Fragment source, boolean fragmentCustomViewFocusable, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentCustomViewFocusable = fragmentCustomViewFocusable;
 		if (update) {
 			updateABDrawerClosed();
@@ -264,9 +252,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setABCustomViewRequestFocus(@Nullable Fragment source, boolean fragmentCustomViewRequestFocus, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentCustomViewRequestFocus = fragmentCustomViewRequestFocus;
 		if (update) {
 			updateABDrawerClosed();
@@ -274,9 +260,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setABDisplayHomeAsUpEnabled(@Nullable Fragment source, boolean displayHomeAsUpEnabled, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
 		if (update) {
 			updateABDrawerClosed();
@@ -284,9 +268,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setABShowSearchMenuItem(@Nullable Fragment source, boolean showSearchMenuItem, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentShowSearchMenuItem = showSearchMenuItem;
 		if (update) {
 			updateABDrawerClosed();

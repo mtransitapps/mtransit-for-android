@@ -50,6 +50,7 @@ public interface ExtendedGoogleMap {
 
 	void clear();
 
+	@NonNull
 	CameraPosition getCameraPosition();
 
 	List<IMarker> getDisplayedMarkers();

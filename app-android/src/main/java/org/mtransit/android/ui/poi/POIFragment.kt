@@ -13,6 +13,7 @@ package org.mtransit.android.ui.poi
 //import android.view.MenuInflater
 //import android.view.MenuItem
 //import android.view.View
+//import androidx.annotation.AnyThread
 //import androidx.core.os.bundleOf
 //import androidx.core.view.isVisible
 //import androidx.fragment.app.viewModels
@@ -68,15 +69,14 @@ package org.mtransit.android.ui.poi
 //import org.mtransit.android.util.LinkUtils
 //import org.mtransit.android.util.MapUtils
 //import org.mtransit.android.util.UITimeUtils
-//import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
-//import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver.TimeChangedListener
+//import org.mtransit.android.util.UITimeUtils
 //import javax.inject.Inject
 //
 //@AndroidEntryPoint
-//class POIFragment : ABFragment(R.layout.fragment_poi), DeviceLocationListener, POIDataProvider, TimeChangedListener, FavoriteUpdateListener {
+//class POIFragment : ABFragment(R.layout.fragment_poi), DeviceLocationListener, POIDataProvider, UITimeUtils.TimeChangedReceiver, FavoriteUpdateListener {
 //
 // companion object {
-// private val LOG_TAG = POIFragment::class.java.simpleName
+// private val LOG_TAG: String = POIFragment::class.java.simpleName
 //
 // private const val PKG_COMMON = "org.mtransit.android."
 //
@@ -245,6 +245,7 @@ package org.mtransit.android.ui.poi
 // }
 //
 // private val rewardedAdListener = object : RewardedAdListener {
+// @AnyThread
 // override fun onRewardedAdStatusChanged() {
 // viewModel.onRewardedAdStatusChanged()
 // }
@@ -789,7 +790,7 @@ package org.mtransit.android.ui.poi
 // // }
 // }
 //
-// override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
+// override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>) {
 // MTLog.v(this, "onServiceUpdatesLoaded($targetUUID, $serviceUpdates)")
 // // T ODO this serviceUpdates needs to be added to view model POI Manager
 // //

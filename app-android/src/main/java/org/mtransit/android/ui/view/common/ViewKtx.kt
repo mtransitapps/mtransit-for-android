@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.DrawableRes
+import androidx.annotation.MainThread
 import androidx.annotation.PluralsRes
 import androidx.annotation.Px
 import androidx.appcompat.content.res.AppCompatResources
@@ -90,12 +91,14 @@ fun View.setPadding(
     }
 }
 
+@set:MainThread
 inline var ViewBinding.isVisible: Boolean
     get() = root.isVisible
     set(value) {
         root.isVisible = value
     }
 
+@set:MainThread
 inline var View.isVisibleOnce: Boolean
     get() = isVisible
     set(value) {

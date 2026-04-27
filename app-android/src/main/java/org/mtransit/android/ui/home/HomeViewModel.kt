@@ -34,6 +34,7 @@ import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.dataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
@@ -81,7 +82,7 @@ class HomeViewModel @Inject constructor(
     ModuleDisabledAwareViewModel {
 
     companion object {
-        private val LOG_TAG = HomeViewModel::class.java.simpleName
+        private val LOG_TAG: String = HomeViewModel::class.java.simpleName
 
         private const val NB_MAX_BY_TYPE = 2
         private const val NB_MAX_BY_TYPE_ONE_TYPE = 6
@@ -91,9 +92,11 @@ class HomeViewModel @Inject constructor(
 
         private const val IGNORE_SAME_LOCATION_CHECK = false
         // private const val IGNORE_SAME_LOCATION_CHECK = true // DEBUG
+
+        private const val MODULE_MAX_DISTANCE_IN_METER = 1_234_567f // ≈ 1234 km
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     fun checkIfNetworkLocationRefreshNecessary() {
         viewModelScope.launch {
@@ -283,6 +286,10 @@ class HomeViewModel @Inject constructor(
                 }
             }
             if (nbKept >= nbMaxByType && lastKeptDistance != poim.distance && poim.distance > minDistanceInMeters * 2f) {
+                it.remove()
+                continue
+            }
+            if (poim.dataSourceType == DataSourceType.TYPE_MODULE && poim.distance > MODULE_MAX_DISTANCE_IN_METER) {
                 it.remove()
                 continue
             }

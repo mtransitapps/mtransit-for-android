@@ -38,12 +38,8 @@ public final class MTDialog {
 		@Nullable
 		@Override
 		public AlertDialog show() {
-			Activity activity = this.activityWR.get();
-			if (activity != null) {
-				if (activity.isFinishing()) {
-					return null;
-				}
-			}
+			final Activity activity = this.activityWR.get();
+			if (activity != null && activity.isFinishing()) return null;
 			return super.show();
 		}
 	}

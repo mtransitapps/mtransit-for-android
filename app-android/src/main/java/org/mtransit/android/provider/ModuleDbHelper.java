@@ -15,12 +15,12 @@ import org.mtransit.android.commons.provider.status.StatusProvider;
 @SuppressWarnings("WeakerAccess")
 public class ModuleDbHelper extends MTSQLiteOpenHelper {
 
-	private static final String TAG = ModuleDbHelper.class.getSimpleName();
+	private static final String LOG_TAG = ModuleDbHelper.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	/**

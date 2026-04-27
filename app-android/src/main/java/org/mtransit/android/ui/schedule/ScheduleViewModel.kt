@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.schedule
 
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -17,8 +18,11 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
+import org.mtransit.android.commons.data.hasRealTime
+import org.mtransit.android.commons.data.readFromSource
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.status.findClosestTripTimestamp
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
@@ -28,6 +32,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
@@ -36,6 +41,7 @@ import org.mtransit.commons.toCalendar
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Instant
 
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
@@ -47,7 +53,7 @@ class ScheduleViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = ScheduleViewModel::class.java.simpleName
+        private val LOG_TAG: String = ScheduleViewModel::class.java.simpleName
 
         internal const val EXTRA_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_POI_UUID = "extra_poi_uuid"
@@ -68,7 +74,7 @@ class ScheduleViewModel @Inject constructor(
         private const val LOCAL_TIME_ZONE_ID = "local_time_zone_id"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
 
@@ -88,7 +94,7 @@ class ScheduleViewModel @Inject constructor(
     }
 
     private fun getPOIManager(agency: IAgencyProperties?, uuid: String?) =
-        poiRepository.readingPOIM(agency, uuid, poim.value, onDataSourceRemoved = {
+        poiRepository.readingPOIM(agency, uuid, currentValue = poim.value, onDataSourceRemoved = {
             dataSourceRemovedEvent.postValue(Event(true))
         })
 
@@ -143,20 +149,28 @@ class ScheduleViewModel @Inject constructor(
         savedStateHandle[EXTRA_SCROLLED_TO_NOW] = scrolledToNow
     }
 
-    private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = this.authority.switchMap { authority ->
-        this.dataSourcesRepository.readingScheduleProviders(authority)
-    }
+    private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = this.authority
+        .switchMap { authority ->
+            this.dataSourcesRepository.readingScheduleProviders(authority)
+        }
 
-    val timestamps: LiveData<List<Schedule.Timestamp>?> =
-        MediatorLiveData4(rds, _startsAtInMs, _endsAtInMs, _scheduleProviders).switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
+    private val _scheduleTimestamps: LiveData<List<Schedule.Timestamp>?> = MediatorLiveData4(rds, _startsAtInMs, _endsAtInMs, _scheduleProviders)
+        .switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getTimestamps(rts, startsAtInMs, endsAtInMs, scheduleProviders))
             }
         }
 
-    private val _sourceLabel = MutableLiveData<String?>(null)
-    val sourceLabel: LiveData<String?> = _sourceLabel
+    private val _scheduleSourceLabel = MutableLiveData<String?>(null)
+    private val _rtSourceLabel = MutableLiveData<String?>(null)
 
+    private val _readFromSource = MutableLiveData<Instant?>(null)
+    val sourceLabelAndReadFromSource: LiveData<Pair<String?, Instant?>> = MediatorLiveData3(_scheduleSourceLabel, _rtSourceLabel, _readFromSource)
+        .map { (scheduleSourceLabel, rtSourceLabel, readFromSource) ->
+            Pair(rtSourceLabel ?: scheduleSourceLabel, readFromSource)
+        }
+
+    @WorkerThread
     private suspend fun getTimestamps(
         rds: RouteDirectionStop?,
         startsAtInMs: Long?,
@@ -177,8 +191,8 @@ class ScheduleViewModel @Inject constructor(
             this.dataSourceRequestManager.findScheduleTimestamps(scheduleProvider.authority, scheduleFilter)?.let { scheduleTimestamps ->
                 hasProviderTimestampsReturned = true
                 if (scheduleTimestamps.timestampsCount > 0) {
-                    _sourceLabel.postValue(scheduleTimestamps.sourceLabel)
-                    scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZone }?.let { localTimeZoneId ->
+                    _scheduleSourceLabel.postValue(scheduleTimestamps.sourceLabel)
+                    scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZoneId }?.let { localTimeZoneId ->
                         this._localTimeZoneId.postValue(localTimeZoneId)
                     }
                     return scheduleTimestamps.timestamps
@@ -190,11 +204,62 @@ class ScheduleViewModel @Inject constructor(
                 return null // not loaded (loading)
             }
         }
-        _sourceLabel.postValue(null)
+        _scheduleSourceLabel.postValue(null)
         return emptyList() // loaded (not loading) == no service today
     }
 
     val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
         DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
     ).distinctUntilChanged()
+
+    private val _statusProviders = this.authority
+        .switchMap { authority ->
+            this.dataSourcesRepository.readingStatusProviders(authority)
+        }
+
+    private val _nonScheduleStatusProviders = MediatorLiveData2(_statusProviders, _scheduleProviders)
+        .map { (statusProviders, scheduleProviders) ->
+            scheduleProviders ?: return@map null
+            statusProviders?.filter { statusProvider ->
+                scheduleProviders.none { it.authority == statusProvider.authority }
+            }
+        }
+
+    private val _refreshRTTimestampsTrigger = MutableLiveData<Int>()
+
+    fun triggerRealTimeTimestampRefresh() {
+        MTLog.d(this, "triggerRealTimeTimestampRefresh() > trigger refresh")
+        _refreshRTTimestampsTrigger.value = (_refreshRTTimestampsTrigger.value ?: 0) + 1
+    }
+
+    private val _rtTimestamps: LiveData<List<Schedule.Timestamp>?> = MediatorLiveData3(poim, _nonScheduleStatusProviders, _refreshRTTimestampsTrigger)
+        .switchMap { (poim, rtStatusProviders) ->
+            liveData(viewModelScope.coroutineContext) {
+                rtStatusProviders ?: return@liveData
+                val statusFilter = poim?.filter ?: return@liveData
+                rtStatusProviders.forEach { statusProvider ->
+                    val newStatus = dataSourceRequestManager.findStatus(statusProvider.authority, statusFilter)
+                    val schedule = newStatus as? Schedule
+                    _readFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })
+                    _rtSourceLabel.postValue(schedule?.sourceLabel?.takeIf { schedule.hasRealTime })
+                    emit(schedule?.timestamps) // always emit to erase old real-time value
+                }
+            }
+        }
+
+    val timestamps = MediatorLiveData2(_scheduleTimestamps, _rtTimestamps)
+        .map { (scheduleTimestamps, rtTimestamps) ->
+            val scheduleTimestamps = scheduleTimestamps?.toMutableList() ?: return@map null
+            rtTimestamps
+                ?.filter { it.isRealTime }
+                ?.forEach { rtTimestamp ->
+                    val tripId = rtTimestamp.tripId ?: return@forEach
+                    val stopSequence = rtTimestamp.stopSequenceOrNull ?: return@forEach
+                    val rdsTripTimestamp = scheduleTimestamps.findClosestTripTimestamp(tripId, stopSequence)
+                    scheduleTimestamps.remove(rdsTripTimestamp)
+                    scheduleTimestamps.add(rtTimestamp)
+                }
+            scheduleTimestamps.sortWith(Schedule.TIMESTAMPS_COMPARATOR)
+            scheduleTimestamps
+        }
 }

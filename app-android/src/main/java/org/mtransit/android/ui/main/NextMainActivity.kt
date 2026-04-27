@@ -13,6 +13,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -75,7 +77,7 @@ class NextMainActivity : MTActivityWithLocation(),
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     override fun getScreenName() = TRACKING_SCREEN_NAME
 
@@ -292,6 +294,7 @@ class NextMainActivity : MTActivityWithLocation(),
         // TODO later
     }
 
+    @AnyThread
     override fun onRewardedAdStatusChanged() {
         // DO NOTHING
     }
@@ -334,6 +337,7 @@ class NextMainActivity : MTActivityWithLocation(),
 
     override fun getLastLocationSettingsResolution() = this.locationSettingsResolution
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment // TODO ?
 

@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.view.common
 
 import android.app.Activity
+import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import org.mtransit.android.common.IContext
@@ -13,6 +14,7 @@ interface IActivity : IContext, LifecycleOwner {
     @Throws(IllegalStateException::class)
     fun requireActivity(): Activity
 
+    @get:MainThread
     val currentFragment: Fragment?
 
     fun finish()

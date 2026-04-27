@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import org.mtransit.android.commons.data.AvailabilityPercent
 import org.mtransit.android.commons.data.POIStatus
+import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.LayoutPoiStatusAvailabilityPercentBinding
 import org.mtransit.android.ui.view.common.context
@@ -30,18 +31,19 @@ data class POIAvailabilityStatusViewHolder(
     override fun update(
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         status: POIStatus?,
-        dataProvider: POIStatusDataProvider
+        dataProvider: POIStatusDataProvider,
+        serviceUpdates: List<ServiceUpdate>?,
     ) {
         if (dataProvider.isShowingStatus && statusViewHolder is POIAvailabilityStatusViewHolder) {
-            statusViewHolder.bind(status as? AvailabilityPercent, dataProvider)
+            statusViewHolder.bind(status as? AvailabilityPercent, dataProvider, serviceUpdates)
         } else {
             hideStatus()
         }
     }
 
     @SuppressLint("KotlinPairNotCreated") // MTPieChartPercentView in Java
-    override fun bind(status: AvailabilityPercent?, dataProvider: POIStatusDataProvider) {
-        super.bind(status, dataProvider)
+    override fun bind(status: AvailabilityPercent?, dataProvider: POIStatusDataProvider, serviceUpdates: List<ServiceUpdate>?) {
+        super.bind(status, dataProvider, serviceUpdates)
         status?.let { availabilityPercent ->
             binding.apply {
                 if (!availabilityPercent.isStatusOK) {

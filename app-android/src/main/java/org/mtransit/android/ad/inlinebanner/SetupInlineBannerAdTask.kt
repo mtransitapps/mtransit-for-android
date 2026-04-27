@@ -2,14 +2,15 @@ package org.mtransit.android.ad.inlinebanner
 
 import android.view.ViewGroup
 import androidx.annotation.MainThread
+import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import androidx.core.view.isVisible
 import com.google.android.gms.ads.AdView
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdView #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.ui.view.common.IFragment
 import java.lang.ref.WeakReference
@@ -28,10 +29,10 @@ class SetupInlineBannerAdTask(
         crashReporter: CrashReporter,
         fragment: IFragment,
     ) : this(
-        globalAdManager,
-        inlineBannerAdManager,
-        crashReporter,
-        WeakReference<IFragment>(fragment),
+        globalAdManager = globalAdManager,
+        inlineBannerAdManager = inlineBannerAdManager,
+        crashReporter = crashReporter,
+        fragmentWR = WeakReference(fragment),
     )
 
     companion object {
@@ -41,52 +42,50 @@ class SetupInlineBannerAdTask(
     override fun getLogTag() = LOG_TAG
 
     @WorkerThread
-    override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean? {
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
+    override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean {
+        if (!AdConstants.AD_ENABLED) return false
         return !isCancelled && this.globalAdManager.isShowingAds() // TODO can be called from any thread
     }
 
     @MainThread
     override fun onPostExecuteNotCancelledMT(result: Boolean?) {
-        val isShowingAds = result
-        val activity = this.fragmentWR.get()
-        if (activity == null) {
-            MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no activity)")
-            return
-        }
-        if (isShowingAds == true && !isCancelled) { // show ads
-            val adLayout = this.inlineBannerAdManager.getAdLayout(activity)
-            if (adLayout != null) {
-                var adView = this.inlineBannerAdManager.getAdView(adLayout)
-                if (adView == null) {
-                    adView = makeNewAdView(activity, adLayout)
-                }
-                adView.loadAd(AdManager.getAdRequest(activity))
+        val fragment = this.fragmentWR.get() ?: return
+        val isShowingAds = result == true
+        if (isShowingAds && !isCancelled) { // show ads
+            this.inlineBannerAdManager.getAdLayout(fragment)?.let { adLayout ->
+                val adView = this.inlineBannerAdManager.getAdView(adLayout)
+                    ?: makeNewAdView(fragment, adLayout)
+                adView.loadAd(
+                    // adRequest =
+                    AdManager.getBannerAdRequest(
+                        adUnitId = fragment.requireActivity().getString(adUnitStringResId),
+                        adSize = inlineBannerAdManager.getAdSize(fragment),
+                    ),
+                    // adLoadCallback = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment) #gmaNextGen
+                )
             }
         } else { // hide ads
-            this.inlineBannerAdManager.hideBannerAd(activity)
+            this.inlineBannerAdManager.hideBannerAd(fragment)
         }
     }
 
-    private fun makeNewAdView(fragment: IFragment, adLayout: ViewGroup): AdView {
-        val adView = AdView(fragment.requireContext()).apply {
+    @get:StringRes
+    private val adUnitStringResId: Int get() = R.string.google_ads_banner_inline_ad_unit_id
+
+    private fun makeNewAdView(fragment: IFragment, adLayout: ViewGroup) =
+        AdView(fragment.requireContext()).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             isVisible = false
             id = R.id.inline_banner_ad
-            adUnitId = fragment.requireContext().getString(R.string.google_ads_banner_inline_ad_unit_id)
-        }
-        adLayout.removeAllViews()
-        adLayout.addView(adView)
-
-        adView.apply {
+            adUnitId = fragment.requireContext().getString(adUnitStringResId)
+        }.also {
+            adLayout.removeAllViews()
+            adLayout.addView(it)
+        }.apply {
             setAdSize(inlineBannerAdManager.getAdSize(fragment)) // ad size can only be set once
-            adListener = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment, adView)
+            adListener = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment, adView = this)
         }
-        return adView
-    }
 }

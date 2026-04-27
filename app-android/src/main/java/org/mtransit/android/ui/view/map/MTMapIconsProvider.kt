@@ -1,15 +1,18 @@
 package org.mtransit.android.ui.view.map
 
 import org.mtransit.android.R
+import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.dp
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.commons.FeatureFlags
 
 object MTMapIconsProvider {
 
     //@formatter:off
 
     @JvmStatic
-    val selectedDefaultIconDef = MTMapIconDef(R.drawable.map_icon_place_replace_slim_original_nodpi, size= 36.dp, smallSize = 36.dp, replaceColor = true)
+    val selectedDefaultIconDef = MTMapIconDef(R.drawable.map_icon_place_replace_slim_original_nodpi, oneSize = true, size= 36.dp, replaceColor = true)
 
     @JvmStatic
     val defaultIconDef =
@@ -21,7 +24,7 @@ object MTMapIconsProvider {
 
     @JvmStatic
     val defaultClusterIconDef =
-        MTMapIconDef(R.drawable.map_icon_cluster_blur_replace_nodpi, size = 48.dp, smallSize = 48.dp, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)
+        MTMapIconDef(R.drawable.map_icon_cluster_blur_replace_nodpi, oneSize = true, size = 48.dp, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)
 
     @JvmStatic
     val lightRailVehicleIconDef =
@@ -46,8 +49,16 @@ object MTMapIconsProvider {
     //@formatter:on
 
     @JvmStatic
-    val Float?.iconDefForRotation: MTMapIconDef
-        get() = if (this != null) arrowIconDef else defaultIconDef
+    fun getIconDefForRotation(rotation: Float?, poi: POI): MTMapIconDef {
+        @Suppress("SimplifyBooleanWithConstants")
+        if (FeatureFlags.F_EXPORT_DIRECTION_STOP_LAST
+            && poi is RouteDirectionStop
+            && poi.isAlwaysLastTripStop
+        ) {
+            return defaultIconDef
+        }
+        return if (rotation != null) arrowIconDef else defaultIconDef
+    }
 
     @JvmStatic
     val DataSourceType?.vehicleIconDef: MTMapIconDef

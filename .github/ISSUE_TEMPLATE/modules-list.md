@@ -7,6 +7,7 @@ labels: MT
 ---
 
 # Modules
+- [ ] ca-100-mile-house-transit-bus
 - [ ] ca-airdrie-transit-bus
 - [ ] ca-banff-roam-transit-bus
 - [ ] ca-barrie-transit-bus
@@ -41,7 +42,6 @@ labels: MT
 - [ ] ca-halifax-transit-bus
 - [ ] ca-halifax-transit-ferry
 - [ ] ca-hamilton-hsr-bus
-- [ ] ca-haut-st-laurent-cithsl-bus
 - [ ] ca-kamloops-transit-system-bus
 - [ ] ca-kelowna-regional-transit-system-bus
 - [ ] ca-kingston-transit-bus
@@ -61,7 +61,7 @@ labels: MT
 - [ ] ca-moncton-codiac-transpo-bus
 - [ ] ca-montreal-amt-train
 - [ ] ca-montreal-bixi-bike
-- [ ] ca-montreal-rem-light-rail-android
+- [ ] ca-montreal-rem-light-rail
 - [ ] ca-montreal-stm-bus
 - [ ] ca-montreal-stm-subway
 - [ ] ca-nanaimo-rdn-transit-system-bus
@@ -104,6 +104,7 @@ labels: MT
 - [ ] ca-vancouver-translink-ferry
 - [ ] ca-vancouver-translink-train
 - [ ] ca-vernon-transit-system-bus
+- [ ] ca-via-rail-train
 - [ ] ca-victoria-regional-transit-system-bus
 - [ ] ca-welland-transit-bus
 - [ ] ca-west-coast-express-train
@@ -120,4 +121,3 @@ labels: MT
 - [ ] us-juneau-capital-transit-bus
 - [ ] us-longview-rivercities-transit-bus
 - [ ] us-snohomish-county-community-transit-bus
-- [ ] us-washington-state-ferry

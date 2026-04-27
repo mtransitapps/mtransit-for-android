@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
+import androidx.annotation.MainThread
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
@@ -25,7 +26,7 @@ import kotlin.getValue
 class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
 
     companion object {
-        private val LOG_TAG = PurchaseActivity::class.java.simpleName
+        private val LOG_TAG: String = PurchaseActivity::class.java.simpleName
 
         @JvmStatic
         fun newInstance(context: Context): Intent {
@@ -33,7 +34,7 @@ class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val viewModel by viewModels<PurchaseViewModel>()
 
@@ -66,6 +67,7 @@ class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
         }
     }
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment
 }

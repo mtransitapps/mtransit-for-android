@@ -22,17 +22,12 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorWithUserName
 import org.mtransit.android.data.authorityAndUuidT
-import org.mtransit.android.data.authorityT
-import org.mtransit.android.data.getAuthority
-import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.hasVideo
-import org.mtransit.android.data.uuidT
 import org.mtransit.android.databinding.LayoutNewListMomentSeparatorBinding
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
 import java.util.Locale
 
 class NewsListAdapter(
@@ -45,7 +40,7 @@ class NewsListAdapter(
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsListAdapter::class.java.simpleName
+        private val LOG_TAG: String = NewsListAdapter::class.java.simpleName
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(ITEM_VIEW_TYPE_MOMENT_SEPARATORS, ITEM_VIEW_TYPE_NEWS)
@@ -71,13 +66,17 @@ class NewsListAdapter(
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val hasSeparator = !horizontal
 
     private val momentToNewsList = mutableListOf<Pair<Long, MutableList<News>>>()
 
-    private val timeChangedReceiver = TimeChangedReceiver { resetNowToTheMinute() }
+    private val timeChangedListener = UITimeUtils.TimeChangedReceiver.TimeChangedListener {
+        resetNowToTheMinute()
+    }
+
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver(timeChangedListener) // need to create an object because of WeakReference
 
     private var timeChangedReceiverEnabled = false
 
@@ -153,9 +152,8 @@ class NewsListAdapter(
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int {
-        return this.momentToNewsList.sumOf { (_, newsList) -> (if (hasSeparator) 1 else 0) + newsList.size }
-    }
+    override fun getItemCount() =
+        this.momentToNewsList.sumOf { (_, newsList) -> (if (hasSeparator) 1 else 0) + newsList.size }
 
     @NewsItemViewType
     override fun getItemViewType(position: Int): Int {
@@ -175,13 +173,12 @@ class NewsListAdapter(
         throw RuntimeException("View type not found at $position! (index:$index)")
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, @NewsItemViewType viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
+    override fun onCreateViewHolder(parent: ViewGroup, @NewsItemViewType viewType: Int) =
+        when (viewType) {
             ITEM_VIEW_TYPE_MOMENT_SEPARATORS -> MomentSeparatorViewHolder.from(parent)
             ITEM_VIEW_TYPE_NEWS -> NewsListItemViewHolder.from(parent)
             else -> throw RuntimeException("Unexpected view type $viewType!")
         }
-    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
@@ -219,6 +216,11 @@ class NewsListAdapter(
         return null
     }
 
+    @Suppress("unused")
+    fun getNewsItem(newAuthorityAndUuid: AuthorityAndUuid?) =
+        getNewsItemPosition(newAuthorityAndUuid)?.let { position ->
+            getNewsItem(position)
+        }
 
     private fun getNewsItem(position: Int): News? {
         var index = 0
@@ -264,8 +266,7 @@ class NewsListAdapter(
                     index++ // moment separator
                 }
                 newsList.indexOfFirst {
-                    it.authorityT == authorityAndUuid.getAuthority()
-                            && it.uuidT == authorityAndUuid.getUuid()
+                    it.authorityAndUuidT == authorityAndUuid
                 }.takeIf { it >= 0 }?.let {
                     return index + it
                 }

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
@@ -29,7 +30,7 @@ import javax.inject.Inject
 class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
 
     companion object {
-        private val LOG_TAG = PreferencesActivity::class.java.simpleName
+        private val LOG_TAG: String = PreferencesActivity::class.java.simpleName
 
         @JvmOverloads
         @JvmStatic
@@ -43,7 +44,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
@@ -114,6 +115,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         }
     }
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment
 }

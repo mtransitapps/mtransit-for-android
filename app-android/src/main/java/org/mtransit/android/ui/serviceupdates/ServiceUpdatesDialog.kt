@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -21,7 +20,7 @@ import org.mtransit.android.data.UIServiceUpdates
 import org.mtransit.android.databinding.FragmentDialogServiceUpdatesBinding
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
-import org.mtransit.android.ui.common.UISourceLabelUtils.setSourceLabelTextView
+import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -52,11 +51,30 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
             authority: String,
             routeId: Long,
             directionId: Long? = null,
-        ) = bundleOf(
-            ServiceUpdatesViewModel.EXTRA_AUTHORITY to authority,
-            ServiceUpdatesViewModel.EXTRA_ROUTE_ID to routeId,
-            ServiceUpdatesViewModel.EXTRA_DIRECTION_ID to directionId,
-        )
+        ) = Bundle().apply {
+            putString(ServiceUpdatesViewModel.EXTRA_AUTHORITY, authority)
+            putLong(ServiceUpdatesViewModel.EXTRA_ROUTE_ID, routeId)
+            directionId?.let { putLong(ServiceUpdatesViewModel.EXTRA_DIRECTION_ID, it) }
+        }
+
+        @JvmStatic
+        fun newInstanceForStop(
+            authority: String,
+            poiUUID: String,
+        ): ServiceUpdatesDialog {
+            return ServiceUpdatesDialog().apply {
+                arguments = newInstanceArgsForStop(authority, poiUUID)
+            }
+        }
+
+        @JvmStatic
+        fun newInstanceArgsForStop(
+            authority: String,
+            poiUUID: String,
+        ) = Bundle().apply {
+            putString(ServiceUpdatesViewModel.EXTRA_AUTHORITY, authority)
+            putString(ServiceUpdatesViewModel.EXTRA_POI_UUID, poiUUID)
+        }
     }
 
     override fun getLogTag() = LOG_TAG
@@ -119,15 +137,18 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
         poiServiceUpdate.apply {
             val serviceUpdatesHTMLText = UIServiceUpdates.makeServiceUpdatesHTMLText(context, serviceUpdates)
             val hasServiceUpdatesToShow = serviceUpdatesHTMLText.isNotEmpty()
-            val hasWarning = UIServiceUpdates.hasWarnings(serviceUpdates)
-            serviceUpdateText.setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdatesHTMLText), false), TextView.BufferType.SPANNABLE)
-            serviceUpdateText.movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+            serviceUpdateText.apply {
+                val hasWarning = UIServiceUpdates.hasWarnings(serviceUpdates)
+                setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdatesHTMLText), false), TextView.BufferType.SPANNABLE)
+                movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
+                    this@ServiceUpdatesDialog.dismiss()
+                    LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+                }
+                setBackgroundResource(
+                    if (hasWarning) R.drawable.service_update_warning else R.drawable.service_update_info
+                )
             }
-            serviceUpdateText.setBackgroundResource(
-                if (hasWarning) R.drawable.service_update_warning else R.drawable.service_update_info
-            )
-            setSourceLabelTextView(sourceLabel, serviceUpdates)
+            UISourceLabelUtils.setSourceLabelTextView(sourceLabel, serviceUpdates)
             root.isVisible = hasServiceUpdatesToShow
             emptyLayout.isVisible = !hasServiceUpdatesToShow
         }

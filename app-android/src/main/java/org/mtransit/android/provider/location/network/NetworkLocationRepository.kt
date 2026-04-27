@@ -29,7 +29,7 @@ class NetworkLocationRepository @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NetworkLocationRepository::class.java.simpleName
+        private val LOG_TAG: String = NetworkLocationRepository::class.java.simpleName
 
         private val DEFAULT_LOCATION_VALUE: Float? = null
 
@@ -40,7 +40,7 @@ class NetworkLocationRepository @Inject constructor(
         private const val PROVIDER_NAME = "ipwho.is"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private var _ipLocationLat = lclPreferenceRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, DEFAULT_LOCATION_VALUE)
     private var _ipLocationLng = lclPreferenceRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, DEFAULT_LOCATION_VALUE)

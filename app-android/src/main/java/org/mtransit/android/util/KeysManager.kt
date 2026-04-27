@@ -5,13 +5,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.billing.allowTwitterNews
 import org.mtransit.android.commons.KeysIds
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils.EMPTY
 import org.mtransit.android.data.ITargetedProviderProperties
-import org.mtransit.android.provider.experiments.ExperimentsProvider
-import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE
-import org.mtransit.android.provider.experiments.ExperimentsProvider.Companion.EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +18,7 @@ import javax.inject.Singleton
 class KeysManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val billingManager: IBillingManager,
-    private val experimentsProvider: ExperimentsProvider,
+    private val remoteConfigProvider: RemoteConfigProvider,
 ) {
 
     companion object {
@@ -54,7 +53,7 @@ class KeysManager @Inject constructor(
         private fun getKeysMap(
             context: Context,
             billingManager: IBillingManager,
-            experimentsProvider: ExperimentsProvider,
+            remoteConfigProvider: RemoteConfigProvider,
             authority: String
         ): Map<String, String>? = when {
             // MAIN
@@ -63,12 +62,12 @@ class KeysManager @Inject constructor(
             authority.endsWith("$debugS.news.twitter") -> {
                 buildMap {
                     getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)
-                        ?.takeIf { billingManager.showingPaidFeatures() }
+                        ?.takeIf { billingManager.showingPaidFeatures() } // main app token $$ for paid users only
                         ?.let { (key, value) ->
                             put(key, value)
                         }
                     getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)
-                        ?.takeIf { experimentsProvider.get(EXP_ALLOW_TWITTER_NEWS_FOR_FREE, EXP_ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT) }
+                        ?.takeIf { remoteConfigProvider.allowTwitterNews() } // remote cached API for free users as well (with feature flag)
                         ?.let { (key, value) ->
                             put(key, value)
                         }
@@ -135,6 +134,7 @@ class KeysManager @Inject constructor(
                 }
             }
             // CUSTOM
+            authority.endsWith("$debugS.mybus") -> getKeyEntry(context, KeysIds.CA_SUDBURY_TRANSIT_AUTH_TOKEN)?.let { mapOf(it) }
             authority.endsWith("$debugS.winnipeg_transit") -> getKeyEntry(context, KeysIds.CA_WINNIPEG_TRANSIT_API_KEY)?.let { mapOf(it) }
             else -> {
                 if (DEBUGGING_KEYS) MTLog.d(LOG_TAG, "No key for '$authority'.")
@@ -155,7 +155,7 @@ class KeysManager @Inject constructor(
 
     private fun getKeysMap(targetedProvider: ITargetedProviderProperties) = getKeysMap(targetedProvider.authority)
 
-    fun getKeysMap(authority: String) = getKeysMap(appContext, billingManager, experimentsProvider, authority)
+    fun getKeysMap(authority: String) = getKeysMap(appContext, billingManager, remoteConfigProvider, authority)
 }
 
 /**

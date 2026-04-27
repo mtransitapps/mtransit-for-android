@@ -71,7 +71,7 @@ data class MTPOIMarker(
             .data(uuidsAndAuthority)
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     constructor(
         position: LatLng,

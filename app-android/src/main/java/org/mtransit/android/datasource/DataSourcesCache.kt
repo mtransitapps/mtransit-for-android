@@ -1,6 +1,5 @@
 package org.mtransit.android.datasource
 
-import org.mtransit.android.data.DataSourceType
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,6 +46,8 @@ class DataSourcesCache @Inject constructor(
     fun readingAllStatusProviders() = statusProviderPropertiesDao().readingAllStatusProviders()
 
     suspend fun getStatusProviders(targetAuthority: String) = statusProviderPropertiesDao().getTargetAuthorityStatusProvider(targetAuthority)
+
+    fun readingStatusProviders(targetAuthority: String?) = statusProviderPropertiesDao().readingTargetAuthorityStatusProviders(targetAuthority)
 
     suspend fun getStatusProvider(authority: String) = statusProviderPropertiesDao().getStatusProvider(authority)
 

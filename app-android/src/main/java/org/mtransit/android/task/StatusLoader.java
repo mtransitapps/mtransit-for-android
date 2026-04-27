@@ -114,9 +114,7 @@ public class StatusLoader implements MTLog.Loggable {
 		final Collection<StatusProviderProperties> providers = this.dataSourcesRepository.getStatusProviders(poim.poi.getAuthority());
 		if (!providers.isEmpty()) {
 			for (StatusProviderProperties provider : providers) {
-				if (provider == null) {
-					continue;
-				}
+				if (provider == null) continue;
 				new StatusFetcherCallable(this.appContext,
 						listener,
 						provider,

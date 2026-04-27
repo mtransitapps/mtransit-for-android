@@ -24,10 +24,10 @@ import org.mtransit.android.ui.view.common.isVisible
 class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable, MenuProvider {
 
     companion object {
-        private val LOG_TAG = ModulesFragment::class.java.simpleName
+        private val LOG_TAG: String = ModulesFragment::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val viewModel by viewModels<ModulesViewModel>()
 
@@ -38,9 +38,7 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable, Men
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
+        (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         binding = FragmentModulesBinding.bind(view).apply {
             (activity as? AppCompatActivity)?.setSupportActionBar(abToolbar)
             (activity as? AppCompatActivity)?.supportActionBar?.apply {

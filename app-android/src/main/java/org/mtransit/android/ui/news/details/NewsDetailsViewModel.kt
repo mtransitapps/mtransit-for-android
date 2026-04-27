@@ -27,13 +27,13 @@ class NewsDetailsViewModel @Inject constructor(
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsDetailsViewModel::class.java.simpleName
+        private val LOG_TAG: String = NewsDetailsViewModel::class.java.simpleName
 
         internal const val EXTRA_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_NEWS_UUID = "extra_news_uuid"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val uuid = savedStateHandle.getLiveDataDistinct<String>(EXTRA_NEWS_UUID)
 

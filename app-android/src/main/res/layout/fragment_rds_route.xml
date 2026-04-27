@@ -1,79 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/context_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="#0000FF"
     tools:context=".ui.rds.route.RDSRouteFragment">
 
-    <View
-        android:id="@+id/fragment_status_bar_bg"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_alignParentTop="true"
-        android:visibility="gone"
-        tools:layout_height="28dp"
-        tools:visibility="visible" />
-
-    <View
-        android:id="@+id/route_direction_background"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/screen_toolbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/tabs"
-        android:layout_alignParentTop="true"
-        android:foreground="@drawable/route_direction_gradient"
-        tools:background="#FF00FF"
-        tools:ignore="UnusedAttribute" />
+        android:fitsSystemWindows="true"
+        app:liftOnScroll="true"
+        tools:background="#00FF00">
 
-    <!-- TABS -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@id/tabs"
-        style="@style/Widget.MaterialComponents.TabLayout.Colored"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_below="@id/fragment_status_bar_bg"
-        android:layout_marginTop="@dimen/action_bar_size_static"
-        android:background="@color/transparent"
-        android:theme="@style/MTThemeOverlay"
-        android:visibility="gone"
-        app:tabContentStart="@dimen/tab_content_start"
-        app:tabGravity="start"
-        app:tabIndicatorColor="?attr/colorOnPrimary"
-        app:tabMaxWidth="@dimen/tab_head_sign_max_width"
-        app:tabMinWidth="0dp"
-        app:tabMode="scrollable"
-        app:tabTextAppearance="@style/MTTabTextStyle"
-        tools:visibility="visible" />
+        <!-- CollapsingToolbarLayout == FrameLayout -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:layout_scrollEffect="none"
+            tools:layout_scrollFlags="scroll|enterAlways|snap">
 
-    <!-- LOADING -->
-    <include
-        android:id="@id/loading_layout"
-        layout="@layout/layout_loading_large"
+            <View
+                android:id="@+id/toolbar_and_tabs_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:foreground="@drawable/route_direction_gradient"
+                tools:background="#FF00FF"
+                tools:ignore="UnusedAttribute" />
+
+            <!-- AppBarLayout == LinearLayout -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/screen_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:minHeight="?attr/actionBarSize"
+                    android:theme="@style/MTThemeOverlay"
+                    tools:menu="@menu/menu_main"
+                    tools:navigationIcon="@drawable/ic_drawer_menu_24px"
+                    tools:title="Screen title" />
+
+                <!-- TABS -->
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@id/tabs"
+                    style="@style/Widget.MaterialComponents.TabLayout.Colored"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:theme="@style/MTThemeOverlay"
+                    android:visibility="gone"
+                    app:tabContentStart="@dimen/tab_content_start"
+                    app:tabGravity="start"
+                    app:tabIndicatorColor="?attr/colorOnPrimary"
+                    app:tabMaxWidth="@dimen/tab_head_sign_max_width"
+                    app:tabMinWidth="0dp"
+                    app:tabMode="scrollable"
+                    app:tabTextAppearance="@style/MTTabTextStyle"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tabs"
-        android:visibility="gone"
-        tools:visibility="visible" />
-    <!-- VIEWPAGER -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@id/view_pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/tabs"
-        android:orientation="horizontal"
-        android:visibility="visible"
-        tools:layout="@layout/fragment_rds_direction_stops"
-        tools:visibility="visible" />
-    <!-- EMPTY -->
-    <include
-        android:id="@id/empty_layout"
-        layout="@layout/layout_empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/tabs"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:background="#0000FF">
 
-</RelativeLayout>
+        <!-- LOADING -->
+        <include
+            android:id="@id/loading_layout"
+            layout="@layout/layout_loading_large"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible" />
+        <!-- VIEWPAGER -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            tools:layout="@layout/fragment_rds_direction_stops"
+            tools:visibility="visible" />
+        <!-- EMPTY -->
+        <include
+            android:id="@id/empty_layout"
+            layout="@layout/layout_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+    </RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

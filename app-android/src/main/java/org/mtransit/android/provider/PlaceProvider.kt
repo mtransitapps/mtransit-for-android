@@ -322,7 +322,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private class PlaceDbHelper(context: Context) : MTSQLiteOpenHelper(context, DB_NAME, null, getDbVersion()) {
 
-        override fun getLogTag(): String = LOG_TAG
+        override fun getLogTag() = LOG_TAG
 
         override fun onCreateMT(db: SQLiteDatabase) {
             initAllDbTables(db)

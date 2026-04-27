@@ -69,7 +69,7 @@ class NearbyViewModel @Inject constructor(
     ModuleDisabledAwareViewModel {
 
     companion object {
-        private val LOG_TAG = NearbyViewModel::class.java.simpleName
+        private val LOG_TAG: String = NearbyViewModel::class.java.simpleName
 
         private const val IGNORE_SAME_LOCATION_CHECK = false
         // private const val IGNORE_SAME_LOCATION_CHECK = true // DEBUG
@@ -86,7 +86,7 @@ class NearbyViewModel @Inject constructor(
         internal val EXTRA_FIXED_ON_COLOR_DEFAULT: String? = null
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val _selectedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_TYPE, EXTRA_SELECTED_TYPE_DEFAULT)
         .map { if (it < 0) null else it }

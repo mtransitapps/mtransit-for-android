@@ -20,8 +20,11 @@ import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.AUTHORITY_INVALID
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.UUID_INVALID
+import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.getAuthority
 import org.mtransit.android.data.getUuid
+import org.mtransit.android.data.hasVideo
+import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
@@ -42,7 +45,7 @@ class NewsListViewModel @Inject constructor(
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsListViewModel::class.java.simpleName
+        private val LOG_TAG: String = NewsListViewModel::class.java.simpleName
 
         internal const val EXTRA_COLOR = "extra_color"
         internal val EXTRA_COLOR_DEFAULT: String? = null
@@ -56,9 +59,11 @@ class NewsListViewModel @Inject constructor(
 
         internal const val EXTRA_SELECTED_ARTICLE_AUTHORITY = "extra_selected_article_agency_authority"
         internal const val EXTRA_SELECTED_ARTICLE_UUID = "extra_selected_article_uuid"
+        internal const val EXTRA_FULL_SCREEN_MODE = "extra_full_screen"
+        internal const val EXTRA_FULL_SCREEN_MODE_DEFAULT = false
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     val colorInt = savedStateHandle.getLiveDataDistinct(EXTRA_COLOR, EXTRA_COLOR_DEFAULT)
         .map { it?.let { ColorUtils.parseColor(it) } }
@@ -71,9 +76,10 @@ class NewsListViewModel @Inject constructor(
 
     private val _filterUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_UUIDS, EXTRA_FILTER_UUIDS_DEFAULT)
 
-    private val _filters = MediatorLiveData3(_targetAuthorities, _filterTargets, _filterUUIDs).map {
-        Filters(it.first?.toList(), it.second?.toList(), it.third?.toList())
-    }.distinctUntilChanged()
+    private val _filters = MediatorLiveData3(_targetAuthorities, _filterTargets, _filterUUIDs)
+        .map { (targetAuthorities, filterTargets, filterUUIDs) ->
+            Filters(targetAuthorities?.toList(), filterTargets?.toList(), filterUUIDs?.toList())
+        }.distinctUntilChanged()
 
     private val _allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
 
@@ -104,15 +110,16 @@ class NewsListViewModel @Inject constructor(
 
     val loading: LiveData<Boolean> = _loading
 
-    val newsArticles: LiveData<List<News>?> =
-        MediatorLiveData3(_allNewsProviders, _filters, _refreshRequestedTrigger).switchMap { (allNewsProviders, filters, trigger) ->
+    val newsArticles: LiveData<List<News>?> = MediatorLiveData3(_allNewsProviders, _filters, _refreshRequestedTrigger)
+        .switchMap { (allNewsProviders, vmFilters, _) ->
             _loading.value = true
             newsRepository.loadingNewsArticles(
                 allProviders = allNewsProviders,
-                targetProviderAuthorities = filters?.targetAuthorities,
-                filterTargets = filters?.filterTargets,
-                filterUUIDs = filters?.filterUUIDs,
+                targetProviderAuthorities = vmFilters?.targetAuthorities,
+                filterTargets = vmFilters?.filterTargets,
+                filterUUIDs = vmFilters?.filterUUIDs,
                 comparator = News.NEWS_COMPARATOR,
+                inFocus = vmFilters?.filterTargets?.isNotEmpty() == true,
                 firstLoad = newsArticles.value == null,
                 onSuccess = {
                     _loading.postValue(false)
@@ -139,6 +146,20 @@ class NewsListViewModel @Inject constructor(
         if (newAuthorityAndUuid != null) {
             this._lastReadArticleAuthorityAndUUID.value = newAuthorityAndUuid
         }
+    }
+
+    val fullscreenModeAvailable: LiveData<Boolean?> =
+        MediatorLiveData2(newsArticles, selectedNewsArticleAuthorityAndUUID).map { (newsArticles, selectedNewsArticleAuthorityAndUUID) ->
+            newsArticles ?: return@map null
+            selectedNewsArticleAuthorityAndUUID ?: return@map null
+            if (!selectedNewsArticleAuthorityAndUUID.isAuthorityAndUuidValid()) return@map null
+            newsArticles.singleOrNull { it.authorityAndUuidT == selectedNewsArticleAuthorityAndUUID }?.hasVideo == true
+        }
+
+    val fullscreenMode = savedStateHandle.getLiveDataDistinct(EXTRA_FULL_SCREEN_MODE, EXTRA_FULL_SCREEN_MODE_DEFAULT)
+
+    fun setFullscreenMode(newFullscreenMode: Boolean) {
+        savedStateHandle[EXTRA_FULL_SCREEN_MODE] = newFullscreenMode
     }
 
     override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)

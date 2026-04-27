@@ -13,14 +13,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mtransit.android.BuildConfig;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.HtmlUtils;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.data.Accessibility;
 import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.provider.ModuleProvider;
 
-@SuppressWarnings("WeakerAccess")
 public class Module extends DefaultPOI {
 
 	private static final String LOG_TAG = Module.class.getSimpleName();
@@ -100,7 +101,7 @@ public class Module extends DefaultPOI {
 	}
 
 	@Nullable
-	public String getLocation() {
+	public String getLocationString() {
 		return this.location;
 	}
 
@@ -120,11 +121,15 @@ public class Module extends DefaultPOI {
 	@NonNull
 	@Override
 	public String getName() {
-		if (LocaleUtils.isFR()
-				&& getNameFr() != null) {
-			return getNameFr();
-		}
-		return super.getName();
+		return LocaleUtils.isFR() && getNameFr() != null ? getNameFr() : super.getName();
+	}
+
+	@NonNull
+	@Override
+	public CharSequence getLabel() {
+		return HtmlUtils.fromHtmlCompact(
+				Accessibility.decorate(getName(), getAccessible(), false)
+		);
 	}
 
 	@NonNull
@@ -152,7 +157,7 @@ public class Module extends DefaultPOI {
 	@Override
 	public String getUUID() {
 		if (this.uuid == null) {
-			this.uuid = POI.POIUtils.getUUID(getAuthority(), this.pkg);
+			this.uuid = POI.POIUtils.makeUUID(getAuthority(), this.pkg);
 		}
 		return this.uuid;
 	}

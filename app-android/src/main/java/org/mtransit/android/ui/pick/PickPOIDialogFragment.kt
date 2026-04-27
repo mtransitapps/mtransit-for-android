@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.collection.ArrayMap
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -42,7 +41,7 @@ import javax.inject.Inject
 class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationListener, IFragment {
 
     companion object {
-        private val LOG_TAG = PickPOIDialogFragment::class.java.simpleName
+        private val LOG_TAG: String = PickPOIDialogFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
@@ -60,15 +59,15 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             authorities: ArrayList<String>
         ): PickPOIDialogFragment {
             return PickPOIDialogFragment().apply {
-                arguments = bundleOf(
-                    PickPOIViewModel.EXTRA_POI_UUIDS to uuids,
-                    PickPOIViewModel.EXTRA_POI_AUTHORITIES to authorities,
-                )
+                arguments = Bundle().apply {
+                    putStringArrayList(PickPOIViewModel.EXTRA_POI_UUIDS, uuids)
+                    putStringArrayList(PickPOIViewModel.EXTRA_POI_AUTHORITIES, authorities)
+                }
             }
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val viewModel by viewModels<PickPOIViewModel>()
     private val attachedViewModel

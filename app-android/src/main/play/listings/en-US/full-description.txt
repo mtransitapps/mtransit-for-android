@@ -1,14 +1,14 @@
 <b>MonTransit effortlessly brings the most relevant transit information to you, including: </b>
 - buses, ferries, subways, streetcars & trains schedules (offline & real-time),
 - bike stations availability,
-- service alerts & the latest news from agencies web sites, blogs, Twitter, YouTube…
+- service alerts & the latest news from agencies websites, blogs, Twitter, YouTube…
 
 
 On the home screen, you can see all nearby route trips next departures as well as nearby bike stations availability in a predictable user interface.
 You can access the information any way you want by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen).
-For example, you can use the Map screen to discover new bus stops, subway stations, train stations or bike stations or you can search for a place by clicking on the 🔍 icon in the upper right corner of any screen.
+For example, you can use the Map screen to discover new bus stops, subway stations, train stations or bike stations. Or you can search for a place by clicking on the 🔍 icon in the upper right corner of any screen.
 
-No Internet? GPS turned off? WiFi disabled? No problem, MonTransit offers multiple ways to find the information you're looking for:
+No Internet? GPS turned off? Wi-Fi disabled? No problem, MonTransit offers multiple ways to find the information you're looking for:
 - you can access your ★ favorites or browse all transit information by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen)
 - you can enter a route number # or name, stop code # or name, street names... by clicking on the search 🔍 icon in the upper right corner of any screen
 - all buses, ferries, subways, streetcars & trains schedule are available offline
@@ -27,7 +27,7 @@ MonTransit is currently available in Canada:
 - <b>QC:</b> exo, BIXI, RTC, RTL, STM, STL, STO, STS…
 - <b>SK:</b> Regina, Saskatoon…
 - <b>YK:</b> Whitehorse…
-MonTransit is currently available in the northern United States:
+MonTransit is currently available in the Northern United States:
 - <b>AK:</b> People Mover…
 
 All the features are available for free (no paywall) but you can support the project (and hide ads) by paying a Google Play subscription (1 month free, cancel any time).
@@ -37,7 +37,7 @@ Thank You.
 
 Social:
 - Facebook: https://facebook.com/MonTransit
-- Twitter: https://twitter.com/montransit
+- Twitter/X: https://x.com/montransit
 
 This app is free & open-source:
 https://github.com/mtransitapps/mtransit-for-android
