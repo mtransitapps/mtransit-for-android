@@ -26,7 +26,7 @@ import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparator
 import org.mtransit.android.data.Favorite
-import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.FavoriteFolder
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.TextMessage
@@ -34,13 +34,14 @@ import org.mtransit.android.data.toPOIM
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
+import org.mtransit.android.provider.favorite.FavoritesUI
+import org.mtransit.android.provider.favorite.FavoritesUtils
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.sortWithAnd
 import javax.inject.Inject
-import kotlin.collections.filter
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
@@ -62,10 +63,6 @@ class FavoritesViewModel @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    fun onFavoriteUpdated() {
-        _favoriteUpdatedTrigger.value = (_favoriteUpdatedTrigger.value ?: 0) + 1
-    }
-
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
 
     val oneAgency: LiveData<AgencyBaseProperties?> = _allAgencies.map { // many users have only 1 agency installed
@@ -80,8 +77,6 @@ class FavoritesViewModel @Inject constructor(
         it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
 
-    private val _favoriteUpdatedTrigger = MutableLiveData(0)
-
     private val _hasFavoritesAgencyDisabled = MutableLiveData(false)
     val hasFavoritesAgencyDisabled: LiveData<Boolean> = _hasFavoritesAgencyDisabled.distinctUntilChanged()
 
@@ -89,19 +84,21 @@ class FavoritesViewModel @Inject constructor(
         it.filter { dst -> dst.isHomeScreen && dst != DataSourceType.TYPE_MODULE }
     }
 
+    val favorites = this.favoriteRepository.readingAllFavorites
+
     val favoritePOIs: LiveData<List<POIManager>?> =
-        MediatorLiveData3(_favoriteUpdatedTrigger, _allAgencies, _homeScreenTypes).switchMap { (_, allAgencies, homeScreenTypes) ->
+        MediatorLiveData3(favorites, _allAgencies, _homeScreenTypes).switchMap { (favorites, allAgencies, homeScreenTypes) ->
             _hasFavoritesAgencyDisabled.value = false
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                allAgencies ?: run { emit(null); return@liveData  } // loading
-                homeScreenTypes ?: run { emit(null); return@liveData  } // loading
-                emit(getFavorites(allAgencies, homeScreenTypes))
+                favorites?: run { emit(null); return@liveData } // loading
+                allAgencies ?: run { emit(null); return@liveData } // loading
+                homeScreenTypes ?: run { emit(null); return@liveData } // loading
+                emit(getFavorites(favorites, allAgencies, homeScreenTypes))
             }
         }
 
     @WorkerThread
-    private suspend fun getFavorites(allAgencies: List<IAgencyProperties>, homeScreenTypes: List<DataSourceType>): List<POIManager> {
-        val favorites = this.favoriteRepository.findFavorites()
+    private suspend fun getFavorites(favorites: List<Favorite>, allAgencies: List<AgencyBaseProperties>, homeScreenTypes: List<DataSourceType>): List<POIManager> {
         if (favorites.isEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no favorites)")
             return emptyList() // empty (no favorites)
@@ -132,20 +129,20 @@ class FavoritesViewModel @Inject constructor(
         val favFolderIds = mutableSetOf<Int>()
         pois.forEach { favPOIM ->
             val favFolderId = uuidToFavoriteFolderId[favPOIM.poi.uuid]
-            if (favFolderId != null && favFolderId > FavoriteRepository.DEFAULT_FOLDER_ID) {
-                favPOIM.poi.dataSourceTypeId = this.favoriteRepository.generateFavoriteFolderId(favFolderId)
+            if (favFolderId != null && favFolderId > FavoriteFolder.DEFAULT_FOLDER_ID) {
+                favPOIM.poi.dataSourceTypeId = FavoritesUtils.generateFavoriteFolderId(favFolderId)
                 favFolderIds.add(favFolderId)
             }
         }
         var textMessageId = UITimeUtils.currentTimeMillis()
         val favFolders = this.favoriteRepository.findFoldersList()
         favFolders
-            .filter { favFolder -> favFolder.id > FavoriteRepository.DEFAULT_FOLDER_ID && !favFolderIds.contains(favFolder.id) }
+            .filter { favFolder -> favFolder.id > FavoriteFolder.DEFAULT_FOLDER_ID && !favFolderIds.contains(favFolder.id) }
             .forEach { favoriteFolder ->
                 pois.add(getNewEmptyFolder(textMessageId++, favoriteFolder.id))
             }
         if (pois.isNotEmpty()) {
-            pois.sortWith(FavoriteFolderNameComparator(this.favoriteRepository, favFolders))
+            pois.sortWith(FavoriteFolderNameComparator(favFolders))
         }
         // ADD missing data source type with empty at the end of list
         val favoriteTypeIds = pois.map { it.poi.dataSourceTypeId }.toSet()
@@ -157,18 +154,15 @@ class FavoritesViewModel @Inject constructor(
         return pois
     }
 
-    private fun getNewEmptyFolder(textMessageId: Long, favoriteFolderId: Int): POIManager {
-        return POIManager(
-            this.favoriteRepository.generateFavEmptyFavPOI(
-                textMessageId,
-                this.favoriteRepository.generateFavoriteFolderId(favoriteFolderId)
-            )
-        )
-    }
+    private fun getNewEmptyFolder(textMessageId: Long, favoriteFolderId: Int) =
+        FavoritesUI.generateFavEmptyFavPOI(
+            appContext,
+            textMessageId,
+            FavoritesUtils.generateFavoriteFolderId(favoriteFolderId)
+        ).toPOIM()
 
     class FavoriteFolderNameComparator(
-        private val favoriteRepository: FavoriteRepository,
-        private val favFolders: Collection<Favorite.Folder>
+        private val favFolders: Collection<FavoriteFolder>
     ) : Comparator<POIManager?> {
 
         override fun compare(lhs: POIManager?, rhs: POIManager?): Int {
@@ -182,9 +176,9 @@ class FavoritesViewModel @Inject constructor(
             } else if (rhsPoi == null) {
                 return ComparatorUtils.AFTER
             }
-            val lFavFolderId = favoriteRepository.getFavoriteDataSourceIdOrNull(lhsPoi.dataSourceTypeId)
+            val lFavFolderId = FavoritesUtils.getFavoriteDataSourceIdOrNull(lhsPoi.dataSourceTypeId)
             val lFavFolderName = favFolders.singleOrNull { it.id == lFavFolderId }?.name ?: StringUtils.EMPTY
-            val rFavFolderId = favoriteRepository.getFavoriteDataSourceIdOrNull(rhsPoi.dataSourceTypeId)
+            val rFavFolderId = FavoritesUtils.getFavoriteDataSourceIdOrNull(rhsPoi.dataSourceTypeId)
             val rFavFolderName = favFolders.singleOrNull { it.id == rFavFolderId }?.name ?: StringUtils.EMPTY
             return lFavFolderName.compareTo(rFavFolderName)
         }

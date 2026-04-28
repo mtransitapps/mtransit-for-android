@@ -505,7 +505,7 @@ public class POIViewController implements MTLog.Loggable {
 		holder.getNameTv().setSingleLine(true); // marquee forever
 		holder.getNameTv().setSelected(!demoModeManager.isFullDemo()); // marquee forever
 		updatePOIDistanceAndCompass(holder, poim, dataProvider);
-		if (dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
+		if (dataProvider.isShowingFavorite() && dataProvider.isFavorite()) {
 			holder.getFavImg().setVisibility(View.VISIBLE);
 		} else {
 			holder.getFavImg().setVisibility(View.GONE);

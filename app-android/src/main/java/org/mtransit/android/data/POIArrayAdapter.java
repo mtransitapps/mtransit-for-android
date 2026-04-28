@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -43,6 +44,7 @@ import com.bumptech.glide.RequestManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.common.primitives.Ints;
 
+import org.jetbrains.annotations.NotNull;
 import org.mtransit.android.R;
 import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
@@ -65,7 +67,9 @@ import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderBinding;
 import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderButtonBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
-import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.provider.FavoriteRepository;
+import org.mtransit.android.provider.favorite.FavoritesUI;
+import org.mtransit.android.provider.favorite.FavoritesUtils;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -115,11 +119,18 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 @SuppressWarnings("WeakerAccess")
-public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSensorManager.CompassListener, AdapterView.OnItemClickListener,
-		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
-		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, MTSensorManager.SensorTaskCompleted,
+public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
+		MTSensorManager.CompassListener,
+		AdapterView.OnItemClickListener,
+		AdapterView.OnItemLongClickListener,
+		SensorEventListener,
+		AbsListView.OnScrollListener,
+		StatusLoader.StatusLoaderListener,
+		ServiceUpdateLoader.ServiceUpdateLoaderListener,
+		MTSensorManager.SensorTaskCompleted,
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
-		POIStatusDataProvider, ServiceUpdateLoaderProvider {
+		POIStatusDataProvider,
+		ServiceUpdateLoaderProvider {
 
 	private static final String LOG_TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -152,7 +163,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private HashMap<String, Integer> favUUIDsFolderIds;
 
 	@Nullable
-	private WeakReference<IFragment> activityWR;
+	private WeakReference<IFragment> fragmentWR;
 
 	@Nullable
 	private Location location;
@@ -202,8 +213,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private long lastCompassChanged = -1L;
 
-	private FavoriteManager.FavoriteUpdateListener favoriteUpdateListener = this;
-
 	@Nullable
 	private UITimeUtils.TimeChangedReceiver.TimeChangedListener timeChangedListener = null;
 
@@ -217,44 +226,69 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private final LocalPreferenceRepository localPreferenceRepository;
 	@NonNull
 	private final POIRepository poiRepository;
+	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
-	private final FavoriteManager favoriteManager;
+	private final FavoriteRepository favoriteRepository;
 	@NonNull
 	private final StatusLoader statusLoader;
 	@NonNull
 	private final ServiceUpdateLoader serviceUpdateLoader;
 
-	public POIArrayAdapter(@NonNull IFragment activity,
-						   @NonNull MTSensorManager sensorManager,
-						   @NonNull DataSourcesRepository dataSourcesRepository,
-						   @NonNull DefaultPreferenceRepository defaultPrefRepository,
-						   @NonNull LocalPreferenceRepository localPreferenceRepository,
-						   @NonNull POIRepository poiRepository,
-						   @NonNull FavoriteManager favoriteManager,
-						   @NonNull StatusLoader statusLoader,
-						   @NonNull ServiceUpdateLoader serviceUpdateLoader) {
-		super(activity.requireContext(), -1);
-		setActivity(activity);
+	public POIArrayAdapter(
+			@NonNull IFragment fragment,
+			@NonNull MTSensorManager sensorManager,
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull DefaultPreferenceRepository defaultPrefRepository,
+			@NonNull LocalPreferenceRepository localPreferenceRepository,
+			@NonNull POIRepository poiRepository,
+			@NonNull FavoriteRepository favoriteRepository,
+			@NonNull StatusLoader statusLoader,
+			@NonNull ServiceUpdateLoader serviceUpdateLoader
+	) {
+		super(fragment.requireContext(), -1);
+		setActivity(fragment);
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = sensorManager;
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.defaultPrefRepository = defaultPrefRepository;
 		this.localPreferenceRepository = localPreferenceRepository;
 		this.poiRepository = poiRepository;
-		this.favoriteManager = favoriteManager;
+		this.favoriteRepository = favoriteRepository;
 		this.statusLoader = statusLoader;
 		this.serviceUpdateLoader = serviceUpdateLoader;
-		this.dataSourcesRepository.readingAllAgencies().observe(activity, agencyProperties ->
+	}
+
+	@Nullable
+	private LifecycleOwner viewLifecycleOwner = null;
+
+	public void onCreateView(@NotNull LifecycleOwner viewLifecycleOwner) {
+		this.viewLifecycleOwner = viewLifecycleOwner;
+		this.dataSourcesRepository.readingAllAgencies().observe(viewLifecycleOwner, agencyProperties ->
 				resetModulesStatus()
+		);
+		this.favoriteRepository.getReadingAllFavorites().observe(viewLifecycleOwner, this::setFavorites);
+		this.favoriteRepository.getReadingAllFavoriteFkIds().observe(viewLifecycleOwner, favoritesFkIds ->
+						this.allFavoritesFkIds = favoritesFkIds
+		);
+		this.favoriteRepository.getReadingAllFavoriteFolders().observe(viewLifecycleOwner, favoriteFolders ->
+						this.favoriteFolders = favoriteFolders
+		);
+		this.favoriteRepository.isUsingFavoriteFolders().observe(viewLifecycleOwner, isUsingFavoriteFolders ->
+						this.isUsingFavoriteFolders = isUsingFavoriteFolders
 		);
 	}
 
+	@Nullable
+	private Boolean isUsingFavoriteFolders;
+
+	@Nullable
+	private List<String> allFavoritesFkIds;
+
+	@Nullable
+	private List<FavoriteFolder> favoriteFolders;
+
 	public void setManualLayout(@Nullable ViewGroup manualLayout) {
 		this.manualLayout = manualLayout;
-	}
-
-	public void setFavoriteUpdateListener(@NonNull FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
-		this.favoriteUpdateListener = favoriteUpdateListener;
 	}
 
 	public void setTimeChangedListener(@Nullable UITimeUtils.TimeChangedReceiver.TimeChangedListener timeChangedListener) {
@@ -329,7 +363,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (this.poisByType != null) {
 					final Integer typeId = getItemTypeHeader(position);
 					if (typeId != null) {
-						if (this.favoriteManager.isFavoriteDataSourceId(typeId)) {
+						if (FavoritesUtils.isFavoriteDataSourceId(typeId)) {
 							return 10; // TYPE FAVORITE FOLDER
 						}
 						return 8; // TYPE HEADER
@@ -517,9 +551,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				final Integer typeId = getItemTypeHeader(position);
 				if (typeId != null) {
-					if (this.favoriteManager.isFavoriteDataSourceId(typeId)) {
-						final int favoriteFolderId = this.favoriteManager.extractFavoriteFolderId(typeId);
-						final Favorite.Folder favoriteFolder = this.favoriteManager.getFolder(favoriteFolderId);
+					if (FavoritesUtils.isFavoriteDataSourceId(typeId)) {
+						final int favoriteFolderId = FavoritesUtils.extractFavoriteFolderId(typeId);
+						final FavoriteFolder favoriteFolder = this.favoriteFolders == null ? null : this.favoriteFolders.get(favoriteFolderId);
 						if (favoriteFolder != null) {
 							return getFavoriteFolderHeaderView(favoriteFolder, convertView, parent);
 						}
@@ -693,13 +727,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 										DataSourceType dst,
 										Map<DataSourceType, List<AgencyProperties>> dstToAgencies
 	) {
-		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT <= 0) {
-			return;
-		}
+		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT <= 0) return;
 		final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
-		if (dstAgencies == null || dstAgencies.isEmpty()) {
-			return;
-		}
+		if (dstAgencies == null || dstAgencies.isEmpty()) return;
 		String selectedAgencyAuthority = null;
 		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1) {
 			//noinspection WrongThread # TODO async?
@@ -850,49 +880,39 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	public boolean showPoiViewerScreen(@NonNull View view, @Nullable POIManager poim) {
-		if (poim == null) {
-			return false;
-		}
+		if (poim == null) return false;
 		final Activity activity = getActivity();
-		if (activity == null) {
-			return false;
-		}
+		if (activity == null) return false;
+		if (this.viewLifecycleOwner == null) return false;
 		return poim.onActionItemClick(
 				activity,
 				view,
-				this.favoriteManager,
+				this.viewLifecycleOwner,
+				this.favoriteRepository,
 				this.dataSourcesRepository,
 				this.poiRepository,
-				this.favoriteManager.getFavoriteFolders(),
-				this.favoriteUpdateListener,
+				this.allFavoritesFkIds == null ? null : this.allFavoritesFkIds.contains(poim.poi.getUUID()),
+				this.isUsingFavoriteFolders,
 				this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get()
 		);
 	}
 
 	private boolean showPoiMenu(View view, POIManager poim) {
-		if (poim == null) {
-			return false;
-		}
-		Activity activity = getActivity();
-		if (activity == null) {
-			return false;
-		}
-		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
+		if (poim == null) return false;
+		final Activity activity = getActivity();
+		if (activity == null) return false;
+		if (this.viewLifecycleOwner == null) return false;
 		return poim.onActionItemLongClick(
 				activity,
 				view,
-				this.favoriteManager,
+				this.viewLifecycleOwner,
+				this.favoriteRepository,
 				this.dataSourcesRepository,
 				this.poiRepository,
-				this.favoriteManager.getFavoriteFolders(),
-				this.favoriteUpdateListener,
-				listener
+				this.allFavoritesFkIds == null ? null : this.allFavoritesFkIds.contains(poim.poi.getUUID()),
+				this.isUsingFavoriteFolders,
+				this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get()
 		);
-	}
-
-	@Override
-	public void onFavoriteUpdated() {
-		refreshFavorites();
 	}
 
 	public void initPOITypes(@NonNull List<DataSourceType> poiTypes) {
@@ -961,7 +981,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			this.lastNotifyDataSetChanged = -1; // last notify was with old data
 			initCount();
 			initPoisCount();
-			refreshFavorites();
 			updateClosestPoi();
 		}
 		return dataSetChanged;
@@ -1299,16 +1318,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	public void onPause() {
-		if (this.activityWR != null) {
-			this.activityWR.clear();
-			this.activityWR = null;
+		if (this.fragmentWR != null) {
+			this.fragmentWR.clear();
+			this.fragmentWR = null;
 		}
 		if (this.compassUpdatesEnabled) {
 			this.sensorManager.unregisterSensorListener(this);
 			this.compassUpdatesEnabled = false;
 		}
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
-		TaskUtils.cancelQuietly(this.refreshFavoritesTask, true);
 		disableTimeChangedReceiver();
 	}
 
@@ -1323,18 +1341,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.showingAccessibilityInfo = null; // force user preference check
 		this.location = null; // clear current location to force refresh
 		setLocation(deviceLocation);
-		refreshFavorites();
 		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
 	}
 
-	public void setActivity(@NonNull IFragment activity) {
-		this.activityWR = new WeakReference<>(activity);
+	public void setActivity(@NonNull IFragment fragment) {
+		this.fragmentWR = new WeakReference<>(fragment);
 	}
 
 	@Nullable
 	private Activity getActivity() {
-		IFragment activity = this.activityWR == null ? null : this.activityWR.get();
-		return activity == null ? null : activity.getActivity();
+		final IFragment fragment = this.fragmentWR == null ? null : this.fragmentWR.get();
+		return fragment == null ? null : fragment.getActivity();
 	}
 
 	@Override
@@ -1361,7 +1378,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
 		this.poiStatusViewHoldersWR.clear();
 		this.poiServiceUpdateViewHoldersWR.clear();
-		TaskUtils.cancelQuietly(this.refreshFavoritesTask, true);
 		TaskUtils.cancelQuietly(this.updateDistanceWithStringTask, true);
 		this.location = null;
 		this.locationDeclination = null;
@@ -1369,6 +1385,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	public void onDestroyView() {
+		this.viewLifecycleOwner = null;
 		this.compassImgsWR.clear();
 		this.poiStatusViewHoldersWR.clear();
 		this.poiServiceUpdateViewHoldersWR.clear();
@@ -1444,11 +1461,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@Override
 	public void onSensorChanged(SensorEvent se) {
-		IFragment activity = this.activityWR == null ? null : this.activityWR.get();
-		if (activity == null) {
-			return;
-		}
-		this.sensorManager.checkForCompass(activity, se, this.accelerometerValues, this.magneticFieldValues, this);
+		final IFragment fragment = this.fragmentWR == null ? null : this.fragmentWR.get();
+		if (fragment == null) return;
+		this.sensorManager.checkForCompass(fragment, se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	@Override
@@ -1637,9 +1652,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertView;
 	}
 
-	private View getFavoriteFolderHeaderView(final @NonNull Favorite.Folder favoriteFolder,
-											 @Nullable View convertView,
-											 @NonNull ViewGroup parent) {
+	private View getFavoriteFolderHeaderView(
+			final @NonNull FavoriteFolder favoriteFolder,
+			@Nullable View convertView,
+			@NonNull ViewGroup parent
+	) {
 		if (convertView == null || !(convertView.getTag() instanceof FavoriteFolderHeaderViewHolder)) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_header_with_delete, parent, false);
 			final FavoriteFolderHeaderViewHolder holder = new FavoriteFolderHeaderViewHolder();
@@ -1653,14 +1670,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (holder.renameBtn != null) {
 			holder.renameBtn.setOnClickListener(view -> {
 				final Activity activity = POIArrayAdapter.this.getActivity();
-				favoriteManager.showUpdateFolderDialog(activity, POIArrayAdapter.this.layoutInflater, favoriteFolder,
-						POIArrayAdapter.this.favoriteUpdateListener);
+				FavoritesUI.showUpdateFolderDialog(favoriteRepository, activity, POIArrayAdapter.this.layoutInflater, favoriteFolder);
 			});
 		}
 		if (holder.deleteBtn != null) {
 			holder.deleteBtn.setOnClickListener(view -> {
 				final Activity activity = POIArrayAdapter.this.getActivity();
-				favoriteManager.showDeleteFolderDialog(activity, favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
+				FavoritesUI.showDeleteFolderDialog(favoriteRepository, activity, favoriteFolder);
 			});
 		}
 		return convertView;
@@ -2094,68 +2110,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
-	@Nullable
-	private RefreshFavoritesTask refreshFavoritesTask;
-
-	@SuppressWarnings("deprecation")
-	private void refreshFavorites() {
-		if (this.refreshFavoritesTask != null && this.refreshFavoritesTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) {
-			return; // skipped, last refresh still in progress so probably good enough
-		}
-		this.refreshFavoritesTask = new RefreshFavoritesTask(this);
-		TaskUtils.execute(this.refreshFavoritesTask);
-	}
-
-	@SuppressWarnings("deprecation")
-	private static class RefreshFavoritesTask extends MTCancellableAsyncTask<Integer, Void, List<Favorite>> {
-
-		@NonNull
-		private final WeakReference<POIArrayAdapter> poiArrayAdapterWR;
-
-		@NonNull
-		@Override
-		public String getLogTag() {
-			return POIArrayAdapter.class.getSimpleName() + ">" + RefreshFavoritesTask.class.getSimpleName();
-		}
-
-		private RefreshFavoritesTask(@Nullable POIArrayAdapter poiArrayAdapter) {
-			this.poiArrayAdapterWR = new WeakReference<>(poiArrayAdapter);
-		}
-
-		@Override
-		protected List<Favorite> doInBackgroundNotCancelledMT(Integer... params) {
-			final POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
-			if (poiArrayAdapter == null) {
-				return null;
-			}
-			return poiArrayAdapter.favoriteManager.findFavorites(poiArrayAdapter.getContext());
-		}
-
-		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable List<Favorite> result) {
-			final POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
-			if (poiArrayAdapter == null) {
-				return;
-			}
-			poiArrayAdapter.setFavorites(result);
-		}
-	}
-
 	private void setFavorites(@Nullable List<Favorite> favorites) {
-		boolean newFav; // don't trigger update if favorites are the same
-		boolean updatedFav; // don't trigger if favorites are the same OR were not set
-		if (this.favUUIDs == null) {
-			newFav = true; // favorite never set before
-			updatedFav = false; // never set before so not updated
-		} else if (CollectionUtils.getSize(favorites) != CollectionUtils.getSize(this.favUUIDs)) {
-			newFav = true; // different size => different favorites
-			updatedFav = true; // different size => different favorites
-		} else {
-			newFav = false; // favorite set before to the same size
-			updatedFav = false; // already set with the same size
-		}
-		HashSet<String> newFavUUIDs = new HashSet<>();
-		HashMap<String, Integer> newFavUUIDsFolderIds = new HashMap<>();
+		boolean newFav = // don't trigger update if favorites are the same
+				(this.favUUIDs == null // favorite never set before
+						|| CollectionUtils.getSize(favorites) != CollectionUtils.getSize(this.favUUIDs) // different size => different favorites
+				); // ELSE favorite set before to the same size
+		final HashSet<String> newFavUUIDs = new HashSet<>();
+		final HashMap<String, Integer> newFavUUIDsFolderIds = new HashMap<>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
 				final String uid = favorite.getFkId();
@@ -2167,7 +2128,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 									&& !Objects.equals(this.favUUIDsFolderIds.get(uid), favorite.getFolderId())) //
 					) {
 						newFav = true;
-						updatedFav = true;
 					}
 				}
 				newFavUUIDs.add(uid);
@@ -2177,14 +2137,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (!newFav) {
 			if (this.favUUIDsFolderIds == null) {
 				newFav = true; // favorite never set before
-				// noinspection ConstantConditions
-				updatedFav = false; // never set before so not updated
 			} else {
-				HashSet<Integer> oldFolderIds = new HashSet<>(this.favUUIDsFolderIds.values());
-				HashSet<Integer> newFolderIds = new HashSet<>(newFavUUIDsFolderIds.values());
+				final HashSet<Integer> oldFolderIds = new HashSet<>(this.favUUIDsFolderIds.values());
+				final HashSet<Integer> newFolderIds = new HashSet<>(newFavUUIDsFolderIds.values());
 				if (CollectionUtils.getSize(oldFolderIds) != CollectionUtils.getSize(newFolderIds)) {
 					newFav = true; // different size => different favorites
-					updatedFav = true; // different size => different favorites
 				}
 			}
 		}
@@ -2192,11 +2149,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.favUUIDsFolderIds = newFavUUIDsFolderIds;
 		if (newFav) {
 			notifyDataSetChanged(true);
-		}
-		if (updatedFav) {
-			if (this.favoriteUpdateListener != null) {
-				this.favoriteUpdateListener.onFavoriteUpdated();
-			}
 		}
 	}
 

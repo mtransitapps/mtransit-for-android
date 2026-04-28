@@ -34,6 +34,7 @@ import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIConnectionComparator
@@ -44,6 +45,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
@@ -67,6 +69,7 @@ class POIViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
+    private val favoriteRepository: FavoriteRepository,
     remoteConfigProvider: RemoteConfigProvider,
 ) : ViewModel(), MTLog.Loggable {
 
@@ -462,4 +465,26 @@ class POIViewModel @Inject constructor(
             dataSourcesRepository.refreshAvailableVersions(forcePkg = agencyProperties.pkg)
         }
     }
+
+    private val _favoriteTrigger = MutableLiveData<Int?>(null) // no initial value to avoid triggering onChanged()
+
+    fun triggerRefreshFavorite() {
+        viewModelScope.launch {
+            _favoriteTrigger.postValue((_favoriteTrigger.value ?: 0) + 1)
+        }
+    }
+
+    private val _favorite: LiveData<Favorite?> = MediatorLiveData2(this.uuid, _favoriteTrigger)
+        .switchMap { (uuid) ->
+            liveData {
+                uuid ?: return@liveData
+                val favorite = favoriteRepository.getFavorite(uuid)
+                emit(favorite)
+                favorite?.let { emitSource(favoriteRepository.getReadingFavoriteById(favorite.id)) }
+            }
+        }
+
+    val isFavorite: LiveData<Boolean> = _favorite.map { it != null }
+
+    val usingFavoriteFolders: LiveData<Boolean> = favoriteRepository.isUsingFavoriteFolders
 }

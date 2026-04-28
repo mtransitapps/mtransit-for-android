@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment
 
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
@@ -17,8 +18,10 @@ import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.latLng
 import org.mtransit.android.data.location
+import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
+import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
 import org.mtransit.android.ui.view.common.navigateF
 import org.mtransit.android.ui.view.map.countPOIInside
@@ -31,6 +34,22 @@ import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
+
+fun POIFragment.setupViewKt() = this.binding?.apply {
+    fabFavorite.apply {
+        setOnClickListener {
+            val poim = getPoimOrNull()?.takeIf { it.isFavoritable } ?: return@setOnClickListener
+            viewLifecycleOwner.lifecycleScope.launch {
+                favoriteRepository.addOrRemoveFavoriteUI(requireActivity(), poim.poi.uUID)
+                viewModel?.triggerRefreshFavorite()
+            }
+        }
+        setUpFabEdgeToEdge(
+            R.dimen.fab_auto_margin_end,
+            R.dimen.fab_auto_margin_bottom
+        )
+    }
+}
 
 @JvmOverloads
 fun POIFragment.startVehicleLocationCountdownRefresh(
@@ -66,7 +85,8 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
             viewModel?.poiList?.value?.let { poiList ->
                 poiList.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
                     val sortedPreviousPOIList = poiList.subList(0, poimIndex).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
-                    val sortedNextPOIList = poiList.subList(poimIndex + 1, poiList.size).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                    val sortedNextPOIList =
+                        poiList.subList(poimIndex + 1, poiList.size).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
                     val previousPOIM = sortedPreviousPOIList.getOrNull(0)
                     val nextPOIM = sortedNextPOIList.getOrNull(0)
                     val nextRelevantPOIM = nextPOIM ?: previousPOIM  // next or previous

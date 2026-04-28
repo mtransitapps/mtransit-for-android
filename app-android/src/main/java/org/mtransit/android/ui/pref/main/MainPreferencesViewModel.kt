@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.pref.main
 
+import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -123,6 +124,7 @@ class MainPreferencesViewModel @Inject constructor(
         adManager.openAdInspector(activity)
     }
 
+    @MainThread
     fun refreshData() {
         fetchFirebaseInstallationToken()
         billingManager.refreshPurchases()

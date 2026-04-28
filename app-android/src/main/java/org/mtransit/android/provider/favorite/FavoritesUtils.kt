@@ -3,7 +3,7 @@ package org.mtransit.android.provider.favorite
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.data.DataSourceType
 
-object FavoriteUtils {
+object FavoritesUtils {
 
     @JvmStatic
     fun isFavoriteDataSourceId(@DataSourceTypeId.DataSourceType dataSourceId: Int): Boolean {

@@ -12,7 +12,7 @@ interface POIDataProvider : POIStatusDataProvider, ServiceUpdateLoaderProvider, 
     val activity: Activity?
     val isShowingExtra: Boolean
     fun isClosestPOI(uuid: String): Boolean
-    fun isFavorite(uuid: String): Boolean
+    fun isFavorite(): Boolean
     val isShowingFavorite: Boolean
     val locationDeclination: Float?
     val lastCompassInDegree: Int?

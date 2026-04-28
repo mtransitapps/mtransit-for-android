@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.setupViewKt;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.startVehicleLocationCountdownRefresh;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.stopVehicleLocationCountdownRefresh;
 
@@ -88,7 +89,7 @@ import org.mtransit.android.databinding.LayoutPoiRewardedAdBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.dev.DemoModeManager;
-import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.provider.FavoriteRepository;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -143,7 +144,6 @@ public class POIFragment extends ABFragment implements
 		SensorEventListener,
 		MTSensorManager.CompassListener,
 		MTSensorManager.SensorTaskCompleted,
-		FavoriteManager.FavoriteUpdateListener,
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
 		IContext,
 		IAdManager.RewardedAdListener,
@@ -232,7 +232,7 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	IAnalyticsManager analyticsManager;
 	@Inject
-	FavoriteManager favoriteManager;
+	FavoriteRepository favoriteRepository;
 	@Inject
 	DemoModeManager demoModeManager;
 	@Inject
@@ -367,7 +367,6 @@ public class POIFragment extends ABFragment implements
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		resetFavorite();
 		this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());
 		POIViewController.updateView(getPOIView(), this.poim, this);
 		POIStatusDetailViewController.updateView(getPOIStatusView(), this.poim, this);
@@ -378,7 +377,6 @@ public class POIFragment extends ABFragment implements
 		setupAppWasDisabledButton();
 		setupRewardedAdButton();
 		setupMoreNearbyButton();
-		updateFabFavorite();
 		setupNearbyList();
 	}
 
@@ -531,7 +529,7 @@ public class POIFragment extends ABFragment implements
 		return inflater.inflate(R.layout.fragment_poi, container, false);
 	}
 
-	private @Nullable FragmentPoiBinding binding = null;
+	protected @Nullable FragmentPoiBinding binding = null;
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -543,6 +541,9 @@ public class POIFragment extends ABFragment implements
 			nextMainViewModel = new ViewModelProvider(requireActivity()).get(NextMainViewModel.class);
 		}
 		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
+		if (this.adapter != null) {
+			this.adapter.onCreateView(getViewLifecycleOwner());
+		}
 		viewModel.getDataSourceRemovedEvent().observe(getViewLifecycleOwner(), new EventObserver<>(removed -> {
 			if (removed) {
 				onDataSourceRemoved();
@@ -555,6 +556,8 @@ public class POIFragment extends ABFragment implements
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
 		viewModel.getPoiList().observe(getViewLifecycleOwner(), this::onPOIsLoaded);
+		viewModel.isFavorite().observe(getViewLifecycleOwner(), this::onFavoriteLoaded);
+		viewModel.getUsingFavoriteFolders().observe(getViewLifecycleOwner(), this::onUsingFavoriteFoldersLoaded);
 		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
 			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
 		}
@@ -706,13 +709,14 @@ public class POIFragment extends ABFragment implements
 				this.defaultPrefRepository,
 				this.localPreferenceRepository,
 				this.poiRepository,
-				this.favoriteManager,
+				this.favoriteRepository,
 				this.sharedStatusLoader,
 				this.sharedServiceUpdateLoader
 		);
 		this.adapter.setLogTag(getLogTag());
 	}
 
+	@MainThread
 	private void setupView() {
 		if (this.binding == null) return;
 		setupScreenToolbar(this.binding.screenToolbarLayout);
@@ -725,19 +729,7 @@ public class POIFragment extends ABFragment implements
 			this.adapter.setManualScrollView(this.binding.scrollView);
 			this.adapter.setManualLayout(this.binding.poiNearbyPoisList);
 		}
-		this.binding.fabFavorite.setOnClickListener(v -> {
-					POIManager poim = getPoimOrNull();
-					if (poim != null && poim.isFavoritable()) {
-						this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
-					}
-				}
-		);
-		EdgeToEdgeKt.setUpFabEdgeToEdge(
-				this.binding.fabFavorite,
-				R.dimen.fab_auto_margin_end,
-				R.dimen.fab_auto_margin_bottom
-		);
-		updateFabFavorite();
+		setupViewKt(this);
 		setupNewsLayout();
 		setupServiceUpdateLayout();
 	}
@@ -1115,8 +1107,6 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
-		resetFavorite(); // force refresh
-		getFavoriteFolderId();
 		enableTimeChangedReceiver();
 		this.showingAccessibilityInfo = null; // force user preference check
 		this.mapViewController.onResume();
@@ -1396,41 +1386,10 @@ public class POIFragment extends ABFragment implements
 		return false;
 	}
 
-	@Nullable
-	private Integer favoriteFolderId = null;
-
-	@Nullable
-	private Integer getFavoriteFolderId() {
-		if (this.favoriteFolderId == null) {
-			POIManager poim = getPoimOrNull();
-			if (poim != null) {
-				this.favoriteFolderId = this.favoriteManager.findFavoriteFolderId(requireContext(), poim.poi.getUUID());
-			}
-		}
-		return this.favoriteFolderId;
-	}
-
-	public boolean isFavorite() {
-		if (this.favoriteFolderId == null) {
-			POIManager poim = getPoimOrNull();
-			if (poim != null) {
-				this.favoriteFolderId = this.favoriteManager.findFavoriteFolderId(requireContext(), poim.poi.getUUID());
-			}
-		}
-		return getFavoriteFolderId() != null && getFavoriteFolderId() >= 0;
-	}
-
-	private void resetFavorite() {
-		this.favoriteFolderId = null;
-	}
-
 	@Override
-	public boolean isFavorite(@NonNull String uuid) {
-		POIManager poim = getPoimOrNull();
-		if (poim != null && poim.poi.getUUID().equals(uuid)) {
-			return isFavorite();
-		}
-		return this.favoriteManager.isFavorite(requireContext(), uuid);
+	public boolean isFavorite() {
+		final Boolean isFavorite = viewModel == null ? null : viewModel.isFavorite().getValue();
+		return Boolean.TRUE.equals(isFavorite);
 	}
 
 	@Override
@@ -1503,20 +1462,29 @@ public class POIFragment extends ABFragment implements
 		updateFaresMenuItem();
 	}
 
-	private void updateFabFavorite() {
+	private void onUsingFavoriteFoldersLoaded(@Nullable Boolean usingFavoriteFolders) {
+		final Boolean isFavorite = viewModel == null ? null : viewModel.isFavorite().getValue();
+		updateFabFavorite(isFavorite, usingFavoriteFolders);
+	}
+
+	private void onFavoriteLoaded(@Nullable Boolean isFavorite) {
+		final Boolean usingFavoriteFolders = viewModel == null ? null : viewModel.getUsingFavoriteFolders().getValue();
+		updateFabFavorite(isFavorite, usingFavoriteFolders);
+	}
+
+	private void updateFabFavorite(@Nullable Boolean isFavorite, @Nullable Boolean usingFavoriteFolders) {
 		if (this.binding == null) return;
 		final FloatingActionButton fabFavorite = this.binding.fabFavorite;
 		final POIManager poim = getPoimOrNull();
-		if (poim == null || !poim.isFavoritable()) {
+		if (isFavorite == null || poim == null || !poim.isFavoritable()) {
 			fabFavorite.hide();
 			return;
 		}
-		final boolean isFav = isFavorite();
 		@DrawableRes int iconResId;
 		@StringRes int contentDescriptionResId;
-		if (isFav) {
+		if (isFavorite) {
 			iconResId = R.drawable.ic_star_black_24dp;
-			if (this.favoriteManager.isUsingFavoriteFolders()) {
+			if (Boolean.TRUE.equals(usingFavoriteFolders)) {
 				contentDescriptionResId = R.string.menu_action_edit_favorite;
 			} else {
 				contentDescriptionResId = R.string.menu_action_remove_favorite;
@@ -1566,16 +1534,6 @@ public class POIFragment extends ABFragment implements
 			}
 		}
 		return false; // not handled
-	}
-
-	@Override
-	public void onFavoriteUpdated() {
-		resetFavorite();
-		updateFabFavorite();
-		final POIManager poim = getPoimOrNull();
-		if (poim != null) {
-			POIViewController.updateView(getPOIView(), poim, this);
-		}
 	}
 
 	@Override

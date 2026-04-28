@@ -37,7 +37,7 @@ import org.mtransit.android.data.RouteDirectionManager
 import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -148,7 +148,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -225,7 +225,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             this.defaultPrefRepository,
             this.localPreferenceRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
@@ -288,6 +288,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.routeDirectionM.observe(viewLifecycleOwner) { routeDirectionM ->
             updateServiceUpdateImg(routeDirectionM)
             if (viewModel.mapVisible(context)) {

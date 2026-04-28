@@ -24,7 +24,7 @@ import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -89,7 +89,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -116,7 +116,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             this.defaultPrefRepository,
             this.localPreferenceRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
@@ -155,6 +155,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
         }
+        this.adapter.onCreateView(viewLifecycleOwner)
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)

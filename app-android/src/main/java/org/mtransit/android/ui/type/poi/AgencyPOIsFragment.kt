@@ -24,7 +24,7 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -115,7 +115,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -191,7 +191,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             this.defaultPrefRepository,
             this.localPreferenceRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
@@ -233,6 +233,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             }
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             colorInt?.let {
                 binding?.apply {

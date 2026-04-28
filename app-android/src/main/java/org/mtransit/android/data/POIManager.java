@@ -1,5 +1,7 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.data.POIManagerExtKt.addRemoveFavorite;
+
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,9 +10,10 @@ import android.text.TextUtils;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.SparseArrayCompat;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -37,7 +40,7 @@ import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProvider
 import org.mtransit.android.commons.provider.status.StatusProviderContract;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
-import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.provider.FavoriteRepository;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder;
@@ -107,19 +110,19 @@ public class POIManager implements LocationPOI,
 	@NonNull
 	@Override
 	public String toString() {
-		return POIManager.class.getSimpleName() + '[' +//
-				"poi:" + this.poi + ',' + //
-				"status:" + this.status + ',' + //
+		return POIManager.class.getSimpleName() + '[' +
+				"poi:" + this.poi + ',' +
+				"status:" + this.status + ',' +
 				']';
 	}
 
 	@SuppressWarnings("unused")
 	@NonNull
 	public String toStringSimple() {
-		return POIManager.class.getSimpleName() + '[' +//
-				"poi:" + this.poi.getUUID() + ',' + //
-				"status:" + this.hasStatus() + ',' + //
-				"service updated:" + (this.serviceUpdates == null ? null : this.serviceUpdates.size()) + ',' + //
+		return POIManager.class.getSimpleName() + '[' +
+				"poi:" + this.poi.getUUID() + ',' +
+				"status:" + this.hasStatus() + ',' +
+				"service updated:" + (this.serviceUpdates == null ? null : this.serviceUpdates.size()) + ',' +
 				']';
 	}
 
@@ -384,35 +387,37 @@ public class POIManager implements LocationPOI,
 	}
 
 	@NonNull
-	private CharSequence[] getActionsItems(@NonNull Context context,
-										   @NonNull DataSourcesRepository dataSourcesRepository,
-										   @NonNull FavoriteManager favoriteManager,
-										   CharSequence defaultAction,
-										   @SuppressWarnings("unused") SparseArrayCompat<Favorite.Folder> favoriteFolders) {
+	private CharSequence[] getActionsItems(
+			@NonNull Context context,
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			CharSequence defaultAction,
+			@Nullable Boolean isFavorite,
+			@Nullable Boolean isUsingFavoriteFolders
+	) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return new CharSequence[]{defaultAction};
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-			return new CharSequence[]{ //
-					defaultAction, //
-					favoriteManager.isFavorite(context, this.poi.getUUID()) ? //
-							favoriteManager.isUsingFavoriteFolders() ? //
-									context.getString(R.string.edit_fav) : //
-									context.getString(R.string.remove_fav) : //
-							context.getString(R.string.add_fav) //
+			return new CharSequence[]{
+					defaultAction,
+					Boolean.TRUE.equals(isFavorite) ?
+							Boolean.TRUE.equals(isUsingFavoriteFolders) ?
+									context.getString(R.string.edit_fav) :
+									context.getString(R.string.remove_fav) :
+							context.getString(R.string.add_fav)
 			};
 		case POI.ITEM_ACTION_TYPE_ROUTE_DIRECTION_STOP:
 			RouteDirectionStop rds = (RouteDirectionStop) this.poi;
-			return new CharSequence[]{ //
-					context.getString(R.string.view_stop), //
-					TextUtils.isEmpty(rds.getRoute().getShortName()) ? //
-							context.getString(R.string.view_stop_route) : //
-							context.getString(R.string.view_stop_route_and_route, rds.getRoute().getShortName()), //
-					favoriteManager.isFavorite(context, this.poi.getUUID()) ? //
-							favoriteManager.isUsingFavoriteFolders() ? //
-									context.getString(R.string.edit_fav) : //
-									context.getString(R.string.remove_fav) : //
-							context.getString(R.string.add_fav) //
+			return new CharSequence[]{
+					context.getString(R.string.view_stop),
+					TextUtils.isEmpty(rds.getRoute().getShortName()) ?
+							context.getString(R.string.view_stop_route) :
+							context.getString(R.string.view_stop_route_and_route, rds.getRoute().getShortName()),
+					Boolean.TRUE.equals(isFavorite) ?
+							Boolean.TRUE.equals(isUsingFavoriteFolders) ?
+									context.getString(R.string.edit_fav) :
+									context.getString(R.string.remove_fav) :
+							context.getString(R.string.add_fav)
 			};
 		case POI.ITEM_ACTION_TYPE_APP:
 			final String pkg = ((Module) this.poi).getPkg();
@@ -427,20 +432,20 @@ public class POIManager implements LocationPOI,
 								context.getString(R.string.customer_service),
 						};
 					} else {
-						return new CharSequence[]{ //
-								context.getString(R.string.view_on_store), //
-								context.getString(R.string.manage_app), //
-								context.getString(R.string.uninstall), //
+						return new CharSequence[]{
+								context.getString(R.string.view_on_store),
+								context.getString(R.string.manage_app),
+								context.getString(R.string.uninstall),
 						};
 					}
 				} else {
-					return new CharSequence[]{ //
-							context.getString(R.string.re_enable_app), //
+					return new CharSequence[]{
+							context.getString(R.string.re_enable_app),
 					};
 				}
 			} else {
-				return new CharSequence[]{ //
-						context.getString(R.string.download_on_store), //
+				return new CharSequence[]{
+						context.getString(R.string.download_on_store),
 				};
 			}
 		case POI.ITEM_ACTION_TYPE_PLACE:
@@ -454,35 +459,35 @@ public class POIManager implements LocationPOI,
 
 	private boolean onActionsItemClick(@NonNull Activity activity,
 									   @NonNull View view,
-									   @NonNull FavoriteManager favoriteManager,
+									   @NonNull LifecycleOwner viewLifecycleOwner,
+									   @NonNull FavoriteRepository favoriteRepository,
 									   @NonNull DataSourcesRepository dataSourcesRepository,
 									   int itemClicked,
-									   @SuppressWarnings("unused") SparseArrayCompat<Favorite.Folder> favoriteFolders,
-									   FavoriteManager.FavoriteUpdateListener listener,
 									   POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return false; // NOT HANDLED
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-			return onActionsItemClickFavoritable(activity, favoriteManager, itemClicked, listener, onClickHandledListener);
+			return onActionsItemClickFavoritable(activity, viewLifecycleOwner, favoriteRepository, itemClicked);
 		case POI.ITEM_ACTION_TYPE_ROUTE_DIRECTION_STOP:
-			return onActionsItemClickRDS(activity, view, favoriteManager, itemClicked, listener, onClickHandledListener);
+			return onActionsItemClickRDS(activity, view, viewLifecycleOwner, favoriteRepository, itemClicked, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_APP:
-			return onActionsItemClickApp(activity, view, dataSourcesRepository, itemClicked, listener, onClickHandledListener);
+			return onActionsItemClickApp(activity, view, dataSourcesRepository, itemClicked, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
-			return onActionsItemClickPlace(activity, view, dataSourcesRepository, itemClicked, listener, onClickHandledListener);
+			return onActionsItemClickPlace(activity, view, dataSourcesRepository, itemClicked, onClickHandledListener);
 		default:
 			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
 			return false; // NOT HANDLED
 		}
 	}
 
-	private boolean onActionsItemClickApp(@NonNull Activity activity,
-										  @NonNull View view,
-										  @NonNull DataSourcesRepository dataSourcesRepository,
-										  int itemClicked,
-										  @SuppressWarnings("unused") FavoriteManager.FavoriteUpdateListener listener,
-										  @Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean onActionsItemClickApp(
+			@NonNull Activity activity,
+			@NonNull View view,
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			int itemClicked,
+			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener
+	) {
 		final String pkg = ((Module) poi).getPkg();
 		switch (itemClicked) {
 		case 0: // Rate on Google Play
@@ -516,12 +521,13 @@ public class POIManager implements LocationPOI,
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickPlace(@NonNull Activity activity,
-											@NonNull View view,
-											@NonNull DataSourcesRepository dataSourcesRepository,
-											int itemClicked,
-											@SuppressWarnings("unused") FavoriteManager.FavoriteUpdateListener listener,
-											POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean onActionsItemClickPlace(
+			@NonNull Activity activity,
+			@NonNull View view,
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			int itemClicked,
+			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener
+	) {
 		switch (itemClicked) {
 		case 0:
 			if (onClickHandledListener != null) {
@@ -680,12 +686,15 @@ public class POIManager implements LocationPOI,
 		return defaultColor;
 	}
 
-	private boolean onActionsItemClickRDS(@NonNull Activity activity,
-										  @NonNull View view,
-										  @NonNull FavoriteManager favoriteManager,
-										  int itemClicked,
-										  FavoriteManager.FavoriteUpdateListener listener,
-										  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	@MainThread
+	private boolean onActionsItemClickRDS(
+			@NonNull Activity activity,
+			@NonNull View view,
+			@NonNull LifecycleOwner viewLifecycleOwner,
+			@NonNull FavoriteRepository favoriteRepository,
+			int itemClicked,
+			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener
+	) {
 		switch (itemClicked) {
 		case 1:
 			if (onClickHandledListener != null) {
@@ -714,23 +723,28 @@ public class POIManager implements LocationPOI,
 			}
 			return true; // HANDLED
 		case 2:
-			return favoriteManager.addRemoveFavorite(activity, this.poi.getUUID(), listener);
+			addRemoveFavorite(this, viewLifecycleOwner, activity, favoriteRepository);
+			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickFavoritable(Activity activity,
-												  @NonNull FavoriteManager favoriteManager,
-												  int itemClicked,
-												  FavoriteManager.FavoriteUpdateListener listener,
-												  @SuppressWarnings("unused") POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	@MainThread
+	private boolean onActionsItemClickFavoritable(
+			@NonNull Activity activity,
+			@NonNull LifecycleOwner viewLifecycleOwner,
+			@NonNull FavoriteRepository favoriteRepository,
+			int itemClicked
+	) {
 		switch (itemClicked) {
 		case 1:
-			return favoriteManager.addRemoveFavorite(activity, this.poi.getUUID(), listener);
+			addRemoveFavorite(this, viewLifecycleOwner, activity, favoriteRepository);
+			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isFavoritable() {
 		return isFavoritable(this.poi);
 	}
@@ -755,9 +769,7 @@ public class POIManager implements LocationPOI,
 										DataSourcesRepository dataSourcesRepository,
 										POIRepository poiRepository,
 										POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
-		if (activity == null) {
-			return false; // show long-click menu
-		}
+		if (activity == null) return false; // show long-click menu
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return false; // NOT HANDLED
@@ -859,43 +871,42 @@ public class POIManager implements LocationPOI,
 
 	boolean onActionItemLongClick(Activity activity,
 								  View view,
-								  FavoriteManager favoriteManager,
+								  @NonNull LifecycleOwner viewLifecycleOwner,
+								  FavoriteRepository favoriteRepository,
 								  DataSourcesRepository dataSourcesRepository,
 								  POIRepository poiRepository,
-								  SparseArrayCompat<Favorite.Folder> favoriteFolders,
-								  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
+								  @Nullable Boolean isFavorite,
+								  @Nullable Boolean isUsingFavoriteFolders,
 								  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
-		if (activity == null) {
-			return false;
-		}
-		return showPoiMenu(activity, view, favoriteManager, dataSourcesRepository, poiRepository, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
+		if (activity == null) return false;
+		return showPoiMenu(activity, view, viewLifecycleOwner, favoriteRepository, dataSourcesRepository, poiRepository, isFavorite, isUsingFavoriteFolders, onClickHandledListener);
 	}
 
 	boolean onActionItemClick(Activity activity,
 							  View view,
-							  FavoriteManager favoriteManager,
+							  @NonNull LifecycleOwner viewLifecycleOwner,
+							  FavoriteRepository favoriteRepository,
 							  DataSourcesRepository dataSourcesRepository,
 							  POIRepository poiRepository,
-							  SparseArrayCompat<Favorite.Folder> favoriteFolders,
-							  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
+							  @Nullable Boolean isFavorite,
+							  @Nullable Boolean isUsingFavoriteFolders,
 							  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
-		if (activity == null) {
-			return false;
-		}
+		if (activity == null) return false;
 		boolean poiScreenShow = showPoiViewerScreen(activity, view, dataSourcesRepository, poiRepository, onClickHandledListener);
 		if (!poiScreenShow) {
-			poiScreenShow = showPoiMenu(activity, view, favoriteManager, dataSourcesRepository, poiRepository, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
+			poiScreenShow = showPoiMenu(activity, view, viewLifecycleOwner, favoriteRepository, dataSourcesRepository, poiRepository, isFavorite, isUsingFavoriteFolders, onClickHandledListener);
 		}
 		return poiScreenShow;
 	}
 
 	private boolean showPoiMenu(final @NonNull Activity activity,
 								final @NonNull View view,
-								final @NonNull FavoriteManager favoriteManager,
+								final @NonNull LifecycleOwner viewLifecycleOwner,
+								final @NonNull FavoriteRepository favoriteRepository,
 								final @NonNull DataSourcesRepository dataSourcesRepository,
 								final @NonNull POIRepository poiRepository,
-								final SparseArrayCompat<Favorite.Folder> favoriteFolders,
-								final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
+								final @Nullable Boolean isFavorite,
+								final @Nullable Boolean isUsingFavoriteFolders,
 								final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (this.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
@@ -904,25 +915,24 @@ public class POIManager implements LocationPOI,
 		case POI.ITEM_VIEW_TYPE_ROUTE_DIRECTION_STOP:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		case POI.ITEM_VIEW_TYPE_MODULE:
-			new MTDialog.Builder(activity) //
-					.setTitle(this.poi.getName()) //
-					.setItems( //
-							getActionsItems( //
-									activity, //
+			new MTDialog.Builder(activity)
+					.setTitle(this.poi.getName())
+					.setItems(
+							getActionsItems(
+									activity,
 									dataSourcesRepository,
-									favoriteManager,
-									activity.getString(R.string.view_details), //
-									favoriteFolders //
-							), //
+									activity.getString(R.string.view_details),
+									isFavorite,
+									isUsingFavoriteFolders
+							),
 							(dialog, item) -> {
 								boolean handled = onActionsItemClick(
 										activity,
 										view,
-										favoriteManager,
+										viewLifecycleOwner,
+										favoriteRepository,
 										dataSourcesRepository,
 										item,
-										favoriteFolders,
-										favoriteUpdateListener,
 										onClickHandledListener
 								);
 								if (handled) {

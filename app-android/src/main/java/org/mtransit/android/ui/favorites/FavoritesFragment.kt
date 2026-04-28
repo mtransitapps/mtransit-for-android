@@ -13,7 +13,9 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -23,8 +25,8 @@ import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
-import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener
+import org.mtransit.android.provider.FavoriteRepository
+import org.mtransit.android.provider.favorite.FavoritesUI.showAddFolderDialog
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -48,7 +50,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     DeviceLocationListener,
-    FavoriteUpdateListener,
     ModuleDisabledAwareFragment,
     MenuProvider {
 
@@ -93,7 +94,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -114,13 +115,12 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             this.defaultPrefRepository,
             this.localPreferenceRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
             logTag = this@FavoritesFragment.logTag
             setShowFavorite(false) // all items in this screen are favorites
-            setFavoriteUpdateListener(this@FavoritesFragment)
             setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY)
             setTimeChangedListener { this@FavoritesFragment.onTimeChanged() }
         }
@@ -142,6 +142,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             }
             setupScreenToolbar(screenToolbarLayout)
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.oneAgency.observe(viewLifecycleOwner) { oneAgency ->
             updateEmptyLayout(pkg = oneAgency?.pkg)
         }
@@ -211,10 +212,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
     }
 
-    override fun onFavoriteUpdated() {
-        attachedViewModel?.onFavoriteUpdated()
-    }
-
     override fun onResume() {
         super.onResume()
         listAdapter.onResume(this, viewModel.deviceLocation.value)
@@ -246,7 +243,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
                 activity?.let {
-                    this.favoriteManager.showAddFolderDialog(it, this, null, null)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        favoriteRepository.showAddFolderDialog(it, null, null)
+                    }
                 }
                 true // handled
             }

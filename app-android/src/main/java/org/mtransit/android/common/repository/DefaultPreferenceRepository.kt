@@ -91,8 +91,8 @@ class DefaultPreferenceRepository @Inject constructor(
 
     @get:WorkerThread
     val pref: SharedPreferences
-        get() = _prefs ?: loadPrefs().apply {
-            _prefs = this
+        get() = _prefs ?: loadPrefs().also {
+            _prefs = it
         }
 
     @Suppress("FunctionName")
