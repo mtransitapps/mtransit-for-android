@@ -13,7 +13,6 @@ import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.dev.CrashReporter
-import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.util.UIFeatureFlags
 import java.lang.ref.WeakReference
 
@@ -22,7 +21,6 @@ class SetupBannerAdTask(
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,
     private val crashReporter: CrashReporter,
-    private val remoteConfigProvider: RemoteConfigProvider,
     private val activityWR: WeakReference<IAdScreenActivity>,
 ) : org.mtransit.android.commons.task.MTCancellableAsyncTask<Void?, Void?, Boolean?>() {
 
@@ -30,13 +28,11 @@ class SetupBannerAdTask(
         globalAdManager: GlobalAdManager,
         bannerAdManager: BannerAdManager,
         crashReporter: CrashReporter,
-        remoteConfigProvider: RemoteConfigProvider,
         activity: IAdScreenActivity,
     ) : this(
         globalAdManager,
         bannerAdManager,
         crashReporter,
-        remoteConfigProvider,
         WeakReference(activity),
     )
 
@@ -67,7 +63,7 @@ class SetupBannerAdTask(
                         adSize = bannerAdManager.getAdSize(activity),
                         collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE
                     ),
-                    // adLoadCallback = BannerAdListener(bannerAdManager, crashReporter, remoteConfigProvider, activity) #gmaNextGen
+                    // adLoadCallback = BannerAdListener(bannerAdManager, crashReporter, activity) #gmaNextGen
                 )
             }
         } else if (!isShowingAds) { // hide ads
@@ -96,6 +92,6 @@ class SetupBannerAdTask(
             adLayout.addView(it)
         }.apply {
             setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once
-            adListener = BannerAdListener(bannerAdManager, crashReporter, remoteConfigProvider, activity, adView = this)
+            adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView = this)
         }
 }
