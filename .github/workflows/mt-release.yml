@@ -28,6 +28,21 @@ on:
         type: boolean
         default: false
         required: false
+      allowStoreAlpha:
+        description: 'Allow alpha store release'
+        type: boolean
+        default: false
+        required: false
+      allowStoreBetaPrivate:
+        description: 'Allow beta-private store release'
+        type: boolean
+        default: false
+        required: false
+      allowStoreProduction:
+        description: 'Allow production store release'
+        type: boolean
+        default: false
+        required: false
       skipPublishRelease:
         description: 'Skip GitHub & all Play Store release (useful to generate APK/AAB)'
         type: boolean
@@ -119,6 +134,23 @@ jobs:
           path: |
             app-android/build/outputs/apk
             app-android/build/outputs/bundle
+
+      - name: MT allow store releases
+        if: ${{ github.event.inputs.allowStoreAlpha == 'true' || github.event.inputs.allowStoreBetaPrivate == 'true' || github.event.inputs.allowStoreProduction == 'true' }}
+        run: |
+          mkdir -p config/store
+          if [[ "${{ github.event.inputs.allowStoreAlpha }}" == "true" ]]; then
+            echo "Allowing alpha store release..."
+            touch config/store/alpha
+          fi
+          if [[ "${{ github.event.inputs.allowStoreBetaPrivate }}" == "true" ]]; then
+            echo "Allowing beta-private store release..."
+            touch config/store/beta-private
+          fi
+          if [[ "${{ github.event.inputs.allowStoreProduction }}" == "true" ]]; then
+            echo "Allowing production store release..."
+            touch config/store/production
+          fi
 
       - name: MT skip store releases
         if: ${{ github.event.inputs.skipStoreAll == 'true' || github.event.inputs.skipStoreProduction == 'true' || github.event.inputs.skipStoreAlpha == 'true' || github.event.inputs.skipStoreBetaPrivate == 'true' }}
