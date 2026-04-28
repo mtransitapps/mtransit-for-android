@@ -28,10 +28,16 @@ on:
         type: boolean
         default: false
         required: false
+      skipPublishRelease:
+        description: 'Skip GitHub & all Play Store release (useful to generate APK/AAB)'
+        type: boolean
+        default: false
+        required: false
 # gh workflow run mt-release.yml
 # gh workflow run mt-release.yml --ref $(git rev-parse --abbrev-ref HEAD) -f allowNonDefault=true
 # gh workflow run mt-release.yml -f skipStoreAll=true
 # gh workflow run mt-release.yml -f skipStoreProduction=true
+# gh workflow run mt-release.yml -f skipPublishRelease=true
 # gh run list --workflow=mt-release.yml
 # gh run watch ; gh browse --branch
 concurrency:
@@ -138,6 +144,7 @@ jobs:
           fi
 
       - name: MT Publish release
+        if: ${{ github.event.inputs.skipPublishRelease != 'true' }}
         run: ./publish_app_release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
@@ -145,6 +152,7 @@ jobs:
 
       - name: MT check screenshot age
         id: mt-check-screenshot-age
+        if: ${{ github.event.inputs.skipPublishRelease != 'true' }}
         continue-on-error: true
         run: |
           SCREENSHOT_DIR="app-android/src/main/play/listings/en-US/graphics/phone-screenshots"

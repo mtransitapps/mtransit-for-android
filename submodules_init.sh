@@ -39,12 +39,12 @@ declare -a SUBMODULES=(
 	"commons-java"
 	"commons-android"
 );
-if [[ $GIT_PROJECT_NAME == *"-gradle"* ]]; then # OLD REPO
+if [[ "$GIT_PROJECT_NAME" == *"-gradle"* ]]; then # OLD REPO
 	SUBMODULES+=('app-android'); # OLD REPO
 fi
 if [[ -d "parser" ]]; then
     SUBMODULES+=('parser');
-	if [[ $GIT_PROJECT_NAME == *"-gradle"* ]]; then # OLD REPO
+	if [[ "$GIT_PROJECT_NAME" == *"-gradle"* ]]; then # OLD REPO
 		SUBMODULES+=('agency-parser'); # OLD REPO
 	fi
 fi
