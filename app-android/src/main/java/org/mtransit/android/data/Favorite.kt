@@ -2,7 +2,6 @@ package org.mtransit.android.data
 
 import android.content.ContentValues
 import android.database.Cursor
-import org.mtransit.android.commons.data.POI
 import org.mtransit.android.provider.FavoriteProvider
 
 data class Favorite @JvmOverloads constructor(
@@ -43,5 +42,3 @@ data class Favorite @JvmOverloads constructor(
         }
     }
 }
-
-fun POI.toFavorite() = Favorite(fkId = uuid)
