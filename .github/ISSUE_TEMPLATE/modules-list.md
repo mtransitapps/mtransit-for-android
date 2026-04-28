@@ -8,6 +8,7 @@ labels: MT
 
 # Modules
 - [ ] ca-100-mile-house-transit-bus
+- [ ] ca-agassiz-harrison-transit-bus
 - [ ] ca-airdrie-transit-bus
 - [ ] ca-banff-roam-transit-bus
 - [ ] ca-barrie-transit-bus
