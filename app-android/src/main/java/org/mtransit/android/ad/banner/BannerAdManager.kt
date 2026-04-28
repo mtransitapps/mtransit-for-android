@@ -151,7 +151,7 @@ class BannerAdManager @Inject constructor(
         }
         if (setupBannerAdTask == null) {
             logAdsD(this, "setupAd() > STARTING setup ad task...")
-            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, this.remoteConfigProvider, activity)
+            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)
             TaskUtils.execute(setupBannerAdTask)
             this.adBannerLoaded = null // loading
         } else {
@@ -197,6 +197,7 @@ class BannerAdManager @Inject constructor(
     fun getAdView(adLayout: ViewGroup): AdView? =
         adLayout.findViewById(R.id.ad)
 
+    @MainThread
     fun destroyAd(activity: IAdScreenActivity) {
         if (!AdConstants.AD_ENABLED) return
         val adLayout = getAdLayout(activity)

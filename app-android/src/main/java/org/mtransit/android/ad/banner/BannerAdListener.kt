@@ -14,13 +14,11 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.dev.CrashReporter
-import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import java.lang.ref.WeakReference
 
 class BannerAdListener(
     private val bannerAdManager: BannerAdManager,
     private val crashReporter: CrashReporter,
-    private val remoteConfigProvider: RemoteConfigProvider,
     private val activityWR: WeakReference<IAdScreenActivity>,
     private val adViewWR: WeakReference<AdView>,
     // ) : AdLoadCallback<BannerAd>, #gmaNextGen
@@ -30,13 +28,11 @@ class BannerAdListener(
     constructor(
         bannerAdManager: BannerAdManager,
         crashReporter: CrashReporter,
-        remoteConfigProvider: RemoteConfigProvider,
         adScreenActivity: IAdScreenActivity,
         adView: AdView,
     ) : this(
         bannerAdManager = bannerAdManager,
         crashReporter = crashReporter,
-        remoteConfigProvider = remoteConfigProvider,
         activityWR = WeakReference(adScreenActivity),
         adViewWR = WeakReference(adView)
     )
@@ -46,13 +42,6 @@ class BannerAdListener(
     }
 
     override fun getLogTag() = LOG_TAG
-
-    private val keepOldAdVisible: Boolean by lazy {
-        remoteConfigProvider.get(
-            RemoteConfigProvider.AD_BANNER_KEEP_OLD_AD_VISIBLE,
-            RemoteConfigProvider.AD_BANNER_KEEP_OLD_AD_VISIBLE_DEFAULT
-        )
-    }
 
     @AnyThread
     override fun onAdFailedToLoad(adError: LoadAdError) {
@@ -92,13 +81,14 @@ class BannerAdListener(
             else
                 -> this.crashReporter.w(this, "Failed to receive ad! Error code: '${adError.code}' ($adError).")
         }
-        if (keepOldAdVisible && this.bannerAdManager.adBannerLoaded == true) {
-            logAdsD(this, "onAdFailedToLoad() > keep old ad visible")
-            return // keep old ad visible
-        }
         this.activityWR.get()?.let { activity ->
             activity.activity?.runOnUiThread {
-                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), false) // wait until next try, even if failed
+                val adBannerLoaded = this.bannerAdManager.adBannerLoaded ?: false
+                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), adBannerLoaded) // wait until next try, even if failed
+                if (adBannerLoaded) {
+                    logAdsD(this@BannerAdListener, "onAdFailedToLoad() > keep old ad visible")
+                    return@runOnUiThread // keep old ad visible
+                }
                 this.bannerAdManager.hideBannerAd(activity) // hiding ads until next AUTOMATIC ad refresh
             }
         }
@@ -114,8 +104,8 @@ class BannerAdListener(
         // val adapterClassName = ad.getResponseInfo().adapterClassName #gmaNextGen
         // logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName ")
         this.activityWR.get()?.let { activity ->
-            this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
             activity.activity?.runOnUiThread {
+                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
                 val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName
                 logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName ")
                 this.bannerAdManager.adaptToScreenSize(

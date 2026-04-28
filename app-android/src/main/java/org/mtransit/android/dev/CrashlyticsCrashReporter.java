@@ -1,5 +1,7 @@
 package org.mtransit.android.dev;
 
+import static org.mtransit.android.commons.StringUtils.EMPTY;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -31,17 +33,25 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	}
 
 	@Inject
-	public CrashlyticsCrashReporter() {
+	CrashlyticsCrashReporter() {
 		// DO NOTHING
+	}
+
+	@Nullable
+	private FirebaseCrashlytics firebaseCrashlytics = null;
+
+	@NonNull
+	private FirebaseCrashlytics getFirebaseCrashlytics() {
+		if (firebaseCrashlytics == null) {
+			firebaseCrashlytics = FirebaseCrashlytics.getInstance();
+		}
+		return firebaseCrashlytics;
 	}
 
 	@Override
 	public void setup(boolean enabled) {
-		if (!CRASHLYTICS_ENABLED) {
-			return;
-		}
-		FirebaseCrashlytics.getInstance()
-				.setCrashlyticsCollectionEnabled(enabled);
+		if (!CRASHLYTICS_ENABLED) return;
+		getFirebaseCrashlytics().setCrashlyticsCollectionEnabled(enabled);
 	}
 
 	@Override
@@ -50,7 +60,7 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	}
 
 	@Override
-	public void reportNonFatal(@Nullable String msg, @NonNull Object... args) {
+	public void reportNonFatal(@NonNull String msg, @NonNull Object... args) {
 		reportNonFatal(null, msg, args);
 	}
 
@@ -61,12 +71,11 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 		}
 		try {
 			final String fMessage = message == null ? "No message" : String.format(message, args);
-			final FirebaseCrashlytics firebaseCrashlytics = FirebaseCrashlytics.getInstance();
-			firebaseCrashlytics.log(fMessage);
+			getFirebaseCrashlytics().log(fMessage);
 			if (throwable == null) {
 				throwable = new NoException(fMessage);
 			}
-			firebaseCrashlytics.recordException(throwable);
+			getFirebaseCrashlytics().recordException(throwable);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while reporting message '%s'!", message);
 		}
@@ -74,18 +83,18 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 
 	@Override
 	public void shouldNotHappen(@Nullable Throwable throwable) throws RuntimeException {
-		shouldNotHappen(throwable, null);
+		shouldNotHappen(throwable, EMPTY);
 	}
 
 	@Override
-	public void shouldNotHappen(@Nullable String msg, @NonNull Object... args) throws RuntimeException {
+	public void shouldNotHappen(@NonNull String msg, @NonNull Object... args) throws RuntimeException {
 		shouldNotHappen(null, msg, args);
 	}
 
 	@Override
-	public void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg, @NonNull Object... args) throws RuntimeException {
+	public void shouldNotHappen(@Nullable Throwable throwable, @NonNull String msg, @NonNull Object... args) throws RuntimeException {
 		if (BuildConfig.DEBUG) {
-			if (msg == null) {
+			if (msg.isBlank()) {
 				msg = "No error message";
 			} else {
 				msg = String.format(msg, args);
@@ -99,25 +108,30 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	}
 
 	@Override
-	public void w(@NonNull MTLog.Loggable loggable, @Nullable String msg, @NonNull Object... args) {
+	public void w(@NonNull MTLog.Loggable loggable, @NonNull String msg, @NonNull Object... args) {
 		w(loggable.getLogTag(), msg, args);
 	}
 
 	@Override
-	public void w(@NonNull String tag, @Nullable String msg, @NonNull Object... args) {
+	public void w(@NonNull String tag, @NonNull String msg, @NonNull Object... args) {
 		MTLog.w(tag, msg, args);
 		reportNonFatal(msg, args);
 	}
 
 	@Override
-	public void w(@NonNull MTLog.Loggable loggable, @Nullable Throwable t, @Nullable String msg, @NonNull Object... args) {
+	public void w(@NonNull MTLog.Loggable loggable, @Nullable Throwable t, @NonNull String msg, @NonNull Object... args) {
 		w(loggable.getLogTag(), t, msg, args);
 	}
 
 	@Override
-	public void w(@NonNull String tag, @Nullable Throwable t, @Nullable String msg, @NonNull Object... args) {
+	public void w(@NonNull String tag, @Nullable Throwable t, @NonNull String msg, @NonNull Object... args) {
 		MTLog.w(tag, t, msg, args);
 		reportNonFatal(t, msg, args);
+	}
+
+	@Override
+	public void log(@NonNull String msg) {
+		getFirebaseCrashlytics().log(msg);
 	}
 
 	public static class NoException extends Exception implements MTLog.Loggable {
