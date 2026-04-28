@@ -7,12 +7,14 @@ import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.widget.EditText
 import androidx.annotation.MainThread
+import androidx.annotation.StringRes
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
@@ -21,7 +23,11 @@ import org.mtransit.android.data.TextMessage
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTDialog
 
-object FavoritesUI {
+object FavoritesUI : MTLog.Loggable {
+
+    private val LOG_TAG: String = FavoritesUI::class.java.simpleName
+
+    override fun getLogTag() = LOG_TAG
 
     fun generateFavEmptyFavPOI(context: Context, textMessageId: Long, @DataSourceTypeId.DataSourceType dataSourceTypeId: Int): POI {
         return TextMessage(textMessageId, dataSourceTypeId, context.getString(R.string.favorite_folder_empty))
@@ -41,15 +47,18 @@ object FavoritesUI {
             }
             return@withContext
         }
-        showPickFavoriteFolderDialog(
-            activity,
-            fkId,
-            favoriteFolderId = favoriteFolderId ?: FavoriteFolder.INVALID_FOLDER_ID,
-            favoriteFolders,
-        )
+        withContext(Dispatchers.Main) {
+            showPickFavoriteFolderDialog(
+                activity,
+                fkId,
+                favoriteFolderId = favoriteFolderId ?: FavoriteFolder.INVALID_FOLDER_ID,
+                favoriteFolders,
+            )
+        }
     }
 
-    private suspend fun FavoriteRepository.showPickFavoriteFolderDialog(
+    @MainThread
+    private fun FavoriteRepository.showPickFavoriteFolderDialog(
         activity: Activity,
         fkId: String,
         favoriteFolderId: Int,
@@ -102,31 +111,30 @@ object FavoritesUI {
             ) { _: DialogInterface?, which: Int ->
                 selectedWhich = which
             }
-            .setPositiveButton(R.string.favorite_folder_pick_ok) { dialog: DialogInterface?, _: Int ->
+            .setPositiveButton(R.string.favorite_folder_pick_ok) { _: DialogInterface?, _: Int ->
                 if (selectedWhich < 0 || selectedWhich == initialWhich) {
                     return@setPositiveButton
                 }
                 lifecycleOwner?.lifecycleScope?.launch {
                     val selectedFavoriteFolderId = itemsListId[selectedWhich]
                     if (selectedFavoriteFolderId == newFolderId) { // create new folder
-                        showAddFolderDialog(activity, fkId, favoriteFolderId)
+                        showAddFolderDialog(activity, fkId, favoriteFolderId, parentLifecycleOwner = lifecycleOwner)
                     } else if (selectedFavoriteFolderId == removeFavoriteId) { // delete favorite
-                        val updated = deleteFavorite(fkId, favoriteFolderId)
+                        val updated = deleteFavorite(fkId)
                         if (updated) {
-                            ToastUtils.makeTextAndShowCentered(activity, R.string.favorite_removed)
+                            showToast(activity, R.string.favorite_removed)
                         }
                     } else if (favoriteFolderId != FavoriteFolder.INVALID_FOLDER_ID) { // move favorite
                         val updated = updateFavoriteFolder(fkId, selectedFavoriteFolderId)
                         if (updated) {
-                            ToastUtils.makeTextAndShowCentered(activity, R.string.favorite_moved)
+                            showToast(activity, R.string.favorite_moved)
                         }
                     } else { // add new favorite
                         val updated = addFavorite(fkId, selectedFavoriteFolderId)
                         if (updated) {
-                            ToastUtils.makeTextAndShowCentered(activity, R.string.favorite_added)
+                            showToast(activity, R.string.favorite_added)
                         }
                     }
-                    dialog?.dismiss()
                 }
             }
             .setNegativeButton(R.string.favorite_folder_pick_cancel) { dialog: DialogInterface?, _: Int ->
@@ -137,38 +145,37 @@ object FavoritesUI {
             .show()
     }
 
-    suspend fun FavoriteRepository.showAddFolderDialog(
+    @MainThread
+    fun FavoriteRepository.showAddFolderDialog(
         activity: Activity,
         optUpdatedFkId: String?,
         optFavoriteFolderId: Int?,
-    ) = withContext(Dispatchers.Main) {
+        parentLifecycleOwner: LifecycleOwner? = null,
+    ) {
         @SuppressLint("InflateParams") // dialog
         val view = LayoutInflater.from(activity).inflate(R.layout.layout_favorites_folder_edit, null, false)
         val newFolderNameTv = view.findViewById<EditText>(R.id.folder_name)
-        var lifecycleOwner: LifecycleOwner? = null
+        var lifecycleOwner: LifecycleOwner? = parentLifecycleOwner
         MTDialog.Builder(activity)
             .setView(view)
             .setPositiveButton(R.string.favorite_folder_new_create) { _: DialogInterface?, _: Int ->
-                val newFolderName = newFolderNameTv.getText().toString()
-                if (newFolderName.isBlank()) {
-                    ToastUtils.makeTextAndShowCentered(activity, R.string.favorite_folder_new_invalid_name)
-                    return@setPositiveButton
-                }
                 lifecycleOwner?.lifecycleScope?.launch {
-                    val createdFolder = addFolder(newFolderName)
-                    if (createdFolder == null) {
-                        ToastUtils.makeTextAndShowCentered(
-                            activity,
-                            activity.getString(R.string.favorite_folder_new_creation_error_and_folder_name, newFolderName)
-                        )
+                    val newFolderName = newFolderNameTv.getText().toString()
+                    if (newFolderName.isBlank()) {
+                        showToast(activity, R.string.favorite_folder_new_invalid_name)
                         return@launch
                     }
-                    ToastUtils.makeTextAndShowCentered(activity, activity.getString(R.string.favorite_folder_new_created_and_folder_name, createdFolder.name))
+                    val createdFolder = addFolder(newFolderName)
+                    if (createdFolder == null) {
+                        showToast(activity, R.string.favorite_folder_new_creation_error_and_folder_name, newFolderName)
+                        return@launch
+                    }
+                    showToast(activity, R.string.favorite_folder_new_created_and_folder_name, createdFolder.name)
                     if (!optUpdatedFkId.isNullOrEmpty()) {
                         if (optFavoriteFolderId != null && optFavoriteFolderId != FavoriteFolder.INVALID_FOLDER_ID) { // move favorite
                             val updated = updateFavoriteFolder(optUpdatedFkId, createdFolder.id)
                             if (updated) {
-                                ToastUtils.makeTextAndShowCentered(activity, R.string.favorite_moved)
+                                showToast(activity, R.string.favorite_moved)
                             }
                         } else { // add new favorite
                             addFavorite(optUpdatedFkId, createdFolder.id)
@@ -180,8 +187,19 @@ object FavoritesUI {
                 dialog?.cancel()
             }
             .create()
-            .also { lifecycleOwner = it }
+            .also {
+                if (lifecycleOwner != null) return@also
+                lifecycleOwner = it
+            }
             .show()
+    }
+
+    private suspend fun showToast(activity: Activity, @StringRes resId: Int) = withContext(Dispatchers.Main) {
+        ToastUtils.makeTextAndShowCentered(activity, resId)
+    }
+
+    private suspend fun showToast(activity: Activity, @StringRes resId: Int, vararg args: Any) = withContext(Dispatchers.Main) {
+        ToastUtils.makeTextAndShowCentered(activity, activity.getString(resId, *args))
     }
 
     @MainThread
@@ -195,21 +213,13 @@ object FavoritesUI {
         MTDialog.Builder(activity)
             .setTitle(activity.getString(R.string.favorite_folder_deletion_confirmation_title_and_name, favoriteFolder.name))
             .setMessage(activity.getString(R.string.favorite_folder_deletion_confirmation_text_and_name, favoriteFolder.name))
-            .setPositiveButton(
-                R.string.delete
-            ) { _: DialogInterface?, _: Int ->
+            .setPositiveButton(R.string.delete) { _: DialogInterface?, _: Int ->
                 lifecycleOwner?.lifecycleScope?.launch {
                     val deleted = deleteFolder(favoriteFolder)
                     if (deleted) {
-                        ToastUtils.makeTextAndShowCentered(
-                            activity,
-                            activity.getString(R.string.favorite_folder_deleted_and_folder_name, favoriteFolder.name)
-                        )
+                        showToast(activity, R.string.favorite_folder_deleted_and_folder_name, favoriteFolder.name)
                     } else {
-                        ToastUtils.makeTextAndShowCentered(
-                            activity,
-                            activity.getString(R.string.favorite_folder_deletion_error_and_folder_name, favoriteFolder.name)
-                        )
+                        showToast(activity, R.string.favorite_folder_deletion_error_and_folder_name, favoriteFolder.name)
                     }
                 }
             }
@@ -237,16 +247,15 @@ object FavoritesUI {
         MTDialog.Builder(activity)
             .setView(editView)
             .setPositiveButton(R.string.favorite_folder_edit) { _: DialogInterface?, _: Int ->
-                val newFolderName = newFolderNameTv.getText().toString()
-                if (newFolderName.isEmpty()) {
-                    ToastUtils.makeTextAndShowCentered(activity, R.string.favorite_folder_new_invalid_name)
-                    return@setPositiveButton
-                }
                 lifecycleOwner?.lifecycleScope?.launch {
-                    val updateFavoriteFolder = favoriteFolder.copy(name = newFolderName)
-                    val updated = updateFolder(updateFavoriteFolder)
+                    val newFolderName = newFolderNameTv.getText().toString()
+                    if (newFolderName.isEmpty()) {
+                        showToast(activity, R.string.favorite_folder_new_invalid_name)
+                        return@launch
+                    }
+                    val updated = updateFolder(favoriteFolder.copy(name = newFolderName))
                     if (updated) {
-                        ToastUtils.makeTextAndShowCentered(activity, activity.getString(R.string.favorite_folder_edited_and_folder, newFolderName))
+                        showToast(activity, R.string.favorite_folder_edited_and_folder, newFolderName)
                     }
                 }
             }

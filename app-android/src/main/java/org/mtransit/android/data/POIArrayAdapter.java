@@ -1,5 +1,6 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.data.POIArrayAdapterExtKt.onCreateViewKt;
 import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initBasicViewHolder;
 import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initModuleViewHolder;
 import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initPlaceViewHolder;
@@ -219,7 +220,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@NonNull
 	private final MTSensorManager sensorManager;
 	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
+	protected final DataSourcesRepository dataSourcesRepository;
 	@NonNull
 	private final DefaultPreferenceRepository defaultPrefRepository;
 	@NonNull
@@ -228,7 +229,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	private final POIRepository poiRepository;
 	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
-	private final FavoriteRepository favoriteRepository;
+	protected final FavoriteRepository favoriteRepository;
 	@NonNull
 	private final StatusLoader statusLoader;
 	@NonNull
@@ -259,33 +260,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	@Nullable
-	private LifecycleOwner viewLifecycleOwner = null;
+	protected LifecycleOwner viewLifecycleOwner = null;
 
 	public void onCreateView(@NotNull LifecycleOwner viewLifecycleOwner) {
-		this.viewLifecycleOwner = viewLifecycleOwner;
-		this.dataSourcesRepository.readingAllAgencies().observe(viewLifecycleOwner, agencyProperties ->
-				resetModulesStatus()
-		);
-		this.favoriteRepository.getReadingAllFavorites().observe(viewLifecycleOwner, this::setFavorites);
-		this.favoriteRepository.getReadingAllFavoriteFkIds().observe(viewLifecycleOwner, favoritesFkIds ->
-						this.allFavoritesFkIds = favoritesFkIds
-		);
-		this.favoriteRepository.getReadingAllFavoriteFolders().observe(viewLifecycleOwner, favoriteFolders ->
-						this.favoriteFolders = favoriteFolders
-		);
-		this.favoriteRepository.isUsingFavoriteFolders().observe(viewLifecycleOwner, isUsingFavoriteFolders ->
-						this.isUsingFavoriteFolders = isUsingFavoriteFolders
-		);
+		onCreateViewKt(this, viewLifecycleOwner);
 	}
 
 	@Nullable
-	private Boolean isUsingFavoriteFolders;
+	protected Boolean isUsingFavoriteFolders;
 
 	@Nullable
-	private List<String> allFavoritesFkIds;
+	protected List<String> allFavoritesFkIds;
 
 	@Nullable
-	private List<FavoriteFolder> favoriteFolders;
+	protected Map<Integer, FavoriteFolder> favoriteFoldersByIds;
 
 	public void setManualLayout(@Nullable ViewGroup manualLayout) {
 		this.manualLayout = manualLayout;
@@ -553,7 +541,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				if (typeId != null) {
 					if (FavoritesUtils.isFavoriteDataSourceId(typeId)) {
 						final int favoriteFolderId = FavoritesUtils.extractFavoriteFolderId(typeId);
-						final FavoriteFolder favoriteFolder = this.favoriteFolders == null ? null : this.favoriteFolders.get(favoriteFolderId);
+						final FavoriteFolder favoriteFolder = this.favoriteFoldersByIds == null ? null : this.favoriteFoldersByIds.get(favoriteFolderId);
 						if (favoriteFolder != null) {
 							return getFavoriteFolderHeaderView(favoriteFolder, convertView, parent);
 						}
@@ -1171,7 +1159,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
-	private boolean resetModulesStatus() {
+	protected boolean resetModulesStatus() {
 		boolean didReset = false;
 		if (this.poisByType != null) {
 			for (List<POIManager> poimList : this.poisByType.values()) {
@@ -2110,7 +2098,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		}
 	}
 
-	private void setFavorites(@Nullable List<Favorite> favorites) {
+	protected void setFavorites(@Nullable List<Favorite> favorites) {
 		boolean newFav = // don't trigger update if favorites are the same
 				(this.favUUIDs == null // favorite never set before
 						|| CollectionUtils.getSize(favorites) != CollectionUtils.getSize(this.favUUIDs) // different size => different favorites

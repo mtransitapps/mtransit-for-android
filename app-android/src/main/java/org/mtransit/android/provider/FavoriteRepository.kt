@@ -3,12 +3,14 @@ package org.mtransit.android.provider
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.UriUtils
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.Favorite.Companion.fromCursor
@@ -24,7 +26,7 @@ class FavoriteRepository(
     private val favoriteManager: FavoriteManager,
     private val demoModeManager: DemoModeManager,
     private val ioDispatcher: CoroutineDispatcher,
-) {
+) : MTLog.Loggable {
 
     @Inject
     constructor(
@@ -39,9 +41,13 @@ class FavoriteRepository(
     )
 
     companion object {
+        private val LOG_TAG: String = FavoriteRepository::class.java.simpleName
+
         private const val FAVORITE_CONTENT_DIRECTORY = "favorite"
         private const val FOLDER_CONTENT_DIRECTORY = "folder"
     }
+
+    override fun getLogTag() = LOG_TAG
 
     private var _authority: String? = null
     private val authority: String get() = _authority ?: appContext.getString(R.string.favorite_authority).also { _authority = it }
@@ -62,7 +68,9 @@ class FavoriteRepository(
         it?.map { favorite -> favorite.fkId }
     }
 
-    private fun makeFavoriteLiveData(uri: Uri) = ContentProviderLiveData(
+    val readingFavoriteChange: LiveData<Any> = readingAllFavorites.distinctUntilChanged().map { Any() }
+
+    fun makeFavoriteLiveData(uri: Uri) = ContentProviderLiveData(
         contentResolver = appContext.contentResolver,
         uri = uri
     ) {
@@ -158,12 +166,14 @@ class FavoriteRepository(
         if (demoModeManager.isFullDemo()) return@withContext false
         favoriteManager.addFavorite(appContext, fkId, folderId, null)
     }
+
     suspend fun updateFavoriteFolder(favoriteFkId: String, folderId: Int = FavoriteFolder.DEFAULT_FOLDER_ID) = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext false
         favoriteManager.updateFavoriteFolder(appContext, favoriteFkId, folderId, null)
     }
-    suspend fun deleteFavorite(fkId: String, folderId: Int = FavoriteFolder.DEFAULT_FOLDER_ID): Boolean = withContext(ioDispatcher) {
+
+    suspend fun deleteFavorite(fkId: String) = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext false
-        favoriteManager.deleteFavorite(appContext, fkId, folderId, null)
+        favoriteManager.deleteFavorite(appContext, fkId, null)
     }
 }

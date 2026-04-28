@@ -13,9 +13,7 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -243,9 +241,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
                 activity?.let {
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        favoriteRepository.showAddFolderDialog(it, null, null)
-                    }
+                    favoriteRepository.showAddFolderDialog(it, null, null)
                 }
                 true // handled
             }

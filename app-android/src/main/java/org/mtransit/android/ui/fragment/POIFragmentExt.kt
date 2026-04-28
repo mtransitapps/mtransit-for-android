@@ -41,7 +41,6 @@ fun POIFragment.setupViewKt() = this.binding?.apply {
             val poim = getPoimOrNull()?.takeIf { it.isFavoritable } ?: return@setOnClickListener
             viewLifecycleOwner.lifecycleScope.launch {
                 favoriteRepository.addOrRemoveFavoriteUI(requireActivity(), poim.poi.uUID)
-                viewModel?.triggerRefreshFavorite()
             }
         }
         setUpFabEdgeToEdge(

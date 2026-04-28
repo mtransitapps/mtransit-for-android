@@ -466,16 +466,8 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private val _favoriteTrigger = MutableLiveData<Int?>(null) // no initial value to avoid triggering onChanged()
-
-    fun triggerRefreshFavorite() {
-        viewModelScope.launch {
-            _favoriteTrigger.postValue((_favoriteTrigger.value ?: 0) + 1)
-        }
-    }
-
-    private val _favorite: LiveData<Favorite?> = MediatorLiveData2(this.uuid, _favoriteTrigger)
-        .switchMap { (uuid) ->
+    private val _favorite: LiveData<Favorite?> = MediatorLiveData2(this.uuid, favoriteRepository.readingFavoriteChange)
+        .switchMap { (uuid, trigger) ->
             liveData {
                 uuid ?: return@liveData
                 val favorite = favoriteRepository.getFavorite(uuid)
