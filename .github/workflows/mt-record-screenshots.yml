@@ -1,6 +1,7 @@
 # ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
 name: MT record screenshots
 on:
+  pull_request: # make available for initial PR but job is Skipped by default
   workflow_dispatch: # manual
     inputs:
       commitDirectly:
@@ -44,7 +45,7 @@ jobs:
   MT-RECORD-SCREENSHOTS-JOB:
     name: "MT record screenshots"
     # if: ${{ env.MT_IS_MAIN_REPO != 'true' }} # can NOT use env here:
-    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') }}
+    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && github.event_name != 'pull_request' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
