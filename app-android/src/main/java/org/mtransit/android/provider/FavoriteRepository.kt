@@ -138,7 +138,11 @@ class FavoriteRepository(
 
     suspend fun deleteFavorite(fkId: String) = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext false
-        appContext.contentResolver.delete(Uri.withAppendedPath(favoriteContentDirectoryUri, fkId), null, null) > 0
+        appContext.contentResolver.delete(
+            favoriteContentDirectoryUri,
+            SqlUtils.getWhereEqualsString(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FK_ID, fkId),
+            null
+        ) > 0
     }
 
     // endregion
