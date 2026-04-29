@@ -122,17 +122,18 @@ import java.util.WeakHashMap;
 
 @SuppressWarnings("WeakerAccess")
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
-		MTSensorManager.CompassListener,
+		AbsListView.OnScrollListener,
 		AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener,
+		POIStatusDataProvider,
+		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
 		SensorEventListener,
-		AbsListView.OnScrollListener,
+		MTSensorManager.CompassListener,
+		MTSensorManager.SensorTaskCompleted,
 		StatusLoader.StatusLoaderListener,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener,
-		MTSensorManager.SensorTaskCompleted,
-		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
-		POIStatusDataProvider,
-		ServiceUpdateLoaderProvider {
+		ServiceUpdateLoaderProvider,
+		MTLog.Loggable {
 
 	private static final String LOG_TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -188,9 +189,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	private boolean showFavorite = true; // show favorite star
 
-	private boolean showBrowseHeaderSection = false; // show header with shortcut to agency type screens
+	protected boolean showBrowseHeaderSection = false; // show header with shortcut to agency type screens
 
-	private int showTypeHeader = TYPE_HEADER_NONE;
+	protected int showTypeHeader = TYPE_HEADER_NONE;
 
 	private boolean showTypeHeaderNearby = false; // show nearby header instead of default type header
 
@@ -609,7 +610,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return convertView;
 	}
 
-	private int nbDisplayedAgencyTypes = -1;
+	protected int nbDisplayedAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		final int nbDisplayedAgencyTypeCount = this.allHomeDST == null ? 0 : this.allHomeDST.size();
@@ -1178,8 +1179,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	};
 
 	public void notifyDataSetChanged(boolean force, long minAdapterThresholdInMs) {
-		long now = UITimeUtils.currentTimeMillis();
-		long adapterThreshold = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
+		final long now = UITimeUtils.currentTimeMillis();
+		final long adapterThreshold = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
 				&& (force || (now - this.lastNotifyDataSetChanged) > adapterThreshold)) {
 			notifyDataSetChanged();
@@ -1194,21 +1195,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	private void notifyDataSetChangedManual() {
-		if (this.manualLayout != null && hasPois()) {
-			int position = 0;
-			for (int i = 0; i < this.manualLayout.getChildCount(); i++) {
-				View view = this.manualLayout.getChildAt(i);
-				if (view instanceof FrameLayout) {
-					view = ((FrameLayout) view).getChildAt(0);
+		if (this.manualLayout == null || !hasPois()) return;
+		int position = 0;
+		for (int i = 0; i < this.manualLayout.getChildCount(); i++) {
+			View view = this.manualLayout.getChildAt(i);
+			if (view instanceof FrameLayout) {
+				view = ((FrameLayout) view).getChildAt(0);
+			}
+			final Object tag = view == null ? null : view.getTag();
+			if (tag instanceof CommonViewHolder) {
+				final POIManager poim = getItem(position);
+				if (poim != null) {
+					updateCommonViewManual(poim, view);
 				}
-				Object tag = view == null ? null : view.getTag();
-				if (tag instanceof CommonViewHolder) {
-					POIManager poim = getItem(position);
-					if (poim != null) {
-						updateCommonViewManual(poim, view);
-					}
-					position++;
-				}
+				position++;
 			}
 		}
 	}
@@ -1364,6 +1364,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	public void onDestroyView() {
+		this.nbDisplayedAgencyTypes = -1; // reset
 		this.viewLifecycleOwner = null;
 		this.compassImgsWR.clear();
 		this.poiStatusViewHoldersWR.clear();
@@ -2006,9 +2007,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	private void updateCommonView(CommonViewHolder holder, POIManager poim) {
-		if (poim == null || holder == null) {
-			return;
-		}
+		if (poim == null || holder == null) return;
 		final POI poi = poim.poi;
 		holder.setUuid(poi.getUUID());
 		MTTransitions.setTransitionName(holder.getView(), "poi_" + poi.getUUID());

@@ -6,6 +6,8 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.pref.preferenceChangeLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData4
 
 fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
@@ -37,7 +39,10 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     readingAllHomeDST.observe(viewLifecycleOwner) { allHomeDST ->
         this.allHomeDST = allHomeDST
     }
-    readingAllHomeDST.switchMap { allHomeDST ->
+    MediatorLiveData2(
+        readingAllHomeDST,
+        localPreferenceRepository.pref.preferenceChangeLiveData(),
+    ).switchMap { (allHomeDST, _) ->
         liveData(Dispatchers.IO) {
             allHomeDST ?: return@liveData
             allHomeDST
@@ -53,6 +58,10 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
         }
     }.observe(viewLifecycleOwner) { dstIdToSelectedAuthority ->
         this.dstIdToSelectedAuthority = dstIdToSelectedAuthority
+        if (this.showBrowseHeaderSection || this.showTypeHeader == POIArrayAdapter.TYPE_HEADER_ALL_NEARBY) {
+            this.nbDisplayedAgencyTypes = -1 // reset
+            notifyDataSetChanged()
+        }
     }
     this.favoriteRepository.readingAllFavorites.observe(viewLifecycleOwner) { allFavorites ->
         setFavorites(allFavorites)

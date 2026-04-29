@@ -1,5 +1,6 @@
 package org.mtransit.android.ad.rewarded
 
+import androidx.annotation.AnyThread
 import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import com.google.android.gms.ads.rewarded.RewardedAd
@@ -130,6 +131,7 @@ class RewardedAdManager @Inject constructor(
         loadRewardedAdForActivity(activity)
     }
 
+    @AnyThread
     fun isRewardedAdAvailableToShow(): Boolean {
         if (!AdConstants.AD_ENABLED) return false
         if (this.demoModeManager.enabled) return false

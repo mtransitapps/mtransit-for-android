@@ -17,6 +17,7 @@ interface IAdManager {
 
     // region Rewarded Ad
 
+    @AnyThread
     fun getRewardedAdAmount(): Int
 
     fun getRewardedAdAmountInMs(): Long
@@ -27,6 +28,7 @@ interface IAdManager {
 
     suspend fun refreshRewardedAdStatus(activity: IActivity)
 
+    @AnyThread
     fun isRewardedAdAvailableToShow(): Boolean
 
     fun showRewardedAd(activity: IActivity): Boolean
