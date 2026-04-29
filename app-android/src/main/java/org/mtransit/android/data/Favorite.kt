@@ -12,8 +12,8 @@ data class Favorite @JvmOverloads constructor(
 ) {
 
     companion object {
+
         private const val KEY_TYPE_VALUE_AUTHORITY_POI = 1
-        // val EMPTY = FavoriteKt(0, "", DataSourceType.UNKNOWN, FavoriteManager.DEFAULT_FOLDER_ID)
 
         @JvmStatic
         fun makeFavorite(fkId: String, folderId: Int) = Favorite(
