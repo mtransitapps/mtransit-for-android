@@ -36,22 +36,23 @@ object FavoritesUI : MTLog.Loggable {
     suspend fun FavoriteRepository.addOrRemoveFavoriteUI(activity: Activity, fkId: String) = withContext(Dispatchers.IO) {
         val favorite = getFavorite(fkId)
         val isFavorite = favorite != null
-        val favoriteFolderId = favorite?.folderId
         val favoriteFolders = findFoldersList()
         val usingFavoriteFolder = favoriteFolders.any { it.id != FavoriteFolder.DEFAULT_FOLDER_ID }
         if (!usingFavoriteFolder) {
             if (isFavorite) {
                 deleteFavorite(fkId)
             } else {
-                addFavorite(fkId, favoriteFolderId ?: FavoriteFolder.DEFAULT_FOLDER_ID)
+                addFavorite(fkId)
             }
             return@withContext
         }
+        val favoriteFolderId = favorite?.folderId
+        val favoriteFolder = favoriteFolders.find { it.id == favoriteFolderId }
         withContext(Dispatchers.Main) {
             showPickFavoriteFolderDialog(
                 activity,
                 fkId,
-                favoriteFolderId = favoriteFolderId ?: FavoriteFolder.INVALID_FOLDER_ID,
+                favoriteFolder,
                 favoriteFolders,
             )
         }
@@ -61,9 +62,10 @@ object FavoritesUI : MTLog.Loggable {
     private fun FavoriteRepository.showPickFavoriteFolderDialog(
         activity: Activity,
         fkId: String,
-        favoriteFolderId: Int,
-        favoriteFolders: List<FavoriteFolder>,
+        favoriteFolder: FavoriteFolder?,
+        favoriteFolders: Collection<FavoriteFolder>,
     ) {
+        val favoriteFolderId = favoriteFolder?.id ?: FavoriteFolder.INVALID_FOLDER_ID
         var initialWhich: Int
         var selectedWhich: Int
         var checkedItem = -1
@@ -118,21 +120,34 @@ object FavoritesUI : MTLog.Loggable {
                 lifecycleOwner?.lifecycleScope?.launch {
                     val selectedFavoriteFolderId = itemsListId[selectedWhich]
                     if (selectedFavoriteFolderId == newFolderId) { // create new folder
-                        showAddFolderDialog(activity, fkId, favoriteFolderId, parentLifecycleOwner = lifecycleOwner)
+                        showAddFolderDialog(activity, fkId, favoriteFolder, parentLifecycleOwner = lifecycleOwner)
                     } else if (selectedFavoriteFolderId == removeFavoriteId) { // delete favorite
                         val updated = deleteFavorite(fkId)
                         if (updated) {
+                            if (favoriteFolder != null) {
+                                showToast(activity, R.string.favorite_removed_from_folder_and_folder, favoriteFolder.name)
+                            }
                             showToast(activity, R.string.favorite_removed)
                         }
                     } else if (favoriteFolderId != FavoriteFolder.INVALID_FOLDER_ID) { // move favorite
                         val updated = updateFavoriteFolder(fkId, selectedFavoriteFolderId)
                         if (updated) {
-                            showToast(activity, R.string.favorite_moved)
+                            val selectedFavoriteFolder = findFolder(selectedFavoriteFolderId)
+                            if (selectedFavoriteFolder != null) {
+                                showToast(activity, R.string.favorite_moved_to_folder_and_folder, selectedFavoriteFolder.name)
+                            } else {
+                                showToast(activity, R.string.favorite_moved)
+                            }
                         }
                     } else { // add new favorite
-                        val updated = addFavorite(fkId, selectedFavoriteFolderId)
-                        if (updated) {
-                            showToast(activity, R.string.favorite_added)
+                        val added = addFavorite(fkId, selectedFavoriteFolderId)
+                        if (added) {
+                            val selectedFavoriteFolder = findFolder(selectedFavoriteFolderId)
+                            if (selectedFavoriteFolder != null) {
+                                showToast(activity, R.string.favorite_added_to_folder_and_folder, selectedFavoriteFolder.name)
+                            } else {
+                                showToast(activity, R.string.favorite_added)
+                            }
                         }
                     }
                 }
@@ -148,8 +163,8 @@ object FavoritesUI : MTLog.Loggable {
     @MainThread
     fun FavoriteRepository.showAddFolderDialog(
         activity: Activity,
-        optUpdatedFkId: String?,
-        optFavoriteFolderId: Int?,
+        updatedFkId: String? = null,
+        updatedFavoriteFolder: FavoriteFolder? = null,
         parentLifecycleOwner: LifecycleOwner? = null,
     ) {
         @SuppressLint("InflateParams") // dialog
@@ -171,14 +186,17 @@ object FavoritesUI : MTLog.Loggable {
                         return@launch
                     }
                     showToast(activity, R.string.favorite_folder_new_created_and_folder_name, createdFolder.name)
-                    if (!optUpdatedFkId.isNullOrEmpty()) {
-                        if (optFavoriteFolderId != null && optFavoriteFolderId != FavoriteFolder.INVALID_FOLDER_ID) { // move favorite
-                            val updated = updateFavoriteFolder(optUpdatedFkId, createdFolder.id)
+                    if (!updatedFkId.isNullOrEmpty()) {
+                        if (updatedFavoriteFolder != null) { // move favorite
+                            val updated = updateFavoriteFolder(updatedFkId, createdFolder.id)
                             if (updated) {
-                                showToast(activity, R.string.favorite_moved)
+                                showToast(activity, R.string.favorite_moved_to_folder_and_folder, createdFolder.name)
                             }
                         } else { // add new favorite
-                            addFavorite(optUpdatedFkId, createdFolder.id)
+                            val added = addFavorite(updatedFkId, createdFolder.id)
+                            if (added) {
+                                showToast(activity, R.string.favorite_added_to_folder_and_folder, createdFolder.name)
+                            }
                         }
                     }
                 }
@@ -192,14 +210,6 @@ object FavoritesUI : MTLog.Loggable {
                 lifecycleOwner = it
             }
             .show()
-    }
-
-    private suspend fun showToast(activity: Activity, @StringRes resId: Int) = withContext(Dispatchers.Main) {
-        ToastUtils.makeTextAndShowCentered(activity, resId)
-    }
-
-    private suspend fun showToast(activity: Activity, @StringRes resId: Int, vararg args: Any) = withContext(Dispatchers.Main) {
-        ToastUtils.makeTextAndShowCentered(activity, activity.getString(resId, *args))
     }
 
     @MainThread
@@ -265,5 +275,13 @@ object FavoritesUI : MTLog.Loggable {
             .create()
             .also { lifecycleOwner = it }
             .show()
+    }
+
+    private suspend fun showToast(activity: Activity, @StringRes resId: Int) = withContext(Dispatchers.Main) {
+        ToastUtils.makeTextAndShowCentered(activity, resId)
+    }
+
+    private suspend fun showToast(activity: Activity, @StringRes resId: Int, vararg args: Any) = withContext(Dispatchers.Main) {
+        ToastUtils.makeTextAndShowCentered(activity, activity.getString(resId, *args))
     }
 }

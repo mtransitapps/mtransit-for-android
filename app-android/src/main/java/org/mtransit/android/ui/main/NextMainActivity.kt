@@ -33,6 +33,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
@@ -212,8 +213,10 @@ class NextMainActivity : MTActivityWithLocation(),
             }
         }
         viewModel.hasAgenciesEnabled.observe(this) { hasAgenciesEnabled ->
-            // ad-manager does not persist activity but listen for changes itself
-            adManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled, this)
+            lifecycleScope.launch(Dispatchers.IO) {
+                // ad-manager does not persist activity but listen for changes itself
+                adManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled, this@NextMainActivity)
+            }
         }
         viewModel.hasAgenciesAdded.observe(this) { hasAgenciesEnabled ->
             if (hasAgenciesEnabled) {
@@ -237,7 +240,9 @@ class NextMainActivity : MTActivityWithLocation(),
 
     override fun onBillingResult(productId: String?) {
         productId?.isNotEmpty()?.let { hasSubscription ->
-            adManager.setShowingAds(!hasSubscription, this)
+            lifecycleScope.launch(Dispatchers.IO) {
+                adManager.setShowingAds(!hasSubscription, this@NextMainActivity)
+            }
         }
     }
 
@@ -270,7 +275,7 @@ class NextMainActivity : MTActivityWithLocation(),
     override fun onResume() {
         super.onResume()
         adManager.adaptToScreenSize(this, resources.configuration)
-        adManager.setRewardedAdListener(this) // used until POI screen is visible // need to pre-load ASAP
+        adManager.setRewardedAdListener(this) // used until POI screen is visible // need to preload ASAP
         adManager.linkRewardedAd(this)
         billingManager.addListener(this) // trigger onBillingResult() w/ current value
         billingManager.refreshPurchases()
@@ -279,7 +284,7 @@ class NextMainActivity : MTActivityWithLocation(),
         isMTResumed = true
         if (currentUiMode != resources.configuration.uiMode) {
             lifecycleScope.launch {
-                NightModeUtils.setDefaultNightMode(activity, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+                NightModeUtils.setDefaultNightMode(activity, demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             }
         }
         viewModel.onAppVisible()
@@ -372,7 +377,7 @@ class NextMainActivity : MTActivityWithLocation(),
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (this.currentUiMode != newConfig.uiMode) {
-            NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+            NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             NightModeUtils.recreate(this) // not recreated because uiMode in configChanges AndroidManifest.xml
             return
         }

@@ -98,7 +98,7 @@ class FavoritesViewModel @Inject constructor(
         }
 
     @WorkerThread
-    private suspend fun getFavorites(favorites: List<Favorite>, allAgencies: List<AgencyBaseProperties>, homeScreenTypes: List<DataSourceType>): List<POIManager> {
+    private suspend fun getFavorites(favorites: Collection<Favorite>, allAgencies: List<AgencyBaseProperties>, homeScreenTypes: List<DataSourceType>): List<POIManager> {
         if (favorites.isEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no favorites)")
             return emptyList() // empty (no favorites)

@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.PurchaseDialogFragmentExtKt.onResumeKt;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -97,7 +100,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		View view = inflater.inflate(R.layout.fragment_dialog_purchase, container, false);
+		final View view = inflater.inflate(R.layout.fragment_dialog_purchase, container, false);
 		setupView(view);
 		return view;
 	}
@@ -105,7 +108,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@NonNull
 	@Override
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-		Dialog dialog = super.onCreateDialog(savedInstanceState);
+		final Dialog dialog = super.onCreateDialog(savedInstanceState);
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.setCancelable(true);
 		dialog.setCanceledOnTouchOutside(true);
@@ -116,10 +119,14 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.newProductDetailsObserver = this::onNewProductId;
-		getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.noOpStringObserver);
-		getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X
-		getEntryPoint(requireContext()).adManager().getRewardedUntilInMsLive().observeForever(this.noOpLongObserver); // NOT ANDROID X
-		getEntryPoint(requireContext()).adManager().getRewardedNowLive().observeForever(this.noOpBooleanObserver); // NOT ANDROID X
+		@SuppressLint("DeprecatedCall") // FIXME
+		final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());
+		final IBillingManager billingManager = entryPoint.billingManager();
+		billingManager.getCurrentSubscription().observeForever(this.noOpStringObserver);
+		billingManager.getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X
+		final IAdManager adManager = entryPoint.adManager();
+		adManager.getRewardedUntilInMsLive().observeForever(this.noOpLongObserver); // NOT ANDROID X
+		adManager.getRewardedNowLive().observeForever(this.noOpBooleanObserver); // NOT ANDROID X
 	}
 
 	@Override
@@ -154,7 +161,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@NonNull
 	@Override
 	public Activity requireActivity() throws IllegalStateException {
-		Activity activity = getActivity();
+		final Activity activity = getActivity();
 		if (activity == null) {
 			throw new IllegalStateException("Fragment " + this + " not attached to an activity.");
 		}
@@ -176,12 +183,16 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		@SuppressLint("DeprecatedCall") // FIXME
+		final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());
+		final IBillingManager billingManager = entryPoint.billingManager();
 		if (this.newProductDetailsObserver != null) {
-			getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);
+			billingManager.getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);
 		}
-		getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.noOpStringObserver);
-		getEntryPoint(requireContext()).adManager().getRewardedUntilInMsLive().removeObserver(this.noOpLongObserver);
-		getEntryPoint(requireContext()).adManager().getRewardedNowLive().removeObserver(this.noOpBooleanObserver);
+		billingManager.getCurrentSubscription().removeObserver(this.noOpStringObserver);
+		final IAdManager adManager = entryPoint.adManager();
+		adManager.getRewardedUntilInMsLive().removeObserver(this.noOpLongObserver);
+		adManager.getRewardedNowLive().removeObserver(this.noOpBooleanObserver);
 	}
 
 	@Override
@@ -190,19 +201,22 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	}
 
 	private void onRewardedAdButtonClick(@NonNull Context context) {
-		Activity activity = getActivity();
+		final Activity activity = getActivity();
 		try {
 			if (activity == null) {
 				MTLog.w(this, "onRewardedAdButtonClick() > skip (no view or no activity)");
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_default_failure_message);
 				return;
 			}
-			if (!getEntryPoint(context).adManager().isRewardedAdAvailableToShow()) {
+			@SuppressLint("DeprecatedCall") // FIXME
+			final PurchaseDialogEntryPoint entryPoint = getEntryPoint(context);
+			final IAdManager adManager = entryPoint.adManager();
+			if (!adManager.isRewardedAdAvailableToShow()) {
 				MTLog.w(this, "onRewardedAdButtonClick() > skip (no ad available)");
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_not_ready);
 				return;
 			}
-			getEntryPoint(context).adManager().showRewardedAd(this);
+			adManager.showRewardedAd(this);
 			final View view = getView();
 			if (view != null) {
 				view.findViewById(R.id.rewardedAdsBtn).setEnabled(false);
@@ -214,7 +228,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	}
 
 	private void onDownloadOrOpenPaidTasksBtnClick(@NonNull Context context) {
-		Activity activity = getActivity();
+		final Activity activity = getActivity();
 		try {
 			if (activity == null) {
 				MTLog.w(this, "onDownloadOrOpenPaidTasksBtnClick() > skip (no view or no activity)");
@@ -229,7 +243,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			} else {
 				StoreUtils.viewAppPage(activity, PAID_TASKS_PKG, context.getString(org.mtransit.android.commons.R.string.google_play));
 			}
-			Dialog dialog = getDialog();
+			final Dialog dialog = getDialog();
 			if (dialog != null) {
 				dialog.dismiss();
 			}
@@ -240,55 +254,58 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	}
 
 	private void onBuyBtnClick(@NonNull Context context) {
-		Activity activity = getActivity();
+		final Activity activity = getActivity();
 		try {
-			View view = getView();
+			final View view = getView();
 			if (view == null || activity == null) {
 				MTLog.w(this, "onBuyBtnClick() > skip (no view or no activity)");
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			Spinner periodSpinner = view.findViewById(R.id.period);
-			int periodPosition = periodSpinner.getSelectedItemPosition();
-			String periodS = this.periods.get(periodPosition);
+			final Spinner periodSpinner = view.findViewById(R.id.period);
+			final int periodPosition = periodSpinner.getSelectedItemPosition();
+			final String periodS = this.periods.get(periodPosition);
 			if (periodS == null || periodS.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: %s)", periodPosition);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			String periodCat = this.periodSToPeriodCat.get(periodS);
+			final String periodCat = this.periodSToPeriodCat.get(periodS);
 			if (periodCat == null || periodCat.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period string: %s)", periodS);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			Spinner priceSpinner = view.findViewById(R.id.price);
-			int pricePosition = priceSpinner.getSelectedItemPosition();
-			String priceS = this.prices.get(pricePosition);
+			final Spinner priceSpinner = view.findViewById(R.id.price);
+			final int pricePosition = priceSpinner.getSelectedItemPosition();
+			final String priceS = this.prices.get(pricePosition);
 			if (priceS == null || priceS.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: %s)", pricePosition);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			String priceCat = this.priceSToPriceCat.get(priceS);
+			final String priceCat = this.priceSToPriceCat.get(priceS);
 			if (priceCat == null || priceCat.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price string: %s)", priceS);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			String productId = IBillingManager.PRODUCT_ID_STARTS_WITH_F + periodCat + IBillingManager.PRODUCT_ID_SUBSCRIPTION + priceCat;
+			final String productId = IBillingManager.PRODUCT_ID_STARTS_WITH_F + periodCat + IBillingManager.PRODUCT_ID_SUBSCRIPTION + priceCat;
 			if (!IBillingManager.FLEXIBLE_SUBSCRIPTIONS.contains(productId)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected product ID: %s)", productId);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, productId);
+			@SuppressLint("DeprecatedCall") // FIXME
+			final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());
+			final IBillingManager billingManager = entryPoint.billingManager();
+			final boolean billingFlowLaunched = billingManager.launchBillingFlow(this, productId);
 			if (!billingFlowLaunched) {
 				MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: %s)", productId);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			Dialog dialog = getDialog();
+			final Dialog dialog = getDialog();
 			if (dialog != null) {
 				dialog.dismiss();
 			}
@@ -301,15 +318,18 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@NonNull
 	private final ThreadSafeDateFormatter dateFormatter = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM);
 
+	@MainThread
 	@Override
 	public void onResume() {
 		super.onResume();
+		@SuppressLint("DeprecatedCall") // FIXME
 		final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());
-		entryPoint.billingManager().refreshAvailableSubscriptions();
-		final IAdManager iAdManager = entryPoint.adManager();
-		iAdManager.setRewardedAdListener(this);
-		iAdManager.linkRewardedAd(this);
-		iAdManager.refreshRewardedAdStatus(this);
+		final IBillingManager billingManager = entryPoint.billingManager();
+		billingManager.refreshAvailableSubscriptions();
+		final IAdManager adManager = entryPoint.adManager();
+		adManager.setRewardedAdListener(this);
+		adManager.linkRewardedAd(this);
+		onResumeKt(this, adManager);
 		showLoading();
 		final View view = getView();
 		if (view != null) {
@@ -324,12 +344,17 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onPause() {
 		super.onPause();
-		getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);
+		@SuppressLint("DeprecatedCall") // FIXME
+		final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());
+		final IAdManager adManager = entryPoint.adManager();
+		adManager.setRewardedAdListener(null);
 	}
 
 	@MainThread
 	private void refreshRewardedLayout(@NonNull View view) {
-		final IAdManager adManager = getEntryPoint(view.getContext()).adManager();
+		@SuppressLint("DeprecatedCall") // FIXME
+		final PurchaseDialogEntryPoint entryPoint = getEntryPoint(view.getContext());
+		final IAdManager adManager = entryPoint.adManager();
 		final Boolean rewardedNow = adManager.getRewardedNowLive().getValue();
 		if (rewardedNow == null) {
 			MTLog.w(this, "refreshRewardedLayout() > skip (rewardedNow is null)");
@@ -378,7 +403,9 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@WorkerThread
 	@Override
 	public boolean skipRewardedAd() {
-		final IAdManager adManager = getEntryPoint(requireContext()).adManager();
+		@SuppressLint("DeprecatedCall") // FIXME
+		final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());
+		final IAdManager adManager = entryPoint.adManager();
 		if (!adManager.isRewardedNow()) return false; // never skip for non-rewarded users
 		final long rewardedUntilInMs = adManager.getRewardedUntilInMs();
 		final long skipRewardedAdUntilInMs = TimeUtils.currentTimeMillis()
@@ -398,39 +425,41 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);
+		@SuppressLint("DeprecatedCall") // FIXME
+		final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());
+		@SuppressLint("DeprecatedCall") // FIXME
+		final IAdManager adManager = entryPoint.adManager();
+		adManager.unlinkRewardedAd(this);
 	}
 
 	private void showLoading() {
-		View view = getView();
-		if (view != null) {
-			view.findViewById(R.id.title).setVisibility(View.GONE);
-			view.findViewById(R.id.subTitle).setVisibility(View.GONE);
-			view.findViewById(R.id.beforeText).setVisibility(View.GONE);
-			view.findViewById(R.id.priceSelection).setVisibility(View.GONE);
-			view.findViewById(R.id.afterText).setVisibility(View.GONE);
-			view.findViewById(R.id.buyBtn).setVisibility(View.GONE);
-			view.findViewById(R.id.paidTasksDivider).setVisibility(View.GONE);
-			view.findViewById(R.id.paidTasksIncentive).setVisibility(View.GONE);
-			view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setVisibility(View.GONE);
-			view.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
-		}
+		final View view = getView();
+		if (view == null) return;
+		view.findViewById(R.id.title).setVisibility(View.GONE);
+		view.findViewById(R.id.subTitle).setVisibility(View.GONE);
+		view.findViewById(R.id.beforeText).setVisibility(View.GONE);
+		view.findViewById(R.id.priceSelection).setVisibility(View.GONE);
+		view.findViewById(R.id.afterText).setVisibility(View.GONE);
+		view.findViewById(R.id.buyBtn).setVisibility(View.GONE);
+		view.findViewById(R.id.paidTasksDivider).setVisibility(View.GONE);
+		view.findViewById(R.id.paidTasksIncentive).setVisibility(View.GONE);
+		view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setVisibility(View.GONE);
+		view.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
 	}
 
 	private void showNotLoading() {
-		View view = getView();
-		if (view != null) {
-			view.findViewById(R.id.loading_layout).setVisibility(View.GONE);
-			view.findViewById(R.id.title).setVisibility(View.VISIBLE);
-			view.findViewById(R.id.subTitle).setVisibility(View.VISIBLE);
-			view.findViewById(R.id.beforeText).setVisibility(View.VISIBLE);
-			view.findViewById(R.id.priceSelection).setVisibility(View.VISIBLE);
-			view.findViewById(R.id.afterText).setVisibility(View.VISIBLE);
-			view.findViewById(R.id.buyBtn).setVisibility(View.VISIBLE);
-			view.findViewById(R.id.paidTasksDivider).setVisibility(View.VISIBLE);
-			view.findViewById(R.id.paidTasksIncentive).setVisibility(View.VISIBLE);
-			view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setVisibility(View.VISIBLE);
-		}
+		final View view = getView();
+		if (view == null) return;
+		view.findViewById(R.id.loading_layout).setVisibility(View.GONE);
+		view.findViewById(R.id.title).setVisibility(View.VISIBLE);
+		view.findViewById(R.id.subTitle).setVisibility(View.VISIBLE);
+		view.findViewById(R.id.beforeText).setVisibility(View.VISIBLE);
+		view.findViewById(R.id.priceSelection).setVisibility(View.VISIBLE);
+		view.findViewById(R.id.afterText).setVisibility(View.VISIBLE);
+		view.findViewById(R.id.buyBtn).setVisibility(View.VISIBLE);
+		view.findViewById(R.id.paidTasksDivider).setVisibility(View.VISIBLE);
+		view.findViewById(R.id.paidTasksIncentive).setVisibility(View.VISIBLE);
+		view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setVisibility(View.VISIBLE);
 	}
 
 	private static final ArrayList<String> SORTED_PERIOD_CAT = ArrayUtils.asArrayList(
@@ -455,14 +484,10 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	private final ArrayMap<String, String> periodSToPeriodCat = new ArrayMap<>();
 
 	private void onNewProductId(@Nullable Map<String, ProductDetails> productIdsWithDetails) {
-		View view = getView();
-		Activity activity = getActivity();
-		if (view == null || activity == null) {
-			return;
-		}
-		if (productIdsWithDetails == null) {
-			return;
-		}
+		if (productIdsWithDetails == null) return;
+		final View view = getView();
+		final Activity activity = getActivity();
+		if (view == null || activity == null) return;
 		this.prices.clear();
 		this.periods.clear();
 		this.priceSToPriceCat.clear();
@@ -546,12 +571,12 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				return 0;
 			}
 		});
-		Spinner priceSpinner = view.findViewById(R.id.price);
+		final Spinner priceSpinner = view.findViewById(R.id.price);
 		priceSpinner.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_dropdown_item, this.prices));
 		if (defaultPriceS != null) {
 			priceSpinner.setSelection(this.prices.indexOf(defaultPriceS));
 		}
-		Spinner periodSpinner = view.findViewById(R.id.period);
+		final Spinner periodSpinner = view.findViewById(R.id.period);
 		periodSpinner.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_dropdown_item, this.periods));
 		if (defaultPeriodS != null) {
 			periodSpinner.setSelection(this.periods.indexOf(defaultPeriodS));

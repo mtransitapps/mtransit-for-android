@@ -176,10 +176,12 @@ class MainActivity : MTActivityWithLocation(),
         }
         supportFragmentManager.addOnBackStackChangedListener(this)
         this.dataSourcesRepository.readingHasAgenciesEnabled().observe(this, Observer { hasAgenciesEnabled: Boolean? ->
-            this.adManager.onHasAgenciesEnabledUpdated(
-                hasAgenciesEnabled,
-                this,
-            ) // ad-manager does not persist activity but listen for changes itself
+            lifecycleScope.launch(Dispatchers.IO) {
+                adManager.onHasAgenciesEnabledUpdated(
+                    hasAgenciesEnabled,
+                    this@MainActivity,
+                ) // ad-manager does not persist activity but listen for changes itself
+            }
             this.abController?.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
         })
         this.dataSourcesRepository.readingHasAgenciesAdded().observe(this, Observer { hasAgenciesAdded: Boolean? ->
@@ -188,14 +190,16 @@ class MainActivity : MTActivityWithLocation(),
             }
         })
         this.billingManager.currentSubscription.observe(this, Observer { _: String? -> })
-        MapUtils.fixScreenFlickering(findViewById<ViewGroup?>(R.id.content_frame))
+        MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
         ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
     }
 
     override fun onBillingResult(productId: String?) {
         val hasSubscription = if (productId == null) null else !productId.isEmpty()
         if (hasSubscription != null) {
-            this.adManager.setShowingAds(!hasSubscription, this)
+            lifecycleScope.launch(Dispatchers.IO) {
+                adManager.setShowingAds(!hasSubscription, this@MainActivity)
+            }
         }
     }
 

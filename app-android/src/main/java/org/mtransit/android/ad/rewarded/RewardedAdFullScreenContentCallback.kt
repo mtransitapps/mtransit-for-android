@@ -1,8 +1,11 @@
 package org.mtransit.android.ad.rewarded
 
 
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.FullScreenContentCallback
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 // import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError #gmaNextGen
 // import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAdEventCallback #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -40,7 +43,9 @@ class RewardedAdFullScreenContentCallback(
         this.rewardedAdManager.setRewardedAd(null) // clear showed ad
         this.activityWR.get()?.let { activity ->
             activity.activity?.takeIf { !it.isDestroyed && !it.isFinishing }?.let {
-                this.rewardedAdManager.refreshRewardedAdStatus(activity)
+                activity.lifecycleScope.launch(Dispatchers.IO) {
+                    rewardedAdManager.refreshRewardedAdStatus(activity)
+                }
             }
         }
     }

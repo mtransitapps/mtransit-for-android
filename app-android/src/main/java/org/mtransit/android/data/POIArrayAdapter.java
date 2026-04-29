@@ -110,6 +110,7 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -224,10 +225,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@NonNull
 	private final DefaultPreferenceRepository defaultPrefRepository;
 	@NonNull
-	private final LocalPreferenceRepository localPreferenceRepository;
+	protected final LocalPreferenceRepository localPreferenceRepository;
 	@NonNull
 	private final POIRepository poiRepository;
-	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
 	protected final FavoriteRepository favoriteRepository;
 	@NonNull
@@ -247,7 +247,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			@NonNull ServiceUpdateLoader serviceUpdateLoader
 	) {
 		super(fragment.requireContext(), -1);
-		setActivity(fragment);
+		setFragment(fragment);
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = sensorManager;
 		this.dataSourcesRepository = dataSourcesRepository;
@@ -260,11 +260,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	@Nullable
-	protected LifecycleOwner viewLifecycleOwner = null;
+	protected LifecycleOwner viewLifecycleOwner;
 
 	public void onCreateView(@NotNull LifecycleOwner viewLifecycleOwner) {
 		onCreateViewKt(this, viewLifecycleOwner);
 	}
+
+	@Nullable
+	protected Map<DataSourceType, List<AgencyProperties>> allAgenciesByType;
+
+	@Nullable
+	protected List<DataSourceType> allHomeDST;
+
+	@Nullable
+	protected Map<Integer, String> dstIdToSelectedAuthority;
 
 	@Nullable
 	protected Boolean isUsingFavoriteFolders;
@@ -603,25 +612,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	private int nbDisplayedAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
-		final Map<DataSourceType, List<AgencyProperties>> dstToAgencies = this.dataSourcesRepository.getAllTypeToAgencies();
-		// noinspection deprecation // FIXME use live data
-		final ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>(
-				this.dataSourcesRepository.filterDataSourceTypes(
-						this.dataSourcesRepository.getAllSupportedDataSourceTypes()
-				)
-		);
-		CollectionUtils.removeIfNN(allAgencyTypes, dst -> !dst.isHomeScreen());
-		final boolean hasFavorites = (this.favUUIDs != null && !this.favUUIDs.isEmpty())
-				|| (this.favUUIDsFolderIds != null && !this.favUUIDsFolderIds.isEmpty());
-		if (hasFavorites && this.dataSourcesRepository.hasAgenciesEnabled()) {
-			allAgencyTypes.add(0, DataSourceType.TYPE_FAVORITE); // 1st
-		}
-		if (!allAgencyTypes.isEmpty()) {
-			if (!this.dataSourcesRepository.getAllNewsProvidersEnabled().isEmpty()) {
-				allAgencyTypes.add(allAgencyTypes.size() - 1, DataSourceType.TYPE_NEWS); // LAST before MODULE
-			}
-		}
-		final int nbDisplayedAgencyTypeCount = allAgencyTypes.size();
+		final int nbDisplayedAgencyTypeCount = this.allHomeDST == null ? 0 : this.allHomeDST.size();
 		if (convertView != null && this.nbDisplayedAgencyTypes == nbDisplayedAgencyTypeCount) {
 			return convertView;
 		}
@@ -634,7 +625,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		final LinearLayout gridLL = convertViewBinding.gridLL;
 		gridLL.removeAllViews();
 		this.nbDisplayedAgencyTypes = nbDisplayedAgencyTypeCount;
-		if (allAgencyTypes.isEmpty()) { // if no module installed > only show agencies list
+		if (this.allHomeDST == null || this.allHomeDST.isEmpty()) { // if no module installed > only show agencies list
 			gridLL.setVisibility(View.GONE); // TODO? agency browse button could be useful to access list of available agencies w/o device location
 			return convertViewBinding.getRoot();
 		}
@@ -646,10 +637,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		ViewGroup gridLine = null;
 		MaterialButton btn;
 		for (int i = 0; i < nbDisplayedAgencyTypeCount; i++) {
-			final DataSourceType dst = allAgencyTypes.get(i);
+			final DataSourceType dst = this.allHomeDST.get(i);
 			if (dst.getId() == DataSourceType.TYPE_MODULE.getId()
 					&& availableButtons == 0
-					&& allAgencyTypes.size() > maxButtonsPerLines) {
+					&& this.allHomeDST.size() > maxButtonsPerLines) {
 				MTLog.d(this, "getBrowseHeaderSectionView() > SKIP modules (no room)");
 				continue;
 			}
@@ -664,9 +655,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			}
 			btn = makeHeaderBrowseButton(gridLine);
 			gridLine.addView(btn);
-			setupHeaderButtonTextAndIcon(btn, dst, dstToAgencies);
+			setupHeaderButtonTextAndIcon(btn, dst);
 			setupHeaderButtonClick(btn, dst);
-			setupHeaderButtonColor(btn, dst, dstToAgencies);
+			setupHeaderButtonColor(btn, dst);
 			btn.setVisibility(View.VISIBLE);
 			availableButtons--;
 		}
@@ -682,16 +673,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return convertViewBinding.getRoot();
 	}
 
-	private static void setupHeaderButtonTextAndIcon(MaterialButton btn, DataSourceType dst, Map<DataSourceType, List<AgencyProperties>> dstToAgencies) {
+	private void setupHeaderButtonTextAndIcon(
+			MaterialButton btn,
+			DataSourceType dst
+	) {
 		btn.setText(dst.getShortNamesResId());
 		if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
-			final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
+			final List<AgencyProperties> dstAgencies = this.allAgenciesByType == null ? null : this.allAgenciesByType.get(dst);
 			final AgencyProperties oneAgency = dstAgencies == null || dstAgencies.size() != 1
 					|| DataSourceType.TYPE_MODULE.equals(dstAgencies.get(0).getType()) ? null
 					: dstAgencies.get(0);
 			final String oneAgencyShortName = oneAgency == null ? null : oneAgency.getShortName();
 			if (oneAgencyShortName != null && !oneAgencyShortName.isEmpty()) {
-				final int shortNameCount = IAgencyProperties.countAgenciesListShortName(dstToAgencies.values(), oneAgencyShortName);
+				final Collection<List<AgencyProperties>> allAgencies = this.allAgenciesByType == null ? Collections.emptySet() : this.allAgenciesByType.values();
+				final int shortNameCount = IAgencyProperties.countAgenciesListShortName(allAgencies, oneAgencyShortName);
 				if (shortNameCount == 1) {
 					btn.setText(oneAgencyShortName);
 				}
@@ -711,26 +706,22 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	@UiThread
-	private void setupHeaderButtonColor(MaterialButton btn,
-										DataSourceType dst,
-										Map<DataSourceType, List<AgencyProperties>> dstToAgencies
+	private void setupHeaderButtonColor(
+			MaterialButton btn,
+			DataSourceType dst
 	) {
 		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT <= 0) return;
-		final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
+		final List<AgencyProperties> dstAgencies = this.allAgenciesByType == null ? null : this.allAgenciesByType.get(dst);
 		if (dstAgencies == null || dstAgencies.isEmpty()) return;
 		String selectedAgencyAuthority = null;
 		if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1) {
-			//noinspection WrongThread # TODO async?
-			selectedAgencyAuthority = this.localPreferenceRepository.getValue(
-					LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dst.getId()),
-					LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
-			);
+			selectedAgencyAuthority = this.dstIdToSelectedAuthority == null ? null : this.dstIdToSelectedAuthority.get(dst.getId());
 			if (TextUtils.isEmpty(selectedAgencyAuthority)) {
 				selectedAgencyAuthority = dstAgencies.get(0).getAuthority();
 			}
 		}
 		final ArrayList<Integer> colors = new ArrayList<>();
-		for (AgencyProperties agency : dstAgencies) {
+		for (IAgencyUIProperties agency : dstAgencies) {
 			if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1
 					&& !agency.getAuthority().equals(selectedAgencyAuthority)) {
 				continue;
@@ -1324,15 +1315,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return POIArrayAdapter.class.getSimpleName() + getLogTag();
 	}
 
-	public void onResume(@NonNull IFragment activity, @Nullable Location deviceLocation) {
-		setActivity(activity);
+	public void onResume(@NonNull IFragment fragment, @Nullable Location deviceLocation) {
+		setFragment(fragment);
 		this.showingAccessibilityInfo = null; // force user preference check
 		this.location = null; // clear current location to force refresh
 		setLocation(deviceLocation);
 		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
 	}
 
-	public void setActivity(@NonNull IFragment fragment) {
+	public void setFragment(@NonNull IFragment fragment) {
 		this.fragmentWR = new WeakReference<>(fragment);
 	}
 
@@ -1618,8 +1609,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getIconResId(), 0, 0, 0);
 		}
 		if (holder.allBtn != null) {
-			final Map<DataSourceType, List<AgencyProperties>> dstToAgencies = this.dataSourcesRepository.getAllTypeToAgencies();
-			setupHeaderButtonColor(holder.allBtn, type, dstToAgencies);
+			setupHeaderButtonColor(holder.allBtn, type);
 			setupHeaderButtonClick(holder.allBtn, type);
 		}
 		if (holder.nearbyBtn != null) {
@@ -2098,7 +2088,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		}
 	}
 
-	protected void setFavorites(@Nullable List<Favorite> favorites) {
+	protected void setFavorites(@Nullable Collection<Favorite> favorites) {
 		boolean newFav = // don't trigger update if favorites are the same
 				(this.favUUIDs == null // favorite never set before
 						|| CollectionUtils.getSize(favorites) != CollectionUtils.getSize(this.favUUIDs) // different size => different favorites

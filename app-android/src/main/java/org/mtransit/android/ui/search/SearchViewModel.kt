@@ -81,7 +81,7 @@ class SearchViewModel @Inject constructor(
 
     private var searchJob: Job? = null
 
-    private var favoriteUUIDs = emptySet<String>()
+    private var favoriteUUIDs: Collection<String> = emptySet()
 
     val devEnabled: LiveData<Boolean> by lazy {
         lclPrefRepository.pref.liveData(
@@ -176,7 +176,7 @@ class SearchViewModel @Inject constructor(
             )
         }
 
-    class POISearchComparator(private val favoriteUUIDs: Set<String>) : Comparator<POIManager?> {
+    class POISearchComparator(private val favoriteUUIDs: Collection<String>) : Comparator<POIManager?> {
         override fun compare(lhs: POIManager?, rhs: POIManager?): Int {
             if (lhs == null && rhs == null) {
                 return ComparatorUtils.SAME

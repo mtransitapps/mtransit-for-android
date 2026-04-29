@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment
 
-import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,6 +24,7 @@ import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
@@ -439,25 +439,15 @@ class POIViewModel @Inject constructor(
     }
 
     fun onBatteryOptimizationSettingsOpened() {
-        hasSeenDisabledModule = false // click on the message once, show again next module disabled
+        lclPrefRepository.pref.edit {
+            putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, false) // click on the message once, show again next module disabled
+        }
     }
 
-    @get:WorkerThread
-    @set:WorkerThread
-    @get:JvmName("hasSeenDisabledModule")
-    var hasSeenDisabledModule: Boolean = LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        get() = lclPrefRepository.getValue(
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        )
-        private set(value) {
-            if (hasSeenDisabledModule != value) {
-                lclPrefRepository.pref.edit {
-                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, value)
-                }
-                field = value
-            }
-        }
+    val hasSeenDisabledModule: LiveData<Boolean> = lclPrefRepository.pref.liveData(
+        LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
+        LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
+    )
 
     fun refreshAppUpdateAvailable() {
         val agencyProperties = this.agency.value ?: return
@@ -466,7 +456,7 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private val _favorite: LiveData<Favorite?> = MediatorLiveData2(this.uuid, favoriteRepository.readingFavoriteChange)
+    private val _favorite: LiveData<Favorite?> = MediatorLiveData2(this.uuid, favoriteRepository.readingAllFavoritesChange)
         .switchMap { (uuid, trigger) ->
             liveData {
                 uuid ?: return@liveData
@@ -478,5 +468,5 @@ class POIViewModel @Inject constructor(
 
     val isFavorite: LiveData<Boolean> = _favorite.map { it != null }
 
-    val usingFavoriteFolders: LiveData<Boolean> = favoriteRepository.isUsingFavoriteFolders
+    val usingFavoriteFolders: LiveData<Boolean> = favoriteRepository.isUsingFolders
 }

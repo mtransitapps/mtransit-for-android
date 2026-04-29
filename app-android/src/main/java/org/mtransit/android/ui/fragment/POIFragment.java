@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.onResumeKt;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.setupViewKt;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.startVehicleLocationCountdownRefresh;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.stopVehicleLocationCountdownRefresh;
@@ -112,7 +113,6 @@ import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
 import org.mtransit.android.ui.view.common.EventObserver;
 import org.mtransit.android.ui.view.common.FragmentKtxKt;
-import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
@@ -297,7 +297,6 @@ public class POIFragment extends ABFragment implements
 			}
 		}
 		refreshAppUpdateLayout();
-		refreshAppWasDisabledLayout();
 		if (viewModel != null) {
 			viewModel.refreshAppUpdateAvailable();
 		}
@@ -558,6 +557,7 @@ public class POIFragment extends ABFragment implements
 		viewModel.getPoiList().observe(getViewLifecycleOwner(), this::onPOIsLoaded);
 		viewModel.isFavorite().observe(getViewLifecycleOwner(), this::onFavoriteLoaded);
 		viewModel.getUsingFavoriteFolders().observe(getViewLifecycleOwner(), this::onUsingFavoriteFoldersLoaded);
+		viewModel.getHasSeenDisabledModule().observe(getViewLifecycleOwner(), this::onHasSeenDisabledModuleLoaded);
 		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
 			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
 		}
@@ -1104,6 +1104,7 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
+	@MainThread
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -1131,7 +1132,7 @@ public class POIFragment extends ABFragment implements
 		}
 		onDeviceLocationChanged(((MTActivityWithLocation) requireActivity()).getDeviceLocation());
 		this.adManager.setRewardedAdListener(this);
-		this.adManager.refreshRewardedAdStatus((IActivity) requireActivity());
+		onResumeKt(this);
 		refreshRewardedLayout();
 		refreshAppUpdateLayout();
 		if (this.viewModel != null) {
@@ -1140,7 +1141,6 @@ public class POIFragment extends ABFragment implements
 			this.viewModel.startVehicleLocationRefresh();
 			startVehicleLocationCountdownRefresh(this);
 		}
-		refreshAppWasDisabledLayout();
 		if (FeatureFlags.F_NAVIGATION) {
 			if (nextMainViewModel != null) {
 				nextMainViewModel.setABBgColor(getABBgColor(getContext()));
@@ -1238,7 +1238,13 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
-	private void refreshAppWasDisabledLayout() {
+	private void onHasSeenDisabledModuleLoaded(@Nullable Boolean hasSeenDisabledModule) {
+		if (hasSeenDisabledModule == null) return;
+		refreshAppWasDisabledLayout(hasSeenDisabledModule);
+	}
+
+	@MainThread
+	private void refreshAppWasDisabledLayout(boolean appWasDisabled) {
 		final LayoutPoiAppWasDisabledBinding appWasDisabledLayout = this.binding == null ? null : this.binding.poiModuleWasDisabled;
 		if (appWasDisabledLayout == null) {
 			MTLog.d(this, "refreshAppWasDisabledLayout() > SKIP (no layout)");
@@ -1250,7 +1256,6 @@ public class POIFragment extends ABFragment implements
 		}
 		final IAgencyUpdatableProperties agency = getAgencyOrNull();
 		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
-		boolean appWasDisabled = this.viewModel != null && this.viewModel.hasSeenDisabledModule();
 		if (appUpdateAvailable) {
 			appWasDisabled = false; // avoid too many messages
 		} else if (demoModeManager.isFullDemo()) {

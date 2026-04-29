@@ -84,6 +84,7 @@ class BannerAdManager @Inject constructor(
     }
 
     @JvmOverloads
+    @MainThread
     fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
         logAdsD(this, "refreshBannerAdStatus($force)")
         if (this.globalAdManager.isShowingAds() // showing ads across the app
@@ -227,6 +228,7 @@ class BannerAdManager @Inject constructor(
         setupBannerAdTask = null
     }
 
+    @MainThread
     fun getBannerHeightInPx(activity: IAdScreenActivity?): Int {
         if (this.adBannerLoaded != true) return 0 // ad not loaded
         if (!this.globalAdManager.isShowingAds()) return 0 // not showing ads (0 agency installed, paying user...)

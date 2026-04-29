@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.MainThread
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
@@ -126,7 +127,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.listAdapter.setActivity(this)
+        this.listAdapter.setFragment(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -186,6 +187,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
     }
 
+    @MainThread
     private fun onTimeChanged() {
         (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
@@ -241,7 +243,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
                 activity?.let {
-                    favoriteRepository.showAddFolderDialog(it, null, null)
+                    favoriteRepository.showAddFolderDialog(it)
                 }
                 true // handled
             }

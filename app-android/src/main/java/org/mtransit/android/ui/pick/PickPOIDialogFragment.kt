@@ -127,7 +127,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.adapter.setActivity(this)
+        this.adapter.setFragment(this)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

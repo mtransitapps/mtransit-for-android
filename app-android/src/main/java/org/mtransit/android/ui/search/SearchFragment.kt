@@ -125,7 +125,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.listAdapter.setActivity(this)
+        this.listAdapter.setFragment(this)
     }
 
     private val onBackPressedCallback = object : OnBackPressedCallback(enabled = false) {

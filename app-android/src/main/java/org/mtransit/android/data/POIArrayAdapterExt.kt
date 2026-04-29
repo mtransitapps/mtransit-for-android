@@ -1,29 +1,69 @@
 package org.mtransit.android.data
 
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
+import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.ui.view.common.MediatorLiveData4
 
 fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     this.viewLifecycleOwner = viewLifecycleOwner
-    this.dataSourcesRepository.readingAllAgencies().observe(viewLifecycleOwner) {
+    this.dataSourcesRepository.readingAllAgenciesByType().observe(viewLifecycleOwner) { allAgenciesByType ->
+        this.allAgenciesByType = allAgenciesByType
         resetModulesStatus()
     }
-    this.favoriteRepository.readingAllFavorites.observe(viewLifecycleOwner) { it ->
-        setFavorites(it)
-    }
-    this.favoriteRepository.readingAllFavoriteFkIds.observe(viewLifecycleOwner) { favoritesFkIds ->
-        this.allFavoritesFkIds = favoritesFkIds
-    }
-    this.favoriteRepository.readingAllFavoriteFolders.observe(viewLifecycleOwner) { favoriteFolders ->
-        this.favoriteFoldersByIds = favoriteFolders?.let {
-            buildMap {
-                it.forEach { folder ->
-                    put(folder.id, folder)
-                }
+    val readingAllHomeDST = MediatorLiveData4(
+        this.favoriteRepository.readingHasFavorites,
+        this.dataSourcesRepository.readingAllSupportedDataSourceTypes(),
+        this.dataSourcesRepository.readingHasAgenciesEnabled(),
+        this.dataSourcesRepository.readingAllNewsProviders()
+    ).map { (hasFavorites, allSupportedDST, hasAgenciesEnabled, allNewsProviders) ->
+        hasFavorites ?: return@map null
+        allSupportedDST ?: return@map null
+        hasAgenciesEnabled ?: return@map null
+        allNewsProviders ?: return@map null
+        buildList<DataSourceType> {
+            addAll(allSupportedDST.filter { it.isHomeScreen })
+            if (hasFavorites && hasAgenciesEnabled) {
+                add(0, DataSourceType.TYPE_FAVORITE) // 1st
             }
-
+            if (allNewsProviders.isNotEmpty()) {
+                add(allSupportedDST.size - 1, DataSourceType.TYPE_NEWS) // LAST before MODULE
+            }
         }
     }
-    this.favoriteRepository.isUsingFavoriteFolders.observe(viewLifecycleOwner) { usingFavoriteFolders ->
+    readingAllHomeDST.observe(viewLifecycleOwner) { allHomeDST ->
+        this.allHomeDST = allHomeDST
+    }
+    readingAllHomeDST.switchMap { allHomeDST ->
+        liveData(Dispatchers.IO) {
+            allHomeDST ?: return@liveData
+            allHomeDST
+                .map { dst -> dst.id }
+                .associateWith { dstId ->
+                    localPreferenceRepository.getValueNN(
+                        LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dstId),
+                        LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
+                    )
+                }.let {
+                    emit(it)
+                }
+        }
+    }.observe(viewLifecycleOwner) { dstIdToSelectedAuthority ->
+        this.dstIdToSelectedAuthority = dstIdToSelectedAuthority
+    }
+    this.favoriteRepository.readingAllFavorites.observe(viewLifecycleOwner) { allFavorites ->
+        setFavorites(allFavorites)
+    }
+    this.favoriteRepository.readingAllFavoriteFkIds.observe(viewLifecycleOwner) { allFavoritesFkIds ->
+        this.allFavoritesFkIds = allFavoritesFkIds
+    }
+    this.favoriteRepository.readingAllFolders.observe(viewLifecycleOwner) { allFavoriteFolders ->
+        this.favoriteFoldersByIds = allFavoriteFolders?.associateBy { it.id }
+    }
+    this.favoriteRepository.isUsingFolders.observe(viewLifecycleOwner) { usingFavoriteFolders ->
         this.isUsingFavoriteFolders = usingFavoriteFolders
     }
 }

@@ -94,7 +94,7 @@
     <string name="no_favorites">Aucun favori.</string>
     <string name="no_favorites_details">Parcourez l\'app ou utilisez la fonction de recherche 🔍 pour trouver les arrêts ou stations auxquels vous souhaitez accéder rapidement.\n\nVous pouvez également créer des dossiers 📁 pour les regrouper.</string>
     <string name="favorite_removed">Favori supprimé.</string>
-    <string name="favorite_removed_to_folder_and_folder">Favori supprimé de %s.</string>
+    <string name="favorite_removed_from_folder_and_folder">Favori supprimé de %s.</string>
     <string name="favorite_moved">Favori déplacé.</string>
     <string name="favorite_moved_to_folder_and_folder">Favori déplacé vers %s.</string>
     <string name="favorite_added">Favori ajouté.</string>

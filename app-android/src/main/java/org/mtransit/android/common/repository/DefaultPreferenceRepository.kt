@@ -72,7 +72,7 @@ class DefaultPreferenceRepository @Inject constructor(
         @Suppress("FunctionName")
         fun getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority: String) = PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority)
 
-        private const val PREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID = "pRTSRouteShowingListInsteadOfGrid" // do not change to avoid breaking existing preferences
+        private const val PREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID = "pRTSRouteShowingListInsteadOfGrid" // do not change to avoid breaking existing prefs
 
         @Suppress("FunctionName")
         fun getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority: String) = PREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID + authority
@@ -86,14 +86,11 @@ class DefaultPreferenceRepository @Inject constructor(
         _executorService.execute { _prefs = loadPrefs() }
     }
 
-    @WorkerThread
+    @AnyThread // @WorkerThread
     private fun loadPrefs() = PreferenceUtils.getPrefDefault(requireContext())
 
-    @get:WorkerThread
-    val pref: SharedPreferences
-        get() = _prefs ?: loadPrefs().also {
-            _prefs = it
-        }
+    @get:AnyThread // should almost never call loadPrefs() // @get:WorkerThread
+    val pref: SharedPreferences get() = _prefs ?: loadPrefs().also { _prefs = it }
 
     @Suppress("FunctionName")
     fun getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routesCount: Int): Boolean {

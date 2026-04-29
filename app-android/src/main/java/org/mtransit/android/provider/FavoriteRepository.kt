@@ -1,5 +1,6 @@
 package org.mtransit.android.provider
 
+import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LiveData
@@ -11,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.UriUtils
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.Favorite.Companion.fromCursor
@@ -23,7 +25,6 @@ import javax.inject.Singleton
 @Singleton
 class FavoriteRepository(
     @param:ApplicationContext private val appContext: Context,
-    private val favoriteManager: FavoriteManager,
     private val demoModeManager: DemoModeManager,
     private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
@@ -31,11 +32,9 @@ class FavoriteRepository(
     @Inject
     constructor(
         @ApplicationContext appContext: Context,
-        favoriteManager: FavoriteManager,
         demoModeManager: DemoModeManager,
     ) : this(
         appContext = appContext,
-        favoriteManager = favoriteManager,
         demoModeManager = demoModeManager,
         ioDispatcher = Dispatchers.IO,
     )
@@ -54,126 +53,161 @@ class FavoriteRepository(
 
     private val authorityUri get() = UriUtils.newContentUri(authority)
 
+    // region Favorites
+
     private val favoriteContentDirectoryUri get() = Uri.withAppendedPath(authorityUri, FAVORITE_CONTENT_DIRECTORY)
-    private val folderContentDirectoryUri get() = Uri.withAppendedPath(favoriteContentDirectoryUri, FOLDER_CONTENT_DIRECTORY)
 
     fun getReadingFavoriteById(id: Int): LiveData<Favorite?> =
         makeFavoriteLiveData(Uri.withAppendedPath(favoriteContentDirectoryUri, id.toString())).map {
-            it?.firstOrNull()
+            it.firstOrNull()
         }
 
-    val readingAllFavorites: LiveData<List<Favorite>?> = makeFavoriteLiveData(favoriteContentDirectoryUri)
+    val readingAllFavorites: LiveData<Collection<Favorite>> = makeFavoriteLiveData()
+
+    val readingHasFavorites: LiveData<Boolean> = readingAllFavorites.map { it.isNotEmpty() }
 
     val readingAllFavoriteFkIds: LiveData<List<String>?> = readingAllFavorites.map {
-        it?.map { favorite -> favorite.fkId }
+        it.map { favorite -> favorite.fkId }
     }
 
-    val readingFavoriteChange: LiveData<Any> = readingAllFavorites.distinctUntilChanged().map { Any() }
+    val readingAllFavoritesChange: LiveData<Any> = readingAllFavorites.distinctUntilChanged().map { Any() }
 
-    fun makeFavoriteLiveData(uri: Uri) = ContentProviderLiveData(
+    fun makeFavoriteLiveData(uri: Uri = favoriteContentDirectoryUri) = ContentProviderLiveData(
         contentResolver = appContext.contentResolver,
         uri = uri
     ) {
-        appContext.contentResolver.query(uri, FavoriteProvider.PROJECTION_FAVORITE, null, null, null)
+        findFavorites(uri)
+    }
+
+    private fun findFavorites(uri: Uri = favoriteContentDirectoryUri, selection: String? = null): Collection<Favorite> =
+        appContext.contentResolver.query(uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null)
             ?.use { cursor ->
-                buildList {
+                buildSet {
                     while (cursor.moveToNext()) {
                         add(cursor.fromCursor())
                     }
                 }
-            }
-    }
+            }.orEmpty()
 
-    val readingAllFavoriteFolders: LiveData<List<FavoriteFolder>?> = ContentProviderLiveData(
-        contentResolver = appContext.contentResolver,
-        uri = folderContentDirectoryUri,
-    ) {
-        appContext.contentResolver.query(folderContentDirectoryUri, FavoriteProvider.PROJECTION_FOLDER, null, null, null)
-            ?.use { cursor ->
-                buildList {
-                    while (cursor.moveToNext()) {
-                        add(FavoriteFolder.fromCursor(cursor))
-                    }
-                }
-            }
-    }
-
-    val isUsingFavoriteFolders: LiveData<Boolean> =
-        readingAllFavoriteFolders.map { it?.any { folder -> folder.id != FavoriteFolder.DEFAULT_FOLDER_ID } ?: false }
-
-    @Suppress("unused")
-    suspend fun isUsingFavoriteFolders() = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext false
-        appContext.contentResolver.query(folderContentDirectoryUri, FavoriteProvider.PROJECTION_FOLDER, null, null, null)
-            ?.use { cursor ->
-                buildList {
-                    while (cursor.moveToNext()) {
-                        add(FavoriteFolder.fromCursor(cursor))
-                    }
-                }.any { it.id != FavoriteFolder.DEFAULT_FOLDER_ID }
-            }
-    }
+    private fun findFavorite(uri: Uri = favoriteContentDirectoryUri, selection: String? = null) =
+        findFavorites(uri, selection).firstOrNull()
 
     suspend fun hasFavorites() = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext false
-        favoriteManager.hasFavorites(appContext)
+        findFavorites().isNotEmpty()
     }
 
     suspend fun findFavoriteUUIDs() = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext emptySet()
-        favoriteManager.findFavoriteUUIDs(appContext)
+        findFavorites().map { it.fkId }
     }
 
-    @Suppress("unused")
-    suspend fun findFavorites() = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext emptyList()
-        favoriteManager.findFavorites(appContext)
-    }
-
-    suspend fun findFoldersList() = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext emptyList()
-        favoriteManager.findFoldersList(appContext)
-    }
-
-    suspend fun addFolder(name: String) = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext null
-        favoriteManager.addFolder(appContext, name, null)
-    }
-
-    suspend fun updateFolder(updateFavoriteFolder: FavoriteFolder) = updateFolder(updateFavoriteFolder.id, updateFavoriteFolder.name)
-
-    suspend fun updateFolder(folderId: Int, newFolderName: String) = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext false
-        favoriteManager.updateFolder(appContext, folderId, newFolderName, null)
-    }
-
-    suspend fun deleteFolder(folder: FavoriteFolder) = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext false
-        favoriteManager.deleteFolder(appContext, folder, null)
-    }
-
-    suspend fun isFavorite(fkId: String) = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext false
-        favoriteManager.isFavorite(appContext, fkId)
-    }
+    suspend fun isFavorite(fkId: String) = getFavorite(fkId) != null
 
     suspend fun getFavorite(fkId: String) = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext null
-        favoriteManager.findFavorite(appContext, fkId)
+        findFavorite(selection = SqlUtils.getWhereEqualsString(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FK_ID, fkId))
     }
 
     suspend fun addFavorite(fkId: String, folderId: Int = FavoriteFolder.DEFAULT_FOLDER_ID) = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext false
-        favoriteManager.addFavorite(appContext, fkId, folderId, null)
+        appContext.contentResolver.insert(favoriteContentDirectoryUri, Favorite.makeFavorite(fkId, folderId).toContentValues())
+            ?.let { uri ->
+                findFavorite(uri) != null
+            } ?: false
     }
 
-    suspend fun updateFavoriteFolder(favoriteFkId: String, folderId: Int = FavoriteFolder.DEFAULT_FOLDER_ID) = withContext(ioDispatcher) {
+    suspend fun updateFavoriteFolder(favoriteFkId: String, folderId: Int = FavoriteFolder.DEFAULT_FOLDER_ID) =
+        updateFavoriteFolders(folderId, setOf(favoriteFkId))
+
+    suspend fun updateFavoriteFolders(
+        folderId: Int = FavoriteFolder.DEFAULT_FOLDER_ID,
+        favoriteFkIds: Collection<String> = emptySet(),
+        selection: String? = SqlUtils.getWhereInString(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FK_ID, favoriteFkIds),
+    ) = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext false
-        favoriteManager.updateFavoriteFolder(appContext, favoriteFkId, folderId, null)
+        appContext.contentResolver.update(
+            favoriteContentDirectoryUri,
+            ContentValues().apply {
+                put(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FOLDER_ID, folderId)
+            },
+            selection,
+            null
+        ) > 0
     }
 
     suspend fun deleteFavorite(fkId: String) = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext false
-        favoriteManager.deleteFavorite(appContext, fkId, null)
+        appContext.contentResolver.delete(Uri.withAppendedPath(favoriteContentDirectoryUri, fkId), null, null) > 0
     }
+
+    // endregion
+
+    // region Folders
+
+    private val folderContentDirectoryUri get() = Uri.withAppendedPath(favoriteContentDirectoryUri, FOLDER_CONTENT_DIRECTORY)
+
+    val readingAllFolders: LiveData<Collection<FavoriteFolder>> = ContentProviderLiveData(
+        contentResolver = appContext.contentResolver,
+        uri = folderContentDirectoryUri,
+    ) {
+        findFolders(folderContentDirectoryUri)
+    }
+
+    private fun findFolders(uri: Uri = folderContentDirectoryUri): Collection<FavoriteFolder> =
+        appContext.contentResolver.query(uri, FavoriteProvider.PROJECTION_FOLDER, null, null, null)
+            ?.use { cursor ->
+                buildSet {
+                    while (cursor.moveToNext()) {
+                        add(FavoriteFolder.fromCursor(cursor))
+                    }
+                }
+            }.orEmpty()
+
+    private fun findFolder(uri: Uri) = findFolders(uri).firstOrNull()
+
+    val isUsingFolders: LiveData<Boolean> =
+        readingAllFolders.map { it.any { folder -> folder.id != FavoriteFolder.DEFAULT_FOLDER_ID } }
+
+    suspend fun findFoldersList() = withContext(ioDispatcher) {
+        if (demoModeManager.isFullDemo()) return@withContext emptyList()
+        findFolders()
+    }
+
+    suspend fun findFolder(id: Int) = withContext(ioDispatcher) {
+        if (demoModeManager.isFullDemo()) return@withContext null
+        findFolder(Uri.withAppendedPath(folderContentDirectoryUri, id.toString()))
+    }
+
+    suspend fun addFolder(name: String) = withContext(ioDispatcher) {
+        if (demoModeManager.isFullDemo()) return@withContext null
+        appContext.contentResolver.insert(folderContentDirectoryUri, FavoriteFolder(name = name).toContentValues())
+            ?.let { uri ->
+                findFolder(uri)
+            }
+    }
+
+    suspend fun updateFolder(updatedFolder: FavoriteFolder) = updateFolder(updatedFolder.id, updatedFolder.name)
+
+    suspend fun updateFolder(folderId: Int, newFolderName: String) = withContext(ioDispatcher) {
+        if (demoModeManager.isFullDemo()) return@withContext false
+        appContext.contentResolver.update(
+            Uri.withAppendedPath(folderContentDirectoryUri, folderId.toString()),
+            FavoriteFolder(id = folderId, name = newFolderName).toContentValues(),
+            null,
+            null
+        ) > 0
+    }
+
+    suspend fun deleteFolder(folder: FavoriteFolder) = withContext(ioDispatcher) {
+        if (demoModeManager.isFullDemo()) return@withContext false
+        if (folder.id == FavoriteFolder.DEFAULT_FOLDER_ID) return@withContext false
+        updateFavoriteFolders(
+            folderId = FavoriteFolder.DEFAULT_FOLDER_ID,
+            selection = SqlUtils.getWhereEquals(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FOLDER_ID, folder.id),
+        )
+        appContext.contentResolver.delete(Uri.withAppendedPath(folderContentDirectoryUri, folder.id.toString()), null, null) > 0
+    }
+
+    // endregion
 }

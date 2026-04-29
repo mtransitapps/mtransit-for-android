@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
@@ -23,6 +24,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.navigateF
 import org.mtransit.android.ui.view.map.countPOIInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
@@ -47,6 +49,12 @@ fun POIFragment.setupViewKt() = this.binding?.apply {
             R.dimen.fab_auto_margin_end,
             R.dimen.fab_auto_margin_bottom
         )
+    }
+}
+
+fun POIFragment.onResumeKt() {
+    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+        adManager.refreshRewardedAdStatus(this@onResumeKt.requireActivity() as IActivity)
     }
 }
 

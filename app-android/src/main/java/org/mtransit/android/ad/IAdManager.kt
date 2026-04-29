@@ -10,9 +10,10 @@ interface IAdManager {
 
     fun init(activity: IAdScreenActivity)
 
-    fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity)
+    suspend fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity)
 
-    fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity)
+    @WorkerThread
+    suspend fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity)
 
     // region Rewarded Ad
 
@@ -24,7 +25,7 @@ interface IAdManager {
 
     fun unlinkRewardedAd(activity: IActivity)
 
-    fun refreshRewardedAdStatus(activity: IActivity)
+    suspend fun refreshRewardedAdStatus(activity: IActivity)
 
     fun isRewardedAdAvailableToShow(): Boolean
 
