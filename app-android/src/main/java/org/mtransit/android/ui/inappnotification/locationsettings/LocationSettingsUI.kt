@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.inappnotification.locationsettings
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import org.mtransit.android.R
@@ -31,6 +32,7 @@ object LocationSettingsUI : InAppNotificationUI<LocationSettingsAwareFragment> {
         val activity = fragment.getActivity()
         attachedViewModel?.locationSettingsNeededResolution?.value?.let { pendingIntent ->
             @Suppress("DEPRECATION")
+            @SuppressLint("DeprecatedCall")
             activity?.startIntentSenderForResult(pendingIntent.intentSender, 101, null, 0, 0, 0)
             return@OnLongClickListener true // handled
         }
