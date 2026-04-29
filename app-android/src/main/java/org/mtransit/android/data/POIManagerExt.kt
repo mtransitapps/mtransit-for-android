@@ -1,11 +1,11 @@
 package org.mtransit.android.data
 
-import android.app.Activity
 import android.content.Context
 import android.location.Location
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.model.LatLng
@@ -25,7 +25,7 @@ fun Iterable<POIManager>.toStringUUID(): String {
     return this.joinToString { it.poi.uuid }
 }
 
-fun POIManager.addRemoveFavorite(viewLifecycleOwner: LifecycleOwner, activity: Activity, favoriteRepository: FavoriteRepository) {
+fun POIManager.addRemoveFavorite(viewLifecycleOwner: LifecycleOwner, activity: FragmentActivity, favoriteRepository: FavoriteRepository) {
     viewLifecycleOwner.lifecycleScope.launch {
         favoriteRepository.addOrRemoveFavoriteUI(activity, poi.uuid)
     }

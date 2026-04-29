@@ -8,7 +8,6 @@ import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initR
 import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initTextMessageViewHolder;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.hardware.Sensor;
@@ -861,7 +860,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	public boolean showPoiViewerScreen(@NonNull View view, @Nullable POIManager poim) {
 		if (poim == null) return false;
-		final Activity activity = getActivity();
+		final FragmentActivity activity = getActivity();
 		if (activity == null) return false;
 		if (this.viewLifecycleOwner == null) return false;
 		return poim.onActionItemClick(
@@ -879,7 +878,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	private boolean showPoiMenu(View view, POIManager poim) {
 		if (poim == null) return false;
-		final Activity activity = getActivity();
+		final FragmentActivity activity = getActivity();
 		if (activity == null) return false;
 		if (this.viewLifecycleOwner == null) return false;
 		return poim.onActionItemLongClick(
@@ -1328,7 +1327,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	@Nullable
-	private Activity getActivity() {
+	private FragmentActivity getActivity() {
 		final IFragment fragment = this.fragmentWR == null ? null : this.fragmentWR.get();
 		return fragment == null ? null : fragment.getActivity();
 	}
@@ -1513,7 +1512,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 					);
 				}
 			} else {
-				final Activity activity = getActivity();
+				final FragmentActivity activity = getActivity();
 				if (activity != null) {
 					final ABFragment fragment;
 					if (type == DataSourceType.TYPE_FAVORITE) {
@@ -1546,7 +1545,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 						extras
 				);
 			} else {
-				final Activity activity = getActivity();
+				final FragmentActivity activity = getActivity();
 				if (activity != null) {
 					((MainActivity) activity).addFragmentToStack(
 							NearbyFragment.newNearbyInstance(type)
@@ -1571,7 +1570,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 						extras
 				);
 			} else {
-				final Activity activity = getActivity();
+				final FragmentActivity activity = getActivity();
 				if (activity != null) {
 					((MainActivity) activity).addFragmentToStack(
 							AgencyTypeFragment.newInstance(type)
@@ -1648,13 +1647,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		holder.nameTv.setText(favoriteFolder.getName());
 		if (holder.renameBtn != null) {
 			holder.renameBtn.setOnClickListener(view -> {
-				final Activity activity = POIArrayAdapter.this.getActivity();
+				final FragmentActivity activity = POIArrayAdapter.this.getActivity();
 				FavoritesUI.showUpdateFolderDialog(favoriteRepository, activity, POIArrayAdapter.this.layoutInflater, favoriteFolder);
 			});
 		}
 		if (holder.deleteBtn != null) {
 			holder.deleteBtn.setOnClickListener(view -> {
-				final Activity activity = POIArrayAdapter.this.getActivity();
+				final FragmentActivity activity = POIArrayAdapter.this.getActivity();
 				FavoritesUI.showDeleteFolderDialog(favoriteRepository, activity, favoriteFolder);
 			});
 		}
@@ -1736,8 +1735,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			final Place place = (Place) poim.poi;
 			POIViewUtils.setupPOIExtraLayoutBackground(holder.getPlaceIconImg(), poim, dataSourcesRepository);
 			final RequestManager glideRequestManager;
-			if (getActivity() != null && getActivity() instanceof FragmentActivity) {
-				glideRequestManager = Glide.with((FragmentActivity) getActivity());
+			if (getActivity() != null) {
+				glideRequestManager = Glide.with(getActivity());
 			} else {
 				glideRequestManager = Glide.with(holder.getView().getContext());
 			}
@@ -1895,7 +1894,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 						extras
 				);
 			} else {
-				final Activity activity = POIArrayAdapter.this.getActivity();
+				final FragmentActivity activity = POIArrayAdapter.this.getActivity();
 				if (!(activity instanceof MainActivity)) {
 					MTLog.w(POIArrayAdapter.this, "No activity available to open RDS fragment!");
 					return;

@@ -1,14 +1,13 @@
 package org.mtransit.android.provider.favorite
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.widget.EditText
 import androidx.annotation.MainThread
 import androidx.annotation.StringRes
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +32,10 @@ object FavoritesUI : MTLog.Loggable {
         return TextMessage(textMessageId, dataSourceTypeId, context.getString(R.string.favorite_folder_empty))
     }
 
-    suspend fun FavoriteRepository.addOrRemoveFavoriteUI(activity: Activity, fkId: String) = withContext(Dispatchers.IO) {
+    suspend fun FavoriteRepository.addOrRemoveFavoriteUI(
+        activity: FragmentActivity,
+        fkId: String
+    ) = withContext(Dispatchers.IO) {
         val favorite = getFavorite(fkId)
         val isFavorite = favorite != null
         val favoriteFolders = findFoldersList()
@@ -60,7 +62,7 @@ object FavoritesUI : MTLog.Loggable {
 
     @MainThread
     private fun FavoriteRepository.showPickFavoriteFolderDialog(
-        activity: Activity,
+        activity: FragmentActivity,
         fkId: String,
         favoriteFolder: FavoriteFolder?,
         favoriteFolders: Collection<FavoriteFolder>,
@@ -104,7 +106,6 @@ object FavoritesUI : MTLog.Loggable {
             checkedItem = 0 // (default choice when adding favorite)
         }
         selectedWhich = checkedItem
-        var lifecycleOwner: LifecycleOwner? = null
         MTDialog.Builder(activity)
             .setTitle(R.string.favorite_folder_pick)
             .setSingleChoiceItems(
@@ -117,10 +118,10 @@ object FavoritesUI : MTLog.Loggable {
                 if (selectedWhich < 0 || selectedWhich == initialWhich) {
                     return@setPositiveButton
                 }
-                lifecycleOwner?.lifecycleScope?.launch {
+                activity.lifecycleScope.launch {
                     val selectedFavoriteFolderId = itemsListId[selectedWhich]
                     if (selectedFavoriteFolderId == newFolderId) { // create new folder
-                        showAddFolderDialog(activity, fkId, favoriteFolder, parentLifecycleOwner = lifecycleOwner)
+                        showAddFolderDialog(activity, fkId, favoriteFolder)
                     } else if (selectedFavoriteFolderId == removeFavoriteId) { // delete favorite
                         val updated = deleteFavorite(fkId)
                         if (updated) {
@@ -156,25 +157,22 @@ object FavoritesUI : MTLog.Loggable {
                 dialog?.cancel()
             }
             .create()
-            .also { lifecycleOwner = it }
             .show()
     }
 
     @MainThread
     fun FavoriteRepository.showAddFolderDialog(
-        activity: Activity,
+        activity: FragmentActivity,
         updatedFkId: String? = null,
         updatedFavoriteFolder: FavoriteFolder? = null,
-        parentLifecycleOwner: LifecycleOwner? = null,
     ) {
         @SuppressLint("InflateParams") // dialog
         val view = LayoutInflater.from(activity).inflate(R.layout.layout_favorites_folder_edit, null, false)
         val newFolderNameTv = view.findViewById<EditText>(R.id.folder_name)
-        var lifecycleOwner: LifecycleOwner? = parentLifecycleOwner
         MTDialog.Builder(activity)
             .setView(view)
             .setPositiveButton(R.string.favorite_folder_new_create) { _: DialogInterface?, _: Int ->
-                lifecycleOwner?.lifecycleScope?.launch {
+                activity.lifecycleScope.launch {
                     val newFolderName = newFolderNameTv.getText().toString()
                     if (newFolderName.isBlank()) {
                         showToast(activity, R.string.favorite_folder_new_invalid_name)
@@ -205,26 +203,21 @@ object FavoritesUI : MTLog.Loggable {
                 dialog?.cancel()
             }
             .create()
-            .also {
-                if (lifecycleOwner != null) return@also
-                lifecycleOwner = it
-            }
             .show()
     }
 
     @MainThread
     @JvmStatic
     fun FavoriteRepository.showDeleteFolderDialog(
-        activity: Activity?,
+        activity: FragmentActivity?,
         favoriteFolder: FavoriteFolder,
     ) {
         if (activity == null || activity.isFinishing) return // SKIP
-        var lifecycleOwner: LifecycleOwner? = null
         MTDialog.Builder(activity)
             .setTitle(activity.getString(R.string.favorite_folder_deletion_confirmation_title_and_name, favoriteFolder.name))
             .setMessage(activity.getString(R.string.favorite_folder_deletion_confirmation_text_and_name, favoriteFolder.name))
             .setPositiveButton(R.string.delete) { _: DialogInterface?, _: Int ->
-                lifecycleOwner?.lifecycleScope?.launch {
+                activity.lifecycleScope.launch {
                     val deleted = deleteFolder(favoriteFolder)
                     if (deleted) {
                         showToast(activity, R.string.favorite_folder_deleted_and_folder_name, favoriteFolder.name)
@@ -237,14 +230,13 @@ object FavoritesUI : MTLog.Loggable {
                 dialog?.cancel()
             }
             .create()
-            .also { lifecycleOwner = it }
             .show()
     }
 
     @MainThread
     @JvmStatic
     fun FavoriteRepository.showUpdateFolderDialog(
-        activity: Activity?,
+        activity: FragmentActivity?,
         layoutInflater: LayoutInflater,
         favoriteFolder: FavoriteFolder,
     ) {
@@ -253,11 +245,10 @@ object FavoritesUI : MTLog.Loggable {
         val editView = layoutInflater.inflate(R.layout.layout_favorites_folder_edit, null)
         val newFolderNameTv = editView.findViewById<EditText>(R.id.folder_name)
         newFolderNameTv.setText(favoriteFolder.name)
-        var lifecycleOwner: LifecycleOwner? = null
         MTDialog.Builder(activity)
             .setView(editView)
             .setPositiveButton(R.string.favorite_folder_edit) { _: DialogInterface?, _: Int ->
-                lifecycleOwner?.lifecycleScope?.launch {
+                activity.lifecycleScope.launch {
                     val newFolderName = newFolderNameTv.getText().toString()
                     if (newFolderName.isEmpty()) {
                         showToast(activity, R.string.favorite_folder_new_invalid_name)
@@ -273,15 +264,14 @@ object FavoritesUI : MTLog.Loggable {
                 dialog?.cancel()
             }
             .create()
-            .also { lifecycleOwner = it }
             .show()
     }
 
-    private suspend fun showToast(activity: Activity, @StringRes resId: Int) = withContext(Dispatchers.Main) {
+    private suspend fun showToast(activity: FragmentActivity, @StringRes resId: Int) = withContext(Dispatchers.Main) {
         ToastUtils.makeTextAndShowCentered(activity, resId)
     }
 
-    private suspend fun showToast(activity: Activity, @StringRes resId: Int, vararg args: Any) = withContext(Dispatchers.Main) {
+    private suspend fun showToast(activity: FragmentActivity, @StringRes resId: Int, vararg args: Any) = withContext(Dispatchers.Main) {
         ToastUtils.makeTextAndShowCentered(activity, activity.getString(resId, *args))
     }
 }

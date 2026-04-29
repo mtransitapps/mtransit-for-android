@@ -2,7 +2,6 @@ package org.mtransit.android.data;
 
 import static org.mtransit.android.data.POIManagerExtKt.addRemoveFavorite;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -13,6 +12,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -457,7 +457,7 @@ public class POIManager implements LocationPOI,
 		}
 	}
 
-	private boolean onActionsItemClick(@NonNull Activity activity,
+	private boolean onActionsItemClick(@NonNull FragmentActivity activity,
 									   @NonNull View view,
 									   @NonNull LifecycleOwner viewLifecycleOwner,
 									   @NonNull FavoriteRepository favoriteRepository,
@@ -482,7 +482,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	private boolean onActionsItemClickApp(
-			@NonNull Activity activity,
+			@NonNull FragmentActivity activity,
 			@NonNull View view,
 			@NonNull DataSourcesRepository dataSourcesRepository,
 			int itemClicked,
@@ -522,7 +522,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	private boolean onActionsItemClickPlace(
-			@NonNull Activity activity,
+			@NonNull FragmentActivity activity,
 			@NonNull View view,
 			@NonNull DataSourcesRepository dataSourcesRepository,
 			int itemClicked,
@@ -688,7 +688,7 @@ public class POIManager implements LocationPOI,
 
 	@MainThread
 	private boolean onActionsItemClickRDS(
-			@NonNull Activity activity,
+			@NonNull FragmentActivity activity,
 			@NonNull View view,
 			@NonNull LifecycleOwner viewLifecycleOwner,
 			@NonNull FavoriteRepository favoriteRepository,
@@ -731,7 +731,7 @@ public class POIManager implements LocationPOI,
 
 	@MainThread
 	private boolean onActionsItemClickFavoritable(
-			@NonNull Activity activity,
+			@NonNull FragmentActivity activity,
 			@NonNull LifecycleOwner viewLifecycleOwner,
 			@NonNull FavoriteRepository favoriteRepository,
 			int itemClicked
@@ -764,11 +764,13 @@ public class POIManager implements LocationPOI,
 		}
 	}
 
-	private boolean showPoiViewerScreen(Activity activity,
-										@NonNull View view,
-										DataSourcesRepository dataSourcesRepository,
-										POIRepository poiRepository,
-										POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean showPoiViewerScreen(
+			FragmentActivity activity,
+			@NonNull View view,
+			DataSourcesRepository dataSourcesRepository,
+			POIRepository poiRepository,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener
+	) {
 		if (activity == null) return false; // show long-click menu
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
@@ -869,28 +871,32 @@ public class POIManager implements LocationPOI,
 		}
 	}
 
-	boolean onActionItemLongClick(Activity activity,
-								  View view,
-								  @NonNull LifecycleOwner viewLifecycleOwner,
-								  FavoriteRepository favoriteRepository,
-								  DataSourcesRepository dataSourcesRepository,
-								  POIRepository poiRepository,
-								  @Nullable Boolean isFavorite,
-								  @Nullable Boolean isUsingFavoriteFolders,
-								  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	boolean onActionItemLongClick(
+			@Nullable FragmentActivity activity,
+			View view,
+			@NonNull LifecycleOwner viewLifecycleOwner,
+			FavoriteRepository favoriteRepository,
+			DataSourcesRepository dataSourcesRepository,
+			POIRepository poiRepository,
+			@Nullable Boolean isFavorite,
+			@Nullable Boolean isUsingFavoriteFolders,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener
+	) {
 		if (activity == null) return false;
 		return showPoiMenu(activity, view, viewLifecycleOwner, favoriteRepository, dataSourcesRepository, poiRepository, isFavorite, isUsingFavoriteFolders, onClickHandledListener);
 	}
 
-	boolean onActionItemClick(Activity activity,
-							  View view,
-							  @NonNull LifecycleOwner viewLifecycleOwner,
-							  FavoriteRepository favoriteRepository,
-							  DataSourcesRepository dataSourcesRepository,
-							  POIRepository poiRepository,
-							  @Nullable Boolean isFavorite,
-							  @Nullable Boolean isUsingFavoriteFolders,
-							  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	boolean onActionItemClick(
+			@Nullable FragmentActivity activity,
+			View view,
+			@NonNull LifecycleOwner viewLifecycleOwner,
+			FavoriteRepository favoriteRepository,
+			DataSourcesRepository dataSourcesRepository,
+			POIRepository poiRepository,
+			@Nullable Boolean isFavorite,
+			@Nullable Boolean isUsingFavoriteFolders,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener
+	) {
 		if (activity == null) return false;
 		boolean poiScreenShow = showPoiViewerScreen(activity, view, dataSourcesRepository, poiRepository, onClickHandledListener);
 		if (!poiScreenShow) {
@@ -899,15 +905,17 @@ public class POIManager implements LocationPOI,
 		return poiScreenShow;
 	}
 
-	private boolean showPoiMenu(final @NonNull Activity activity,
-								final @NonNull View view,
-								final @NonNull LifecycleOwner viewLifecycleOwner,
-								final @NonNull FavoriteRepository favoriteRepository,
-								final @NonNull DataSourcesRepository dataSourcesRepository,
-								final @NonNull POIRepository poiRepository,
-								final @Nullable Boolean isFavorite,
-								final @Nullable Boolean isUsingFavoriteFolders,
-								final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean showPoiMenu(
+			final @NonNull FragmentActivity activity,
+			final @NonNull View view,
+			final @NonNull LifecycleOwner viewLifecycleOwner,
+			final @NonNull FavoriteRepository favoriteRepository,
+			final @NonNull DataSourcesRepository dataSourcesRepository,
+			final @NonNull POIRepository poiRepository,
+			final @Nullable Boolean isFavorite,
+			final @Nullable Boolean isUsingFavoriteFolders,
+			final POIArrayAdapter.OnClickHandledListener onClickHandledListener
+	) {
 		switch (this.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 		case POI.ITEM_VIEW_TYPE_PLACE:
