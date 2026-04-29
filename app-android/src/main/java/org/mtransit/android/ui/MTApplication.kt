@@ -65,7 +65,7 @@ class MTApplication : MTCommonApp() {
         this.crashReporter.setup(!BuildConfig.DEBUG)
         this.strictMode.setup() // uses crash reporter
         this.analyticsManager.setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER)
-        mainScope.launch(Dispatchers.Default) {
+        mainScope.launch {
             MapsInitializerUtil.initMap(this@MTApplication)
         }
     }
