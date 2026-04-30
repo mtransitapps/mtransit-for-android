@@ -47,6 +47,8 @@ class ContentProviderLiveData<T>(
     override fun onInactive() {
         super.onInactive()
         contentResolver.unregisterContentObserver(observer)
+        refreshJob?.cancel()
+        refreshJob = null
         scope?.cancel()
         scope = null
     }
