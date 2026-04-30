@@ -1,8 +1,10 @@
 package org.mtransit.android.common.repository;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -93,21 +95,8 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 		executorService.execute(() -> _prefs = loadPrefs());
 	}
 
-	private static final String LCL_PREF_NAME = "lcl";
-
-	@WorkerThread
-	@NonNull
-	private SharedPreferences loadPrefs() {
-		return makePref(requireContext());
-	}
-
-	@WorkerThread
-	@NonNull
-	public static SharedPreferences makePref(@NonNull Context context) {
-		return context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE);
-	}
-
-	@WorkerThread
+	@SuppressLint("ThreadConstraint") // should almost never call loadPrefs()
+	@AnyThread // @WorkerThread
 	@NonNull
 	public SharedPreferences getPref() {
 		if (_prefs == null) {
@@ -115,4 +104,19 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 		}
 		return _prefs;
 	}
+
+	@WorkerThread
+	@NonNull
+	private SharedPreferences loadPrefs() {
+		return makePref(requireContext());
+	}
+
+	private static final String LCL_PREF_NAME = "lcl";
+
+	@WorkerThread
+	@NonNull
+	public static SharedPreferences makePref(@NonNull Context context) {
+		return context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE);
+	}
+
 }

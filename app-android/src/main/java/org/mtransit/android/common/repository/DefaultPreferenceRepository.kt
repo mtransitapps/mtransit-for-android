@@ -1,8 +1,10 @@
 package org.mtransit.android.common.repository
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.AnyThread
+import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
 import java.util.concurrent.Executors
@@ -22,7 +24,7 @@ class DefaultPreferenceRepository @Inject constructor(
         const val PREF_USER_APP_OPEN_COUNTS = "pAppOpenCounts"
         const val PREF_USER_APP_OPEN_COUNTS_DEFAULT = 0
 
-        const val PREF_USER_APP_OPEN_LAST =  "pAppOpenLast"
+        const val PREF_USER_APP_OPEN_LAST = "pAppOpenLast"
         const val PREF_USER_APP_OPEN_LAST_DEFAULT = 0L
 
         const val PREF_USER_DAILY = "pDailyUser"
@@ -96,9 +98,11 @@ class DefaultPreferenceRepository @Inject constructor(
         _executorService.execute { _prefs = loadPrefs() }
     }
 
-    @AnyThread // @WorkerThread
+    @WorkerThread // @WorkerThread
     private fun loadPrefs() = makePref(requireContext())
 
-    @get:AnyThread // should almost never call loadPrefs() // @get:WorkerThread
-    val pref: SharedPreferences get() = _prefs ?: loadPrefs().also { _prefs = it }
+    @get:AnyThread
+    val pref: SharedPreferences
+        @SuppressLint("ThreadConstraint") // should almost never call loadPrefs()
+        get() = _prefs ?: loadPrefs().also { _prefs = it }
 }
