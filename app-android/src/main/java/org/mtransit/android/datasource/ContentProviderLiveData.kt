@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ class ContentProviderLiveData<T>(
 ) : LiveData<T>() {
 
     private var scope: CoroutineScope? = null
+    private var refreshJob: Job? = null
 
     private val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
@@ -29,7 +31,8 @@ class ContentProviderLiveData<T>(
     }
 
     private fun refresh() {
-        scope?.launch {
+        refreshJob?.cancel()
+        refreshJob = scope?.launch {
             postValue(getContent())
         }
     }
@@ -37,8 +40,8 @@ class ContentProviderLiveData<T>(
     override fun onActive() {
         super.onActive()
         scope = CoroutineScope(SupervisorJob() + dispatcher)
-        refresh()
         contentResolver.registerContentObserver(uri, true, observer)
+        refresh()
     }
 
     override fun onInactive() {
