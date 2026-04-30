@@ -1,4 +1,4 @@
-@file:JvmName("RTSRouteFragment") // ANALYTICS // do not change to avoid breaking tracking
+@file:JvmName("RDSRouteFragment") // ANALYTICS // do not change to avoid breaking tracking
 package org.mtransit.android.ui.rds.route
 
 import android.app.PendingIntent
