@@ -62,24 +62,27 @@ class FavoriteRepository(
             it.firstOrNull()
         }
 
-    val readingAllFavorites: LiveData<Collection<Favorite>> = makeFavoriteLiveData()
+    val readingAllFavorites: LiveData<Set<Favorite>> = makeFavoriteLiveData()
 
     val readingHasFavorites: LiveData<Boolean> = readingAllFavorites.map { it.isNotEmpty() }
 
-    val readingAllFavoriteFkIds: LiveData<List<String>?> = readingAllFavorites.map {
-        it.map { favorite -> favorite.fkId }
+    val readingAllFavoriteFkIds: LiveData<Set<String>?> = readingAllFavorites.map {
+        it.map { favorite -> favorite.fkId }.toSet()
     }
 
     val readingAllFavoritesChange: LiveData<Any> = readingAllFavorites.distinctUntilChanged().map { Any() }
 
-    fun makeFavoriteLiveData(uri: Uri = favoriteContentDirectoryUri) = ContentProviderLiveData(
+    private fun makeFavoriteLiveData(
+        uri: Uri = favoriteContentDirectoryUri,
+    ) = ContentProviderLiveData(
         contentResolver = appContext.contentResolver,
-        uri = uri
+        uri = uri,
+        dispatcher = ioDispatcher,
     ) {
         findFavorites(uri)
     }
 
-    private fun findFavorites(uri: Uri = favoriteContentDirectoryUri, selection: String? = null): Collection<Favorite> =
+    private suspend fun findFavorites(uri: Uri = favoriteContentDirectoryUri, selection: String? = null): Set<Favorite> = withContext(ioDispatcher) {
         appContext.contentResolver.query(uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null)
             ?.use { cursor ->
                 buildSet {
@@ -88,8 +91,9 @@ class FavoriteRepository(
                     }
                 }
             }.orEmpty()
+    }
 
-    private fun findFavorite(uri: Uri = favoriteContentDirectoryUri, selection: String? = null) =
+    private suspend fun findFavorite(uri: Uri = favoriteContentDirectoryUri, selection: String? = null) =
         findFavorites(uri, selection).firstOrNull()
 
     suspend fun hasFavorites() = withContext(ioDispatcher) {
@@ -97,9 +101,9 @@ class FavoriteRepository(
         findFavorites().isNotEmpty()
     }
 
-    suspend fun findFavoriteUUIDs() = withContext(ioDispatcher) {
+    suspend fun findFavoriteUUIDs(): Set<String> = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext emptySet()
-        findFavorites().map { it.fkId }
+        findFavorites().map { it.fkId }.toSet()
     }
 
     suspend fun isFavorite(fkId: String) = getFavorite(fkId) != null
@@ -151,14 +155,15 @@ class FavoriteRepository(
 
     private val folderContentDirectoryUri get() = Uri.withAppendedPath(favoriteContentDirectoryUri, FOLDER_CONTENT_DIRECTORY)
 
-    val readingAllFolders: LiveData<Collection<FavoriteFolder>> = ContentProviderLiveData(
+    val readingAllFolders = ContentProviderLiveData(
         contentResolver = appContext.contentResolver,
         uri = folderContentDirectoryUri,
+        dispatcher = ioDispatcher,
     ) {
         findFolders(folderContentDirectoryUri)
     }
 
-    private fun findFolders(uri: Uri = folderContentDirectoryUri): Collection<FavoriteFolder> =
+    private suspend fun findFolders(uri: Uri = folderContentDirectoryUri): Set<FavoriteFolder> = withContext(ioDispatcher) {
         appContext.contentResolver.query(uri, FavoriteProvider.PROJECTION_FOLDER, null, null, null)
             ?.use { cursor ->
                 buildSet {
@@ -167,8 +172,9 @@ class FavoriteRepository(
                     }
                 }
             }.orEmpty()
+    }
 
-    private fun findFolder(uri: Uri) = findFolders(uri).firstOrNull()
+    private suspend fun findFolder(uri: Uri) = findFolders(uri).firstOrNull()
 
     val isUsingFolders: LiveData<Boolean> =
         readingAllFolders.map { it.any { folder -> folder.id != FavoriteFolder.DEFAULT_FOLDER_ID } }

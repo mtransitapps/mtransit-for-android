@@ -26,10 +26,7 @@ data class Favorite @JvmOverloads constructor(
             id = getInt(getColumnIndexOrThrow(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_ID)),
             fkId = getString(getColumnIndexOrThrow(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FK_ID)),
             type = getInt(getColumnIndexOrThrow(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_TYPE)),
-            folderId = getColumnIndexOrThrow(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FOLDER_ID)
-                .takeIf { it > FavoriteFolder.DEFAULT_FOLDER_ID }
-                ?.let { getInt(it) }
-                ?: FavoriteFolder.DEFAULT_FOLDER_ID,
+            folderId = getInt(getColumnIndexOrThrow(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FOLDER_ID)),
         )
     }
 

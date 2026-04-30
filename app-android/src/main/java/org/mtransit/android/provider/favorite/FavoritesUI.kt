@@ -127,8 +127,9 @@ object FavoritesUI : MTLog.Loggable {
                         if (updated) {
                             if (favoriteFolder != null) {
                                 showToast(activity, R.string.favorite_removed_from_folder_and_folder, favoriteFolder.name)
+                            } else {
+                                showToast(activity, R.string.favorite_removed)
                             }
-                            showToast(activity, R.string.favorite_removed)
                         }
                     } else if (favoriteFolderId != FavoriteFolder.INVALID_FOLDER_ID) { // move favorite
                         val updated = updateFavoriteFolder(fkId, selectedFavoriteFolderId)

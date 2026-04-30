@@ -279,7 +279,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	protected Boolean isUsingFavoriteFolders;
 
 	@Nullable
-	protected List<String> allFavoritesFkIds;
+	protected Set<String> allFavoritesFkIds;
 
 	@Nullable
 	protected Map<Integer, FavoriteFolder> favoriteFoldersByIds;
