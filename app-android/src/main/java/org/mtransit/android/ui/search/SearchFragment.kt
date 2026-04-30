@@ -83,7 +83,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
@@ -108,7 +108,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,

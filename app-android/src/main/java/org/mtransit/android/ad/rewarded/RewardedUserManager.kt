@@ -32,7 +32,7 @@ class RewardedUserManager @Inject constructor(
 
     @get:WorkerThread
     private val _dailyUser: Boolean by lazy {
-        this.defaultPrefRepository.getValue(
+        this.defaultPrefRepository.pref.getBoolean(
             DefaultPreferenceRepository.PREF_USER_DAILY,
             DefaultPreferenceRepository.PREF_USER_DAILY_DEFAULT
         )
@@ -40,11 +40,11 @@ class RewardedUserManager @Inject constructor(
 
     @get:WorkerThread
     private val _hasLowLoadShowRatio: Boolean by lazy {
-        val showCounts = this.defaultPrefRepository.getValue(
+        val showCounts = this.defaultPrefRepository.pref.getInt(
             DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS,
             DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS_DEFAULT
         )
-        val loadCounts = this.defaultPrefRepository.getValue(
+        val loadCounts = this.defaultPrefRepository.pref.getInt(
             DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS,
             DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT
         )
@@ -63,7 +63,7 @@ class RewardedUserManager @Inject constructor(
         if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever
         return this._rewardedUntilInMs.updateAndGet { cached ->
             if (cached != REWARDED_UNTIL_NO_VALUE) cached
-            else this.defaultPrefRepository.getValue(
+            else this.defaultPrefRepository.pref.getLong(
                 DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
                 DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT,
             )

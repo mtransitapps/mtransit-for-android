@@ -16,6 +16,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
@@ -109,6 +110,9 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var lclPrefRepository: LocalPreferenceRepository
+
+    @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
     private val mapListener = object : MapViewController.MapListener {
@@ -161,7 +165,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDataSourcesRepository(dataSourcesRepository)
+            setDI(dataSourcesRepository, lclPrefRepository)
             onAttach(requireActivity())
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }

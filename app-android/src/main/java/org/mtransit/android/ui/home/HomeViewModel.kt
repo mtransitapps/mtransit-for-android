@@ -367,7 +367,7 @@ class HomeViewModel @Inject constructor(
         // TODO latter optimize val optLastArea = if (optLastAroundDiff == null) null else LocationUtils.getArea(lat, lng, optLastAroundDiff)
         val aroundDiff = ad.aroundDiff
         val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
-        val hideBookingRequired = lclPrefRepository.getValue(
+        val hideBookingRequired = lclPrefRepository.pref.getBoolean(
             LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
         )
         val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {

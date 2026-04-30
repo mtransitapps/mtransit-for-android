@@ -62,9 +62,9 @@ class SplashScreenViewModel @Inject constructor(
     val readyForNextScreen: LiveData<Boolean> = _readyForNextScreen
 
     private suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
-        var appOpenCounts = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
+        var appOpenCounts = defaultPrefRepository.pref.getInt(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
         appOpenCounts++
-        var appOpenLast = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_LAST, PREF_USER_APP_OPEN_LAST_DEFAULT).millisToInstant()
+        var appOpenLast = defaultPrefRepository.pref.getLong(PREF_USER_APP_OPEN_LAST, PREF_USER_APP_OPEN_LAST_DEFAULT).millisToInstant()
         val sevenDaysAgo = TimeUtilsK.currentInstant() - 7.days
         val dailyUser = sevenDaysAgo < appOpenLast && appOpenCounts > 10 // opened in the last 7 days
         appOpenLast = TimeUtilsK.currentInstant()

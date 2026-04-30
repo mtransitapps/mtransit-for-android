@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.annotation.NonNull;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper;
 import org.mtransit.android.commons.provider.poi.POIProvider;
@@ -92,6 +92,8 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	private void initAllDbTables(@NonNull SQLiteDatabase db) {
 		db.execSQL(T_MODULE_SQL_CREATE);
 		db.execSQL(T_MODULE_STATUS_SQL_CREATE);
-		PreferenceUtils.savePrefLclSync(this.context, PREF_KEY_LAST_UPDATE_MS, 0L);
+		LocalPreferenceRepository.makePref(this.context).edit()
+				.putLong(PREF_KEY_LAST_UPDATE_MS, 0L)
+				.apply();
 	}
 }

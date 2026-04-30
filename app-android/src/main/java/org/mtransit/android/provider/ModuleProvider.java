@@ -20,11 +20,11 @@ import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
@@ -351,8 +351,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@WorkerThread
 	private void updateModuleDataIfRequired(@NonNull Context context) {
-		long lastUpdateInMs = PreferenceUtils.getPrefLcl(context, PREF_KEY_LAST_UPDATE_MS, 0L);
-		long nowInMs = UITimeUtils.currentTimeMillis();
+		final long lastUpdateInMs = LocalPreferenceRepository.makePref(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L);
+		final long nowInMs = UITimeUtils.currentTimeMillis();
 		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
 			deleteAllModuleData();
 			updateAllModuleDataFromWWW(context, lastUpdateInMs);
@@ -376,9 +376,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@WorkerThread
 	private synchronized void updateAllModuleDataFromWWW(@NonNull Context context, long oldLastUpdatedInMs) {
-		if (PreferenceUtils.getPrefLcl(context, PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) {
-			return; // too late, another thread already updated
-		}
+		if (LocalPreferenceRepository.makePref(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) return; // too late, another thread already updated
 		loadDataFromWWW(context);
 	}
 
@@ -401,7 +399,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			}
 			deleteAllModuleData();
 			insertModulesLockDB(this, modules);
-			PreferenceUtils.savePrefLclSync(context, PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs);
+			LocalPreferenceRepository.makePref(context).edit()
+					.putLong(PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs)
+					.apply();
 			return modules;
 		} catch (Exception e) {
 			MTLog.w(this, e, "INTERNAL ERROR: Unknown Exception");

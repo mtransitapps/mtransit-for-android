@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment
 
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigator
@@ -223,14 +224,16 @@ fun POIFragment.onMapClick(): Boolean {
         }
         when (poim.poi) {
             is RouteDirectionStop -> {
-                this.localPreferenceRepository.saveAsync(
-                    LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-                        poim.poi.authority,
-                        poim.poi.route.id,
-                        poim.poi.direction.id,
-                    ),
-                    false, // show map
-                )
+                this.lclPrefRepository.pref.edit {
+                    putBoolean(
+                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
+                            poim.poi.authority,
+                            poim.poi.route.id,
+                            poim.poi.direction.id,
+                        ),
+                        false, // show map
+                    )
+                }
                 navController.navigateF(
                     R.id.nav_to_rds_route_screen,
                     RDSRouteFragment.newInstanceArgs(poim.poi, this.mapViewController.cameraPosition),
@@ -240,14 +243,18 @@ fun POIFragment.onMapClick(): Boolean {
             }
 
             else -> {
-                this.localPreferenceRepository.saveAsync(
-                    LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
-                    poim.poi.authority,
-                )
-                this.defaultPrefRepository.saveAsync(
-                    DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
-                    false, // show map
-                )
+                this.lclPrefRepository.pref.edit {
+                    putString(
+                        LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
+                        poim.poi.authority,
+                    )
+                }
+                this.defaultPrefRepository.pref.edit {
+                    putBoolean(
+                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
+                        false, // show map
+                    )
+                }
                 navController.navigateF(
                     R.id.nav_to_type_screen,
                     AgencyTypeFragment.newInstanceArgs(poim.poi, this.mapViewController.cameraPosition),
@@ -260,14 +267,16 @@ fun POIFragment.onMapClick(): Boolean {
         val mainActivity = activity as? MainActivity ?: return false
         when (poim.poi) {
             is RouteDirectionStop -> {
-                this.localPreferenceRepository.saveAsync(
-                    LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-                        poim.poi.authority,
-                        poim.poi.route.id,
-                        poim.poi.direction.id
-                    ),
-                    false, // show map
-                )
+                this.lclPrefRepository.pref.edit {
+                    putBoolean(
+                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
+                            poim.poi.authority,
+                            poim.poi.route.id,
+                            poim.poi.direction.id
+                        ),
+                        false, // show map
+                    )
+                }
                 mainActivity.addFragmentToStack(
                     RDSRouteFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),
                     this,
@@ -275,14 +284,18 @@ fun POIFragment.onMapClick(): Boolean {
             }
 
             else -> {
-                this.localPreferenceRepository.saveAsync(
-                    LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
-                    poim.poi.authority,
-                )
-                this.defaultPrefRepository.saveAsync(
-                    DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
-                    false, // show map
-                )
+                this.lclPrefRepository.pref.edit {
+                    putString(
+                        LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
+                        poim.poi.authority,
+                    )
+                }
+                this.defaultPrefRepository.pref.edit {
+                    putBoolean(
+                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
+                        false, // show map
+                    )
+                }
                 mainActivity.addFragmentToStack(
                     AgencyTypeFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),
                     this,

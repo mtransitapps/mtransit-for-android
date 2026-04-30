@@ -1,5 +1,7 @@
 package org.mtransit.android.ui;
 
+import static org.mtransit.android.ui.NavigationDrawerControllerExtKt.setUserLearnedDrawer;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -32,11 +34,12 @@ import org.mtransit.android.R;
 import org.mtransit.android.ad.AdsConsentManager;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerExtKt;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
@@ -100,6 +103,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 	@NonNull
+	protected final DefaultPreferenceRepository defaultPrefRepository;
+	@NonNull
+	private final LocalPreferenceRepository lclPrefRepository;
+	@NonNull
 	private final StatusLoader statusLoader;
 	@NonNull
 	private final AdsConsentManager consentManager;
@@ -109,7 +116,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	@NonNull
 	private final ServiceUpdateLoader serviceUpdateLoader;
 	@NonNull
-	private final DemoModeManager demoModeManager;
+	protected final DemoModeManager demoModeManager;
 	@Nullable
 	private DrawerLayout drawerLayout;
 	@Nullable
@@ -121,18 +128,24 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	@Nullable
 	private String currentSelectedScreenItemId = null;
 
-	NavigationDrawerController(@NonNull MainActivity mainActivity,
-							   @NonNull CrashReporter crashReporter,
-							   @NonNull IAnalyticsManager analyticsManager,
-							   @NonNull DataSourcesRepository dataSourcesRepository,
-							   @NonNull StatusLoader statusLoader,
-							   @NonNull AdsConsentManager consentManager,
-							   @NonNull PackageManager packageManager,
-							   @NonNull ServiceUpdateLoader serviceUpdateLoader,
-							   @NonNull DemoModeManager demoModeManager) {
+	NavigationDrawerController(
+			@NonNull MainActivity mainActivity,
+			@NonNull CrashReporter crashReporter,
+			@NonNull IAnalyticsManager analyticsManager,
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull DefaultPreferenceRepository defaultPrefRepository,
+			@NonNull LocalPreferenceRepository lclPrefRepository,
+			@NonNull StatusLoader statusLoader,
+			@NonNull AdsConsentManager consentManager,
+			@NonNull PackageManager packageManager,
+			@NonNull ServiceUpdateLoader serviceUpdateLoader,
+			@NonNull DemoModeManager demoModeManager
+	) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 		this.crashReporter = crashReporter;
 		this.dataSourcesRepository = dataSourcesRepository;
+		this.defaultPrefRepository = defaultPrefRepository;
+		this.lclPrefRepository = lclPrefRepository;
 		this.analyticsManager = analyticsManager;
 		this.statusLoader = statusLoader;
 		this.consentManager = consentManager;
@@ -171,9 +184,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 
 	private void setup() {
 		final MainActivity mainActivity = this.mainActivityWR.get();
-		if (mainActivity == null) {
-			return;
-		}
+		if (mainActivity == null) return;
 		this.navigationView = mainActivity.findViewById(R.id.nav_view);
 		this.navigationView.setNavigationItemSelectedListener(this);
 		final View headerView = this.navigationView.getHeaderView(0);
@@ -228,17 +239,11 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		@Override
 		protected Pair<String, Boolean> doInBackgroundNotCancelledMT(Void... params) {
 			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
-			if (navigationDrawerController == null) {
-				return null;
-			}
+			if (navigationDrawerController == null) return null;
 			final Context context = navigationDrawerController.mainActivityWR.get();
-			if (context == null) {
-				return null;
-			}
-			if (navigationDrawerController.isCurrentSelectedSet()) {
-				return null;
-			}
-			String itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
+			if (context == null) return null;
+			if (navigationDrawerController.isCurrentSelectedSet()) return null;
+			String itemId = navigationDrawerController.getSelectedScreenItemIdOrDefault();
 			final DemoModeManager demoModeManager = navigationDrawerController.demoModeManager;
 			if (demoModeManager.isFullDemo()) {
 				itemId = ITEM_ID_SELECTED_SCREEN_DEFAULT;
@@ -267,7 +272,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			selectItemId(itemId);
 			if (Boolean.TRUE.equals(showDrawerLearning)) {
 				navigationDrawerController.openDrawer();
-				navigationDrawerController.setUserLearnedDrawer();
+				setUserLearnedDrawer(navigationDrawerController);
 			}
 		}
 
@@ -291,28 +296,28 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	@Nullable
-	private Boolean userLearnedDrawer = null;
+	private String selectedScreenItemId = null;
+
+	public void onSelectedScreenItemIdChanged(@Nullable String itemId) {
+		this.selectedScreenItemId = itemId;
+	}
+
+	@NonNull
+	private String getSelectedScreenItemIdOrDefault() {
+		return this.selectedScreenItemId == null ? ITEM_ID_SELECTED_SCREEN_DEFAULT : this.selectedScreenItemId;
+	}
+
+	public void onUserLearnedDrawerChanged(@Nullable Boolean userLearnedDrawer) {
+		this.userLearnedDrawer = userLearnedDrawer;
+	}
+
+	@Nullable
+	protected Boolean userLearnedDrawer = null;
 
 	@WorkerThread
 	private boolean hasUserLearnedDrawer() {
 		if (this.demoModeManager.isFullDemo()) return true;
-		if (this.userLearnedDrawer == null) {
-			final MainActivity mainActivity = this.mainActivityWR.get();
-			if (mainActivity != null) {
-				this.userLearnedDrawer = PreferenceUtils.getPrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER,
-						PreferenceUtils.PREF_USER_LEARNED_DRAWER_DEFAULT);
-			}
-		}
 		return this.userLearnedDrawer != null && this.userLearnedDrawer;
-	}
-
-	private void setUserLearnedDrawer() {
-		if (this.demoModeManager.isFullDemo()) return;
-		this.userLearnedDrawer = true;
-		Context context = this.mainActivityWR.get();
-		if (context != null) {
-			PreferenceUtils.savePrefDefaultAsync(context, PreferenceUtils.PREF_USER_LEARNED_DRAWER, this.userLearnedDrawer);
-		}
 	}
 
 	@Nullable
@@ -404,19 +409,14 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 
 	private boolean menuUpdated = false;
 
+	@MainThread
 	private void onMenuUpdated() {
 		this.menuUpdated = true;
-		if (this.navigationView == null) {
-			return;
-		}
+		if (this.navigationView == null) return;
 		final MainActivity mainActivity = this.mainActivityWR.get();
-		if (mainActivity == null) {
-			return;
-		}
-		if (!mainActivity.isMTResumed()) {
-			return;
-		}
-		String itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
+		if (mainActivity == null) return;
+		if (!mainActivity.isMTResumed()) return;
+		String itemId = getSelectedScreenItemIdOrDefault();
 		if (demoModeManager.isFullDemo()) {
 			itemId = ITEM_ID_SELECTED_SCREEN_DEFAULT;
 			if (demoModeManager.isEnabledBrowseScreen()) {
@@ -587,7 +587,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return; // SKIP (demo mode ON)
 		}
 		if (isRootScreen(navItemId, isUsingFirebaseTestLab)) {
-			PreferenceUtils.savePrefLclAsync(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId);
+			this.lclPrefRepository.getPref().edit().putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId).apply();
 		}
 	}
 
@@ -635,7 +635,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		if (navItemId == R.id.nav_trip_planner) {
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
 			final Pair<Double, Double> srcLatLng = getTripPlannerSrcLatLng(activity);
-			MapUtils.showDirection(null, activity, null, null, srcLatLng.first, srcLatLng.second, null);
+			MapUtils.showDirection(null, activity, null, null, srcLatLng.first, srcLatLng.second, null, defaultPrefRepository);
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 		} else if (navItemId == R.id.nav_fares) {

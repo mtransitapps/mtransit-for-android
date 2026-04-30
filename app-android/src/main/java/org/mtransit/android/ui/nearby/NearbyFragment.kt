@@ -23,6 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.DataSourceTypeId
@@ -173,6 +174,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
 
     @Inject
     lateinit var adManager: AdManager
+
+    @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     override val viewModel by viewModels<NearbyViewModel>()
     override val attachedViewModel
@@ -365,7 +369,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
                     activity = requireActivity(),
                     optDestLat = locationPick.latitude,
                     optDestLng = locationPick.longitude,
-                    optQuery = viewModel.fixedOnName.value
+                    optQuery = viewModel.fixedOnName.value,
+                    defaultPrefRepository = defaultPrefRepository,
                 )
                 true // handled
             }

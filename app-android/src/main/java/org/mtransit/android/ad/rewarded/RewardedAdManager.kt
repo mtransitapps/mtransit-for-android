@@ -3,6 +3,7 @@ package org.mtransit.android.ad.rewarded
 import androidx.annotation.AnyThread
 import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
+import androidx.core.content.edit
 import com.google.android.gms.ads.rewarded.RewardedAd
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -70,11 +71,11 @@ class RewardedAdManager @Inject constructor(
                 ),
                 RewardedAdLoadCallback(this, this.crashReporter)
             )
-            val loadCounts = this.defaultPrefRepository.getValue(
+            val loadCounts = this.defaultPrefRepository.pref.getInt(
                 DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS,
                 DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT
             )
-            this.defaultPrefRepository.saveAsync(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, loadCounts + 1)
+            this.defaultPrefRepository.pref.edit { putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, loadCounts + 1) }
         } else {
             logAdsD(this, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${theActivity::class.java.simpleName}...")
         }
@@ -148,11 +149,11 @@ class RewardedAdManager @Inject constructor(
         // this.rewardedAd?.adEventCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity) #gmaNextGen
         this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
-        val showCounts = this.defaultPrefRepository.getValue(
+        val showCounts = this.defaultPrefRepository.pref.getInt(
             DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS,
             DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS_DEFAULT
         )
-        this.defaultPrefRepository.saveAsync(DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, showCounts + 1)
+        this.defaultPrefRepository.pref.edit { putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, showCounts + 1) }
         return true
     }
 }

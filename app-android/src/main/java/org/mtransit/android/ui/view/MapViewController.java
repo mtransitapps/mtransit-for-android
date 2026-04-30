@@ -37,11 +37,11 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.Area;
@@ -199,6 +199,8 @@ public class MapViewController implements
 
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
+	@Nullable
+	private LocalPreferenceRepository lclPrefRepository;
 
 	public MapViewController(
 			@NonNull String logTag,
@@ -252,8 +254,12 @@ public class MapViewController implements
 		setActivity(activity);
 	}
 
-	public void setDataSourcesRepository(@Nullable DataSourcesRepository dataSourcesRepository) {
+	public void setDI(
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull LocalPreferenceRepository lclPrefRepository
+	) {
 		this.dataSourcesRepository = dataSourcesRepository;
+		this.lclPrefRepository = lclPrefRepository;
 	}
 
 	public void setHideMapMarkerSnippet(boolean hideMapMarkerSnippet) {
@@ -500,9 +506,7 @@ public class MapViewController implements
 	}
 
 	private void initTypeSwitch() {
-		if (this.typeSwitchView == null) {
-			return;
-		}
+		if (this.typeSwitchView == null) return;
 		setTypeSwitchImg();
 		this.typeSwitchView.setOnClickListener(v ->
 				switchMapType()
@@ -518,13 +522,16 @@ public class MapViewController implements
 
 	private int getMapType() {
 		if (this.mapType < 0) {
-			this.mapType = PreferenceUtils.getPrefLcl(getActivityOrNull(), MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);
+			if (this.lclPrefRepository == null ) {
+				return MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT;
+			}
+			this.mapType = this.lclPrefRepository.getPref().getInt(MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);
 		}
 		return this.mapType;
 	}
 
 	private void switchMapType() {
-		int newMapType = getMapType() == MapUtils.MAP_TYPE_NORMAL ? MapUtils.MAP_TYPE_SATELLITE : MapUtils.MAP_TYPE_NORMAL; // switch
+		final int newMapType = getMapType() == MapUtils.MAP_TYPE_NORMAL ? MapUtils.MAP_TYPE_SATELLITE : MapUtils.MAP_TYPE_NORMAL; // switch
 		setMapType(newMapType);
 	}
 
@@ -532,27 +539,20 @@ public class MapViewController implements
 		this.mapType = newMapType;
 		setTypeSwitchImg();
 		applyMapType();
-		final Context context = getActivityOrNull();
-		if (context != null) {
-			PreferenceUtils.savePrefLclAsync(context, MapUtils.PREFS_LCL_MAP_TYPE, this.mapType); // asynchronous
+		if (this.lclPrefRepository != null) {
+			this.lclPrefRepository.getPref().edit().putInt(MapUtils.PREFS_LCL_MAP_TYPE, this.mapType).apply();
 		}
 	}
 
 	private void applyMapType() {
-		if (this.extendedGoogleMap == null) {
-			return;
-		}
+		if (this.extendedGoogleMap == null) return;
 		this.extendedGoogleMap.setMapType(getMapType());
 	}
 
 	private void applyMapStyle() {
-		if (this.extendedGoogleMap == null) {
-			return;
-		}
+		if (this.extendedGoogleMap == null) return;
 		final Context context = getActivityOrNull();
-		if (context == null) {
-			return;
-		}
+		if (context == null) return;
 		// https://mapstyle.withgoogle.com/
 		this.extendedGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default));
 	}

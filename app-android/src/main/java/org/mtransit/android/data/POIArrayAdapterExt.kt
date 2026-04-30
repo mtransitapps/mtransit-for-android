@@ -41,17 +41,17 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     }
     MediatorLiveData2(
         readingAllHomeDST,
-        localPreferenceRepository.pref.preferenceChangeLiveData(),
+        lclPrefRepository.pref.preferenceChangeLiveData(),
     ).switchMap { (allHomeDST, _) ->
         liveData(Dispatchers.IO) {
             allHomeDST ?: return@liveData
             allHomeDST
                 .map { dst -> dst.id }
                 .associateWith { dstId ->
-                    localPreferenceRepository.getValueNN(
+                    lclPrefRepository.pref.getString(
                         LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dstId),
                         LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
-                    )
+                    ).orEmpty()
                 }.let {
                     emit(it)
                 }

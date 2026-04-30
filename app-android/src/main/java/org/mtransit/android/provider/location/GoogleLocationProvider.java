@@ -33,6 +33,7 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.dev.FakeLocation;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
+import org.mtransit.android.ui.location.UILocationUtils;
 
 import java.util.WeakHashMap;
 
@@ -325,7 +326,7 @@ public class GoogleLocationProvider
 	@NonNull
 	@Override
 	public String getLocationAddressString(@NonNull Location location) {
-		return LocationUtils.getLocationString(
+		return UILocationUtils.getLocationString(
 				this.appContext,
 				LocationUtils.getLocationAddress(this.appContext, location),
 				location.getAccuracy()
@@ -334,7 +335,7 @@ public class GoogleLocationProvider
 
 	@Override
 	public void updateDistanceWithString(@Nullable LocationUtils.LocationPOI poi, @Nullable Location currentLocation) {
-		LocationUtils.updateDistanceWithString(this.appContext, poi, currentLocation);
+		UILocationUtils.updateDistanceWithString(this.appContext, poi, currentLocation);
 	}
 
 	@Override

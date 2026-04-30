@@ -99,6 +99,7 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.location.UILocationUtils;
 import org.mtransit.android.ui.main.NextMainViewModel;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
@@ -238,7 +239,7 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	DefaultPreferenceRepository defaultPrefRepository;
 	@Inject
-	LocalPreferenceRepository localPreferenceRepository;
+	LocalPreferenceRepository lclPrefRepository;
 	@Inject
 	ImageManager imageManager;
 
@@ -361,7 +362,7 @@ public class POIFragment extends ABFragment implements
 		}
 		setPOIProperties();
 		if (this.deviceLocation != null) {
-			LocationUtils.updateDistanceWithString(context, this.poim, this.deviceLocation);
+			UILocationUtils.updateDistanceWithString(context, this.poim, this.deviceLocation);
 		}
 		if (this.adapter != null) {
 			this.adapter.clear();
@@ -493,7 +494,7 @@ public class POIFragment extends ABFragment implements
 		super.onAttach(context);
 		initAdapters(this);
 		setupMapViewController();
-		this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);
+		this.mapViewController.setDI(this.dataSourcesRepository, this.lclPrefRepository);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));
 		this.mapViewController.onAttach(requireActivity());
 	}
@@ -707,7 +708,7 @@ public class POIFragment extends ABFragment implements
 				this.sensorManager,
 				this.dataSourcesRepository,
 				this.defaultPrefRepository,
-				this.localPreferenceRepository,
+				this.lclPrefRepository,
 				this.poiRepository,
 				this.favoriteRepository,
 				this.sharedStatusLoader,
@@ -1043,7 +1044,7 @@ public class POIFragment extends ABFragment implements
 			}
 			final POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				LocationUtils.updateDistanceWithString(requireContext(), poim, newLocation);
+				UILocationUtils.updateDistanceWithString(requireContext(), poim, newLocation);
 				POIViewController.updatePOIDistanceAndCompass(getPOIView(), poim, this);
 			}
 			this.mapViewController.onDeviceLocationChanged(this.deviceLocation);
@@ -1452,7 +1453,10 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public boolean isShowingAccessibilityInfo() {
 		if (this.showingAccessibilityInfo == null) {
-			this.showingAccessibilityInfo = this.defaultPrefRepository.getValue(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT);
+			this.showingAccessibilityInfo = this.defaultPrefRepository.getPref().getBoolean(
+					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY,
+					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
+			);
 		}
 		return this.showingAccessibilityInfo;
 	}
@@ -1534,7 +1538,7 @@ public class POIFragment extends ABFragment implements
 					optSrcLat = this.deviceLocation.getLatitude();
 					optSrcLng = this.deviceLocation.getLongitude();
 				}
-				MapUtils.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName());
+				MapUtils.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName(), defaultPrefRepository);
 				return true; // handled
 			}
 		}

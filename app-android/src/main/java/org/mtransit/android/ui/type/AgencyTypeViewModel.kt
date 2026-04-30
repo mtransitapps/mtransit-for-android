@@ -118,8 +118,7 @@ class AgencyTypeViewModel @Inject constructor(
         liveData {
             emitSource(
                 lclPrefRepository.pref.liveData(
-                    LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId),
-                    LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
+                    LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId), LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
                 )
             )
         }

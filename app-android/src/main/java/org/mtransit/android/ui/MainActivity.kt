@@ -39,9 +39,12 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.pref.liveData
+import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
@@ -128,6 +131,9 @@ class MainActivity : MTActivityWithLocation(),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+
+    @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
@@ -166,6 +172,8 @@ class MainActivity : MTActivityWithLocation(),
             this.crashReporter,
             this.analyticsManager,
             this.dataSourcesRepository,
+            this.defaultPrefRepository,
+            this.lclPrefRepository,
             this.statusLoader,
             this.consentManager,
             this.packageManager,
@@ -184,6 +192,16 @@ class MainActivity : MTActivityWithLocation(),
             }
             this.abController?.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
         })
+        this.defaultPrefRepository.pref.liveData(
+            DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT
+        ).observe(this) {
+            this.navigationDrawerController?.onUserLearnedDrawerChanged(it)
+        }
+        this.lclPrefRepository.pref.liveDataN<String>(
+            LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID
+        ).observe(this) {
+            this.navigationDrawerController?.onSelectedScreenItemIdChanged(it)
+        }
         this.dataSourcesRepository.readingHasAgenciesAdded().observe(this, Observer { hasAgenciesAdded: Boolean? ->
             if (hasAgenciesAdded == true) {
                 onHasAgenciesAddedChanged()

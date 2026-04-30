@@ -8,9 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.data.UISchedule;
@@ -71,19 +71,18 @@ public final class NightModeUtils implements MTLog.Loggable {
 	}
 
 	@AppCompatDelegate.NightMode
-	public static int getDefaultNightMode(@NonNull Context context,
-										  @Nullable DemoModeManager demoModeManager) {
-		String themePref = PreferenceUtils.getPrefDefaultNN(context,
-				PreferenceUtils.PREFS_THEME, PreferenceUtils.PREFS_THEME_DEFAULT);
-		if (demoModeManager != null && demoModeManager.isFullDemo()) {
-			themePref = PreferenceUtils.PREFS_THEME_LIGHT; // light for screenshots (demo mode ON)
-		}
+	public static int getDefaultNightMode(
+			@NonNull Context context,
+			@Nullable DemoModeManager demoModeManager
+	) {
+		final String themePref = demoModeManager != null && demoModeManager.isFullDemo() ? DefaultPreferenceRepository.PREFS_THEME_LIGHT // light for screenshots (demo mode ON)
+				: DefaultPreferenceRepository.makePref(context).getString(DefaultPreferenceRepository.PREFS_THEME, DefaultPreferenceRepository.PREFS_THEME_DEFAULT);
 		switch (themePref) {
-		case PreferenceUtils.PREFS_THEME_LIGHT:
+		case DefaultPreferenceRepository.PREFS_THEME_LIGHT:
 			return AppCompatDelegate.MODE_NIGHT_NO;
-		case PreferenceUtils.PREFS_THEME_DARK:
+		case DefaultPreferenceRepository.PREFS_THEME_DARK:
 			return AppCompatDelegate.MODE_NIGHT_YES;
-		case PreferenceUtils.PREFS_THEME_SYSTEM_DEFAULT:
+		case DefaultPreferenceRepository.PREFS_THEME_SYSTEM_DEFAULT:
 		default:
 			return getDefault();
 		}

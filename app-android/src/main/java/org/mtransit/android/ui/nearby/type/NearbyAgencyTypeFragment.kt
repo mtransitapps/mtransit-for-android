@@ -80,7 +80,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
@@ -113,7 +113,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,

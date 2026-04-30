@@ -100,7 +100,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
@@ -163,7 +163,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,

@@ -107,7 +107,7 @@ object BatteryOptimizationIssueUtils {
             lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val nowMs = TimeUtils.currentTimeMillis()
 
-                val anyLastAgencyInvisibleActivityOpenedMs = lclPrefRepository.getValue( // I/O
+                val anyLastAgencyInvisibleActivityOpenedMs = lclPrefRepository.pref.getLong( // I/O
                     LocalPreferenceRepository.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(ANY),
                     nowMs // not the 1st time
                 )
@@ -120,7 +120,7 @@ object BatteryOptimizationIssueUtils {
                     .getAllAgenciesEnabled()
                     .filter { it.pkg != context.packageName }
                     .forEach { agency ->
-                        val lastAgencyInvisibleActivityOpenedMs = lclPrefRepository.getValue( // I/O
+                        val lastAgencyInvisibleActivityOpenedMs = lclPrefRepository.pref.getLong( // I/O
                             LocalPreferenceRepository.getPREFS_LCL_AGENCY_LAST_OPENED_DEFAULT(agency.authority),
                             nowMs // not the 1st time
                         )

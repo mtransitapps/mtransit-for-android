@@ -109,7 +109,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
@@ -189,7 +189,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
@@ -367,7 +367,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDataSourcesRepository(dataSourcesRepository)
+            setDI(dataSourcesRepository, lclPrefRepository)
             onAttach(requireActivity())
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }

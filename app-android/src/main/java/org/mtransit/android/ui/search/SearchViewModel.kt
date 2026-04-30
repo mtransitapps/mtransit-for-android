@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.search
 
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -92,7 +93,7 @@ class SearchViewModel @Inject constructor(
     fun onNewQuery(queryOrNull: String?) {
         if (DEV_QUERY == queryOrNull) {
             val newDevEnabled = devEnabled.value != true // flip
-            lclPrefRepository.saveAsync(LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, newDevEnabled)
+            lclPrefRepository.pref.edit { putBoolean(LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, newDevEnabled) }
             return
         }
         val newQuery: String = queryOrNull.orEmpty()

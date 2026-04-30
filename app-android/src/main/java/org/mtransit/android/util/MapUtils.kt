@@ -16,9 +16,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.ResourceUtils
 
 @Suppress("unused")
@@ -79,12 +79,14 @@ object MapUtils : MTLog.Loggable {
         optDestLat: Double? = null, optDestLng: Double? = null,
         optSrcLat: Double? = null, optSrcLng: Double? = null,
         optQuery: String? = null,
+        defaultPrefRepository: DefaultPreferenceRepository,
     ) {
-        val useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity) && PreferenceUtils.getPrefDefault(
-            activity,
-            PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER,
-            PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-        )
+        val useInternalWebBrowser =
+            !SystemSettingManager.isUsingFirebaseTestLab(activity)
+                    && defaultPrefRepository.pref.getBoolean(
+                DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER,
+                DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+            )
         val gmmIntentUri = getMapsDirectionUrl(optDestLat, optDestLng, optSrcLat, optSrcLng, optQuery)
         if (useInternalWebBrowser) {
             LinkUtils.open(

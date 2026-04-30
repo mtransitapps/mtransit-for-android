@@ -79,6 +79,7 @@ import org.mtransit.android.ui.common.UIColorUtils;
 import org.mtransit.android.ui.common.UIContextExtKt;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
 import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.ui.location.UILocationUtils;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.rds.route.RDSRouteFragment;
@@ -225,7 +226,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@NonNull
 	private final DefaultPreferenceRepository defaultPrefRepository;
 	@NonNull
-	protected final LocalPreferenceRepository localPreferenceRepository;
+	protected final LocalPreferenceRepository lclPrefRepository;
 	@NonNull
 	private final POIRepository poiRepository;
 	@NonNull
@@ -240,7 +241,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			@NonNull MTSensorManager sensorManager,
 			@NonNull DataSourcesRepository dataSourcesRepository,
 			@NonNull DefaultPreferenceRepository defaultPrefRepository,
-			@NonNull LocalPreferenceRepository localPreferenceRepository,
+			@NonNull LocalPreferenceRepository lclPrefRepository,
 			@NonNull POIRepository poiRepository,
 			@NonNull FavoriteRepository favoriteRepository,
 			@NonNull StatusLoader statusLoader,
@@ -252,7 +253,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.sensorManager = sensorManager;
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.defaultPrefRepository = defaultPrefRepository;
-		this.localPreferenceRepository = localPreferenceRepository;
+		this.lclPrefRepository = lclPrefRepository;
 		this.poiRepository = poiRepository;
 		this.favoriteRepository = favoriteRepository;
 		this.statusLoader = statusLoader;
@@ -1071,17 +1072,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		@Override
 		protected Void doInBackgroundNotCancelledMT(Location... params) {
 			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
-			if (poiArrayAdapter == null) {
-				return null;
-			}
+			final POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
+			if (poiArrayAdapter == null) return null;
 			try {
 				if (poiArrayAdapter.poisByType != null) {
 					for (List<POIManager> poiManagers : poiArrayAdapter.poisByType.values()) {
-						if (isCancelled()) {
-							break;
-						}
-						LocationUtils.updateDistanceWithString(poiArrayAdapter.getContext(), poiManagers, params[0], this);
+						if (isCancelled()) break;
+						UILocationUtils.updateDistanceWithString(poiArrayAdapter.getContext(), poiManagers, params[0], this);
 					}
 				}
 			} catch (Exception e) {
@@ -2000,7 +1997,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	public boolean isShowingAccessibilityInfo() {
 		if (this.showingAccessibilityInfo == null) {
-			this.showingAccessibilityInfo = this.defaultPrefRepository.getValue(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT);
+			this.showingAccessibilityInfo = this.defaultPrefRepository.getPref().getBoolean(
+					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY,
+					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
+			);
 		}
 		return this.showingAccessibilityInfo;
 	}

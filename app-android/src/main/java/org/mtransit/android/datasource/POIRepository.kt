@@ -2,6 +2,7 @@ package org.mtransit.android.datasource
 
 import android.location.Location
 import androidx.collection.LruCache
+import androidx.core.content.edit
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -10,6 +11,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.set
@@ -27,16 +29,19 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 @Singleton
 class POIRepository(
-    val dataSourceRequestManager: DataSourceRequestManager,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val lclPrefRepository: LocalPreferenceRepository,
     private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
 
     @Inject
     constructor(
         dataSourceRequestManager: DataSourceRequestManager,
+        lclPrefRepository: LocalPreferenceRepository,
     ) : this(
-        dataSourceRequestManager,
-        Dispatchers.IO,
+        dataSourceRequestManager = dataSourceRequestManager,
+        lclPrefRepository = lclPrefRepository,
+        ioDispatcher = Dispatchers.IO,
     )
 
     companion object {
@@ -210,5 +215,11 @@ class POIRepository(
         context: CoroutineContext = ioDispatcher
     ) = withContext(context) {
         findPOIMs(agency, poiFilter)
+    }
+
+    fun updateSelectedAgencyTypeTab(agency: IAgencyProperties) {
+        lclPrefRepository.pref.edit {
+            putString(LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getSupportedType().id), agency.authority)
+        }
     }
 }

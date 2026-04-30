@@ -25,7 +25,6 @@ import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
@@ -788,7 +787,7 @@ public class POIManager implements LocationPOI,
 					if (agency.isUpdateAvailable(activity.getPackageManager())) {
 						AppUpdateLauncher.launchAppUpdate(activity, pkg);
 					} else { // navigate to agency type screen
-						PreferenceUtils.savePrefLclAsync(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getSupportedType().getId()), agency.getAuthority());
+						poiRepository.updateSelectedAgencyTypeTab(agency);
 						if (FeatureFlags.F_NAVIGATION) {
 							final NavController navController = Navigation.findNavController(view);
 							FragmentNavigator.Extras extras = null;

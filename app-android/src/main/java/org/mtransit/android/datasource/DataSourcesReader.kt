@@ -182,7 +182,7 @@ class DataSourcesReader @Inject constructor(
         forceAppUpdateRefresh: Boolean = false,
         markUpdated: () -> Unit,
     ) {
-        val lastCheckInMs = lclPrefRepository.getValue(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
+        val lastCheckInMs = lclPrefRepository.pref.getLong(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
         val shortTimeAgo = TimeUtils.currentTimeMillis() - MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
@@ -218,7 +218,7 @@ class DataSourcesReader @Inject constructor(
             }
         }
         if (!skipTimeCheck || updated) {
-            lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
+            lclPrefRepository.pref.edit { putLong(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis()) }
         }
     }
 

@@ -25,10 +25,10 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.commons.HtmlUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.data.AgencyProperties;
@@ -87,15 +87,12 @@ public final class LinkUtils implements MTLog.Loggable {
 	}
 
 	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, @Nullable String titleStatic, boolean www) {
-		if (url == null || url.isEmpty()) {
-			return false;
-		}
-		if (intercept(activity, url)) {
-			return true;
-		}
+		if (url == null || url.isEmpty()) return false;
+		if (intercept(activity, url)) return true;
 		if (www && (!FeatureFlags.F_NAVIGATION || view != null)) {
 			boolean useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
-					&& PreferenceUtils.getPrefDefault(activity, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
+					&& DefaultPreferenceRepository.makePref(activity)
+					.getBoolean(DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
 			if (useInternalWebBrowser) {
 				if (FeatureFlags.F_NAVIGATION) {
 					final NavController navController = Navigation.findNavController(view);
