@@ -38,7 +38,7 @@ object FavoritesUI : MTLog.Loggable {
     ) = withContext(Dispatchers.IO) {
         val favorite = getFavorite(fkId)
         val isFavorite = favorite != null
-        val favoriteFolders = findFoldersList()
+        val favoriteFolders = findFolders()
         val usingFavoriteFolder = favoriteFolders.any { it.id != FavoriteFolder.DEFAULT_FOLDER_ID }
         if (!usingFavoriteFolder) {
             if (isFavorite) {

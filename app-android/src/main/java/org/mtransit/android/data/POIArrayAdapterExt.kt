@@ -32,7 +32,7 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
                 add(0, DataSourceType.TYPE_FAVORITE) // 1st
             }
             if (allNewsProviders.isNotEmpty()) {
-                add(allSupportedDST.size - 1, DataSourceType.TYPE_NEWS) // LAST before MODULE
+                add(this.size - 1, DataSourceType.TYPE_NEWS) // before LAST (MODULE)
             }
         }
     }

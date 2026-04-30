@@ -149,6 +149,7 @@ class AdManager @Inject internal constructor(
 
     override suspend fun refreshRewardedAdStatus(activity: IActivity) = this.rewardedAdManager.refreshRewardedAdStatus(activity)
 
+    @AnyThread
     override fun isRewardedAdAvailableToShow() = this.rewardedAdManager.isRewardedAdAvailableToShow()
 
     override fun showRewardedAd(activity: IActivity) = this.rewardedAdManager.showRewardedAd(activity)
@@ -156,6 +157,7 @@ class AdManager @Inject internal constructor(
     @AnyThread
     override fun getRewardedAdAmount() = this.globalAdManager.getRewardedAdAmount()
 
+    @AnyThread
     override fun getRewardedAdAmountInMs() = this.globalAdManager.getRewardedAdAmountInMs()
 
     // endregion Rewarded Ads

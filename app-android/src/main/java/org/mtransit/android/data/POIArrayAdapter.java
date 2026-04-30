@@ -69,7 +69,7 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.provider.FavoriteRepository;
 import org.mtransit.android.provider.favorite.FavoritesUI;
-import org.mtransit.android.provider.favorite.FavoritesUtils;
+import org.mtransit.android.provider.favorite.FavoritesFolderDSTUtils;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -360,7 +360,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				if (this.poisByType != null) {
 					final Integer typeId = getItemTypeHeader(position);
 					if (typeId != null) {
-						if (FavoritesUtils.isFavoriteDataSourceId(typeId)) {
+						if (FavoritesFolderDSTUtils.isFavoriteFolderDataSourceId(typeId)) {
 							return 10; // TYPE FAVORITE FOLDER
 						}
 						return 8; // TYPE HEADER
@@ -548,8 +548,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				final Integer typeId = getItemTypeHeader(position);
 				if (typeId != null) {
-					if (FavoritesUtils.isFavoriteDataSourceId(typeId)) {
-						final int favoriteFolderId = FavoritesUtils.extractFavoriteFolderId(typeId);
+					if (FavoritesFolderDSTUtils.isFavoriteFolderDataSourceId(typeId)) {
+						final int favoriteFolderId = FavoritesFolderDSTUtils.extractFavoriteFolderId(typeId);
 						final FavoriteFolder favoriteFolder = this.favoriteFoldersByIds == null ? null : this.favoriteFoldersByIds.get(favoriteFolderId);
 						if (favoriteFolder != null) {
 							return getFavoriteFolderHeaderView(favoriteFolder, convertView, parent);

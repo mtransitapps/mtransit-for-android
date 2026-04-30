@@ -82,7 +82,11 @@ class FavoriteRepository(
         findFavorites(uri)
     }
 
-    private suspend fun findFavorites(uri: Uri = favoriteContentDirectoryUri, selection: String? = null): Set<Favorite> = withContext(ioDispatcher) {
+    private suspend fun findFavorites(
+        uri: Uri = favoriteContentDirectoryUri,
+        selection: String? = null,
+    ): Set<Favorite> = withContext(ioDispatcher) {
+        if (demoModeManager.isFullDemo()) return@withContext emptySet()
         appContext.contentResolver.query(uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null)
             ?.use { cursor ->
                 buildSet {
@@ -96,24 +100,19 @@ class FavoriteRepository(
     private suspend fun findFavorite(uri: Uri = favoriteContentDirectoryUri, selection: String? = null) =
         findFavorites(uri, selection).firstOrNull()
 
-    suspend fun hasFavorites() = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext false
-        findFavorites().isNotEmpty()
-    }
+    suspend fun hasFavorites() = findFavorites().isNotEmpty()
 
-    suspend fun findFavoriteUUIDs(): Set<String> = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext emptySet()
-        findFavorites().map { it.fkId }.toSet()
-    }
+    suspend fun findFavoriteUUIDs(): Set<String> = findFavorites().map { it.fkId }.toSet()
 
     suspend fun isFavorite(fkId: String) = getFavorite(fkId) != null
 
-    suspend fun getFavorite(fkId: String) = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext null
+    suspend fun getFavorite(fkId: String) =
         findFavorite(selection = SqlUtils.getWhereEqualsString(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FK_ID, fkId))
-    }
 
-    suspend fun addFavorite(fkId: String, folderId: Int = FavoriteFolder.DEFAULT_FOLDER_ID) = withContext(ioDispatcher) {
+    suspend fun addFavorite(
+        fkId: String,
+        folderId: Int = FavoriteFolder.DEFAULT_FOLDER_ID,
+    ) = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext false
         appContext.contentResolver.insert(favoriteContentDirectoryUri, Favorite.makeFavorite(fkId, folderId).toContentValues())
             ?.let { uri ->
@@ -163,7 +162,8 @@ class FavoriteRepository(
         findFolders(folderContentDirectoryUri)
     }
 
-    private suspend fun findFolders(uri: Uri = folderContentDirectoryUri): Set<FavoriteFolder> = withContext(ioDispatcher) {
+    suspend fun findFolders(uri: Uri = folderContentDirectoryUri): Set<FavoriteFolder> = withContext(ioDispatcher) {
+        if (demoModeManager.isFullDemo()) return@withContext emptySet()
         appContext.contentResolver.query(uri, FavoriteProvider.PROJECTION_FOLDER, null, null, null)
             ?.use { cursor ->
                 buildSet {
@@ -179,15 +179,8 @@ class FavoriteRepository(
     val isUsingFolders: LiveData<Boolean> =
         readingAllFolders.map { it.any { folder -> folder.id != FavoriteFolder.DEFAULT_FOLDER_ID } }
 
-    suspend fun findFoldersList() = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext emptyList()
-        findFolders()
-    }
-
-    suspend fun findFolder(id: Int) = withContext(ioDispatcher) {
-        if (demoModeManager.isFullDemo()) return@withContext null
-        findFolder(Uri.withAppendedPath(folderContentDirectoryUri, id.toString()))
-    }
+    suspend fun findFolder(id: Int) =
+        findFolder(uri = Uri.withAppendedPath(folderContentDirectoryUri, id.toString()))
 
     suspend fun addFolder(name: String) = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) return@withContext null

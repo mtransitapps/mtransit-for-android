@@ -13,7 +13,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ComparatorUtils
@@ -29,13 +28,12 @@ import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.FavoriteFolder
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.TextMessage
 import org.mtransit.android.data.toPOIM
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI
-import org.mtransit.android.provider.favorite.FavoritesUtils
+import org.mtransit.android.provider.favorite.FavoritesFolderDSTUtils
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -130,36 +128,30 @@ class FavoritesViewModel @Inject constructor(
         pois.forEach { favPOIM ->
             val favFolderId = uuidToFavoriteFolderId[favPOIM.poi.uuid]
             if (favFolderId != null && favFolderId > FavoriteFolder.DEFAULT_FOLDER_ID) {
-                favPOIM.poi.dataSourceTypeId = FavoritesUtils.generateFavoriteFolderId(favFolderId)
+                favPOIM.poi.dataSourceTypeId = FavoritesFolderDSTUtils.generateFavoriteFolderDataSourceId(favFolderId)
                 favFolderIds.add(favFolderId)
             }
         }
         var textMessageId = UITimeUtils.currentTimeMillis()
-        val favFolders = this.favoriteRepository.findFoldersList()
+        val favFolders = this.favoriteRepository.findFolders()
         favFolders
             .filter { favFolder -> favFolder.id > FavoriteFolder.DEFAULT_FOLDER_ID && !favFolderIds.contains(favFolder.id) }
             .forEach { favoriteFolder ->
-                pois.add(getNewEmptyFolder(textMessageId++, favoriteFolder.id))
+                val dataSourceTypeId = FavoritesFolderDSTUtils.generateFavoriteFolderDataSourceId(favoriteFolder.id)
+                pois.add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, dataSourceTypeId).toPOIM())
             }
         if (pois.isNotEmpty()) {
             pois.sortWith(FavoriteFolderNameComparator(favFolders))
         }
         // ADD missing data source type with empty at the end of list
-        val favoriteTypeIds = pois.map { it.poi.dataSourceTypeId }.toSet()
+        val favFolderTypeIds = pois.map { it.poi.dataSourceTypeId }.toSet()
         homeScreenTypes
-            .filter { it.id !in favoriteTypeIds }
+            .filter { it.id !in favFolderTypeIds }
             .forEach {
-                pois.add(TextMessage(textMessageId++, it.id, appContext.getString(R.string.favorite_folder_empty)).toPOIM())
+                pois.add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, it.id).toPOIM())
             }
         return pois
     }
-
-    private fun getNewEmptyFolder(textMessageId: Long, favoriteFolderId: Int) =
-        FavoritesUI.generateFavEmptyFavPOI(
-            appContext,
-            textMessageId,
-            FavoritesUtils.generateFavoriteFolderId(favoriteFolderId)
-        ).toPOIM()
 
     class FavoriteFolderNameComparator(
         private val favFolders: Collection<FavoriteFolder>
@@ -176,9 +168,9 @@ class FavoritesViewModel @Inject constructor(
             } else if (rhsPoi == null) {
                 return ComparatorUtils.AFTER
             }
-            val lFavFolderId = FavoritesUtils.getFavoriteDataSourceIdOrNull(lhsPoi.dataSourceTypeId)
+            val lFavFolderId = FavoritesFolderDSTUtils.getFavoriteFolderDataSourceIdOrNull(lhsPoi.dataSourceTypeId)
             val lFavFolderName = favFolders.singleOrNull { it.id == lFavFolderId }?.name ?: StringUtils.EMPTY
-            val rFavFolderId = FavoritesUtils.getFavoriteDataSourceIdOrNull(rhsPoi.dataSourceTypeId)
+            val rFavFolderId = FavoritesFolderDSTUtils.getFavoriteFolderDataSourceIdOrNull(rhsPoi.dataSourceTypeId)
             val rFavFolderName = favFolders.singleOrNull { it.id == rFavFolderId }?.name ?: StringUtils.EMPTY
             return lFavFolderName.compareTo(rFavFolderName)
         }
