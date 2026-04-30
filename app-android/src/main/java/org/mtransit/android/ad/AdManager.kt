@@ -42,7 +42,8 @@ class AdManager @Inject internal constructor(
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,
     private val rewardedAdManager: RewardedAdManager,
-) : IAdManager, MTLog.Loggable {
+) : IAdManager,
+    MTLog.Loggable {
 
     companion object {
 

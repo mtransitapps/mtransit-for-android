@@ -69,7 +69,9 @@ class GlobalAdManager(
 
     private var showingAds: Boolean? = null
     private var hasAgenciesEnabled: Boolean? = null
+    @Volatile
     private var _rewardedUntilInMs: Long? = null
+    @Volatile
     private var _rewardedNow: Boolean? = null
 
     init {

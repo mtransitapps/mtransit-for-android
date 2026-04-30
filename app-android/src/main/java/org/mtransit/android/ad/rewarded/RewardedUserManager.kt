@@ -89,11 +89,7 @@ class RewardedUserManager @Inject constructor(
     }
 
     val rewardedNowLive: LiveData<Boolean> = this.rewardedUntilInMsLive
-        .map { rewardedUntilInMs ->
-            if (!AdConstants.AD_ENABLED) return@map true
-            if (this.demoModeManager.enabled) return@map true
-            rewardedUntilInMs > TimeUtils.currentTimeMillis()
-        }
+        .map { isRewardedNow(it) }
 
     @WorkerThread
     fun isRewardedNow(): Boolean {
