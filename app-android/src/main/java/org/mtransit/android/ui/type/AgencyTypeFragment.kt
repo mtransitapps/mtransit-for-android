@@ -185,7 +185,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     override fun getLogTag() = LOG_TAG
 
-    override val screenName = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
+    override val screenName: String
+        get() = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" }
+            ?: TRACKING_SCREEN_NAME
 
     @Inject
     lateinit var adManager: AdManager
