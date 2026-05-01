@@ -27,6 +27,7 @@ import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.SqlUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.Area;
@@ -50,7 +51,6 @@ import org.mtransit.commons.Constants;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.EntryPoint;
@@ -177,8 +177,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public boolean onCreateMT() {
 		dataSourcesRepository().readingAllAgencies().observeForever(agencyProperties -> { // SINGLETON
-			//noinspection resource
-			Executors.newSingleThreadExecutor().execute(this::deleteAllModuleStatusData);
+			TaskUtils.THREAD_POOL_EXECUTOR.execute(this::deleteAllModuleStatusData);
 		});
 		return super.onCreateMT();
 	}

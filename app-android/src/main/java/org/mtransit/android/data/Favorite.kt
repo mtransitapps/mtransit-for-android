@@ -2,6 +2,7 @@ package org.mtransit.android.data
 
 import android.content.ContentValues
 import android.database.Cursor
+import org.mtransit.android.commons.optIntNN
 import org.mtransit.android.provider.FavoriteProvider
 
 data class Favorite @JvmOverloads constructor(
@@ -26,7 +27,7 @@ data class Favorite @JvmOverloads constructor(
             id = getInt(getColumnIndexOrThrow(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_ID)),
             fkId = getString(getColumnIndexOrThrow(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FK_ID)),
             type = getInt(getColumnIndexOrThrow(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_TYPE)),
-            folderId = getInt(getColumnIndexOrThrow(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FOLDER_ID)),
+            folderId = optIntNN(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FOLDER_ID, FavoriteFolder.DEFAULT_FOLDER_ID),
         )
     }
 
@@ -34,8 +35,6 @@ data class Favorite @JvmOverloads constructor(
         id.takeIf { it >= 0 }?.let { put(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_ID, it) }
         put(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FK_ID, fkId)
         put(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_TYPE, type)
-        if (folderId > FavoriteFolder.DEFAULT_FOLDER_ID) {
-            put(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FOLDER_ID, folderId)
-        }
+        put(FavoriteProvider.FavoriteColumns.T_FAVORITE_K_FOLDER_ID, folderId)
     }
 }

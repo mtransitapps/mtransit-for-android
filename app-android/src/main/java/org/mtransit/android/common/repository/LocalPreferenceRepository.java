@@ -11,11 +11,11 @@ import androidx.annotation.WorkerThread;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.data.RouteDirection;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -58,7 +58,16 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 	private static final String PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY = "pRTSRouteTripIdKey"; // do not change to avoid breaking compat w/ old modules
 
 	@NonNull
-	public static String getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(@NonNull String authority, long routeId, long directionId) {
+	public static String getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(@NonNull RouteDirection routeDirection) {
+		return getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
+				routeDirection.getAuthority(),
+				routeDirection.getRoute().getId(),
+				routeDirection.getDirection().getId()
+		);
+	}
+
+	@NonNull
+	private static String getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(@NonNull String authority, long routeId, long directionId) {
 		return PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY + authority + routeId + "-" + directionId;
 	}
 
@@ -84,16 +93,13 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 		return LOG_TAG;
 	}
 
-	@NonNull
-	private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
 	@Nullable
 	private SharedPreferences _prefs;
 
 	@Inject
 	public LocalPreferenceRepository(@NonNull @ApplicationContext Context appContext) {
 		super(appContext);
-		executorService.execute(() -> _prefs = loadPrefs());
+		TaskUtils.THREAD_POOL_EXECUTOR.execute(() -> _prefs = loadPrefs());
 	}
 
 	@SuppressLint("ThreadConstraint") // should almost never call loadPrefs()

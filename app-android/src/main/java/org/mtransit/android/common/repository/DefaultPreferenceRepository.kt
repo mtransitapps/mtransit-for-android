@@ -8,7 +8,7 @@ import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
 import org.mtransit.android.commons.PreferenceUtils
-import java.util.concurrent.Executors
+import org.mtransit.android.commons.TaskUtils
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -94,10 +94,8 @@ class DefaultPreferenceRepository @Inject constructor(
 
     private var _prefs: SharedPreferences? = null
 
-    private val _executorService = Executors.newSingleThreadExecutor()
-
     init {
-        _executorService.execute { _prefs = loadPrefs() }
+        TaskUtils.THREAD_POOL_EXECUTOR.execute { _prefs = loadPrefs() }
     }
 
     @WorkerThread

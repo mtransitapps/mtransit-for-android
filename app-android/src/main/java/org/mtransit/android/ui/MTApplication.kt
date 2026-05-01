@@ -3,7 +3,6 @@ package org.mtransit.android.ui
 import android.content.Context
 import android.os.Build
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.mtransit.android.BuildConfig

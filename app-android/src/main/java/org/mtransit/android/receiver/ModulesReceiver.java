@@ -13,14 +13,13 @@ import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -35,8 +34,6 @@ import kotlinx.coroutines.future.FutureKt;
 public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ModulesReceiver.class.getSimpleName();
-
-	private final Executor backgroundExecutor = Executors.newSingleThreadExecutor();
 
 	@NonNull
 	@Override
@@ -70,6 +67,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		switch (action) {
 			case Intent.ACTION_PACKAGE_ADDED:
 				final boolean replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
+				//noinspection RedundantIfStatement
 				if (replacing) {
 					return false; // will be followed by Intent.ACTION_PACKAGE_REPLACED
 				}
@@ -155,7 +153,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 				if (provider != null && provider.metaData != null) {
 					if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
 						final PendingResult pendingResult = goAsync();
-						backgroundExecutor.execute(() -> {
+						TaskUtils.THREAD_POOL_EXECUTOR.execute(() -> {
 							try {
 								MTLog.i(this, "Ping: %s", provider.authority);
 								DataSourceManager.ping(context, provider.authority);

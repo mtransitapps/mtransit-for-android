@@ -15,6 +15,7 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.data.toRouteDirection
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIManager
@@ -226,11 +227,7 @@ fun POIFragment.onMapClick(): Boolean {
             is RouteDirectionStop -> {
                 this.lclPrefRepository.pref.edit {
                     putBoolean(
-                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-                            poim.poi.authority,
-                            poim.poi.route.id,
-                            poim.poi.direction.id,
-                        ),
+                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(poim.poi.toRouteDirection()),
                         false, // show map
                     )
                 }
@@ -269,11 +266,7 @@ fun POIFragment.onMapClick(): Boolean {
             is RouteDirectionStop -> {
                 this.lclPrefRepository.pref.edit {
                     putBoolean(
-                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-                            poim.poi.authority,
-                            poim.poi.route.id,
-                            poim.poi.direction.id
-                        ),
+                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(poim.poi.toRouteDirection()),
                         false, // show map
                     )
                 }

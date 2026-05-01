@@ -193,11 +193,6 @@ class MainActivity : MTActivityWithLocation(),
             }
             this.abController?.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
         })
-        this.defaultPrefRepository.pref.liveData(
-            DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT
-        ).observe(this) {
-            this.navigationDrawerController?.onUserLearnedDrawerChanged(it)
-        }
         this.lclPrefRepository.pref.liveDataN<String>(
             LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, null
         ).observe(this) {

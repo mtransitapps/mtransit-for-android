@@ -184,18 +184,19 @@ object FavoritesUI : MTLog.Loggable {
                         showToast(activity, R.string.favorite_folder_new_creation_error_and_folder_name, newFolderName)
                         return@launch
                     }
-                    showToast(activity, R.string.favorite_folder_new_created_and_folder_name, createdFolder.name)
-                    if (!updatedFkId.isNullOrEmpty()) {
-                        if (updatedFavoriteFolder != null) { // move favorite
-                            val updated = updateFavoriteFolder(updatedFkId, createdFolder.id)
-                            if (updated) {
-                                showToast(activity, R.string.favorite_moved_to_folder_and_folder, createdFolder.name)
-                            }
-                        } else { // add new favorite
-                            val added = addFavorite(updatedFkId, createdFolder.id)
-                            if (added) {
-                                showToast(activity, R.string.favorite_added_to_folder_and_folder, createdFolder.name)
-                            }
+                    if (updatedFkId == null) { // no favorite to move into new folder
+                        showToast(activity, R.string.favorite_folder_new_created_and_folder_name, createdFolder.name)
+                        return@launch
+                    }
+                    if (updatedFavoriteFolder == null) { // add new favorite to new folder
+                        val added = addFavorite(updatedFkId, createdFolder.id)
+                        if (added) {
+                            showToast(activity, R.string.favorite_added_to_folder_and_folder, createdFolder.name)
+                        }
+                    } else { // move favorite from old (or default) to new folder
+                        val updated = updateFavoriteFolder(updatedFkId, createdFolder.id)
+                        if (updated) {
+                            showToast(activity, R.string.favorite_moved_to_folder_and_folder, createdFolder.name)
                         }
                     }
                 }

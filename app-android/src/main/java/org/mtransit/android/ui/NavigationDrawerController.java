@@ -71,8 +71,6 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 @SuppressLint("KotlinPairNotCreated")
 class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener {
@@ -96,8 +94,6 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	private static final int ITEM_INDEX_NEWS = 5;
 	private static final int ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT = R.id.root_nav_home;
 	private static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
-
-	private final Executor backgroundExecutor = Executors.newSingleThreadExecutor();
 
 	@NonNull
 	private final WeakReference<MainActivity> mainActivityWR;
@@ -240,6 +236,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			this.navigationDrawerControllerWR = new WeakReference<>(navigationDrawerController);
 		}
 
+		@WorkerThread
 		@Nullable
 		@Override
 		protected Pair<String, Boolean> doInBackgroundNotCancelledMT(Void... params) {
@@ -257,7 +254,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				}
 			}
 			publishProgress(itemId);
-			final Boolean showDrawerLearning = navigationDrawerController.shouldShowDrawerLearning();
+			final boolean hasUserLearnedDrawer = navigationDrawerController.defaultPrefRepository.getPref().getBoolean(
+					DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT);
+			final Boolean showDrawerLearning = navigationDrawerController.dataSourcesRepository.hasAgenciesEnabled() && !hasUserLearnedDrawer;
 			return new Pair<>(itemId, showDrawerLearning);
 		}
 
@@ -291,11 +290,6 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 	}
 
-	@WorkerThread
-	private boolean shouldShowDrawerLearning() {
-		return this.dataSourcesRepository.hasAgenciesEnabled() && !hasUserLearnedDrawer();
-	}
-
 	@Nullable
 	private String selectedScreenItemId = null;
 
@@ -313,19 +307,6 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	@NonNull
 	private String getSelectedScreenItemIdOrDefault() {
 		return this.selectedScreenItemId == null ? ITEM_ID_SELECTED_SCREEN_DEFAULT : this.selectedScreenItemId;
-	}
-
-	public void onUserLearnedDrawerChanged(@Nullable Boolean userLearnedDrawer) {
-		this.userLearnedDrawer = userLearnedDrawer;
-	}
-
-	@Nullable
-	protected Boolean userLearnedDrawer = null;
-
-	@WorkerThread
-	private boolean hasUserLearnedDrawer() {
-		if (this.demoModeManager.isFullDemo()) return true;
-		return this.userLearnedDrawer != null && this.userLearnedDrawer;
 	}
 
 	@Nullable
@@ -585,7 +566,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.serviceUpdateLoader.clearAllTasks();
 		mainActivity.showNewFragment(newFragment, false, null);
 		if (demoModeManager.isFullDemo()) return; // SKIP (demo mode ON)
-		this.backgroundExecutor.execute(() ->
+		TaskUtils.THREAD_POOL_EXECUTOR.execute(() ->
 				this.lclPrefRepository.getPref().edit()
 						.putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId)
 						.apply()
