@@ -1,4 +1,3 @@
-@file:JvmName("RTSRouteFragment") // ANALYTICS // do not change to avoid breaking tracking
 package org.mtransit.android.ui.rds.route
 
 import android.app.PendingIntent
@@ -156,9 +155,11 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName() =
-        attachedViewModel?.routeM?.value?.let { "$TRACKING_SCREEN_NAME/${it.authority}/${it.route.id}" }
+    override val screenName: String
+        get() = attachedViewModel?.routeM?.value?.let { "$TRACKING_SCREEN_NAME/${it.authority}/${it.route.id}" }
             ?: TRACKING_SCREEN_NAME
+
+    override val screenClass get() = "RTSRouteFragment" // ANALYTICS // do not change
 
     private val viewModel by viewModels<RDSRouteViewModel>()
     private val attachedViewModel get() = if (isAttached()) viewModel else null

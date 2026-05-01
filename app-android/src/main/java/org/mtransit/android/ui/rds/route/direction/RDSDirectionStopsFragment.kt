@@ -1,4 +1,3 @@
-@file:JvmName("RTSTripStopsFragment") // ANALYTICS // do not change to avoid breaking tracking
 package org.mtransit.android.ui.rds.route.direction
 
 import android.content.Context

@@ -1,4 +1,3 @@
-@file:JvmName("RTSAgencyRoutesFragment") // ANALYTICS // do not change to avoid breaking tracking
 package org.mtransit.android.ui.type.rds
 
 import android.content.Context

@@ -1,4 +1,3 @@
-@file:JvmName("PreferencesFragment") // ANALYTICS
 package org.mtransit.android.ui.pref.main
 
 import android.annotation.SuppressLint

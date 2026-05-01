@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.analytics.AnalyticsEvents
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider
+import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.Constants
@@ -102,13 +103,13 @@ class AppRatingsManager @Inject constructor(
     @WorkerThread
     fun onAppRequestDisplayed(
         lifecycleOwner: LifecycleOwner,
-        trackingScreen: IAnalyticsManager.Trackable? = null
+        trackingScreen: AnalyticsScreen? = null
     ) = lifecycleOwner.lifecycleScope.launch {
         onAppRequestDisplayed(trackingScreen)
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
-    private suspend fun onAppRequestDisplayed(trackingScreen: IAnalyticsManager.Trackable? = null) = withContext(Dispatchers.IO) {
+    private suspend fun onAppRequestDisplayed(trackingScreen: AnalyticsScreen? = null) = withContext(Dispatchers.IO) {
         val currentAppOpenCount = defaultPrefRepository.getValue(
             DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS,
             DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS_DEFAULT
@@ -124,7 +125,7 @@ class AppRatingsManager @Inject constructor(
     }
 
     @JvmOverloads
-    fun getShouldShowAppRatingRequest(trackingScreen: IAnalyticsManager.Trackable? = null): LiveData<Boolean> = MediatorLiveData4(
+    fun getShouldShowAppRatingRequest(trackingScreen: AnalyticsScreen? = null): LiveData<Boolean> = MediatorLiveData4(
         hasAgenciesEnabled,
         lastRequestAppOpenCount,
         appOpenCounts,

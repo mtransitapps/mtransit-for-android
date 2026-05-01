@@ -1,4 +1,3 @@
-@file:JvmName("PreferencesActivity") // ANALYTICS
 package org.mtransit.android.ui.pref
 
 import android.content.Context

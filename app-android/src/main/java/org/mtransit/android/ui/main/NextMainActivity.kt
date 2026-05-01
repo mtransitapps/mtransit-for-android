@@ -1,4 +1,3 @@
-@file:JvmName("MainActivity") // ANALYTICS
 package org.mtransit.android.ui.main
 
 import android.annotation.SuppressLint
@@ -36,6 +35,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
@@ -62,7 +62,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class NextMainActivity : MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,
-    IAnalyticsManager.Trackable,
+    AnalyticsScreen,
     OnBillingResultListener,
     IActivity, IAdScreenActivity,
     IAdManager.RewardedAdListener {
@@ -79,7 +79,9 @@ class NextMainActivity : MTActivityWithLocation(),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName() = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
+
+    override val screenClass get() = "MainActivity" // ANALYTICS // do not change
 
     private val viewModel by viewModels<NextMainViewModel>()
 

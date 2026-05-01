@@ -1,4 +1,3 @@
-//@file:JvmName("POIFragment") // ANALYTICS
 package org.mtransit.android.ui.poi
 //
 //import android.content.Context
@@ -104,7 +103,7 @@ package org.mtransit.android.ui.poi
 //
 // override fun getLogTag(): String = this.theLogTag
 //
-// override fun getScreenName(): String = viewModel.uuid.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
+// override val screenName = viewModel.uuid.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 //
 // private val viewModel by viewModels<POIViewModel>()
 //

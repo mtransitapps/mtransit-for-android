@@ -1,4 +1,3 @@
-@file:JvmName("ScheduleFragment") // ANALYTICS
 package org.mtransit.android.ui.schedule
 
 import android.content.Context
@@ -98,7 +97,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     @Inject
     lateinit var adManager: AdManager

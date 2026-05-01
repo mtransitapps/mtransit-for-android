@@ -1,4 +1,3 @@
-@file:JvmName("MainActivity") // ANALYTICS
 package org.mtransit.android.ui
 
 import android.app.PendingIntent
@@ -35,6 +34,7 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.AdsConsentManager
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
@@ -66,7 +66,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,
-    IAnalyticsManager.Trackable,
+    AnalyticsScreen,
     OnBillingResultListener,
     IActivity, IAdScreenActivity,
     MTLog.Loggable,
@@ -84,7 +84,7 @@ class MainActivity : MTActivityWithLocation(),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName() = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     private var navigationDrawerController: NavigationDrawerController? = null
 

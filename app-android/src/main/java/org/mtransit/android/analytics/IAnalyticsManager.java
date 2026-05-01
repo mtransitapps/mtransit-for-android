@@ -17,10 +17,5 @@ public interface IAnalyticsManager {
 	void logEvent(@NonNull @Size(min = 1L, max = 40L) String name, @Nullable AnalyticsEventsParamsProvider params);
 
 	@MainThread
-	void trackScreenView(@NonNull Trackable page);
-
-	interface Trackable {
-		@NonNull
-		String getScreenName();
-	}
+	void trackScreenView(@NonNull AnalyticsScreen page);
 }

@@ -1,4 +1,3 @@
-@file:JvmName("AgencyTypeFragment") // ANALYTICS
 package org.mtransit.android.ui.type
 
 import android.app.PendingIntent
@@ -186,7 +185,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
+    override val screenName = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
 
     @Inject
     lateinit var adManager: AdManager

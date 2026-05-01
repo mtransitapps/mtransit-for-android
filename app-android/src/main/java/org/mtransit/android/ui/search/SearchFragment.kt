@@ -1,4 +1,3 @@
-@file:JvmName("SearchFragment") // ANALYTICS
 package org.mtransit.android.ui.search
 
 import android.app.PendingIntent
@@ -68,7 +67,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<SearchViewModel>()
     private val attachedViewModel get() = if (isAttached()) viewModel else null
