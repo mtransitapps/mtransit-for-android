@@ -1,4 +1,3 @@
-@file:JvmName("FavoritesFragment") // ANALYTICS
 package org.mtransit.android.ui.favorites
 
 import android.app.PendingIntent
@@ -68,7 +67,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     override val viewModel by viewModels<FavoritesViewModel>()
     override val attachedViewModel

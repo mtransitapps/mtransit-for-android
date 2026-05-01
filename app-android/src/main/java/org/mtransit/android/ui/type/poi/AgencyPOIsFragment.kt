@@ -1,4 +1,3 @@
-@file:JvmName("AgencyPOIsFragment") // ANALYTICS
 package org.mtransit.android.ui.type.poi
 
 import android.content.Context

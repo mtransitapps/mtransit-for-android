@@ -11,7 +11,6 @@ import androidx.annotation.Size;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.ui.view.common.IActivity;
 
 import java.util.Map;
 
@@ -37,7 +36,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 // adb shell setprop debug.firebase.analytics.app .none.
 //
 // https://firebase.google.com/docs/analytics/debugview
-public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
+public class AnalyticsManager implements
+		IAnalyticsManager,
+		MTLog.Loggable {
 
 	private static final String LOG_TAG = AnalyticsManager.class.getSimpleName();
 
@@ -57,7 +58,7 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	private final FirebaseAnalytics firebaseAnalytics;
 
 	@Inject
-	public AnalyticsManager(@NonNull @ApplicationContext Context appContext) {
+	AnalyticsManager(@NonNull @ApplicationContext Context appContext) {
 		if (!ANALYTICS_ENABLED) {
 			//noinspection ConstantConditions
 			firebaseAnalytics = null;
@@ -73,17 +74,19 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void setUserProperty(@NonNull @Size(min = 1L, max = 24L) String name,
-								int value) {
+	public void setUserProperty(
+			@NonNull @Size(min = 1L, max = 24L) String name,
+			int value
+	) {
 		setUserProperty(name, String.valueOf(value));
 	}
 
 	@Override
-	public void setUserProperty(@NonNull @Size(min = 1L, max = 24L) String name,
-								@NonNull String value) {
-		if (!ANALYTICS_ENABLED) {
-			return;
-		}
+	public void setUserProperty(
+			@NonNull @Size(min = 1L, max = 24L) String name,
+			@NonNull String value
+	) {
+		if (!ANALYTICS_ENABLED) return;
 		try {
 			firebaseAnalytics.setUserProperty(name, value);
 		} catch (Exception e) {
@@ -93,21 +96,19 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 
 	@Override
 	public void logEvent(@NonNull @Size(min = 1L, max = 40L) String name) {
-		if (!ANALYTICS_ENABLED) {
-			return;
-		}
+		if (!ANALYTICS_ENABLED) return;
 		logEvent(name, null);
 	}
 
 	@Override
-	public void logEvent(@NonNull @Size(min = 1L, max = 40L) String name,
-						 @Nullable AnalyticsEventsParamsProvider params) {
-		if (!ANALYTICS_ENABLED) {
-			return;
-		}
+	public void logEvent(
+			@NonNull @Size(min = 1L, max = 40L) String name,
+			@Nullable AnalyticsEventsParamsProvider params
+	) {
+		if (!ANALYTICS_ENABLED) return;
 		Bundle bundle = null;
 		if (params != null) {
-			Map<String, Object> paramMap = params.to();
+			final Map<String, Object> paramMap = params.to();
 			bundle = new Bundle();
 			for (Map.Entry<String, Object> param : paramMap.entrySet()) {
 				// Firebase: "String, long and double param types are supported."
@@ -127,14 +128,12 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 
 	@MainThread
 	@Override
-	public void trackScreenView(@NonNull Trackable page) {
-		if (!ANALYTICS_ENABLED) {
-			return;
-		}
+	public void trackScreenView(@NonNull AnalyticsScreen page) {
+		if (!ANALYTICS_ENABLED) return;
 		try {
-			Bundle bundle = new Bundle();
+			final Bundle bundle = new Bundle();
 			bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, page.getScreenName());
-			bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, page.getClass().getSimpleName());
+			bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, page.getScreenClass());
 			firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while tracing screen view! (%s)", page);

@@ -1,4 +1,3 @@
-@file:JvmName("PickPOIDialogFragment") // ANALYTICS
 package org.mtransit.android.ui.pick
 
 import android.app.Dialog

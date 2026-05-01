@@ -1,4 +1,3 @@
-@file:JvmName("NearbyFragment") // ANALYTICS
 package org.mtransit.android.ui.nearby
 
 import android.app.PendingIntent
@@ -170,7 +169,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     @Inject
     lateinit var adManager: AdManager

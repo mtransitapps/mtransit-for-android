@@ -1,4 +1,3 @@
-@file:JvmName("NewsFragment") // ANALYTIC
 package org.mtransit.android.ui.news
 
 import android.annotation.SuppressLint
@@ -150,8 +149,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String =
-        attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
+    override val screenName: String
+        get() = attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.let { "$TRACKING_SCREEN_NAME/$it" }
+            ?: TRACKING_SCREEN_NAME
+
+    override val screenClass = "NewsFragment" // ANALYTICS // do not change
 
     @Inject
     lateinit var imageManager: ImageManager

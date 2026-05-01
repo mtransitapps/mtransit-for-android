@@ -1,4 +1,3 @@
-@file:JvmName("SplashScreenActivity") // ANALYTICS
 package org.mtransit.android.ui.splash
 
 import android.annotation.SuppressLint
@@ -8,6 +7,7 @@ import androidx.annotation.MainThread
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
+import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.ui.MTActivity
@@ -20,7 +20,9 @@ import javax.inject.Inject
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
-open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Trackable {
+open class SplashScreenActivity : MTActivity(),
+    IActivity,
+    AnalyticsScreen {
 
     companion object {
         private val LOG_TAG: String = SplashScreenActivity::class.java.simpleName
@@ -29,7 +31,7 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName() = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     @Inject
     lateinit var analyticsManager: IAnalyticsManager

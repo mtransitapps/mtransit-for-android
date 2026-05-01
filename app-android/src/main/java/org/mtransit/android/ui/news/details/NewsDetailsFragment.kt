@@ -1,4 +1,3 @@
-@file:JvmName("NewsDetailsFragment") // ANALYTICS
 package org.mtransit.android.ui.news.details
 
 import android.annotation.SuppressLint

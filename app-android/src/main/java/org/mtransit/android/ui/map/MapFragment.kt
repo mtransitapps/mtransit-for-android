@@ -1,4 +1,3 @@
-@file:JvmName("MapFragment") // ANALYTICS
 package org.mtransit.android.ui.map
 
 import android.app.PendingIntent
@@ -94,7 +93,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     override val viewModel by viewModels<MapViewModel>()
     override val attachedViewModel
