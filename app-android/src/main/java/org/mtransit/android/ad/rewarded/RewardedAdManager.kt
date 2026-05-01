@@ -1,7 +1,12 @@
 package org.mtransit.android.ad.rewarded
 
+import androidx.annotation.AnyThread
 import androidx.annotation.StringRes
+import androidx.annotation.WorkerThread
+import androidx.core.content.edit
 import com.google.android.gms.ads.rewarded.RewardedAd
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 // import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
@@ -52,6 +57,7 @@ class RewardedAdManager @Inject constructor(
     private var rewardedAd: RewardedAd? = null
     private var rewardedAdActivityHashCode: Int? = null
 
+    @WorkerThread
     fun loadRewardedAdForActivity(activity: IActivity) {
         val theActivity = activity.requireActivity()
         if (this.rewardedAd == null || (this.rewardedAdActivityHashCode != null && this.rewardedAdActivityHashCode != theActivity.hashCode())) {
@@ -65,11 +71,11 @@ class RewardedAdManager @Inject constructor(
                 ),
                 RewardedAdLoadCallback(this, this.crashReporter)
             )
-            val loadCounts = this.defaultPrefRepository.getValue(
+            val loadCounts = this.defaultPrefRepository.pref.getInt(
                 DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS,
                 DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT
             )
-            this.defaultPrefRepository.saveAsync(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, loadCounts + 1)
+            this.defaultPrefRepository.pref.edit { putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, loadCounts + 1) }
         } else {
             logAdsD(this, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${theActivity::class.java.simpleName}...")
         }
@@ -106,26 +112,27 @@ class RewardedAdManager @Inject constructor(
         }
     }
 
-    fun refreshRewardedAdStatus(activity: IActivity) {
-        if (!AdConstants.AD_ENABLED) return
-        val isNotPayingUser = this.globalAdManager.isShowingAds()
+    suspend fun refreshRewardedAdStatus(activity: IActivity) = withContext(Dispatchers.IO) {
+        if (!AdConstants.AD_ENABLED) return@withContext
+        val isNotPayingUser = globalAdManager.isShowingAds()
         if (!isNotPayingUser) {
-            logAdsD(this, "refreshRewardedAdStatus() > SKIP (paying user or unknown)")
-            return
+            logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > SKIP (paying user or unknown)")
+            return@withContext
         }
-        val listener = this.rewardedAdListener
+        val listener = rewardedAdListener
         if (listener == null) {
-            logAdsD(this, "refreshRewardedAdStatus() > SKIP (unknown screen)")
-            return
+            logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > SKIP (unknown screen)")
+            return@withContext
         }
         if (listener.skipRewardedAd()) {
-            logAdsD(this, "refreshRewardedAdStatus() > SKIP (not in this screen)")
-            return
+            logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > SKIP (not in this screen)")
+            return@withContext
         }
-        logAdsD(this, "refreshRewardedAdStatus() > Load if necessary...")
+        logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > Load if necessary...")
         loadRewardedAdForActivity(activity)
     }
 
+    @AnyThread
     fun isRewardedAdAvailableToShow(): Boolean {
         if (!AdConstants.AD_ENABLED) return false
         if (this.demoModeManager.enabled) return false
@@ -142,11 +149,11 @@ class RewardedAdManager @Inject constructor(
         // this.rewardedAd?.adEventCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity) #gmaNextGen
         this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
-        val showCounts = this.defaultPrefRepository.getValue(
+        val showCounts = this.defaultPrefRepository.pref.getInt(
             DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS,
             DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS_DEFAULT
         )
-        this.defaultPrefRepository.saveAsync(DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, showCounts + 1)
+        this.defaultPrefRepository.pref.edit { putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, showCounts + 1) }
         return true
     }
 }

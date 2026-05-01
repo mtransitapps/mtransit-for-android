@@ -118,6 +118,9 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
         viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner) {
             updateServiceUpdatesView()
         }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
     }
 
     private fun updateServiceUpdatesView(
@@ -142,7 +145,7 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
                 setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdatesHTMLText), false), TextView.BufferType.SPANNABLE)
                 movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
                     this@ServiceUpdatesDialog.dismiss()
-                    LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+                    LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowserPref.value)
                 }
                 setBackgroundResource(
                     if (hasWarning) R.drawable.service_update_warning else R.drawable.service_update_info

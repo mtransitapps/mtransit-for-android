@@ -3,6 +3,7 @@ package org.mtransit.android.task;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -163,6 +164,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		);
 	}
 
+	@AnyThread
 	private boolean findServiceUpdate(@NonNull String targetAuthority,
 									  @NonNull String targetUUID,
 									  @NonNull ServiceUpdateLoaderListener mainListener,

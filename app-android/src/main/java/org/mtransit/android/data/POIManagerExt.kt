@@ -5,18 +5,30 @@ import android.location.Location
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.launch
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.provider.FavoriteRepository
+import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
 import org.mtransit.android.util.UIAccessibilityUtils
 
 @Suppress("unused")
 fun Iterable<POIManager>.toStringUUID(): String {
     return this.joinToString { it.poi.uuid }
+}
+
+fun POIManager.addRemoveFavorite(viewLifecycleOwner: LifecycleOwner, activity: FragmentActivity, favoriteRepository: FavoriteRepository) {
+    viewLifecycleOwner.lifecycleScope.launch {
+        favoriteRepository.addOrRemoveFavoriteUI(activity, poi.uuid)
+    }
 }
 
 fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean): CharSequence {

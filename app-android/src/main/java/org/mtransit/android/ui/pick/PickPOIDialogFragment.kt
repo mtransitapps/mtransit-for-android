@@ -24,7 +24,7 @@ import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -83,13 +83,13 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -114,9 +114,9 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
@@ -127,7 +127,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.adapter.setActivity(this)
+        this.adapter.setFragment(this)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -155,6 +155,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
         }
+        this.adapter.onCreateView(viewLifecycleOwner)
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)

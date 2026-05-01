@@ -28,7 +28,7 @@ import org.mtransit.android.databinding.FragmentHomeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -100,13 +100,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -163,14 +163,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
             logTag = this@HomeFragment.logTag
-            setFavoriteUpdateListener { listAdapter.onFavoriteUpdated() }
             setShowBrowseHeaderSection(true)
             setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE)
             setShowTypeHeaderNearby(true)
@@ -215,6 +214,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             }
             setupScreenToolbar(screenToolbarLayout)
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             listAdapter.setLocation(it)
         }

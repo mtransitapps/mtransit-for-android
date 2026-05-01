@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment
 
-import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocationUtils
@@ -25,6 +25,7 @@ import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
@@ -34,6 +35,7 @@ import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIConnectionComparator
@@ -44,6 +46,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
@@ -67,6 +70,8 @@ class POIViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
+    private val favoriteRepository: FavoriteRepository,
+    defaultPrefRepository: DefaultPreferenceRepository,
     remoteConfigProvider: RemoteConfigProvider,
 ) : ViewModel(), MTLog.Loggable {
 
@@ -91,6 +96,14 @@ class POIViewModel @Inject constructor(
     }
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
+
+    val distanceUnitsPref: LiveData<String> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
+    ).distinctUntilChanged()
+
+    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+    ).distinctUntilChanged()
 
     val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
         getPOIManager(agency, uuid)
@@ -436,25 +449,15 @@ class POIViewModel @Inject constructor(
     }
 
     fun onBatteryOptimizationSettingsOpened() {
-        hasSeenDisabledModule = false // click on the message once, show again next module disabled
+        lclPrefRepository.pref.edit {
+            putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, false) // click on the message once, show again next module disabled
+        }
     }
 
-    @get:WorkerThread
-    @set:WorkerThread
-    @get:JvmName("hasSeenDisabledModule")
-    var hasSeenDisabledModule: Boolean = LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        get() = lclPrefRepository.getValue(
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        )
-        private set(value) {
-            if (hasSeenDisabledModule != value) {
-                lclPrefRepository.pref.edit {
-                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, value)
-                }
-                field = value
-            }
-        }
+    val hasSeenDisabledModule: LiveData<Boolean> = lclPrefRepository.pref.liveData(
+        LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
+        LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
+    )
 
     fun refreshAppUpdateAvailable() {
         val agencyProperties = this.agency.value ?: return
@@ -462,4 +465,18 @@ class POIViewModel @Inject constructor(
             dataSourcesRepository.refreshAvailableVersions(forcePkg = agencyProperties.pkg)
         }
     }
+
+    private val _favorite: LiveData<Favorite?> = MediatorLiveData2(this.uuid, favoriteRepository.readingAllFavoritesChange)
+        .switchMap { (uuid, trigger) ->
+            liveData {
+                uuid ?: return@liveData
+                val favorite = favoriteRepository.getFavorite(uuid)
+                emit(favorite)
+                favorite?.let { emitSource(favoriteRepository.getReadingFavoriteById(favorite.id)) }
+            }
+        }
+
+    val isFavorite: LiveData<Boolean> = _favorite.map { it != null }
+
+    val usingFavoriteFolders: LiveData<Boolean> = favoriteRepository.isUsingFolders
 }

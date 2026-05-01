@@ -1,15 +1,18 @@
 package org.mtransit.android.ad
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdInspectorError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.MobileAds
-import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 // import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
 // import com.google.android.libraries.ads.mobile.sdk.banner.AdSize #gmaNextGen
 // import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest #gmaNextGen
@@ -36,11 +39,11 @@ import javax.inject.Inject
  * - https://developers.google.com/admob/android/test-ads
  */
 class AdManager @Inject internal constructor(
-    @param:ApplicationContext private val appContext: Context,
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,
     private val rewardedAdManager: RewardedAdManager,
-) : IAdManager, MTLog.Loggable {
+) : IAdManager,
+    MTLog.Loggable {
 
     companion object {
 
@@ -78,71 +81,88 @@ class AdManager @Inject internal constructor(
         this.globalAdManager.init(activity, this.bannerAdManager)
     }
 
-    override fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity) {
+    override suspend fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity) {
         this.globalAdManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
         onShowingAdsUpdated(activity)
     }
 
-    override fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity) {
+    override suspend fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity) {
         this.globalAdManager.setShowingAds(newShowingAds)
         onShowingAdsUpdated(activity)
     }
 
-    private fun onShowingAdsUpdated(activity: IAdScreenActivity) {
-        this.bannerAdManager.refreshBannerAdStatus(activity, force = false)
+    private suspend fun onShowingAdsUpdated(activity: IAdScreenActivity) {
+        withContext(Dispatchers.Main) {
+            bannerAdManager.refreshBannerAdStatus(activity, force = false)
+        }
         refreshRewardedAdStatus(activity)
     }
 
     // region Banner Ads
 
+    @MainThread
     override fun getBannerHeightInPx(activity: IAdScreenActivity?) = this.bannerAdManager.getBannerHeightInPx(activity)
 
     @MainThread
     override fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration?) = this.bannerAdManager.adaptToScreenSize(activity, configuration)
 
+    @MainThread
     override fun pauseAd(activity: IAdScreenActivity) = this.bannerAdManager.pauseAd(activity)
 
+    @MainThread
     override fun resumeAd(activity: IAdScreenActivity) = this.bannerAdManager.resumeAd(activity)
 
+    @MainThread
     override fun destroyAd(activity: IAdScreenActivity) = this.bannerAdManager.destroyAd(activity)
 
+    @MainThread
     override fun onResumeScreen(activity: IAdScreenActivity) = this.bannerAdManager.onResumeScreen(activity)
 
+    @MainThread
     override fun onTimeChanged(activity: IAdScreenActivity) = this.bannerAdManager.onTimeChanged(activity)
 
     // endregion Banner Ads
 
     // region Rewarded Ads
 
+    override val rewardedUntilInMsLive: LiveData<Long> get() = this.globalAdManager.rewardedUntilInMs
+    override val rewardedNowLive: LiveData<Boolean> get() = this.globalAdManager.rewardedNow
+
+    @WorkerThread
     override fun getRewardedUntilInMs() = this.globalAdManager.getRewardedUntilInMs()
 
     override fun resetRewarded() = this.globalAdManager.resetRewarded()
 
+    @WorkerThread
     override fun isRewardedNow() = this.globalAdManager.isRewardedNow()
 
     override fun setRewardedAdListener(rewardedAdListener: IAdManager.RewardedAdListener?) {
         this.rewardedAdManager.rewardedAdListener = rewardedAdListener
     }
 
+    @WorkerThread
     override fun shouldSkipRewardedAd() = this.globalAdManager.shouldSkipRewardedAd()
 
     override fun linkRewardedAd(activity: IActivity) = this.rewardedAdManager.linkRewardedAd(activity)
 
     override fun unlinkRewardedAd(activity: IActivity) = this.rewardedAdManager.unlinkRewardedAd(activity)
 
-    override fun refreshRewardedAdStatus(activity: IActivity) = this.rewardedAdManager.refreshRewardedAdStatus(activity)
+    override suspend fun refreshRewardedAdStatus(activity: IActivity) = this.rewardedAdManager.refreshRewardedAdStatus(activity)
 
+    @AnyThread
     override fun isRewardedAdAvailableToShow() = this.rewardedAdManager.isRewardedAdAvailableToShow()
 
     override fun showRewardedAd(activity: IActivity) = this.rewardedAdManager.showRewardedAd(activity)
 
+    @AnyThread
     override fun getRewardedAdAmount() = this.globalAdManager.getRewardedAdAmount()
 
+    @AnyThread
     override fun getRewardedAdAmountInMs() = this.globalAdManager.getRewardedAdAmountInMs()
 
     // endregion Rewarded Ads
 
-    override fun openAdInspector(activity:IActivity) {
+    override fun openAdInspector(activity: IActivity) {
         // MobileAds.openAdInspector { error: AdInspectorError? -> #gmaNextGen
         MobileAds.openAdInspector(activity.requireActivity()) { error: AdInspectorError? ->
             if (error == null) {

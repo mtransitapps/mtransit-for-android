@@ -75,7 +75,7 @@ class DataSourcesRepository @Inject constructor(
 
     fun getAllAgencies() = this.dataSourcesInMemoryCache.getAllAgencies()
 
-    fun getAllTypeToAgencies() = getAllAgencies().groupBy {
+    fun getAllAgenciesByType() = getAllAgencies().groupBy {
         it.getSupportedType()
     }
 
@@ -85,6 +85,8 @@ class DataSourcesRepository @Inject constructor(
             .filterDemoModeAgency(demoModeManager)
             .sortedWith(defaultAgencyComparator)
     }.distinctUntilChanged()
+
+    fun readingAllAgenciesByType() = readingAllAgencies().map { it.groupBy { it.getSupportedType() } }
 
     fun readingAllAgenciesBase() = this.dataSourcesIOCache.readingAllAgenciesBase().map { agencies ->
         agencies

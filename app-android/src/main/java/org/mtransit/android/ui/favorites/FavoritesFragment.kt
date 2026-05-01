@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.MainThread
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
@@ -23,8 +24,8 @@ import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
-import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener
+import org.mtransit.android.provider.FavoriteRepository
+import org.mtransit.android.provider.favorite.FavoritesUI.showAddFolderDialog
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -48,7 +49,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     DeviceLocationListener,
-    FavoriteUpdateListener,
     ModuleDisabledAwareFragment,
     MenuProvider {
 
@@ -87,13 +87,13 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -112,15 +112,14 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
             logTag = this@FavoritesFragment.logTag
             setShowFavorite(false) // all items in this screen are favorites
-            setFavoriteUpdateListener(this@FavoritesFragment)
             setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY)
             setTimeChangedListener { this@FavoritesFragment.onTimeChanged() }
         }
@@ -128,7 +127,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.listAdapter.setActivity(this)
+        this.listAdapter.setFragment(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -142,6 +141,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             }
             setupScreenToolbar(screenToolbarLayout)
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.oneAgency.observe(viewLifecycleOwner) { oneAgency ->
             updateEmptyLayout(pkg = oneAgency?.pkg)
         }
@@ -187,6 +187,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
     }
 
+    @MainThread
     private fun onTimeChanged() {
         (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
@@ -209,10 +210,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 }
             }
         }
-    }
-
-    override fun onFavoriteUpdated() {
-        attachedViewModel?.onFavoriteUpdated()
     }
 
     override fun onResume() {
@@ -246,7 +243,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
                 activity?.let {
-                    this.favoriteManager.showAddFolderDialog(it, this, null, null)
+                    favoriteRepository.showAddFolderDialog(it)
                 }
                 true // handled
             }

@@ -109,7 +109,7 @@ class AppRatingsManager @Inject constructor(
 
     @Suppress("MemberVisibilityCanBePrivate")
     private suspend fun onAppRequestDisplayed(trackingScreen: IAnalyticsManager.Trackable? = null) = withContext(Dispatchers.IO) {
-        val currentAppOpenCount = defaultPrefRepository.getValue(
+        val currentAppOpenCount = defaultPrefRepository.pref.getInt(
             DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS,
             DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS_DEFAULT
         )

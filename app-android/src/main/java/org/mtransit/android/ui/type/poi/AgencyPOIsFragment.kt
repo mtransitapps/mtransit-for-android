@@ -24,7 +24,7 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -109,13 +109,13 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -189,9 +189,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
@@ -233,6 +233,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             }
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             colorInt?.let {
                 binding?.apply {
@@ -247,6 +248,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 }
             }
         }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
         viewModel.agency.observe(viewLifecycleOwner) { agency ->
             theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             listAdapter.logTag = this@AgencyPOIsFragment.logTag
@@ -256,7 +260,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     isVisible = true
                     setOnClickListener {
                         activity?.let { activity ->
-                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true, viewModel.useInternalWebBrowserPref.value)
                         }
                     }
                 } ?: run {
@@ -366,7 +370,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDataSourcesRepository(dataSourcesRepository)
+            setDI(dataSourcesRepository, lclPrefRepository)
             onAttach(requireActivity())
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }

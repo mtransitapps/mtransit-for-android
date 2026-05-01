@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.onResumeKt;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.setupViewKt;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.startVehicleLocationCountdownRefresh;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.stopVehicleLocationCountdownRefresh;
 
@@ -30,6 +32,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.WorkerThread;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
@@ -87,7 +90,7 @@ import org.mtransit.android.databinding.LayoutPoiRewardedAdBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.dev.DemoModeManager;
-import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.provider.FavoriteRepository;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -96,6 +99,7 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.location.UILocationUtils;
 import org.mtransit.android.ui.main.NextMainViewModel;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
@@ -110,7 +114,6 @@ import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
 import org.mtransit.android.ui.view.common.EventObserver;
 import org.mtransit.android.ui.view.common.FragmentKtxKt;
-import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
@@ -142,7 +145,6 @@ public class POIFragment extends ABFragment implements
 		SensorEventListener,
 		MTSensorManager.CompassListener,
 		MTSensorManager.SensorTaskCompleted,
-		FavoriteManager.FavoriteUpdateListener,
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
 		IContext,
 		IAdManager.RewardedAdListener,
@@ -231,13 +233,13 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	IAnalyticsManager analyticsManager;
 	@Inject
-	FavoriteManager favoriteManager;
+	FavoriteRepository favoriteRepository;
 	@Inject
 	DemoModeManager demoModeManager;
 	@Inject
 	DefaultPreferenceRepository defaultPrefRepository;
 	@Inject
-	LocalPreferenceRepository localPreferenceRepository;
+	LocalPreferenceRepository lclPrefRepository;
 	@Inject
 	ImageManager imageManager;
 
@@ -296,7 +298,6 @@ public class POIFragment extends ABFragment implements
 			}
 		}
 		refreshAppUpdateLayout();
-		refreshAppWasDisabledLayout();
 		if (viewModel != null) {
 			viewModel.refreshAppUpdateAvailable();
 		}
@@ -360,13 +361,10 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		setPOIProperties();
-		if (this.deviceLocation != null) {
-			LocationUtils.updateDistanceWithString(context, this.poim, this.deviceLocation);
-		}
+		updateDistanceString();
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		resetFavorite();
 		this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());
 		POIViewController.updateView(getPOIView(), this.poim, this);
 		POIStatusDetailViewController.updateView(getPOIStatusView(), this.poim, this);
@@ -377,8 +375,22 @@ public class POIFragment extends ABFragment implements
 		setupAppWasDisabledButton();
 		setupRewardedAdButton();
 		setupMoreNearbyButton();
-		updateFabFavorite();
 		setupNearbyList();
+	}
+
+	@Nullable
+	private String distanceUnitPref = null;
+
+	private void onDistanceUnitPrefLoaded(@Nullable String distanceUnitPref) {
+		this.distanceUnitPref = distanceUnitPref;
+		updateDistanceString();
+	}
+
+	private void updateDistanceString() {
+		if (this.distanceUnitPref == null) return;
+		if (this.deviceLocation == null) return;
+		if (this.poim == null) return;
+		UILocationUtils.updateDistanceWithStringNN(this.distanceUnitPref, this.poim, this.deviceLocation);
 	}
 
 	private void onNewsLoaded(@Nullable List<News> news) {
@@ -495,7 +507,7 @@ public class POIFragment extends ABFragment implements
 		super.onAttach(context);
 		initAdapters(this);
 		setupMapViewController();
-		this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);
+		this.mapViewController.setDI(this.dataSourcesRepository, this.lclPrefRepository);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));
 		this.mapViewController.onAttach(requireActivity());
 	}
@@ -530,7 +542,7 @@ public class POIFragment extends ABFragment implements
 		return inflater.inflate(R.layout.fragment_poi, container, false);
 	}
 
-	private @Nullable FragmentPoiBinding binding = null;
+	protected @Nullable FragmentPoiBinding binding = null;
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -542,6 +554,9 @@ public class POIFragment extends ABFragment implements
 			nextMainViewModel = new ViewModelProvider(requireActivity()).get(NextMainViewModel.class);
 		}
 		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
+		if (this.adapter != null) {
+			this.adapter.onCreateView(getViewLifecycleOwner());
+		}
 		viewModel.getDataSourceRemovedEvent().observe(getViewLifecycleOwner(), new EventObserver<>(removed -> {
 			if (removed) {
 				onDataSourceRemoved();
@@ -550,13 +565,20 @@ public class POIFragment extends ABFragment implements
 		}));
 		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
+		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitPrefLoaded);
+		viewModel.getUseInternalWebBrowserPref().observe(getViewLifecycleOwner(), this::onUseInternalWebBrowserPrefLoaded);
 		viewModel.getHasScheduleProviders().observe(getViewLifecycleOwner(), hasScheduleProviders -> setupRDSFullScheduleBtn());
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
 		viewModel.getPoiList().observe(getViewLifecycleOwner(), this::onPOIsLoaded);
+		viewModel.isFavorite().observe(getViewLifecycleOwner(), this::onFavoriteLoaded);
+		viewModel.getUsingFavoriteFolders().observe(getViewLifecycleOwner(), this::onUsingFavoriteFoldersLoaded);
+		viewModel.getHasSeenDisabledModule().observe(getViewLifecycleOwner(), this::onHasSeenDisabledModuleLoaded);
 		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
 			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
 		}
+		this.adManager.getRewardedUntilInMsLive().observe(getViewLifecycleOwner(), rewardedUntilInMs -> refreshRewardedLayout());
+		this.adManager.getRewardedNowLive().observe(getViewLifecycleOwner(), rewardedNow -> refreshRewardedLayout());
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
@@ -701,15 +723,16 @@ public class POIFragment extends ABFragment implements
 				this.sensorManager,
 				this.dataSourcesRepository,
 				this.defaultPrefRepository,
-				this.localPreferenceRepository,
+				this.lclPrefRepository,
 				this.poiRepository,
-				this.favoriteManager,
+				this.favoriteRepository,
 				this.sharedStatusLoader,
 				this.sharedServiceUpdateLoader
 		);
 		this.adapter.setLogTag(getLogTag());
 	}
 
+	@MainThread
 	private void setupView() {
 		if (this.binding == null) return;
 		setupScreenToolbar(this.binding.screenToolbarLayout);
@@ -722,19 +745,7 @@ public class POIFragment extends ABFragment implements
 			this.adapter.setManualScrollView(this.binding.scrollView);
 			this.adapter.setManualLayout(this.binding.poiNearbyPoisList);
 		}
-		this.binding.fabFavorite.setOnClickListener(v -> {
-					POIManager poim = getPoimOrNull();
-					if (poim != null && poim.isFavoritable()) {
-						this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
-					}
-				}
-		);
-		EdgeToEdgeKt.setUpFabEdgeToEdge(
-				this.binding.fabFavorite,
-				R.dimen.fab_auto_margin_end,
-				R.dimen.fab_auto_margin_bottom
-		);
-		updateFabFavorite();
+		setupViewKt(this);
 		setupNewsLayout();
 		setupServiceUpdateLayout();
 	}
@@ -1012,9 +1023,16 @@ public class POIFragment extends ABFragment implements
 		POIServiceUpdateViewController.updateServiceUpdate(getPOIServiceUpdateView(), serviceUpdates, this);
 	}
 
+	@Nullable
+	private Boolean useInternalWebBrowserPref = null;
+
+	private void onUseInternalWebBrowserPrefLoaded(@Nullable Boolean useInternalWebBrowserPref) {
+		this.useInternalWebBrowserPref = useInternalWebBrowserPref;
+	}
+
 	@Override
 	public boolean onURLClick(@NonNull View view, @NonNull String url) {
-		return LinkUtils.open(view, requireActivity(), url, getString(org.mtransit.android.commons.R.string.web_browser), true);
+		return LinkUtils.open(view, requireActivity(), url, getString(org.mtransit.android.commons.R.string.web_browser), true, this.useInternalWebBrowserPref);
 	}
 
 	@Nullable
@@ -1028,13 +1046,13 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public void onLocationSettingsResolution(@Nullable PendingIntent resolution) {
+		// DO NOTHING
 	}
 
+	@MainThread
 	@Override
 	public void onDeviceLocationChanged(@Nullable Location newLocation) {
-		if (newLocation == null) {
-			return;
-		}
+		if (newLocation == null) return;
 		final Context context = getContext();
 		if (this.deviceLocation == null && context != null) {
 			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));
@@ -1046,9 +1064,9 @@ public class POIFragment extends ABFragment implements
 				sensorManager.registerCompassListener(this, this);
 				this.compassUpdatesEnabled = true;
 			}
+			updateDistanceString();
 			final POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				LocationUtils.updateDistanceWithString(requireContext(), poim, newLocation);
 				POIViewController.updatePOIDistanceAndCompass(getPOIView(), poim, this);
 			}
 			this.mapViewController.onDeviceLocationChanged(this.deviceLocation);
@@ -1109,11 +1127,10 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
+	@MainThread
 	@Override
 	public void onResume() {
 		super.onResume();
-		resetFavorite(); // force refresh
-		getFavoriteFolderId();
 		enableTimeChangedReceiver();
 		this.showingAccessibilityInfo = null; // force user preference check
 		this.mapViewController.onResume();
@@ -1138,7 +1155,7 @@ public class POIFragment extends ABFragment implements
 		}
 		onDeviceLocationChanged(((MTActivityWithLocation) requireActivity()).getDeviceLocation());
 		this.adManager.setRewardedAdListener(this);
-		this.adManager.refreshRewardedAdStatus((IActivity) requireActivity());
+		onResumeKt(this);
 		refreshRewardedLayout();
 		refreshAppUpdateLayout();
 		if (this.viewModel != null) {
@@ -1147,7 +1164,6 @@ public class POIFragment extends ABFragment implements
 			this.viewModel.startVehicleLocationRefresh();
 			startVehicleLocationCountdownRefresh(this);
 		}
-		refreshAppWasDisabledLayout();
 		if (FeatureFlags.F_NAVIGATION) {
 			if (nextMainViewModel != null) {
 				nextMainViewModel.setABBgColor(getABBgColor(getContext()));
@@ -1155,6 +1171,7 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
+	@WorkerThread
 	@Override
 	public boolean skipRewardedAd() {
 		return this.adManager.shouldSkipRewardedAd();
@@ -1175,13 +1192,15 @@ public class POIFragment extends ABFragment implements
 	private void refreshRewardedLayout() {
 		final LayoutPoiRewardedAdBinding rewardedLayout = this.binding == null ? null : this.binding.poiRewardedAd;
 		if (rewardedLayout == null) return;
+		final Long rewardedUntilInMs = this.adManager.getRewardedUntilInMsLive().getValue();
+		if (rewardedUntilInMs == null) return;
+		final Boolean rewardedNow = this.adManager.getRewardedNowLive().getValue();
+		if (rewardedNow == null) return;
+		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
+		final int rewardedAmount = this.adManager.getRewardedAdAmount();
+
 		final TextView rewardedAdTitleTv = rewardedLayout.rewardedAdsTitleLayout.rewardAdTitle;
 		final TextView rewardedAdsBtn = rewardedLayout.rewardedAdsBtn;
-
-		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
-		final boolean rewardedNow = this.adManager.isRewardedNow();
-		final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
-		final int rewardedAmount = this.adManager.getRewardedAdAmount();
 
 		rewardedLayout.getRoot().setVisibility(availableToShow ? View.VISIBLE : View.GONE);
 
@@ -1242,7 +1261,13 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
-	private void refreshAppWasDisabledLayout() {
+	private void onHasSeenDisabledModuleLoaded(@Nullable Boolean hasSeenDisabledModule) {
+		if (hasSeenDisabledModule == null) return;
+		refreshAppWasDisabledLayout(hasSeenDisabledModule);
+	}
+
+	@MainThread
+	private void refreshAppWasDisabledLayout(boolean appWasDisabled) {
 		final LayoutPoiAppWasDisabledBinding appWasDisabledLayout = this.binding == null ? null : this.binding.poiModuleWasDisabled;
 		if (appWasDisabledLayout == null) {
 			MTLog.d(this, "refreshAppWasDisabledLayout() > SKIP (no layout)");
@@ -1254,7 +1279,6 @@ public class POIFragment extends ABFragment implements
 		}
 		final IAgencyUpdatableProperties agency = getAgencyOrNull();
 		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
-		boolean appWasDisabled = this.viewModel != null && this.viewModel.hasSeenDisabledModule();
 		if (appUpdateAvailable) {
 			appWasDisabled = false; // avoid too many messages
 		} else if (demoModeManager.isFullDemo()) {
@@ -1390,41 +1414,10 @@ public class POIFragment extends ABFragment implements
 		return false;
 	}
 
-	@Nullable
-	private Integer favoriteFolderId = null;
-
-	@Nullable
-	private Integer getFavoriteFolderId() {
-		if (this.favoriteFolderId == null) {
-			POIManager poim = getPoimOrNull();
-			if (poim != null) {
-				this.favoriteFolderId = this.favoriteManager.findFavoriteFolderId(requireContext(), poim.poi.getUUID());
-			}
-		}
-		return this.favoriteFolderId;
-	}
-
-	public boolean isFavorite() {
-		if (this.favoriteFolderId == null) {
-			POIManager poim = getPoimOrNull();
-			if (poim != null) {
-				this.favoriteFolderId = this.favoriteManager.findFavoriteFolderId(requireContext(), poim.poi.getUUID());
-			}
-		}
-		return getFavoriteFolderId() != null && getFavoriteFolderId() >= 0;
-	}
-
-	private void resetFavorite() {
-		this.favoriteFolderId = null;
-	}
-
 	@Override
-	public boolean isFavorite(@NonNull String uuid) {
-		POIManager poim = getPoimOrNull();
-		if (poim != null && poim.poi.getUUID().equals(uuid)) {
-			return isFavorite();
-		}
-		return this.favoriteManager.isFavorite(requireContext(), uuid);
+	public boolean isFavorite() {
+		final Boolean isFavorite = viewModel == null ? null : viewModel.isFavorite().getValue();
+		return Boolean.TRUE.equals(isFavorite);
 	}
 
 	@Override
@@ -1482,7 +1475,10 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public boolean isShowingAccessibilityInfo() {
 		if (this.showingAccessibilityInfo == null) {
-			this.showingAccessibilityInfo = this.defaultPrefRepository.getValue(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT);
+			this.showingAccessibilityInfo = this.defaultPrefRepository.getPref().getBoolean(
+					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY,
+					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
+			);
 		}
 		return this.showingAccessibilityInfo;
 	}
@@ -1497,20 +1493,29 @@ public class POIFragment extends ABFragment implements
 		updateFaresMenuItem();
 	}
 
-	private void updateFabFavorite() {
+	private void onUsingFavoriteFoldersLoaded(@Nullable Boolean usingFavoriteFolders) {
+		final Boolean isFavorite = viewModel == null ? null : viewModel.isFavorite().getValue();
+		updateFabFavorite(isFavorite, usingFavoriteFolders);
+	}
+
+	private void onFavoriteLoaded(@Nullable Boolean isFavorite) {
+		final Boolean usingFavoriteFolders = viewModel == null ? null : viewModel.getUsingFavoriteFolders().getValue();
+		updateFabFavorite(isFavorite, usingFavoriteFolders);
+	}
+
+	private void updateFabFavorite(@Nullable Boolean isFavorite, @Nullable Boolean usingFavoriteFolders) {
 		if (this.binding == null) return;
 		final FloatingActionButton fabFavorite = this.binding.fabFavorite;
 		final POIManager poim = getPoimOrNull();
-		if (poim == null || !poim.isFavoritable()) {
+		if (isFavorite == null || poim == null || !poim.isFavoritable()) {
 			fabFavorite.hide();
 			return;
 		}
-		final boolean isFav = isFavorite();
 		@DrawableRes int iconResId;
 		@StringRes int contentDescriptionResId;
-		if (isFav) {
+		if (isFavorite) {
 			iconResId = R.drawable.ic_star_black_24dp;
-			if (this.favoriteManager.isUsingFavoriteFolders()) {
+			if (Boolean.TRUE.equals(usingFavoriteFolders)) {
 				contentDescriptionResId = R.string.menu_action_edit_favorite;
 			} else {
 				contentDescriptionResId = R.string.menu_action_remove_favorite;
@@ -1542,7 +1547,7 @@ public class POIFragment extends ABFragment implements
 			final AgencyProperties agency = getAgencyOrNull();
 			final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
 			if (!TextUtils.isEmpty(faresWebUrl)) {
-				LinkUtils.open(this.binding == null ? null : this.binding.getRoot(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true);
+				LinkUtils.open(this.binding == null ? null : this.binding.getRoot(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true, this.useInternalWebBrowserPref);
 				return true; // handled
 			}
 		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
@@ -1555,21 +1560,11 @@ public class POIFragment extends ABFragment implements
 					optSrcLat = this.deviceLocation.getLatitude();
 					optSrcLng = this.deviceLocation.getLongitude();
 				}
-				MapUtils.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName());
+				MapUtils.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName(), this.useInternalWebBrowserPref);
 				return true; // handled
 			}
 		}
 		return false; // not handled
-	}
-
-	@Override
-	public void onFavoriteUpdated() {
-		resetFavorite();
-		updateFabFavorite();
-		final POIManager poim = getPoimOrNull();
-		if (poim != null) {
-			POIViewController.updateView(getPOIView(), poim, this);
-		}
 	}
 
 	@Override

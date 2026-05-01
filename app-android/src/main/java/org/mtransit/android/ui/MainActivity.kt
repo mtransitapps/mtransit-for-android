@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -23,6 +24,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -38,9 +40,12 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.pref.liveData
+import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
@@ -127,6 +132,9 @@ class MainActivity : MTActivityWithLocation(),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+
+    @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
@@ -165,36 +173,52 @@ class MainActivity : MTActivityWithLocation(),
             this.crashReporter,
             this.analyticsManager,
             this.dataSourcesRepository,
+            this.defaultPrefRepository,
+            this.lclPrefRepository,
             this.statusLoader,
             this.consentManager,
             this.packageManager,
             this.serviceUpdateLoader,
-            this.demoModeManager
+            this.demoModeManager,
         ).also { navigationDrawerController ->
             navigationDrawerController.onCreate(savedInstanceState)
         }
         supportFragmentManager.addOnBackStackChangedListener(this)
         this.dataSourcesRepository.readingHasAgenciesEnabled().observe(this, Observer { hasAgenciesEnabled: Boolean? ->
-            this.adManager.onHasAgenciesEnabledUpdated(
-                hasAgenciesEnabled,
-                this,
-            ) // ad-manager does not persist activity but listen for changes itself
+            lifecycleScope.launch(Dispatchers.IO) {
+                adManager.onHasAgenciesEnabledUpdated(
+                    hasAgenciesEnabled,
+                    this@MainActivity,
+                ) // ad-manager does not persist activity but listen for changes itself
+            }
             this.abController?.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
         })
+        this.lclPrefRepository.pref.liveDataN<String>(
+            LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, null
+        ).observe(this) {
+            this.navigationDrawerController?.onSelectedScreenItemIdChanged(it)
+        }
+        this.defaultPrefRepository.pref.liveData(
+            DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+        ).distinctUntilChanged().observe(this) {
+            this.navigationDrawerController?.onUseInternalWebBrowserPrefChanged(it)
+        }
         this.dataSourcesRepository.readingHasAgenciesAdded().observe(this, Observer { hasAgenciesAdded: Boolean? ->
             if (hasAgenciesAdded == true) {
                 onHasAgenciesAddedChanged()
             }
         })
         this.billingManager.currentSubscription.observe(this, Observer { _: String? -> })
-        MapUtils.fixScreenFlickering(findViewById<ViewGroup?>(R.id.content_frame))
+        MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
         ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
     }
 
     override fun onBillingResult(productId: String?) {
         val hasSubscription = if (productId == null) null else !productId.isEmpty()
         if (hasSubscription != null) {
-            this.adManager.setShowingAds(!hasSubscription, this)
+            lifecycleScope.launch(Dispatchers.IO) {
+                adManager.setShowingAds(!hasSubscription, this@MainActivity)
+            }
         }
     }
 
@@ -269,6 +293,7 @@ class MainActivity : MTActivityWithLocation(),
         // DO NOTHING
     }
 
+    @WorkerThread
     override fun skipRewardedAd() = this.adManager.shouldSkipRewardedAd()
 
     var isMTResumed = false
