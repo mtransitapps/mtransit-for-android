@@ -59,13 +59,14 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
                     emit(it)
                 }
         }
-    }.observe(viewLifecycleOwner) { dstIdToSelectedAuthority ->
-        this.dstIdToSelectedAuthority = dstIdToSelectedAuthority
-        if (this.showBrowseHeaderSection || this.showTypeHeader == POIArrayAdapter.TYPE_HEADER_ALL_NEARBY) {
-            this.nbDisplayedAgencyTypes = -1 // reset
-            notifyDataSetChanged()
+    }.distinctUntilChanged() // listening all shared pref changes
+        .observe(viewLifecycleOwner) { dstIdToSelectedAuthority ->
+            this.dstIdToSelectedAuthority = dstIdToSelectedAuthority
+            if (this.showBrowseHeaderSection || this.showTypeHeader == POIArrayAdapter.TYPE_HEADER_ALL_NEARBY) {
+                this.nbDisplayedAgencyTypes = -1 // reset
+                notifyDataSetChanged()
+            }
         }
-    }
     this.favoriteRepository.readingAllFavorites.observe(viewLifecycleOwner) { allFavorites ->
         setFavorites(allFavorites)
     }
