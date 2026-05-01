@@ -97,7 +97,7 @@ class DataSourcesReader @Inject constructor(
             "org.mtransit.android.ca_chilliwack_transit_system_bus", // merged into ca_central_fraser_valley_transit_system_bus
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
             "org.mtransit.android.ca_fort_erie_transit_bus", // not supported anymore
-            "org.mtransit.android.ca_fraser_valley_express_bus.debug", // merged into ca_central_fraser_valley_transit_system_bus
+            "org.mtransit.android.ca_fraser_valley_express_bus", // merged into ca_central_fraser_valley_transit_system_bus
             "org.mtransit.android.ca_haut_st_laurent_cithsl_bus", // not supported anymore
             "org.mtransit.android.ca_joliette_ctjm_bus", // not supported anymore
             "org.mtransit.android.ca_lanaudiere_crtl_bus", // not supported anymore
