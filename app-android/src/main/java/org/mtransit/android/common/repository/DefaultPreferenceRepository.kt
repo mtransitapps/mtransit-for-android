@@ -7,6 +7,7 @@ import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
+import org.mtransit.android.commons.PreferenceUtils
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -82,7 +83,7 @@ class DefaultPreferenceRepository @Inject constructor(
 
         @Suppress("DEPRECATION")
         @JvmStatic
-        fun makePref(context: Context): SharedPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+        fun makePref(context: Context): SharedPreferences = PreferenceUtils.getPrefDefault(context)
     }
 
     @Suppress("FunctionName")

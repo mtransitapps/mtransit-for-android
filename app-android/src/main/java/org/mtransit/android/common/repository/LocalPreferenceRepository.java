@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PreferenceUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -111,12 +112,10 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 		return makePref(requireContext());
 	}
 
-	private static final String LCL_PREF_NAME = "lcl";
-
 	@WorkerThread
 	@NonNull
 	public static SharedPreferences makePref(@NonNull Context context) {
-		return context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE);
+		return PreferenceUtils.getPrefLcl(context);
 	}
 
 }

@@ -2,6 +2,7 @@ package org.mtransit.android.provider;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -176,6 +177,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public boolean onCreateMT() {
 		dataSourcesRepository().readingAllAgencies().observeForever(agencyProperties -> { // SINGLETON
+			//noinspection resource
 			Executors.newSingleThreadExecutor().execute(this::deleteAllModuleStatusData);
 		});
 		return super.onCreateMT();
@@ -349,9 +351,19 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return MODULE_VALIDITY_IN_MS;
 	}
 
+	private SharedPreferences storage = null;
+
+	@NonNull
+	private SharedPreferences getStorage(@NonNull Context context) {
+		if (this.storage == null) {
+			this.storage = LocalPreferenceRepository.makePref(context);
+		}
+		return this.storage;
+	}
+
 	@WorkerThread
 	private void updateModuleDataIfRequired(@NonNull Context context) {
-		final long lastUpdateInMs = LocalPreferenceRepository.makePref(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L);
+		final long lastUpdateInMs = getStorage(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L);
 		final long nowInMs = UITimeUtils.currentTimeMillis();
 		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
 			deleteAllModuleData();
@@ -376,7 +388,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@WorkerThread
 	private synchronized void updateAllModuleDataFromWWW(@NonNull Context context, long oldLastUpdatedInMs) {
-		if (LocalPreferenceRepository.makePref(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) return; // too late, another thread already updated
+		if (getStorage(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) return; // too late, another thread already updated
 		loadDataFromWWW(context);
 	}
 
@@ -399,7 +411,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			}
 			deleteAllModuleData();
 			insertModulesLockDB(this, modules);
-			LocalPreferenceRepository.makePref(context).edit()
+			getStorage(context).edit()
 					.putLong(PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs)
 					.apply();
 			return modules;
@@ -650,7 +662,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@WorkerThread
 	@NonNull
 	private ModuleDbHelper getNewDbHelper(@NonNull Context context) {
-		return new ModuleDbHelper(context.getApplicationContext());
+		return new ModuleDbHelper(context.getApplicationContext(), getStorage(context));
 	}
 
 	@Override
@@ -709,7 +721,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_COLOR, ModuleColumns.T_MODULE_K_COLOR) //
 				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_LOCATION) //
 				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_NAME_FR, ModuleColumns.T_MODULE_K_NAME_FR) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE); //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE) //
 				;
 		return builder.build();
 		// @formatter:on

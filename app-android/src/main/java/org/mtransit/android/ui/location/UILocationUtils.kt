@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.location
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.location.Address
 import android.location.Location
 import androidx.annotation.WorkerThread
@@ -76,9 +77,13 @@ object UILocationUtils : LocationUtils() {
         }
     }
 
+    private var _storage: SharedPreferences? = null
+
+    private fun getStorage(context: Context) = _storage ?: DefaultPreferenceRepository.makePref(context).also { _storage = it }
+
     @WorkerThread
     private fun getPrefUnit(context: Context) =
-        DefaultPreferenceRepository.makePref(context).getString(DefaultPreferenceRepository.PREFS_UNITS, DefaultPreferenceRepository.PREFS_UNITS_DEFAULT)
+        getStorage(context).getString(DefaultPreferenceRepository.PREFS_UNITS, DefaultPreferenceRepository.PREFS_UNITS_DEFAULT)
 
     @WorkerThread
     private fun getDistanceStringUsingPref(context: Context, distanceInMeters: Float, accuracyInMeters: Float): String {

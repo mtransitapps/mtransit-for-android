@@ -92,7 +92,9 @@ public final class LinkUtils implements MTLog.Loggable {
 		if (www && (!FeatureFlags.F_NAVIGATION || view != null)) {
 			boolean useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
 					&& DefaultPreferenceRepository.makePref(activity)
-					.getBoolean(DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
+					.getBoolean(
+							DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+					);
 			if (useInternalWebBrowser) {
 				if (FeatureFlags.F_NAVIGATION) {
 					final NavController navController = Navigation.findNavController(view);
