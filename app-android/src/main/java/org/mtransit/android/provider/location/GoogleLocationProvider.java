@@ -8,7 +8,6 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -33,7 +32,6 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.dev.FakeLocation;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
-import org.mtransit.android.ui.location.UILocationUtils;
 
 import java.util.WeakHashMap;
 
@@ -98,12 +96,14 @@ public class GoogleLocationProvider
 	private final CrashReporter crashReporter;
 
 	@Inject
-	GoogleLocationProvider(@NonNull @ApplicationContext Context appContext,
-						   @NonNull LocationPermissionProvider permissionProvider,
-						   @NonNull DemoModeManager demoModeManager,
-						   @NonNull DataSourcesRepository dataSourcesRepository,
-						   @NonNull IAnalyticsManager analyticsManager,
-						   @NonNull CrashReporter crashReporter) {
+	GoogleLocationProvider(
+			@NonNull @ApplicationContext Context appContext,
+			@NonNull LocationPermissionProvider permissionProvider,
+			@NonNull DemoModeManager demoModeManager,
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull IAnalyticsManager analyticsManager,
+			@NonNull CrashReporter crashReporter
+	) {
 		this.appContext = appContext;
 		this.permissionProvider = permissionProvider;
 		this.demoModeManager = demoModeManager;
@@ -118,9 +118,7 @@ public class GoogleLocationProvider
 			onLocationProviderReady();
 			return;
 		}
-		if (!this.dataSourcesRepository.hasAgenciesAdded()) {
-			return; // wait until 1 module is installed
-		}
+		if (!this.dataSourcesRepository.hasAgenciesAdded()) return; // wait until 1 module is installed
 		doSetup(screenWithLocationView);
 	}
 
@@ -320,22 +318,6 @@ public class GoogleLocationProvider
 			this.settingsClient = LocationServices.getSettingsClient(this.appContext);
 		}
 		return this.settingsClient;
-	}
-
-	@WorkerThread
-	@NonNull
-	@Override
-	public String getLocationAddressString(@NonNull Location location) {
-		return UILocationUtils.getLocationString(
-				this.appContext,
-				LocationUtils.getLocationAddress(this.appContext, location),
-				location.getAccuracy()
-		);
-	}
-
-	@Override
-	public void updateDistanceWithString(@Nullable LocationUtils.LocationPOI poi, @Nullable Location currentLocation) {
-		UILocationUtils.updateDistanceWithString(this.appContext, poi, currentLocation);
 	}
 
 	@Override

@@ -117,4 +117,8 @@ class AgencyPOIsViewModel @Inject constructor(
             }
         }
     }
+
+    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+    ).distinctUntilChanged()
 }

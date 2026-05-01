@@ -1,11 +1,14 @@
 package org.mtransit.android.data
 
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.pref.preferenceChangeLiveData
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData4
@@ -74,5 +77,11 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     }
     this.favoriteRepository.isUsingFolders.observe(viewLifecycleOwner) { usingFavoriteFolders ->
         this.isUsingFavoriteFolders = usingFavoriteFolders
+    }
+    this.defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
+    ).distinctUntilChanged().observe(viewLifecycleOwner) {
+        this.distanceUnitsPref = it
+        updateDistanceNowAsync(this.location)
     }
 }

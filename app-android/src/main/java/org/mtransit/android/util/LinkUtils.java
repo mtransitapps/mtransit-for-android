@@ -17,6 +17,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,7 +45,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("unused")
 public final class LinkUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = LinkUtils.class.getSimpleName();
@@ -82,19 +82,33 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, boolean www) {
-		return open(view, activity, url, label, null, www);
+	@AnyThread
+	public static boolean open(
+			@Nullable View view,
+			@NonNull Activity activity,
+			@Nullable String url,
+			@Nullable String label,
+			boolean www,
+			@Nullable Boolean useInternalWebBrowserPref
+	) {
+		return open(view, activity, url, label, null, www, useInternalWebBrowserPref);
 	}
 
-	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, @Nullable String titleStatic, boolean www) {
+	@AnyThread
+	public static boolean open(
+			@Nullable View view,
+			@NonNull Activity activity,
+			@Nullable String url,
+			@Nullable String label,
+			@Nullable String titleStatic,
+			boolean www,
+			@Nullable Boolean useInternalWebBrowserPref
+	) {
 		if (url == null || url.isEmpty()) return false;
 		if (intercept(activity, url)) return true;
 		if (www && (!FeatureFlags.F_NAVIGATION || view != null)) {
-			boolean useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
-					&& DefaultPreferenceRepository.makePref(activity)
-					.getBoolean(
-							DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-					);
+			final boolean useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
+					&& (useInternalWebBrowserPref == null ? DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT : useInternalWebBrowserPref);
 			if (useInternalWebBrowser) {
 				if (FeatureFlags.F_NAVIGATION) {
 					final NavController navController = Navigation.findNavController(view);
@@ -256,6 +270,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	public static boolean isPDFIntent(@Nullable Uri uri) {
 		return isPDFIntent(uri == null ? null : uri.toString());
 	}

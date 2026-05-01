@@ -49,10 +49,10 @@ class DefaultPreferenceRepository @Inject constructor(
         const val PREFS_THEME_SYSTEM_DEFAULT = "system_default"
         const val PREFS_THEME_DEFAULT = PREFS_THEME_SYSTEM_DEFAULT
 
-        const val PREFS_UNITS = "pUnits"
-        const val PREFS_UNITS_METRIC = "metric"
-        const val PREFS_UNITS_IMPERIAL = "imperial"
-        const val PREFS_UNITS_DEFAULT = PREFS_UNITS_METRIC // TODO smarter default?
+        const val PREFS_DISTANCE_UNITS = "pUnits"
+        const val PREFS_DISTANCE_UNITS_METRIC = "metric"
+        const val PREFS_DISTANCE_UNITS_IMPERIAL = "imperial"
+        const val PREFS_DISTANCE_UNITS_DEFAULT = PREFS_DISTANCE_UNITS_METRIC // TODO smarter default?
 
         const val PREFS_LANG = "pLang"
         const val PREFS_LANG_EN = "en"
@@ -82,6 +82,7 @@ class DefaultPreferenceRepository @Inject constructor(
         fun getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority: String) = PREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID + authority
 
         @Suppress("DEPRECATION")
+        @WorkerThread
         @JvmStatic
         fun makePref(context: Context): SharedPreferences = PreferenceUtils.getPrefDefault(context)
     }
@@ -99,7 +100,7 @@ class DefaultPreferenceRepository @Inject constructor(
         _executorService.execute { _prefs = loadPrefs() }
     }
 
-    @WorkerThread // @WorkerThread
+    @WorkerThread
     private fun loadPrefs() = makePref(requireContext())
 
     @get:AnyThread

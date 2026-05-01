@@ -176,9 +176,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	@SuppressLint("SetJavaScriptEnabled")
 	private void setupView(@Nullable FragmentWebBrowserBinding binding) {
-		if (binding == null) {
-			return;
-		}
+		if (binding == null) return;
 		final View view = binding.getRoot();
 		EdgeToEdgeKt.applyStatusBarsInsetsEdgeToEdge(view);
 		setupScreenToolbar(binding.screenToolbarLayout);
@@ -257,20 +255,18 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	public void onDestroy() {
 		super.onDestroy();
 		final WebView webView = binding == null ? null : binding.webView;
-		if (webView != null) {
-			webView.destroy();
-		}
+		if (webView == null) return;
+		webView.destroy();
 	}
 
 	private void onProgressChanged(int newProgress) {
 		final ProgressBar progressBar = binding == null ? null : binding.progressBar;
-		if (progressBar != null) {
-			progressBar.setProgress(newProgress);
-			if (newProgress < 100) {
-				progressBar.setVisibility(View.VISIBLE);
-			} else {
-				progressBar.setVisibility(View.INVISIBLE);
-			}
+		if (progressBar == null) return;
+		progressBar.setProgress(newProgress);
+		if (newProgress < 100) {
+			progressBar.setVisibility(View.VISIBLE);
+		} else {
+			progressBar.setVisibility(View.INVISIBLE);
 		}
 	}
 
@@ -311,13 +307,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		}
 	}
 
-	// TODO later view model
-	// @Nullable
-	// private POIViewModel getAddedViewModel() {
-	// return isAttached() ? this.viewModel : null;
-	// }
-	//
-	//
 	@Override
 	public boolean hasToolbar() {
 		return true;
@@ -380,7 +369,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
 		if (menuItem.getItemId() == R.id.menu_open_www) {
-			LinkUtils.open(null, requireActivity(), this.currentUrl, getString(org.mtransit.android.commons.R.string.web_browser), false);
+			LinkUtils.open(null, requireActivity(), this.currentUrl, getString(org.mtransit.android.commons.R.string.web_browser), false, false);
 			return true; // handled
 		}
 		return false; // not handled

@@ -248,6 +248,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 }
             }
         }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
         viewModel.agency.observe(viewLifecycleOwner) { agency ->
             theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             listAdapter.logTag = this@AgencyPOIsFragment.logTag
@@ -257,7 +260,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     isVisible = true
                     setOnClickListener {
                         activity?.let { activity ->
-                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true, viewModel.useInternalWebBrowserPref.value)
                         }
                     }
                 } ?: run {

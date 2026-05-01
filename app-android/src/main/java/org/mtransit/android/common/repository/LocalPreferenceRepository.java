@@ -117,5 +117,4 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 	public static SharedPreferences makePref(@NonNull Context context) {
 		return PreferenceUtils.getPrefLcl(context);
 	}
-
 }

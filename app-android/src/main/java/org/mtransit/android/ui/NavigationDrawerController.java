@@ -71,6 +71,8 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @SuppressLint("KotlinPairNotCreated")
 class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener {
@@ -83,6 +85,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		return LOG_TAG;
 	}
 
+	@SuppressWarnings("SpellCheckingInspection")
 	private static final String ITEM_ID_AGENCY_TYPE_START_WITH = "agencytype-";
 	private static final String ITEM_ID_STATIC_START_WITH = "static-";
 	private static final int ITEM_INDEX_HOME = 0;
@@ -93,6 +96,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	private static final int ITEM_INDEX_NEWS = 5;
 	private static final int ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT = R.id.root_nav_home;
 	private static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
+
+	private final Executor backgroundExecutor = Executors.newSingleThreadExecutor();
 
 	@NonNull
 	private final WeakReference<MainActivity> mainActivityWR;
@@ -260,12 +265,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable Pair<String, Boolean> itemIdAndUserHasLearned) {
 			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
-			if (navigationDrawerController == null) {
-				return;
-			}
-			if (isCancelled()) {
-				return;
-			}
+			if (navigationDrawerController == null) return;
+			if (isCancelled()) return;
 			navigationDrawerController.setVisibleMenuItems();
 			final String itemId = itemIdAndUserHasLearned == null ? null : itemIdAndUserHasLearned.first;
 			final Boolean showDrawerLearning = itemIdAndUserHasLearned == null ? null : itemIdAndUserHasLearned.second;
@@ -300,6 +301,13 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 
 	public void onSelectedScreenItemIdChanged(@Nullable String itemId) {
 		this.selectedScreenItemId = itemId;
+	}
+
+	@Nullable
+	private Boolean useInternalBrowserPref = null;
+
+	public void onUseInternalWebBrowserPrefChanged(@Nullable Boolean useInternalBrowser) {
+		this.useInternalBrowserPref = useInternalBrowser;
 	}
 
 	@NonNull
@@ -354,7 +362,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 
 	@NonNull
 	private List<DataSourceType> filterAgencyTypes(@Nullable List<DataSourceType> availableAgencyTypes) {
-		List<DataSourceType> filteredDataSourceTypes = new ArrayList<>();
+		final List<DataSourceType> filteredDataSourceTypes = new ArrayList<>();
 		if (availableAgencyTypes != null) {
 			for (DataSourceType type : availableAgencyTypes) {
 				if (!type.isMenuList()) {
@@ -435,11 +443,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.menuUpdated = false; // processed
 	}
 
+	@AnyThread
 	@Nullable
 	private String getScreenItemId(@Nullable Integer navItemId, boolean isUsingFirebaseTestLab) {
-		if (navItemId == null) {
-			return null;
-		}
+		if (navItemId == null) return null;
 		if (navItemId == R.id.root_nav_home) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
 		} else if (navItemId == R.id.root_nav_favorites) {
@@ -481,11 +488,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		return null;
 	}
 
+	@AnyThread
 	@NonNull
 	private Integer getScreenNavItemId(@Nullable String itemId) {
-		if (itemId == null || itemId.isEmpty()) {
-			return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
-		}
+		if (itemId == null || itemId.isEmpty()) return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
 		if (itemId.startsWith(ITEM_ID_STATIC_START_WITH)) {
 			try {
 				switch (Integer.parseInt(itemId.substring(ITEM_ID_STATIC_START_WITH.length()))) {
@@ -549,14 +555,11 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		return true; // processed
 	}
 
+	@AnyThread
 	private void selectItem(@Nullable Integer navItemId, boolean clearStack) {
-		if (navItemId == null) {
-			return;
-		}
+		if (navItemId == null) return;
 		final MainActivity mainActivity = this.mainActivityWR.get();
-		if (mainActivity == null) {
-			return;
-		}
+		if (mainActivity == null) return;
 		final boolean isUsingFirebaseTestLab = SystemSettingManager.isUsingFirebaseTestLab(mainActivity);
 		if (navItemId.equals(this.currentSelectedScreenItemNavId)) {
 			if (clearStack) {
@@ -574,21 +577,19 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return;
 		}
 		final ABFragment newFragment = getNewStaticFragmentAt(navItemId, mainActivity);
-		if (newFragment == null) {
-			return;
-		}
+		if (newFragment == null) return;
 		this.currentSelectedScreenItemNavId = navItemId;
 		this.currentSelectedScreenItemId = getScreenItemId(navItemId, isUsingFirebaseTestLab);
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
 		this.statusLoader.clearAllTasks();
 		this.serviceUpdateLoader.clearAllTasks();
 		mainActivity.showNewFragment(newFragment, false, null);
-		if (demoModeManager.isFullDemo()) {
-			return; // SKIP (demo mode ON)
-		}
-		if (isRootScreen(navItemId, isUsingFirebaseTestLab)) {
-			this.lclPrefRepository.getPref().edit().putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId).apply();
-		}
+		if (demoModeManager.isFullDemo()) return; // SKIP (demo mode ON)
+		this.backgroundExecutor.execute(() ->
+				this.lclPrefRepository.getPref().edit()
+						.putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId)
+						.apply()
+		);
 	}
 
 	@Nullable
@@ -635,7 +636,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		if (navItemId == R.id.nav_trip_planner) {
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
 			final Pair<Double, Double> srcLatLng = getTripPlannerSrcLatLng(activity);
-			MapUtils.showDirection(null, activity, null, null, srcLatLng.first, srcLatLng.second, null, defaultPrefRepository);
+			MapUtils.showDirection(null, activity, null, null, srcLatLng.first, srcLatLng.second, null, this.useInternalBrowserPref);
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 		} else if (navItemId == R.id.nav_fares) {

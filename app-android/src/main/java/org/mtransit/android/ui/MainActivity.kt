@@ -24,6 +24,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -178,7 +179,7 @@ class MainActivity : MTActivityWithLocation(),
             this.consentManager,
             this.packageManager,
             this.serviceUpdateLoader,
-            this.demoModeManager
+            this.demoModeManager,
         ).also { navigationDrawerController ->
             navigationDrawerController.onCreate(savedInstanceState)
         }
@@ -198,9 +199,14 @@ class MainActivity : MTActivityWithLocation(),
             this.navigationDrawerController?.onUserLearnedDrawerChanged(it)
         }
         this.lclPrefRepository.pref.liveDataN<String>(
-            LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID
+            LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, null
         ).observe(this) {
             this.navigationDrawerController?.onSelectedScreenItemIdChanged(it)
+        }
+        this.defaultPrefRepository.pref.liveData(
+            DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+        ).distinctUntilChanged().observe(this) {
+            this.navigationDrawerController?.onUseInternalWebBrowserPrefChanged(it)
         }
         this.dataSourcesRepository.readingHasAgenciesAdded().observe(this, Observer { hasAgenciesAdded: Boolean? ->
             if (hasAgenciesAdded == true) {

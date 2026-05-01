@@ -72,6 +72,7 @@ object MapUtils : MTLog.Loggable {
     private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "dirflg"
     private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE = "r"
 
+    @JvmOverloads
     @JvmStatic
     fun showDirection(
         binding: ViewBinding? = null,
@@ -79,14 +80,10 @@ object MapUtils : MTLog.Loggable {
         optDestLat: Double? = null, optDestLng: Double? = null,
         optSrcLat: Double? = null, optSrcLng: Double? = null,
         optQuery: String? = null,
-        defaultPrefRepository: DefaultPreferenceRepository,
+        useInternalWebBrowserPref: Boolean?
     ) {
-        val useInternalWebBrowser =
-            !SystemSettingManager.isUsingFirebaseTestLab(activity)
-                    && defaultPrefRepository.pref.getBoolean(
-                DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER,
-                DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-            )
+        val useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
+                && (useInternalWebBrowserPref ?: DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT)
         val gmmIntentUri = getMapsDirectionUrl(optDestLat, optDestLng, optSrcLat, optSrcLng, optQuery)
         if (useInternalWebBrowser) {
             LinkUtils.open(
@@ -94,7 +91,8 @@ object MapUtils : MTLog.Loggable {
                 activity,
                 gmmIntentUri.toString(),
                 activity.getString(R.string.google_maps),
-                true
+                true,
+                true,
             )
             return
         }

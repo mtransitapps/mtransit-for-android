@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,22 +55,20 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtilsExtKt;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ResourceUtils;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderBinding;
 import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderButtonBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.provider.FavoriteRepository;
-import org.mtransit.android.provider.favorite.FavoritesUI;
 import org.mtransit.android.provider.favorite.FavoritesFolderDSTUtils;
+import org.mtransit.android.provider.favorite.FavoritesUI;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -169,7 +168,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	private WeakReference<IFragment> fragmentWR;
 
 	@Nullable
-	private Location location;
+	protected Location location;
 
 	@Nullable
 	private Integer lastCompassInDegree = null;
@@ -224,7 +223,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@NonNull
 	protected final DataSourcesRepository dataSourcesRepository;
 	@NonNull
-	private final DefaultPreferenceRepository defaultPrefRepository;
+	protected final DefaultPreferenceRepository defaultPrefRepository;
 	@NonNull
 	protected final LocalPreferenceRepository lclPrefRepository;
 	@NonNull
@@ -284,6 +283,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@Nullable
 	protected Map<Integer, FavoriteFolder> favoriteFoldersByIds;
+
+	@Nullable
+	protected String distanceUnitsPref;
 
 	public void setManualLayout(@Nullable ViewGroup manualLayout) {
 		this.manualLayout = manualLayout;
@@ -1042,62 +1044,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return getItem(closestPOIUUID);
 	}
 
-	@Nullable
-	private UpdateDistanceWithStringTask updateDistanceWithStringTask;
-
-	private void updateDistances(Location currentLocation) {
-		TaskUtils.cancelQuietly(this.updateDistanceWithStringTask, true);
-		if (currentLocation != null && getPoisCount() > 0) {
-			this.updateDistanceWithStringTask = new UpdateDistanceWithStringTask(this);
-			TaskUtils.execute(this.updateDistanceWithStringTask, currentLocation);
-		}
-	}
-
-	@SuppressWarnings("deprecation")
-	private static class UpdateDistanceWithStringTask extends MTCancellableAsyncTask<Location, Void, Void> {
-
-		@NonNull
-		private final WeakReference<POIArrayAdapter> poiArrayAdapterWR;
-
-		@NonNull
-		@Override
-		public String getLogTag() {
-			return POIArrayAdapter.class.getSimpleName() + ">" + UpdateDistanceWithStringTask.class.getSimpleName();
-		}
-
-		private UpdateDistanceWithStringTask(POIArrayAdapter poiArrayAdapter) {
-			this.poiArrayAdapterWR = new WeakReference<>(poiArrayAdapter);
-		}
-
-		@Override
-		protected Void doInBackgroundNotCancelledMT(Location... params) {
-			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-			final POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
-			if (poiArrayAdapter == null) return null;
-			try {
-				if (poiArrayAdapter.poisByType != null) {
-					for (List<POIManager> poiManagers : poiArrayAdapter.poisByType.values()) {
-						if (isCancelled()) break;
-						UILocationUtils.updateDistanceWithString(poiArrayAdapter.getContext(), poiManagers, params[0], this);
-					}
-				}
-			} catch (Exception e) {
-				MTLog.w(this, e, "Error while update POIs distance strings!");
+	@AnyThread
+	private void updateDistancesString() {
+		if (this.location == null) return;
+		if (this.poisByType == null) return;
+		if (this.distanceUnitsPref == null) return;
+		for (List<POIManager> typePoimList : poisByType.values()) {
+			for (POIManager poim : typePoimList) {
+				UILocationUtils.updateDistanceWithStringNN(this.distanceUnitsPref, poim, this.location);
 			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecuteNotCancelledMT(Void result) {
-			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
-			if (poiArrayAdapter == null) {
-				return;
-			}
-			if (isCancelled()) {
-				return;
-			}
-			poiArrayAdapter.updateClosestPoi();
-			poiArrayAdapter.notifyDataSetChanged(true);
 		}
 	}
 
@@ -1278,9 +1233,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	public void setLocation(@Nullable Location newLocation) {
-		if (newLocation == null) {
-			return;
-		}
+		if (newLocation == null) return;
 		if (this.location == null || LocationUtils.isMoreRelevant(getLogTag(), this.location, newLocation)) {
 			this.location = newLocation;
 			this.locationDeclination = this.sensorManager.getLocationDeclination(this.location);
@@ -1288,7 +1241,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				this.sensorManager.registerCompassListener(this, this);
 				this.compassUpdatesEnabled = true;
 			}
-			updateDistances(this.location);
+			updateDistancesString();
 		}
 	}
 
@@ -1353,7 +1306,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
 		this.poiStatusViewHoldersWR.clear();
 		this.poiServiceUpdateViewHoldersWR.clear();
-		TaskUtils.cancelQuietly(this.updateDistanceWithStringTask, true);
 		this.location = null;
 		this.locationDeclination = null;
 		super.clear();

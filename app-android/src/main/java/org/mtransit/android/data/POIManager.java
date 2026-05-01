@@ -513,7 +513,7 @@ public class POIManager implements LocationPOI,
 			}
 			final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(pkg);
 			if (agencyProperties != null && agencyProperties.hasContactUs()) {
-				LinkUtils.open(view, activity, agencyProperties.getContactUsWebForLang(), activity.getString(org.mtransit.android.commons.R.string.web_browser), false); // force external web browser
+				LinkUtils.open(view, activity, agencyProperties.getContactUsWebForLang(), activity.getString(org.mtransit.android.commons.R.string.web_browser), false, false); // force external web browser
 			}
 			return true; // HANDLED
 		}

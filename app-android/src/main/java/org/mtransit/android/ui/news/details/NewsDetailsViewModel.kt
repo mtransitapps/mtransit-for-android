@@ -4,13 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
@@ -22,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewsDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    defaultPrefRepository: DefaultPreferenceRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val newsRepository: NewsRepository,
 ) : ViewModel(), MTLog.Loggable {
@@ -70,4 +74,8 @@ class NewsDetailsViewModel @Inject constructor(
             coroutineContext = viewModelScope.coroutineContext + Dispatchers.IO,
         )
     }
+
+    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+    ).distinctUntilChanged()
 }

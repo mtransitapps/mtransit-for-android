@@ -361,9 +361,7 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		setPOIProperties();
-		if (this.deviceLocation != null) {
-			UILocationUtils.updateDistanceWithString(context, this.poim, this.deviceLocation);
-		}
+		updateDistanceString();
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
@@ -378,6 +376,21 @@ public class POIFragment extends ABFragment implements
 		setupRewardedAdButton();
 		setupMoreNearbyButton();
 		setupNearbyList();
+	}
+
+	@Nullable
+	private String distanceUnitPref = null;
+
+	private void onDistanceUnitPrefLoaded(@Nullable String distanceUnitPref) {
+		this.distanceUnitPref = distanceUnitPref;
+		updateDistanceString();
+	}
+
+	private void updateDistanceString() {
+		if (this.distanceUnitPref == null) return;
+		if (this.deviceLocation == null) return;
+		if (this.poim == null) return;
+		UILocationUtils.updateDistanceWithStringNN(this.distanceUnitPref, this.poim, this.deviceLocation);
 	}
 
 	private void onNewsLoaded(@Nullable List<News> news) {
@@ -552,6 +565,8 @@ public class POIFragment extends ABFragment implements
 		}));
 		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
+		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitPrefLoaded);
+		viewModel.getUseInternalWebBrowserPref().observe(getViewLifecycleOwner(), this::onUseInternalWebBrowserPrefLoaded);
 		viewModel.getHasScheduleProviders().observe(getViewLifecycleOwner(), hasScheduleProviders -> setupRDSFullScheduleBtn());
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
@@ -1008,9 +1023,16 @@ public class POIFragment extends ABFragment implements
 		POIServiceUpdateViewController.updateServiceUpdate(getPOIServiceUpdateView(), serviceUpdates, this);
 	}
 
+	@Nullable
+	private Boolean useInternalWebBrowserPref = null;
+
+	private void onUseInternalWebBrowserPrefLoaded(@Nullable Boolean useInternalWebBrowserPref) {
+		this.useInternalWebBrowserPref = useInternalWebBrowserPref;
+	}
+
 	@Override
 	public boolean onURLClick(@NonNull View view, @NonNull String url) {
-		return LinkUtils.open(view, requireActivity(), url, getString(org.mtransit.android.commons.R.string.web_browser), true);
+		return LinkUtils.open(view, requireActivity(), url, getString(org.mtransit.android.commons.R.string.web_browser), true, this.useInternalWebBrowserPref);
 	}
 
 	@Nullable
@@ -1024,13 +1046,13 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public void onLocationSettingsResolution(@Nullable PendingIntent resolution) {
+		// DO NOTHING
 	}
 
+	@MainThread
 	@Override
 	public void onDeviceLocationChanged(@Nullable Location newLocation) {
-		if (newLocation == null) {
-			return;
-		}
+		if (newLocation == null) return;
 		final Context context = getContext();
 		if (this.deviceLocation == null && context != null) {
 			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));
@@ -1042,9 +1064,9 @@ public class POIFragment extends ABFragment implements
 				sensorManager.registerCompassListener(this, this);
 				this.compassUpdatesEnabled = true;
 			}
+			updateDistanceString();
 			final POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				UILocationUtils.updateDistanceWithString(requireContext(), poim, newLocation);
 				POIViewController.updatePOIDistanceAndCompass(getPOIView(), poim, this);
 			}
 			this.mapViewController.onDeviceLocationChanged(this.deviceLocation);
@@ -1525,7 +1547,7 @@ public class POIFragment extends ABFragment implements
 			final AgencyProperties agency = getAgencyOrNull();
 			final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
 			if (!TextUtils.isEmpty(faresWebUrl)) {
-				LinkUtils.open(this.binding == null ? null : this.binding.getRoot(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true);
+				LinkUtils.open(this.binding == null ? null : this.binding.getRoot(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true, this.useInternalWebBrowserPref);
 				return true; // handled
 			}
 		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
@@ -1538,7 +1560,7 @@ public class POIFragment extends ABFragment implements
 					optSrcLat = this.deviceLocation.getLatitude();
 					optSrcLng = this.deviceLocation.getLongitude();
 				}
-				MapUtils.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName(), defaultPrefRepository);
+				MapUtils.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName(), this.useInternalWebBrowserPref);
 				return true; // handled
 			}
 		}

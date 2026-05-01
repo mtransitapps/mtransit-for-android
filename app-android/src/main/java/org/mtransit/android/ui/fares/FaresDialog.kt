@@ -52,7 +52,7 @@ class FaresDialog : MTBottomSheetDialogFragmentX() {
             activity?.let {
                 behavior?.state = BottomSheetBehavior.STATE_HIDDEN
                 dismissAllowingStateLoss()
-                LinkUtils.open(view, it, url, getString(R.string.fares), true)
+                LinkUtils.open(view, it, url, getString(R.string.fares), true, viewModel.useInternalWebBrowserPref.value)
             }
         })
     }
@@ -99,6 +99,9 @@ class FaresDialog : MTBottomSheetDialogFragmentX() {
                     }
                 }
             }
+        }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
         }
     }
 

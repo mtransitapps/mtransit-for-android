@@ -88,7 +88,7 @@ class MainPreferencesViewModel @Inject constructor(
     ).distinctUntilChanged()
 
     val units: LiveData<String> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_UNITS, DefaultPreferenceRepository.PREFS_UNITS_DEFAULT
+        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
     ).distinctUntilChanged()
 
     val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(

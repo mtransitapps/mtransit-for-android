@@ -1,10 +1,9 @@
 package org.mtransit.android.ui.location
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.location.Address
 import android.location.Location
-import androidx.annotation.WorkerThread
+import androidx.annotation.AnyThread
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import kotlin.math.roundToInt
@@ -12,13 +11,9 @@ import org.mtransit.android.commons.R as commonsR
 
 object UILocationUtils : LocationUtils() {
 
+    @AnyThread
     @JvmStatic
-    @WorkerThread
-    fun getLocationString(
-        context: Context,
-        locationAddress: Address?,
-        accuracyInMeters: Float
-    ) = buildString {
+    fun getLocationString(context: Context, locationAddress: Address?, accuracyInMeters: Float, distanceUnitsPref: String) = buildString {
         val isAccurate = accuracyInMeters < 5000.0f
         if (locationAddress != null) {
             if (isAccurate && locationAddress.maxAddressLineIndex > 0) {
@@ -36,63 +31,25 @@ object UILocationUtils : LocationUtils() {
             append(context.getString(commonsR.string.unknown_address))
         }
         if (isAccurate && accuracyInMeters > 0.0f) {
-            append(" ± ").append(getDistanceStringUsingPref(context, accuracyInMeters, accuracyInMeters))
+            append(" ± ").append(getDistanceString(accuracyInMeters, accuracyInMeters, distanceUnitsPref))
         }
     }
 
     @JvmStatic
-    fun updateDistanceWithString(context: Context, poi: LocationPOI?, currentLocation: Location?) {
-        if (poi == null || currentLocation == null) return
-        val distanceUnit = getPrefUnit(context)
-        updateDistanceWithString(distanceUnit, poi, currentLocation)
-    }
-
-    fun updateDistanceWithString(distanceUnit: String?, poi: LocationPOI?, currentLocation: Location?) {
-        if (poi == null || currentLocation == null) return
+    @AnyThread
+    fun updateDistanceWithStringNN(distanceUnitsPref: String, poi: LocationPOI, currentLocation: Location) {
         val accuracyInMeters = currentLocation.accuracy
         if (!poi.hasLocation()) return
         val newDistance = distanceToInMeters(currentLocation.latitude, currentLocation.longitude, poi.getLat(), poi.getLng())
-        if (poi.getDistance() > 1 && newDistance == poi.getDistance() && poi.getDistanceString() != null) {
-            return
-        }
+        if (poi.getDistance() > 1 && newDistance == poi.getDistance() && poi.getDistanceString() != null) return
         poi.setDistance(newDistance)
-        poi.setDistanceString(getDistanceString(poi.getDistance(), accuracyInMeters, distanceUnit))
+        poi.setDistanceString(getDistanceString(poi.getDistance(), accuracyInMeters, distanceUnitsPref))
     }
 
-    @JvmStatic
-    fun updateDistanceWithString(
-        context: Context,
-        pois: Iterable<LocationPOI>?,
-        currentLocation: Location?,
-        @Suppress("DEPRECATION") task: org.mtransit.android.commons.task.MTCancellableAsyncTask<*, *, *>?
-    ) {
-        if (pois == null || currentLocation == null) return
-        val distanceUnit = getPrefUnit(context)
-        for (poi in pois) {
-            updateDistanceWithString(distanceUnit, poi, currentLocation)
-            @Suppress("DEPRECATION")
-            if (task?.isCancelled == true) {
-                break
-            }
-        }
-    }
-
-    private var _storage: SharedPreferences? = null
-
-    private fun getStorage(context: Context) = _storage ?: DefaultPreferenceRepository.makePref(context).also { _storage = it }
-
-    @WorkerThread
-    private fun getPrefUnit(context: Context) =
-        getStorage(context).getString(DefaultPreferenceRepository.PREFS_UNITS, DefaultPreferenceRepository.PREFS_UNITS_DEFAULT)
-
-    @WorkerThread
-    private fun getDistanceStringUsingPref(context: Context, distanceInMeters: Float, accuracyInMeters: Float): String {
-        return getDistanceString(distanceInMeters, accuracyInMeters, getPrefUnit(context))
-    }
-
-    private fun getDistanceString(distanceInMeters: Float, accuracyInMeters: Float, distanceUnit: String?) =
-        when (distanceUnit) {
-            DefaultPreferenceRepository.PREFS_UNITS_IMPERIAL -> {
+    @AnyThread
+    private fun getDistanceString(distanceInMeters: Float, accuracyInMeters: Float, distanceUnitsPref: String) =
+        when (distanceUnitsPref) {
+            DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL -> {
                 val distanceInSmall = distanceInMeters * FEET_PER_M
                 val accuracyInSmall = accuracyInMeters * FEET_PER_M
                 getDistance(distanceInSmall, accuracyInSmall, FEET_PER_MILE, 10, "ft", "mi")
@@ -103,6 +60,7 @@ object UILocationUtils : LocationUtils() {
             }
         }
 
+    @AnyThread
     private fun getDistance(distance: Float, accuracy: Float, smallPerBig: Float, threshold: Int, smallUnit: String?, bigUnit: String?) = buildString {
         if (accuracy > distance) {
             if (accuracy > (smallPerBig / threshold)) {

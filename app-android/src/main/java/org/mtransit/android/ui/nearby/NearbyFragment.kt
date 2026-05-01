@@ -280,6 +280,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             abController?.setABReady(this, isABReady, true)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
     }
 
     override fun updateScreenToolbarBgColor(screenToolbarLayout: LayoutScreenToolbarBinding) {
@@ -370,7 +373,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
                     optDestLat = locationPick.latitude,
                     optDestLng = locationPick.longitude,
                     optQuery = viewModel.fixedOnName.value,
-                    defaultPrefRepository = defaultPrefRepository,
+                    useInternalWebBrowserPref = viewModel.useInternalWebBrowserPref.value
                 )
                 true // handled
             }

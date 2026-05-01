@@ -452,18 +452,14 @@ public class MapViewController implements
 	}
 
 	public void setLocationPermissionGranted(boolean locationPermissionGranted) {
-		if (this.locationPermissionGranted == locationPermissionGranted) {
-			return; // no change
-		}
+		if (this.locationPermissionGranted == locationPermissionGranted) return; // no change
 		this.locationPermissionGranted = locationPermissionGranted;
 		setupGoogleMapMyLocation();
 	}
 
 	@SuppressLint("MissingPermission")
 	private void setupGoogleMapMyLocation() {
-		if (this.extendedGoogleMap == null) {
-			return; // SKIP (map not ready)
-		}
+		if (this.extendedGoogleMap == null) return; // SKIP (map not ready)
 		if (this.locationPermissionGranted) {
 			this.extendedGoogleMap.setMyLocationEnabled(this.myLocationEnabled);
 			this.extendedGoogleMap.getUiSettings().setMyLocationButtonEnabled(this.myLocationButtonEnabled);

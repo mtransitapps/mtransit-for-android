@@ -449,7 +449,7 @@ public class POIViewController implements MTLog.Loggable {
 			MTLog.d(LOG_TAG, "updatePOIDistanceAndCompass() > skip (no view)");
 			return;
 		}
-		CommonViewHolder holder = (CommonViewHolder) view.getTag();
+		final CommonViewHolder holder = (CommonViewHolder) view.getTag();
 		updatePOIDistanceAndCompass(holder, poim, dataProvider);
 	}
 

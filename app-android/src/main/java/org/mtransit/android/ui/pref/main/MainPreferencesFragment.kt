@@ -162,34 +162,76 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         (findPreference(MainPreferencesViewModel.SOCIAL_FACEBOOK_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
-            LinkUtils.open(null, activity, MainPreferencesViewModel.FACEBOOK_PAGE_URL, activity.getString(R.string.facebook), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                MainPreferencesViewModel.FACEBOOK_PAGE_URL,
+                activity.getString(R.string.facebook),
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.SOCIAL_TWITTER_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
-            LinkUtils.open(null, activity, MainPreferencesViewModel.TWITTER_PAGE_URL, activity.getString(R.string.twitter), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                MainPreferencesViewModel.TWITTER_PAGE_URL,
+                activity.getString(R.string.twitter),
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.ABOUT_PRIVACY_POLICY_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
             val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.PRIVACY_POLICY_FR_PAGE_URL else MainPreferencesViewModel.PRIVACY_POLICY_PAGE_URL
-            LinkUtils.open(null, activity, url, activity.getString(R.string.privacy_policy), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                url,
+                activity.getString(R.string.privacy_policy),
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.ABOUT_TERMS_OF_USE_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
             val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.TERMS_OF_USE_FR_PAGE_URL else MainPreferencesViewModel.TERMS_OF_USE_PAGE_URL
-            LinkUtils.open(null, activity, url, activity.getString(R.string.terms_of_use), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                url,
+                activity.getString(R.string.terms_of_use),
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.THIRD_PARTY_GOOGLE_PRIVACY_POLICY_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
-            LinkUtils.open(null, activity, MainPreferencesViewModel.GOOGLE_PRIVACY_POLICY_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                MainPreferencesViewModel.GOOGLE_PRIVACY_POLICY_PAGE_URL,
+                null,
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.THIRD_PARTY_YOUTUBE_TERMS_OF_SERVICE_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
-            LinkUtils.open(null, activity, MainPreferencesViewModel.YOUTUBE_TERMS_OF_SERVICE_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                MainPreferencesViewModel.YOUTUBE_TERMS_OF_SERVICE_PAGE_URL,
+                null,
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_MODULE_PREF) as? Preference)?.setOnPreferenceClickListener {
@@ -272,14 +314,15 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         activity,
                         BatteryOptimizationIssueUtils.getDoNotKillMyAppUrlExtended(),
                         BatteryOptimizationIssueUtils.DO_NOT_KILL_MY_APP_LABEL,
-                        FORCE_OPEN_IN_EXTERNAL_BROWSER
+                        FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                        viewModel.useInternalWebBrowser.value
                     )
                 }
             }
             findViewById<TextView>(R.id.battery_optimization_issue_text_2).apply {
                 text = LinkUtils.linkifyHtml(getString(R.string.battery_optimization_issue_message_2), false)
                 movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                    LinkUtils.open(view, activity, url, getString(commonsR.string.web_browser), true)
+                    LinkUtils.open(view, activity, url, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowser.value)
                 }
             }
             findViewById<TextView>(R.id.battery_optimization_issue_custom).apply {
@@ -308,7 +351,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         it,
                         BatteryOptimizationIssueUtils.getDoNotKillMyAppUrlExtended(),
                         BatteryOptimizationIssueUtils.DO_NOT_KILL_MY_APP_LABEL,
-                        FORCE_OPEN_IN_EXTERNAL_BROWSER
+                        FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                        viewModel.useInternalWebBrowser.value,
                     )
                 }
             }
@@ -355,11 +399,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             }
         }
         viewModel.units.observe(viewLifecycleOwner) { units ->
-            (findPreference(DefaultPreferenceRepository.PREFS_UNITS) as? Preference)?.apply {
+            (findPreference(DefaultPreferenceRepository.PREFS_DISTANCE_UNITS) as? Preference)?.apply {
                 setSummary(
                     when (units) {
-                        DefaultPreferenceRepository.PREFS_UNITS_METRIC -> R.string.unit_pref_meter
-                        DefaultPreferenceRepository.PREFS_UNITS_IMPERIAL -> R.string.unit_pref_imperial
+                        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_METRIC -> R.string.unit_pref_meter
+                        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL -> R.string.unit_pref_imperial
                         else -> R.string.unit_pref_summary
                     }
                 )
