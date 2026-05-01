@@ -339,9 +339,7 @@ class MTBillingManager @Inject constructor(
     }
 
     private fun setCurrentSubscription(productId: String) {
-        if (_currentSubscription == productId) {
-            return // same
-        }
+        if (_currentSubscription == productId) return // same
         this.lclPrefRepository.pref.edit {
             putString(PREF_KEY_SUBSCRIPTION, productId)
         }

@@ -130,13 +130,10 @@ class NextMainViewModel @Inject constructor(
     }
 
     fun onSelectedItemIdChanged(idPref: String?) {
-        if (demoModeManager.isFullDemo()) {
-            return // SKIP (demo mode ON)
-        }
-        if (isRootScreen(idPref)) {
-            lclPrefRepository.pref.edit {
-                putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, idPref)
-            }
+        if (demoModeManager.isFullDemo()) return // SKIP (demo mode ON)
+        if (!isRootScreen(idPref)) return
+        lclPrefRepository.pref.edit {
+            putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, idPref)
         }
     }
 

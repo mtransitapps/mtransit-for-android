@@ -23,7 +23,7 @@ import javax.inject.Singleton
 class NetworkLocationRepository @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val apiService: IPWhoIsApiService,
-    private val lclPreferenceRepository: LocalPreferenceRepository,
+    private val lclPrefRepository: LocalPreferenceRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val locationPermissionProvider: LocationPermissionProvider,
 ) : MTLog.Loggable {
@@ -42,18 +42,17 @@ class NetworkLocationRepository @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    private var _ipLocationLat = lclPreferenceRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, DEFAULT_LOCATION_VALUE)
-    private var _ipLocationLng = lclPreferenceRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, DEFAULT_LOCATION_VALUE)
+    private var _ipLocationLat = lclPrefRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, DEFAULT_LOCATION_VALUE)
+    private var _ipLocationLng = lclPrefRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, DEFAULT_LOCATION_VALUE)
 
     private val _hasAgenciesAdded = dataSourcesRepository.readingHasAgenciesAdded()
 
     val ipLocation: LiveData<Location?> = MediatorLiveData3(_ipLocationLat, _ipLocationLng, _hasAgenciesAdded).switchMap { (lat, lng, hasAgenciesAdded) ->
         liveData {
-            if (lat != null && lng != null && hasAgenciesAdded != null && hasAgenciesAdded == false) {
-                emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS, PROVIDER_NAME))
-            } else {
-                emit(null)
-            }
+            lat ?: return@liveData
+            lng ?: return@liveData
+            if (hasAgenciesAdded != false) return@liveData
+            emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS, PROVIDER_NAME))
         }
     }
 
@@ -67,7 +66,7 @@ class NetworkLocationRepository @Inject constructor(
         if (dataSourcesRepository.hasAgenciesAdded()) {
             return
         }
-        val lastCheckInMs = lclPreferenceRepository.getValue(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, -1L)
+        val lastCheckInMs = lclPrefRepository.pref.getLong(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, -1L)
         if (lastCheckInMs + MIN_INTERVAL_BETWEEN_IP_LOCATION_CHECK_MS > TimeUtils.currentTimeMillis()) {
             return // SKIP too soon
         }
@@ -76,7 +75,7 @@ class NetworkLocationRepository @Inject constructor(
         }.fold(
             onSuccess = { (lat, lng) ->
                 if (lat != null && lng != null) {
-                    lclPreferenceRepository.pref.edit {
+                    lclPrefRepository.pref.edit {
                         putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, lat)
                         putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, lng)
                         putLong(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, TimeUtils.currentTimeMillis())

@@ -2,6 +2,7 @@ package org.mtransit.android.provider;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,12 +21,13 @@ import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.Area;
@@ -49,7 +51,6 @@ import org.mtransit.commons.Constants;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.EntryPoint;
@@ -176,7 +177,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public boolean onCreateMT() {
 		dataSourcesRepository().readingAllAgencies().observeForever(agencyProperties -> { // SINGLETON
-			Executors.newSingleThreadExecutor().execute(this::deleteAllModuleStatusData);
+			TaskUtils.THREAD_POOL_EXECUTOR.execute(this::deleteAllModuleStatusData);
 		});
 		return super.onCreateMT();
 	}
@@ -349,10 +350,20 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return MODULE_VALIDITY_IN_MS;
 	}
 
+	private SharedPreferences storage = null;
+
+	@NonNull
+	private SharedPreferences getStorage(@NonNull Context context) {
+		if (this.storage == null) {
+			this.storage = LocalPreferenceRepository.makePref(context);
+		}
+		return this.storage;
+	}
+
 	@WorkerThread
 	private void updateModuleDataIfRequired(@NonNull Context context) {
-		long lastUpdateInMs = PreferenceUtils.getPrefLcl(context, PREF_KEY_LAST_UPDATE_MS, 0L);
-		long nowInMs = UITimeUtils.currentTimeMillis();
+		final long lastUpdateInMs = getStorage(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L);
+		final long nowInMs = UITimeUtils.currentTimeMillis();
 		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
 			deleteAllModuleData();
 			updateAllModuleDataFromWWW(context, lastUpdateInMs);
@@ -376,9 +387,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@WorkerThread
 	private synchronized void updateAllModuleDataFromWWW(@NonNull Context context, long oldLastUpdatedInMs) {
-		if (PreferenceUtils.getPrefLcl(context, PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) {
-			return; // too late, another thread already updated
-		}
+		if (getStorage(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) return; // too late, another thread already updated
 		loadDataFromWWW(context);
 	}
 
@@ -401,7 +410,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			}
 			deleteAllModuleData();
 			insertModulesLockDB(this, modules);
-			PreferenceUtils.savePrefLclSync(context, PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs);
+			getStorage(context).edit()
+					.putLong(PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs)
+					.apply();
 			return modules;
 		} catch (Exception e) {
 			MTLog.w(this, e, "INTERNAL ERROR: Unknown Exception");
@@ -650,7 +661,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@WorkerThread
 	@NonNull
 	private ModuleDbHelper getNewDbHelper(@NonNull Context context) {
-		return new ModuleDbHelper(context.getApplicationContext());
+		return new ModuleDbHelper(context.getApplicationContext(), getStorage(context));
 	}
 
 	@Override
@@ -709,7 +720,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_COLOR, ModuleColumns.T_MODULE_K_COLOR) //
 				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_LOCATION) //
 				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_NAME_FR, ModuleColumns.T_MODULE_K_NAME_FR) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE); //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE) //
 				;
 		return builder.build();
 		// @formatter:on

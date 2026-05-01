@@ -24,7 +24,7 @@ import org.mtransit.android.data.POIArrayAdapter.TypeHeaderButtonsClickListener
 import org.mtransit.android.databinding.FragmentSearchBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -82,13 +82,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -107,9 +107,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
@@ -124,7 +124,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.listAdapter.setActivity(this)
+        this.listAdapter.setFragment(this)
     }
 
     private val onBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
@@ -152,6 +152,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 onBackPressedCallback,
             )
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
                 emptyLayout.isVisible = false // hide by default

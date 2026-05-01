@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import android.os.Bundle
-import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -115,22 +114,6 @@ class DataSourcesReader @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    @get:WorkerThread
-    @set:WorkerThread
-    private var hasSeenDisabledModule: Boolean = LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        get() = lclPrefRepository.getValue(
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        )
-        set(value) {
-            if (hasSeenDisabledModule != value) {
-                lclPrefRepository.pref.edit {
-                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, value)
-                }
-                field = value
-            }
-        }
-
     private val agencyProviderMetaData by lazy { appContext.getString(commonsR.string.agency_provider) }
 
     private val statusProviderMetaData by lazy { appContext.getString(commonsR.string.status_provider) }
@@ -199,7 +182,7 @@ class DataSourcesReader @Inject constructor(
         forceAppUpdateRefresh: Boolean = false,
         markUpdated: () -> Unit,
     ) {
-        val lastCheckInMs = lclPrefRepository.getValue(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
+        val lastCheckInMs = lclPrefRepository.pref.getLong(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
         val shortTimeAgo = TimeUtils.currentTimeMillis() - MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
@@ -235,7 +218,7 @@ class DataSourcesReader @Inject constructor(
             }
         }
         if (!skipTimeCheck || updated) {
-            lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
+            lclPrefRepository.pref.edit { putLong(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis()) }
         }
     }
 
@@ -429,7 +412,9 @@ class DataSourcesReader @Inject constructor(
                 return@forEach
             }
             if (!pm.isAppEnabled(pkg)) { // APP DISABLED #DontKillMyApp
-                hasSeenDisabledModule = true
+                lclPrefRepository.pref.edit {
+                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, true)
+                }
                 updateDisabledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
             }

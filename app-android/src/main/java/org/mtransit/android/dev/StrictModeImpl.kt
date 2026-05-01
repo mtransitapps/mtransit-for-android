@@ -20,7 +20,7 @@ class StrictModeImpl @Inject constructor(
                 .detectDiskReads()
                 .detectDiskWrites()
                 .detectNetwork()
-                // .detectCustomSlowCalls() // CustomViolation: gcore.dynamite com.google.android.gms.dynamite.DynamiteModule...
+                // .detectCustomSlowCalls() // CustomViolation: g core.dynamite com.google.android.gms.dynamite.DynamiteModule...
                 .apply {
                     this.detectResourceMismatches()
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -65,7 +65,7 @@ class StrictModeImpl @Inject constructor(
                         this.detectCredentialProtectedWhileLocked()
                     }
                     // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    // this.detectIncorrectContextUse() // disabled becayse Ads SDK
+                    // this.detectIncorrectContextUse() // disabled because Ads SDK
                     // }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         this.detectUnsafeIntentLaunch()

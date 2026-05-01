@@ -153,7 +153,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                     isVisible = true
                     setOnClickListener {
                         activity?.let { activity ->
-                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true, viewModel.useInternalWebBrowserPref.value)
                         }
                     }
                 } ?: run {
@@ -161,6 +161,9 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                     setOnClickListener(null)
                 }
             }
+        }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
         }
         viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner) { listInsteadOfGrid ->
             listInsteadOfGrid ?: return@observe

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.1.1" type="baseline" client="gradle" dependencies="true" name="AGP (9.1.1)" variant="all" version="9.1.1">
+<issues format="6" by="lint 9.2.0" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0)" variant="all" version="9.2.0">
 
     <issue
         id="DoNotMockPlatformTypes"
@@ -129,7 +129,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="402"
+            line="403"
             column="9"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="154"
+            line="158"
             column="33"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="154"
+            line="158"
             column="33"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/datasource/DataSourcesReader.kt"
-            line="253"
+            line="236"
             column="9"/>
     </issue>
 
@@ -1262,7 +1262,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="200"
+            line="199"
             column="17"/>
     </issue>
 
@@ -1273,7 +1273,7 @@
         errorLine2="                                           ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="200"
+            line="199"
             column="44"/>
     </issue>
 
@@ -2373,7 +2373,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="417"
+            line="423"
             column="20"/>
     </issue>
 
@@ -2384,7 +2384,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="417"
+            line="423"
             column="20"/>
     </issue>
 
@@ -2395,7 +2395,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="426"
+            line="432"
             column="9"/>
     </issue>
 
@@ -2406,7 +2406,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="426"
+            line="432"
             column="9"/>
     </issue>
 
@@ -2439,7 +2439,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="199"
+            line="200"
             column="39"/>
     </issue>
 
@@ -2450,7 +2450,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="202"
+            line="203"
             column="26"/>
     </issue>
 
@@ -2461,7 +2461,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="202"
+            line="203"
             column="26"/>
     </issue>
 
@@ -2472,7 +2472,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="248"
+            line="249"
             column="4"/>
     </issue>
 
@@ -2483,7 +2483,7 @@
         errorLine2="       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="260"
+            line="261"
             column="8"/>
     </issue>
 
@@ -2494,7 +2494,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="266"
+            line="267"
             column="4"/>
     </issue>
 
@@ -2505,7 +2505,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="266"
+            line="267"
             column="4"/>
     </issue>
 
@@ -2516,7 +2516,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="266"
+            line="267"
             column="17"/>
     </issue>
 
@@ -2527,7 +2527,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="266"
+            line="267"
             column="17"/>
     </issue>
 
@@ -2538,7 +2538,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="287"
+            line="284"
             column="4"/>
     </issue>
 
@@ -2549,7 +2549,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="287"
+            line="284"
             column="4"/>
     </issue>
 
@@ -2560,7 +2560,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="287"
+            line="284"
             column="17"/>
     </issue>
 
@@ -2571,7 +2571,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="287"
+            line="284"
             column="17"/>
     </issue>
 
@@ -2582,7 +2582,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="349"
+            line="346"
             column="53"/>
     </issue>
 
@@ -2626,7 +2626,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="153"
+            line="154"
             column="13"/>
     </issue>
 
@@ -2637,7 +2637,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="223"
+            line="224"
             column="21"/>
     </issue>
 
@@ -2648,7 +2648,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="223"
+            line="224"
             column="51"/>
     </issue>
 
@@ -2659,7 +2659,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="233"
+            line="234"
             column="21"/>
     </issue>
 
@@ -2670,7 +2670,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="233"
+            line="234"
             column="49"/>
     </issue>
 
@@ -2681,7 +2681,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="261"
+            line="262"
             column="13"/>
     </issue>
 
@@ -2692,7 +2692,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="339"
+            line="370"
             column="4"/>
     </issue>
 
@@ -2703,7 +2703,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="339"
+            line="370"
             column="17"/>
     </issue>
 
@@ -2714,7 +2714,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="339"
+            line="370"
             column="23"/>
     </issue>
 
@@ -2725,7 +2725,7 @@
         errorLine2="                                                                ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="339"
+            line="370"
             column="65"/>
     </issue>
 
@@ -2736,7 +2736,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="371"
+            line="402"
             column="4"/>
     </issue>
 
@@ -2747,7 +2747,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="371"
+            line="402"
             column="17"/>
     </issue>
 
@@ -2758,7 +2758,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="371"
+            line="402"
             column="23"/>
     </issue>
 
@@ -2769,7 +2769,7 @@
         errorLine2="                                                                    ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="371"
+            line="402"
             column="69"/>
     </issue>
 
@@ -2780,7 +2780,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="533"
+            line="564"
             column="4"/>
     </issue>
 
@@ -2791,7 +2791,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="533"
+            line="564"
             column="17"/>
     </issue>
 
@@ -2802,7 +2802,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="533"
+            line="564"
             column="23"/>
     </issue>
 
@@ -2813,7 +2813,7 @@
         errorLine2="                                                                                       ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="533"
+            line="564"
             column="88"/>
     </issue>
 
@@ -2824,7 +2824,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="548"
+            line="579"
             column="4"/>
     </issue>
 
@@ -2835,7 +2835,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="548"
+            line="579"
             column="17"/>
     </issue>
 
@@ -2846,7 +2846,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="548"
+            line="579"
             column="23"/>
     </issue>
 
@@ -2857,30 +2857,8 @@
         errorLine2="                                                                       ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="548"
+            line="579"
             column="72"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.datasource.DataSourcesRepository.filterDataSourceTypes is deprecated; consider using an alternative."
-        errorLine1="    this.dataSourcesRepository.filterDataSourceTypes("
-        errorLine2="    ^">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="587"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.datasource.DataSourcesRepository.getAllSupportedDataSourceTypes is deprecated; consider using an alternative."
-        errorLine1="      this.dataSourcesRepository.getAllSupportedDataSourceTypes()"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="588"
-            column="7"/>
     </issue>
 
     <issue
@@ -2890,7 +2868,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="737"
+            line="746"
             column="4"/>
     </issue>
 
@@ -2901,7 +2879,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1052"
+            line="1050"
             column="40"/>
     </issue>
 
@@ -2912,7 +2890,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1052"
+            line="1050"
             column="40"/>
     </issue>
 
@@ -2923,7 +2901,7 @@
         errorLine2="          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1083"
+            line="1081"
             column="11"/>
     </issue>
 
@@ -2934,63 +2912,8 @@
         errorLine2="       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1101"
+            line="1099"
             column="8"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.os.AsyncTask.getStatus is deprecated; consider using an alternative."
-        errorLine1="  if (this.refreshFavoritesTask != null &amp;&amp; this.refreshFavoritesTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2102"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.RefreshFavoritesTask.RefreshFavoritesTask is deprecated; consider using an alternative."
-        errorLine1="  this.refreshFavoritesTask = new RefreshFavoritesTask(this);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2105"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.RefreshFavoritesTask.RefreshFavoritesTask is deprecated; consider using an alternative."
-        errorLine1="  this.refreshFavoritesTask = new RefreshFavoritesTask(this);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2105"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.RefreshFavoritesTask.RefreshFavoritesTask is deprecated; consider using an alternative."
-        errorLine1="  this.refreshFavoritesTask = new RefreshFavoritesTask(this);"
-        errorLine2="                                                       ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2105"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.RefreshFavoritesTask.RefreshFavoritesTask is deprecated; consider using an alternative."
-        errorLine1="  this.refreshFavoritesTask = new RefreshFavoritesTask(this);"
-        errorLine2="                                                       ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2105"
-            column="56"/>
     </issue>
 
     <issue
@@ -3044,7 +2967,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1606"
+            line="1575"
             column="3"/>
     </issue>
 
@@ -3066,7 +2989,7 @@
         errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="68"
+            line="71"
             column="10"/>
     </issue>
 
@@ -3077,7 +3000,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="95"
+            line="102"
             column="3"/>
     </issue>
 
@@ -3088,7 +3011,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="95"
+            line="102"
             column="22"/>
     </issue>
 
@@ -3099,7 +3022,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="95"
+            line="102"
             column="32"/>
     </issue>
 
@@ -3110,7 +3033,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="95"
+            line="102"
             column="43"/>
     </issue>
 
@@ -3121,30 +3044,30 @@
         errorLine2="  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="97"
+            line="104"
             column="3"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreateDialog is deprecated; consider using an alternative."
-        errorLine1="  Dialog dialog = super.onCreateDialog(savedInstanceState);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  final Dialog dialog = super.onCreateDialog(savedInstanceState);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="104"
-            column="19"/>
+            line="111"
+            column="25"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreateDialog is deprecated; consider using an alternative."
-        errorLine1="  Dialog dialog = super.onCreateDialog(savedInstanceState);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
+        errorLine1="  final Dialog dialog = super.onCreateDialog(savedInstanceState);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="104"
-            column="40"/>
+            line="111"
+            column="46"/>
     </issue>
 
     <issue
@@ -3154,7 +3077,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="113"
+            line="120"
             column="3"/>
     </issue>
 
@@ -3165,96 +3088,30 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="113"
+            line="120"
             column="18"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  final IBillingManager billingManager = entryPoint.billingManager();"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="115"
-            column="3"/>
+            line="124"
+            column="42"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
+        errorLine1="  final IAdManager adManager = entryPoint.adManager();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="115"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="115"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="115"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="116"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="116"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="116"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="116"
-            column="17"/>
+            line="127"
+            column="32"/>
     </issue>
 
     <issue
@@ -3264,7 +3121,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="121"
+            line="134"
             column="3"/>
     </issue>
 
@@ -3275,7 +3132,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="122"
+            line="135"
             column="38"/>
     </issue>
 
@@ -3286,7 +3143,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="130"
+            line="141"
             column="5"/>
     </issue>
 
@@ -3297,7 +3154,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="130"
+            line="141"
             column="19"/>
     </issue>
 
@@ -3308,7 +3165,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="133"
+            line="144"
             column="5"/>
     </issue>
 
@@ -3319,7 +3176,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="133"
+            line="144"
             column="39"/>
     </issue>
 
@@ -3330,7 +3187,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="136"
+            line="147"
             column="5"/>
     </issue>
 
@@ -3341,7 +3198,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="136"
+            line="147"
             column="29"/>
     </issue>
 
@@ -3352,19 +3209,19 @@
         errorLine2="                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="143"
+            line="154"
             column="27"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
+        errorLine1="  final Activity activity = getActivity();"
+        errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="153"
-            column="23"/>
+            line="164"
+            column="29"/>
     </issue>
 
     <issue
@@ -3374,96 +3231,30 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="174"
+            line="185"
             column="3"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  final IBillingManager billingManager = entryPoint.billingManager();"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="176"
-            column="4"/>
+            line="188"
+            column="42"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
+        errorLine1="  final IAdManager adManager = entryPoint.adManager();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="176"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="176"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="176"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="178"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="178"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="178"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="178"
-            column="17"/>
+            line="193"
+            column="32"/>
     </issue>
 
     <issue
@@ -3473,85 +3264,30 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="183"
+            line="200"
             column="3"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
+        errorLine1="  final Activity activity = getActivity();"
+        errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="187"
-            column="23"/>
+            line="204"
+            column="29"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="   if (!getEntryPoint(context).adManager().isRewardedAdAvailableToShow()) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="   final IAdManager adManager = entryPoint.adManager();"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="194"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   if (!getEntryPoint(context).adManager().isRewardedAdAvailableToShow()) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="194"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   if (!getEntryPoint(context).adManager().isRewardedAdAvailableToShow()) {"
-        errorLine2="                      ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="194"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(context).adManager().showRewardedAd(this);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="199"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(context).adManager().showRewardedAd(this);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="199"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(context).adManager().showRewardedAd(this);"
-        errorLine2="                 ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="199"
-            column="18"/>
+            line="213"
+            column="33"/>
     </issue>
 
     <issue
@@ -3561,96 +3297,74 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="200"
+            line="220"
             column="22"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
+        errorLine1="  final Activity activity = getActivity();"
+        errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="211"
-            column="23"/>
+            line="231"
+            column="29"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.DialogFragment.getDialog is deprecated; consider using an alternative."
-        errorLine1="   Dialog dialog = getDialog();"
-        errorLine2="                   ~~~~~~~~~~~">
+        errorLine1="   final Dialog dialog = getDialog();"
+        errorLine2="                         ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="226"
-            column="20"/>
+            line="246"
+            column="26"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
+        errorLine1="  final Activity activity = getActivity();"
+        errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="237"
-            column="23"/>
+            line="257"
+            column="29"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="   View view = getView();"
-        errorLine2="               ~~~~~~~~~">
+        errorLine1="   final View view = getView();"
+        errorLine2="                     ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="239"
-            column="16"/>
+            line="259"
+            column="22"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="   final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, productId);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="   final IBillingManager billingManager = entryPoint.billingManager();"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="279"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, productId);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="279"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, productId);"
-        errorLine2="                                                     ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="279"
-            column="54"/>
+            line="301"
+            column="43"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.DialogFragment.getDialog is deprecated; consider using an alternative."
-        errorLine1="   Dialog dialog = getDialog();"
-        errorLine2="                   ~~~~~~~~~~~">
+        errorLine1="   final Dialog dialog = getDialog();"
+        errorLine2="                         ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="285"
-            column="20"/>
+            line="308"
+            column="26"/>
     </issue>
 
     <issue
@@ -3660,63 +3374,30 @@
         errorLine2="  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="300"
+            line="324"
             column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="301"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="301"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="301"
-            column="61"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="  entryPoint.billingManager().refreshAvailableSubscriptions();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  final IBillingManager billingManager = entryPoint.billingManager();"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="302"
-            column="3"/>
+            line="327"
+            column="42"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager iAdManager = entryPoint.adManager();"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  final IAdManager adManager = entryPoint.adManager();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="303"
-            column="33"/>
+            line="329"
+            column="32"/>
     </issue>
 
     <issue
@@ -3726,19 +3407,19 @@
         errorLine2="  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="307"
+            line="333"
             column="3"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="  View view = getView();"
-        errorLine2="              ~~~~~~~~~">
+        errorLine1="  final View view = getView();"
+        errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="308"
-            column="15"/>
+            line="334"
+            column="21"/>
     </issue>
 
     <issue
@@ -3748,7 +3429,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="314"
+            line="340"
             column="4"/>
     </issue>
 
@@ -3759,7 +3440,7 @@
         errorLine2="                         ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="314"
+            line="340"
             column="26"/>
     </issue>
 
@@ -3770,85 +3451,30 @@
         errorLine2="  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="320"
+            line="346"
             column="3"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  final IAdManager adManager = entryPoint.adManager();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="321"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="321"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="321"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="321"
-            column="17"/>
+            line="349"
+            column="32"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(view.getContext()).adManager();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  final IAdManager adManager = entryPoint.adManager();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="326"
+            line="357"
             column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(view.getContext()).adManager();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="326"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(view.getContext()).adManager();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="326"
-            column="46"/>
     </issue>
 
     <issue
@@ -3858,7 +3484,7 @@
         errorLine2="                              ^">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="339"
+            line="378"
             column="31"/>
     </issue>
 
@@ -3869,7 +3495,7 @@
         errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="340"
+            line="379"
             column="6"/>
     </issue>
 
@@ -3880,52 +3506,19 @@
         errorLine2="                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="349"
+            line="388"
             column="26"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(requireContext()).adManager();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  final IAdManager adManager = entryPoint.adManager();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="366"
+            line="408"
             column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(requireContext()).adManager();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="366"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(requireContext()).adManager();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="366"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(requireContext()).adManager();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="366"
-            column="46"/>
     </issue>
 
     <issue
@@ -3935,7 +3528,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="380"
+            line="420"
             column="21"/>
     </issue>
 
@@ -3946,7 +3539,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="382"
+            line="422"
             column="19"/>
     </issue>
 
@@ -3957,7 +3550,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="382"
+            line="422"
             column="41"/>
     </issue>
 
@@ -3968,96 +3561,52 @@
         errorLine2="  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="387"
+            line="427"
             column="3"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="android.app.Fragment.getView is deprecated; consider using an alternative."
+        errorLine1="  final View view = getView();"
+        errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="388"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="388"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="388"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="388"
-            column="17"/>
+            line="436"
+            column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="  View view = getView();"
-        errorLine2="              ~~~~~~~~~">
+        errorLine1="  final View view = getView();"
+        errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="392"
-            column="15"/>
+            line="451"
+            column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="  View view = getView();"
-        errorLine2="              ~~~~~~~~~">
+        errorLine1="  final View view = getView();"
+        errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="408"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="  View view = getView();"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="445"
-            column="15"/>
+            line="488"
+            column="21"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
+        errorLine1="  final Activity activity = getActivity();"
+        errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="446"
-            column="23"/>
+            line="489"
+            column="29"/>
     </issue>
 
     <issue
@@ -4067,7 +3616,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="546"
+            line="584"
             column="3"/>
     </issue>
 
@@ -4078,7 +3627,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="590"
+            line="591"
             column="9"/>
     </issue>
 
@@ -4100,7 +3649,7 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="177"
+            line="179"
             column="4"/>
     </issue>
 
@@ -4111,7 +3660,7 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="177"
+            line="179"
             column="4"/>
     </issue>
 
@@ -4122,7 +3671,7 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="177"
+            line="179"
             column="4"/>
     </issue>
 
@@ -4133,7 +3682,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="177"
+            line="179"
             column="37"/>
     </issue>
 
@@ -4144,7 +3693,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="177"
+            line="179"
             column="37"/>
     </issue>
 
@@ -4155,7 +3704,7 @@
         errorLine2="     ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="178"
+            line="180"
             column="6"/>
     </issue>
 
@@ -4166,7 +3715,7 @@
         errorLine2="     ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="178"
+            line="180"
             column="6"/>
     </issue>
 
@@ -4177,7 +3726,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="179"
+            line="181"
             column="6"/>
     </issue>
 
@@ -4188,7 +3737,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="179"
+            line="181"
             column="6"/>
     </issue>
 
@@ -4199,7 +3748,7 @@
         errorLine2="     ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="180"
+            line="182"
             column="6"/>
     </issue>
 
@@ -4210,7 +3759,7 @@
         errorLine2="     ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="180"
+            line="182"
             column="6"/>
     </issue>
 
@@ -4221,7 +3770,7 @@
         errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="181"
+            line="183"
             column="6"/>
     </issue>
 
@@ -4232,7 +3781,7 @@
         errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="181"
+            line="183"
             column="6"/>
     </issue>
 
@@ -4243,7 +3792,7 @@
         errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="182"
+            line="184"
             column="6"/>
     </issue>
 
@@ -4254,7 +3803,7 @@
         errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="182"
+            line="184"
             column="6"/>
     </issue>
 
@@ -4265,7 +3814,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="234"
+            line="236"
             column="12"/>
     </issue>
 
@@ -4276,7 +3825,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="234"
+            line="236"
             column="12"/>
     </issue>
 
@@ -4452,7 +4001,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="118"
+            line="120"
             column="5"/>
     </issue>
 
@@ -4463,7 +4012,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="118"
+            line="120"
             column="5"/>
     </issue>
 
@@ -4474,7 +4023,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="118"
+            line="120"
             column="5"/>
     </issue>
 
@@ -4485,7 +4034,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="118"
+            line="120"
             column="31"/>
     </issue>
 
@@ -4496,7 +4045,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="118"
+            line="120"
             column="31"/>
     </issue>
 
@@ -4507,7 +4056,7 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="119"
+            line="121"
             column="7"/>
     </issue>
 
@@ -4518,7 +4067,7 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="119"
+            line="121"
             column="7"/>
     </issue>
 
@@ -4529,7 +4078,7 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="120"
+            line="122"
             column="7"/>
     </issue>
 
@@ -4540,7 +4089,7 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="120"
+            line="122"
             column="7"/>
     </issue>
 
@@ -4551,7 +4100,7 @@
         errorLine2="      ~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="121"
+            line="123"
             column="7"/>
     </issue>
 
@@ -4562,7 +4111,7 @@
         errorLine2="      ~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="121"
+            line="123"
             column="7"/>
     </issue>
 
@@ -4573,7 +4122,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="122"
+            line="124"
             column="7"/>
     </issue>
 
@@ -4584,7 +4133,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="122"
+            line="124"
             column="7"/>
     </issue>
 
@@ -4595,7 +4144,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="166"
+            line="168"
             column="12"/>
     </issue>
 
@@ -4606,7 +4155,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="166"
+            line="168"
             column="12"/>
     </issue>
 

@@ -115,6 +115,7 @@ class InlineBannerAdManager @Inject constructor(
     fun getAdView(adLayout: ViewGroup): AdView? =
         adLayout.findViewById(R.id.inline_banner_ad)
 
+    @MainThread
     fun onResume(viewFinder: IViewFinder) {
         resumeAd(viewFinder)
     }
@@ -140,6 +141,7 @@ class InlineBannerAdManager @Inject constructor(
         }
     }
 
+    @MainThread
     fun onPause(viewFinder: IViewFinder) {
         pauseAd(viewFinder)
     }

@@ -2,6 +2,7 @@ package org.mtransit.android.task;
 
 import android.content.Context;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -104,6 +105,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 	}
 
+	@AnyThread
 	public boolean findStatus(@NonNull POIManager poim,
 							  @NonNull StatusProviderContract.Filter statusFilter,
 							  @Nullable StatusLoader.StatusLoaderListener listener,

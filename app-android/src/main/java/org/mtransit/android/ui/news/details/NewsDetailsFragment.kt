@@ -123,8 +123,15 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     }
 
     private fun onImageClicked(view: View, newsImage: NewsImage) {
-        val titleStatic = viewModel.newsArticle.value?.text?.take(33)
-        LinkUtils.open(view, requireActivity(), newsImage.imageUrl, getString(commonsR.string.web_browser), titleStatic, true)
+        LinkUtils.open(
+            view,
+            requireActivity(),
+            newsImage.imageUrl,
+            getString(commonsR.string.web_browser),
+            viewModel.newsArticle.value?.text?.take(33),
+            true,
+            viewModel.useInternalWebBrowserPref.value,
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -142,6 +149,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
         parentViewModel.fullscreenMode.observe(viewLifecycleOwner) { fullscreenMode ->
             updateNewsView(fullscreenMode = fullscreenMode)
         }
@@ -205,7 +215,14 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
             setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
             val newsArticleWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
             setOnClickListener { view ->
-                LinkUtils.open(view, requireActivity(), newsArticleWebURL, getString(commonsR.string.web_browser), true)
+                LinkUtils.open(
+                    view,
+                    requireActivity(),
+                    newsArticleWebURL,
+                    getString(commonsR.string.web_browser),
+                    true,
+                    viewModel.useInternalWebBrowserPref.value
+                )
             }
         }
         dateLong.apply {
@@ -215,9 +232,15 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_WEEKDAY
             )
             setText(formattedDate, TextView.BufferType.SPANNABLE)
-            val newsArticleWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
             setOnClickListener { view ->
-                LinkUtils.open(view, requireActivity(), newsArticleWebURL, getString(commonsR.string.web_browser), true)
+                LinkUtils.open(
+                    view,
+                    requireActivity(),
+                    newsArticle.webURL.ifBlank { newsArticle.authorProfileURL },
+                    getString(commonsR.string.web_browser),
+                    true,
+                    viewModel.useInternalWebBrowserPref.value
+                )
             }
         }
     }
@@ -254,7 +277,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         newsText1.apply {
             setText(LinkUtils.linkifyHtml(textHTML1, true), TextView.BufferType.SPANNABLE)
             movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, newTextUrl ->
-                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true)
+                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowserPref.value)
             }
             setLinkTextColor(
                 newsArticle.colorIntOrNull?.let {
@@ -268,7 +291,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         newsText2.apply {
             setText(LinkUtils.linkifyHtml(textHTML2, true), TextView.BufferType.SPANNABLE)
             movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, newTextUrl ->
-                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true)
+                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowserPref.value)
             }
             setLinkTextColor(
                 newsArticle.colorIntOrNull?.let {
@@ -403,8 +426,15 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
                     isVisible = true
                     setOnClickListener { view ->
-                        val titleStatic = viewModel.newsArticle.value?.text?.take(33)
-                        LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), titleStatic, true)
+                        LinkUtils.open(
+                            view,
+                            requireActivity(),
+                            newsArticle.firstValidImageUrl,
+                            getString(commonsR.string.web_browser),
+                            viewModel.newsArticle.value?.text?.take(33),
+                            true,
+                            viewModel.useInternalWebBrowserPref.value
+                        )
                     }
                 }
             }
@@ -428,8 +458,14 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     private val customWebViewClient = object : WebViewClientCompat() {
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-            val webViewVideoPlayerUrl = request.url.toString()
-            LinkUtils.open(view, requireActivity(), webViewVideoPlayerUrl, getString(commonsR.string.web_browser), true)
+            LinkUtils.open(
+                view,
+                requireActivity(),
+                request.url.toString(),
+                getString(commonsR.string.web_browser),
+                true,
+                viewModel.useInternalWebBrowserPref.value
+            )
             return true // handled
         }
     }

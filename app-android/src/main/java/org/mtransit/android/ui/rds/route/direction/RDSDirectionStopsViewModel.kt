@@ -249,32 +249,29 @@ class RDSDirectionStopsViewModel @Inject constructor(
             }
         }
 
-    val showingListInsteadOfMap: LiveData<Boolean> = MediatorLiveData3(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
-        liveData {
-            authority ?: return@liveData
-            routeId ?: return@liveData
-            directionId ?: return@liveData
-            if (demoModeManager.isFullDemo()) {
-                emit(false) // show map (demo mode ON)
-                return@liveData
-            }
-            emitSource(
-                lclPrefRepository.pref.liveData(
-                    LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(authority, routeId, directionId),
-                    LocalPreferenceRepository.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+    val showingListInsteadOfMap: LiveData<Boolean> = _routeDirection
+        .switchMap { routeDirection ->
+            liveData {
+                if (demoModeManager.isFullDemo()) {
+                    emit(false) // show map (demo mode ON)
+                    return@liveData
+                }
+                routeDirection ?: return@liveData
+                emitSource(
+                    lclPrefRepository.pref.liveData(
+                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
+                        LocalPreferenceRepository.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+                    )
                 )
-            )
-        }
-    }.distinctUntilChanged()
+            }
+        }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
         if (demoModeManager.isFullDemo()) return // SKIP (demo mode ON)
-        val authority = _authority.value ?: return
-        val routeId = _routeId.value ?: return
-        val directionId = directionId.value ?: return
+        val routeDirection = _routeDirection.value ?: return
         lclPrefRepository.pref.edit {
             putBoolean(
-                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(authority, routeId, directionId),
+                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
                 showingListInsteadOfMap
             )
         }

@@ -2,18 +2,22 @@ package org.mtransit.android.ad
 
 import android.content.res.Configuration
 import androidx.annotation.AnyThread
+import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 import org.mtransit.android.ui.view.common.IActivity
 
 interface IAdManager {
 
     fun init(activity: IAdScreenActivity)
 
-    fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity)
+    suspend fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity)
 
-    fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity)
+    @WorkerThread
+    suspend fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity)
 
     // region Rewarded Ad
 
+    @AnyThread
     fun getRewardedAdAmount(): Int
 
     fun getRewardedAdAmountInMs(): Long
@@ -22,8 +26,9 @@ interface IAdManager {
 
     fun unlinkRewardedAd(activity: IActivity)
 
-    fun refreshRewardedAdStatus(activity: IActivity)
+    suspend fun refreshRewardedAdStatus(activity: IActivity)
 
+    @AnyThread
     fun isRewardedAdAvailableToShow(): Boolean
 
     fun showRewardedAd(activity: IActivity): Boolean
@@ -45,22 +50,29 @@ interface IAdManager {
 
     fun destroyAd(activity: IAdScreenActivity)
 
+    val rewardedUntilInMsLive: LiveData<Long>
+    val rewardedNowLive: LiveData<Boolean>
+
+    @WorkerThread
     fun getRewardedUntilInMs(): Long
 
     fun resetRewarded()
 
+    @WorkerThread
     fun isRewardedNow(): Boolean
 
     fun setRewardedAdListener(rewardedAdListener: RewardedAdListener?)
 
     fun openAdInspector(activity: IActivity)
 
+    @WorkerThread
     fun shouldSkipRewardedAd(): Boolean
 
     interface RewardedAdListener {
         @AnyThread
         fun onRewardedAdStatusChanged()
 
+        @WorkerThread
         fun skipRewardedAd(): Boolean
     }
 }
