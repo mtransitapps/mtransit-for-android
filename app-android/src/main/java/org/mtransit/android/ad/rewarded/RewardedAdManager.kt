@@ -58,7 +58,7 @@ class RewardedAdManager @Inject constructor(
     private var rewardedAdActivityHashCode: Int? = null
 
     @MainThread
-    fun loadRewardedAdForActivity(activity: IActivity) {
+    private fun loadRewardedAdForActivity(activity: IActivity) {
         val theActivity = activity.requireActivity()
         if (this.rewardedAd == null || (this.rewardedAdActivityHashCode != null && this.rewardedAdActivityHashCode != theActivity.hashCode())) {
             this.rewardedAdActivityHashCode = theActivity.hashCode()
