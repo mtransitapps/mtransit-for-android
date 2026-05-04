@@ -58,7 +58,7 @@ class RewardedAdManager @Inject constructor(
 
     private suspend fun loadRewardedAdForActivity(activity: IActivity) = withContext(Dispatchers.Main) {
         val theActivity = activity.requireActivity()
-        if (rewardedAd != null && !(rewardedAdActivityHashCode != null && rewardedAdActivityHashCode != theActivity.hashCode())) {
+        if (rewardedAd != null && (rewardedAdActivityHashCode == null || rewardedAdActivityHashCode == theActivity.hashCode())) {
             logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${theActivity::class.java.simpleName}...")
             return@withContext
         }
@@ -127,10 +127,8 @@ class RewardedAdManager @Inject constructor(
             logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > SKIP (not in this screen)")
             return@withContext
         }
-        withContext(Dispatchers.Main) {
-            logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > Load if necessary...")
-            loadRewardedAdForActivity(activity)
-        }
+        logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > Load if necessary...")
+        loadRewardedAdForActivity(activity)
     }
 
     @AnyThread
