@@ -2,7 +2,6 @@ package org.mtransit.android.ad.rewarded
 
 import androidx.annotation.AnyThread
 import androidx.annotation.StringRes
-import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import com.google.android.gms.ads.rewarded.RewardedAd
 import kotlinx.coroutines.Dispatchers
@@ -57,27 +56,27 @@ class RewardedAdManager @Inject constructor(
     private var rewardedAd: RewardedAd? = null
     private var rewardedAdActivityHashCode: Int? = null
 
-    @WorkerThread
-    fun loadRewardedAdForActivity(activity: IActivity) {
+    private suspend fun loadRewardedAdForActivity(activity: IActivity) = withContext(Dispatchers.Main) {
         val theActivity = activity.requireActivity()
-        if (this.rewardedAd == null || (this.rewardedAdActivityHashCode != null && this.rewardedAdActivityHashCode != theActivity.hashCode())) {
-            this.rewardedAdActivityHashCode = theActivity.hashCode()
-            logAdsD(this, "loadRewardedAdForActivity() > Loading rewarded ad for ${theActivity::class.java.simpleName}...")
-            RewardedAd.load(
-                theActivity,
-                theActivity.getString(adUnitStringResId),
-                AdManager.getAdRequest(
-                    adUnitId = theActivity.getString(adUnitStringResId)
-                ),
-                RewardedAdLoadCallback(this, this.crashReporter)
+        if (rewardedAd != null && (rewardedAdActivityHashCode == null || rewardedAdActivityHashCode == theActivity.hashCode())) {
+            logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${theActivity::class.java.simpleName}...")
+            return@withContext
+        }
+        rewardedAdActivityHashCode = theActivity.hashCode()
+        logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > Loading rewarded ad for ${theActivity::class.java.simpleName}...")
+        RewardedAd.load( // Must be called on the main UI thread
+            theActivity,
+            theActivity.getString(adUnitStringResId),
+            AdManager.getAdRequest(
+                adUnitId = theActivity.getString(adUnitStringResId)
+            ),
+            RewardedAdLoadCallback(this@RewardedAdManager, crashReporter)
+        )
+        withContext(Dispatchers.IO) {
+            val loadCounts = defaultPrefRepository.pref.getInt(
+                DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT
             )
-            val loadCounts = this.defaultPrefRepository.pref.getInt(
-                DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS,
-                DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT
-            )
-            this.defaultPrefRepository.pref.edit { putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, loadCounts + 1) }
-        } else {
-            logAdsD(this, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${theActivity::class.java.simpleName}...")
+            defaultPrefRepository.pref.edit { putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, loadCounts + 1) }
         }
     }
 
