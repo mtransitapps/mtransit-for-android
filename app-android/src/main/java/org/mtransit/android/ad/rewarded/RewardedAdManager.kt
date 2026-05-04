@@ -1,8 +1,8 @@
 package org.mtransit.android.ad.rewarded
 
 import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
 import androidx.annotation.StringRes
-import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import com.google.android.gms.ads.rewarded.RewardedAd
 import kotlinx.coroutines.Dispatchers
@@ -57,13 +57,13 @@ class RewardedAdManager @Inject constructor(
     private var rewardedAd: RewardedAd? = null
     private var rewardedAdActivityHashCode: Int? = null
 
-    @WorkerThread
+    @MainThread
     fun loadRewardedAdForActivity(activity: IActivity) {
         val theActivity = activity.requireActivity()
         if (this.rewardedAd == null || (this.rewardedAdActivityHashCode != null && this.rewardedAdActivityHashCode != theActivity.hashCode())) {
             this.rewardedAdActivityHashCode = theActivity.hashCode()
             logAdsD(this, "loadRewardedAdForActivity() > Loading rewarded ad for ${theActivity::class.java.simpleName}...")
-            RewardedAd.load(
+            RewardedAd.load( // Must be called on the main UI thread
                 theActivity,
                 theActivity.getString(adUnitStringResId),
                 AdManager.getAdRequest(
@@ -128,8 +128,10 @@ class RewardedAdManager @Inject constructor(
             logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > SKIP (not in this screen)")
             return@withContext
         }
-        logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > Load if necessary...")
-        loadRewardedAdForActivity(activity)
+        withContext(Dispatchers.Main) {
+            logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > Load if necessary...")
+            loadRewardedAdForActivity(activity)
+        }
     }
 
     @AnyThread
