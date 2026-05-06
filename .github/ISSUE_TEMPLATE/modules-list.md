@@ -24,6 +24,7 @@ labels: MT
 - [ ] ca-cornwall-transit-bus
 - [ ] ca-cowichan-valley-transit-system-bus
 - [ ] ca-cranbrook-transit-system-bus
+- [ ] ca-creston-valley-regional-transit-bus
 - [ ] ca-dawson-creek-transit-system-bus
 - [ ] ca-durham-region-transit-bus
 - [ ] ca-edmonton-ets-bus
