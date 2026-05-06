@@ -11,7 +11,7 @@ Par exemple, vous pouvez utiliser l'écran Carte pour découvrir les transports 
 Pas d'accès Internet ? GPS désactivé ? WiFi éteint ? Pas de problème, MonTransit offre de multiples façons de trouver l'information que vous cherchez :
 – vous pouvez accéder à vos favoris ★ ou parcourir toutes les informations de transport en utilisant le menu coulissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran)
 – vous pouvez entrer le numéro # ou le nom d'une ligne, le code # ou le nom d'un arrêt ou d'une station, les noms de rues... en cliquant sur l'icône 🔍 recherche
-– l'horaire complet des autobus, métros, trains, tramways et traversiers est disponible hors-ligne.
+– l'horaire complet des autobus, métros, trains, tramways et traversiers est accessible hors-ligne.
 
 MonTransit vous permet d'installer les agences de transports que vous voulez (vous n'avez pas à passer d'une ville à une autre & vous pouvez accèder à toutes les informations n'importe quand, n'importe où).
 Les informations des autobus, métros, trains, tramways et traversiers sont mises à jour via le Google Play Store sans utiliser votre batterie ou les données de votre forfait (3G/4G/LTE).
