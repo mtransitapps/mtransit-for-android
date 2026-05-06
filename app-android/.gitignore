@@ -76,6 +76,7 @@ proguard/
 /src/main/res/values/module_app_icon_color.xml
 /src/main/res/values/parent_agency_values.xml
 /src/main/res/values-fr/bike_station_strings.xml
+/src/main/res/values-fr/gtfs_rts_strings.xml
 /src/main/res/values-fr/strings.xml
 
 # trigger change 1
