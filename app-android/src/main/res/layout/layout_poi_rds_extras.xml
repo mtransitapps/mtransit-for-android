@@ -10,19 +10,6 @@
     tools:background="#00FF00"
     tools:showIn="@layout/layout_poi_rds_with_schedule"
     tools:visibility="visible">
-    <!-- DEBUG center alignment
-    <View
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_horizontal"
-        android:background="#0000FF" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_gravity="center_vertical"
-        android:background="#0000FF" />
-    DEBUG -->
     <!-- ROUTE/DIRECTION SERVICE UPDATES -->
     <include layout="@layout/layout_route_direction_service_update_img" />
     <!-- ROUTE DIRECTION -->
@@ -32,7 +19,6 @@
         android:layout_height="match_parent"
         android:background="@drawable/route_direction_gradient_rounded"
         android:orientation="vertical">
-
         <!-- ROUTE -->
         <LinearLayout
             android:id="@+id/route"
@@ -42,24 +28,28 @@
             android:layout_marginBottom="-4dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:weightSum="4"
+            tools:background="#FF00FF">
             <!-- ROUTE TYPE IMG -->
             <org.mtransit.android.ui.view.MTJPathsView
                 android:id="@+id/route_type_img"
-                android:layout_width="@dimen/baseline_32"
-                android:layout_height="@dimen/baseline_32"
-                android:padding="2dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="4"
+                android:padding="4dp"
                 android:visibility="gone"
+                tools:background="#00FFFF"
+                tools:layout_weight="2"
                 tools:visibility="visible" />
             <!-- ROUTE SHORT NAME -->
             <TextView
                 android:id="@+id/route_short_name"
                 style="@style/MTTextRouteShortName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/baseline_2"
-                android:maxWidth="@dimen/poi_extra_width"
                 android:visibility="gone"
+                tools:background="#FF00FF"
+                tools:layout_width="wrap_content"
                 tools:text="RSN123-Long-Very"
                 tools:visibility="visible" />
         </LinearLayout>
@@ -70,7 +60,7 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             tools:visibility="visible">
-
+            <!-- DIRECTION HEADING TEXT -->
             <TextView
                 android:id="@+id/direction_heading"
                 android:layout_width="wrap_content"
@@ -89,14 +79,25 @@
                 android:textStyle="bold"
                 tools:fontFamily="sans-serif-condensed"
                 tools:text="&#10132;&#x200A;Direction direction" />
-
         </FrameLayout>
-
     </LinearLayout>
+    <!-- DEBUG center alignment
+    <View
+        android:layout_width="0.5dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:alpha="0.3"
+        android:background="#000000" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_gravity="center_vertical"
+        android:alpha="0.3"
+        android:background="#000000" />
+    DEBUG -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:attr/selectableItemBackground" />
-
 </FrameLayout>

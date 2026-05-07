@@ -8,7 +8,6 @@ import static org.mtransit.android.ui.view.poi.POIViewHolderBindingUtilsKt.initT
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewStub;
 
@@ -28,12 +27,9 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.DataSourceType;
-import org.mtransit.android.data.IAgencyUIProperties;
-import org.mtransit.android.data.JPaths;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
@@ -52,12 +48,12 @@ import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.ui.view.poi.CommonViewHolder;
 import org.mtransit.android.ui.view.poi.ModuleViewHolder;
+import org.mtransit.android.ui.view.poi.POIViewHolderUtils;
 import org.mtransit.android.ui.view.poi.PlaceViewHolder;
 import org.mtransit.android.ui.view.poi.RouteDirectionStopViewHolder;
 import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder;
 import org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder;
 import org.mtransit.android.util.UIDirectionUtils;
-import org.mtransit.android.util.UIRouteUtils;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.List;
@@ -77,6 +73,7 @@ public class POIViewController implements MTLog.Loggable {
 		return getLayoutViewBinding(poim.poi.getType(), poim.getStatusType(), viewStub);
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	@NonNull
 	public static ViewBinding getLayoutViewBinding(int poiType, int poiStatusType, @NonNull ViewStub viewStub) {
 		viewStub.setLayoutResource(getLayoutResId(poiType, poiStatusType));
@@ -332,28 +329,7 @@ public class POIViewController implements MTLog.Loggable {
 			holder.getNoExtra().setVisibility(View.VISIBLE);
 			return;
 		}
-		final Route route = rds.getRoute();
-		final boolean hasRouteShortName = !TextUtils.isEmpty(route.getShortName());
-		if (hasRouteShortName) {
-			holder.getRouteShortNameTv().setText(UIRouteUtils.decorateRouteShortName(context, route.getShortName()));
-			holder.getRouteShortNameTv().setVisibility(View.VISIBLE);
-		} else {
-			holder.getRouteShortNameTv().setText(null);
-			holder.getRouteShortNameTv().setVisibility(View.GONE);
-		}
-		if (holder.getRouteTypeImg().hasPaths() && poi.getAuthority().equals(holder.getRouteTypeImg().getTag())) {
-			holder.getRouteTypeImg().setVisibility(View.VISIBLE);
-		} else {
-			final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
-			JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
-			if (rdsRouteLogo != null) {
-				holder.getRouteTypeImg().setJSON(rdsRouteLogo);
-				holder.getRouteTypeImg().setTag(poi.getAuthority());
-				holder.getRouteTypeImg().setVisibility(View.VISIBLE);
-			} else {
-				holder.getRouteTypeImg().setVisibility(View.GONE);
-			}
-		}
+		POIViewHolderUtils.setupRoute(holder, rds.getRoute(), dataProvider.providesDataSourcesRepository());
 		holder.getRouteFL().setVisibility(View.VISIBLE);
 		holder.getRdsExtraV().setVisibility(View.VISIBLE);
 		holder.getNoExtra().setVisibility(View.GONE);

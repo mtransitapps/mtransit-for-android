@@ -58,7 +58,6 @@ import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
@@ -91,6 +90,7 @@ import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.ui.view.poi.BasicPOIViewHolder;
 import org.mtransit.android.ui.view.poi.CommonViewHolder;
 import org.mtransit.android.ui.view.poi.ModuleViewHolder;
+import org.mtransit.android.ui.view.poi.POIViewHolderUtils;
 import org.mtransit.android.ui.view.poi.PlaceViewHolder;
 import org.mtransit.android.ui.view.poi.RouteDirectionStopViewHolder;
 import org.mtransit.android.ui.view.poi.TextMessageViewHolder;
@@ -101,7 +101,6 @@ import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UIFeatureFlags;
-import org.mtransit.android.util.UIRouteUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
@@ -1796,28 +1795,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			holder.getNoExtra().setVisibility(View.VISIBLE);
 			return;
 		}
-		final Route route = rds.getRoute();
-		final boolean hasRouteShortName = !TextUtils.isEmpty(route.getShortName());
-		if (hasRouteShortName) {
-			holder.getRouteShortNameTv().setText(UIRouteUtils.decorateRouteShortName(getContext(), route.getShortName()));
-			holder.getRouteShortNameTv().setVisibility(View.VISIBLE);
-		} else {
-			holder.getRouteShortNameTv().setText(null);
-			holder.getRouteShortNameTv().setVisibility(View.GONE);
-		}
-		if (holder.getRouteTypeImg().hasPaths() && poim.poi.getAuthority().equals(holder.getRouteTypeImg().getTag())) {
-			holder.getRouteTypeImg().setVisibility(View.VISIBLE);
-		} else {
-			final AgencyProperties agency = this.dataSourcesRepository.getAgency(poim.poi.getAuthority());
-			final JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
-			if (rdsRouteLogo != null) {
-				holder.getRouteTypeImg().setJSON(rdsRouteLogo);
-				holder.getRouteTypeImg().setTag(poim.poi.getAuthority());
-				holder.getRouteTypeImg().setVisibility(View.VISIBLE);
-			} else {
-				holder.getRouteTypeImg().setVisibility(View.GONE);
-			}
-		}
+		POIViewHolderUtils.setupRoute(holder, rds.getRoute(), this.dataSourcesRepository);
 		holder.getRouteFL().setVisibility(View.VISIBLE);
 		holder.getRdsExtraV().setVisibility(View.VISIBLE);
 		holder.getNoExtra().setVisibility(View.GONE);
