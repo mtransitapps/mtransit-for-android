@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
@@ -128,25 +127,25 @@ class RDSAgencyRoutesAdapter(
             val route = routeM.route
             MTTransitions.setTransitionName(routeLayout, "r_" + agency.authority + "_" + route.id)
             // SHORT NAME & LOGO
-            if (route.shortName.isBlank()) { // NO RSN
-                routeShortName.isInvisible = true // keep size
-                if (routeTypeImg.hasPaths()
-                    && agency.authority == routeTypeImg.tag
-                ) {
-                    routeTypeImg.isVisible = true
-                } else {
-                    agency.logo?.let {
-                        routeTypeImg.setJSON(it)
-                        routeTypeImg.tag = agency.authority
-                        routeTypeImg.isVisible = true
-                    } ?: run {
-                        routeTypeImg.isVisible = false
-                    }
-                }
-            } else {
-                routeTypeImg.isVisible = false
+            if (route.shortName.isNotBlank()) {
                 routeShortName.text = UIRouteUtils.decorateRouteShortName(context, route.shortName)
                 routeShortName.isVisible = true
+            } else {
+                routeShortName.text = null
+                routeShortName.isVisible = false
+            }
+            if (routeTypeImg.hasPaths()
+                && agency.authority == routeTypeImg.tag
+            ) {
+                routeTypeImg.isVisible = true
+            } else {
+                agency.logo?.let {
+                    routeTypeImg.setJSON(it)
+                    routeTypeImg.tag = agency.authority
+                    routeTypeImg.isVisible = true
+                } ?: run {
+                    routeTypeImg.isVisible = false
+                }
             }
 
             serviceUpdateLayout.routeServiceUpdateImg.apply {

@@ -333,25 +333,26 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		final Route route = rds.getRoute();
-		if (TextUtils.isEmpty(route.getShortName())) {
-			holder.getRouteShortNameTv().setVisibility(View.INVISIBLE);
-			if (holder.getRouteTypeImg().hasPaths() && poi.getAuthority().equals(holder.getRouteTypeImg().getTag())) {
-				holder.getRouteTypeImg().setVisibility(View.VISIBLE);
-			} else {
-				final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
-				JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
-				if (rdsRouteLogo != null) {
-					holder.getRouteTypeImg().setJSON(rdsRouteLogo);
-					holder.getRouteTypeImg().setTag(poi.getAuthority());
-					holder.getRouteTypeImg().setVisibility(View.VISIBLE);
-				} else {
-					holder.getRouteTypeImg().setVisibility(View.GONE);
-				}
-			}
-		} else {
-			holder.getRouteTypeImg().setVisibility(View.GONE);
+		final boolean hasRouteShortName = !TextUtils.isEmpty(route.getShortName());
+		if (hasRouteShortName) {
 			holder.getRouteShortNameTv().setText(UIRouteUtils.decorateRouteShortName(context, route.getShortName()));
 			holder.getRouteShortNameTv().setVisibility(View.VISIBLE);
+		} else {
+			holder.getRouteShortNameTv().setText(null);
+			holder.getRouteShortNameTv().setVisibility(View.GONE);
+		}
+		if (holder.getRouteTypeImg().hasPaths() && poi.getAuthority().equals(holder.getRouteTypeImg().getTag())) {
+			holder.getRouteTypeImg().setVisibility(View.VISIBLE);
+		} else {
+			final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
+			JPaths rdsRouteLogo = agency == null ? null : agency.getLogo();
+			if (rdsRouteLogo != null) {
+				holder.getRouteTypeImg().setJSON(rdsRouteLogo);
+				holder.getRouteTypeImg().setTag(poi.getAuthority());
+				holder.getRouteTypeImg().setVisibility(View.VISIBLE);
+			} else {
+				holder.getRouteTypeImg().setVisibility(View.GONE);
+			}
 		}
 		holder.getRouteFL().setVisibility(View.VISIBLE);
 		holder.getRdsExtraV().setVisibility(View.VISIBLE);
