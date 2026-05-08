@@ -65,6 +65,7 @@ labels: MT
 - [ ] ca-montreal-rem-light-rail
 - [ ] ca-montreal-stm-bus
 - [ ] ca-montreal-stm-subway
+- [ ] ca-mount-waddington-regional-transit-bus
 - [ ] ca-nanaimo-rdn-transit-system-bus
 - [ ] ca-niagara-falls-transit-bus
 - [ ] ca-niagara-falls-wego-bus
