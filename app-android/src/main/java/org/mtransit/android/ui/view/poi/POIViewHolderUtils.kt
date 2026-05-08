@@ -9,6 +9,7 @@ import androidx.core.view.updateLayoutParams
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.ui.view.common.textAndVisibility
+import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.UIRouteUtils
 
 object POIViewHolderUtils {
@@ -18,20 +19,7 @@ object POIViewHolderUtils {
     @JvmStatic
     fun RouteDirectionStopViewHolder.setupRoute(route: Route, getAgency: () -> IAgencyUIProperties?) {
         routeShortNameTv.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
-        routeTypeImg.apply {
-            if (hasPaths() && route.authority == tag) {
-                isVisible = true // logo already set for this agency authority
-            } else {
-                val agency: IAgencyUIProperties? = getAgency()
-                agency?.logo?.let { rdsRouteLogo ->
-                    setJSON(rdsRouteLogo)
-                    tag = route.authority
-                    isVisible = true
-                } ?: run {
-                    isVisible = false
-                }
-            }
-        }
+        routeTypeImg.setJSONAndVisibility(getAgency())
         if (routeShortNameTv.isVisible && routeTypeImg.isVisible) {
             routeFL.updateLayoutParams {
                 width = ViewGroup.LayoutParams.WRAP_CONTENT

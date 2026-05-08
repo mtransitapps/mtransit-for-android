@@ -46,6 +46,7 @@ import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
@@ -275,19 +276,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             }
         })
         viewModel.agency.observe(viewLifecycleOwner) { agency ->
-            binding?.routeTypeImg?.apply {
-                if (hasPaths() && agency?.authority == tag) {
-                    isVisible = true // logo already set for this agency authority
-                } else {
-                    agency?.logo?.let { rdsRouteLogo ->
-                        setJSON(rdsRouteLogo)
-                        tag = agency.authority
-                        isVisible = true
-                    } ?: run {
-                        isVisible = false
-                    }
-                }
-            }
+            binding?.routeTypeImg?.setJSONAndVisibility(agency)
         }
     }
 
