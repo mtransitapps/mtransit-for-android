@@ -11,20 +11,19 @@
     tools:showIn="@layout/layout_poi_rds_with_schedule"
     tools:visibility="visible">
     <!-- ROUTE DIRECTION -->
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/route_direction"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/route_direction_gradient_rounded"
-        android:orientation="vertical">
+        android:background="@drawable/route_direction_gradient_rounded">
         <!-- ROUTE -->
         <LinearLayout
             android:id="@+id/route"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
+            android:layout_above="@id/direction_heading_bg"
             android:layout_marginTop="3dp"
             android:layout_marginBottom="-4dp"
-            android:layout_weight="1"
             android:gravity="center"
             android:orientation="horizontal"
             android:weightSum="4"
@@ -56,6 +55,7 @@
             android:id="@+id/direction_heading_bg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:visibility="gone"
             tools:visibility="visible">
             <!-- DIRECTION HEADING TEXT -->
@@ -78,7 +78,7 @@
                 tools:fontFamily="sans-serif-condensed"
                 tools:text="&#10132;&#x200A;Direction direction" />
         </FrameLayout>
-    </LinearLayout>
+    </RelativeLayout>
     <!-- ROUTE/DIRECTION SERVICE UPDATES -->
     <include layout="@layout/layout_route_direction_service_update_img" />
     <!-- DEBUG center alignment
