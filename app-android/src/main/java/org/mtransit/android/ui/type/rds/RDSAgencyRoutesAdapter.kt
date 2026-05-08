@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -126,7 +125,6 @@ class RDSAgencyRoutesAdapter(
         ) = binding.apply {
             if (routeM?.route == null || agency == null || showingListInsteadOfGrid == null) {
                 MTLog.d(LOG_TAG, "onBindViewHolder() > SKIP (missing data)")
-                routeLayout.isVisible = false
                 return@apply
             }
             val route = routeM.route
@@ -154,7 +152,7 @@ class RDSAgencyRoutesAdapter(
                 serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin = 8.dp
                 }
-                rsnOrLogo.updateLayoutParams {
+                rsnOrLogoServiceUpdate.updateLayoutParams {
                     width = context.resources.getDimensionInt(R.dimen.poi_extra_width)
                     // 64.dp, // TO DO poi_extra_width
                     // ResourceUtils.convertDPtoPX(context, 64).toInt(),
@@ -165,7 +163,7 @@ class RDSAgencyRoutesAdapter(
                 serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin = 4.dp
                 }
-                rsnOrLogo.updateLayoutParams {
+                rsnOrLogoServiceUpdate.updateLayoutParams {
                     width = ViewGroup.LayoutParams.MATCH_PARENT
                 }
                 routeLongName.textAndVisibility = null
@@ -177,7 +175,6 @@ class RDSAgencyRoutesAdapter(
                     (if (route.hasColor()) route.colorInt else null) ?: agency.colorInt ?: UIColorUtils.DEFAULT_BACKGROUND_COLOR
                 )
             )
-            routeLayout.isVisible = true
             routeLayout.apply {
                 setOnClickListener { view ->
                     onClick(view, routeM)
