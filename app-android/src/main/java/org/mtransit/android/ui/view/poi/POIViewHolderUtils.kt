@@ -15,6 +15,7 @@ import org.mtransit.android.util.UIRouteUtils
 object POIViewHolderUtils {
 
     private const val DEBUG_LAYOUT = false
+    // private const val DEBUG_LAYOUT = true // DEBUG
 
     @JvmStatic
     fun RouteDirectionStopViewHolder.setupRoute(route: Route, getAgency: () -> IAgencyUIProperties?) {

@@ -520,9 +520,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 
 	@SuppressWarnings("unused")
 	public void forceReset() {
-		if (this.currentSelectedScreenItemNavId == null) {
-			return;
-		}
+		if (this.currentSelectedScreenItemNavId == null) return;
 		Integer saveCurrentSelectedScreenItemNavId = this.currentSelectedScreenItemNavId;
 		this.currentSelectedScreenItemNavId = null;
 		this.currentSelectedScreenItemId = null;
@@ -818,12 +816,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		navigationView.getMenu().findItem(R.id.nav_trip_planner).setCheckable(currentSelectedScreenItemNavId == R.id.nav_trip_planner);
 		navigationView.getMenu().findItem(R.id.root_nav_news).setCheckable(currentSelectedScreenItemNavId == R.id.root_nav_news);
 		for (DataSourceType dst : DataSourceType.values()) {
-			if (dst.getNavResId() == currentSelectedScreenItemNavId) {
-				continue;
-			}
-			if (!dst.isMenuList()) {
-				continue;
-			}
+			if (dst.getNavResId() == currentSelectedScreenItemNavId) continue;
+			if (!dst.isMenuList()) continue;
 			navigationView.getMenu().findItem(dst.getNavResId()).setCheckable(false);
 		}
 		navigationView.getMenu().findItem(R.id.nav_settings).setCheckable(currentSelectedScreenItemNavId == R.id.nav_settings);
@@ -912,15 +906,11 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 
 		@Override
-		public void onDrawerClosed(View view) {
+		public void onDrawerClosed(@NonNull View view) {
 			final MainActivity mainActivity = this.mainActivityWR.get();
-			if (mainActivity == null) {
-				return;
-			}
+			if (mainActivity == null) return;
 			final ActionBarController abController = mainActivity.getAbController();
-			if (abController == null) {
-				return;
-			}
+			if (abController == null) return;
 			abController.updateAB();
 		}
 	}
