@@ -23,7 +23,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
@@ -1169,19 +1168,6 @@ public class POIFragment extends ABFragment implements
 			if (nextMainViewModel != null) {
 				nextMainViewModel.setABBgColor(getABBgColor(getContext()));
 			}
-		}
-		final View view = getView();
-		if (view != null) {
-			view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-				@Override
-				public void onGlobalLayout() {
-					if (!isRemoving() && isResumed()) {
-						POIViewController.updateView(getPOIView(), getPoimOrNull(), POIFragment.this);
-					}
-					view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-				}
-			});
 		}
 	}
 

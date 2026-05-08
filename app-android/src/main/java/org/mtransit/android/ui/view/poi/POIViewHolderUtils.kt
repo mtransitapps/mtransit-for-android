@@ -3,7 +3,6 @@ package org.mtransit.android.ui.view.poi
 import android.graphics.Color
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
@@ -96,27 +95,23 @@ object POIViewHolderUtils {
         routeShortNameTv.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
         routeTypeImg.setJSONAndVisibility(getAgency())
         if (routeShortNameTv.isVisible && routeTypeImg.isVisible) {
-            routeFL.updateLayoutParams {
-                width = ViewGroup.LayoutParams.WRAP_CONTENT
-            }
             routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                 weight = 2f
-                gravity = Gravity.END
             }
             routeShortNameTv.updateLayoutParams<LinearLayout.LayoutParams> {
-                width = ViewGroup.LayoutParams.WRAP_CONTENT
+                weight = 2f
             }
+            routeShortNameTv.gravity = Gravity.START or Gravity.CENTER_VERTICAL
+            view.findViewById<View>(R.id.route_space_start).isVisible = true
         } else {
-            routeFL.updateLayoutParams {
-                width = ViewGroup.LayoutParams.MATCH_PARENT
-            }
             routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                 weight = 4f
-                gravity = Gravity.NO_GRAVITY
             }
             routeShortNameTv.updateLayoutParams<LinearLayout.LayoutParams> {
-                width = ViewGroup.LayoutParams.MATCH_PARENT
+                weight = 4f
             }
+            routeShortNameTv.gravity = Gravity.CENTER
+            view.findViewById<View>(R.id.route_space_start).isVisible = false
         }
         if (DEBUG_LAYOUT) {
             rdsExtraV.setBackgroundColor(Color.YELLOW)
