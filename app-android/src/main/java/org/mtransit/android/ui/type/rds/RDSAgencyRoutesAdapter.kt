@@ -158,7 +158,6 @@ class RDSAgencyRoutesAdapter(
                     width = context.resources.getDimensionInt(R.dimen.poi_extra_width)
                     // 64.dp, // TO DO poi_extra_width
                     // ResourceUtils.convertDPtoPX(context, 64).toInt(),
-                    height = ViewGroup.LayoutParams.MATCH_PARENT
                 }
                 routeLongName.textAndVisibility = route.longName.takeIf { it.isNotBlank() }
             } else { // GRID
@@ -168,7 +167,6 @@ class RDSAgencyRoutesAdapter(
                 }
                 rsnOrLogo.updateLayoutParams {
                     width = ViewGroup.LayoutParams.MATCH_PARENT
-                    height = ViewGroup.LayoutParams.MATCH_PARENT
                 }
                 routeLongName.textAndVisibility = null
             }

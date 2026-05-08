@@ -30,6 +30,7 @@ object POIViewHolderUtils {
                 gravity = Gravity.END
             }
             routeShortNameTv.updateLayoutParams<LinearLayout.LayoutParams> {
+                weight = 0f
                 width = ViewGroup.LayoutParams.WRAP_CONTENT
             }
         } else {

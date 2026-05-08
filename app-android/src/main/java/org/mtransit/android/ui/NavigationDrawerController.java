@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.AnyThread;
+import androidx.annotation.IdRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -124,6 +125,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	private ABDrawerToggle drawerToggle;
 	@Nullable
 	private NavigationView navigationView;
+	@IdRes
 	@Nullable
 	private Integer currentSelectedScreenItemNavId = null;
 	@Nullable
@@ -209,9 +211,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 
 	private void finishSetupAsync() {
 		//noinspection deprecation
-		if (this.finishSetupTask != null && this.finishSetupTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) {
-			return;
-		}
+		if (this.finishSetupTask != null && this.finishSetupTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) return;
 		this.finishSetupTask = new FinishSetupTask(this);
 		TaskUtils.execute(this.finishSetupTask);
 	}
@@ -346,9 +346,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		final List<DataSourceType> filteredDataSourceTypes = new ArrayList<>();
 		if (availableAgencyTypes != null) {
 			for (DataSourceType type : availableAgencyTypes) {
-				if (!type.isMenuList()) {
-					continue;
-				}
+				if (!type.isMenuList()) continue;
 				filteredDataSourceTypes.add(type);
 			}
 		}
@@ -368,16 +366,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.navigationView.getMenu().findItem(R.id.root_nav_news).setVisible(hasNewsProviderEnabled);
 		final List<DataSourceType> allAgencyTypes = getAllAgencyTypes();
 		for (DataSourceType dst : DataSourceType.values()) {
-			if (allAgencyTypes != null && allAgencyTypes.contains(dst)) {
-				continue;
-			}
-			if (!dst.isMenuList()) {
-				continue;
-			}
+			if (allAgencyTypes != null && allAgencyTypes.contains(dst)) continue;
+			if (!dst.isMenuList()) continue;
 			final MenuItem dstMenuItem = this.navigationView.getMenu().findItem(dst.getNavResId());
-			if (dstMenuItem == null) {
-				continue;
-			}
+			if (dstMenuItem == null) continue;
 			dstMenuItem.setVisible(false);
 		}
 		if (allAgencyTypes != null) {
@@ -469,6 +461,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		return null;
 	}
 
+	@IdRes
 	@AnyThread
 	@NonNull
 	private Integer getScreenNavItemId(@Nullable String itemId) {
