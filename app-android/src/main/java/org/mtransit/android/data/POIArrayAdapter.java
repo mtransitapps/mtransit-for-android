@@ -58,7 +58,6 @@ import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderBinding;
@@ -80,7 +79,6 @@ import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.location.UILocationUtils;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
-import org.mtransit.android.ui.rds.route.RDSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.POIViewUtils;
@@ -99,7 +97,6 @@ import org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder;
 import org.mtransit.android.ui.view.poi.status.POIStatusDataProvider;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
-import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
@@ -778,16 +775,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return (MaterialButton) LayoutPoiListBrowseHeaderButtonBinding.inflate(this.layoutInflater, root, false).getRoot();
 	}
 
-	private void updateCommonViewManual(@NonNull POIManager poim, @NonNull View convertView) {
-		if (!(convertView.getTag() instanceof CommonViewHolder)) {
-			return;
-		}
-		final CommonViewHolder holder = (CommonViewHolder) convertView.getTag();
-		updateCommonView(holder, poim);
-		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, this);
-		POIServiceUpdateViewHolder.fetchAndUpdateView(holder.getServiceUpdateViewHolder(), poim, this);
-	}
-
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		showPoiViewerScreen(view, position);
@@ -995,6 +982,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		}
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean hasPois() {
 		return getPoisCount() > 0;
 	}
@@ -1148,18 +1136,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if (this.manualLayout == null || !hasPois()) return;
 		int position = 0;
 		for (int i = 0; i < this.manualLayout.getChildCount(); i++) {
-			View view = this.manualLayout.getChildAt(i);
-			if (view instanceof FrameLayout) {
-				view = ((FrameLayout) view).getChildAt(0);
-			}
-			final Object tag = view == null ? null : view.getTag();
-			if (tag instanceof CommonViewHolder) {
-				final POIManager poim = getItem(position);
-				if (poim != null) {
-					updateCommonViewManual(poim, view);
-				}
-				position++;
-			}
+			final View childView = this.manualLayout.getChildAt(i);
+			if (!(childView instanceof FrameLayout)) continue; // divider
+			final FrameLayout frameLayout = (FrameLayout) childView;
+			final View itemView = frameLayout.getChildAt(0);
+			getView(position, itemView, this.manualLayout); // update view
+			position++;
 		}
 	}
 
@@ -1171,29 +1153,28 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	public void initManual() {
-		if (this.manualLayout != null && hasPois()) {
-			this.manualLayout.removeAllViews(); // clear the previous list
-			for (int i = 0; i < getPoisCount(); i++) {
-				if (this.manualLayout.getChildCount() > 0) {
-					this.manualLayout.addView(this.layoutInflater.inflate(R.layout.list_view_divider_rounded, this.manualLayout, false));
-				}
-				View itemView = getView(i, null, this.manualLayout);
-				FrameLayout frameLayout = new FrameLayout(getContext());
-				frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-				frameLayout.addView(itemView);
-				View selectorView = new View(getContext());
-				selectorView.setBackground(ThemeUtils.obtainStyledDrawable(getContext(), android.R.attr.selectableItemBackground));
-				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-				frameLayout.addView(selectorView);
-				final int position = i;
-				frameLayout.setOnClickListener(view ->
-						showPoiViewerScreen(view, position)
-				);
-				frameLayout.setOnLongClickListener(view ->
-						showPoiMenu(view, position)
-				);
-				this.manualLayout.addView(frameLayout);
+		if (this.manualLayout == null || !hasPois()) return;
+		this.manualLayout.removeAllViews(); // clear the previous list
+		for (int i = 0; i < getPoisCount(); i++) {
+			if (this.manualLayout.getChildCount() > 0) {
+				this.manualLayout.addView(this.layoutInflater.inflate(R.layout.list_view_divider_rounded, this.manualLayout, false));
 			}
+			final View itemView = getView(i, null, this.manualLayout);
+			final FrameLayout frameLayout = new FrameLayout(getContext());
+			frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+			frameLayout.addView(itemView);
+			final View selectorView = new View(getContext());
+			selectorView.setBackground(ThemeUtils.obtainStyledDrawable(getContext(), android.R.attr.selectableItemBackground));
+			selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+			frameLayout.addView(selectorView);
+			final int position = i;
+			frameLayout.setOnClickListener(view ->
+					showPoiViewerScreen(view, position)
+			);
+			frameLayout.setOnLongClickListener(view ->
+					showPoiMenu(view, position)
+			);
+			this.manualLayout.addView(frameLayout);
 		}
 	}
 
@@ -1784,55 +1765,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@UiThread
 	private void updateRDSExtra(POIManager poim, RouteDirectionStopViewHolder holder) {
-		if (!(poim.poi instanceof RouteDirectionStop)) {
-			return;
-		}
-		final RouteDirectionStop rds = (RouteDirectionStop) poim.poi;
-		if (!this.showExtra) {
-			holder.getRdsExtraV().setVisibility(View.GONE);
-			holder.getRouteFL().setVisibility(View.GONE);
-			holder.getDirectionHeadingBg().setVisibility(View.GONE);
-			holder.getNoExtra().setVisibility(View.VISIBLE);
-			return;
-		}
-		POIViewHolderUtils.setupRoute(holder, rds.getRoute(), () -> this.dataSourcesRepository.getAgency(rds.getRoute().getAuthority()));
-		holder.getRouteFL().setVisibility(View.VISIBLE);
-		holder.getRdsExtraV().setVisibility(View.VISIBLE);
-		holder.getNoExtra().setVisibility(View.GONE);
-		holder.getDirectionHeadingTv().setText(
-				UIDirectionUtils.decorateDirection(getContext(), rds.getDirection().getUIHeading(getContext(), true), true)
+		POIViewHolderUtils.updateExtra(
+				holder,
+				poim,
+				this.showExtra,
+				() -> this.dataSourcesRepository.getAgency(poim.poi.getAuthority()),
+				poim.getColor(dataSourcesRepository),
+				() -> (MainActivity) POIArrayAdapter.this.getActivity(),
+				false,
+				false,
+				(view) -> leaving()
 		);
-		holder.getDirectionHeadingBg().setVisibility(View.VISIBLE);
-		POIViewUtils.setupPOIExtraLayoutBackground(holder.getRdsExtraV(), poim, dataSourcesRepository);
-		holder.getRdsExtraV().setOnClickListener(view -> {
-			leaving();
-			MTTransitions.setTransitionName(view, "r_" + rds.getAuthority() + "_" + rds.getRoute().getId());
-			if (FeatureFlags.F_NAVIGATION) {
-				final NavController navController = Navigation.findNavController(view);
-				FragmentNavigator.Extras extras = null;
-				if (FeatureFlags.F_TRANSITION) {
-					extras = new FragmentNavigator.Extras.Builder()
-							.addSharedElement(view, view.getTransitionName())
-							.build();
-				}
-				NavControllerExtKt.navigateF(navController,
-						R.id.nav_to_rds_route_screen,
-						RDSRouteFragment.newInstanceArgs(rds),
-						null,
-						extras
-				);
-			} else {
-				final FragmentActivity activity = POIArrayAdapter.this.getActivity();
-				if (!(activity instanceof MainActivity)) {
-					MTLog.w(POIArrayAdapter.this, "No activity available to open RDS fragment!");
-					return;
-				}
-				((MainActivity) activity).addFragmentToStack(
-						RDSRouteFragment.newInstance(rds),
-						view
-				);
-			}
-		});
 	}
 
 	@Override

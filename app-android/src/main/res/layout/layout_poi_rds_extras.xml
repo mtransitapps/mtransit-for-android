@@ -7,7 +7,7 @@
     android:layout_alignParentStart="true"
     android:layout_marginEnd="@dimen/poi_extra_margin_end"
     android:visibility="gone"
-    tools:background="#00FF00"
+    tools:background="#FFFF00"
     tools:showIn="@layout/layout_poi_rds_with_schedule"
     tools:visibility="visible">
     <!-- ROUTE DIRECTION -->
@@ -15,7 +15,8 @@
         android:id="@+id/route_direction"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/route_direction_gradient_rounded">
+        android:background="@drawable/route_direction_gradient_rounded"
+        tools:background="#0000FF">
         <!-- ROUTE -->
         <LinearLayout
             android:id="@+id/route"
@@ -27,7 +28,7 @@
             android:gravity="center"
             android:orientation="horizontal"
             android:weightSum="4"
-            tools:background="#FF00FF">
+            tools:background="#00FF00">
             <!-- ROUTE TYPE IMG -->
             <org.mtransit.android.ui.view.MTJPathsView
                 android:id="@+id/route_type_img"
@@ -37,7 +38,8 @@
                 android:layout_weight="4"
                 android:padding="4dp"
                 android:visibility="gone"
-                tools:background="@drawable/ic_directions_subway_black_24dp"
+                tools:background="#00FFFF"
+                tools:foreground="@drawable/ic_directions_subway_black_24dp"
                 tools:layout_weight="2"
                 tools:visibility="visible" />
             <!-- ROUTE SHORT NAME -->
@@ -47,7 +49,7 @@
                 android:visibility="gone"
                 tools:background="#FF00FF"
                 tools:layout_width="wrap_content"
-                tools:text="RSN1"
+                tools:text="R1"
                 tools:visibility="visible" />
         </LinearLayout>
         <!-- DIRECTION HEADING -->

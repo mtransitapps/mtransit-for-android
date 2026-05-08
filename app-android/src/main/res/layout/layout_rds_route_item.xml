@@ -37,6 +37,7 @@
                 android:minHeight="@dimen/baseline_40"
                 android:padding="2dp"
                 android:visibility="gone"
+                tools:foreground="@drawable/ic_directions_subway_black_24dp"
                 tools:background="#00FFFF"
                 tools:layout_weight="2"
                 tools:visibility="visible" />
