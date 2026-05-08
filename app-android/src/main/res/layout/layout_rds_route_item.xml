@@ -13,11 +13,11 @@
     <!-- RSN / LOGO + SERVICE UPDATE -->
     <FrameLayout
         android:id="@+id/rsn_or_logo_service_update"
-        android:layout_width="@dimen/poi_extra_width"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         tools:background="#0000FF"
-        tools:layout_width="match_parent">
+        tools:layout_width="@dimen/poi_extra_width">
         <!-- RSN / LOGO -->
         <LinearLayout
             android:id="@+id/rsn_or_logo"
@@ -39,7 +39,7 @@
                 android:visibility="gone"
                 tools:background="#00FFFF"
                 tools:layout_weight="2"
-                tools:visibility="gone" />
+                tools:visibility="visible" />
             <!-- ROUTE SHORT NAME -->
             <TextView
                 android:id="@+id/route_short_name"
@@ -51,7 +51,7 @@
                 android:maxWidth="@dimen/poi_extra_width"
                 android:visibility="gone"
                 tools:background="#FF00FF"
-                tools:layout_weight="4"
+                tools:layout_weight="2"
                 tools:text="R12345"
                 tools:visibility="visible" />
         </LinearLayout>
@@ -73,5 +73,5 @@
         android:gravity="center_vertical"
         android:visibility="gone"
         tools:text="Route Long Name Route Long Name Route Long Name"
-        tools:visibility="gone" />
+        tools:visibility="visible" />
 </LinearLayout>

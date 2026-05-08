@@ -5,6 +5,8 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -132,6 +134,21 @@ class RDSAgencyRoutesAdapter(
             // SHORT NAME & LOGO
             routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
             routeTypeImg.setJSONAndVisibility(agency)
+            if (routeShortName.isVisible && routeTypeImg.isVisible) {
+                routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 2f
+                }
+                routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 2f
+                }
+            } else {
+                routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 4f
+                }
+                routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 4f
+                }
+            }
             serviceUpdateLayout.routeServiceUpdateImg.apply {
                 val serviceUpdates = routeM.getServiceUpdates(
                     serviceUpdateLoader = serviceUpdateLoader,
