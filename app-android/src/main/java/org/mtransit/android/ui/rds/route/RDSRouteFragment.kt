@@ -274,6 +274,21 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
+        viewModel.agency.observe(viewLifecycleOwner) { agency ->
+            binding?.routeTypeImg?.apply {
+                if (hasPaths() && agency?.authority == tag) {
+                    isVisible = true // logo already set for this agency authority
+                } else {
+                    agency?.logo?.let { rdsRouteLogo ->
+                        setJSON(rdsRouteLogo)
+                        tag = agency.authority
+                        isVisible = true
+                    } ?: run {
+                        isVisible = false
+                    }
+                }
+            }
+        }
     }
 
     private fun updateScreenToolbarBgColor() =

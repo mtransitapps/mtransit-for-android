@@ -24,6 +24,7 @@ import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.setPadding
+import org.mtransit.android.ui.view.common.textAndVisibility
 import org.mtransit.android.util.UIRouteUtils
 
 class RDSAgencyRoutesAdapter(
@@ -127,21 +128,13 @@ class RDSAgencyRoutesAdapter(
             val route = routeM.route
             MTTransitions.setTransitionName(routeLayout, "r_" + agency.authority + "_" + route.id)
             // SHORT NAME & LOGO
-            if (route.shortName.isNotBlank()) {
-                routeShortName.text = UIRouteUtils.decorateRouteShortName(context, route.shortName)
-                routeShortName.isVisible = true
-            } else {
-                routeShortName.text = null
-                routeShortName.isVisible = false
-            }
-            if (routeTypeImg.hasPaths()
-                && agency.authority == routeTypeImg.tag
-            ) {
+            routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
+            if (routeTypeImg.hasPaths() && route.authority == routeTypeImg.tag) {
                 routeTypeImg.isVisible = true
             } else {
                 agency.logo?.let {
                     routeTypeImg.setJSON(it)
-                    routeTypeImg.tag = agency.authority
+                    routeTypeImg.tag = route.authority
                     routeTypeImg.isVisible = true
                 } ?: run {
                     routeTypeImg.isVisible = false

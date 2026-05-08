@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view.poi
 
+import android.content.Context
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -19,6 +20,7 @@ interface CommonViewHolder {
     var uuid: String?
     var statusViewHolder: POICommonStatusViewHolder<*, *>?
     var serviceUpdateViewHolder: POIServiceUpdateViewHolder?
+    val context: Context get() = view.context
 }
 
 data class TextMessageViewHolder(

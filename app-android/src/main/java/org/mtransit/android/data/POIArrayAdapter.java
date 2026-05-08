@@ -1795,7 +1795,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			holder.getNoExtra().setVisibility(View.VISIBLE);
 			return;
 		}
-		POIViewHolderUtils.setupRoute(holder, rds.getRoute(), this.dataSourcesRepository);
+		POIViewHolderUtils.setupRoute(holder, rds.getRoute(), () -> this.dataSourcesRepository.getAgency(rds.getRoute().getAuthority()));
 		holder.getRouteFL().setVisibility(View.VISIBLE);
 		holder.getRdsExtraV().setVisibility(View.VISIBLE);
 		holder.getNoExtra().setVisibility(View.GONE);

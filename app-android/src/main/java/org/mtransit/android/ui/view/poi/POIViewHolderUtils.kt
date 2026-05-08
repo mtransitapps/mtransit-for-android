@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view.poi
 
+import android.graphics.Color
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -7,22 +8,21 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.data.IAgencyUIProperties
-import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.view.common.textAndVisibility
-import org.mtransit.android.util.UIRouteUtils.decorateRouteShortName
+import org.mtransit.android.util.UIRouteUtils
 
 object POIViewHolderUtils {
 
+    private const val DEBUG_LAYOUT = false
+
     @JvmStatic
-    fun RouteDirectionStopViewHolder.setupRoute(route: Route, dataSourcesRepository: DataSourcesRepository) {
-        routeShortNameTv.apply {
-            textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { decorateRouteShortName(routeShortNameTv.context, it) }
-        }
+    fun RouteDirectionStopViewHolder.setupRoute(route: Route, getAgency: () -> IAgencyUIProperties?) {
+        routeShortNameTv.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
         routeTypeImg.apply {
             if (hasPaths() && route.authority == tag) {
                 isVisible = true // logo already set for this agency authority
             } else {
-                val agency: IAgencyUIProperties? = dataSourcesRepository.getAgency(route.authority)
+                val agency: IAgencyUIProperties? = getAgency()
                 agency?.logo?.let { rdsRouteLogo ->
                     setJSON(rdsRouteLogo)
                     tag = route.authority
@@ -55,6 +55,11 @@ object POIViewHolderUtils {
                 weight = 4f
                 width = ViewGroup.LayoutParams.MATCH_PARENT
             }
+        }
+        if (DEBUG_LAYOUT) {
+            routeTypeImg.setBackgroundColor(Color.CYAN)
+            routeShortNameTv.setBackgroundColor(Color.MAGENTA)
+            routeFL.setBackgroundColor(Color.GREEN)
         }
     }
 }

@@ -329,7 +329,7 @@ public class POIViewController implements MTLog.Loggable {
 			holder.getNoExtra().setVisibility(View.VISIBLE);
 			return;
 		}
-		POIViewHolderUtils.setupRoute(holder, rds.getRoute(), dataProvider.providesDataSourcesRepository());
+		POIViewHolderUtils.setupRoute(holder, rds.getRoute(), () -> dataProvider.providesDataSourcesRepository().getAgency(rds.getRoute().getAuthority()));
 		holder.getRouteFL().setVisibility(View.VISIBLE);
 		holder.getRdsExtraV().setVisibility(View.VISIBLE);
 		holder.getNoExtra().setVisibility(View.GONE);

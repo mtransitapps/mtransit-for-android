@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -19,6 +19,7 @@
         style="@style/Widget.MaterialComponents.TabLayout.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/screen_toolbar_layout"
         android:theme="@style/MTThemeOverlay"
         android:visibility="gone"
         app:tabContentStart="@dimen/tab_content_start"
@@ -30,10 +31,46 @@
         tools:background="#FF00FF"
         tools:visibility="visible" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/tabs"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:weightSum="10">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="6" />
+
+        <ImageView
+            android:id="@+id/type_img"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="24dp"
+            android:layout_weight="2"
+            android:alpha="0.3"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            app:tint="#FFFFFF"
+            tools:background="#00ff00"
+            tools:src="@drawable/ic_directions_subway_black_24dp"
+            tools:visibility="visible" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2" />
+
+    </LinearLayout>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/context_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/tabs">
 
         <!-- LOADING -->
         <include
@@ -65,4 +102,4 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-</LinearLayout>
+</RelativeLayout>

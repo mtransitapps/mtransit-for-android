@@ -30,6 +30,37 @@
                 tools:background="#FF00FF"
                 tools:ignore="UnusedAttribute" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:weightSum="10">
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="6" />
+
+                <!-- ROUTE TYPE IMG -->
+                <org.mtransit.android.ui.view.MTJPathsView
+                    android:id="@+id/route_type_img"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:alpha="0.3"
+                    android:minWidth="@dimen/baseline_40"
+                    android:minHeight="@dimen/baseline_40"
+                    android:padding="2dp"
+                    android:visibility="gone"
+                    tools:background="@drawable/ic_directions_subway_black_24dp"
+                    tools:visibility="visible" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2" />
+
+            </LinearLayout>
+
             <!-- AppBarLayout == LinearLayout -->
             <LinearLayout
                 android:layout_width="match_parent"

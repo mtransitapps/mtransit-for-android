@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view.poi.serviceupdate
 
+import android.graphics.Color
 import android.view.View
 import android.widget.ImageView
 import androidx.core.view.isVisible
@@ -84,11 +85,18 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
             this.setImageDrawable(null)
             this.isVisible = false
         }
+        if (DEBUG_LAYOUT) {
+            this.setImageResource(R.drawable.ic_warning_on_surface_16dp)
+            this.isVisible = true
+            this.setBackgroundColor(Color.RED)
+        }
     }
 
     companion object {
 
         private val LOG_TAG: String = POIServiceUpdateViewHolder::class.java.simpleName
+
+        private const val DEBUG_LAYOUT = false
 
         @JvmOverloads
         @JvmStatic

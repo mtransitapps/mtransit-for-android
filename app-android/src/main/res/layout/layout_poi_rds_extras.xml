@@ -10,8 +10,6 @@
     tools:background="#00FF00"
     tools:showIn="@layout/layout_poi_rds_with_schedule"
     tools:visibility="visible">
-    <!-- ROUTE/DIRECTION SERVICE UPDATES -->
-    <include layout="@layout/layout_route_direction_service_update_img" />
     <!-- ROUTE DIRECTION -->
     <LinearLayout
         android:id="@+id/route_direction"
@@ -40,7 +38,7 @@
                 android:layout_weight="4"
                 android:padding="4dp"
                 android:visibility="gone"
-                tools:background="#00FFFF"
+                tools:background="@drawable/ic_directions_subway_black_24dp"
                 tools:layout_weight="2"
                 tools:visibility="visible" />
             <!-- ROUTE SHORT NAME -->
@@ -50,7 +48,7 @@
                 android:visibility="gone"
                 tools:background="#FF00FF"
                 tools:layout_width="wrap_content"
-                tools:text="RSN123-Long-Very"
+                tools:text="RSN1"
                 tools:visibility="visible" />
         </LinearLayout>
         <!-- DIRECTION HEADING -->
@@ -81,6 +79,8 @@
                 tools:text="&#10132;&#x200A;Direction direction" />
         </FrameLayout>
     </LinearLayout>
+    <!-- ROUTE/DIRECTION SERVICE UPDATES -->
+    <include layout="@layout/layout_route_direction_service_update_img" />
     <!-- DEBUG center alignment
     <View
         android:layout_width="0.5dp"
