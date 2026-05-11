@@ -406,8 +406,14 @@ public class MapViewController implements
 				.clusterOptionsProvider(new MTClusterOptionsProvider(activity))
 				.addMarkersDynamically(true)
 		);
-		final MapCapabilities capabilities = googleMap.getMapCapabilities();
-		this.advancedMarkersAvailable = capabilities.isAdvancedMarkersAvailable();
+		try {
+			final MapCapabilities capabilities = googleMap.getMapCapabilities();
+			this.advancedMarkersAvailable = capabilities != null && capabilities.isAdvancedMarkersAvailable();
+		} catch (RuntimeException e) {
+			//noinspection deprecation // FIXME
+			CrashUtils.w(this, e, "Error while getting map capabilities!");
+			this.advancedMarkersAvailable = false;
+		}
 		MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
 		clearMarkers();
 		int paddingTopPx = 0;
@@ -518,7 +524,7 @@ public class MapViewController implements
 
 	private int getMapType() {
 		if (this.mapType < 0) {
-			if (this.lclPrefRepository == null ) {
+			if (this.lclPrefRepository == null) {
 				return MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT;
 			}
 			this.mapType = this.lclPrefRepository.getPref().getInt(MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);
