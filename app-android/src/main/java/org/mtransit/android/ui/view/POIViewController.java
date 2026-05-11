@@ -310,7 +310,6 @@ public class POIViewController implements MTLog.Loggable {
 			@NonNull RouteDirectionStopViewHolder holder,
 			@NonNull final POIDataProvider dataProvider
 	) {
-		MTLog.d(LOG_TAG, "updateRDSExtra(%s)", poim.poi.getUUID());
 		POIViewHolderUtils.updateExtra(
 				holder,
 				poim,
