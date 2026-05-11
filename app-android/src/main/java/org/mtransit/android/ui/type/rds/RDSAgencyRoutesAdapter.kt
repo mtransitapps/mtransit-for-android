@@ -137,7 +137,7 @@ class RDSAgencyRoutesAdapter(
             routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
             routeTypeImg.setJSONAndVisibility(agency)
             if (routeShortName.isVisible && routeTypeImg.isVisible) {
-                routeSpaceStart.isVisible = true && showingListInsteadOfGrid
+                routeSpaceStart.isVisible = showingListInsteadOfGrid
                 routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                     weight = 2f
                 }
