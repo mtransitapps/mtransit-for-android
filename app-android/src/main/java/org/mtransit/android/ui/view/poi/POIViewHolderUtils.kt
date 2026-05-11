@@ -58,8 +58,12 @@ object POIViewHolderUtils {
         rdsExtraV.isVisible = true
         directionHeadingTv.apply {
             text = UIDirectionUtils.decorateDirection(context, rds.direction.getUIHeading(context, true), true)
-            setSingleLine(directionSingleLine) // marquee forever
-            setSelected(directionSelected) // marquee forever
+            if (directionSingleLine) {
+                setSingleLine(true) // marquee forever
+            } // else do not change
+            if (directionSelected) {
+                setSelected(true) // marquee forever
+            } // else do not change
         }
         directionHeadingBg.isVisible = true
         POIViewUtils.setupPOIExtraLayoutBackground(rdsExtraV, poim.poi.type, poimColorInt)
