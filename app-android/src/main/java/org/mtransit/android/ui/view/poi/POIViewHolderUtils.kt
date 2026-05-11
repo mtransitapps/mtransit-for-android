@@ -57,7 +57,7 @@ object POIViewHolderUtils {
         rsnImg.isVisible = true
         rdsExtraV.isVisible = true
         directionHeadingTv.apply {
-            text = UIDirectionUtils.decorateDirection(context, rds.direction.getUIHeading(context, false), false)
+            text = UIDirectionUtils.decorateDirection(context, rds.direction.getUIHeading(context, true), true)
             if (directionSingleLine) {
                 setSingleLine(true) // marquee forever
             }

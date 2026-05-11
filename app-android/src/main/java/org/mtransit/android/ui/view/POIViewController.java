@@ -316,7 +316,7 @@ public class POIViewController implements MTLog.Loggable {
 				dataProvider.isShowingExtra(),
 				() -> dataProvider.providesDataSourcesRepository().getAgency(poim.poi.getAuthority()),
 				poim.getColor(dataProvider.providesDataSourcesRepository()),
-				() -> (MainActivity) dataProvider.getActivity(),
+				() -> dataProvider.getActivity() instanceof MainActivity ? (MainActivity) dataProvider.getActivity() : null,
 				true,
 				true
 		);

@@ -441,9 +441,7 @@ public class MapViewController implements
 	}
 
 	public void applyPaddings() {
-		if (this.extendedGoogleMap == null) {
-			return; // SKIP (map not ready)
-		}
+		if (this.extendedGoogleMap == null) return; // SKIP (map not ready)
 		int paddingTopPx = 0;
 		if (this.paddingTopSp > 0) {
 			final Context context = getActivityOrNull();

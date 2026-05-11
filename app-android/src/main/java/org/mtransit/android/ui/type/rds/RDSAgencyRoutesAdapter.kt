@@ -128,6 +128,7 @@ class RDSAgencyRoutesAdapter(
         ) = binding.apply {
             if (routeM?.route == null || agency == null || showingListInsteadOfGrid == null) {
                 MTLog.d(LOG_TAG, "onBindViewHolder() > SKIP (missing data)")
+                routeLayout.isVisible = false
                 return@apply
             }
             val route = routeM.route
@@ -201,6 +202,7 @@ class RDSAgencyRoutesAdapter(
                 setOnClickListener { view ->
                     onClick(view, routeM)
                 }
+                isVisible = true
             }
             if (DEBUG_LAYOUT) {
                 serviceUpdateLayout.routeServiceUpdateImg.apply {

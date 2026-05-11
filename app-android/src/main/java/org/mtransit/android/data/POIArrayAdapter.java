@@ -1771,7 +1771,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				this.showExtra,
 				() -> this.dataSourcesRepository.getAgency(poim.poi.getAuthority()),
 				poim.getColor(dataSourcesRepository),
-				() -> (MainActivity) POIArrayAdapter.this.getActivity(),
+				() -> POIArrayAdapter.this.getActivity() instanceof MainActivity ? (MainActivity) POIArrayAdapter.this.getActivity() : null,
 				false,
 				false,
 				(view) -> leaving()
