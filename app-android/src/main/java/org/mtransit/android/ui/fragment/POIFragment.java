@@ -448,9 +448,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public Integer getVehicleColorInt() {
 		final POIManager poim = getPoimOrNull();
-		if (poim == null) {
-			return null;
-		}
+		if (poim == null) return null;
 		return poim.getColor(dataSourcesRepository);
 	}
 
@@ -458,9 +456,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public DataSourceType getVehicleType() {
 		final IAgencyProperties agency = getAgencyOrNull();
-		if (agency == null) {
-			return null;
-		}
+		if (agency == null) return null;
 		return agency.getType();
 	}
 

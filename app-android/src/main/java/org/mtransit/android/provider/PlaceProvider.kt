@@ -93,10 +93,8 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         val lat = poiFilter.getExtraDouble("lat", null)
         val lng = poiFilter.getExtraDouble("lng", null)
         val searchKeywords = poiFilter.searchKeywords
-        val searchByTextRequest = getTextSearchRequest(lat, lng, null, searchKeywords)
-        if (searchByTextRequest == null) { // no search keyboard => no search
-            return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
-        }
+        val searchByTextRequest = getTextSearchRequest(lat, lng, null, searchKeywords)  // no search keyboard => no search
+            ?: return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
         return getTextSearchResults(context, searchByTextRequest)
     }
 
@@ -398,7 +396,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 POIProvider.append(this, authority)
             }
 
-        private val PROJECTION_PLACE = arrayOf<String>(
+        private val PROJECTION_PLACE: Array<String> = arrayOf(
             POIProviderContract.Columns.T_POI_K_SCORE_META_OPT,
             PlaceColumns.T_PLACE_K_PROVIDER_ID,
             PlaceColumns.T_PLACE_K_LANG,
@@ -412,6 +410,9 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         // https://developers.google.com/maps/documentation/places/android-sdk/text-search
         // https://developers.google.com/maps/documentation/places/android-sdk/usage-and-billing#text-search-id-only-ess-sku
         // https://developers.google.com/maps/documentation/places/android-sdk/usage-and-billing#text-search-pro-sku
+        // https://developers.google.com/maps/billing-and-pricing/sku-details#places_text-search-pro-sku
+        // https://developers.google.com/maps/billing-and-pricing/pricing#places-pricing
+        // https://developers.google.com/maps/billing-and-pricing/pricing#places-pricing:~:text=Places%20API%20Text%20Search%20Pro
 
         private val GOOGLE_PLACE_TEXT_SEARCH_FIELDS = listOf(
             Field.ID,

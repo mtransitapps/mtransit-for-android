@@ -12,8 +12,10 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.core.view.MenuProvider
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -37,6 +39,7 @@ import org.mtransit.android.databinding.LayoutScreenToolbarBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
@@ -48,6 +51,7 @@ import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import kotlin.math.abs
@@ -275,6 +279,11 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             }
             showSelectedTab()
             setupScreenToolbar(screenToolbarLayout)
+            typeImg.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = false) { insets ->
+                updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = insets.top
+                }
+            }
         }
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
             if (pagerAdapter?.setAgencies(agencies) == true) {
@@ -323,6 +332,11 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         }
         viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
             this.pagerAdapter?.selectedUUID = selectedUUID
+        }
+        viewModel.type.observe(viewLifecycleOwner) { dst ->
+            binding?.apply {
+                typeImg.setImageResourceAndVisibility(dst?.iconResId)
+            }
         }
         ModuleDisabledUI.onViewCreated(this)
     }

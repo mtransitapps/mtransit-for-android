@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view.poi.serviceupdate
 
+import android.graphics.Color
 import android.view.View
 import android.widget.ImageView
 import androidx.core.view.isVisible
@@ -12,6 +13,7 @@ import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
+import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 
 data class POIServiceUpdateViewHolder @JvmOverloads constructor(
     private var _uuid: String,
@@ -75,20 +77,24 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
             .distinctByOriginalId()
         val (isWarning, isInfo) = filteredServiceUpdates.isSeverityWarningInfo()
         if (isWarning) {
-            this.setImageResource(R.drawable.ic_warning_on_surface_16dp)
-            this.isVisible = true
+            this.setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
         } else if (isInfo) {
-            this.setImageResource(R.drawable.ic_info_outline_on_surface_16dp)
-            this.isVisible = true
+            this.setImageResourceAndVisibility(R.drawable.ic_info_outline_on_surface_16dp)
         } else {
-            this.setImageDrawable(null)
-            this.isVisible = false
+            this.setImageResourceAndVisibility(null)
+        }
+        if (DEBUG_LAYOUT) {
+            this.setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
+            this.setBackgroundColor(Color.RED)
         }
     }
 
     companion object {
 
         private val LOG_TAG: String = POIServiceUpdateViewHolder::class.java.simpleName
+
+        private const val DEBUG_LAYOUT = false
+        // private const val DEBUG_LAYOUT = true // DEBUG
 
         @JvmOverloads
         @JvmStatic

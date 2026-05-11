@@ -5,6 +5,8 @@ import org.mtransit.android.commons.SpanUtils
 
 object UIRouteUtils {
 
+    private const val MIN_LENGTH_CONDENSED = 4
+
     private val FONT_REGULAR = SpanUtils.getNewSansSerifTypefaceSpan()
     private val FONT_CONDENSED = SpanUtils.getNewSansSerifCondensedTypefaceSpan()
 
@@ -15,10 +17,14 @@ object UIRouteUtils {
     ): CharSequence {
         return SpanUtils.setAll(
             rsn,
-            getRouteShortNameFont(rsn),
+            getRouteShortNameFont(rsn)
         )
     }
 
-    fun getRouteShortNameFont(rsn: String) = if (rsn.length < 4) FONT_REGULAR else FONT_CONDENSED
+    private fun isRouteShortNameCondensed(rsn: String) = rsn.length >= MIN_LENGTH_CONDENSED
+
+    fun getRouteShortNameFont(rsn: String) = getRouteShortNameFont(isRouteShortNameCondensed(rsn))
+
+    fun getRouteShortNameFont(condensed: Boolean) = if (condensed) FONT_CONDENSED else FONT_REGULAR
 
 }

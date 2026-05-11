@@ -4,16 +4,23 @@ import android.content.Context
 import android.content.res.Resources.NotFoundException
 import android.graphics.drawable.Drawable
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.MainThread
 import androidx.annotation.PluralsRes
 import androidx.annotation.Px
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
 
 val ViewBinding.context: Context get() = root.context
+
+fun ImageView.setImageResourceAndVisibility(@DrawableRes resId: Int?) {
+    isVisible = resId != null
+    setImageResource(resId ?: ResourcesCompat.ID_NULL)
+}
 
 var TextView.textAndVisibility: CharSequence?
     get() = text
@@ -110,6 +117,7 @@ inline var View.isVisibleOnce: Boolean
 /**
  * [android.view.View.toString]
  */
+@Suppress("unused")
 fun View.toStringSimple(): String {
     return javaClass.simpleName + "{" +
             "hex:${Integer.toHexString(System.identityHashCode(this))}, " +

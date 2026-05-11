@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view.poi
 
+import android.content.Context
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -19,6 +20,7 @@ interface CommonViewHolder {
     var uuid: String?
     var statusViewHolder: POICommonStatusViewHolder<*, *>?
     var serviceUpdateViewHolder: POIServiceUpdateViewHolder?
+    val context: Context get() = view.context
 }
 
 data class TextMessageViewHolder(
@@ -71,8 +73,9 @@ class RouteDirectionStopViewHolder(
     override val locationTv: TextView? = view.findViewById(R.id.location),
     val noExtra: View = view.findViewById(R.id.no_extra),
     val rdsExtraV: View = view.findViewById(R.id.extra),
-    val routeFL: View = view.findViewById(R.id.route),
-    val routeShortNameTv: TextView = view.findViewById(R.id.route_short_name),
+    val rsnImg: View = view.findViewById(R.id.rsn_img),
+    val routeSpaceStart: View = view.findViewById(R.id.route_space_start),
+    val routeShortName: TextView = view.findViewById(R.id.route_short_name),
     val routeTypeImg: MTJPathsView = view.findViewById(R.id.route_type_img),
     val directionHeadingTv: TextView = view.findViewById(R.id.direction_heading),
     val directionHeadingBg: View = view.findViewById(R.id.direction_heading_bg),
