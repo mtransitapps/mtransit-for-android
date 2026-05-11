@@ -410,7 +410,7 @@ public class MapViewController implements
 			final MapCapabilities capabilities = googleMap.getMapCapabilities();
 			this.advancedMarkersAvailable = capabilities.isAdvancedMarkersAvailable();
 			MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			//noinspection deprecation // FIXME
 			CrashUtils.w(this, e, "Error while getting map capabilities!");
 		}
