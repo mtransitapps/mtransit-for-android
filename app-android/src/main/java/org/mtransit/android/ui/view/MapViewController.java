@@ -408,13 +408,13 @@ public class MapViewController implements
 		);
 		try {
 			final MapCapabilities capabilities = googleMap.getMapCapabilities();
-			this.advancedMarkersAvailable = capabilities.isAdvancedMarkersAvailable();
-			MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
+			this.advancedMarkersAvailable = capabilities != null && capabilities.isAdvancedMarkersAvailable();
 		} catch (RuntimeException e) {
 			//noinspection deprecation // FIXME
 			CrashUtils.w(this, e, "Error while getting map capabilities!");
 			this.advancedMarkersAvailable = false;
 		}
+		MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
 		clearMarkers();
 		int paddingTopPx = 0;
 		if (this.paddingTopSp > 0) {
