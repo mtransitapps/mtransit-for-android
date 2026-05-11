@@ -894,12 +894,8 @@ public class MapViewController implements
 	}
 
 	private boolean showDeviceLocation(boolean anim) {
-		if (!this.mapLayoutReady) {
-			return false;
-		}
-		if (this.deviceLocation == null) {
-			return false;
-		}
+		if (!this.mapLayoutReady) return false;
+		if (this.deviceLocation == null) return false;
 		return updateMapCamera(anim,
 				CameraUpdateFactory.newLatLngZoom(
 						LatLngUtils.fromLocation(this.deviceLocation),
@@ -1343,9 +1339,7 @@ public class MapViewController implements
 	}
 
 	public void notifyMarkerChanged(@Nullable MapMarkerProvider markerProvider) {
-		if (markerProvider == null) {
-			return;
-		}
+		if (markerProvider == null) return;
 		setMarkerProvider(markerProvider);
 		clearMarkers();
 	}
