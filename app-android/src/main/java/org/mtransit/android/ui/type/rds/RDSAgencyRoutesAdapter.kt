@@ -2,6 +2,7 @@ package org.mtransit.android.ui.type.rds
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -141,6 +142,8 @@ class RDSAgencyRoutesAdapter(
                 routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
                     weight = 2f
                 }
+                routeShortName.gravity = Gravity.START or Gravity.CENTER_VERTICAL
+                routeSpaceStart.isVisible = true && showingListInsteadOfGrid
             } else {
                 routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                     weight = 4f
@@ -148,6 +151,8 @@ class RDSAgencyRoutesAdapter(
                 routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
                     weight = 4f
                 }
+                routeShortName.gravity = Gravity.CENTER
+                routeSpaceStart.isVisible = false
             }
             serviceUpdateLayout.routeServiceUpdateImg.apply {
                 val serviceUpdates = routeM.getServiceUpdates(
@@ -169,7 +174,7 @@ class RDSAgencyRoutesAdapter(
                 serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin = 8.dp
                 }
-                rsnOrLogoServiceUpdate.updateLayoutParams {
+                rsnImgServiceUpdate.updateLayoutParams {
                     width = context.resources.getDimensionInt(R.dimen.poi_extra_width)
                     // 64.dp, // TO DO poi_extra_width
                     // ResourceUtils.convertDPtoPX(context, 64).toInt(),
@@ -180,7 +185,7 @@ class RDSAgencyRoutesAdapter(
                 serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin = 4.dp
                 }
-                rsnOrLogoServiceUpdate.updateLayoutParams {
+                rsnImgServiceUpdate.updateLayoutParams {
                     width = ViewGroup.LayoutParams.MATCH_PARENT
                 }
                 routeLongName.textAndVisibility = null
@@ -203,10 +208,10 @@ class RDSAgencyRoutesAdapter(
                     setBackgroundColor(Color.RED)
                 }
                 routeLayout.setBackgroundColor(Color.YELLOW)
-                rsnOrLogoServiceUpdate.setBackgroundColor(Color.BLUE)
+                rsnImgServiceUpdate.setBackgroundColor(Color.BLUE)
                 routeTypeImg.setBackgroundColor(Color.CYAN)
                 routeShortName.setBackgroundColor(Color.MAGENTA)
-                rsnOrLogo.setBackgroundColor(Color.GREEN)
+                rsnImg.setBackgroundColor(Color.GREEN)
             }
         }
     }

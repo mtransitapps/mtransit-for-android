@@ -19,7 +19,7 @@
         tools:background="#0000FF">
         <!-- ROUTE -->
         <LinearLayout
-            android:id="@+id/route"
+            android:id="@+id/rsn_img"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/direction_heading_bg"
@@ -28,7 +28,6 @@
             android:gravity="center"
             android:orientation="horizontal"
             tools:background="#00FF00">
-
             <Space
                 android:id="@+id/route_space_start"
                 android:layout_width="0dp"

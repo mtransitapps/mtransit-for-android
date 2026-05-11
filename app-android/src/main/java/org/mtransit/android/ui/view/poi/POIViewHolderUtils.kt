@@ -47,14 +47,14 @@ object POIViewHolderUtils {
         val rds: RouteDirectionStop = poim.poi
         if (!showingExtra) {
             rdsExtraV.isVisible = false
-            routeFL.isVisible = false
+            rsnImg.isVisible = false
             directionHeadingBg.isVisible = false
             noExtra.isVisible = true
             return
         }
         setupRoute(rds.route, getAgency)
         noExtra.isVisible = false
-        routeFL.isVisible = true
+        rsnImg.isVisible = true
         rdsExtraV.isVisible = true
         directionHeadingTv.apply {
             text = UIDirectionUtils.decorateDirection(context, rds.direction.getUIHeading(context, false), false)
@@ -92,33 +92,33 @@ object POIViewHolderUtils {
 
     @JvmStatic
     fun RouteDirectionStopViewHolder.setupRoute(route: Route, getAgency: () -> IAgencyUIProperties?) {
-        routeShortNameTv.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
+        routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
         routeTypeImg.setJSONAndVisibility(getAgency())
-        if (routeShortNameTv.isVisible && routeTypeImg.isVisible) {
+        if (routeShortName.isVisible && routeTypeImg.isVisible) {
             routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                 weight = 2f
             }
-            routeShortNameTv.updateLayoutParams<LinearLayout.LayoutParams> {
+            routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
                 weight = 2f
             }
-            routeShortNameTv.gravity = Gravity.START or Gravity.CENTER_VERTICAL
-            view.findViewById<View>(R.id.route_space_start).isVisible = true
+            routeShortName.gravity = Gravity.START or Gravity.CENTER_VERTICAL
+            routeSpaceStart.isVisible = true
         } else {
             routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                 weight = 4f
             }
-            routeShortNameTv.updateLayoutParams<LinearLayout.LayoutParams> {
+            routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
                 weight = 4f
             }
-            routeShortNameTv.gravity = Gravity.CENTER
-            view.findViewById<View>(R.id.route_space_start).isVisible = false
+            routeShortName.gravity = Gravity.CENTER
+            routeSpaceStart.isVisible = false
         }
         if (DEBUG_LAYOUT) {
             rdsExtraV.setBackgroundColor(Color.YELLOW)
             view.findViewById<View>(R.id.route_direction).setBackgroundColor(Color.BLUE)
             routeTypeImg.setBackgroundColor(Color.CYAN)
-            routeShortNameTv.setBackgroundColor(Color.MAGENTA)
-            routeFL.setBackgroundColor(Color.GREEN)
+            routeShortName.setBackgroundColor(Color.MAGENTA)
+            rsnImg.setBackgroundColor(Color.GREEN)
         }
     }
 }

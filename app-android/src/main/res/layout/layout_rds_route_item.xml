@@ -6,13 +6,12 @@
     android:layout_height="@dimen/poi_extra_height"
     android:minHeight="@dimen/list_view_item_height"
     android:orientation="horizontal"
-    android:padding="8dp"
     android:paddingHorizontal="@dimen/baseline_8"
     tools:background="#FFFF00"
-    tools:padding="4dp">
+    tools:paddingHorizontal="@dimen/baseline_4">
     <!-- RSN / LOGO + SERVICE UPDATE -->
     <FrameLayout
-        android:id="@+id/rsn_or_logo_service_update"
+        android:id="@+id/rsn_img_service_update"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
@@ -20,21 +19,25 @@
         tools:layout_width="@dimen/poi_extra_width">
         <!-- RSN / LOGO -->
         <LinearLayout
-            android:id="@+id/rsn_or_logo"
+            android:id="@+id/rsn_img"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="horizontal"
-            android:weightSum="4"
             tools:background="#00FF00">
+            <Space
+                android:id="@+id/route_space_start"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:visibility="gone"
+                tools:visibility="visible" />
             <!-- ROUTE TYPE IMG -->
             <org.mtransit.android.ui.view.MTJPathsView
                 android:id="@+id/route_type_img"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="4"
-                android:minWidth="@dimen/baseline_40"
-                android:minHeight="@dimen/baseline_40"
                 android:padding="4dp"
                 android:visibility="gone"
                 tools:background="#00FFFF"
