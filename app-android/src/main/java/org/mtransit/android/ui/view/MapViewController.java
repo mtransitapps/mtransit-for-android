@@ -413,6 +413,7 @@ public class MapViewController implements
 		} catch (RuntimeException e) {
 			//noinspection deprecation // FIXME
 			CrashUtils.w(this, e, "Error while getting map capabilities!");
+			this.advancedMarkersAvailable = false;
 		}
 		clearMarkers();
 		int paddingTopPx = 0;
