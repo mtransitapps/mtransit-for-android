@@ -136,6 +136,7 @@ class RDSAgencyRoutesAdapter(
             routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
             routeTypeImg.setJSONAndVisibility(agency)
             if (routeShortName.isVisible && routeTypeImg.isVisible) {
+                routeSpaceStart.isVisible = true && showingListInsteadOfGrid
                 routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                     weight = 2f
                 }
@@ -143,8 +144,8 @@ class RDSAgencyRoutesAdapter(
                     weight = 2f
                 }
                 routeShortName.gravity = Gravity.START or Gravity.CENTER_VERTICAL
-                routeSpaceStart.isVisible = true && showingListInsteadOfGrid
             } else {
+                routeSpaceStart.isVisible = false
                 routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                     weight = 4f
                 }
@@ -152,7 +153,6 @@ class RDSAgencyRoutesAdapter(
                     weight = 4f
                 }
                 routeShortName.gravity = Gravity.CENTER
-                routeSpaceStart.isVisible = false
             }
             serviceUpdateLayout.routeServiceUpdateImg.apply {
                 val serviceUpdates = routeM.getServiceUpdates(

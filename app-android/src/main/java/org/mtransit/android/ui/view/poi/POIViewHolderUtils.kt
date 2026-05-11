@@ -95,6 +95,7 @@ object POIViewHolderUtils {
         routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
         routeTypeImg.setJSONAndVisibility(getAgency())
         if (routeShortName.isVisible && routeTypeImg.isVisible) {
+            routeSpaceStart.isVisible = true
             routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                 weight = 2f
             }
@@ -102,8 +103,8 @@ object POIViewHolderUtils {
                 weight = 2f
             }
             routeShortName.gravity = Gravity.START or Gravity.CENTER_VERTICAL
-            routeSpaceStart.isVisible = true
         } else {
+            routeSpaceStart.isVisible = false
             routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
                 weight = 4f
             }
@@ -111,7 +112,6 @@ object POIViewHolderUtils {
                 weight = 4f
             }
             routeShortName.gravity = Gravity.CENTER
-            routeSpaceStart.isVisible = false
         }
         if (DEBUG_LAYOUT) {
             rdsExtraV.setBackgroundColor(Color.YELLOW)
