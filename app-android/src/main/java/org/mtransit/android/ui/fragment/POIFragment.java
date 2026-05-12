@@ -972,12 +972,12 @@ public class POIFragment extends ABFragment implements
 		final Activity activity = getActivity();
 		if (activity == null) {
 			MTLog.w(this, "onRewardedAdButtonClick() > skip (no view or no activity)");
-			ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_default_failure_message);
+			ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message);
 			return;
 		}
 		if (!this.adManager.isRewardedAdAvailableToShow()) {
 			MTLog.w(this, "onRewardedAdButtonClick() > skip (no ad available)");
-			ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_not_ready);
+			ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_not_ready);
 			return;
 		}
 		if (this.binding != null) {

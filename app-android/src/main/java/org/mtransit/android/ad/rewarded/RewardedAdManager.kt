@@ -149,8 +149,7 @@ class RewardedAdManager @Inject constructor(
         this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
         val showCounts = this.defaultPrefRepository.pref.getInt(
-            DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS,
-            DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS_DEFAULT
+            DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS_DEFAULT
         )
         this.defaultPrefRepository.pref.edit { putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, showCounts + 1) }
         return true

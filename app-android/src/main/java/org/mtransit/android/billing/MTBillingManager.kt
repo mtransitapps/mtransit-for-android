@@ -23,6 +23,8 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryProductDetailsResult
 import com.android.billingclient.api.QueryPurchasesParams
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
@@ -72,6 +74,10 @@ class MTBillingManager @Inject constructor(
         lclPrefRepository.pref.liveDataN(
             PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT
         ).distinctUntilChanged()
+    }
+
+    override suspend fun getCachedCurrentSubscription(): String? = withContext(Dispatchers.IO) {
+        lclPrefRepository.pref.getString(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
     }
 
     private val _currentSubscription: String?

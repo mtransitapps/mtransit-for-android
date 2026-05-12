@@ -356,6 +356,20 @@ class DataSourcesRepository @Inject constructor(
         updated
     }
 
+    suspend fun refreshSetupRequired(
+        forcePkg: String? = null,
+        skipTimeCheck: Boolean = false,
+    ) = withContext(Dispatchers.IO) {
+        var updated = false
+        dataSourcesReader.refreshSetupRequired(
+            forcePkg = forcePkg,
+            skipTimeCheck = skipTimeCheck,
+        ) {
+            updated = true
+        }
+        updated
+    }
+
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
         return this.dataSourcesReader.isAProvider(pkg, agencyOnly)
     }

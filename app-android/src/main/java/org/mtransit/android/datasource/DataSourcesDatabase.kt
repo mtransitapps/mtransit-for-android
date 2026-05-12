@@ -34,7 +34,7 @@ import org.mtransit.commons.sql.SQLUtils
          */
         AutoMigration(from = 5, to = 6),
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(DataSourcesConverters::class)
@@ -103,6 +103,15 @@ abstract class DataSourcesDatabase : RoomDatabase() {
                 MTLog.i(LOG_TAG, "DB migration from version 4 to 5... DONE")
             }
         }
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                MTLog.i(LOG_TAG, "DB migration from version 6 to 7...")
+                db.execSQL(
+                    "ALTER TABLE agency_properties ADD COLUMN setup_required ${SQLUtils.INT} NOT NULL DEFAULT ${SQLUtils.BOOLEAN_FALSE}"
+                )
+                MTLog.i(LOG_TAG, "DB migration from version 7 to 7... DONE")
+            }
+        }
 
         @Volatile
         private var instance: DataSourcesDatabase? = null
@@ -129,6 +138,8 @@ abstract class DataSourcesDatabase : RoomDatabase() {
                     MIGRATION_2_3,
                     MIGRATION_3_4,
                     MIGRATION_4_5,
+                    // MIGRATION_5_6, AutoMigration
+                    MIGRATION_6_7,
                 )
                 .fallbackToDestructiveMigration(false)
                 .build()

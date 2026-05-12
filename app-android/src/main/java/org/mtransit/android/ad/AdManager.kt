@@ -1,5 +1,10 @@
 package org.mtransit.android.ad
 
+// import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdSize #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.AdInspectorError #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.AdRequest #gmaNextGen
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.annotation.AnyThread
@@ -13,12 +18,8 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.MobileAds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-// import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.banner.AdSize #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRequest #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.common.AdInspectorError #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.common.AdRequest #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
+import org.mtransit.android.ad.appopen.AppOpenAdManager
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedAdManager
 import org.mtransit.android.commons.MTLog
@@ -42,6 +43,7 @@ class AdManager @Inject internal constructor(
     private val globalAdManager: GlobalAdManager,
     private val bannerAdManager: BannerAdManager,
     private val rewardedAdManager: RewardedAdManager,
+    private val appOpenAdManager: AppOpenAdManager,
 ) : IAdManager,
     MTLog.Loggable {
 
@@ -77,13 +79,28 @@ class AdManager @Inject internal constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    override fun init(activity: IAdScreenActivity) {
-        this.globalAdManager.init(activity, this.bannerAdManager)
+    override fun init(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit, withConsentOnly: Boolean) {
+        this.globalAdManager.init(
+            activity,
+            onInitCompleteListener = onInitCompleteListener,
+            withConsentOnly = withConsentOnly
+        )
+    }
+
+    override fun initForBanner(activity: IAdScreenActivity) {
+        init(
+            activity,
+            onInitCompleteListener = { bannerAdManager.refreshBannerAdStatus(activity, force = false) }
+        )
     }
 
     override suspend fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity) {
         this.globalAdManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
         onShowingAdsUpdated(activity)
+    }
+
+    override suspend fun initShowingAdsFromCache() {
+        this.globalAdManager.initShowingAdsFromCache()
     }
 
     override suspend fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity) {
@@ -98,7 +115,7 @@ class AdManager @Inject internal constructor(
         refreshRewardedAdStatus(activity)
     }
 
-    // region Banner Ads
+    // region Banner ads
 
     @MainThread
     override fun getBannerHeightInPx(activity: IAdScreenActivity?) = this.bannerAdManager.getBannerHeightInPx(activity)
@@ -121,9 +138,9 @@ class AdManager @Inject internal constructor(
     @MainThread
     override fun onTimeChanged(activity: IAdScreenActivity) = this.bannerAdManager.onTimeChanged(activity)
 
-    // endregion Banner Ads
+    // endregion Banner ads
 
-    // region Rewarded Ads
+    // region Rewarded ads
 
     override val rewardedUntilInMsLive: LiveData<Long> get() = this.globalAdManager.rewardedUntilInMs
     override val rewardedNowLive: LiveData<Boolean> get() = this.globalAdManager.rewardedNow
@@ -160,7 +177,21 @@ class AdManager @Inject internal constructor(
     @AnyThread
     override fun getRewardedAdAmountInMs() = this.globalAdManager.getRewardedAdAmountInMs()
 
-    // endregion Rewarded Ads
+    // endregion Rewarded ads
+
+    // region App open ads
+
+    override fun isAppOpenAdAvailable() = this.appOpenAdManager.isAdAvailable()
+
+    override fun isShowingAppOpenAd() = this.appOpenAdManager.isShowingAd()
+
+    @MainThread
+    override fun loadAppOpenAd() = this.appOpenAdManager.loadAd()
+
+    override fun showAppOpenAdIfAvailable(activity: IActivity, onShowAdCompleteListener: () -> Unit) =
+        this.appOpenAdManager.showAdIfAvailable(activity, onShowAdCompleteListener)
+
+    // endregion App open ads
 
     override fun openAdInspector(activity: IActivity) {
         // MobileAds.openAdInspector { error: AdInspectorError? -> #gmaNextGen

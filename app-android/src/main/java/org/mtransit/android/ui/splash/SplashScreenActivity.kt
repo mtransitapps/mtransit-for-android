@@ -2,18 +2,25 @@ package org.mtransit.android.ui.splash
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.MainThread
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
+import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.LocaleUtils
+import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.ui.MTActivity
-import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.main.NextMainActivity
+import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.util.SystemSettingManager
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -21,7 +28,7 @@ import javax.inject.Inject
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 open class SplashScreenActivity : MTActivity(),
-    IActivity,
+    IActivity, IAdScreenActivity,
     AnalyticsScreen {
 
     companion object {
@@ -36,22 +43,49 @@ open class SplashScreenActivity : MTActivity(),
     @Inject
     lateinit var analyticsManager: IAnalyticsManager
 
+    @Inject
+    lateinit var adManager: IAdManager
+
     private val viewModel by viewModels<SplashScreenViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        viewModel.initShowingAdsFromCache()
+        adManager.init(activity = this, withConsentOnly = true, onInitCompleteListener = {
+            viewModel.onAdInitCompleted()
+        })
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
         if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) LocaleUtils.fixWebViewLocale(this.applicationContext)
         splashScreen.setKeepOnScreenCondition { // Keep the splash screen visible for this Activity
             viewModel.readyForNextScreen.value != true
+                    && !adManager.isShowingAppOpenAd()
         }
         viewModel.readyForNextScreen.observe(this) { readyForNextScreen ->
-            if (readyForNextScreen) {
+            if (readyForNextScreen && !adManager.isShowingAppOpenAd()) {
                 showMainActivity()
             }
         }
+        viewModel.showAppOpenAd.observe(this, EventObserver { showAppOpenAd ->
+            if (showAppOpenAd) {
+                adManager.showAppOpenAdIfAvailable(this, onShowAdCompleteListener = {
+                    viewModel.onAppOpenAdShown()
+                })
+            }
+        })
+        viewModel.gettingReady.observe(this, EventObserver { gettingReady ->
+            if (SystemSettingManager.isUsingFirebaseTestLab(this)) return@EventObserver
+            if (gettingReady) {
+                ToastUtils.makeTextAndShow(this, "Deploying data...", Toast.LENGTH_LONG)
+            } else {
+                ToastUtils.makeTextAndShow(this, "Deploying data... DONE", Toast.LENGTH_SHORT)
+            }
+        })
+    }
+
+    override fun onPrivacyOptionsRequiredChanged() {
+        // DO NOTHING (in the main screen)
     }
 
     private fun showMainActivity() {
