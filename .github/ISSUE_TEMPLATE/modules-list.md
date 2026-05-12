@@ -13,6 +13,7 @@ labels: MT
 - [ ] ca-barrie-transit-bus
 - [ ] ca-brampton-transit-bus
 - [ ] ca-brandon-transit-bus
+- [ ] ca-bulkley-nechako-transit-bus
 - [ ] ca-burlington-transit-bus
 - [ ] ca-calgary-transit-bus
 - [ ] ca-calgary-transit-train
