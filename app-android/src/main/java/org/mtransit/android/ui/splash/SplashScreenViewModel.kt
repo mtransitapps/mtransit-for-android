@@ -157,7 +157,6 @@ class SplashScreenViewModel @Inject constructor(
                         && agency.isInstalled
                         && agency.setupRequired
             }
-        )
         if (agenciesWithSetupRequired.isEmpty()) return
         deploying.set(true)
         if (checkState()) return // BREAK
@@ -208,7 +207,6 @@ class SplashScreenViewModel @Inject constructor(
         if (_appOpenAdShown.get()) return true
         return false
     }
-
 
     private suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
         var appOpenCounts = defaultPrefRepository.pref.getInt(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
