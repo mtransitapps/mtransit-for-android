@@ -14,16 +14,13 @@ import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtilsK
-import org.mtransit.android.commons.TimeUtilsK.EPOCH_TIME_0
 import org.mtransit.android.commons.millisToInstant
 import org.mtransit.android.commons.toMillis
 import org.mtransit.android.dev.CrashReporter
-import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
-import kotlin.takeIf
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 

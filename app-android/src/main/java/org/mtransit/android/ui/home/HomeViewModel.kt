@@ -110,7 +110,7 @@ class HomeViewModel @Inject constructor(
 
     private val _ipLocation = networkLocationRepository.ipLocation
 
-    private val _nearbyLocationForceReset = MutableLiveData(Event(false))
+    private val _nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
 
     private val _nearbyLocation: LiveData<Location?> =
         MediatorLiveData3(deviceLocation, _nearbyLocationForceReset, _ipLocation).switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->

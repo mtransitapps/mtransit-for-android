@@ -93,7 +93,7 @@ class SplashScreenViewModel @Inject constructor(
     private val _deployingDataFor = MutableLiveData<Event<IAgencyProperties>>()
     val deployingDataFor: LiveData<Event<IAgencyProperties>> = _deployingDataFor
 
-    private val _showAppOpenAd = MutableLiveData(Event(false))
+    private val _showAppOpenAd = MutableLiveData<Event<Boolean>>()
     val showAppOpenAd: LiveData<Event<Boolean>> = _showAppOpenAd
 
     private var _appOpenAdShowComplete = AtomicBoolean(false)
@@ -209,7 +209,7 @@ class SplashScreenViewModel @Inject constructor(
                     deployingForTime = TimeUtilsK.currentInstant()
                     _deployingDataFor.postValue(agency.toEvent())
                 }
-                val updated = dataSourcesReader.refreshSetupRequired(forcePkg = agency.pkg, skipTimeCheck = true, markUpdated = {})
+                dataSourcesReader.refreshSetupRequired(forcePkg = agency.pkg, skipTimeCheck = true, markUpdated = {})
                 dataSourcesStorage.getAgency(agency.authority)?.let { updatedAgency ->
                     setupRequired = updatedAgency.setupRequired
                 }
