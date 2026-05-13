@@ -2,6 +2,7 @@ package org.mtransit.android.ui.splash
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
@@ -34,8 +35,8 @@ import org.mtransit.android.commons.toMillis
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
-import org.mtransit.android.datasource.DataSourcesCache
-import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.DataSourcesReader
+import org.mtransit.android.datasource.DataSourcesStorage
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.ui.view.common.Event
@@ -50,16 +51,20 @@ import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("CustomSplashScreen")
 @HiltViewModel
+/**
+ * Not suing [org.mtransit.android.datasource.DataSourcesRepository] because memory cache might not be available yet
+ */
 class SplashScreenViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val defaultPrefRepository: DefaultPreferenceRepository,
     private val analyticsManager: IAnalyticsManager,
     private val savedStateHandle: SavedStateHandle,
     private val demoModeManager: DemoModeManager,
-    private val dataSourcesCache: DataSourcesCache,
-    private val dataSourcesRepository: DataSourcesRepository,
+    private val dataSourcesStorage: DataSourcesStorage, // not using [DataSourcesRepository]
+    private val dataSourcesReader: DataSourcesReader, // not using [DataSourcesRepository]
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val adManager: IAdManager,
+    private val pm: PackageManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -147,7 +152,7 @@ class SplashScreenViewModel @Inject constructor(
 
     fun onAppOpen() {
         viewModelScope.launch {
-            demoModeManager.read(savedStateHandle, dataSourcesCache)
+            demoModeManager.read(savedStateHandle, dataSourcesStorage)
             demoModeManager.init()
             if (demoModeManager.isFullDemo()) {
                 NightModeUtils.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // light for screenshots (demo mode ON)
@@ -159,20 +164,19 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     private suspend fun deployIfNecessary() {
-        dataSourcesRepository.refreshSetupRequired(forcePkg = null, skipTimeCheck = false) // refresh status
-        val agenciesWithSetupRequired = dataSourcesRepository.getAllAgenciesEnabled()
+        dataSourcesReader.refreshSetupRequired(forcePkg = null, skipTimeCheck = false, markUpdated = {})
+        val agenciesWithSetupRequired = dataSourcesStorage.getAllAgencies()
             .filter { agency ->
                 agency.pkg != appContext.packageName  // not module / place providers
                         && agency.isInstalled
                         && agency.setupRequired
+                        && agency.isEnabled(pm)
             }
         if (agenciesWithSetupRequired.isEmpty()) return
         deploying.set(true)
         if (checkState()) return // BREAK
-        _deployingData.postValue(true.toEvent())
         deployAgencyData(agenciesWithSetupRequired)
         // TODO later prefetch free/useful real-time data / news?
-        _deployingData.postValue(false.toEvent())
         deploying.set(false)
     }
 
@@ -182,6 +186,7 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     private suspend fun deployAgencyData(agenciesWithSetupRequired: List<AgencyProperties>) = withContext(Dispatchers.IO) {
+        _deployingData.postValue(true.toEvent())
         agenciesWithSetupRequired.forEach { agency ->
             if (checkState()) return@withContext // BREAK
             var deployingForTime = TimeUtilsK.currentInstant()
@@ -197,12 +202,13 @@ class SplashScreenViewModel @Inject constructor(
                     deployingForTime = TimeUtilsK.currentInstant()
                     _deployingDataFor.postValue(agency.toEvent())
                 }
-                val updated = dataSourcesRepository.refreshSetupRequired(forcePkg = agency.pkg, skipTimeCheck = true)
-                dataSourcesCache.getAgency(agency.authority)?.let { updatedAgency ->
+                val updated = dataSourcesReader.refreshSetupRequired(forcePkg = agency.pkg, skipTimeCheck = true, markUpdated = {})
+                dataSourcesStorage.getAgency(agency.authority)?.let { updatedAgency ->
                     setupRequired = updatedAgency.setupRequired
                 }
             } while (setupRequired && TimeUtilsK.currentInstant() < start + DEPLOY_DATA_MAX_DURATION)
         }
+        _deployingData.postValue(false.toEvent())
     }
 
     private suspend fun checkState(): Boolean {
