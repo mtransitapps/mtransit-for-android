@@ -33,7 +33,7 @@ class AppOpenAdFullScreenContentCallback(
 
     // override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) { #gmaNextGen
     override fun onAdFailedToShowFullScreenContent(fullScreenContentError: AdError) {
-        logAdsD(this, "onAdImpression() > App open ad failed to show fullscreen content.")
+        logAdsD(this, "onAdFailedToShowFullScreenContent() > App open ad failed to show fullscreen content.")
         this.appOpenAdManager.appOpenAd = null // clear dismissed ad
         this.appOpenAdManager.isShowingAd = false
         this.onShowAdCompleteListener()

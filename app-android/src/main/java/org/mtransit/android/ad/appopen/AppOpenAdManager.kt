@@ -54,7 +54,7 @@ class AppOpenAdManager @Inject constructor(
         set(value) = _loadTime.set(value.toMillis())
 
     @get:StringRes
-    private val adUnitStringResId: Int get() = R.string.google_ads_app_open_ad_unit_it
+    private val adUnitStringResId: Int get() = R.string.google_ads_app_open_ad_unit_id
 
     @MainThread
     fun loadAd(): Boolean {
