@@ -13,7 +13,7 @@ class AppOpenAdFullScreenContentCallback(
     private val appOpenAdManager: AppOpenAdManager,
     private val crashReporter: CrashReporter,
     private val onShowAdCompleteListener: () -> Unit
-    // ) : RewardedAdEventCallback, #gmaNextGen
+    // ) : AppOpenAdEventCallback, #gmaNextGen
 ) : FullScreenContentCallback(),
     MTLog.Loggable {
 

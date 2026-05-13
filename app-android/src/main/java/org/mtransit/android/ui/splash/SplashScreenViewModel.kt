@@ -130,7 +130,8 @@ class SplashScreenViewModel @Inject constructor(
             MTLog.d(this, "triggerLoadAd() > SKIP (app open already available)")
             return // already available // 1st
         }
-        if (adManager.loadAppOpenAd()) {
+        val loadTriggered = adManager.loadAppOpenAd()
+        if (loadTriggered) {
             MTLog.d(this, "triggerLoadAd() > adManager.loadAppOpenAd()... TRIGGERED")
             loadAdTriggered.set(true)
         }
