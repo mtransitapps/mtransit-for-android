@@ -78,7 +78,6 @@ open class SplashScreenActivity : MTActivity(),
             }
         }
         viewModel.deployingData.observeEvent(this) { gettingReady ->
-            gettingReady ?: return@observeEvent
             if (gettingReady) {
                 showToast(getString(R.string.deploying_data_in_progress_short))
             } else {
@@ -88,7 +87,6 @@ open class SplashScreenActivity : MTActivity(),
             }
         }
         viewModel.deployingDataFor.observeEvent(this) { agency ->
-            agency ?: return@observeEvent
             showToast(HtmlUtils.fromHtmlCompact(getString(R.string.deploying_data_in_progress_for_short, agency.getShortNameAndType(context))))
         }
     }

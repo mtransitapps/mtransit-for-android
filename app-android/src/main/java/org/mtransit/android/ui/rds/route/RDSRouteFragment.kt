@@ -42,7 +42,6 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
 import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible

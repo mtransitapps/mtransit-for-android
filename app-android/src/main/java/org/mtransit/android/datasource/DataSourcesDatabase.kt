@@ -109,7 +109,7 @@ abstract class DataSourcesDatabase : RoomDatabase() {
                 db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN setup_required ${SQLUtils.INT} NOT NULL DEFAULT ${SQLUtils.BOOLEAN_FALSE}"
                 )
-                MTLog.i(LOG_TAG, "DB migration from version 7 to 7... DONE")
+                MTLog.i(LOG_TAG, "DB migration from version 6 to 7... DONE")
             }
         }
 

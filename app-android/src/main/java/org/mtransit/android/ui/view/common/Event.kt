@@ -25,20 +25,15 @@ open class Event<out T>(private val content: T) {
     }
 }
 
-fun <T: Any> T.toEvent() = Event(this)
+fun <T : Any> T.toEvent() = Event(this)
 
-fun <T: Any> LiveData<Event<T>>.observeEvent(owner: LifecycleOwner, observer: (T) -> Unit) {
+fun <T : Any> LiveData<Event<T>>.observeEvent(owner: LifecycleOwner, observer: (T) -> Unit) {
     observe(owner, EventObserver(observer))
 }
 
-@JvmName("observeEventN")
-fun <T: Any> LiveData<Event<T?>>.observeEvent(owner: LifecycleOwner, observer: (T?) -> Unit) {
-    observe(owner, EventObserver(observer))
-}
-
-class EventObserver<T>(private val onEventUnhandledContent: (T) -> Unit) : Observer<Event<T>> {
-    override fun onChanged(value: Event<T>) {
-        value.getContentIfNotHandled()?.let {
+class EventObserver<T>(private val onEventUnhandledContent: (T) -> Unit) : Observer<Event<T>?> {
+    override fun onChanged(value: Event<T>?) {
+        value?.getContentIfNotHandled()?.let {
             onEventUnhandledContent(it)
         }
     }

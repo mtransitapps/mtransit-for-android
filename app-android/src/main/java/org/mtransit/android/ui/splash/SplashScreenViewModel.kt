@@ -80,11 +80,11 @@ class SplashScreenViewModel @Inject constructor(
     private val adInitComplete = AtomicBoolean(false)
     private val loadAdTriggered = AtomicBoolean(false)
 
-    private val _deployingData = MutableLiveData(Event<Boolean?>(null))
-    val deployingData: LiveData<Event<Boolean?>> = _deployingData
+    private val _deployingData = MutableLiveData<Event<Boolean>>()
+    val deployingData: LiveData<Event<Boolean>> = _deployingData
 
-    private val _deployingDataFor = MutableLiveData(Event<IAgencyProperties?>(null))
-    val deployingDataFor: LiveData<Event<IAgencyProperties?>> = _deployingDataFor
+    private val _deployingDataFor = MutableLiveData<Event<IAgencyProperties>>()
+    val deployingDataFor: LiveData<Event<IAgencyProperties>> = _deployingDataFor
 
     private val _showAppOpenAd = MutableLiveData(Event(false))
     val showAppOpenAd: LiveData<Event<Boolean>> = _showAppOpenAd
@@ -124,6 +124,7 @@ class SplashScreenViewModel @Inject constructor(
         triggerLoadAd()
     }
 
+    @MainThread
     private fun triggerLoadAd() {
         if (!deploying.get()) {
             MTLog.d(this, "triggerLoadAd() > SKIP (not deploying)")
@@ -204,13 +205,15 @@ class SplashScreenViewModel @Inject constructor(
         }
     }
 
-    private fun checkState(): Boolean {
+    private suspend fun checkState(): Boolean {
         if (deploying.get() && adManager.isAppOpenAdAvailable()) {
             MTLog.d(this, "checkState() > app open available")
             _showAppOpenAd.postValue(true.toEvent())
             _appOpenAdShowing.postValue(true) // [trying to] show
         } else if (!_appOpenAdShowComplete.get()) {
-            triggerLoadAd() // trying to load
+            withContext(Dispatchers.Main) {
+                triggerLoadAd() // trying to load
+            }
         }
         if (_appOpenAdShowComplete.get()) return true
         return false
