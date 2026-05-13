@@ -38,8 +38,7 @@ import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.hours
 import org.mtransit.android.commons.R as commonsR
 
 @Singleton

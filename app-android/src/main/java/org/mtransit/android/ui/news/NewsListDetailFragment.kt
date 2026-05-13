@@ -42,10 +42,10 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
 import org.mtransit.android.ui.setUpListEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
@@ -374,11 +374,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
-            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+            nextMainViewModel.scrollToTopEvent.observeEvent(viewLifecycleOwner) { scroll ->
                 if (scroll) {
                     binding?.newsContainerLayout?.newsList?.scrollToPosition(0)
                 }
-            })
+            }
         }
     }
 

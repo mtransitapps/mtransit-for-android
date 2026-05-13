@@ -355,7 +355,20 @@ public final class DataSourceManager implements MTLog.Loggable {
 					final String contactUsWebFr = CursorExtKt.optString(cursor, AgencyProviderContract.CONTACT_US_WEB_FR, null);
 					final String faresWeb = CursorExtKt.optString(cursor, AgencyProviderContract.FARES_WEB, null);
 					final String faresWebFr = CursorExtKt.optString(cursor, AgencyProviderContract.FARES_WEB_FR, null);
-					final Boolean setupRequired = CursorExtKt.optBoolean(cursor, AgencyProviderContract.SETUP_REQUIRED_PATH, null);
+					Boolean setupRequired = null; // AgencyProviderContract.SETUP_REQUIRED_PATH was returning "true" or "false" instead of 0/1 until now
+					try {
+						final int columnIndex = cursor.getColumnIndex(AgencyProviderContract.SETUP_REQUIRED_PATH);
+						if (columnIndex >= 0) {
+							final int type = cursor.getType(columnIndex);
+							if (type == Cursor.FIELD_TYPE_STRING) {
+								setupRequired = Boolean.parseBoolean(cursor.getString(columnIndex));
+							} else {
+								setupRequired = CursorExtKt.optBoolean(cursor, AgencyProviderContract.SETUP_REQUIRED_PATH, null);
+							}
+						}
+					} catch (Exception e) {
+						MTLog.w(LOG_TAG, e, "Error while loading 'setupRequired' from '%s'!", authority);
+					}
 					final DataSourceType exType = DataSourceType.parseId(
 							CursorExtKt.optIntNN(cursor, AgencyProviderContract.EXTENDED_TYPE_ID, DataSourceTypeId.INVALID)
 					);

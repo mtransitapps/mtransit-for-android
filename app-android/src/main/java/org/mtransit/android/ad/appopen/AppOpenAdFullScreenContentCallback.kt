@@ -23,10 +23,12 @@ class AppOpenAdFullScreenContentCallback(
 
     override fun getLogTag() = LOG_TAG
 
-    override fun onAdShowedFullScreenContent() { // Ad was shown
-        logAdsD(this, "onAdShowedFullScreenContent() > App open ad showed fullscreen content.")
-        this.appOpenAdManager.appOpenAd = null // clear showed ad
+    override fun onAdDismissedFullScreenContent() {
+        logAdsD(this, "onAdDismissedFullScreenContent() > App open ad dismissed.")
+        this.appOpenAdManager.appOpenAd = null // clear dismissed ad
         this.appOpenAdManager.isShowingAd = false
+        this.onShowAdCompleteListener()
+        // TODO ? this.appOpenAdManager.loadAd()
     }
 
     // override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) { #gmaNextGen
@@ -45,12 +47,8 @@ class AppOpenAdFullScreenContentCallback(
         )
     }
 
-    override fun onAdDismissedFullScreenContent() {
-        logAdsD(this, "onAdDismissedFullScreenContent() > App open ad dismissed.")
-        this.appOpenAdManager.appOpenAd = null // clear dismissed ad
-        this.appOpenAdManager.isShowingAd = false
-        this.onShowAdCompleteListener()
-        // TODO ? this.appOpenAdManager.loadAd()
+    override fun onAdShowedFullScreenContent() { // Ad was shown
+        logAdsD(this, "onAdShowedFullScreenContent() > App open ad showed fullscreen content.")
     }
 
     override fun onAdImpression() {

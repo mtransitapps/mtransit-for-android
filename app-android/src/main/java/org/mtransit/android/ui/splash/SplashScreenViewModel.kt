@@ -9,6 +9,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,11 +32,15 @@ import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.millisToInstant
 import org.mtransit.android.commons.toMillis
 import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesCache
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.ui.view.common.Event
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.toEvent
 import org.mtransit.android.util.NightModeUtils
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -60,6 +66,10 @@ class SplashScreenViewModel @Inject constructor(
         private val LOG_TAG: String = SplashScreenViewModel::class.java.simpleName
 
         private val STATUS_DELAY = 500.milliseconds
+
+        private val DEPLOY_DATA_MAX_DURATION = 13.seconds
+
+        private val DEPLOYING_FOR_REPEAT = 2.seconds
     }
 
     override fun getLogTag() = LOG_TAG
@@ -67,6 +77,33 @@ class SplashScreenViewModel @Inject constructor(
     private val deploying = AtomicBoolean(false)
     private val adInitComplete = AtomicBoolean(false)
     private val loadAdTriggered = AtomicBoolean(false)
+
+    private val _deployingData = MutableLiveData(Event<Boolean?>(null))
+    val deployingData: LiveData<Event<Boolean?>> = _deployingData
+
+    private val _deployingDataFor = MutableLiveData(Event<IAgencyProperties?>(null))
+    val deployingDataFor: LiveData<Event<IAgencyProperties?>> = _deployingDataFor
+
+    private val _showAppOpenAd = MutableLiveData(Event(false))
+    val showAppOpenAd: LiveData<Event<Boolean>> = _showAppOpenAd
+
+    private var _appOpenAdShown = AtomicBoolean(false)
+
+    private val _appOpenAdShowing = MutableLiveData<Boolean>(null)
+
+    private val _readyForNextScreen = MutableLiveData(false)
+
+    val shouldKeepSplashScreenOn: LiveData<Boolean> = MediatorLiveData2(_readyForNextScreen, _appOpenAdShowing)
+        .map { (readyForNextScreen, appOpenAdShowing) ->
+            readyForNextScreen != true // not ready
+                    && appOpenAdShowing != true // not currently showing ad
+        }.distinctUntilChanged()
+
+    val showNextScreen: LiveData<Boolean> = MediatorLiveData2(_readyForNextScreen, _appOpenAdShowing)
+        .map { (readyForNextScreen, appOpenAdShowing) ->
+            appOpenAdShowing == false // ad was dismissed by user -> show next screen
+                    || readyForNextScreen == true && appOpenAdShowing != true // ready and not currently showing ad
+        }.distinctUntilChanged()
 
     fun initShowingAdsFromCache() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -124,56 +161,54 @@ class SplashScreenViewModel @Inject constructor(
         if (agenciesWithSetupRequired.isEmpty()) return
         deploying.set(true)
         if (checkState()) return // BREAK
-        _gettingReady.postValue(Event(true))
+        _deployingData.postValue(true.toEvent())
         deployAgencyData(agenciesWithSetupRequired)
-        // prefetchRealTimeDataProviderInfo()
-        _gettingReady.postValue(Event(false))
+        // TODO later prefetch free/useful real-time data / news?
+        _deployingData.postValue(false.toEvent())
         deploying.set(false)
     }
 
-    private val _gettingReady = MutableLiveData(Event<Boolean?>(null))
-    val gettingReady: LiveData<Event<Boolean?>> = _gettingReady
-
-    private val _showAppOpenAd = MutableLiveData(Event(false))
-    val showAppOpenAd: LiveData<Event<Boolean>> = _showAppOpenAd
-
-    private var _appOpenAdShown = false
-
     fun onAppOpenAdShown() {
-        _appOpenAdShown = true
+        _appOpenAdShown.set(true)
+        _appOpenAdShowing.postValue(false)
     }
 
     private suspend fun deployAgencyData(agenciesWithSetupRequired: List<AgencyProperties>) = withContext(Dispatchers.IO) {
         agenciesWithSetupRequired.forEach { agency ->
             if (checkState()) return@withContext // BREAK
-            val maxTimeout = TimeUtilsK.currentInstant() + 7.seconds
+            var deployingForTime = TimeUtilsK.currentInstant()
+            _deployingDataFor.postValue(agency.toEvent())
+            val start = TimeUtilsK.currentInstant()
             dataSourceRequestManager.ping(agency.authority) // ASYNC (uses WorkManager)
             if (checkState()) return@withContext // BREAK
             var setupRequired = true
             do {
                 delay(STATUS_DELAY)
                 if (checkState()) return@withContext // BREAK
+                if (deployingForTime + DEPLOYING_FOR_REPEAT < TimeUtilsK.currentInstant()) {
+                    deployingForTime = TimeUtilsK.currentInstant()
+                    _deployingDataFor.postValue(agency.toEvent())
+                }
                 val updated = dataSourcesRepository.refreshSetupRequired(forcePkg = agency.pkg, skipTimeCheck = true)
                 dataSourcesCache.getAgency(agency.authority)?.let { updatedAgency ->
                     setupRequired = updatedAgency.setupRequired
                 }
-            } while (setupRequired && TimeUtilsK.currentInstant() < maxTimeout)
+            } while (setupRequired && TimeUtilsK.currentInstant() < start + DEPLOY_DATA_MAX_DURATION)
         }
     }
 
     private fun checkState(): Boolean {
         if (deploying.get() && adManager.isAppOpenAdAvailable()) {
             MTLog.d(this, "checkState() > app open available")
-            _showAppOpenAd.postValue(Event(true))
-        } else if (!_appOpenAdShown) {
+            _showAppOpenAd.postValue(true.toEvent())
+            _appOpenAdShowing.postValue(true) // [trying to] show
+        } else if (!_appOpenAdShown.get()) {
             triggerLoadAd() // trying to load
         }
-        if (_appOpenAdShown) return true
+        if (_appOpenAdShown.get()) return true
         return false
     }
 
-    private val _readyForNextScreen = MutableLiveData(false)
-    val readyForNextScreen: LiveData<Boolean> = _readyForNextScreen
 
     private suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
         var appOpenCounts = defaultPrefRepository.pref.getInt(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
