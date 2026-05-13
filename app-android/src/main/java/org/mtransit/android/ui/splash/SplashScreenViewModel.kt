@@ -65,11 +65,13 @@ class SplashScreenViewModel @Inject constructor(
     companion object {
         private val LOG_TAG: String = SplashScreenViewModel::class.java.simpleName
 
+        private const val KEEP_SPLASH_SCREEN_BELOW_AD = true
+
         private val STATUS_DELAY = 500.milliseconds
 
         private val DEPLOY_DATA_MAX_DURATION = 13.seconds
 
-        private val DEPLOYING_FOR_REPEAT = 2.seconds
+        private val DEPLOYING_FOR_REPEAT = 3.seconds
     }
 
     override fun getLogTag() = LOG_TAG
@@ -87,7 +89,7 @@ class SplashScreenViewModel @Inject constructor(
     private val _showAppOpenAd = MutableLiveData(Event(false))
     val showAppOpenAd: LiveData<Event<Boolean>> = _showAppOpenAd
 
-    private var _appOpenAdShown = AtomicBoolean(false)
+    private var _appOpenAdShowComplete = AtomicBoolean(false)
 
     private val _appOpenAdShowing = MutableLiveData<Boolean>(null)
 
@@ -95,8 +97,13 @@ class SplashScreenViewModel @Inject constructor(
 
     val shouldKeepSplashScreenOn: LiveData<Boolean> = MediatorLiveData2(_readyForNextScreen, _appOpenAdShowing)
         .map { (readyForNextScreen, appOpenAdShowing) ->
-            readyForNextScreen != true // not ready
-                    && appOpenAdShowing != true // not currently showing ad
+            if (KEEP_SPLASH_SCREEN_BELOW_AD) {
+                readyForNextScreen != true // not ready
+                        || appOpenAdShowing == true // currently showing ad
+            } else {
+                readyForNextScreen != true // not ready
+                        && appOpenAdShowing != true // not currently showing ad
+            }
         }.distinctUntilChanged()
 
     val showNextScreen: LiveData<Boolean> = MediatorLiveData2(_readyForNextScreen, _appOpenAdShowing)
@@ -168,8 +175,8 @@ class SplashScreenViewModel @Inject constructor(
         deploying.set(false)
     }
 
-    fun onAppOpenAdShown() {
-        _appOpenAdShown.set(true)
+    fun onShowAppOpenAdComplete() {
+        _appOpenAdShowComplete.set(true)
         _appOpenAdShowing.postValue(false)
     }
 
@@ -202,10 +209,10 @@ class SplashScreenViewModel @Inject constructor(
             MTLog.d(this, "checkState() > app open available")
             _showAppOpenAd.postValue(true.toEvent())
             _appOpenAdShowing.postValue(true) // [trying to] show
-        } else if (!_appOpenAdShown.get()) {
+        } else if (!_appOpenAdShowComplete.get()) {
             triggerLoadAd() // trying to load
         }
-        if (_appOpenAdShown.get()) return true
+        if (_appOpenAdShowComplete.get()) return true
         return false
     }
 

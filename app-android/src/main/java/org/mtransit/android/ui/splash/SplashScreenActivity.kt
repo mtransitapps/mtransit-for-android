@@ -72,8 +72,8 @@ open class SplashScreenActivity : MTActivity(),
         }
         viewModel.showAppOpenAd.observeEvent(this) { showAppOpenAd ->
             if (showAppOpenAd) {
-                adManager.showAppOpenAdIfAvailable(this, onShowAdCompleteListener = {
-                    viewModel.onAppOpenAdShown()
+                adManager.showAppOpenAdIfAvailable(this, onShowAdComplete = {
+                    viewModel.onShowAppOpenAdComplete()
                 })
             }
         }

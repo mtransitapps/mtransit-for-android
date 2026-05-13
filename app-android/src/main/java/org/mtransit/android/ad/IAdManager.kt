@@ -27,7 +27,7 @@ interface IAdManager {
     @MainThread
     fun loadAppOpenAd(): Boolean
 
-    fun showAppOpenAdIfAvailable(activity: IActivity, onShowAdCompleteListener: () -> Unit)
+    fun showAppOpenAdIfAvailable(activity: IActivity, onShowAdComplete: () -> Unit)
 
     // endregion App open ad
 

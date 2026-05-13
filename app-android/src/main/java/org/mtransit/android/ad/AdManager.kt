@@ -188,8 +188,8 @@ class AdManager @Inject internal constructor(
     @MainThread
     override fun loadAppOpenAd() = this.appOpenAdManager.loadAd()
 
-    override fun showAppOpenAdIfAvailable(activity: IActivity, onShowAdCompleteListener: () -> Unit) =
-        this.appOpenAdManager.showAdIfAvailable(activity, onShowAdCompleteListener)
+    override fun showAppOpenAdIfAvailable(activity: IActivity, onShowAdComplete: () -> Unit) =
+        this.appOpenAdManager.showAdIfAvailable(activity, onShowAdComplete)
 
     // endregion App open ads
 

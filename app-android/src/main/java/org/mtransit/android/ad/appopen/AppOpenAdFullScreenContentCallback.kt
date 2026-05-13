@@ -12,7 +12,7 @@ import org.mtransit.android.dev.CrashReporter
 class AppOpenAdFullScreenContentCallback(
     private val appOpenAdManager: AppOpenAdManager,
     private val crashReporter: CrashReporter,
-    private val onShowAdCompleteListener: () -> Unit
+    private val onShowAdComplete: () -> Unit
     // ) : AppOpenAdEventCallback, #gmaNextGen
 ) : FullScreenContentCallback(),
     MTLog.Loggable {
@@ -27,7 +27,7 @@ class AppOpenAdFullScreenContentCallback(
         logAdsD(this, "onAdDismissedFullScreenContent() > App open ad dismissed.")
         this.appOpenAdManager.appOpenAd = null // clear dismissed ad
         this.appOpenAdManager.isShowingAd = false
-        this.onShowAdCompleteListener()
+        this.onShowAdComplete()
         // TODO ? this.appOpenAdManager.loadAd()
     }
 
@@ -36,7 +36,7 @@ class AppOpenAdFullScreenContentCallback(
         logAdsD(this, "onAdFailedToShowFullScreenContent() > App open ad failed to show fullscreen content.")
         this.appOpenAdManager.appOpenAd = null // clear dismissed ad
         this.appOpenAdManager.isShowingAd = false
-        this.onShowAdCompleteListener()
+        this.onShowAdComplete()
         // TODO ? this.appOpenAdManager.loadAd()
         this.crashReporter.w(
             this,

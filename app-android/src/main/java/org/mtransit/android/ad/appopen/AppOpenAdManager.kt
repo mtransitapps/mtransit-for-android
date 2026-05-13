@@ -89,7 +89,7 @@ class AppOpenAdManager @Inject constructor(
         return true
     }
 
-    fun showAdIfAvailable(activity: IActivity, onShowAdCompleteListener: () -> Unit) {
+    fun showAdIfAvailable(activity: IActivity, onShowAdComplete: () -> Unit) {
         if (!AdConstants.AD_ENABLED) return
         if (isShowingAd) {
             logAdsD(LOG_TAG, "The app open ad is already showing.")
@@ -97,11 +97,11 @@ class AppOpenAdManager @Inject constructor(
         }
         if (appOpenAd == null) {
             logAdsD(LOG_TAG, "The app open ad is not ready yet.")
-            onShowAdCompleteListener()
+            onShowAdComplete()
             return // Load an ad.
         }
         isShowingAd = true
-        appOpenAd?.fullScreenContentCallback = AppOpenAdFullScreenContentCallback(this, crashReporter, onShowAdCompleteListener)
+        appOpenAd?.fullScreenContentCallback = AppOpenAdFullScreenContentCallback(this, crashReporter, onShowAdComplete)
         appOpenAd?.show(activity.requireActivity())
     }
 

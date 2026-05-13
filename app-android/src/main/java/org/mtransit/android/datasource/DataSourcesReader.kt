@@ -54,7 +54,9 @@ class DataSourcesReader @Inject constructor(
     companion object {
         private val LOG_TAG: String = DataSourcesReader::class.java.simpleName
 
-        private fun skipNotSupportedPkg(pkg: String) = (SUPPORTED_APPS_PKG.isNotEmpty() && !SUPPORTED_APPS_PKG.contains(pkg)) || NOT_SUPPORTED_APPS_PKG.contains(pkg)
+        private fun skipNotSupportedPkg(pkg: String) =
+            (SUPPORTED_APPS_PKG.isNotEmpty() && !SUPPORTED_APPS_PKG.contains(pkg))
+                    || NOT_SUPPORTED_APPS_PKG.contains(pkg)
 
         private val SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) listOf(
         ) else emptyList()
