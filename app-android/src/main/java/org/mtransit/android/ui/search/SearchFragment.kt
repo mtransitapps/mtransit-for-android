@@ -215,7 +215,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
         }
         viewModel.devEnabled.observe(viewLifecycleOwner) { devEnabled ->
             if (lastDevEnabled != null && lastDevEnabled != devEnabled) {
-                ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled")
+                ToastUtils.makeTextAndShow(context, "DEV MODE: $devEnabled")
             }
             lastDevEnabled = devEnabled
         }

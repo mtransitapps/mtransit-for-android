@@ -270,10 +270,10 @@ object FavoritesUI : MTLog.Loggable {
     }
 
     private suspend fun showToast(activity: FragmentActivity, @StringRes resId: Int) = withContext(Dispatchers.Main) {
-        ToastUtils.makeTextAndShowCentered(activity, resId)
+        ToastUtils.makeTextAndShow(activity, resId)
     }
 
     private suspend fun showToast(activity: FragmentActivity, @StringRes resId: Int, vararg args: Any) = withContext(Dispatchers.Main) {
-        ToastUtils.makeTextAndShowCentered(activity, activity.getString(resId, *args))
+        ToastUtils.makeTextAndShow(activity, activity.getString(resId, *args))
     }
 }

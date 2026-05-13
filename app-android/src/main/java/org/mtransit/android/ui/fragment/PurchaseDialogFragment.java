@@ -132,7 +132,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onCancel(@NonNull DialogInterface dialog) {
 		super.onCancel(dialog);
-		ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_user_canceled_message);
+		ToastUtils.makeTextAndShow(getActivity(), R.string.support_subs_user_canceled_message);
 	}
 
 	private void setupView(View view) {
@@ -205,7 +205,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		try {
 			if (activity == null) {
 				MTLog.w(this, "onRewardedAdButtonClick() > skip (no view or no activity)");
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_default_failure_message);
+				ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message);
 				return;
 			}
 			@SuppressLint("DeprecatedCall") // FIXME
@@ -213,7 +213,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			final IAdManager adManager = entryPoint.adManager();
 			if (!adManager.isRewardedAdAvailableToShow()) {
 				MTLog.w(this, "onRewardedAdButtonClick() > skip (no ad available)");
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_not_ready);
+				ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_not_ready);
 				return;
 			}
 			adManager.showRewardedAd(this);
@@ -223,7 +223,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while handling download or open paid tasks button!");
-			ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_default_failure_message);
+			ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message);
 		}
 	}
 
@@ -232,11 +232,11 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		try {
 			if (activity == null) {
 				MTLog.w(this, "onDownloadOrOpenPaidTasksBtnClick() > skip (no view or no activity)");
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			if (PackageManagerUtils.isAppInstalled(context, PAID_TASKS_PKG)) {
-				ToastUtils.makeTextAndShowCentered(context, //
+				ToastUtils.makeTextAndShow(context, //
 						context.getString(org.mtransit.android.commons.R.string.opening_and_label, //
 								context.getString(R.string.support_paid_tasks_incentive_app_label)));
 				PackageManagerUtils.openApp(context, PAID_TASKS_PKG);
@@ -249,7 +249,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while handling download or open paid tasks button!");
-			ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+			ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 		}
 	}
 
@@ -259,7 +259,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			final View view = getView();
 			if (view == null || activity == null) {
 				MTLog.w(this, "onBuyBtnClick() > skip (no view or no activity)");
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			final Spinner periodSpinner = view.findViewById(R.id.period);
@@ -267,13 +267,13 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			final String periodS = this.periods.get(periodPosition);
 			if (periodS == null || periodS.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: %s)", periodPosition);
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			final String periodCat = this.periodSToPeriodCat.get(periodS);
 			if (periodCat == null || periodCat.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period string: %s)", periodS);
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			final Spinner priceSpinner = view.findViewById(R.id.price);
@@ -281,19 +281,19 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			final String priceS = this.prices.get(pricePosition);
 			if (priceS == null || priceS.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: %s)", pricePosition);
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			final String priceCat = this.priceSToPriceCat.get(priceS);
 			if (priceCat == null || priceCat.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price string: %s)", priceS);
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			final String productId = IBillingManager.PRODUCT_ID_STARTS_WITH_F + periodCat + IBillingManager.PRODUCT_ID_SUBSCRIPTION + priceCat;
 			if (!IBillingManager.FLEXIBLE_SUBSCRIPTIONS.contains(productId)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected product ID: %s)", productId);
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			@SuppressLint("DeprecatedCall") // FIXME
@@ -302,7 +302,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			final boolean billingFlowLaunched = billingManager.launchBillingFlow(this, productId);
 			if (!billingFlowLaunched) {
 				MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: %s)", productId);
-				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			final Dialog dialog = getDialog();
@@ -311,7 +311,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while handling buy button!");
-			ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+			ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message);
 		}
 	}
 
