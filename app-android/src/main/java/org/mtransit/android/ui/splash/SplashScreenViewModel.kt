@@ -38,6 +38,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesReader
 import org.mtransit.android.datasource.DataSourcesStorage
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
@@ -63,6 +64,7 @@ class SplashScreenViewModel @Inject constructor(
     private val dataSourcesStorage: DataSourcesStorage, // not using [DataSourcesRepository]
     private val dataSourcesReader: DataSourcesReader, // not using [DataSourcesRepository]
     private val dataSourceRequestManager: DataSourceRequestManager,
+    private val remoteConfigProvider: RemoteConfigProvider,
     private val adManager: IAdManager,
     private val pm: PackageManager,
 ) : ViewModel(), MTLog.Loggable {
@@ -158,12 +160,17 @@ class SplashScreenViewModel @Inject constructor(
                 NightModeUtils.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // light for screenshots (demo mode ON)
             }
             analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, getAndUpdateAppOpenCounts())
-            deployIfNecessary()
+            val appOpenAdEnabled = remoteConfigProvider.get(
+                RemoteConfigProvider.AD_APP_OPEN_ENABLED, RemoteConfigProvider.AD_APP_OPEN_ENABLED_DEFAULT
+            )
+            if (appOpenAdEnabled) {
+                deployIfNecessary()
+            }
             _readyForNextScreen.postValue(true)
         }
     }
 
-    private suspend fun deployIfNecessary() {
+    private suspend fun deployIfNecessary() = withContext(Dispatchers.IO) {
         dataSourcesReader.refreshSetupRequired(forcePkg = null, skipTimeCheck = false, markUpdated = {})
         val agenciesWithSetupRequired = dataSourcesStorage.getAllAgencies()
             .filter { agency ->
@@ -172,9 +179,9 @@ class SplashScreenViewModel @Inject constructor(
                         && agency.setupRequired
                         && agency.isEnabled(pm)
             }
-        if (agenciesWithSetupRequired.isEmpty()) return
+        if (agenciesWithSetupRequired.isEmpty()) return@withContext // NOT NECESSARY TO DEPLOY
         deploying.set(true)
-        if (checkState()) return // BREAK
+        if (checkState()) return@withContext // BREAK
         deployAgencyData(agenciesWithSetupRequired)
         // TODO later prefetch free/useful real-time data / news?
         deploying.set(false)
@@ -213,9 +220,10 @@ class SplashScreenViewModel @Inject constructor(
 
     private suspend fun checkState(): Boolean {
         if (deploying.get() && adManager.isAppOpenAdAvailable()) {
-            MTLog.d(this, "checkState() > app open available")
-            _showAppOpenAd.postValue(true.toEvent())
-            _appOpenAdShowing.postValue(true) // [trying to] show
+            if (_appOpenAdShowing.value != true) {
+                _showAppOpenAd.postValue(true.toEvent()) // trigger show app open ad
+                _appOpenAdShowing.postValue(true) // set status == [trying to] showing
+            }
         } else if (!_appOpenAdShowComplete.get()) {
             withContext(Dispatchers.Main) {
                 triggerLoadAd() // trying to load
