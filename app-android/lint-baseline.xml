@@ -3128,7 +3128,7 @@
     <issue
         id="DeprecatedCall"
         message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_user_canceled_message);"
+        errorLine1="  ToastUtils.makeTextAndShow(getActivity(), R.string.support_subs_user_canceled_message);"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"

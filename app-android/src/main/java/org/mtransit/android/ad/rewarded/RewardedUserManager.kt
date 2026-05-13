@@ -114,7 +114,7 @@ class RewardedUserManager @Inject constructor(
         setRewardedUntilInMs(currentRewardedUntilOrNow + newRewardInMs)
         activity?.activity?.let { activity ->
             activity.runOnUiThread {
-                ToastUtils.makeTextAndShowCentered(
+                ToastUtils.makeTextAndShow(
                     activity,
                     R.string.support_watch_rewarded_ad_successful_message,
                     Toast.LENGTH_LONG
