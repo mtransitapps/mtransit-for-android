@@ -11,6 +11,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
+import org.mtransit.android.analytics.AnalyticsUserProperties
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.UriUtils
@@ -25,6 +27,7 @@ import javax.inject.Singleton
 @Singleton
 class FavoriteRepository(
     @param:ApplicationContext private val appContext: Context,
+    private val analyticsManager: IAnalyticsManager,
     private val demoModeManager: DemoModeManager,
     private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
@@ -32,9 +35,11 @@ class FavoriteRepository(
     @Inject
     constructor(
         @ApplicationContext appContext: Context,
+        analyticsManager: IAnalyticsManager,
         demoModeManager: DemoModeManager,
     ) : this(
         appContext = appContext,
+        analyticsManager = analyticsManager,
         demoModeManager = demoModeManager,
         ioDispatcher = Dispatchers.IO,
     )
@@ -95,6 +100,11 @@ class FavoriteRepository(
                     }
                 }
             }.orEmpty()
+            .also { result ->
+                if (uri == favoriteContentDirectoryUri && selection == null) { // full list query
+                    analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITES_COUNT, result.size)
+                }
+            }
     }
 
     private suspend fun findFavorite(uri: Uri = favoriteContentDirectoryUri, selection: String? = null) =
@@ -172,6 +182,11 @@ class FavoriteRepository(
                     }
                 }
             }.orEmpty()
+            .also { result ->
+                if (uri == folderContentDirectoryUri) { // full list query (no selection param in findFolders)
+                    analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, result.size)
+                }
+            }
     }
 
     private suspend fun findFolder(uri: Uri) = findFolders(uri).firstOrNull()
