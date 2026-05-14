@@ -160,10 +160,11 @@ class SplashScreenViewModel @Inject constructor(
                 NightModeUtils.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // light for screenshots (demo mode ON)
             }
             analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, getAndUpdateAppOpenCounts())
+            val canShowAds = adManager.canShowAds() != false
             val appOpenAdEnabled = remoteConfigProvider.get(
                 RemoteConfigProvider.AD_APP_OPEN_ENABLED, RemoteConfigProvider.AD_APP_OPEN_ENABLED_DEFAULT
             )
-            if (appOpenAdEnabled) {
+            if (appOpenAdEnabled && canShowAds) {
                 deployIfNecessary()
             }
             _readyForNextScreen.postValue(true)
@@ -227,7 +228,7 @@ class SplashScreenViewModel @Inject constructor(
                 triggerLoadAd() // trying to load
             }
         }
-        if (_appOpenAdShowComplete.get()) return true
+        if (_appOpenAdShowComplete.get()) return true // app open ad has been dismissed by user (or failed to display)
         return false
     }
 

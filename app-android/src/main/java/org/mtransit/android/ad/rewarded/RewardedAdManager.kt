@@ -1,9 +1,11 @@
 package org.mtransit.android.ad.rewarded
 
+import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.annotation.StringRes
 import androidx.core.content.edit
 import com.google.android.gms.ads.rewarded.RewardedAd
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 // import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd #gmaNextGen
@@ -24,6 +26,7 @@ import javax.inject.Singleton
 
 @Singleton
 class RewardedAdManager @Inject constructor(
+    @param:ApplicationContext private val appContext: Context,
     private val globalAdManager: GlobalAdManager,
     private val defaultPrefRepository: DefaultPreferenceRepository,
     private val demoModeManager: DemoModeManager,
@@ -57,18 +60,18 @@ class RewardedAdManager @Inject constructor(
     private var rewardedAdActivityHashCode: Int? = null
 
     private suspend fun loadRewardedAdForActivity(activity: IActivity) = withContext(Dispatchers.Main) {
-        val theActivity = activity.requireActivity()
-        if (rewardedAd != null && (rewardedAdActivityHashCode == null || rewardedAdActivityHashCode == theActivity.hashCode())) {
-            logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${theActivity::class.java.simpleName}...")
+        val activityHashCode = activity.requireActivity().hashCode()
+        if (rewardedAd != null && (rewardedAdActivityHashCode == null || rewardedAdActivityHashCode == activityHashCode)) {
+            logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > NOT Loading rewarded ad for ${activity::class.java.simpleName}...")
             return@withContext
         }
-        rewardedAdActivityHashCode = theActivity.hashCode()
-        logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > Loading rewarded ad for ${theActivity::class.java.simpleName}...")
+        rewardedAdActivityHashCode = activityHashCode
+        logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > Loading rewarded ad for ${activity::class.java.simpleName}...")
         RewardedAd.load( // Must be called on the main UI thread
-            theActivity,
-            theActivity.getString(adUnitStringResId),
+            appContext,
+            appContext.getString(adUnitStringResId),
             AdManager.getAdRequest(
-                adUnitId = theActivity.getString(adUnitStringResId)
+                adUnitId = appContext.getString(adUnitStringResId)
             ),
             RewardedAdLoadCallback(this@RewardedAdManager, crashReporter)
         )

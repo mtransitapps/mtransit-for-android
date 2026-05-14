@@ -60,16 +60,21 @@ class AppOpenAdManager @Inject constructor(
             logAdsD(LOG_TAG, "loadAd() > SKIP (not showing ads).")
             return false
         }
-        if (isLoadingAd.get() || isAdAvailable()) {
-            logAdsD(LOG_TAG, "App open ad is either loading or has already loaded.")
+        if (isLoadingAd.get()) {
+            logAdsD(LOG_TAG, "App open ad is already loading.")
+            return false
+        }
+        if (isAdAvailable()) {
+            logAdsD(LOG_TAG, "App open ad has already been loaded and is available to show.")
             return false
         }
         isLoadingAd.set(true)
-        AppOpenAd.load(
+        AppOpenAd.load( // Must be called on the main UI thread
             appContext,
             appContext.getString(adUnitStringResId),
-            AdRequest.Builder()
-                .build(),
+            AdManager.getAdRequest(
+                adUnitId = appContext.getString(adUnitStringResId)
+            ),
             object : AppOpenAd.AppOpenAdLoadCallback() {
                 override fun onAdLoaded(ad: AppOpenAd) {
                     appOpenAd = ad

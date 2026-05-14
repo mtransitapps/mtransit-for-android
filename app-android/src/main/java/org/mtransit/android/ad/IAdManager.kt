@@ -16,6 +16,8 @@ interface IAdManager {
 
     suspend fun initShowingAdsFromCache()
 
+    fun canShowAds(): Boolean?
+
     suspend fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity)
 
     // region App open ad

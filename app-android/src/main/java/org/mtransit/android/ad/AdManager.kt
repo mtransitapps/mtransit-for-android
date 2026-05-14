@@ -103,6 +103,10 @@ class AdManager @Inject internal constructor(
         this.globalAdManager.initShowingAdsFromCache()
     }
 
+    override fun canShowAds() : Boolean? {
+        return this.globalAdManager.canShowAds()
+    }
+
     override suspend fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity) {
         this.globalAdManager.setShowingAds(newShowingAds)
         onShowingAdsUpdated(activity)

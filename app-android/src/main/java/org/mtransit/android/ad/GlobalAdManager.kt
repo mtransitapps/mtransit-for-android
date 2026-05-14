@@ -197,6 +197,11 @@ class GlobalAdManager(
         this.showingAds = showingAds
     }
 
+    fun canShowAds(): Boolean? {
+        if (!AdConstants.AD_ENABLED) return false
+        return this.showingAds
+    }
+
     @AnyThread
     fun isShowingAds(): Boolean {
         if (!AdConstants.AD_ENABLED) return false
