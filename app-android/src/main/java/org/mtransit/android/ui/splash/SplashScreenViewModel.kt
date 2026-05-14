@@ -84,7 +84,6 @@ class SplashScreenViewModel @Inject constructor(
     override fun getLogTag() = LOG_TAG
 
     private val deploying = AtomicBoolean(false)
-    private val adInitComplete = AtomicBoolean(false)
     private val loadAdTriggered = AtomicBoolean(false)
 
     private val _deployingData = MutableLiveData<Event<Boolean>>()
@@ -127,7 +126,6 @@ class SplashScreenViewModel @Inject constructor(
 
     @MainThread
     fun onAdInitCompleted() {
-        adInitComplete.set(true)
         triggerLoadAd()
     }
 
@@ -214,7 +212,7 @@ class SplashScreenViewModel @Inject constructor(
                 }
             } while (setupRequired && TimeUtilsK.currentInstant() < start + DEPLOY_DATA_MAX_DURATION)
         }
-        _deployingData.postValue(false.toEvent()) // maybe not full done (if longer than max duration) but good enough
+        _deployingData.postValue(false.toEvent()) // maybe not fully done (if longer than max duration) but good enough
     }
 
     private suspend fun checkState(): Boolean {

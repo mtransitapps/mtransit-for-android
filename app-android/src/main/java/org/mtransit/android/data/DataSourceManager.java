@@ -319,7 +319,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			}
 
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error while loading 'setupRequired' from '%s'!", authority);
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' from '%s'!", AgencyProviderContract.SETUP_REQUIRED_PATH, authority);
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
