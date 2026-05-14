@@ -36,6 +36,7 @@ class AppOpenAdManager @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
+    @Volatile
     internal var appOpenAd: AppOpenAd? = null
 
     private var isLoadingAd = AtomicBoolean(false)
