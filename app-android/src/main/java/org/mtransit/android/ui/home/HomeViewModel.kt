@@ -112,8 +112,8 @@ class HomeViewModel @Inject constructor(
 
     private val _nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
 
-    private val _nearbyLocation: LiveData<Location?> =
-        MediatorLiveData3(deviceLocation, _nearbyLocationForceReset, _ipLocation).switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
+    private val _nearbyLocation: LiveData<Location?> = MediatorLiveData3(deviceLocation, _nearbyLocationForceReset, _ipLocation)
+        .switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
                 if (forceReset) {

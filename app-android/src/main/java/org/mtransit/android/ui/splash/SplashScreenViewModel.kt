@@ -53,7 +53,7 @@ import kotlin.time.Duration.Companion.seconds
 @SuppressLint("CustomSplashScreen")
 @HiltViewModel
 /**
- * Not suing [org.mtransit.android.datasource.DataSourcesRepository] because memory cache might not be available yet
+ * Not using [org.mtransit.android.datasource.DataSourcesRepository] because memory cache might not be available yet
  */
 class SplashScreenViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
@@ -181,7 +181,6 @@ class SplashScreenViewModel @Inject constructor(
             }
         if (agenciesWithSetupRequired.isEmpty()) return@withContext // NOT NECESSARY TO DEPLOY
         deploying.set(true)
-        if (checkState()) return@withContext // BREAK
         deployAgencyData(agenciesWithSetupRequired)
         // TODO later prefetch free/useful real-time data / news?
         deploying.set(false)
@@ -193,7 +192,6 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     private suspend fun deployAgencyData(agenciesWithSetupRequired: List<AgencyProperties>) = withContext(Dispatchers.IO) {
-        _deployingData.postValue(true.toEvent())
         agenciesWithSetupRequired.forEach { agency ->
             if (checkState()) return@withContext // BREAK
             var deployingForTime = TimeUtilsK.currentInstant()
@@ -215,7 +213,7 @@ class SplashScreenViewModel @Inject constructor(
                 }
             } while (setupRequired && TimeUtilsK.currentInstant() < start + DEPLOY_DATA_MAX_DURATION)
         }
-        _deployingData.postValue(false.toEvent())
+        _deployingData.postValue(false.toEvent()) // maybe not full done (if longer than max duration) but good enough
     }
 
     private suspend fun checkState(): Boolean {

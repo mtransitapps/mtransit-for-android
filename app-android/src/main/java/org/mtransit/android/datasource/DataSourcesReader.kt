@@ -247,13 +247,13 @@ class DataSourcesReader @Inject constructor(
         forcePkg: String? = null,
         skipTimeCheck: Boolean = false,
         markUpdated: () -> Unit,
-    ) {
+    ): Boolean {
         val now = TimeUtilsK.currentInstant()
         if (!skipTimeCheck) {
             val lastCheck = lclPrefRepository.pref.getLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, -1L).millisToInstant()
             if (now < lastCheck + MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK_IN_MS) {
                 MTLog.d(this, "refreshSetupRequired() > SKIP (last successful refresh too recent: ${(now - lastCheck).toDurationLog()} ago)")
-                return
+                return false
             }
         }
         var updated = false
@@ -280,6 +280,7 @@ class DataSourcesReader @Inject constructor(
         if (!skipTimeCheck || updated) { // store last check (if time checked) OR if updated
             lclPrefRepository.pref.edit { putLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, now.toMillis()) }
         }
+        return updated
     }
 
     private suspend fun lookForNewDataSources(
