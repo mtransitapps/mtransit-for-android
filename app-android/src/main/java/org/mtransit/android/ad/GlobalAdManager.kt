@@ -1,5 +1,8 @@
 package org.mtransit.android.ad
 
+// import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig #gmaNextGen
 import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
@@ -7,17 +10,15 @@ import androidx.lifecycle.LiveData
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
-// import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig #gmaNextGen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants.logAdsD
-import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedUserManager
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -37,6 +38,7 @@ class GlobalAdManager(
     private val demoModeManager: DemoModeManager,
     private val consentManager: AdsConsentManager,
     private val rewardedUserManager: RewardedUserManager,
+    private val billingManager: IBillingManager,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {
 
@@ -47,12 +49,14 @@ class GlobalAdManager(
         demoModeManager: DemoModeManager,
         consentManager: AdsConsentManager,
         rewardedUserManager: RewardedUserManager,
+        billingManager: IBillingManager,
     ) : this(
         dataSourcesRepository = dataSourcesRepository,
         crashReporter = crashReporter,
         demoModeManager = demoModeManager,
         consentManager = consentManager,
         rewardedUserManager = rewardedUserManager,
+        billingManager = billingManager,
         ioDispatcher = Dispatchers.IO,
     )
 
@@ -69,8 +73,10 @@ class GlobalAdManager(
 
     private var showingAds: Boolean? = null
     private var hasAgenciesEnabled: Boolean? = null
+
     @Volatile
     private var _rewardedUntilInMs: Long? = null
+
     @Volatile
     private var _rewardedNow: Boolean? = null
 
@@ -89,32 +95,35 @@ class GlobalAdManager(
     val rewardedUntilInMs: LiveData<Long> get() = this.rewardedUserManager.rewardedUntilInMsLive
     val rewardedNow: LiveData<Boolean> get() = this.rewardedUserManager.rewardedNowLive
 
-    fun init(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
+    fun init(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit, withConsentOnly: Boolean = false) {
         if (!AdConstants.AD_ENABLED) return
         val theActivity = activity.activity
         if (theActivity == null) {
             MTLog.w(this, "Trying to initialized w/o activity!")
             return // SKIP
         }
-        consentManager.gatherConsent(theActivity) { formError: UMPFormError? ->
-            formError?.let {
-                logAdsD(this@GlobalAdManager, "Consent not obtained [${formError.errorCode}]: ${formError.message}.")
+        consentManager.gatherConsent(
+            theActivity,
+            noUI = withConsentOnly,
+            onConsentGatheringComplete = { error: UMPFormError? ->
+                error?.let { logAdsD(this@GlobalAdManager, "Consent not obtained [${it.errorCode}]: ${it.message}.") }
+                if (consentManager.canRequestAds) {
+                    initWithConsent(activity, onInitCompleteListener)
+                }
+                if (consentManager.isPrivacyOptionsRequired) {
+                    activity.onPrivacyOptionsRequiredChanged()
+                }
             }
-            if (consentManager.canRequestAds) {
-                initWithConsent(activity, bannerAdManager)
-            }
-            if (consentManager.isPrivacyOptionsRequired) {
-                activity.onPrivacyOptionsRequiredChanged()
-            }
-        }
+        )
         if (consentManager.canRequestAds) { // IF consent already given in previous session DO
-            initWithConsent(activity, bannerAdManager)
+            initWithConsent(activity, onInitCompleteListener)
         }
     }
 
-    private fun initWithConsent(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
+    private fun initWithConsent(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit) {
         if (initialized.get()) {
             logAdsD(this, "initWithConsent() > SKIP (initialized: ${this.initialized.get()})")
+            onInitCompleteListener()
             return // SKIP
         }
         if (initializing.getAndSet(true)) {
@@ -123,7 +132,7 @@ class GlobalAdManager(
         }
         try {
             CoroutineScope(ioDispatcher).launch {
-                initOnBackgroundThread(activity, bannerAdManager)
+                initOnBackgroundThread(activity, onInitCompleteListener)
             }
         } catch (e: Exception) {
             this.crashReporter.w(this, e, "Error while initializing Ads!")
@@ -148,7 +157,7 @@ class GlobalAdManager(
     }
 
     @WorkerThread
-    private fun initOnBackgroundThread(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
+    private fun initOnBackgroundThread(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit) {
         // https://developers.google.com/admob/android/next-gen/quick-start
         val context = activity.requireContext()
         val appId = context.getString(R.string.google_ads_app_id)
@@ -174,12 +183,23 @@ class GlobalAdManager(
                     "onAdapterInitializationComplete() > Adapter name: $adapterClass, Status: ${status.initializationState}, Description: ${status.description}, Latency: ${status.latency}"
                 )
             }
-            bannerAdManager.refreshBannerAdStatus(activity, force = false)
+            onInitCompleteListener()
+        }
+    }
+
+    suspend fun initShowingAdsFromCache() = withContext(ioDispatcher) {
+        billingManager.getCachedCurrentSubscription()?.isNotEmpty()?.let { hasSubscription ->
+            setShowingAds(!hasSubscription)
         }
     }
 
     fun setShowingAds(showingAds: Boolean?) {
         this.showingAds = showingAds
+    }
+
+    fun canShowAds(): Boolean? {
+        if (!AdConstants.AD_ENABLED) return false
+        return this.showingAds
     }
 
     @AnyThread

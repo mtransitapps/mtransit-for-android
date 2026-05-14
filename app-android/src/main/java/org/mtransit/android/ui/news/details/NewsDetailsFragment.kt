@@ -41,11 +41,11 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.news.NewsListViewModel
 import org.mtransit.android.ui.news.image.NewsImagesAdapter
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
@@ -144,11 +144,11 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
             updateNewsView(newsArticle)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
-        })
+        }
         viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
             // DO NOTHING
         }

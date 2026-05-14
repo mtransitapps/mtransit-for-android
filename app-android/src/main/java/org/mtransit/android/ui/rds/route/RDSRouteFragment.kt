@@ -42,10 +42,10 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
 import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIRouteUtils
@@ -245,9 +245,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             abController?.setABReady(this, isABReady, true)
             updateServiceUpdateImg(routeM = routeM)
         }
-        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
+        viewModel.serviceUpdateLoadedEvent.observeEvent(viewLifecycleOwner) { _ ->
             updateServiceUpdateImg()
-        })
+        }
         viewModel.colorInt.observe(viewLifecycleOwner) {
             updateScreenToolbarBgColor()
         }
@@ -270,11 +270,11 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             }
             (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
-        })
+        }
         viewModel.agency.observe(viewLifecycleOwner) { agency ->
             binding?.routeTypeImg?.setJSONAndVisibility(agency)
         }

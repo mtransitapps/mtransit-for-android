@@ -27,7 +27,7 @@ import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.ITargetedProviderProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
-import org.mtransit.android.datasource.DataSourcesCache
+import org.mtransit.android.datasource.DataSourcesStorage
 import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.GTFSCommons
 import org.mtransit.commons.removeAllAnd
@@ -179,7 +179,7 @@ class DemoModeManager @Inject constructor(
                 && !forceLang.isNullOrBlank()
     // not mandatory: forceTimestampSec, forceTimeZone, forceTimeFormat
 
-    suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesCache: DataSourcesCache) {
+    suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesStorage: DataSourcesStorage) {
         filterAgencyAuthority = savedStateHandle[FILTER_AGENCY_AUTHORITY]
         filterScreen = savedStateHandle[FILTER_SCREEN]
         forceLang = savedStateHandle[FORCE_LANG]
@@ -187,14 +187,14 @@ class DemoModeManager @Inject constructor(
         forceTimeZoneId = savedStateHandle[FORCE_TIMEZONE_ID]
         forceTimeFormat = savedStateHandle[FORCE_TIME_FORMAT]
         if (enabled) {
-            apply(dataSourcesCache)
+            apply(dataSourcesStorage)
         }
     }
 
-    private suspend fun apply(dataSourcesCache: DataSourcesCache) = withContext(Dispatchers.IO) {
+    private suspend fun apply(dataSourcesStorage: DataSourcesStorage) = withContext(Dispatchers.IO) {
         billingManager.fullDemoMode = isFullDemo()
         filterAgencyAuthority?.let { authority ->
-            filterAgency = dataSourcesCache.getAgency(authority)
+            filterAgency = dataSourcesStorage.getAgency(authority)
         }
 
         filterAgencyPOIM = filterAgency?.let { agency ->

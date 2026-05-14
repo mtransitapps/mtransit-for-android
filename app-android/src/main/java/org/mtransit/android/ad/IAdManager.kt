@@ -2,20 +2,38 @@ package org.mtransit.android.ad
 
 import android.content.res.Configuration
 import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import org.mtransit.android.ui.view.common.IActivity
 
 interface IAdManager {
 
-    fun init(activity: IAdScreenActivity)
+    fun init(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit = {}, withConsentOnly: Boolean = false)
+    fun initForBanner(activity: IAdScreenActivity)
 
     suspend fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity)
 
-    @WorkerThread
+    suspend fun initShowingAdsFromCache()
+
+    fun canShowAds(): Boolean?
+
     suspend fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity)
 
-    // region Rewarded Ad
+    // region App open ad
+
+    fun isAppOpenAdAvailable(): Boolean
+
+    fun isShowingAppOpenAd(): Boolean
+
+    @MainThread
+    fun loadAppOpenAd(): Boolean
+
+    fun showAppOpenAdIfAvailable(activity: IActivity, onShowAdComplete: () -> Unit)
+
+    // endregion App open ad
+
+    // region Rewarded ad
 
     @AnyThread
     fun getRewardedAdAmount(): Int
@@ -33,7 +51,7 @@ interface IAdManager {
 
     fun showRewardedAd(activity: IActivity): Boolean
 
-    // endregion Rewarded Ad
+    // endregion Rewarded ad
 
     fun getBannerHeightInPx(activity: IAdScreenActivity?): Int
 

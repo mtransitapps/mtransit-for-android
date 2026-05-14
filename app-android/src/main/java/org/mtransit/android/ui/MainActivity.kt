@@ -155,7 +155,7 @@ class MainActivity : MTActivityWithLocation(),
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        adManager.init(this)
+        adManager.initForBanner(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         this.currentUiMode = getResources().configuration.uiMode
         LocaleUtils.onCreateActivity(this)
@@ -214,8 +214,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     override fun onBillingResult(productId: String?) {
-        val hasSubscription = if (productId == null) null else !productId.isEmpty()
-        if (hasSubscription != null) {
+        productId?.isNotEmpty()?.let { hasSubscription ->
             lifecycleScope.launch(Dispatchers.IO) {
                 adManager.setShowingAds(!hasSubscription, this@MainActivity)
             }

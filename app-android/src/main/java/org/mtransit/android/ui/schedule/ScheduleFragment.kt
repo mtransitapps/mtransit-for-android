@@ -35,13 +35,13 @@ import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.common.scrollToPositionWithOffset
 import org.mtransit.android.ui.view.common.start
 import org.mtransit.android.ui.view.common.startMargin
@@ -200,11 +200,11 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
             listAdapter.showingAccessibility = showAccessibility
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
-        })
+        }
         viewModel.colorInt.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
         }

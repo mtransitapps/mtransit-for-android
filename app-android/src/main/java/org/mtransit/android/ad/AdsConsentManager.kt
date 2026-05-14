@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AdsConsentManager @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+    @param:ApplicationContext private val appContext: Context,
 ) : MTLog.Loggable {
 
     companion object {
@@ -27,13 +27,12 @@ class AdsConsentManager @Inject constructor(
     override fun getLogTag() = LOG_TAG
 
     private val consentInformation: ConsentInformation by lazy {
-        UserMessagingPlatform.getConsentInformation(context)
+        UserMessagingPlatform.getConsentInformation(appContext)
     }
 
-    fun interface OnConsentGatheringCompleteListener {
-        fun consentGatheringComplete(error: FormError?)
-    }
-
+    /**
+     * > "Important: canRequestAds() always returns false until you have called requestConsentInfoUpdate()"
+     */
     val canRequestAds: Boolean
         get() = consentInformation.canRequestAds()
 
@@ -42,7 +41,8 @@ class AdsConsentManager @Inject constructor(
 
     fun gatherConsent(
         activity: Activity,
-        onConsentGatheringCompleteListener: OnConsentGatheringCompleteListener,
+        noUI: Boolean = false,
+        onConsentGatheringComplete: (error: FormError?) -> Unit = {},
     ) {
         val consentRequestParams = ConsentRequestParameters.Builder().apply {
             if (AdConstants.DEBUG) {
@@ -51,7 +51,7 @@ class AdsConsentManager @Inject constructor(
                         AdConstants.DEBUG_CONSENT_GEOGRAPHY?.let {
                             setDebugGeography(it)
                             setForceTesting(true)
-                            context.resources.getStringArray(R.array.google_ads_test_devices_ids).forEach { testDeviceHashedId ->
+                            appContext.resources.getStringArray(R.array.google_ads_test_devices_ids).forEach { testDeviceHashedId ->
                                 addTestDeviceHashedId(testDeviceHashedId)
                             }
                         }
@@ -60,25 +60,26 @@ class AdsConsentManager @Inject constructor(
             }
         }.build()
         consentInformation.requestConsentInfoUpdate(
-            activity, consentRequestParams,
-            {
+            activity,
+            consentRequestParams,
+            { // SUCCESS
                 logAdsD(this, "Consent information successfully updated.")
-                loadAndShowConsentFormIfRequired(activity, onConsentGatheringCompleteListener)
+                if (noUI) {
+                    onConsentGatheringComplete(null)
+                    return@requestConsentInfoUpdate
+                }
+                UserMessagingPlatform.loadAndShowConsentFormIfRequired(
+                    activity,
+                    { formError -> // DISMISSED
+                        onConsentGatheringComplete(formError)
+                    }
+                )
             },
-            { requestConsentError ->
-                logAdsD(this, "Error updating consent information: $requestConsentError")
-                onConsentGatheringCompleteListener.consentGatheringComplete(requestConsentError)
+            { requestConsentError -> // FAILURE
+                MTLog.w(this@AdsConsentManager, "Error updating consent information: [${requestConsentError.errorCode}]: ${requestConsentError.message}.")
+                onConsentGatheringComplete(requestConsentError)
             },
         )
-    }
-
-    private fun loadAndShowConsentFormIfRequired(
-        activity: Activity,
-        onConsentGatheringCompleteListener: OnConsentGatheringCompleteListener,
-    ) {
-        UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
-            onConsentGatheringCompleteListener.consentGatheringComplete(formError)
-        }
     }
 
     fun showPrivacyOptionsForm(

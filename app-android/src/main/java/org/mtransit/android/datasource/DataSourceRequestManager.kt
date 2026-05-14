@@ -54,6 +54,10 @@ class DataSourceRequestManager(
 
     override fun getLogTag() = LOG_TAG
 
+    suspend fun ping(agencyAuthority: String) = withContext(ioDispatcher) {
+        DataSourceManager.ping(appContext, agencyAuthority)
+    }
+
     suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = withContext(ioDispatcher) {
         DataSourceManager.findPOI(appContext, authority, poiFilter)?.poi
     }
@@ -115,6 +119,12 @@ class DataSourceRequestManager(
 
     suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {
         DataSourceManager.findRDSRouteDirections(appContext, agencyAuthority, routeId)
+    }
+
+    suspend fun findAgencySetupRequired(
+        agencyAuthority: String
+    ): Boolean? = withContext(ioDispatcher) {
+        DataSourceManager.findAgencySetupRequired(appContext, agencyAuthority)
     }
 
     suspend fun findAgencyProperties(

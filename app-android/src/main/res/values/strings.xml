@@ -324,4 +324,8 @@
     </plurals>
 
     <string name="news_video_play">Play</string>
+
+    <string name="deploying_data_in_progress_short">Deploying data&#8230;</string>
+    <string name="deploying_data_in_progress_for_short"><![CDATA[ Deploying <b>%s</b> data &#8230; ]]></string>
+    <string name="deploying_data_done_short">Deploying data&#8230; DONE&#10003;</string>
 </resources>

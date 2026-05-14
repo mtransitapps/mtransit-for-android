@@ -235,7 +235,7 @@ class MapViewModel @Inject constructor(
         return newLoadingArea != loadingArea // same area?
     }
 
-    private val _poiMarkersReset = MutableLiveData(Event(false))
+    private val _poiMarkersReset = MutableLiveData<Event<Boolean>>()
 
     private val _poiMarkers = MutableLiveData<Collection<MTPOIMarker>?>(null)
     val poiMarkers: LiveData<Collection<MTPOIMarker>?> = _poiMarkers

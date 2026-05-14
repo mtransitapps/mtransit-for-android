@@ -40,6 +40,8 @@ data class AgencyProperties(
     val isInstalled: Boolean = true, // #onModulesUpdated
     @ColumnInfo(name = "is_enabled")
     override val isEnabled: Boolean = true, // #onModulesUpdated
+    @ColumnInfo(name = "setup_required")
+    val setupRequired: Boolean = false,
     @ColumnInfo(name = "is_rts") // do not change to avoid breaking compat w/ old modules
     override val isRDS: Boolean = false,
     @ColumnInfo(name = "logo")
@@ -74,6 +76,7 @@ data class AgencyProperties(
         availableVersionCode: Int,
         isInstalled: Boolean,
         isEnabled: Boolean,
+        setupRequired: Boolean = false,
         isRDS: Boolean = false,
         logo: JPaths? = null,
         maxValidSec: Int = -1,
@@ -84,26 +87,27 @@ data class AgencyProperties(
         faresWebFr: String? = null,
         extendedType: DataSourceType? = null,
     ) : this(
-        id,
-        type,
-        shortName,
-        longName,
-        color?.let { ColorUtils.parseColor(it) },
-        area,
-        pkg,
-        longVersionCode,
-        availableVersionCode,
-        isInstalled,
-        isEnabled,
-        isRDS,
-        logo,
-        maxValidSec,
-        trigger,
-        contactUsWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
-        contactUsWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
-        faresWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
-        faresWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
-        extendedType,
+        id = id,
+        type = type,
+        shortName = shortName,
+        longName = longName,
+        colorInt = color?.let { ColorUtils.parseColor(it) },
+        area = area,
+        pkg = pkg,
+        longVersionCode = longVersionCode,
+        availableVersionCode = availableVersionCode,
+        isInstalled = isInstalled,
+        isEnabled = isEnabled,
+        setupRequired = setupRequired,
+        isRDS = isRDS,
+        logo = logo,
+        maxValidSec = maxValidSec,
+        trigger = trigger,
+        contactUsWeb = contactUsWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
+        contactUsWebFr = contactUsWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
+        faresWeb = faresWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
+        faresWebFr = faresWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
+        extendedType = extendedType,
     )
 
     @Ignore
