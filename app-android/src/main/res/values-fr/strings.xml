@@ -337,5 +337,5 @@
 
     <string name="deploying_data_in_progress_short">Déploiement des \ndonnées&#8230;</string>
     <string name="deploying_data_in_progress_for_short"><![CDATA[ Déploiement des \ndonnées de <b>%s</b> &#8230; ]]></string>
-    <string name="deploying_data_done_short">Déploiement des \ndonnées &#10003;</string>
+    <string name="deploying_data_done_short">Déploiement des \ndonnées&#8230; TERMINÉ&#10003;</string>
 </resources>
