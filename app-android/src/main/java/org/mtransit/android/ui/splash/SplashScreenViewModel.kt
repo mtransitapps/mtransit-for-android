@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
@@ -79,6 +80,8 @@ class SplashScreenViewModel @Inject constructor(
         private val DEPLOY_DATA_MAX_DURATION = 13.seconds
 
         private val DEPLOYING_FOR_REPEAT = 3.seconds
+
+        private val FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT = 5.seconds
     }
 
     override fun getLogTag() = LOG_TAG
@@ -170,7 +173,12 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     private suspend fun deployIfNecessary() = withContext(Dispatchers.IO) {
-        dataSourcesReader.refreshSetupRequired(forcePkg = null, skipTimeCheck = false, markUpdated = {})
+        val refreshedSetupRequired = withTimeoutOrNull(FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT) {
+            dataSourcesReader.refreshSetupRequired(forcePkg = null, skipTimeCheck = false, markUpdated = {})
+        }
+        if (refreshedSetupRequired == null) {
+            MTLog.w(this, "deployIfNecessary() > refreshSetupRequired() timed out after $FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT.")
+        }
         val agenciesWithSetupRequired = dataSourcesStorage.getAllAgencies()
             .filter { agency ->
                 agency.pkg != appContext.packageName  // not module / place providers
