@@ -107,7 +107,7 @@ class NearbyViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    private val _nearbyLocationForceReset = MutableLiveData(Event(false))
+    private val _nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
     val nearbyLocationForceReset: LiveData<Event<Boolean>> = _nearbyLocationForceReset
 
     fun checkIfNetworkLocationRefreshNecessary() {

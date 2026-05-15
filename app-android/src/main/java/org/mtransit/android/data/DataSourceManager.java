@@ -306,15 +306,38 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static AgencyProperties findAgencyProperties(@NonNull Context context,
-														@NonNull String authority,
-														@NonNull DataSourceType dst,
-														boolean isRDS,
-														@Nullable JPaths logo,
-														@NonNull String pkg,
-														long longVersionCode,
-														boolean enabled,
-														int trigger) {
+	public static Boolean findAgencySetupRequired(@NonNull Context context, @NonNull String authority) {
+		Boolean result = null;
+		Cursor cursor = null;
+		try {
+			final Uri uri = Uri.withAppendedPath(getUri(authority), AgencyProviderContract.SETUP_REQUIRED_PATH);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					result = CursorExtKt.optBoolean(cursor, AgencyProviderContract.SETUP_REQUIRED_PATH, null);
+				}
+			}
+
+		} catch (Exception e) {
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' from '%s'!", AgencyProviderContract.SETUP_REQUIRED_PATH, authority);
+		} finally {
+			SqlUtils.closeQuietly(cursor);
+		}
+		return result;
+	}
+
+	@Nullable
+	public static AgencyProperties findAgencyProperties(
+			@NonNull Context context,
+			@NonNull String authority,
+			@NonNull DataSourceType dst,
+			boolean isRDS,
+			@Nullable JPaths logo,
+			@NonNull String pkg,
+			long longVersionCode,
+			boolean enabled,
+			int trigger
+	) {
 		AgencyProperties result = null;
 		Cursor cursor = null;
 		try {
@@ -332,6 +355,20 @@ public final class DataSourceManager implements MTLog.Loggable {
 					final String contactUsWebFr = CursorExtKt.optString(cursor, AgencyProviderContract.CONTACT_US_WEB_FR, null);
 					final String faresWeb = CursorExtKt.optString(cursor, AgencyProviderContract.FARES_WEB, null);
 					final String faresWebFr = CursorExtKt.optString(cursor, AgencyProviderContract.FARES_WEB_FR, null);
+					Boolean setupRequired = null; // AgencyProviderContract.SETUP_REQUIRED_PATH was returning "true" or "false" instead of 0/1 until now
+					try {
+						final int columnIndex = cursor.getColumnIndex(AgencyProviderContract.SETUP_REQUIRED_PATH);
+						if (columnIndex >= 0) {
+							final int type = cursor.getType(columnIndex);
+							if (type == Cursor.FIELD_TYPE_STRING) {
+								setupRequired = Boolean.parseBoolean(cursor.getString(columnIndex));
+							} else {
+								setupRequired = CursorExtKt.optBoolean(cursor, AgencyProviderContract.SETUP_REQUIRED_PATH, null);
+							}
+						}
+					} catch (Exception e) {
+						MTLog.w(LOG_TAG, e, "Error while loading 'setupRequired' from '%s'!", authority);
+					}
 					final DataSourceType exType = DataSourceType.parseId(
 							CursorExtKt.optIntNN(cursor, AgencyProviderContract.EXTENDED_TYPE_ID, DataSourceTypeId.INVALID)
 					);
@@ -347,6 +384,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 							availableVersionCode,
 							true,
 							enabled,
+							Boolean.TRUE.equals(setupRequired),
 							isRDS,
 							logo,
 							maxValidInSec,

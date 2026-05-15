@@ -46,17 +46,16 @@ class PickPOIViewModel @Inject constructor(
 
     private val _allAgencies = dataSourcesRepository.readingAllAgenciesBase()
 
-    val dataSourceRemovedEvent: LiveData<Event<Boolean?>> =
-        MediatorLiveData2(_poiAuthorities, _allAgencies).switchMap { (authorities, allAgencies) ->
+    val dataSourceRemovedEvent: LiveData<Event<Boolean>> = MediatorLiveData2(_poiAuthorities, _allAgencies)
+        .switchMap { (authorities, allAgencies) ->
             liveData {
+                authorities?: return@liveData
+                allAgencies?: return@liveData
                 emit(Event(checkForDataSourceRemoved(authorities, allAgencies)))
             }
         }
 
-    private fun checkForDataSourceRemoved(authorities: List<String>?, allAgencies: List<IAgencyProperties>?): Boolean? {
-        if (authorities == null || allAgencies == null) {
-            return null // SKIP
-        }
+    private fun checkForDataSourceRemoved(authorities: List<String>, allAgencies: List<IAgencyProperties>): Boolean {
         authorities.firstOrNull { authority -> allAgencies.none { it.authority == authority } }?.let {
             MTLog.d(this, "Authority $it doesn't exist anymore, dismissing dialog.")
             return true

@@ -30,10 +30,10 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -184,11 +184,11 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
-            if (removed == true) {
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
+            if (removed) {
                 dismiss()
             }
-        })
+        }
     }
 
     override fun onResume() {

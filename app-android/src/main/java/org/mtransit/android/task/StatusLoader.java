@@ -174,19 +174,13 @@ public class StatusLoader implements MTLog.Loggable {
 
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable POIStatus result) {
-			if (result == null) {
-				return;
-			}
+			if (result == null) return;
 			final POIManager poim = this.poiWR.get();
-			if (poim == null) {
-				return;
-			}
-			final boolean statusChanged = poim.setStatus(result);
+			if (poim == null) return;
+			final boolean statusChanged = poim.setStatus(result); // filter no data or not useful or older than current status
 			if (statusChanged) {
 				final StatusLoader.StatusLoaderListener listener = this.listenerWR.get();
-				if (listener == null) {
-					return;
-				}
+				if (listener == null) return;
 				listener.onStatusLoaded(result);
 			}
 		}
@@ -194,13 +188,9 @@ public class StatusLoader implements MTLog.Loggable {
 		@Nullable
 		POIStatus call() {
 			final Context context = this.contextWR.get();
-			if (context == null) {
-				return null;
-			}
+			if (context == null) return null;
 			final POIManager poim = this.poiWR.get();
-			if (poim == null) {
-				return null;
-			}
+			if (poim == null) return null;
 			return DataSourceManager.findStatus(context, this.statusProvider.getAuthority(), this.statusFilter);
 		}
 	}

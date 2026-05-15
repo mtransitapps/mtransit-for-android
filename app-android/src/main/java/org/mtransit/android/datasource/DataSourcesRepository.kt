@@ -41,7 +41,7 @@ import javax.inject.Singleton
 class DataSourcesRepository @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
-    private val dataSourcesIOCache: DataSourcesCache, // I/O - DB
+    private val dataSourcesStorage: DataSourcesStorage,
     private val dataSourcesReader: DataSourcesReader,
     private val demoModeManager: DemoModeManager,
     private val billingManager: IBillingManager,
@@ -75,11 +75,13 @@ class DataSourcesRepository @Inject constructor(
 
     fun getAllAgencies() = this.dataSourcesInMemoryCache.getAllAgencies()
 
+    suspend fun getAllAgenciesNow() = this.dataSourcesStorage.getAllAgencies()
+
     fun getAllAgenciesByType() = getAllAgencies().groupBy {
         it.getSupportedType()
     }
 
-    fun readingAllAgencies() = this.dataSourcesIOCache.readingAllAgencies().map { agencies ->
+    fun readingAllAgencies() = this.dataSourcesStorage.readingAllAgencies().map { agencies ->
         agencies
             .filterExpansiveAgencies(billingManager, remoteConfigProvider)
             .filterDemoModeAgency(demoModeManager)
@@ -88,7 +90,7 @@ class DataSourcesRepository @Inject constructor(
 
     fun readingAllAgenciesByType() = readingAllAgencies().map { it.groupBy { it.getSupportedType() } }
 
-    fun readingAllAgenciesBase() = this.dataSourcesIOCache.readingAllAgenciesBase().map { agencies ->
+    fun readingAllAgenciesBase() = this.dataSourcesStorage.readingAllAgenciesBase().map { agencies ->
         agencies
             .filterExpansiveAgencies(billingManager, remoteConfigProvider)
             .filterDemoModeAgency(demoModeManager)
@@ -123,14 +125,14 @@ class DataSourcesRepository @Inject constructor(
     fun readingAgency(authority: String?) = liveData {
         authority?.let {
             emit(dataSourcesInMemoryCache.getAgency(it))
-            emitSource(dataSourcesIOCache.readingAgency(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingAgency(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
     fun readingAgencyBase(authority: String?) = liveData {
         authority?.let {
             emit(dataSourcesInMemoryCache.getAgencyBase(it))
-            emitSource(dataSourcesIOCache.readingAgencyBase(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingAgencyBase(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -145,8 +147,8 @@ class DataSourcesRepository @Inject constructor(
     }
 
     private fun readingAllSupportedDataSourceTypesIO() = MediatorLiveData2(
-        dataSourcesIOCache.readingAllNotExtendedDataSourceTypes(),
-        dataSourcesIOCache.readingAllExtendedDataSourceTypes()
+        dataSourcesStorage.readingAllNotExtendedDataSourceTypes(),
+        dataSourcesStorage.readingAllExtendedDataSourceTypes()
     ).switchMap { (notExtendedDST, extendedDST) ->
         liveData {
             if (notExtendedDST == null || extendedDST == null) return@liveData
@@ -186,7 +188,7 @@ class DataSourcesRepository @Inject constructor(
     fun readingStatusProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
             emit(dataSourcesInMemoryCache.getStatusProviders(providerAuthority))
-            emitSource(dataSourcesIOCache.readingStatusProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingStatusProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -204,7 +206,7 @@ class DataSourcesRepository @Inject constructor(
     fun readingScheduleProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
             emit(dataSourcesInMemoryCache.getScheduleProvidersList(providerAuthority))
-            emitSource(dataSourcesIOCache.readingScheduleProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingScheduleProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -213,7 +215,7 @@ class DataSourcesRepository @Inject constructor(
     fun readingScheduleProvider(authority: String?) = liveData {
         authority?.let { providerAuthority ->
             emit(dataSourcesInMemoryCache.getScheduleProvider(providerAuthority))
-            emitSource(dataSourcesIOCache.readingScheduleProvider(providerAuthority).map { it.takeIfDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingScheduleProvider(providerAuthority).map { it.takeIfDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -240,7 +242,7 @@ class DataSourcesRepository @Inject constructor(
     fun readingVehicleLocationProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
             emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(providerAuthority))
-            emitSource(dataSourcesIOCache.readingVehicleLocationProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingVehicleLocationProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -280,7 +282,7 @@ class DataSourcesRepository @Inject constructor(
         emit(
             dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
         )
-        emitSource(dataSourcesIOCache.readingAllNewsProviders().map { newsProviders ->
+        emitSource(dataSourcesStorage.readingAllNewsProviders().map { newsProviders ->
             newsProviders
                 .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
                 .filterDemoModeTargeted(demoModeManager)
@@ -297,7 +299,7 @@ class DataSourcesRepository @Inject constructor(
                 dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority).filterNewsProviders()
             )
             emitSource(
-                dataSourcesIOCache.readingNewsProviders(providerAuthority).map { newsProviders ->
+                dataSourcesStorage.readingNewsProviders(providerAuthority).map { newsProviders ->
                     newsProviders
                         .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
                         .filterDemoModeTargeted(demoModeManager)
@@ -350,6 +352,20 @@ class DataSourcesRepository @Inject constructor(
             forcePkg = forcePkg,
             skipTimeCheck = true,
             forceAppUpdateRefresh = forceAppUpdateRefresh,
+        ) {
+            updated = true
+        }
+        updated
+    }
+
+    suspend fun refreshSetupRequired(
+        forcePkg: String? = null,
+        skipTimeCheck: Boolean = false,
+    ) = withContext(Dispatchers.IO) {
+        var updated = false
+        dataSourcesReader.refreshSetupRequired(
+            forcePkg = forcePkg,
+            skipTimeCheck = skipTimeCheck,
         ) {
             updated = true
         }

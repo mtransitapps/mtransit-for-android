@@ -46,6 +46,7 @@ labels: MT
 - [ ] ca-kamloops-transit-system-bus
 - [ ] ca-kelowna-regional-transit-system-bus
 - [ ] ca-kingston-transit-bus
+- [ ] ca-kitimat-stikine-region-transit-bus
 - [ ] ca-la-presqu-ile-citpi-bus
 - [ ] ca-l-assomption-mrclasso-bus
 - [ ] ca-laurentides-citla-bus

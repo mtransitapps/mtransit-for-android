@@ -5,6 +5,7 @@
     <string name="google_ads_banner_manual_refresh_ad_unit_id">ca-app-pub-3940256099942544/9214589741</string><!-- Google-provided test ad unit - banner -->
     <string name="google_ads_banner_inline_ad_unit_id">ca-app-pub-3940256099942544/9214589741</string><!-- Google-provided test ad unit - banner -->
     <string name="google_ads_rewarded_ad_unit_id">ca-app-pub-3940256099942544/5224354917</string><!-- Google-provided test ad unit - rewarded -->
+    <string name="google_ads_app_open_ad_unit_id">ca-app-pub-3940256099942544/9257395921</string><!-- Google-provided test ad unit - app open -->
     <string-array name="google_ads_test_devices_ids">
         <item>9912D21DEAC16B56420FF20B307872D1</item><!-- @mmathieum:Hammerhead -->
         <item>C2009A1CA7ACE9D0E1CC302C1099A224</item><!-- @mmathieum:Taimen -->

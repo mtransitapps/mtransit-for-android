@@ -90,8 +90,9 @@ object BatteryOptimizationIssueUtils {
         if (BuildConfig.DEBUG) TimeUnit.HOURS.toMillis(1L) else
             TimeUnit.DAYS.toMillis(7L)
 
-    private fun isInvisibleActivityEnabled() = BuildConfig.DEBUG
-            || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU)
+    private fun isInvisibleActivityEnabled() = false // DISABLED (tried from Aug 2024 to May 2026 -> no improvements)
+    // private fun isInvisibleActivityEnabled() = BuildConfig.DEBUG
+    // || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU)
 
     @JvmStatic
     fun onAppResumeInvisibleActivity(

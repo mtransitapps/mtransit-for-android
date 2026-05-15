@@ -334,4 +334,8 @@
     </plurals>
 
     <string name="news_video_play">Jouer</string>
+
+    <string name="deploying_data_in_progress_short">Préparation des horaires&#8230;</string>
+    <string name="deploying_data_in_progress_for_short"><![CDATA[Préparation des horaires de <b>%s</b>&#8230;]]></string>
+    <string name="deploying_data_done_short">Préparation des horaires terminée&#10003;</string>
 </resources>

@@ -94,6 +94,8 @@ interface IBillingManager {
 
     val currentSubscription: LiveData<String?>
 
+    suspend fun getCachedCurrentSubscription(): String?
+
     val hasSubscription: LiveData<Boolean?>
 
     var fullDemoMode: Boolean?

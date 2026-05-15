@@ -186,7 +186,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	public boolean setStatus(@NonNull POIStatus newStatus) {
-		if (!newStatus.isUseful() && !newStatus.isNoData()) {
+		if (!newStatus.isUseful() || newStatus.isNoData()) {
 			return false; // no change
 		}
 		switch (getStatusType()) {

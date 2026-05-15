@@ -15,12 +15,11 @@ import org.mtransit.android.R
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.enableEdgeToEdgeMT
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.common.start
 import org.mtransit.android.ui.view.common.startMargin
-import kotlin.getValue
 
 @AndroidEntryPoint
 class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
@@ -49,11 +48,11 @@ class PurchaseActivity : MTActivity(R.layout.activity_purchase) {
                 endMargin = insets.end
             }
         }
-        viewModel.closeEvent.observe(this, EventObserver { close ->
+        viewModel.closeEvent.observeEvent(this) { close ->
             if (close) {
                 finish()
             }
-        })
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

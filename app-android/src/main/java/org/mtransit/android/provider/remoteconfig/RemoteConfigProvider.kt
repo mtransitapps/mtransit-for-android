@@ -30,6 +30,11 @@ class RemoteConfigProvider @Inject constructor(
 
         const val AD_BANNER_LARGE = "mt_ad_banner_large"
         const val AD_BANNER_LARGE_DEFAULT = false
+        // const val AD_BANNER_LARGE_DEFAULT = true // DEBUG
+
+        const val AD_APP_OPEN_ENABLED = "mt_ad_app_open"
+        const val AD_APP_OPEN_ENABLED_DEFAULT = false
+        // const val AD_APP_OPEN_ENABLED_DEFAULT = true // DEBUG
 
         @Deprecated("use ALLOW_TWITTER_NEWS_CACHED instead")
         const val ALLOW_TWITTER_NEWS_FOR_FREE = "mt_twitter_news_free"

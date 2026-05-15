@@ -51,10 +51,10 @@ import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
@@ -299,9 +299,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
             }
         }
-        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
+        viewModel.serviceUpdateLoadedEvent.observeEvent(viewLifecycleOwner) { _ ->
             updateServiceUpdateImg()
-        })
+        }
         parentViewModel.routeM.observe(viewLifecycleOwner) {
             if (SHOW_SERVICE_UPDATE_FAB) {
                 // elsewhere

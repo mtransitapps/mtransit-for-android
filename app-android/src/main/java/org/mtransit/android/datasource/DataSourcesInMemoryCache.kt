@@ -30,7 +30,7 @@ import javax.inject.Singleton
 @Singleton
 class DataSourcesInMemoryCache @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
-    private val dataSourcesCache: DataSourcesCache,
+    private val dataSourcesStorage: DataSourcesStorage,
     private val billingManager: IBillingManager,
     private val remoteConfigProvider: RemoteConfigProvider,
     private val demoModeManager: DemoModeManager,
@@ -62,46 +62,46 @@ class DataSourcesInMemoryCache @Inject constructor(
     }
 
     private fun startListeningForChangesIntoMemory() {
-        dataSourcesCache.readingAllAgencies().observeForever { agencies -> // SINGLETON
+        dataSourcesStorage.readingAllAgencies().observeForever { agencies -> // SINGLETON
             this._agencyProperties = agencies
                 .filterExpansiveAgencies(billingManager, remoteConfigProvider)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
-        dataSourcesCache.readingAllAgenciesBase().observeForever { agencies -> // SINGLETON
+        dataSourcesStorage.readingAllAgenciesBase().observeForever { agencies -> // SINGLETON
             this._agencyBaseProperties = agencies
                 .filterExpansiveAgencies(billingManager, remoteConfigProvider)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
         MediatorLiveData2(
-            dataSourcesCache.readingAllNotExtendedDataSourceTypes(),
-            dataSourcesCache.readingAllExtendedDataSourceTypes(),
+            dataSourcesStorage.readingAllNotExtendedDataSourceTypes(),
+            dataSourcesStorage.readingAllExtendedDataSourceTypes(),
         ).observeForever { (notExtendedDST, extendedDST) -> // SINGLETON
             if (notExtendedDST == null || extendedDST == null) return@observeForever
             this._supportedDataSourceTypes = notExtendedDST.toMutableList().apply { addAllNNE(extendedDST) }
                 .filterDemoModeType(demoModeManager)
                 .sortedWith(defaultDataSourceTypeComparator)
         }
-        dataSourcesCache.readingAllStatusProviders().observeForever { // SINGLETON
+        dataSourcesStorage.readingAllStatusProviders().observeForever { // SINGLETON
             this._statusProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
         }
-        dataSourcesCache.readingAllScheduleProviders().observeForever { // SINGLETON
+        dataSourcesStorage.readingAllScheduleProviders().observeForever { // SINGLETON
             this._scheduleProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
         }
-        dataSourcesCache.readingAllServiceUpdateProviders().observeForever { // SINGLETON
+        dataSourcesStorage.readingAllServiceUpdateProviders().observeForever { // SINGLETON
             this._serviceUpdateProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
         }
         if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
-            dataSourcesCache.readingAllVehicleLocationProviders().observeForever { // SINGLETON
+            dataSourcesStorage.readingAllVehicleLocationProviders().observeForever { // SINGLETON
                 this._vehicleLocationProviderProperties = it
                     .filterDemoModeTargeted(demoModeManager)
             }
         }
-        dataSourcesCache.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
+        dataSourcesStorage.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
             this._newsProviderProperties = newsProviders
                 .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
                 .filterDemoModeTargeted(demoModeManager)
