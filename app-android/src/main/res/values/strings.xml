@@ -325,7 +325,7 @@
 
     <string name="news_video_play">Play</string>
 
-    <string name="deploying_data_in_progress_short">Data preparation&#8230;</string>
-    <string name="deploying_data_in_progress_for_short"><![CDATA[ <b>%s</b> data preparation&#8230; ]]></string>
-    <string name="deploying_data_done_short">Data preparation done&#10003;</string>
+    <string name="deploying_data_in_progress_short">Planned schedule setup&#8230;</string>
+    <string name="deploying_data_in_progress_for_short"><![CDATA[Planned schedule setup for <b>%s</b>&#8230;]]></string>
+    <string name="deploying_data_done_short">Planned schedule setup done&#10003;</string>
 </resources>
