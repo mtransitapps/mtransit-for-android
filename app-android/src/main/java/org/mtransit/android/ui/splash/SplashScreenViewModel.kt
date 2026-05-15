@@ -81,7 +81,7 @@ class SplashScreenViewModel @Inject constructor(
 
         private val DEPLOYING_FOR_REPEAT = 3.seconds
 
-        private val FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT = 5.seconds
+        private val FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT = 7.seconds
     }
 
     override fun getLogTag() = LOG_TAG
@@ -177,7 +177,7 @@ class SplashScreenViewModel @Inject constructor(
             dataSourcesReader.refreshSetupRequired(forcePkg = null, skipTimeCheck = false, markUpdated = {})
         }
         if (setupRefreshResult == null) {
-            MTLog.w(this, "deployIfNecessary() > refreshSetupRequired() timed out after $FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT.")
+            MTLog.d(this, "deployIfNecessary() > refreshSetupRequired() timed out after $FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT.")
         }
         val agenciesWithSetupRequired = dataSourcesStorage.getAllAgencies()
             .filter { agency ->
