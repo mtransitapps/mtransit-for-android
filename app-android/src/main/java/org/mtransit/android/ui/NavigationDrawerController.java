@@ -155,6 +155,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.packageManager = packageManager;
 		this.serviceUpdateLoader = serviceUpdateLoader;
 		this.demoModeManager = demoModeManager;
+		this.selectedScreenItemId = this.lclPrefRepository.getPref().getString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, null);
 		this.dataSourcesRepository.readingAllSupportedDataSourceTypes().observe(mainActivity, dataSourceTypes -> {
 			this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
 			setVisibleMenuItems();
