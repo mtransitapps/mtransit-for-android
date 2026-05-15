@@ -177,7 +177,7 @@ class SplashScreenViewModel @Inject constructor(
             dataSourcesReader.refreshSetupRequired(forcePkg = null, skipTimeCheck = false, markUpdated = {})
         }
         if (setupRefreshResult == null) {
-            MTLog.d(this, "deployIfNecessary() > refreshSetupRequired() timed out after $FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT.")
+            MTLog.d(this@SplashScreenViewModel, "deployIfNecessary() > refreshSetupRequired() timed out after $FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT.")
         }
         val agenciesWithSetupRequired = dataSourcesStorage.getAllAgencies()
             .filter { agency ->
