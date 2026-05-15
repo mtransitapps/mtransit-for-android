@@ -75,6 +75,11 @@ env:
   MT_ORG_PUSH_STORE_OFF: ${{ secrets.MT_ORG_PUSH_STORE_OFF }}
   MT_PUSH_STORE_ON: ${{ secrets.MT_PUSH_STORE_ON }}
   MT_PUSH_STORE_OFF: ${{ secrets.MT_PUSH_STORE_OFF }}
+  # push to store > internal
+  MT_ORG_STORE_INTERNAL_ON: ${{ secrets.MT_ORG_STORE_INTERNAL_ON }}
+  MT_ORG_STORE_INTERNAL_OFF: ${{ secrets.MT_ORG_STORE_INTERNAL_OFF }}
+  MT_STORE_INTERNAL_ON: ${{ secrets.MT_STORE_INTERNAL_ON }}
+  MT_STORE_INTERNAL_OFF: ${{ secrets.MT_STORE_INTERNAL_OFF }}
   # push to store > alpha
   MT_ORG_STORE_ALPHA_ON: ${{ secrets.MT_ORG_STORE_ALPHA_ON }}
   MT_ORG_STORE_ALPHA_OFF: ${{ secrets.MT_ORG_STORE_ALPHA_OFF }}
