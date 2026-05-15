@@ -173,10 +173,10 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     private suspend fun deployIfNecessary() = withContext(Dispatchers.IO) {
-        val refreshedSetupRequired = withTimeoutOrNull(FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT) {
+        val setupRefreshResult = withTimeoutOrNull(FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT) {
             dataSourcesReader.refreshSetupRequired(forcePkg = null, skipTimeCheck = false, markUpdated = {})
         }
-        if (refreshedSetupRequired == null) {
+        if (setupRefreshResult == null) {
             MTLog.w(this, "deployIfNecessary() > refreshSetupRequired() timed out after $FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT.")
         }
         val agenciesWithSetupRequired = dataSourcesStorage.getAllAgencies()
