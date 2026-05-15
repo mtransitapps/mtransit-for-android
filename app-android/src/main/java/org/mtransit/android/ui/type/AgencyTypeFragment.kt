@@ -313,6 +313,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         viewModel.tabsVisible.observe(viewLifecycleOwner) { tabsVisible ->
             binding?.apply {
                 tabs.isVisible = tabsVisible
+                updateTypeImage()
             }
         }
         viewModel.selectedTypeAgencyPosition.observe(viewLifecycleOwner) { newLastPageSelected ->
@@ -333,9 +334,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
             this.pagerAdapter?.selectedUUID = selectedUUID
         }
-        viewModel.type.observe(viewLifecycleOwner) { dst ->
+        viewModel.type.observe(viewLifecycleOwner) {
             binding?.apply {
-                typeImg.setImageResourceAndVisibility(dst?.iconResId)
+                updateTypeImage()
             }
         }
         ModuleDisabledUI.onViewCreated(this)
@@ -385,6 +386,12 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
         updateABColorNow()
         binding?.switchView()
+    }
+
+    private fun FragmentAgencyTypeBinding.updateTypeImage() {
+        typeImg.setImageResourceAndVisibility(
+            viewModel.type.value?.iconResId?.takeIf { viewModel.tabsVisible.value == true }
+        )
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
