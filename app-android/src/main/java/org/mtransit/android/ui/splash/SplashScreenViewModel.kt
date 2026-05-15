@@ -81,7 +81,7 @@ class SplashScreenViewModel @Inject constructor(
 
         private val DEPLOYING_FOR_REPEAT = 3.seconds
 
-        private val FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT = 7.seconds
+        private val FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT = 3.seconds
     }
 
     override fun getLogTag() = LOG_TAG
