@@ -260,6 +260,7 @@ class DataSourcesReader @Inject constructor(
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies()
             .filter { forcePkg == null || forcePkg == it.pkg }
             .forEach { agencyProperties ->
+                yield() // stop if canceled #SpashScreen
                 val pkg = agencyProperties.pkg
                 val authority = agencyProperties.authority
                 if (skipNotSupportedPkg(pkg)) {
