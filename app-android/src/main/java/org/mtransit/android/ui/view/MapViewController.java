@@ -445,12 +445,12 @@ public class MapViewController implements
 		int paddingTopPx = 0;
 		if (this.paddingTopDp > 0) {
 			final Context context = getActivityOrNull();
-			paddingTopPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopDp); // action bar
+			paddingTopPx = (int) ResourceUtils.convertDPtoPX(context, this.paddingTopDp); // action bar
 		}
 		int paddingBottomPx = 0;
 		if (this.paddingBottomDp > 0) {
 			final Context context = getActivityOrNull();
-			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingBottomDp); // fab
+			paddingBottomPx = (int) ResourceUtils.convertDPtoPX(context, this.paddingBottomDp); // fab
 		}
 		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
 	}
