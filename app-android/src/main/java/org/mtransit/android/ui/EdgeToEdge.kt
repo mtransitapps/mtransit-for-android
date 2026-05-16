@@ -177,7 +177,7 @@ fun MapView.setUpMapEdgeToEdge(
     applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.systemBars(), consumed = true) { insets ->
         mapViewController.apply {
             topPaddingDp?.takeIf { it > 0 }?.let {
-                setPaddingTopDp(topPaddingDp + insets.top.pxToDp)
+                setPaddingTopDp(it + insets.top.pxToDp)
             }
             bottomPaddingDp?.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW }?.let {
                 setPaddingBottomDp(it + insets.bottom.pxToDp)
