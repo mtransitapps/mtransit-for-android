@@ -177,8 +177,8 @@ public class MapViewController implements
 	private final boolean indoorLevelPickerEnabled;
 	private final boolean trafficEnabled;
 	private final boolean indoorEnabled;
-	private int paddingTopSp;
-	private int paddingBottomSp;
+	private int paddingTopDp;
+	private int paddingBottomDp;
 	private final boolean followingDevice;
 	private final boolean hasButtons;
 	private final boolean clusteringEnabled;
@@ -212,8 +212,8 @@ public class MapViewController implements
 			boolean indoorLevelPickerEnabled,
 			boolean trafficEnabled,
 			boolean indoorEnabled,
-			int paddingTopSp,
-			int paddingBottomSp,
+			int paddingTopDp,
+			int paddingBottomDp,
 			boolean followingDevice,
 			boolean hasButtons,
 			boolean clusteringEnabled,
@@ -229,8 +229,8 @@ public class MapViewController implements
 		this.indoorLevelPickerEnabled = indoorLevelPickerEnabled;
 		this.trafficEnabled = trafficEnabled;
 		this.indoorEnabled = indoorEnabled;
-		this.paddingTopSp = paddingTopSp;
-		this.paddingBottomSp = paddingBottomSp;
+		this.paddingTopDp = paddingTopDp;
+		this.paddingBottomDp = paddingBottomDp;
 		this.followingDevice = followingDevice;
 		this.hasButtons = hasButtons;
 		this.clusteringEnabled = clusteringEnabled;
@@ -417,12 +417,12 @@ public class MapViewController implements
 		MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
 		clearMarkers();
 		int paddingTopPx = 0;
-		if (this.paddingTopSp > 0) {
-			paddingTopPx = (int) ResourceUtils.convertSPtoPX(activity, this.paddingTopSp); // action bar
+		if (this.paddingTopDp > 0) {
+			paddingTopPx = (int) ResourceUtils.convertDPtoPX(activity, this.paddingTopDp); // action bar
 		}
 		int paddingBottomPx = 0;
-		if (this.paddingBottomSp > 0) {
-			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(activity, this.paddingBottomSp); // fab
+		if (this.paddingBottomDp > 0) {
+			paddingBottomPx = (int) ResourceUtils.convertDPtoPX(activity, this.paddingBottomDp); // fab
 		}
 		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
 		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
@@ -432,25 +432,25 @@ public class MapViewController implements
 		showMapInternal(null);
 	}
 
-	public void setPaddingTopSp(int paddingTopSp) {
-		this.paddingTopSp = paddingTopSp;
+	public void setPaddingTopDp(int paddingTopDp) {
+		this.paddingTopDp = paddingTopDp;
 	}
 
-	public void setPaddingBottomSp(int paddingBottomSp) {
-		this.paddingBottomSp = paddingBottomSp;
+	public void setPaddingBottomDp(int paddingBottomDp) {
+		this.paddingBottomDp = paddingBottomDp;
 	}
 
 	public void applyPaddings() {
 		if (this.extendedGoogleMap == null) return; // SKIP (map not ready)
 		int paddingTopPx = 0;
-		if (this.paddingTopSp > 0) {
+		if (this.paddingTopDp > 0) {
 			final Context context = getActivityOrNull();
-			paddingTopPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
+			paddingTopPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopDp); // action bar
 		}
 		int paddingBottomPx = 0;
-		if (this.paddingBottomSp > 0) {
+		if (this.paddingBottomDp > 0) {
 			final Context context = getActivityOrNull();
-			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingBottomSp); // fab
+			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingBottomDp); // fab
 		}
 		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
 	}
