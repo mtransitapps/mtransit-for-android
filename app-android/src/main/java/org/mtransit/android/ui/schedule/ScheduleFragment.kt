@@ -23,7 +23,7 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.dp
+import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.getNewOneLineSubtitleForSchedule
 import org.mtransit.android.data.getNewOneLineTitleForSchedule
@@ -186,7 +186,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 if (timestamps != null) {
                     if (viewModel.scrolledToNow.value == false) {
                         listAdapter.getScrollToNowPosition()?.let {
-                            list.scrollToPositionWithOffset(it, 48.dp)
+                            list.scrollToPositionWithOffset(it, 48.dpToPx)
                         }
                         viewModel.setScrolledToNow(true)
                     } else if (scrollPosition > 0) {
@@ -250,7 +250,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             R.id.menu_today -> {
                 binding?.apply {
                     listAdapter.getScrollToNowPosition()?.let {
-                        this.list.scrollToPositionWithOffset(it, 48.dp)
+                        this.list.scrollToPositionWithOffset(it, 48.dpToPx)
                     }
                     viewModel.setScrolledToNow(true)
                 }
