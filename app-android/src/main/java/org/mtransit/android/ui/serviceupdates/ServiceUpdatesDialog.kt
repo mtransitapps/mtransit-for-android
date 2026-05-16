@@ -15,7 +15,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.data.distinctByOriginalId
-import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.UIServiceUpdates
 import org.mtransit.android.databinding.FragmentDialogServiceUpdatesBinding
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -93,7 +92,7 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
         return super.onCreateDialog(savedInstanceState).apply {
             behavior = (this as? BottomSheetDialog)?.behavior
                 ?.apply {
-                    resources.getDimensionInt(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
+                    resources.getDimensionPixelSize(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
                         peekHeight = it
                     }
                 }

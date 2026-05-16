@@ -16,7 +16,6 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.dpToPx
-import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.LayoutRdsRouteItemBinding
@@ -176,7 +175,7 @@ class RDSAgencyRoutesAdapter(
                     topMargin = 8.dpToPx
                 }
                 rsnImgServiceUpdate.updateLayoutParams {
-                    width = context.resources.getDimensionInt(R.dimen.poi_extra_width)
+                    width = context.resources.getDimensionPixelSize(R.dimen.poi_extra_width)
                     // 64.dp, // TO DO poi_extra_width
                     // ResourceUtils.convertDPtoPX(context, 64).toInt(),
                 }

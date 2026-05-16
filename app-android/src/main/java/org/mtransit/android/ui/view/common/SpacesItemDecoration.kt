@@ -5,7 +5,6 @@ import android.graphics.Rect
 import android.view.View
 import androidx.annotation.DimenRes
 import androidx.recyclerview.widget.RecyclerView
-import org.mtransit.android.commons.getDimensionInt
 
 class SpacesItemDecoration(val space: Int) : RecyclerView.ItemDecoration() {
 
@@ -13,7 +12,7 @@ class SpacesItemDecoration(val space: Int) : RecyclerView.ItemDecoration() {
         context: Context,
         @DimenRes dimId: Int
     ) : this(
-        context.resources.getDimensionInt(dimId)
+        context.resources.getDimensionPixelSize(dimId)
     )
 
     override fun getItemOffsets(
