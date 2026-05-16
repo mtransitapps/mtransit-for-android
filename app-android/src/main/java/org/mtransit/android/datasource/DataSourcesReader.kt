@@ -8,6 +8,7 @@ import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -32,7 +33,6 @@ import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
-import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.toDurationLog
 import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.TimeUnit
