@@ -10,7 +10,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.data.Accessibility
-import org.mtransit.android.commons.dp
+import org.mtransit.android.commons.dpToPx
 import org.mtransit.commons.Constants.EMPTY
 
 object UIAccessibilityUtils {
@@ -47,14 +47,14 @@ object UIAccessibilityUtils {
             if (imageFilter.accessiblePossible) getAccessibleColorTint(context) else getAccessibleNotColorTint(context),
             true,
             when (size) {
-                ImageSize.SMALL -> 12.dp
-                ImageSize.MEDIUM -> 16.dp
-                ImageSize.LARGE -> 24.dp
+                ImageSize.SMALL -> 12.dpToPx
+                ImageSize.MEDIUM -> 16.dpToPx
+                ImageSize.LARGE -> 24.dpToPx
             },
             when (size) {
-                ImageSize.SMALL -> 12.dp
-                ImageSize.MEDIUM -> 16.dp
-                ImageSize.LARGE -> 24.dp
+                ImageSize.SMALL -> 12.dpToPx
+                ImageSize.MEDIUM -> 16.dpToPx
+                ImageSize.LARGE -> 24.dpToPx
             },
             false,
             if (size == ImageSize.LARGE || imageFilter.alignBottom) DynamicDrawableSpan.ALIGN_BOTTOM else DynamicDrawableSpan.ALIGN_BASELINE

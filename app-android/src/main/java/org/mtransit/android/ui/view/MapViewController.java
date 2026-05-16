@@ -408,7 +408,7 @@ public class MapViewController implements
 		);
 		try {
 			final MapCapabilities capabilities = googleMap.getMapCapabilities();
-			this.advancedMarkersAvailable = capabilities != null && capabilities.isAdvancedMarkersAvailable();
+			this.advancedMarkersAvailable = capabilities.isAdvancedMarkersAvailable();
 		} catch (RuntimeException e) {
 			//noinspection deprecation // FIXME
 			CrashUtils.w(this, e, "Error while getting map capabilities!");
