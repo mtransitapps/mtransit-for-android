@@ -115,8 +115,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
         }
 
-        private const val TOP_PADDING_SP = 0
-        private const val BOTTOM_PADDING_SP = 56
+        private const val TOP_PADDING_DP = 0
+        private const val BOTTOM_PADDING_DP = 56
     }
 
     private var theLogTag: String = LOG_TAG
@@ -203,8 +203,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             false,
             false,
             false,
-            TOP_PADDING_SP,
-            BOTTOM_PADDING_SP,
+            TOP_PADDING_DP,
+            BOTTOM_PADDING_DP,
             false,
             true,
             false,
@@ -285,7 +285,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 )
                 updateServiceUpdateImg()
             }
-            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
         }
         this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.routeDirectionM.observe(viewLifecycleOwner) { routeDirectionM ->

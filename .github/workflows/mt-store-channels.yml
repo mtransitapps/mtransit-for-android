@@ -3,6 +3,15 @@ name: MT store channels (enable/disable)
 on:
   workflow_dispatch: # manual
     inputs:
+      internal:
+        description: 'Internal channel'
+        type: choice
+        options:
+          - ignore
+          - enable
+          - disable
+        default: ignore
+        required: true
       alpha:
         description: 'Alpha channel'
         type: choice
@@ -65,6 +74,16 @@ jobs:
         uses: actions/checkout@v6
         with:
           token: ${{ secrets.MT_PAT }}
+
+      - name: MT Enable `Internal` channel
+        if: ${{ github.event.inputs.internal == 'enable' }}
+        run: |
+          mkdir -p config/store/
+          touch config/store/internal
+      - name: MT Disable `Internal` channel
+        if: ${{ github.event.inputs.internal == 'disable' }}
+        run: |
+          rm -f config/store/internal
 
       - name: MT Enable `Alpha` channel
         if: ${{ github.event.inputs.alpha == 'enable' }}
@@ -131,7 +150,7 @@ jobs:
       - name: MT Create pull request (if necessary)
         if: ${{ steps.mt-commit-changes.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'failure' }}
         run: |
-          gh pr create --fill --assignee montransit
+          gh pr create --base "${MT_BRANCH_NAME}" --fill --assignee montransit
           gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers;
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}

@@ -87,8 +87,8 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             putInt(MapViewModel.EXTRA_INCLUDE_TYPE_ID, optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT)
         }
 
-        private const val TOP_PADDING_SP = 64
-        private const val BOTTOM_PADDING_SP = 0
+        private const val TOP_PADDING_DP = 64
+        private const val BOTTOM_PADDING_DP = 0
     }
 
     override fun getLogTag() = LOG_TAG
@@ -147,8 +147,8 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             false,
             false,
             false,
-            TOP_PADDING_SP,
-            BOTTOM_PADDING_SP,
+            TOP_PADDING_DP,
+            BOTTOM_PADDING_DP,
             false,
             true,
             true,
@@ -179,7 +179,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
-            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
             setupScreenToolbar(screenToolbarLayout)
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->

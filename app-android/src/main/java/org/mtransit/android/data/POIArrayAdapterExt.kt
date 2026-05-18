@@ -34,7 +34,7 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
             if (hasFavorites && hasAgenciesEnabled) {
                 add(0, DataSourceType.TYPE_FAVORITE) // 1st
             }
-            if (allNewsProviders.isNotEmpty()) {
+            if (isNotEmpty() && allNewsProviders.isNotEmpty()) {
                 add(this.size - 1, DataSourceType.TYPE_NEWS) // before LAST (MODULE)
             }
         }
