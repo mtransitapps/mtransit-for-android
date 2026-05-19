@@ -242,7 +242,7 @@ class NextMainActivity : MTActivityWithLocation(),
 
     override fun onBillingResult(productId: String?) {
         productId?.isNotEmpty()?.let { hasSubscription ->
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch {
                 adManager.setShowingAds(!hasSubscription, this@NextMainActivity)
             }
         }

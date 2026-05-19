@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
@@ -55,7 +54,7 @@ fun POIFragment.setupViewKt() = this.binding?.apply {
 }
 
 fun POIFragment.onResumeKt() {
-    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+    viewLifecycleOwner.lifecycleScope.launch {
         adManager.refreshRewardedAdStatus(this@onResumeKt.requireActivity() as IActivity)
     }
 }
