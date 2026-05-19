@@ -385,6 +385,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		final MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) return;
 		if (!mainActivity.isMTResumed()) return;
+		if (this.currentSelectedScreenItemId == null) return; // too soon
 		String itemId = this.currentSelectedScreenItemId;
 		if (demoModeManager.isFullDemo()) {
 			itemId = ITEM_ID_SELECTED_SCREEN_DEFAULT;
