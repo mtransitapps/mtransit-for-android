@@ -67,9 +67,9 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
         private val PRODUCT_ID_REGEX = Regex(
             "^${Regex.escape(IBillingManager.PRODUCT_ID_STARTS_WITH_F)}" +
-                "(${IBillingManager.WEEKLY}|${IBillingManager.MONTHLY}|${IBillingManager.YEARLY})" +
+                "(?<period>${Regex.escape(IBillingManager.WEEKLY)}|${Regex.escape(IBillingManager.MONTHLY)}|${Regex.escape(IBillingManager.YEARLY)})" +
                 "${Regex.escape(IBillingManager.PRODUCT_ID_SUBSCRIPTION)}" +
-                "(\\d+)$"
+                "(?<price>\\d+)$"
         )
     }
 
@@ -361,12 +361,18 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 MTLog.w(this, "Skip product ID %s (unexpected)", productId)
                 return@forEach
             }
-            val periodCat = productIdMatch.groupValues[1]
+            val periodCat = productIdMatch.groups["period"]?.value ?: run {
+                MTLog.w(this, "Skip product ID %s (missing period)", productId)
+                return@forEach
+            }
             val periodResourceId = PERIOD_CAT_TO_RES_ID[periodCat] ?: run {
                 MTLog.w(this, "Skip product ID %s (unknown periodCat: %s)", productId, periodCat)
                 return@forEach
             }
-            val priceCat = productIdMatch.groupValues[2]
+            val priceCat = productIdMatch.groups["price"]?.value ?: run {
+                MTLog.w(this, "Skip product ID %s (missing price)", productId)
+                return@forEach
+            }
             this.periodAndPriceCatToProductId[Pair(periodCat, priceCat)] = productId
             val subOfferDetailsList = productDetails.subscriptionOfferDetails
             if (subOfferDetailsList.isNullOrEmpty()) {
