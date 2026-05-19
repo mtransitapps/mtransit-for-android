@@ -230,7 +230,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
     }
 
     private fun refreshRewardedAdStatusAsync() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             adManager.refreshRewardedAdStatus(this@PurchaseDialogFragment)
         }
     }
@@ -365,7 +365,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 IBillingManager.PRODUCT_ID_STARTS_WITH_F.length,
                 productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION, IBillingManager.PRODUCT_ID_STARTS_WITH_F.length)
             )
-            val periodResourceId = periodResId[periodCat]
+            val periodResourceId = periodCatToResId[periodCat]
             if (periodResourceId == null) {
                 MTLog.w(this, "Skip product ID %s (unknown periodCat: %s)", productId, periodCat)
                 continue
@@ -458,7 +458,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
             IBillingManager.YEARLY
         )
 
-        private val periodResId: ArrayMap<String, Int> = ArrayMap().apply {
+        private val periodCatToResId: ArrayMap<String, Int> = ArrayMap().apply {
             put(IBillingManager.WEEKLY, R.string.support_every_week)
             put(IBillingManager.MONTHLY, R.string.support_every_month)
             put(IBillingManager.YEARLY, R.string.support_every_year)
