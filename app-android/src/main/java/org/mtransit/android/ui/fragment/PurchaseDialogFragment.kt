@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
-import androidx.collection.ArrayMap
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.ProductDetails
@@ -30,8 +29,9 @@ import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.databinding.FragmentDialogPurchaseBinding
 import org.mtransit.android.ui.MTActivity
-import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.textAndVisibility
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
@@ -113,7 +113,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
-        ToastUtils.makeTextAndShow(parentActivity, R.string.support_subs_user_canceled_message)
+        ToastUtils.makeTextAndShow(context, R.string.support_subs_user_canceled_message)
     }
 
     val parentActivity: MTActivity? get() = super.getActivity() as? MTActivity
@@ -125,7 +125,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     private fun onRewardedAdButtonClick(context: Context) {
         try {
-            val activity = parentActivity ?: run {
+            val parentActivity = parentActivity ?: run {
                 MTLog.w(this, "onRewardedAdButtonClick() > skip (no view or no activity)")
                 ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message)
                 return
@@ -135,7 +135,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_not_ready)
                 return
             }
-            adManager.showRewardedAd(activity)
+            adManager.showRewardedAd(parentActivity)
             binding?.rewardedAdsBtn?.isEnabled = false
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while handling download or open paid tasks button!")
@@ -144,13 +144,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     }
 
     private fun onDownloadOrOpenPaidTasksBtnClick(context: Context) {
-        val activity = parentActivity
         try {
-            if (activity == null) {
-                MTLog.w(this, "onDownloadOrOpenPaidTasksBtnClick() > skip (no view or no activity)")
-                ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
-                return
-            }
             if (PackageManagerUtils.isAppInstalled(context, PAID_TASKS_PKG)) {
                 ToastUtils.makeTextAndShow(
                     context,
@@ -162,7 +156,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 PackageManagerUtils.openApp(context, PAID_TASKS_PKG)
             } else {
                 StoreUtils.viewAppPage(
-                    activity,
+                    context,
                     PAID_TASKS_PKG,
                     context.getString(commonsR.string.google_play)
                 )
@@ -175,36 +169,32 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     }
 
     private fun onBuyBtnClick(context: Context) {
-        val activity = parentActivity as? IActivity
+        val parentActivity = parentActivity
         val binding = binding
         try {
-            if (binding == null || activity == null) {
+            if (binding == null || parentActivity == null) {
                 MTLog.w(this, "onBuyBtnClick() > skip (no view or no activity)")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
             val periodPosition = binding.period.selectedItemPosition
-            val periodS = this.periods[periodPosition]
-            if (periodS.isEmpty()) {
+            val periodS = this.periods.getOrNull(periodPosition)?.takeIf { it.isNotEmpty() } ?: run {
                 MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: %s)", periodPosition)
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val periodCat = this.periodSToPeriodCat[periodS]
-            if (periodCat.isNullOrEmpty()) {
+            val periodCat = this.periodSToPeriodCat[periodS]?.takeIf { it.isNotEmpty() } ?: run {
                 MTLog.w(this, "onBuyBtnClick() > skip (unexpected period string: %s)", periodS)
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
             val pricePosition = binding.price.selectedItemPosition
-            val priceS = this.prices[pricePosition]
-            if (priceS.isEmpty()) {
+            val priceS = this.prices.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() } ?: run {
                 MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: %s)", pricePosition)
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val priceCat = this.priceSToPriceCat[priceS]
-            if (priceCat.isNullOrEmpty()) {
+            val priceCat = this.priceSToPriceCat[priceS]?.takeIf { it.isNotEmpty() } ?: run {
                 MTLog.w(this, "onBuyBtnClick() > skip (unexpected price string: %s)", priceS)
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
@@ -215,7 +205,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val billingFlowLaunched = billingManager.launchBillingFlow(activity, productId)
+            val billingFlowLaunched = billingManager.launchBillingFlow(parentActivity, productId)
             if (!billingFlowLaunched) {
                 MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: %s)", productId)
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
@@ -240,7 +230,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         showLoading()
         binding?.apply {
             downloadOrOpenPaidTasksBtn.setText(
-                if (PackageManagerUtils.isAppInstalled(root.context, PAID_TASKS_PKG)) {
+                if (PackageManagerUtils.isAppInstalled(context, PAID_TASKS_PKG)) {
                     R.string.support_paid_tasks_incentive_open_btn
                 } else {
                     R.string.support_paid_tasks_incentive_download_btn
@@ -252,8 +242,8 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     private fun refreshRewardedAdStatusAsync() {
         viewLifecycleOwner.lifecycleScope.launch {
-            val activity = parentActivity as? IActivity ?: return@launch
-            adManager.refreshRewardedAdStatus(activity)
+            val parentActivity = parentActivity ?: return@launch
+            adManager.refreshRewardedAdStatus(parentActivity)
         }
     }
 
@@ -263,48 +253,38 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     }
 
     @MainThread
-    private fun refreshRewardedLayout() {
-        val binding = binding ?: return
-        val rewardedNow = adManager.rewardedNowLive.value
-        if (rewardedNow == null) {
+    private fun refreshRewardedLayout() = binding?.apply {
+        val rewardedNow = adManager.rewardedNowLive.value ?: run {
             MTLog.w(this, "refreshRewardedLayout() > skip (rewardedNow is null)")
-            return
+            return@apply
         }
-        val rewardedUntilInMs = adManager.rewardedUntilInMsLive.value
-        if (rewardedUntilInMs == null) {
+        val rewardedUntilInMs = adManager.rewardedUntilInMsLive.value ?: run {
             MTLog.w(this, "refreshRewardedLayout() > skip (rewardedUntilInMs is null)")
-            return
+            return@apply
         }
         val availableToShow = adManager.isRewardedAdAvailableToShow()
         val rewardedAmount = adManager.getRewardedAdAmount()
 
-        binding.paidTasksDivider2.isVisible = availableToShow || rewardedNow
+        paidTasksDivider2.isVisible = availableToShow || rewardedNow
 
-        if (rewardedNow) {
-            binding.rewardedAdText.text = getString(
+        rewardedAdText.textAndVisibility = rewardedUntilInMs.takeIf { rewardedNow }?.let {
+            getString(
                 R.string.support_watch_rewarded_ad_status_until_and_date,
-                this.dateFormatter.formatThreadSafe(rewardedUntilInMs)
+                dateFormatter.formatThreadSafe(it)
             )
-            binding.rewardedAdText.isVisible = true
-        } else {
-            binding.rewardedAdText.isVisible = false
-            binding.rewardedAdText.text = null
         }
 
-        binding.rewardedAdsBtn.text = resources.getQuantityString(
-            if (rewardedNow) {
-                R.plurals.support_watch_rewarded_ad_btn_more_and_days
-            } else {
-                R.plurals.support_watch_rewarded_ad_btn_and_days
-            },
+        rewardedAdsBtn.text = resources.getQuantityString(
+            if (rewardedNow) R.plurals.support_watch_rewarded_ad_btn_more_and_days
+            else R.plurals.support_watch_rewarded_ad_btn_and_days,
             rewardedAmount,
             rewardedAmount
         )
         if (availableToShow) {
-            binding.rewardedAdsBtn.isEnabled = true
-            binding.rewardedAdsBtn.isVisible = true
+            rewardedAdsBtn.isEnabled = true
+            rewardedAdsBtn.isVisible = true
         } else {
-            binding.rewardedAdsBtn.isEnabled = false
+            rewardedAdsBtn.isEnabled = false
         }
     }
 
@@ -353,15 +333,15 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         downloadOrOpenPaidTasksBtn.isVisible = true
     }
 
-    private val prices = ArrayList<String>()
-    private val priceSToPriceCat = ArrayMap<String, String>()
-    private val periods = ArrayList<String>()
-    private val periodSToPeriodCat = ArrayMap<String, String>()
+    private val prices = mutableListOf<String>()
+    private val priceSToPriceCat = mutableMapOf<String, String>()
+    private val periods = mutableListOf<String>()
+    private val periodSToPeriodCat = mutableMapOf<String, String>()
 
     private fun onNewProductId(productIdsWithDetails: Map<String, ProductDetails>?) {
         productIdsWithDetails ?: return
         val binding = binding ?: return
-        val activity = parentActivity ?: return
+        val context = binding.context
         this.prices.clear()
         this.periods.clear()
         this.priceSToPriceCat.clear()
@@ -375,10 +355,12 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             }
             val periodCat = productId.substring(
                 IBillingManager.PRODUCT_ID_STARTS_WITH_F.length,
-                productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION, IBillingManager.PRODUCT_ID_STARTS_WITH_F.length)
+                endIndex = productId.indexOf(
+                    IBillingManager.PRODUCT_ID_SUBSCRIPTION,
+                    startIndex = IBillingManager.PRODUCT_ID_STARTS_WITH_F.length
+                )
             )
-            val periodResourceId = PERIOD_CAT_TO_RES_ID[periodCat]
-            if (periodResourceId == null) {
+            val periodResourceId = PERIOD_CAT_TO_RES_ID[periodCat] ?: run {
                 MTLog.w(this, "Skip product ID %s (unknown periodCat: %s)", productId, periodCat)
                 return@forEach
             }
@@ -395,7 +377,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 return@forEach
             }
             val subOfferDetails = subOfferDetailsList[IBillingManager.OFFER_DETAILS_IDX]
-            val pricingPhaseList: List<PricingPhase> = subOfferDetails.pricingPhases.pricingPhaseList
+            val pricingPhaseList = subOfferDetails.pricingPhases.pricingPhaseList
             if (pricingPhaseList.isEmpty()) {
                 MTLog.w(this, "Skip product ID %s (no pricing list)", productId)
                 return@forEach
@@ -406,7 +388,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             if (!this.prices.contains(priceS)) {
                 this.prices.add(priceS)
             }
-            val periodS = activity.getString(periodResourceId)
+            val periodS = context.getString(periodResourceId)
             if (!this.periods.contains(periodS)) {
                 this.periods.add(periodS)
             }
@@ -438,11 +420,11 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 0
             }
         }
-        binding.price.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, this.prices)
+        binding.price.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, this.prices)
         defaultPriceS?.let {
             binding.price.setSelection(this.prices.indexOf(it))
         }
-        binding.period.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, this.periods)
+        binding.period.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, this.periods)
         defaultPeriodS?.let {
             binding.period.setSelection(this.periods.indexOf(it))
         }
