@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 import androidx.annotation.MainThread;
@@ -334,10 +335,53 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return getPOIFromDB(poiFilter);
 	}
 
+	private static final String[] MODULE_SEARCHABLE_LIKE_COLUMNS = new String[]{
+			POIProviderContract.Columns.T_POI_K_NAME,
+			ModuleColumns.T_MODULE_K_NAME_FR,
+			ModuleColumns.T_MODULE_K_LOCATION,
+	};
+	private static final String[] MODULE_SEARCHABLE_EQUALS_COLUMNS = new String[]{};
+
 	@Nullable
 	@Override
 	public Cursor getPOIFromDB(@Nullable POIProviderContract.Filter poiFilter) {
-		return POIProvider.getDefaultPOIFromDB(poiFilter, this);
+		try {
+			if (poiFilter == null) {
+				return null;
+			}
+			String selection = poiFilter.getSqlSelection(
+					POIProviderContract.Columns.T_POI_K_UUID_META,
+					POIProviderContract.Columns.T_POI_K_LAT,
+					POIProviderContract.Columns.T_POI_K_LNG,
+					MODULE_SEARCHABLE_LIKE_COLUMNS,
+					MODULE_SEARCHABLE_EQUALS_COLUMNS
+			);
+			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+			qb.setTables(getPOITable());
+			ArrayMap<String, String> poiProjectionMap = getPOIProjectionMap();
+			boolean searchKeywordsAdded = false;
+			if (POIProviderContract.Filter.isSearchKeywords(poiFilter) && poiFilter.getSearchKeywords() != null) {
+				poiProjectionMap = new ArrayMap<>(poiProjectionMap); // clone to avoid updating shared static map
+				SqlUtils.appendProjection(poiProjectionMap,
+						POIProviderContract.Filter.getSearchSelectionScore(poiFilter.getSearchKeywords(), MODULE_SEARCHABLE_LIKE_COLUMNS, MODULE_SEARCHABLE_EQUALS_COLUMNS),
+						POIProviderContract.Columns.T_POI_K_SCORE_META_OPT);
+				searchKeywordsAdded = true;
+			}
+			qb.setProjectionMap(poiProjectionMap);
+			String[] poiProjection = getPOIProjection();
+			if (searchKeywordsAdded) {
+				poiProjection = ArrayUtils.addAllNonNull(poiProjection, new String[]{POIProviderContract.Columns.T_POI_K_SCORE_META_OPT});
+			}
+			String groupBy = searchKeywordsAdded ? POIProviderContract.Columns.T_POI_K_UUID_META : null;
+			String sortOrder = poiFilter.getExtraString(POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER, null);
+			if (searchKeywordsAdded) {
+				sortOrder = SqlUtils.getSortOrderDescending(POIProviderContract.Columns.T_POI_K_SCORE_META_OPT);
+			}
+			return qb.query(getReadDB(), poiProjection, selection, null, groupBy, null, sortOrder, null);
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while loading module POIs '%s'!", poiFilter);
+			return null;
+		}
 	}
 
 	@Override
