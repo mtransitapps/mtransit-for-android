@@ -64,6 +64,13 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             IBillingManager.MONTHLY to R.string.support_every_month,
             IBillingManager.YEARLY to R.string.support_every_year,
         )
+
+        private val PRODUCT_ID_REGEX = Regex(
+            "^${Regex.escape(IBillingManager.PRODUCT_ID_STARTS_WITH_F)}" +
+                "(${IBillingManager.WEEKLY}|${IBillingManager.MONTHLY}|${IBillingManager.YEARLY})" +
+                "${Regex.escape(IBillingManager.PRODUCT_ID_SUBSCRIPTION)}" +
+                "(\\d+)$"
+        )
     }
 
     override fun getLogTag() = LOG_TAG
@@ -93,7 +100,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             rewardedAdsBtn.setOnClickListener { onRewardedAdButtonClick(it.context) }
         }
         billingManager.productIdsWithDetails.observe(viewLifecycleOwner) {
-            onNewProductId(it)
+            onProductIdsLoaded(it)
         }
         adManager.rewardedUntilInMsLive.observe(viewLifecycleOwner) {
             refreshRewardedLayout()
@@ -199,9 +206,8 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val productId = IBillingManager.PRODUCT_ID_STARTS_WITH_F + periodCat + IBillingManager.PRODUCT_ID_SUBSCRIPTION + priceCat
-            if (!IBillingManager.FLEXIBLE_SUBSCRIPTIONS.contains(productId)) {
-                MTLog.w(this, "onBuyBtnClick() > skip (unexpected product ID: %s)", productId)
+            val productId = this.periodAndPriceCatToProductId[Pair(periodCat, priceCat)] ?: run {
+                MTLog.w(this, "onBuyBtnClick() > skip (no product ID for period/price: %s/%s)", periodCat, priceCat)
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
@@ -337,8 +343,9 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     private val priceSToPriceCat = mutableMapOf<String, String>()
     private val periods = mutableListOf<String>()
     private val periodSToPeriodCat = mutableMapOf<String, String>()
+    private val periodAndPriceCatToProductId = mutableMapOf<Pair<String, String>, String>()
 
-    private fun onNewProductId(productIdsWithDetails: Map<String, ProductDetails>?) {
+    private fun onProductIdsLoaded(productIdsWithDetails: Map<String, ProductDetails>?) {
         productIdsWithDetails ?: return
         val binding = binding ?: return
         val context = binding.context
@@ -346,27 +353,21 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         this.periods.clear()
         this.priceSToPriceCat.clear()
         this.periodSToPeriodCat.clear()
+        this.periodAndPriceCatToProductId.clear()
         var defaultPriceS: String? = null
         var defaultPeriodS: String? = null
         productIdsWithDetails.forEach { (productId, productDetails) ->
-            if (!productId.startsWith(IBillingManager.PRODUCT_ID_STARTS_WITH_F)) {
+            val productIdMatch = PRODUCT_ID_REGEX.matchEntire(productId) ?: run {
                 MTLog.w(this, "Skip product ID %s (unexpected)", productId)
                 return@forEach
             }
-            val periodCat = productId.substring(
-                IBillingManager.PRODUCT_ID_STARTS_WITH_F.length,
-                endIndex = productId.indexOf(
-                    IBillingManager.PRODUCT_ID_SUBSCRIPTION,
-                    startIndex = IBillingManager.PRODUCT_ID_STARTS_WITH_F.length
-                )
-            )
+            val periodCat = productIdMatch.groupValues[1]
             val periodResourceId = PERIOD_CAT_TO_RES_ID[periodCat] ?: run {
                 MTLog.w(this, "Skip product ID %s (unknown periodCat: %s)", productId, periodCat)
                 return@forEach
             }
-            val priceCat = productId.substring(
-                productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION) + IBillingManager.PRODUCT_ID_SUBSCRIPTION.length
-            )
+            val priceCat = productIdMatch.groupValues[2]
+            this.periodAndPriceCatToProductId[Pair(periodCat, priceCat)] = productId
             val subOfferDetailsList = productDetails.subscriptionOfferDetails
             if (subOfferDetailsList.isNullOrEmpty()) {
                 MTLog.w(this, "Skip product ID %s (no offer details)", productId)
