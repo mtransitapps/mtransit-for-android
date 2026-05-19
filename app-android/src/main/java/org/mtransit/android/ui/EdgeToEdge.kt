@@ -26,7 +26,7 @@ import com.google.android.gms.maps.MapView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
-import org.mtransit.android.commons.dpToPx
+import org.mtransit.android.commons.pxToDp
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
@@ -167,8 +167,8 @@ fun View.applyStatusBarsHeightEdgeToEdge(@Px initialHeightPx: Int = 0) {
 @JvmOverloads
 fun MapView.setUpMapEdgeToEdge(
     mapViewController: MapViewController,
-    topPaddingSp: Int?,
-    bottomPaddingSp: Int?,
+    topPaddingDp: Int?,
+    bottomPaddingDp: Int?,
     @Px originalHeightPx: Int? = null,
 ) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
@@ -176,11 +176,11 @@ fun MapView.setUpMapEdgeToEdge(
     }
     applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.systemBars(), consumed = true) { insets ->
         mapViewController.apply {
-            topPaddingSp?.takeIf { it > 0 }?.let {
-                setPaddingTopSp(topPaddingSp + insets.top.dpToPx)
+            topPaddingDp?.takeIf { it > 0 }?.let {
+                setPaddingTopDp(it + insets.top.pxToDp)
             }
-            bottomPaddingSp?.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW }?.let {
-                setPaddingBottomSp(it + insets.bottom.dpToPx)
+            bottomPaddingDp?.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW }?.let {
+                setPaddingBottomDp(it + insets.bottom.pxToDp)
             }
             applyPaddings()
         }

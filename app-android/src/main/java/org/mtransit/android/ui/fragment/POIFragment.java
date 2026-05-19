@@ -243,8 +243,8 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	ImageManager imageManager;
 
-	private static final int TOP_PADDING_SP = 64 - 32;
-	private static final int BOTTOM_PADDING_SP = 0;
+	private static final int TOP_PADDING_DP = 64 - 32;
+	private static final int BOTTOM_PADDING_DP = 0;
 
 	@NonNull
 	protected final MapViewController mapViewController =
@@ -258,8 +258,8 @@ public class POIFragment extends ABFragment implements
 					false,
 					false,
 					false,
-					TOP_PADDING_SP,
-					BOTTOM_PADDING_SP,
+					TOP_PADDING_DP,
+					BOTTOM_PADDING_DP,
 					false, // manually set
 					false,
 					false,
@@ -734,7 +734,7 @@ public class POIFragment extends ABFragment implements
 		setupScreenToolbar(this.binding.screenToolbarLayout);
 		final Resources resources = this.binding.getRoot().getContext().getResources();
 		final MapView map = this.binding.map;
-		EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP,
+		EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP,
 				resources.getDimensionPixelSize(R.dimen.large_header_height)
 		);
 		if (this.adapter != null) {

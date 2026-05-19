@@ -80,8 +80,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             }
         }
 
-        private const val TOP_PADDING_SP = 0
-        private const val BOTTOM_PADDING_SP = 56
+        private const val TOP_PADDING_DP = 0
+        private const val BOTTOM_PADDING_DP = 56
     }
 
     private var theLogTag: String = LOG_TAG
@@ -169,8 +169,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             false,
             false,
             false,
-            TOP_PADDING_SP,
-            BOTTOM_PADDING_SP,
+            TOP_PADDING_DP,
+            BOTTOM_PADDING_DP,
             false,
             true,
             false,
@@ -230,7 +230,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
-            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
         }
         this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->

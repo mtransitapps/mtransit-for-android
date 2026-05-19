@@ -18,7 +18,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -133,7 +132,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
         return super.onCreateDialog(savedInstanceState).apply {
             behavior = (this as? BottomSheetDialog)?.behavior
                 ?.apply {
-                    resources.getDimensionInt(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
+                    resources.getDimensionPixelSize(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
                         peekHeight = it
                     }
                 }
