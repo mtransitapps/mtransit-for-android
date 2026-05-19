@@ -55,7 +55,7 @@ fun POIFragment.setupViewKt() = this.binding?.apply {
 }
 
 fun POIFragment.onResumeKt() {
-    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+    viewLifecycleOwner.lifecycleScope.launch {
         adManager.refreshRewardedAdStatus(this@onResumeKt.requireActivity() as IActivity)
     }
 }

@@ -80,8 +80,7 @@ class MTBillingManager @Inject constructor(
         lclPrefRepository.pref.getString(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
     }
 
-    private val _currentSubscription: String?
-        get() = currentSubscription.value
+    private val _currentSubscription: String? get() = currentSubscription.value
 
     override val hasSubscription: LiveData<Boolean?> by lazy {
         this.currentSubscription.map { it?.isNotBlank() }
