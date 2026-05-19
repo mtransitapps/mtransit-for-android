@@ -434,7 +434,15 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 MTLog.w(this, "Skip product ID %s (no offer details)", productId)
                 return
             }
+            if (subOfferDetailsList.size <= IBillingManager.OFFER_DETAILS_IDX) {
+                MTLog.w(this, "Skip product ID %s (no offer details item)", productId)
+                return
+            }
             val subOfferDetails = subOfferDetailsList[IBillingManager.OFFER_DETAILS_IDX]
+            if (subOfferDetails == null) {
+                MTLog.w(this, "Skip product ID %s (no offer details item)", productId)
+                return
+            }
             val pricingPhaseList: List<PricingPhase> = subOfferDetails.pricingPhases.pricingPhaseList
             if (pricingPhaseList.isEmpty()) {
                 MTLog.w(this, "Skip product ID %s (no pricing list)", productId)
