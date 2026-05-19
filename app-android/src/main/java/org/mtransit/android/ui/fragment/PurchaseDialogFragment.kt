@@ -377,8 +377,8 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 IBillingManager.PRODUCT_ID_STARTS_WITH_F.length,
                 productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION, IBillingManager.PRODUCT_ID_STARTS_WITH_F.length)
             )
-            val resId = periodResId[periodCat]
-            if (resId == null) {
+            val periodResourceId = periodResId[periodCat]
+            if (periodResourceId == null) {
                 MTLog.w(this, "Skip product ID %s (unknown periodCat: %s)", productId, periodCat)
                 continue
             }
@@ -406,7 +406,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
             if (!this.prices.contains(priceS)) {
                 this.prices.add(priceS)
             }
-            val periodS = activity.getString(resId)
+            val periodS = activity.getString(periodResourceId)
             if (!this.periods.contains(periodS)) {
                 this.periods.add(periodS)
             }
@@ -420,11 +420,11 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
         }
         this.periods.sortWith { lPeriodS, rPeriodS ->
             try {
-                val lPeriodCat = this.periodSToPeriodCat[lPeriodS]
-                val lIndexOf = sortedPeriodCat.indexOf(lPeriodCat)
-                val rPeriodCat = this.periodSToPeriodCat[rPeriodS]
-                val rIndexOf = sortedPeriodCat.indexOf(rPeriodCat)
-                lIndexOf - rIndexOf
+                val leftPeriodCategory = this.periodSToPeriodCat[lPeriodS]
+                val leftIndex = sortedPeriodCat.indexOf(leftPeriodCategory)
+                val rightPeriodCategory = this.periodSToPeriodCat[rPeriodS]
+                val rightIndex = sortedPeriodCat.indexOf(rightPeriodCategory)
+                leftIndex - rightIndex
             } catch (e: Exception) {
                 MTLog.w(LOG_TAG, e, "Error while sorting periods!")
                 0
@@ -432,11 +432,11 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
         }
         this.prices.sortWith { lPriceS, rPriceS ->
             try {
-                val lPriceCat = this.priceSToPriceCat[lPriceS]
-                val lIndexOf = if (lPriceCat == null || !TextUtils.isDigitsOnly(lPriceCat)) -1 else lPriceCat.toInt()
-                val rPriceCat = this.priceSToPriceCat[rPriceS]
-                val rIndexOf = if (rPriceCat == null || !TextUtils.isDigitsOnly(rPriceCat)) -1 else rPriceCat.toInt()
-                lIndexOf - rIndexOf
+                val leftPriceCategory = this.priceSToPriceCat[lPriceS]
+                val leftIndex = if (leftPriceCategory == null || !TextUtils.isDigitsOnly(leftPriceCategory)) -1 else leftPriceCategory.toInt()
+                val rightPriceCategory = this.priceSToPriceCat[rPriceS]
+                val rightIndex = if (rightPriceCategory == null || !TextUtils.isDigitsOnly(rightPriceCategory)) -1 else rightPriceCategory.toInt()
+                leftIndex - rightIndex
             } catch (e: Exception) {
                 MTLog.w(LOG_TAG, e, "Error while sorting prices!")
                 0
