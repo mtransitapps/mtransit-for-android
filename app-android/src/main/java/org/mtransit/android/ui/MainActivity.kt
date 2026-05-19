@@ -45,7 +45,6 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
@@ -193,11 +192,6 @@ class MainActivity : MTActivityWithLocation(),
             }
             this.abController?.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
         })
-        this.lclPrefRepository.pref.liveDataN<String>(
-            LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, null
-        ).observe(this) {
-            this.navigationDrawerController?.onSelectedScreenItemIdChanged(it)
-        }
         this.defaultPrefRepository.pref.liveData(
             DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
         ).distinctUntilChanged().observe(this) {
