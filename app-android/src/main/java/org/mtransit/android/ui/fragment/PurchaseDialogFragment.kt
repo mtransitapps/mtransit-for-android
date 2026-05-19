@@ -67,9 +67,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
             downloadOrOpenPaidTasksBtn.setOnClickListener { onDownloadOrOpenPaidTasksBtnClick(it.context) }
             rewardedAdsBtn.setOnClickListener { onRewardedAdButtonClick(it.context) }
         }
-        billingManager.currentSubscription.observe(viewLifecycleOwner) {
-            // DO NOTHING
-        }
         billingManager.productIdsWithDetails.observe(viewLifecycleOwner) { onNewProductId(it) }
         adManager.rewardedUntilInMsLive.observe(viewLifecycleOwner) {
             refreshRewardedLayout()
@@ -233,7 +230,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
     }
 
     private fun refreshRewardedAdStatusAsync() {
-        this.lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             adManager.refreshRewardedAdStatus(this@PurchaseDialogFragment)
         }
     }
@@ -461,7 +458,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
             IBillingManager.YEARLY
         )
 
-        private val periodResId: ArrayMap<String, Int> = ArrayMap<String, Int>().apply {
+        private val periodResId: ArrayMap<String, Int> = ArrayMap().apply {
             put(IBillingManager.WEEKLY, R.string.support_every_week)
             put(IBillingManager.MONTHLY, R.string.support_every_month)
             put(IBillingManager.YEARLY, R.string.support_every_year)
