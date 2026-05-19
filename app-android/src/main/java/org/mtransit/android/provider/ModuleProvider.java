@@ -346,9 +346,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public Cursor getPOIFromDB(@Nullable POIProviderContract.Filter poiFilter) {
 		try {
-			if (poiFilter == null) {
-				return null;
-			}
+			if (poiFilter == null) return null;
 			String selection = poiFilter.getSqlSelection(
 					POIProviderContract.Columns.T_POI_K_UUID_META,
 					POIProviderContract.Columns.T_POI_K_LAT,
