@@ -53,7 +53,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             return PurchaseDialogFragment()
         }
 
-        private val SORTED_PERIOD_CAT = setOf(
+        private val SORTED_PERIOD_CAT = listOf(
             IBillingManager.WEEKLY,
             IBillingManager.MONTHLY,
             IBillingManager.YEARLY
