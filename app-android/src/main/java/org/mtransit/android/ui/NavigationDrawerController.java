@@ -245,7 +245,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			final Context context = navigationDrawerController.mainActivityWR.get();
 			if (context == null) return null;
 			if (navigationDrawerController.isCurrentSelectedSet()) return null;
-			String itemId = navigationDrawerController.getSelectedScreenItemIdOrDefault();
+			String itemId = navigationDrawerController.lclPrefRepository.getPref().getString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
 			final DemoModeManager demoModeManager = navigationDrawerController.demoModeManager;
 			if (demoModeManager.isFullDemo()) {
 				itemId = ITEM_ID_SELECTED_SCREEN_DEFAULT;
@@ -291,22 +291,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	@Nullable
-	private String selectedScreenItemId = null;
-
-	public void onSelectedScreenItemIdChanged(@Nullable String itemId) {
-		this.selectedScreenItemId = itemId;
-	}
-
-	@Nullable
 	private Boolean useInternalBrowserPref = null;
 
 	public void onUseInternalWebBrowserPrefChanged(@Nullable Boolean useInternalBrowser) {
 		this.useInternalBrowserPref = useInternalBrowser;
-	}
-
-	@NonNull
-	private String getSelectedScreenItemIdOrDefault() {
-		return this.selectedScreenItemId == null ? ITEM_ID_SELECTED_SCREEN_DEFAULT : this.selectedScreenItemId;
 	}
 
 	@Nullable
@@ -397,7 +385,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		final MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) return;
 		if (!mainActivity.isMTResumed()) return;
-		String itemId = getSelectedScreenItemIdOrDefault();
+		if (this.currentSelectedScreenItemId == null) return; // too soon
+		String itemId = this.currentSelectedScreenItemId;
 		if (demoModeManager.isFullDemo()) {
 			itemId = ITEM_ID_SELECTED_SCREEN_DEFAULT;
 			if (demoModeManager.isEnabledBrowseScreen()) {
@@ -790,14 +779,13 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	void setCurrentSelectedItemChecked(boolean checked) {
-		if (this.navigationView != null && this.currentSelectedScreenItemNavId != null) {
-			if (checked) { // unchecked all others (not automatic because multiple groups not handled by navigation view)
-				this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setCheckable(true);
-				this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setChecked(true);
-				uncheckOtherMenuItems(this.navigationView, this.currentSelectedScreenItemNavId);
-			} else {
-				this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setCheckable(false);
-			}
+		if (this.navigationView == null || this.currentSelectedScreenItemNavId == null) return;
+		if (checked) { // unchecked all others (not automatic because multiple groups not handled by navigation view)
+			this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setCheckable(true);
+			this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setChecked(true);
+			uncheckOtherMenuItems(this.navigationView, this.currentSelectedScreenItemNavId);
+		} else {
+			this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setCheckable(false);
 		}
 	}
 
