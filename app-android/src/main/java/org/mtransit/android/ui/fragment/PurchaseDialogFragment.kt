@@ -470,11 +470,11 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 0
             }
         }
-        this.prices.sortWith { lPriceS, rPeriods ->
+        this.prices.sortWith { lPriceS, rPriceS ->
             try {
                 val lPriceCat = this.priceSToPriceCat[lPriceS]
                 val lIndexOf = if (lPriceCat == null || !TextUtils.isDigitsOnly(lPriceCat)) -1 else lPriceCat.toInt()
-                val rPriceCat = this.priceSToPriceCat[rPeriods]
+                val rPriceCat = this.priceSToPriceCat[rPriceS]
                 val rIndexOf = if (rPriceCat == null || !TextUtils.isDigitsOnly(rPriceCat)) -1 else rPriceCat.toInt()
                 lIndexOf - rIndexOf
             } catch (e: Exception) {
