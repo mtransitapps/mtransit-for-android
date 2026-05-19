@@ -33,6 +33,7 @@ import org.mtransit.android.commons.StoreUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.ToastUtils
+import org.mtransit.android.commons.R as commonsR
 import org.mtransit.android.databinding.FragmentDialogPurchaseBinding
 import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.TimeUnit
@@ -134,7 +135,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 ToastUtils.makeTextAndShow(
                     context,
                     context.getString(
-                        org.mtransit.android.commons.R.string.opening_and_label,
+                        commonsR.string.opening_and_label,
                         context.getString(R.string.support_paid_tasks_incentive_app_label)
                     )
                 )
@@ -143,7 +144,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 StoreUtils.viewAppPage(
                     activity,
                     PAID_TASKS_PKG,
-                    context.getString(org.mtransit.android.commons.R.string.google_play)
+                    context.getString(commonsR.string.google_play)
                 )
             }
             dialog?.dismiss()
