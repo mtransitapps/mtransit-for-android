@@ -81,7 +81,7 @@ public enum DataSourceType {
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.drawable.ic_library_add_black_24dp, //
 			R.id.root_nav_module, //
-			true, true, true, false, false), //
+			true, true, true, false, true), //
 	TYPE_FAVORITE(DataSourceTypeId.FAVORITE, false,//
 			DataSourceStopType.FAVORITE,
 			R.string.agency_type_favorite_short_name, R.string.agency_type_favorite_all, //
@@ -168,7 +168,7 @@ public enum DataSourceType {
 
 	@NonNull
 	public CharSequence getPoiShortName(@NonNull Context context) {
-		if (this.stopType == DataSourceStopType.PLACE) {
+		if (this.stopType == DataSourceStopType.PLACE || this.stopType == DataSourceStopType.MODULE) {
 			return context.getString(this.stopType.getStopsStringResId());
 		}
 		return context.getString(R.string.agency_type_stops_short_name,
