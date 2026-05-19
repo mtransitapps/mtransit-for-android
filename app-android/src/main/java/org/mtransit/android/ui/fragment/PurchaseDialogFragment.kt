@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
@@ -10,23 +9,18 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Spinner
-import android.widget.TextView
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.collection.ArrayMap
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.ProductDetails.PricingPhase
-import com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.billing.IBillingManager
@@ -37,12 +31,21 @@ import org.mtransit.android.commons.StoreUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.ToastUtils
+import org.mtransit.android.databinding.FragmentDialogPurchaseBinding
 import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.RewardedAdListener {
 
     override fun getLogTag() = LOG_TAG
+
+    @Inject
+    lateinit var billingManager: IBillingManager
+
+    @Inject
+    lateinit var adManager: IAdManager
 
     private val noOpStringObserver = Observer<String> { }
     private val noOpBooleanObserver = Observer<Boolean> { }
@@ -50,18 +53,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
 
     private var newProductDetailsObserver: Observer<Map<String, ProductDetails>>? = null
 
-    // TODO migrate to 100% Hilt after migrating to AndroidX
-    // TODO @InstallIn(FragmentComponent::class) ?
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface PurchaseDialogEntryPoint {
-        fun billingManager(): IBillingManager
-        fun adManager(): IAdManager
-    }
-
-    private fun getEntryPoint(context: Context): PurchaseDialogEntryPoint {
-        return EntryPointAccessors.fromApplication(context.applicationContext, PurchaseDialogEntryPoint::class.java)
-    }
+    private var binding: FragmentDialogPurchaseBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,14 +61,21 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
         savedInstanceState: Bundle?
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        return inflater.inflate(R.layout.fragment_dialog_purchase, container, false).also {
-            setupView(it)
+        return inflater.inflate(R.layout.fragment_dialog_purchase, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentDialogPurchaseBinding.bind(view).apply {
+            buyBtn.setOnClickListener { onBuyBtnClick(it.context) }
+            downloadOrOpenPaidTasksBtn.setOnClickListener { onDownloadOrOpenPaidTasksBtnClick(it.context) }
+            rewardedAdsBtn.setOnClickListener { onRewardedAdButtonClick(it.context) }
         }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
-            requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
             setCancelable(true)
             setCanceledOnTouchOutside(true)
         }
@@ -85,14 +84,10 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.newProductDetailsObserver = Observer { onNewProductId(it) }
-        @SuppressLint("DeprecatedCall") // FIXME
-        val entryPoint = getEntryPoint(requireContext())
-        val billingManager = entryPoint.billingManager()
         billingManager.currentSubscription.observeForever(this.noOpStringObserver)
         this.newProductDetailsObserver?.let {
             billingManager.productIdsWithDetails.observeForever(it)
         }
-        val adManager = entryPoint.adManager()
         adManager.rewardedUntilInMsLive.observeForever(this.noOpLongObserver)
         adManager.rewardedNowLive.observeForever(this.noOpBooleanObserver)
     }
@@ -102,32 +97,20 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
         ToastUtils.makeTextAndShow(activity, R.string.support_subs_user_canceled_message)
     }
 
-    private fun setupView(view: View?) {
-        if (view == null) return
-        view.findViewById<View>(R.id.buyBtn).setOnClickListener {
-            onBuyBtnClick(it.context)
-        }
-        view.findViewById<View>(R.id.downloadOrOpenPaidTasksBtn).setOnClickListener {
-            onDownloadOrOpenPaidTasksBtnClick(it.context)
-        }
-        view.findViewById<View>(R.id.rewardedAdsBtn).setOnClickListener {
-            onRewardedAdButtonClick(it.context)
-        }
-    }
-
     override val currentFragment: Fragment
         get() = this
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        @SuppressLint("DeprecatedCall") // FIXME
-        val entryPoint = getEntryPoint(requireContext())
-        val billingManager = entryPoint.billingManager()
         this.newProductDetailsObserver?.let {
             billingManager.productIdsWithDetails.removeObserver(it)
         }
         billingManager.currentSubscription.removeObserver(this.noOpStringObserver)
-        val adManager = entryPoint.adManager()
         adManager.rewardedUntilInMsLive.removeObserver(this.noOpLongObserver)
         adManager.rewardedNowLive.removeObserver(this.noOpBooleanObserver)
     }
@@ -144,16 +127,13 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message)
                 return
             }
-            @SuppressLint("DeprecatedCall") // FIXME
-            val entryPoint = getEntryPoint(context)
-            val adManager = entryPoint.adManager()
             if (!adManager.isRewardedAdAvailableToShow()) {
                 MTLog.w(this, "onRewardedAdButtonClick() > skip (no ad available)")
                 ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_not_ready)
                 return
             }
             adManager.showRewardedAd(this)
-            view?.findViewById<View>(R.id.rewardedAdsBtn)?.isEnabled = false
+            binding?.rewardedAdsBtn?.isEnabled = false
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while handling download or open paid tasks button!")
             ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message)
@@ -193,15 +173,14 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
 
     private fun onBuyBtnClick(context: Context) {
         val activity = activity
+        val binding = binding
         try {
-            val view = view
-            if (view == null || activity == null) {
+            if (binding == null || activity == null) {
                 MTLog.w(this, "onBuyBtnClick() > skip (no view or no activity)")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val periodSpinner: Spinner = view.findViewById(R.id.period)
-            val periodPosition = periodSpinner.selectedItemPosition
+            val periodPosition = binding.period.selectedItemPosition
             val periodS = this.periods[periodPosition]
             if (periodS.isEmpty()) {
                 MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: %s)", periodPosition)
@@ -214,8 +193,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val priceSpinner: Spinner = view.findViewById(R.id.price)
-            val pricePosition = priceSpinner.selectedItemPosition
+            val pricePosition = binding.price.selectedItemPosition
             val priceS = this.prices[pricePosition]
             if (priceS.isEmpty()) {
                 MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: %s)", pricePosition)
@@ -234,9 +212,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            @SuppressLint("DeprecatedCall") // FIXME
-            val entryPoint = getEntryPoint(requireContext())
-            val billingManager = entryPoint.billingManager()
             val billingFlowLaunched = billingManager.launchBillingFlow(this, productId)
             if (!billingFlowLaunched) {
                 MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: %s)", productId)
@@ -255,40 +230,31 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
     @MainThread
     override fun onResume() {
         super.onResume()
-        @SuppressLint("DeprecatedCall") // FIXME
-        val entryPoint = getEntryPoint(requireContext())
-        val billingManager = entryPoint.billingManager()
         billingManager.refreshAvailableSubscriptions()
-        val adManager = entryPoint.adManager()
         adManager.setRewardedAdListener(this)
         adManager.linkRewardedAd(this)
         onResumeKt(adManager)
         showLoading()
-        view?.let { view ->
-            (view.findViewById<Button>(R.id.downloadOrOpenPaidTasksBtn)).setText(
-                if (PackageManagerUtils.isAppInstalled(view.context, PAID_TASKS_PKG)) {
+        binding?.apply {
+            downloadOrOpenPaidTasksBtn.setText(
+                if (PackageManagerUtils.isAppInstalled(root.context, PAID_TASKS_PKG)) {
                     R.string.support_paid_tasks_incentive_open_btn
                 } else {
                     R.string.support_paid_tasks_incentive_download_btn
                 }
             )
-            refreshRewardedLayout(view)
+            refreshRewardedLayout()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        @SuppressLint("DeprecatedCall") // FIXME
-        val entryPoint = getEntryPoint(requireContext())
-        val adManager = entryPoint.adManager()
         adManager.setRewardedAdListener(null)
     }
 
     @MainThread
-    private fun refreshRewardedLayout(view: View) {
-        @SuppressLint("DeprecatedCall") // FIXME
-        val entryPoint = getEntryPoint(view.context)
-        val adManager = entryPoint.adManager()
+    private fun refreshRewardedLayout() {
+        val binding = binding ?: return
         val rewardedNow = adManager.rewardedNowLive.value
         if (rewardedNow == null) {
             MTLog.w(this, "refreshRewardedLayout() > skip (rewardedNow is null)")
@@ -302,24 +268,20 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
         val availableToShow = adManager.isRewardedAdAvailableToShow()
         val rewardedAmount = adManager.getRewardedAdAmount()
 
-        val rewardedDivider = view.findViewById<View>(R.id.paidTasksDivider2)
-        val rewardedAdStatusTv = view.findViewById<TextView>(R.id.rewardedAdText)
-        val rewardedAdsBtn = view.findViewById<Button>(R.id.rewardedAdsBtn)
-
-        rewardedDivider.visibility = if (availableToShow || rewardedNow) View.VISIBLE else View.GONE
+        binding.paidTasksDivider2.isVisible = availableToShow || rewardedNow
 
         if (rewardedNow) {
-            rewardedAdStatusTv.text = getString(
+            binding.rewardedAdText.text = getString(
                 R.string.support_watch_rewarded_ad_status_until_and_date,
                 this.dateFormatter.formatThreadSafe(rewardedUntilInMs)
             )
-            rewardedAdStatusTv.visibility = View.VISIBLE
+            binding.rewardedAdText.isVisible = true
         } else {
-            rewardedAdStatusTv.visibility = View.GONE
-            rewardedAdStatusTv.text = null
+            binding.rewardedAdText.isVisible = false
+            binding.rewardedAdText.text = null
         }
 
-        rewardedAdsBtn.text = resources.getQuantityString(
+        binding.rewardedAdsBtn.text = resources.getQuantityString(
             if (rewardedNow) {
                 R.plurals.support_watch_rewarded_ad_btn_more_and_days
             } else {
@@ -329,18 +291,15 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
             rewardedAmount
         )
         if (availableToShow) {
-            rewardedAdsBtn.isEnabled = true
-            rewardedAdsBtn.visibility = View.VISIBLE
+            binding.rewardedAdsBtn.isEnabled = true
+            binding.rewardedAdsBtn.isVisible = true
         } else {
-            rewardedAdsBtn.isEnabled = false
+            binding.rewardedAdsBtn.isEnabled = false
         }
     }
 
     @WorkerThread
     override fun skipRewardedAd(): Boolean {
-        @SuppressLint("DeprecatedCall") // FIXME
-        val entryPoint = getEntryPoint(requireContext())
-        val adManager = entryPoint.adManager()
         if (!adManager.isRewardedNow()) return false
         val rewardedUntilInMs = adManager.getRewardedUntilInMs()
         val skipRewardedAdUntilInMs =
@@ -350,45 +309,42 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
 
     @AnyThread
     override fun onRewardedAdStatusChanged() {
-        val view = view ?: return
-        view.post { refreshRewardedLayout(view) }
+        binding?.root?.post { refreshRewardedLayout() }
     }
 
     override fun onDetach() {
         super.onDetach()
-        @SuppressLint("DeprecatedCall") // FIXME
-        val entryPoint = getEntryPoint(requireContext())
-        @SuppressLint("DeprecatedCall") // FIXME
-        val adManager = entryPoint.adManager()
         adManager.unlinkRewardedAd(this)
     }
 
     private fun showLoading() {
-        val view = view ?: return
-        view.findViewById<View>(R.id.title).visibility = View.GONE
-        view.findViewById<View>(R.id.subTitle).visibility = View.GONE
-        view.findViewById<View>(R.id.beforeText).visibility = View.GONE
-        view.findViewById<View>(R.id.priceSelection).visibility = View.GONE
-        view.findViewById<View>(R.id.afterText).visibility = View.GONE
-        view.findViewById<View>(R.id.buyBtn).visibility = View.GONE
-        view.findViewById<View>(R.id.paidTasksDivider).visibility = View.GONE
-        view.findViewById<View>(R.id.paidTasksIncentive).visibility = View.GONE
-        view.findViewById<View>(R.id.downloadOrOpenPaidTasksBtn).visibility = View.GONE
-        view.findViewById<View>(R.id.loading_layout).visibility = View.VISIBLE
+        binding?.apply {
+            title.isVisible = false
+            subTitle.isVisible = false
+            beforeText.isVisible = false
+            priceSelection.isVisible = false
+            afterText.isVisible = false
+            buyBtn.isVisible = false
+            paidTasksDivider.isVisible = false
+            paidTasksIncentive.isVisible = false
+            downloadOrOpenPaidTasksBtn.isVisible = false
+            loadingLayout.isVisible = true
+        }
     }
 
     private fun showNotLoading() {
-        val view = view ?: return
-        view.findViewById<View>(R.id.loading_layout).visibility = View.GONE
-        view.findViewById<View>(R.id.title).visibility = View.VISIBLE
-        view.findViewById<View>(R.id.subTitle).visibility = View.VISIBLE
-        view.findViewById<View>(R.id.beforeText).visibility = View.VISIBLE
-        view.findViewById<View>(R.id.priceSelection).visibility = View.VISIBLE
-        view.findViewById<View>(R.id.afterText).visibility = View.VISIBLE
-        view.findViewById<View>(R.id.buyBtn).visibility = View.VISIBLE
-        view.findViewById<View>(R.id.paidTasksDivider).visibility = View.VISIBLE
-        view.findViewById<View>(R.id.paidTasksIncentive).visibility = View.VISIBLE
-        view.findViewById<View>(R.id.downloadOrOpenPaidTasksBtn).visibility = View.VISIBLE
+        binding?.apply {
+            loadingLayout.isVisible = false
+            title.isVisible = true
+            subTitle.isVisible = true
+            beforeText.isVisible = true
+            priceSelection.isVisible = true
+            afterText.isVisible = true
+            buyBtn.isVisible = true
+            paidTasksDivider.isVisible = true
+            paidTasksIncentive.isVisible = true
+            downloadOrOpenPaidTasksBtn.isVisible = true
+        }
     }
 
     private val prices = ArrayList<String>()
@@ -398,9 +354,9 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
 
     private fun onNewProductId(productIdsWithDetails: Map<String, ProductDetails>?) {
         if (productIdsWithDetails == null) return
-        val view = view
+        val binding = binding
         val activity = activity
-        if (view == null || activity == null) return
+        if (binding == null || activity == null) return
         this.prices.clear()
         this.periods.clear()
         this.priceSToPriceCat.clear()
@@ -421,7 +377,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 IBillingManager.PRODUCT_ID_STARTS_WITH_F.length,
                 productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION, IBillingManager.PRODUCT_ID_STARTS_WITH_F.length)
             )
-            val resId = PERIOD_RES_ID[periodCat]
+            val resId = periodResId[periodCat]
             if (resId == null) {
                 MTLog.w(this, "Skip product ID %s (unknown periodCat: %s)", productId, periodCat)
                 continue
@@ -465,9 +421,9 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
         this.periods.sortWith { lPeriodS, rPeriodS ->
             try {
                 val lPriceCat = this.periodSToPeriodCat[lPeriodS]
-                val lIndexOf = SORTED_PERIOD_CAT.indexOf(lPriceCat)
+                val lIndexOf = sortedPeriodCat.indexOf(lPriceCat)
                 val rPriceCat = this.periodSToPeriodCat[rPeriodS]
-                val rIndexOf = SORTED_PERIOD_CAT.indexOf(rPriceCat)
+                val rIndexOf = sortedPeriodCat.indexOf(rPriceCat)
                 lIndexOf - rIndexOf
             } catch (e: Exception) {
                 MTLog.w(LOG_TAG, e, "Error while sorting periods!")
@@ -486,15 +442,13 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 0
             }
         }
-        val priceSpinner = view.findViewById<Spinner>(R.id.price)
-        priceSpinner.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, this.prices)
+        binding.price.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, this.prices)
         defaultPriceS?.let {
-            priceSpinner.setSelection(this.prices.indexOf(it))
+            binding.price.setSelection(this.prices.indexOf(it))
         }
-        val periodSpinner = view.findViewById<Spinner>(R.id.period)
-        periodSpinner.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, this.periods)
+        binding.period.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, this.periods)
         defaultPeriodS?.let {
-            periodSpinner.setSelection(this.periods.indexOf(it))
+            binding.period.setSelection(this.periods.indexOf(it))
         }
         showNotLoading()
     }
@@ -510,13 +464,13 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
             return PurchaseDialogFragment()
         }
 
-        private val SORTED_PERIOD_CAT = ArrayUtils.asArrayList(
+        private val sortedPeriodCat = ArrayUtils.asArrayList(
             IBillingManager.WEEKLY,
             IBillingManager.MONTHLY,
             IBillingManager.YEARLY
         )
 
-        private val PERIOD_RES_ID: ArrayMap<String, Int> = ArrayMap<String, Int>().apply {
+        private val periodResId: ArrayMap<String, Int> = ArrayMap<String, Int>().apply {
             put(IBillingManager.WEEKLY, R.string.support_every_week)
             put(IBillingManager.MONTHLY, R.string.support_every_month)
             put(IBillingManager.YEARLY, R.string.support_every_year)
