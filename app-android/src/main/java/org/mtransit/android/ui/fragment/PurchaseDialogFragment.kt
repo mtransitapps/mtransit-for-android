@@ -17,10 +17,12 @@ import androidx.annotation.WorkerThread
 import androidx.collection.ArrayMap
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.ProductDetails.PricingPhase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.billing.IBillingManager
@@ -47,12 +49,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
     @Inject
     lateinit var adManager: IAdManager
 
-    private val noOpStringObserver = Observer<String> { }
-    private val noOpBooleanObserver = Observer<Boolean> { }
-    private val noOpLongObserver = Observer<Long> { }
-
-    private var newProductDetailsObserver: Observer<Map<String, ProductDetails>>? = null
-
     private var binding: FragmentDialogPurchaseBinding? = null
 
     override fun onCreateView(
@@ -71,6 +67,16 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
             downloadOrOpenPaidTasksBtn.setOnClickListener { onDownloadOrOpenPaidTasksBtnClick(it.context) }
             rewardedAdsBtn.setOnClickListener { onRewardedAdButtonClick(it.context) }
         }
+        billingManager.currentSubscription.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        billingManager.productIdsWithDetails.observe(viewLifecycleOwner) { onNewProductId(it) }
+        adManager.rewardedUntilInMsLive.observe(viewLifecycleOwner) {
+            refreshRewardedLayout()
+        }
+        adManager.rewardedNowLive.observe(viewLifecycleOwner) {
+            refreshRewardedLayout()
+        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -79,17 +85,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
             setCancelable(true)
             setCanceledOnTouchOutside(true)
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        this.newProductDetailsObserver = Observer { onNewProductId(it) }
-        billingManager.currentSubscription.observeForever(this.noOpStringObserver)
-        this.newProductDetailsObserver?.let {
-            billingManager.productIdsWithDetails.observeForever(it)
-        }
-        adManager.rewardedUntilInMsLive.observeForever(this.noOpLongObserver)
-        adManager.rewardedNowLive.observeForever(this.noOpBooleanObserver)
     }
 
     override fun onCancel(dialog: DialogInterface) {
@@ -103,16 +98,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        this.newProductDetailsObserver?.let {
-            billingManager.productIdsWithDetails.removeObserver(it)
-        }
-        billingManager.currentSubscription.removeObserver(this.noOpStringObserver)
-        adManager.rewardedUntilInMsLive.removeObserver(this.noOpLongObserver)
-        adManager.rewardedNowLive.removeObserver(this.noOpBooleanObserver)
     }
 
     override fun finish() {
@@ -233,7 +218,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
         billingManager.refreshAvailableSubscriptions()
         adManager.setRewardedAdListener(this)
         adManager.linkRewardedAd(this)
-        onResumeKt(adManager)
+        refreshRewardedAdStatusAsync()
         showLoading()
         binding?.apply {
             downloadOrOpenPaidTasksBtn.setText(
@@ -244,6 +229,12 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
                 }
             )
             refreshRewardedLayout()
+        }
+    }
+
+    private fun refreshRewardedAdStatusAsync() {
+        this.lifecycleScope.launch(Dispatchers.IO) {
+            adManager.refreshRewardedAdStatus(this@PurchaseDialogFragment)
         }
     }
 
