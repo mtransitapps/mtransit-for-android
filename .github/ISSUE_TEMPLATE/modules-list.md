@@ -88,6 +88,7 @@ labels: MT
 - [ ] ca-saskatoon-transit-bus
 - [ ] ca-shawinigan-rtcs-bus
 - [ ] ca-sherbrooke-sts-bus
+- [ ] ca-smithers-district-transit-bus
 - [ ] ca-sorel-varennes-citsv-bus
 - [ ] ca-south-okanagan-similkameen-transit-system-bus
 - [ ] ca-squamish-transit-system-bus
