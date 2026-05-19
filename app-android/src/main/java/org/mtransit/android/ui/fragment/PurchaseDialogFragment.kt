@@ -420,10 +420,10 @@ class PurchaseDialogFragment : MTDialogFragmentX(), IActivity, IAdManager.Reward
         }
         this.periods.sortWith { lPeriodS, rPeriodS ->
             try {
-                val lPriceCat = this.periodSToPeriodCat[lPeriodS]
-                val lIndexOf = sortedPeriodCat.indexOf(lPriceCat)
-                val rPriceCat = this.periodSToPeriodCat[rPeriodS]
-                val rIndexOf = sortedPeriodCat.indexOf(rPriceCat)
+                val lPeriodCat = this.periodSToPeriodCat[lPeriodS]
+                val lIndexOf = sortedPeriodCat.indexOf(lPeriodCat)
+                val rPeriodCat = this.periodSToPeriodCat[rPeriodS]
+                val rIndexOf = sortedPeriodCat.indexOf(rPeriodCat)
                 lIndexOf - rIndexOf
             } catch (e: Exception) {
                 MTLog.w(LOG_TAG, e, "Error while sorting periods!")
