@@ -1517,12 +1517,12 @@
     {
       "description": "Hide ads. Support MonTransit development. Cancel anytime.",
       "languageCode": "en-US",
-      "title": "Support MonTransit (yearly) 5"
+      "title": "Support MonTransit (yearly)"
     },
     {
       "description": "Cacher pubs. Supporter dév. MonTransit. Annuler à tout moment",
       "languageCode": "fr-FR",
-      "title": "Supporter MonTransit (annuellement) 5"
+      "title": "Supporter MonTransit (annuellement)"
     }
   ],
   "packageName": "org.mtransit.android",
