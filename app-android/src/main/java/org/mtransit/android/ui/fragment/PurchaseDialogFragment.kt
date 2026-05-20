@@ -15,7 +15,6 @@ import androidx.annotation.WorkerThread
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.ProductDetails.PricingPhase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
@@ -66,11 +65,17 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         )
 
         private val PRODUCT_ID_REGEX = Regex(
-            "^${Regex.escape(IBillingManager.PRODUCT_ID_STARTS_WITH_F)}" +
-                "(?<period>${Regex.escape(IBillingManager.WEEKLY)}|${Regex.escape(IBillingManager.MONTHLY)}|${Regex.escape(IBillingManager.YEARLY)})" +
-                "${Regex.escape(IBillingManager.PRODUCT_ID_SUBSCRIPTION)}" +
-                "(?<price>\\d+)$"
+            buildString {
+                append("^")
+                append(Regex.escape(IBillingManager.PRODUCT_ID_STARTS_WITH_F))
+                append("(${Regex.escape(IBillingManager.WEEKLY)}|${Regex.escape(IBillingManager.MONTHLY)}|${Regex.escape(IBillingManager.YEARLY)})")
+                append(Regex.escape(IBillingManager.PRODUCT_ID_SUBSCRIPTION))
+                append("(\\d+)")
+                append("$")
+            }
         )
+        private const val PRODUCT_ID_REGEX_GROUP_PERIOD = 1
+        private const val PRODUCT_ID_REGEX_GROUP_PRICE = 2
     }
 
     override fun getLogTag() = LOG_TAG
@@ -186,34 +191,34 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             }
             val periodPosition = binding.period.selectedItemPosition
             val periodS = this.periods.getOrNull(periodPosition)?.takeIf { it.isNotEmpty() } ?: run {
-                MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: %s)", periodPosition)
+                MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: $periodPosition)")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
             val periodCat = this.periodSToPeriodCat[periodS]?.takeIf { it.isNotEmpty() } ?: run {
-                MTLog.w(this, "onBuyBtnClick() > skip (unexpected period string: %s)", periodS)
+                MTLog.w(this, "onBuyBtnClick() > skip (unexpected period string: $periodS)")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
             val pricePosition = binding.price.selectedItemPosition
             val priceS = this.prices.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() } ?: run {
-                MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: %s)", pricePosition)
+                MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: $pricePosition)")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
             val priceCat = this.priceSToPriceCat[priceS]?.takeIf { it.isNotEmpty() } ?: run {
-                MTLog.w(this, "onBuyBtnClick() > skip (unexpected price string: %s)", priceS)
+                MTLog.w(this, "onBuyBtnClick() > skip (unexpected price string: $priceS)")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val productId = this.periodAndPriceCatToProductId[Pair(periodCat, priceCat)] ?: run {
-                MTLog.w(this, "onBuyBtnClick() > skip (no product ID for period/price: %s/%s)", periodCat, priceCat)
+            val productId = this.periodAndPriceCatToProductId[periodCat to priceCat] ?: run {
+                MTLog.w(this, "onBuyBtnClick() > skip (no product ID for period/price: $periodCat/$priceCat)")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
             val billingFlowLaunched = billingManager.launchBillingFlow(parentActivity, productId)
             if (!billingFlowLaunched) {
-                MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: %s)", productId)
+                MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: $productId)", productId)
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
@@ -358,38 +363,38 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         var defaultPeriodS: String? = null
         productIdsWithDetails.forEach { (productId, productDetails) ->
             val productIdMatch = PRODUCT_ID_REGEX.matchEntire(productId) ?: run {
-                MTLog.w(this, "Skip product ID %s (unexpected)", productId)
+                MTLog.w(this, "Skip product ID $productId (unexpected)")
                 return@forEach
             }
-            val periodCat = productIdMatch.groups["period"]?.value ?: run {
-                MTLog.w(this, "Skip product ID %s (missing period)", productId)
+            val periodCat = productIdMatch.groups[PRODUCT_ID_REGEX_GROUP_PERIOD]?.value ?: run {
+                MTLog.w(this, "Skip product ID $productId (missing period)")
                 return@forEach
             }
             val periodResourceId = PERIOD_CAT_TO_RES_ID[periodCat] ?: run {
-                MTLog.w(this, "Skip product ID %s (unknown periodCat: %s)", productId, periodCat)
+                MTLog.w(this, "Skip product ID $productId (unknown periodCat: $periodCat)")
                 return@forEach
             }
-            val priceCat = productIdMatch.groups["price"]?.value ?: run {
-                MTLog.w(this, "Skip product ID %s (missing price)", productId)
+            val priceCat = productIdMatch.groups[PRODUCT_ID_REGEX_GROUP_PRICE]?.value ?: run {
+                MTLog.w(this, "Skip product ID $productId (missing price)")
                 return@forEach
             }
-            this.periodAndPriceCatToProductId[Pair(periodCat, priceCat)] = productId
+            this.periodAndPriceCatToProductId[periodCat to priceCat] = productId
             val subOfferDetailsList = productDetails.subscriptionOfferDetails
             if (subOfferDetailsList.isNullOrEmpty()) {
-                MTLog.w(this, "Skip product ID %s (no offer details)", productId)
+                MTLog.w(this, "Skip product ID $productId (no offer details)")
                 return@forEach
             }
             if (subOfferDetailsList.size <= IBillingManager.OFFER_DETAILS_IDX) {
-                MTLog.w(this, "Skip product ID %s (no offer details item)", productId)
+                MTLog.w(this, "Skip product ID $productId (no offer details item)")
                 return@forEach
             }
             val subOfferDetails = subOfferDetailsList[IBillingManager.OFFER_DETAILS_IDX]
             val pricingPhaseList = subOfferDetails.pricingPhases.pricingPhaseList
             if (pricingPhaseList.isEmpty()) {
-                MTLog.w(this, "Skip product ID %s (no pricing list)", productId)
+                MTLog.w(this, "Skip product ID $productId (no pricing list)")
                 return@forEach
             }
-            val lastPricingPhase = pricingPhaseList[pricingPhaseList.size - 1]
+            val lastPricingPhase = pricingPhaseList.last()
             val priceS = lastPricingPhase.formattedPrice
             this.priceSToPriceCat[priceS] = priceCat
             if (!this.prices.contains(priceS)) {
