@@ -93,8 +93,9 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:singleLine="false"
-            android:text="@string/support_subs_try_cancel"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:text="@string/ellipsis"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            tools:text="@string/support_subs_try_cancel" />
 
         <Button
             android:id="@+id/buyBtn"

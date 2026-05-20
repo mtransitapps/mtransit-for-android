@@ -271,7 +271,22 @@
     <string name="support_subs_authenticity_check_fail_message" tools:ignore="UnusedResources">Impossible de vérifier l\'authenticité !</string>
     <string name="support_subs_purchase_successful_message" tools:ignore="UnusedResources">Merci :)</string>
     <string name="support_subs_pick_price">Choisissez votre prix ;)</string>
-    <string name="support_subs_try_cancel">(1 mois gratuit, annulable en tout temps)</string>
+    <string name="support_subs_try_cancel">(annulable en tout temps)</string>
+    <plurals name="support_subs_try_cancel_months">
+        <item quantity="one">(%d mois gratuit, annulable en tout temps)</item>
+        <item quantity="other">(%d mois gratuit, annulable en tout temps)</item>
+        <item quantity="many">(%d mois gratuit, annulable en tout temps)</item>
+    </plurals>
+    <plurals name="support_subs_try_cancel_weeks">
+        <item quantity="one">(%d semaine gratuite, annulable en tout temps)</item>
+        <item quantity="other">(%d semaines gratuites, annulable en tout temps)</item>
+        <item quantity="many">(%d semaines gratuites, annulable en tout temps)</item>
+    </plurals>
+    <plurals name="support_subs_try_cancel_days">
+        <item quantity="one">(%d jour gratuit, annulable en tout temps)</item>
+        <item quantity="other">(%d jours gratuit, annulable en tout temps)</item>
+        <item quantity="many">(%d jours gratuit, annulable en tout temps)</item>
+    </plurals>
     <string name="support_subs_buy_with_play">Acheter avec Google Play</string>
     <string name="support_subs_price_and_period_separator"> / </string>
     <string name="support_every_week">semaine</string>

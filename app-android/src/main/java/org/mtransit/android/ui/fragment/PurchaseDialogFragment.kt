@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.billing.billingDatePeriod
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
@@ -31,6 +33,7 @@ import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.textAndVisibility
+import org.mtransit.commons.weeks
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
@@ -88,6 +91,37 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     private var binding: FragmentDialogPurchaseBinding? = null
 
+    private val onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            binding?.apply {
+                val periodCat = period.selectedItemPosition.takeIf { it != AdapterView.INVALID_POSITION }
+                    ?.let { periodPosition ->
+                        periods.getOrNull(periodPosition)?.takeIf { it.isNotEmpty() }
+                    }?.let { periodS ->
+                        periodSToPeriodCat[periodS]?.takeIf { it.isNotEmpty() }
+                    }
+                val priceCat = price.selectedItemPosition.takeIf { it != AdapterView.INVALID_POSITION }
+                    ?.let { pricePosition ->
+                        prices.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() }
+                    }?.let { priceS ->
+                        priceSToPriceCat[priceS]?.takeIf { it.isNotEmpty() }
+                    }
+                afterText.text = periodAndPriceCatToProductId[periodCat to priceCat]
+                    ?.let { productId ->
+                        productIdToFreePeriod[productId]
+                    } ?: getDefaultText(context)
+            }
+        }
+
+        private fun getDefaultText(context: Context) = context.resources.getString(R.string.support_subs_try_cancel)
+
+        override fun onNothingSelected(parent: AdapterView<*>?) {
+            binding?.apply {
+                afterText.text = getDefaultText(context)
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -103,6 +137,8 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             buyBtn.setOnClickListener { onBuyBtnClick(it.context) }
             downloadOrOpenPaidTasksBtn.setOnClickListener { onDownloadOrOpenPaidTasksBtnClick(it.context) }
             rewardedAdsBtn.setOnClickListener { onRewardedAdButtonClick(it.context) }
+            price.onItemSelectedListener = onItemSelectedListener
+            period.onItemSelectedListener = onItemSelectedListener
         }
         billingManager.productIdsWithDetails.observe(viewLifecycleOwner) {
             onProductIdsLoaded(it)
@@ -349,6 +385,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     private val periods = mutableListOf<String>()
     private val periodSToPeriodCat = mutableMapOf<String, String>()
     private val periodAndPriceCatToProductId = mutableMapOf<Pair<String, String>, String>()
+    private val productIdToFreePeriod = mutableMapOf<String, String?>()
 
     private fun onProductIdsLoaded(productIdsWithDetails: Map<String, ProductDetails>?) {
         productIdsWithDetails ?: return
@@ -363,7 +400,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         var defaultPeriodS: String? = null
         productIdsWithDetails.forEach { (productId, productDetails) ->
             val productIdMatch = PRODUCT_ID_REGEX.matchEntire(productId) ?: run {
-                MTLog.w(this, "Skip product ID $productId (unexpected)")
+                MTLog.w(this, "Skip product ID $productId (unsupported)")
                 return@forEach
             }
             val periodCat = productIdMatch.groups[PRODUCT_ID_REGEX_GROUP_PERIOD]?.value ?: run {
@@ -393,6 +430,15 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             if (pricingPhaseList.isEmpty()) {
                 MTLog.w(this, "Skip product ID $productId (no pricing list)")
                 return@forEach
+            }
+            val freePricingPhase = pricingPhaseList.firstOrNull { it.priceAmountMicros == 0L }
+            productIdToFreePeriod[productId] = freePricingPhase?.billingDatePeriod?.let {
+                when {
+                    it.months > 0 -> context.resources.getQuantityString(R.plurals.support_subs_try_cancel_months, it.months, it.months)
+                    it.weeks > 0 -> context.resources.getQuantityString(R.plurals.support_subs_try_cancel_weeks, it.weeks, it.weeks)
+                    it.days > 0 -> context.resources.getQuantityString(R.plurals.support_subs_try_cancel_days, it.days, it.days)
+                    else -> null
+                }
             }
             val lastPricingPhase = pricingPhaseList.last()
             val priceS = lastPricingPhase.formattedPrice
@@ -432,13 +478,13 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 0
             }
         }
-        binding.price.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, this.prices)
-        defaultPriceS?.let {
-            binding.price.setSelection(this.prices.indexOf(it))
+        binding.price.apply {
+            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, prices)
+            defaultPriceS?.let { setSelection(prices.indexOf(it)) }
         }
-        binding.period.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, this.periods)
-        defaultPeriodS?.let {
-            binding.period.setSelection(this.periods.indexOf(it))
+        binding.period.apply {
+            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, periods)
+            defaultPeriodS?.let { setSelection(periods.indexOf(it)) }
         }
         showNotLoading()
     }

@@ -191,22 +191,15 @@ class MTBillingManager @Inject constructor(
     }
 
     private fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<ProductDetails>) {
+        MTLog.d(LOG_TAG, "onProductDetailsResponse() > ${productDetailsList.size} product details")
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
                 _productIdsWithDetails.postValue(
-                    productDetailsList.associateBy { details ->
+                    productDetailsList.associateBy { productDetails ->
                         if (Constants.DEBUG) {
-                            details.subscriptionOfferDetails?.forEach {
-                                MTLog.d(this, "onProductDetailsResponse() > offer details: $it")
-                                it.installmentPlanDetails.let { installmentPlanDetails ->
-                                    MTLog.d(this, "onProductDetailsResponse() > installment plan details: $installmentPlanDetails")
-                                }
-                                it.pricingPhases.pricingPhaseList.forEach { pricingPhase ->
-                                    MTLog.d(this, "onProductDetailsResponse() > pricing phase: $pricingPhase")
-                                }
-                            }
+                            MTLog.d(this, "onProductDetailsResponse() > - product details: ${productDetails.toStringPlus(short = true)}")
                         }
-                        details.productId
+                        productDetails.productId
                     }
                         .also { postedValue ->
                             MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")

@@ -7,8 +7,7 @@
         "legacyCompatible": true,
         "legacyCompatibleSubscriptionOfferId": "freetrial",
         "prorationMode": "SUBSCRIPTION_PRORATION_MODE_CHARGE_ON_NEXT_BILLING_DATE",
-        "resubscribeState": "RESUBSCRIBE_STATE_ACTIVE",
-        "accountHoldDuration": "P30D"
+        "resubscribeState": "RESUBSCRIBE_STATE_ACTIVE"
       },
       "basePlanId": "p1y",
       "otherRegionsConfig": {
@@ -68,8 +67,9 @@
         {
           "newSubscriberAvailability": true,
           "price": {
-            "currencyCode": "BGN",
-            "units": "8"
+            "currencyCode": "EUR",
+            "nanos": 90000000,
+            "units": "4"
           },
           "regionCode": "BG"
         },
@@ -126,10 +126,26 @@
         {
           "newSubscriberAvailability": true,
           "price": {
+            "currencyCode": "XOF",
+            "units": "2395"
+          },
+          "regionCode": "CI"
+        },
+        {
+          "newSubscriberAvailability": true,
+          "price": {
             "currencyCode": "CLP",
             "units": "2000"
           },
           "regionCode": "CL"
+        },
+        {
+          "newSubscriberAvailability": true,
+          "price": {
+            "currencyCode": "XAF",
+            "units": "2441"
+          },
+          "regionCode": "CM"
         },
         {
           "newSubscriberAvailability": true,
@@ -498,6 +514,14 @@
         {
           "newSubscriberAvailability": true,
           "price": {
+            "currencyCode": "MNT",
+            "units": "13062"
+          },
+          "regionCode": "MN"
+        },
+        {
+          "newSubscriberAvailability": true,
+          "price": {
             "currencyCode": "MOP",
             "nanos": 880000000,
             "units": "31"
@@ -701,6 +725,14 @@
             "units": "3"
           },
           "regionCode": "SM"
+        },
+        {
+          "newSubscriberAvailability": true,
+          "price": {
+            "currencyCode": "XOF",
+            "units": "2395"
+          },
+          "regionCode": "SN"
         },
         {
           "newSubscriberAvailability": true,
@@ -954,24 +986,6 @@
             "units": "3"
           },
           "regionCode": "CG"
-        },
-        {
-          "newSubscriberAvailability": true,
-          "price": {
-            "currencyCode": "USD",
-            "nanos": 900000000,
-            "units": "3"
-          },
-          "regionCode": "CI"
-        },
-        {
-          "newSubscriberAvailability": true,
-          "price": {
-            "currencyCode": "USD",
-            "nanos": 900000000,
-            "units": "3"
-          },
-          "regionCode": "CM"
         },
         {
           "newSubscriberAvailability": true,
@@ -1340,15 +1354,6 @@
             "nanos": 900000000,
             "units": "3"
           },
-          "regionCode": "SN"
-        },
-        {
-          "newSubscriberAvailability": true,
-          "price": {
-            "currencyCode": "USD",
-            "nanos": 900000000,
-            "units": "3"
-          },
           "regionCode": "SO"
         },
         {
@@ -1510,12 +1515,12 @@
   ],
   "listings": [
     {
-      "description": "Hide ads. Support MonTransit development. First month free. Cancel anytime.",
+      "description": "Hide ads. Support MonTransit development. Cancel anytime.",
       "languageCode": "en-US",
       "title": "Support MonTransit (yearly) 5"
     },
     {
-      "description": "Cacher pubs. Supporter dév. MonTransit. 1ier mois gratuit. Annuler à tout moment",
+      "description": "Cacher pubs. Supporter dév. MonTransit. Annuler à tout moment",
       "languageCode": "fr-FR",
       "title": "Supporter MonTransit (annuellement) 5"
     }

@@ -30,7 +30,7 @@ MonTransit est actuellement disponible au Canada :
 MonTransit est actuellement disponible dans le nord des États-Unis :
 - <b>AK :</b> People Mover…
 
-Toutes les fonctionnalités sont disponibles gratuitement, mais vous pouvez soutenir le projet (et cacher les publicités) en payant un abonnement Google Play (1 mois gratuit, annulable en tout temps).
+Toutes les fonctionnalités sont disponibles gratuitement, mais vous pouvez soutenir le projet (et cacher les publicités) en payant un abonnement Google Play (annulable en tout temps).
 
 Vous êtes nos clients et seule source de revenus.
 Merci.
