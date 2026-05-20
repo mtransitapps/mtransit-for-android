@@ -81,6 +81,7 @@ labels: MT
 - [ ] ca-quebec-a-velo-bike
 - [ ] ca-quebec-orleans-express-bus
 - [ ] ca-quebec-rtc-bus
+- [ ] ca-quesnel-transit-bus
 - [ ] ca-red-deer-transit-bus
 - [ ] ca-regina-transit-bus
 - [ ] ca-richelieu-citvr-bus
@@ -88,6 +89,7 @@ labels: MT
 - [ ] ca-saskatoon-transit-bus
 - [ ] ca-shawinigan-rtcs-bus
 - [ ] ca-sherbrooke-sts-bus
+- [ ] ca-smithers-district-transit-bus
 - [ ] ca-sorel-varennes-citsv-bus
 - [ ] ca-south-okanagan-similkameen-transit-system-bus
 - [ ] ca-squamish-transit-system-bus
