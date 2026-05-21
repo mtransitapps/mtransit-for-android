@@ -35,6 +35,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.ad.AdsConsentManager;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.billing.BillingUtils;
 import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.BundleUtils;
@@ -629,7 +630,11 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} else if (navItemId == R.id.nav_rate_review) {
 			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(org.mtransit.android.commons.R.string.google_play));
 		} else if (navItemId == R.id.nav_support) {
-			activity.startActivity(PreferencesActivity.newInstance(activity, true));
+			if (activity instanceof MainActivity) {
+				BillingUtils.showPurchaseDialog((MainActivity) activity);
+			} else {
+				activity.startActivity(PreferencesActivity.newInstance(activity, true));
+			}
 		} else if (navItemId == R.id.nav_privacy_setting) {
 			this.consentManager.showPrivacyOptionsForm(activity, formError -> {
 				if (formError != null) {

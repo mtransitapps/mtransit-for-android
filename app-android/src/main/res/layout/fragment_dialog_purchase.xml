@@ -6,7 +6,8 @@
     android:fillViewport="true"
     android:minWidth="?android:attr/listPreferredItemHeightLarge"
     android:minHeight="?android:attr/listPreferredItemHeightLarge"
-    tools:context=".ui.fragment.PurchaseDialogFragment">
+    tools:context=".ui.fragment.PurchaseDialogFragment"
+    tools:layout_margin="60dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,51 +16,78 @@
         android:orientation="vertical"
         android:padding="@dimen/baseline_16">
 
+        <ImageButton
+            android:id="@+id/closeButton"
+            android:layout_width="@dimen/baseline_48"
+            android:layout_height="@dimen/baseline_48"
+            android:layout_gravity="start"
+            android:layout_marginStart="-12dp"
+            android:layout_marginTop="-12dp"
+            android:background="@null"
+            android:contentDescription="@android:string/cancel"
+            android:gravity="start"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_cancel_24"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageView
+            android:id="@+id/appIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/baseline_16"
+            android:contentDescription="@null"
+            android:scaleType="centerInside"
+            android:src="@drawable/product_logo" />
+
         <include
             android:id="@id/loading_layout"
             layout="@layout/layout_loading_large"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            tools:visibility="visible" />
+            tools:visibility="gone" />
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:ellipsize="end"
-            android:maxLines="2"
             android:text="@string/support_subs_pref_title"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?attr/textAppearanceHeadline5" />
 
         <TextView
             android:id="@+id/subTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/baseline_16"
             android:ellipsize="end"
-            android:maxLines="2"
             android:singleLine="false"
             android:text="@string/support_subs_pref_summary"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="?attr/textAppearanceSubtitle2"
             android:textStyle="italic" />
 
         <TextView
             android:id="@+id/beforeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:ellipsize="end"
-            android:maxLines="2"
             android:singleLine="false"
             android:text="@string/support_subs_pick_price"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?attr/textAppearanceOverline"
             android:textStyle="italic" />
-
         <LinearLayout
             android:id="@+id/priceSelection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/baseline_16"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:visibility="visible">
             <Spinner
                 android:id="@+id/price"
                 android:layout_width="wrap_content"
@@ -70,39 +98,56 @@
                 tools:listitem="@android:layout/simple_spinner_dropdown_item"
                 tools:visibility="visible" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/support_subs_price_and_period_separator" />
 
-            <Spinner
-                android:id="@+id/period"
+            <RadioGroup
+                android:id="@+id/period_radio_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="?android:attr/listPreferredItemHeightSmall"
-                android:visibility="visible"
-                tools:context=".ui.MainActivity"
-                tools:listitem="@android:layout/simple_spinner_dropdown_item"
-                tools:visibility="visible" />
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/period_weekly"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/support_weekly_short" />
+
+                <RadioButton
+                    android:id="@+id/period_monthly"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/support_monthly_short"
+                    tools:checked="true" />
+
+                <RadioButton
+                    android:id="@+id/period_yearly"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/support_yearly_short" />
+            </RadioGroup>
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/afterText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:singleLine="false"
-            android:text="@string/ellipsis"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            tools:text="@string/support_subs_try_cancel" />
 
         <Button
             android:id="@+id/buyBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/support_subs_buy_with_play" />
+            android:layout_gravity="center_horizontal"
+            android:enabled="false"
+            android:text="@string/support_subs_buy_with_play"
+            android:textAllCaps="false"
+            tools:enabled="true"
+            tools:text="@plurals/support_subs_start_trial_and_days" />
 
+        <TextView
+            android:id="@+id/afterText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:ellipsize="end"
+            android:singleLine="false"
+            android:text="@string/ellipsis"
+            android:textAppearance="?attr/textAppearanceCaption"
+            tools:text="@string/support_subs_try_cancel" />
+        <!-- DIVIDER -->
         <View
             android:id="@+id/paidTasksDivider"
             android:layout_width="match_parent"
@@ -110,28 +155,20 @@
             android:layout_marginTop="@dimen/baseline_16"
             android:layout_marginBottom="@dimen/baseline_16"
             android:background="?attr/colorOnSurface" />
-
+        <!-- PAID TASKs -->
         <TextView
             android:id="@+id/paidTasksIncentive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:ellipsize="end"
             android:singleLine="false"
-            android:text="@string/support_paid_tasks_incentive"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/support_link_paid_tasks_incentive"
+            android:textAppearance="?attr/textAppearanceCaption"
             android:textStyle="italic"
             android:visibility="gone"
             tools:visibility="visible" />
-
-        <Button
-            android:id="@+id/downloadOrOpenPaidTasksBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/support_paid_tasks_incentive_download_btn"
-            android:visibility="gone"
-            tools:text="@string/support_paid_tasks_incentive_open_btn"
-            tools:visibility="visible" />
-
+        <!-- DIVIDER -->
         <View
             android:id="@+id/paidTasksDivider2"
             android:layout_width="match_parent"
@@ -141,27 +178,18 @@
             android:background="?attr/colorOnSurface"
             android:visibility="gone"
             tools:visibility="visible" />
-
+        <!-- REWARDED AD -->
         <TextView
-            android:id="@+id/rewardedAdText"
+            android:id="@+id/rewardedAdsText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:ellipsize="end"
             android:singleLine="false"
-            android:text="@string/support_paid_tasks_incentive"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?attr/textAppearanceCaption"
             android:textStyle="italic"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <Button
-            android:id="@+id/rewardedAdsBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:enabled="false"
             android:visibility="gone"
             tools:text="@plurals/support_watch_rewarded_ad_btn_and_days"
             tools:visibility="visible" />
-
     </LinearLayout>
 </ScrollView>

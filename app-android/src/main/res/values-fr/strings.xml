@@ -287,25 +287,56 @@
         <item quantity="other">(%d jours gratuit, annulable en tout temps)</item>
         <item quantity="many">(%d jours gratuit, annulable en tout temps)</item>
     </plurals>
-    <string name="support_subs_buy_with_play">Acheter avec Google Play</string>
+    <string name="support_subs_buy_with_play">S\'abonner avec Google Play</string>
+    <string name="support_subs_start_trial_with_play">Débuter l\'essai avec Google Play</string>
+    <string name="support_subs_start_trial">Débuter l\'essai gratuit</string>
+    <plurals name="support_subs_start_trial_and_days">
+        <item quantity="one">Débuter l\'essai gratuit de %d jour</item>
+        <item quantity="other">Débuter l\'essai gratuit de %d jours</item>
+        <item quantity="many">Débuter l\'essai gratuit de %d jours</item>
+    </plurals>
+    <plurals name="support_subs_start_trial_and_weeks">
+        <item quantity="one">Débuter l\'essai gratuit de %d semaine</item>
+        <item quantity="other">Débuter l\'essai gratuit de %d semaines</item>
+        <item quantity="many">Débuter l\'essai gratuit de %d semaines</item>
+    </plurals>
+    <plurals name="support_subs_start_trial_and_months">
+        <item quantity="one">Débuter l\'essai gratuit de %d mois</item>
+        <item quantity="other">Débuter l\'essai gratuit de %d mois</item>
+        <item quantity="many">Débuter l\'essai gratuit de %d mois</item>
+    </plurals>
     <string name="support_subs_price_and_period_separator"> / </string>
     <string name="support_every_week">semaine</string>
+    <string name="support_weekly_short">Hebdo.</string>
     <string name="support_every_month">mois</string>
+    <string name="support_monthly_short">Mensuel</string>
     <string name="support_every_year">an</string>
-    <string name="support_paid_tasks_incentive">Pas d\'argent ? Obtenez un avoir Google Play en répondant à de brèves enquêtes de Google.</string>
+    <string name="support_yearly_short">Annuel</string>
+    <string name="support_paid_tasks_incentive">Pas d\'argent ? Obtenez un avoir Google Play en répondant à des enquêtes.</string>
     <string name="support_paid_tasks_incentive_open_btn">Ouvrir Google Opinion Rewards</string>
     <string name="support_paid_tasks_incentive_download_btn">Télécharger Google Opinion Rewards</string>
     <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
     <string name="support_watch_rewarded_ad_status_until_and_date">Sans pub jusqu\'au %s</string>
+    <plurals name="support_watch_rewarded_ad_title_and_days">
+        <item quantity="one">Avoir %d jour sans-pub</item>
+        <item quantity="other">Avoir %d jours sans-pub</item>
+        <item quantity="many">Avoir %d jours sans-pub</item>
+    </plurals>
+    <plurals name="support_watch_rewarded_ad_title_and_more_days">
+        <item quantity="one">Avoir %d jour de plus sans-pub</item>
+        <item quantity="other">Avoir %d jours de plus sans-pub</item>
+        <item quantity="many">Avoir %d jours de plus sans-pub</item>
+    </plurals>
+    <string name="support_watch_rewarded_ad_btn">Regarder une pub</string>
     <plurals name="support_watch_rewarded_ad_btn_and_days">
-        <item quantity="one">Regarder une pub pour\navoir %d jour sans pub</item>
-        <item quantity="other">Regarder une pub pour\navoir %d jours sans pub</item>
-        <item quantity="many">Regarder une pub pour\navoir %d jours sans pub</item>
+        <item quantity="one">Regarder une pub pour\navoir %d jour sans-pub</item>
+        <item quantity="other">Regarder une pub pour\navoir %d jours sans-pub</item>
+        <item quantity="many">Regarder une pub pour\navoir %d jours sans-pub</item>
     </plurals>
     <plurals name="support_watch_rewarded_ad_btn_more_and_days">
-        <item quantity="one">Regarder une pub pour\navoir +%d jour sans pub</item>
-        <item quantity="other">Regarder une pub pour\navoir +%d jours sans pub</item>
-        <item quantity="many">Regarder une pub pour\navoir +%d jours sans pub</item>
+        <item quantity="one">Regarder une pub pour\navoir +%d jour sans-pub</item>
+        <item quantity="other">Regarder une pub pour\navoir +%d jours sans-pub</item>
+        <item quantity="many">Regarder une pub pour\navoir +%d jours sans-pub</item>
     </plurals>
     <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
     <string name="support_watch_rewarded_ad_not_ready">Aucune pub disponible actuellement :(</string>
@@ -322,14 +353,14 @@
         <item quantity="many">Sans-pub pour %d jours</item>
     </plurals>
     <plurals name="watch_rewarded_ad_btn_and_days">
-        <item quantity="one">Regarder une pub pour avoir %d jour sans pub</item>
-        <item quantity="other">Regarder une pub pour avoir %d jours sans pub</item>
-        <item quantity="many">Regarder une pub pour avoir %d jours sans pub</item>
+        <item quantity="one">Regarder une pub pour avoir %d jour sans-pub</item>
+        <item quantity="other">Regarder une pub pour avoir %d jours sans-pub</item>
+        <item quantity="many">Regarder une pub pour avoir %d jours sans-pub</item>
     </plurals>
     <plurals name="watch_rewarded_ad_btn_more_and_days">
-        <item quantity="one">Regarder une pub pour avoir +%d jour sans pub</item>
-        <item quantity="other">Regarder une pub pour avoir +%d jours sans pub</item>
-        <item quantity="many">Regarder une pub pour avoir +%d jours sans pub</item>
+        <item quantity="one">Regarder une pub pour avoir +%d jour sans-pub</item>
+        <item quantity="other">Regarder une pub pour avoir +%d jours sans-pub</item>
+        <item quantity="many">Regarder une pub pour avoir +%d jours sans-pub</item>
     </plurals>
 
     <string name="location_permission_rationale_title">Permission requise</string>

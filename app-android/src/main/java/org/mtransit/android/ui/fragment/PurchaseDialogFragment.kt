@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment
 
-import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
@@ -10,6 +9,7 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.RadioGroup
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.ProductDetails
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DatePeriod
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.billing.IBillingManager
@@ -25,7 +26,6 @@ import org.mtransit.android.billing.billingDatePeriod
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
-import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.databinding.FragmentDialogPurchaseBinding
@@ -51,9 +51,8 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         private const val PAID_TASKS_PKG = "com.google.android.apps.paidtasks"
 
         @JvmStatic
-        fun newInstance(): PurchaseDialogFragment {
-            return PurchaseDialogFragment()
-        }
+        fun newInstance() =
+            PurchaseDialogFragment()
 
         private val SORTED_PERIOD_CAT = listOf(
             IBillingManager.WEEKLY,
@@ -91,34 +90,49 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     private var binding: FragmentDialogPurchaseBinding? = null
 
+    private val onCheckedChangeListener = RadioGroup.OnCheckedChangeListener { _, checkedId ->
+        onPriceOrPeriodSelectionChanged()
+    }
+
+    private fun onPriceOrPeriodSelectionChanged() {
+        binding?.apply {
+            val periodCat = periodRadioGroup.checkedRadioButtonId.takeIf { it != AdapterView.INVALID_POSITION }
+                ?.let { radioButtonResId ->
+                    when (radioButtonResId) {
+                        periodWeekly.id -> IBillingManager.WEEKLY
+                        periodMonthly.id -> IBillingManager.MONTHLY
+                        periodYearly.id -> IBillingManager.YEARLY
+                        else -> null
+                    }
+                }
+            val priceCat = price.selectedItemPosition.takeIf { it != AdapterView.INVALID_POSITION }
+                ?.let { pricePosition ->
+                    pricesFormatted.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() }
+                }?.let { priceFormatted ->
+                    priceFormattedToPriceCat[priceFormatted]?.takeIf { it.isNotEmpty() }
+                }
+            val productId = periodAndPriceCatToProductId[periodCat to priceCat]
+            val trial = productIdToFreePeriod[productId]
+            buyBtn.text = trial?.let { trial ->
+                when {
+                    trial.months > 0 -> context.resources.getQuantityString(R.plurals.support_subs_start_trial_and_months, trial.months, trial.months)
+                    trial.weeks > 0 -> context.resources.getQuantityString(R.plurals.support_subs_start_trial_and_weeks, trial.weeks, trial.weeks)
+                    trial.days > 0 -> context.resources.getQuantityString(R.plurals.support_subs_start_trial_and_days, trial.days, trial.days)
+                    else -> context.getString(R.string.support_subs_start_trial)
+                }
+            } ?: context.getString(R.string.support_subs_buy_with_play) // no trial? (trial already used)
+            buyBtn.isEnabled = !productId.isNullOrBlank()
+            afterText.text = context.resources.getString(R.string.support_subs_try_cancel)
+        }
+    }
+
     private val onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-            binding?.apply {
-                val periodCat = period.selectedItemPosition.takeIf { it != AdapterView.INVALID_POSITION }
-                    ?.let { periodPosition ->
-                        periods.getOrNull(periodPosition)?.takeIf { it.isNotEmpty() }
-                    }?.let { periodS ->
-                        periodSToPeriodCat[periodS]?.takeIf { it.isNotEmpty() }
-                    }
-                val priceCat = price.selectedItemPosition.takeIf { it != AdapterView.INVALID_POSITION }
-                    ?.let { pricePosition ->
-                        prices.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() }
-                    }?.let { priceS ->
-                        priceSToPriceCat[priceS]?.takeIf { it.isNotEmpty() }
-                    }
-                afterText.text = periodAndPriceCatToProductId[periodCat to priceCat]
-                    ?.let { productId ->
-                        productIdToFreePeriod[productId]
-                    } ?: getDefaultText(context)
-            }
+            onPriceOrPeriodSelectionChanged()
         }
 
-        private fun getDefaultText(context: Context) = context.resources.getString(R.string.support_subs_try_cancel)
-
         override fun onNothingSelected(parent: AdapterView<*>?) {
-            binding?.apply {
-                afterText.text = getDefaultText(context)
-            }
+            onPriceOrPeriodSelectionChanged()
         }
     }
 
@@ -134,11 +148,12 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDialogPurchaseBinding.bind(view).apply {
+            closeButton.setOnClickListener { dialog?.cancel() ?: dismiss() }
             buyBtn.setOnClickListener { onBuyBtnClick(it.context) }
-            downloadOrOpenPaidTasksBtn.setOnClickListener { onDownloadOrOpenPaidTasksBtnClick(it.context) }
-            rewardedAdsBtn.setOnClickListener { onRewardedAdButtonClick(it.context) }
+            paidTasksIncentive.setOnClickListener { onDownloadOrOpenPaidTasksBtnClick(it.context) }
+            rewardedAdsText.setOnClickListener { onRewardedAdButtonClick(it.context) }
             price.onItemSelectedListener = onItemSelectedListener
-            period.onItemSelectedListener = onItemSelectedListener
+            periodRadioGroup.setOnCheckedChangeListener(onCheckedChangeListener)
         }
         billingManager.productIdsWithDetails.observe(viewLifecycleOwner) {
             onProductIdsLoaded(it)
@@ -151,17 +166,21 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState).apply {
+    override fun onCreateDialog(savedInstanceState: Bundle?) =
+        super.onCreateDialog(savedInstanceState).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             setCancelable(true)
             setCanceledOnTouchOutside(true)
         }
-    }
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
         ToastUtils.makeTextAndShow(context, R.string.support_subs_user_canceled_message)
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        // DO NOTHING
     }
 
     val parentActivity: MTActivity? get() = super.getActivity() as? MTActivity
@@ -184,7 +203,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 return
             }
             adManager.showRewardedAd(parentActivity)
-            binding?.rewardedAdsBtn?.isEnabled = false
+            binding?.rewardedAdsText?.isEnabled = false
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while handling download or open paid tasks button!")
             ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message)
@@ -225,25 +244,27 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val periodPosition = binding.period.selectedItemPosition
-            val periodS = this.periods.getOrNull(periodPosition)?.takeIf { it.isNotEmpty() } ?: run {
-                MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: $periodPosition)")
-                ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
-                return
-            }
-            val periodCat = this.periodSToPeriodCat[periodS]?.takeIf { it.isNotEmpty() } ?: run {
-                MTLog.w(this, "onBuyBtnClick() > skip (unexpected period string: $periodS)")
+            val periodCat = binding.periodRadioGroup.checkedRadioButtonId.takeIf { it != AdapterView.INVALID_POSITION }
+                ?.let { radioButtonResId ->
+                    when (radioButtonResId) {
+                        binding.periodWeekly.id -> IBillingManager.WEEKLY
+                        binding.periodMonthly.id -> IBillingManager.MONTHLY
+                        binding.periodYearly.id -> IBillingManager.YEARLY
+                        else -> null
+                    }
+                } ?: run {
+                MTLog.w(this, "onBuyBtnClick() > skip (unexpected period radio button: ${binding.periodRadioGroup.checkedRadioButtonId})")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
             val pricePosition = binding.price.selectedItemPosition
-            val priceS = this.prices.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() } ?: run {
+            val priceFormatted = this.pricesFormatted.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() } ?: run {
                 MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: $pricePosition)")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val priceCat = this.priceSToPriceCat[priceS]?.takeIf { it.isNotEmpty() } ?: run {
-                MTLog.w(this, "onBuyBtnClick() > skip (unexpected price string: $priceS)")
+            val priceCat = this.priceFormattedToPriceCat[priceFormatted]?.takeIf { it.isNotEmpty() } ?: run {
+                MTLog.w(this, "onBuyBtnClick() > skip (unexpected formatted price: $priceFormatted)")
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
@@ -265,8 +286,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         }
     }
 
-    private val dateFormatter = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM)
-
     @MainThread
     override fun onResume() {
         super.onResume()
@@ -275,16 +294,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         parentActivity?.let { adManager.linkRewardedAd(it) }
         refreshRewardedAdStatusAsync()
         showLoading()
-        binding?.apply {
-            downloadOrOpenPaidTasksBtn.setText(
-                if (PackageManagerUtils.isAppInstalled(context, PAID_TASKS_PKG)) {
-                    R.string.support_paid_tasks_incentive_open_btn
-                } else {
-                    R.string.support_paid_tasks_incentive_download_btn
-                }
-            )
-            refreshRewardedLayout()
-        }
     }
 
     private fun refreshRewardedAdStatusAsync() {
@@ -305,33 +314,22 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             MTLog.w(this, "refreshRewardedLayout() > skip (rewardedNow is null)")
             return@apply
         }
-        val rewardedUntilInMs = adManager.rewardedUntilInMsLive.value ?: run {
-            MTLog.w(this, "refreshRewardedLayout() > skip (rewardedUntilInMs is null)")
-            return@apply
-        }
         val availableToShow = adManager.isRewardedAdAvailableToShow()
         val rewardedAmount = adManager.getRewardedAdAmount()
 
         paidTasksDivider2.isVisible = availableToShow || rewardedNow
 
-        rewardedAdText.textAndVisibility = rewardedUntilInMs.takeIf { rewardedNow }?.let {
-            getString(
-                R.string.support_watch_rewarded_ad_status_until_and_date,
-                dateFormatter.formatThreadSafe(it)
-            )
-        }
-
-        rewardedAdsBtn.text = resources.getQuantityString(
+        rewardedAdsText.textAndVisibility = if (!availableToShow) null else resources.getQuantityString(
             if (rewardedNow) R.plurals.support_watch_rewarded_ad_btn_more_and_days
             else R.plurals.support_watch_rewarded_ad_btn_and_days,
             rewardedAmount,
             rewardedAmount
         )
         if (availableToShow) {
-            rewardedAdsBtn.isEnabled = true
-            rewardedAdsBtn.isVisible = true
+            rewardedAdsText.isEnabled = true
+            rewardedAdsText.isVisible = true
         } else {
-            rewardedAdsBtn.isEnabled = false
+            rewardedAdsText.isEnabled = false
         }
     }
 
@@ -363,7 +361,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         buyBtn.isVisible = false
         paidTasksDivider.isVisible = false
         paidTasksIncentive.isVisible = false
-        downloadOrOpenPaidTasksBtn.isVisible = false
         loadingLayout.isVisible = true
     }
 
@@ -377,27 +374,25 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         buyBtn.isVisible = true
         paidTasksDivider.isVisible = true
         paidTasksIncentive.isVisible = true
-        downloadOrOpenPaidTasksBtn.isVisible = true
     }
 
-    private val prices = mutableListOf<String>()
-    private val priceSToPriceCat = mutableMapOf<String, String>()
-    private val periods = mutableListOf<String>()
-    private val periodSToPeriodCat = mutableMapOf<String, String>()
+    private val pricesFormatted = mutableListOf<String>()
+    private val priceFormattedToPriceCat = mutableMapOf<String, String>()
+    private val periodLabels = mutableListOf<String>()
+    private val periodLabelsToPeriodCat = mutableMapOf<String, String>()
     private val periodAndPriceCatToProductId = mutableMapOf<Pair<String, String>, String>()
-    private val productIdToFreePeriod = mutableMapOf<String, String?>()
+    private val productIdToFreePeriod = mutableMapOf<String, DatePeriod?>()
 
     private fun onProductIdsLoaded(productIdsWithDetails: Map<String, ProductDetails>?) {
         productIdsWithDetails ?: return
         val binding = binding ?: return
         val context = binding.context
-        this.prices.clear()
-        this.periods.clear()
-        this.priceSToPriceCat.clear()
-        this.periodSToPeriodCat.clear()
+        this.pricesFormatted.clear()
+        this.periodLabels.clear()
+        this.priceFormattedToPriceCat.clear()
+        this.periodLabelsToPeriodCat.clear()
         this.periodAndPriceCatToProductId.clear()
-        var defaultPriceS: String? = null
-        var defaultPeriodS: String? = null
+        var defaultPriceLabel: String? = null
         productIdsWithDetails.forEach { (productId, productDetails) ->
             val productIdMatch = PRODUCT_ID_REGEX.matchEntire(productId) ?: run {
                 MTLog.w(this, "Skip product ID $productId (unsupported)")
@@ -407,7 +402,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 MTLog.w(this, "Skip product ID $productId (missing period)")
                 return@forEach
             }
-            val periodResourceId = PERIOD_CAT_TO_RES_ID[periodCat] ?: run {
+            val periodResId = PERIOD_CAT_TO_RES_ID[periodCat] ?: run {
                 MTLog.w(this, "Skip product ID $productId (unknown periodCat: $periodCat)")
                 return@forEach
             }
@@ -432,46 +427,38 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 return@forEach
             }
             val freePricingPhase = pricingPhaseList.firstOrNull { it.priceAmountMicros == 0L }
-            productIdToFreePeriod[productId] = freePricingPhase?.billingDatePeriod?.let {
-                when {
-                    it.months > 0 -> context.resources.getQuantityString(R.plurals.support_subs_try_cancel_months, it.months, it.months)
-                    it.weeks > 0 -> context.resources.getQuantityString(R.plurals.support_subs_try_cancel_weeks, it.weeks, it.weeks)
-                    it.days > 0 -> context.resources.getQuantityString(R.plurals.support_subs_try_cancel_days, it.days, it.days)
-                    else -> null
-                }
-            }
+            productIdToFreePeriod[productId] = freePricingPhase?.billingDatePeriod
+            binding.buyBtn.text = context.getString(R.string.support_subs_buy_with_play)
+            binding.buyBtn.isEnabled = false // wait for selection
             val lastPricingPhase = pricingPhaseList.last()
-            val priceS = lastPricingPhase.formattedPrice
-            this.priceSToPriceCat[priceS] = priceCat
-            if (!this.prices.contains(priceS)) {
-                this.prices.add(priceS)
+            val priceFormatted = lastPricingPhase.formattedPrice
+            this.priceFormattedToPriceCat[priceFormatted] = priceCat
+            if (!this.pricesFormatted.contains(priceFormatted)) {
+                this.pricesFormatted.add(priceFormatted)
             }
-            val periodS = context.getString(periodResourceId)
-            if (!this.periods.contains(periodS)) {
-                this.periods.add(periodS)
+            val periodLabel = context.getString(periodResId)
+            if (!this.periodLabels.contains(periodLabel)) {
+                this.periodLabels.add(periodLabel)
             }
-            this.periodSToPeriodCat[periodS] = periodCat
+            this.periodLabelsToPeriodCat[periodLabel] = periodCat
             if (IBillingManager.DEFAULT_PRICE_CAT == priceCat) {
-                defaultPriceS = priceS
-            }
-            if (IBillingManager.DEFAULT_PERIOD_CAT == periodCat) {
-                defaultPeriodS = periodS
+                defaultPriceLabel = priceFormatted
             }
         }
-        this.periods.sortWith { lPeriodS, rPeriodS ->
+        this.periodLabels.sortWith { lPeriodS, rPeriodS ->
             try {
-                val leftIndex = SORTED_PERIOD_CAT.indexOf(this.periodSToPeriodCat[lPeriodS])
-                val rightIndex = SORTED_PERIOD_CAT.indexOf(this.periodSToPeriodCat[rPeriodS])
+                val leftIndex = SORTED_PERIOD_CAT.indexOf(this.periodLabelsToPeriodCat[lPeriodS])
+                val rightIndex = SORTED_PERIOD_CAT.indexOf(this.periodLabelsToPeriodCat[rPeriodS])
                 leftIndex - rightIndex
             } catch (e: Exception) {
                 MTLog.w(LOG_TAG, e, "Error while sorting periods!")
                 0
             }
         }
-        this.prices.sortWith { lPriceS, rPriceS ->
+        this.pricesFormatted.sortWith { lPriceS, rPriceS ->
             try {
-                val leftIndex = this.priceSToPriceCat[lPriceS]?.toIntOrNull() ?: -1
-                val rightIndex = this.priceSToPriceCat[rPriceS]?.toIntOrNull() ?: -1
+                val leftIndex = this.priceFormattedToPriceCat[lPriceS]?.toIntOrNull() ?: -1
+                val rightIndex = this.priceFormattedToPriceCat[rPriceS]?.toIntOrNull() ?: -1
                 leftIndex - rightIndex
             } catch (e: Exception) {
                 MTLog.w(LOG_TAG, e, "Error while sorting prices!")
@@ -479,12 +466,16 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             }
         }
         binding.price.apply {
-            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, prices)
-            defaultPriceS?.let { setSelection(prices.indexOf(it)) }
+            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, pricesFormatted)
+            defaultPriceLabel?.let { setSelection(pricesFormatted.indexOf(it)) }
         }
-        binding.period.apply {
-            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, periods)
-            defaultPeriodS?.let { setSelection(periods.indexOf(it)) }
+        binding.periodWeekly.isVisible = periodLabelsToPeriodCat.values.contains(IBillingManager.WEEKLY)
+        binding.periodMonthly.isVisible = periodLabelsToPeriodCat.values.contains(IBillingManager.MONTHLY)
+        binding.periodYearly.isVisible = periodLabelsToPeriodCat.values.contains(IBillingManager.YEARLY)
+        when (IBillingManager.DEFAULT_PERIOD_CAT) {
+            IBillingManager.WEEKLY -> binding.periodWeekly.isChecked = true
+            IBillingManager.MONTHLY -> binding.periodMonthly.isChecked = true
+            IBillingManager.YEARLY -> binding.periodYearly.isChecked = true
         }
         showNotLoading()
     }
