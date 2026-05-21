@@ -174,7 +174,7 @@ object FavoritesUI : MTLog.Loggable {
             .setView(view)
             .setPositiveButton(R.string.favorite_folder_new_create) { _: DialogInterface?, _: Int ->
                 activity.lifecycleScope.launch {
-                    val newFolderName = newFolderNameTv.getText().toString()
+                    val newFolderName = newFolderNameTv.getText().toString().trim()
                     if (newFolderName.isBlank()) {
                         showToast(activity, R.string.favorite_folder_new_invalid_name)
                         return@launch
@@ -251,12 +251,13 @@ object FavoritesUI : MTLog.Loggable {
             .setView(editView)
             .setPositiveButton(R.string.favorite_folder_edit) { _: DialogInterface?, _: Int ->
                 activity.lifecycleScope.launch {
-                    val newFolderName = newFolderNameTv.getText().toString()
+                    val newFolderName = newFolderNameTv.getText().toString().trim()
                     if (newFolderName.isEmpty()) {
                         showToast(activity, R.string.favorite_folder_new_invalid_name)
                         return@launch
                     }
-                    val updated = updateFolder(favoriteFolder.copy(name = newFolderName))
+                    val updatedFavoriteFolder = favoriteFolder.copy(name = newFolderName)
+                    val updated = updateFolder(updatedFavoriteFolder)
                     if (updated) {
                         showToast(activity, R.string.favorite_folder_edited_and_folder, newFolderName)
                     }

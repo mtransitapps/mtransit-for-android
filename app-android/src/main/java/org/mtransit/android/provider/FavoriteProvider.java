@@ -38,19 +38,19 @@ public class FavoriteProvider extends MTContentProvider {
 	private static final int FAVORITE_FOLDER = 200;
 	private static final int FAVORITE_FOLDER_ID = 201;
 
-	private static final ArrayMap<String, String> FAVORITE_PROJECTION_MAP = SqlUtils.ProjectionMapBuilder.getNew() //
-			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_ID) //
-			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_TYPE, FavoriteColumns.T_FAVORITE_K_TYPE) //
-			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, FavoriteColumns.T_FAVORITE_K_FK_ID) //
-			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FOLDER_ID, FavoriteColumns.T_FAVORITE_K_FOLDER_ID) //
+	private static final ArrayMap<String, String> FAVORITE_PROJECTION_MAP = SqlUtils.ProjectionMapBuilder.getNew()
+			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_ID)
+			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_TYPE, FavoriteColumns.T_FAVORITE_K_TYPE)
+			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, FavoriteColumns.T_FAVORITE_K_FK_ID)
+			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FOLDER_ID, FavoriteColumns.T_FAVORITE_K_FOLDER_ID)
 			.build();
 
 	static final String[] PROJECTION_FAVORITE = new String[]{FavoriteColumns.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_TYPE,
 			FavoriteColumns.T_FAVORITE_K_FK_ID, FavoriteColumns.T_FAVORITE_K_FOLDER_ID};
 
-	private static final ArrayMap<String, String> FAVORITE_FOLDER_PROJECTION_MAP = SqlUtils.ProjectionMapBuilder.getNew() //
-			.appendTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_ID, FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID) //
-			.appendTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_NAME, FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME) //
+	private static final ArrayMap<String, String> FAVORITE_FOLDER_PROJECTION_MAP = SqlUtils.ProjectionMapBuilder.getNew()
+			.appendTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_ID, FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID)
+			.appendTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_NAME, FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME)
 			.build();
 
 	static final String[] PROJECTION_FOLDER = new String[]{FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID,
@@ -161,9 +161,10 @@ public class FavoriteProvider extends MTContentProvider {
 			case FAVORITE_ID:
 				qb.setTables(FavoriteDbHelper.T_FAVORITE);
 				qb.setProjectionMap(FAVORITE_PROJECTION_MAP);
-				selection = SqlUtils.getWhereEquals( //
-						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID), //
-						uri.getPathSegments().get(1));
+				selection = SqlUtils.getWhereEquals(
+						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID),
+						uri.getPathSegments().get(1) // favorite ID
+				);
 				break;
 			case FAVORITE_FOLDER:
 				qb.setTables(FavoriteDbHelper.T_FAVORITE_FOLDER);
@@ -172,9 +173,10 @@ public class FavoriteProvider extends MTContentProvider {
 			case FAVORITE_FOLDER_ID:
 				qb.setTables(FavoriteDbHelper.T_FAVORITE_FOLDER);
 				qb.setProjectionMap(FAVORITE_FOLDER_PROJECTION_MAP);
-				selection = SqlUtils.getWhereEquals( //
-						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_ID), //
-						uri.getPathSegments().get(2));
+				selection = SqlUtils.getWhereEquals(
+						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_ID),
+						uri.getPathSegments().get(2) // folder ID
+				);
 				break;
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
@@ -231,18 +233,20 @@ public class FavoriteProvider extends MTContentProvider {
 				affectedRows = getDBHelper(context).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, selectionArgs);
 				break;
 			case FAVORITE_ID:
-				selection = SqlUtils.getWhereEquals( //
-						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID), //
-						uri.getPathSegments().get(1));
+				selection = SqlUtils.getWhereEquals(
+						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID),
+						uri.getPathSegments().get(1) // favorite ID
+				);
 				affectedRows = getDBHelper(context).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, null);
 				break;
 			case FAVORITE_FOLDER:
 				affectedRows = getDBHelper(context).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE_FOLDER, selection, selectionArgs);
 				break;
 			case FAVORITE_FOLDER_ID:
-				selection = SqlUtils.getWhereEquals( //
-						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_ID), //
-						uri.getPathSegments().get(2));
+				selection = SqlUtils.getWhereEquals(
+						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_ID),
+						uri.getPathSegments().get(2) // favorite folder ID
+				);
 				affectedRows = getDBHelper(context).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE_FOLDER, selection, null);
 				break;
 			default:
@@ -266,17 +270,31 @@ public class FavoriteProvider extends MTContentProvider {
 			case FAVORITE:
 				affectedRows = getDBHelper(context).getWritableDatabase().update(FavoriteDbHelper.T_FAVORITE, values, selection, selectionArgs);
 				break;
+			case FAVORITE_ID:
+				selection = SqlUtils.getWhereEquals(
+						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID),
+						uri.getPathSegments().get(1) // favorite ID
+				);
+				affectedRows = getDBHelper(context).getWritableDatabase().update(FavoriteDbHelper.T_FAVORITE, values, selection, null);
+				break;
 			case FAVORITE_FOLDER:
 				affectedRows = getDBHelper(context).getWritableDatabase().update(FavoriteDbHelper.T_FAVORITE_FOLDER, values, selection, selectionArgs);
 				break;
+			case FAVORITE_FOLDER_ID:
+				selection = SqlUtils.getWhereEquals(
+						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_ID),
+						uri.getPathSegments().get(2) // favorite folder ID
+				);
+				affectedRows = getDBHelper(context).getWritableDatabase().update(FavoriteDbHelper.T_FAVORITE_FOLDER, values, selection, null);
+				break;
 			default:
-				throw new IllegalArgumentException(String.format("Unknown URI (delete): '%s'", uri));
+				throw new IllegalArgumentException(String.format("Unknown URI (update): '%s'", uri));
 			}
 			if (affectedRows > 0) {
 				context.getContentResolver().notifyChange(uri, null);
 			}
 		} catch (Exception e) {
-			MTLog.w(this, e, "Error while processing delete query %s!", uri);
+			MTLog.w(this, e, "Error while processing update query %s!", uri);
 		}
 		return affectedRows;
 	}
