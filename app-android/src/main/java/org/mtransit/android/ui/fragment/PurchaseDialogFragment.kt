@@ -478,7 +478,9 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             }
         }
         binding.price.apply {
-            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, pricesFormatted)
+            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, pricesFormatted).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
             defaultPriceLabel?.let { setSelection(pricesFormatted.indexOf(it)) }
         }
         binding.periodWeekly.isVisible = periodLabelsToPeriodCat.values.contains(IBillingManager.WEEKLY)

@@ -252,7 +252,7 @@
     <string name="support_subs_pref_title">Support MonTransit</string>
     <string name="support_subs_pref_summary">Hide ads and support MonTransit development.</string>
     <string name="support_title">Support MonTransit</string>
-    <string name="support_about">MonTransit is one of the many apps built with the freely accessible open-data published by transit agencies.\nUnlike other apps who receive money from tickets/passes, taxes or private investors, MonTransit is an independent self-founded, free and open-source project.\nYour support will brings app improvements faster for everyone.</string>
+    <string name="support_about">MonTransit is one of the many apps built with the freely accessible open-data published by transit agencies.\nUnlike other apps who receive money from tickets or passes, taxes or private investors, MonTransit is an independent self-founded, free and open-source project.\nYour support will brings app improvements faster for everyone.</string>
     <string name="support_about_short_w_more">Hide ads and support MonTransit development. More&#8230;</string>
     <string name="support_basic_title">Basic</string>
     <string name="support_basic_description">Less Ads</string>
