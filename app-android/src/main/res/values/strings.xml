@@ -285,7 +285,6 @@
         <item quantity="one">Start %d-month free trial</item>
         <item quantity="other">Start %d-months free trial</item>
     </plurals>
-    <string name="support_subs_price_and_period_separator"> / </string>
     <string name="support_every_week">week</string>
     <string name="support_weekly_short">Weekly</string>
     <string name="support_every_month">month</string>
