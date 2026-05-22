@@ -261,8 +261,8 @@
     <string name="support_start">Start</string>
     <string name="support_start_and_days_trial">Start %d-day free trial</string>
     <string name="support_cancel_anytime">Cancel anytime.</string>
-    <string name="support_link_paid_tasks_incentive">No money? Click here to earn Google Play credit by answering quick surveys from Google Opinion Rewards.</string>
-    <string name="support_link_paid_tasks_incentive_formatted">No money? Click here to <b>earn Google Play credit</b> by answering quick surveys from Google Opinion Rewards.</string>
+    <string name="support_link_paid_tasks_incentive">Too expensive? Click here to earn Google Play credit by answering quick surveys from Google Opinion Rewards.</string>
+    <string name="support_link_paid_tasks_incentive_formatted">Too expensive? Click here to <b>earn Google Play credit</b> by answering quick surveys from Google Opinion Rewards.</string>
     <string name="support_subs_cancel_pref_title">Thanks for supporting MonTransit!</string>
     <string name="support_subs_cancel_pref_summary">Cancel anytime.</string>
     <string name="support_subs_default_failure_message">:(</string>
@@ -305,7 +305,7 @@
     <string name="support_monthly_short">Monthly</string>
     <string name="support_every_year">year</string>
     <string name="support_yearly_short">Yearly</string>
-    <string name="support_paid_tasks_incentive">No money? Earn Google Play credit by answering quick surveys.</string>
+    <string name="support_paid_tasks_incentive">Too expensive? Earn Google Play credit by answering quick surveys.</string>
     <string name="support_paid_tasks_incentive_open_btn">Open Google Opinion Rewards</string>
     <string name="support_paid_tasks_incentive_download_btn">Download Google Opinion Rewards</string>
     <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>

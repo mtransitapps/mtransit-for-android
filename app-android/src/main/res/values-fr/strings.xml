@@ -254,8 +254,8 @@
     <string name="support_pref_cat_title">Supporter</string>
     <string name="support_subs_pref_title">Supporter MonTransit</string>
     <string name="support_subs_pref_summary">Cacher les pubs et supporter le développement de MonTransit.</string>
-    <string name="support_link_paid_tasks_incentive">Pas d\'argent ? Cliquer ici pour obtenir un avoir Google Play en répondant à de brèves enquêtes de Google.</string>
-    <string name="support_link_paid_tasks_incentive_formatted">Pas d\'argent ? Cliquer ici pour <b>obtenir un avoir Google Play</b> en répondant à de brèves enquêtes de Google.</string>
+    <string name="support_link_paid_tasks_incentive">Trop cher ? Cliquer ici pour gagner des crédits Google Play en répondant à des sondages courts de Google.</string>
+    <string name="support_link_paid_tasks_incentive_formatted">Trop cher ? Cliquer ici pour <b>gagner des crédits Google Play</b> en répondant à des sondages courts de Google</string>
     <string name="support_title">Supporter MonTransit</string>
     <string name="support_about">MonTransit est l\'une des nombreuses applications construites avec les données ouvertes et librement accessibles publiées par les agences de transport.\nContrairement à d\'autres applications qui reçoivent de l\'argent des tickets/abonnements, des impôts ou encore d\'investisseurs privés, MonTransit est un projet indépendant, auto-financé, gratuit et ouvert (logiciel libre).\nVotre soutien permettra d\'améliorer l\'application plus rapidement pour tout le monde.</string>
     <string name="support_about_short_w_more">Cacher les pubs et supporter le développement de MonTransit. Plus&#8230;</string>
@@ -314,7 +314,7 @@
     <string name="support_monthly_short">Mensuel</string>
     <string name="support_every_year">an</string>
     <string name="support_yearly_short">Annuel</string>
-    <string name="support_paid_tasks_incentive">Pas d\'argent ? Obtenez un avoir Google Play en répondant à des enquêtes.</string>
+    <string name="support_paid_tasks_incentive">Trop cher ? Gagner des crédits Google Play en répondant à des enquêtes.</string>
     <string name="support_paid_tasks_incentive_open_btn">Ouvrir Google Opinion Rewards</string>
     <string name="support_paid_tasks_incentive_download_btn">Télécharger Google Opinion Rewards</string>
     <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
