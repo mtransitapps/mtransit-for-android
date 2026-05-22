@@ -85,6 +85,7 @@ labels: MT
 - [ ] ca-quesnel-transit-bus
 - [ ] ca-red-deer-transit-bus
 - [ ] ca-regina-transit-bus
+- [ ] ca-revelstoke-transit-bus
 - [ ] ca-richelieu-citvr-bus
 - [ ] ca-saint-john-transit-bus
 - [ ] ca-saskatoon-transit-bus
