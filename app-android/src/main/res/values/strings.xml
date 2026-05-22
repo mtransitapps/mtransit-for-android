@@ -272,7 +272,6 @@
     <string name="support_subs_pick_price">Pick your price ;)</string>
     <string name="support_subs_try_cancel">(cancel anytime)</string>
     <string name="support_subs_buy_with_play">Subscribe with Google Play</string>
-    <string name="support_subs_start_trial_with_play">Start trial with Google Play</string>
     <string name="support_subs_start_trial">Start free trial</string>
     <plurals name="support_subs_start_trial_and_days">
         <item quantity="one">Start %d-day free trial</item>
