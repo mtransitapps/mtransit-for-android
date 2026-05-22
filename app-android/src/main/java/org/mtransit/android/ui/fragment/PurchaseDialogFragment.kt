@@ -148,8 +148,10 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDialogPurchaseBinding.bind(view).apply {
+            paidTasksIncentive.text = context.getText(R.string.support_link_paid_tasks_incentive_formatted)
             closeButton.setOnClickListener { dialog?.cancel() ?: dismiss() }
             buyBtn.setOnClickListener { onBuyBtnClick(it.context) }
+            subTitle.setOnClickListener { onSubTitleClick(it.context) }
             paidTasksIncentive.setOnClickListener { onDownloadOrOpenPaidTasksBtnClick(it.context) }
             rewardedAdsText.setOnClickListener { onRewardedAdButtonClick(it.context) }
             price.onItemSelectedListener = onItemSelectedListener
@@ -232,6 +234,16 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while handling download or open paid tasks button!")
             ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
+        }
+    }
+
+    private fun onSubTitleClick(context: Context) {
+        binding?.apply {
+            if (subTitle.text.length > 77) {
+                subTitle.text = context.getString(R.string.support_about_short_w_more)
+            } else {
+                subTitle.text = context.getString(R.string.support_about)
+            }
         }
     }
 

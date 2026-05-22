@@ -72,14 +72,16 @@ class SearchTypeFilterAdapter @JvmOverloads constructor(
             }
         }
 
-        fun bind(dst: DataSourceType?) {
-            binding.name.text = dst?.getPoiShortName(binding.root.context)
-                ?: binding.root.context?.getText(R.string.all) // ALL
-            binding.name.setDrawables(
-                start = dst?.iconResId.takeIf { it != -1 },
-                relative = false,
-                withIntrinsicBounds = true,
-            )
+        fun bind(dst: DataSourceType?) = binding.apply {
+            name.apply {
+                text = dst?.getPoiShortName(context)
+                    ?: context.getString(R.string.all) // ALL
+                setDrawables(
+                    start = dst?.iconResId.takeIf { it != -1 },
+                    relative = false,
+                    withIntrinsicBounds = true,
+                )
+            }
         }
     }
 }

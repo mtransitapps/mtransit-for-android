@@ -65,7 +65,7 @@
             android:layout_marginBottom="@dimen/baseline_16"
             android:ellipsize="end"
             android:singleLine="false"
-            android:text="@string/support_subs_pref_summary"
+            android:text="@string/support_about_short_w_more"
             android:textAppearance="?attr/textAppearanceSubtitle2"
             android:textStyle="italic" />
 
@@ -97,8 +97,6 @@
                 tools:context=".ui.MainActivity"
                 tools:listitem="@android:layout/simple_spinner_dropdown_item"
                 tools:visibility="visible" />
-
-
             <RadioGroup
                 android:id="@+id/period_radio_group"
                 android:layout_width="wrap_content"

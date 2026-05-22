@@ -36,9 +36,9 @@ object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
                 R.string.module_disabled_in_app_notification_label_and_agency,
                 agency.getShortNameAndType(context)
             )
-        } ?: context.getText(R.string.module_disabled_in_app_notification_label)
+        } ?: context.getString(R.string.module_disabled_in_app_notification_label)
 
-    override fun getActionText(fragment: ModuleDisabledAwareFragment, context: Context) = context.getText(R.string.module_disabled_in_app_notification_action)
+    override fun getActionText(fragment: ModuleDisabledAwareFragment, context: Context) = context.getString(R.string.module_disabled_in_app_notification_action)
 
     override fun onActionClick(fragment: ModuleDisabledAwareFragment) = View.OnLongClickListener {
         val attachedViewModel = fragment.attachedViewModel

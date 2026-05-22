@@ -22,13 +22,13 @@ object LocationPermissionUI : InAppNotificationUI<LocationPermissionAwareFragmen
     }
 
     override fun getLabelText(fragment: LocationPermissionAwareFragment, context: Context) =
-        context.getText(
+        context.getString(
             if (fragment.viewModel.hasAgenciesAdded.value == false) R.string.location_permission_in_app_notification_label_onboarding
             else R.string.location_permission_in_app_notification_label
         )
 
     override fun getActionText(fragment: LocationPermissionAwareFragment, context: Context) =
-        context.getText(R.string.location_permission_in_app_notification_action)
+        context.getString(R.string.location_permission_in_app_notification_action)
 
     override fun onActionClick(fragment: LocationPermissionAwareFragment) = View.OnLongClickListener {
         (fragment.getActivity() as? MTActivityWithLocation)?.let { activityWithLocation ->
