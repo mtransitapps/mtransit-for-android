@@ -8,14 +8,14 @@
     android:minHeight="?android:attr/listPreferredItemHeightLarge"
     tools:context=".ui.fragment.PurchaseDialogFragment"
     tools:layout_margin="60dp">
-
+    <!-- SCROLLABLE CONTENT -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="start|center_vertical"
         android:orientation="vertical"
         android:padding="@dimen/baseline_16">
-
+        <!-- CLOSE -->
         <ImageButton
             android:id="@+id/closeButton"
             android:layout_width="@dimen/baseline_48"
@@ -29,25 +29,23 @@
             android:scaleType="centerInside"
             android:src="@drawable/ic_cancel_24"
             tools:ignore="TouchTargetSizeCheck" />
-
+        <!-- APP ICON -->
         <ImageView
             android:id="@+id/appIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/baseline_136"
+            android:layout_height="@dimen/baseline_136"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="@dimen/baseline_16"
             android:contentDescription="@null"
             android:scaleType="centerInside"
             android:src="@drawable/product_logo" />
-
+        <!-- LOADING -->
         <include
             android:id="@id/loading_layout"
             layout="@layout/layout_loading_large"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:visibility="gone"
-            tools:visibility="gone" />
-
+            tools:visibility="visible" />
+        <!-- TITLE -->
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
@@ -56,7 +54,7 @@
             android:ellipsize="end"
             android:text="@string/support_subs_pref_title"
             android:textAppearance="?attr/textAppearanceHeadline5" />
-
+        <!-- SUB-TITLE -->
         <TextView
             android:id="@+id/subTitle"
             android:layout_width="wrap_content"
@@ -68,7 +66,7 @@
             android:text="@string/support_about_short_w_more"
             android:textAppearance="?attr/textAppearanceSubtitle2"
             android:textStyle="italic" />
-
+        <!-- BEFORE -->
         <TextView
             android:id="@+id/beforeText"
             android:layout_width="wrap_content"
@@ -79,8 +77,9 @@
             android:text="@string/support_subs_pick_price"
             android:textAppearance="?attr/textAppearanceOverline"
             android:textStyle="italic" />
+        <!-- PRICE -->
         <LinearLayout
-            android:id="@+id/priceSelection"
+            android:id="@+id/priceAndPeriodSelection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -88,6 +87,7 @@
             android:gravity="center_horizontal"
             android:orientation="vertical"
             tools:visibility="visible">
+            <!-- PRICE -->
             <Spinner
                 android:id="@+id/price"
                 android:layout_width="wrap_content"
@@ -98,6 +98,7 @@
                 tools:ignore="TouchTargetSizeCheck"
                 tools:listitem="@android:layout/simple_spinner_item"
                 tools:visibility="visible" />
+            <!-- PERIOD -->
             <RadioGroup
                 android:id="@+id/period_radio_group"
                 android:layout_width="wrap_content"

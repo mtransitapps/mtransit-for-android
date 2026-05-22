@@ -271,18 +271,6 @@
     <string name="support_subs_purchase_successful_message" tools:ignore="UnusedResources">Thank You :)</string>
     <string name="support_subs_pick_price">Pick your price ;)</string>
     <string name="support_subs_try_cancel">(cancel anytime)</string>
-    <plurals name="support_subs_try_cancel_months">
-        <item quantity="one">(%d month free, cancel anytime)</item>
-        <item quantity="other">(%d months free, cancel anytime)</item>
-    </plurals>
-    <plurals name="support_subs_try_cancel_weeks">
-        <item quantity="one">(%d week free, cancel anytime)</item>
-        <item quantity="other">(%d weeks free, cancel anytime)</item>
-    </plurals>
-    <plurals name="support_subs_try_cancel_days">
-        <item quantity="one">(%d day free, cancel anytime)</item>
-        <item quantity="other">(%d days free, cancel anytime)</item>
-    </plurals>
     <string name="support_subs_buy_with_play">Subscribe with Google Play</string>
     <string name="support_subs_start_trial_with_play">Start trial with Google Play</string>
     <string name="support_subs_start_trial">Start free trial</string>
@@ -305,20 +293,7 @@
     <string name="support_monthly_short">Monthly</string>
     <string name="support_every_year">year</string>
     <string name="support_yearly_short">Yearly</string>
-    <string name="support_paid_tasks_incentive">Too expensive? Earn Play credit by answering quick surveys from Google.</string>
-    <string name="support_paid_tasks_incentive_open_btn">Open Google Opinion Rewards</string>
-    <string name="support_paid_tasks_incentive_download_btn">Download Google Opinion Rewards</string>
     <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
-    <string name="support_watch_rewarded_ad_status_until_and_date">Ad-free until %s</string>
-    <plurals name="support_watch_rewarded_ad_title_and_days">
-        <item quantity="one">Get %d day ad-free</item>
-        <item quantity="other">Get %d days ad-free</item>
-    </plurals>
-    <plurals name="support_watch_rewarded_ad_title_and_more_days">
-        <item quantity="one">Get +%d day ad-free</item>
-        <item quantity="other">Get +%d days ad-free</item>
-    </plurals>
-    <string name="support_watch_rewarded_ad_btn">Watch an ad</string>
     <plurals name="support_watch_rewarded_ad_btn_and_days">
         <item quantity="one">Watch an ad to get %d day ad-free</item>
         <item quantity="other">Watch an ad to get %d days ad-free</item>

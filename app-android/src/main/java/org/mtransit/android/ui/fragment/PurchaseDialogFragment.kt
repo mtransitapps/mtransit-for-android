@@ -368,7 +368,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         title.isVisible = false
         subTitle.isVisible = false
         beforeText.isVisible = false
-        priceSelection.isVisible = false
+        priceAndPeriodSelection.isVisible = false
         afterText.isVisible = false
         buyBtn.isVisible = false
         paidTasksDivider.isVisible = false
@@ -381,7 +381,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         title.isVisible = true
         subTitle.isVisible = true
         beforeText.isVisible = true
-        priceSelection.isVisible = true
+        priceAndPeriodSelection.isVisible = true
         afterText.isVisible = true
         buyBtn.isVisible = true
         paidTasksDivider.isVisible = true
