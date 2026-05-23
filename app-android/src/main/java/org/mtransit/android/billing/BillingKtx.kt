@@ -87,5 +87,5 @@ fun ProductDetails.InstallmentPlanDetails.toStringPlus(short: Boolean = false) =
         append("installmentPlanCommitmentPayments: $installmentPlanCommitmentPaymentsCount, ")
         append("subsequentCommitmentPayments: $subsequentInstallmentPlanCommitmentPaymentsCount")
     }
-    append("{")
+    append("}")
 }
