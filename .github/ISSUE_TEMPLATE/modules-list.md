@@ -59,6 +59,7 @@ labels: MT
 - [ ] ca-levis-stl-bus
 - [ ] ca-london-transit-bus
 - [ ] ca-longueuil-rtl-bus
+- [ ] ca-merritt-transit-bus
 - [ ] ca-milton-transit-bus
 - [ ] ca-mississauga-miway-bus
 - [ ] ca-moncton-codiac-transpo-bus
