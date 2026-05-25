@@ -163,7 +163,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             logTag,
             mapMarkerProvider,
             null, // DO NOTHING (map click, camera change)
-            true,
+            false,
             true,
             true,
             false,

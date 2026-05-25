@@ -141,7 +141,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             logTag,
             null, // DO NOTHING (not linked with list adapter)
             mapListener,
-            true,
+            false,
             true,
             true,
             false,

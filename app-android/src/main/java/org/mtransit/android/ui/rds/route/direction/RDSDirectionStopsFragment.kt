@@ -197,7 +197,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             logTag,
             mapMarkerProvider,
             null, // DO NOTHING (map click, camera change)
-            true,
+            false,
             true,
             true,
             false,
