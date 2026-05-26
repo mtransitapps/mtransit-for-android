@@ -27,7 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -194,7 +194,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             ?: TRACKING_SCREEN_NAME
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     override val viewModel by viewModels<AgencyTypeViewModel>()
     override val attachedViewModel

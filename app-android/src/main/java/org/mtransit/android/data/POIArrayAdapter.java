@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -190,10 +191,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	private boolean showTypeHeaderNearby = false; // show nearby header instead of default type header
 
-	private boolean infiniteLoading = false; // infinite loading
+	private boolean showFooter = false; // infinite loading, support...
 
 	@Nullable
-	private InfiniteLoadingListener infiniteLoadingListener;
+	private POIListFooterManager footerManager;
 
 	private ViewGroup manualLayout;
 
@@ -317,19 +318,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.showTypeHeaderNearby = showTypeHeaderNearby;
 	}
 
-	public void setInfiniteLoading(boolean infiniteLoading) {
-		this.infiniteLoading = infiniteLoading;
+	public void setShowFooter(boolean showFooter) {
+		this.showFooter = showFooter;
 	}
 
-	public void setInfiniteLoadingListener(@Nullable InfiniteLoadingListener infiniteLoadingListener) {
-		this.infiniteLoadingListener = infiniteLoadingListener;
-	}
-
-	public interface InfiniteLoadingListener {
-
-		boolean isLoadingMore();
-
-		boolean showingDone();
+	public void setFooterManager(@Nullable POIListFooterManager footerManager) {
+		this.footerManager = footerManager;
 	}
 
 	private static final int VIEW_TYPE_COUNT = 12;
@@ -352,8 +346,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			if (this.showBrowseHeaderSection && position == 0) {
 				return 0; // BROWSE SECTION
 			}
-			if (this.infiniteLoading && position + 1 == getCount()) {
-				return 9; // LOADING FOOTER
+			if (this.showFooter && position + 1 == getCount()) {
+				return 9; // FOOTER
 			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				if (this.poisByType != null) {
@@ -427,7 +421,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				this.count += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
-		if (this.infiniteLoading) {
+		if (this.showFooter) {
 			this.count++;
 		}
 	}
@@ -541,8 +535,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			if (this.showBrowseHeaderSection && position == 0) {
 				return getBrowseHeaderSectionView(convertView, parent);
 			}
-			if (this.infiniteLoading && position + 1 == getCount()) {
-				return getInfiniteLoadingView(convertView, parent);
+			if (this.showFooter && position + 1 == getCount()) {
+				return getFooterView(convertView, parent);
 			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				final Integer typeId = getItemTypeHeader(position);
@@ -561,7 +555,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				}
 			}
 			CrashUtils.w(this, "getView() > Cannot create view for null poi at position '%s'!", position);
-			return getInfiniteLoadingView(null, parent); // ignore convert view since we don't know what it was
+			return getFooterView(null, parent); // ignore convert view since we don't know what it was
 		}
 		switch (poim.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_PLACE:
@@ -581,27 +575,44 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	@NonNull
-	private View getInfiniteLoadingView(@Nullable View convertView, @NonNull ViewGroup parent) {
-		if (convertView == null || !(convertView.getTag() instanceof InfiniteLoadingViewHolder)) {
-			convertView = this.layoutInflater.inflate(R.layout.layout_poi_infinite_loading, parent, false);
-			final InfiniteLoadingViewHolder holder = new InfiniteLoadingViewHolder();
+	private View getFooterView(@Nullable View convertView, @NonNull ViewGroup parent) {
+		if (convertView == null || !(convertView.getTag() instanceof FooterViewHolder)) {
+			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_footer, parent, false);
+			final FooterViewHolder holder = new FooterViewHolder();
 			holder.progressBar = convertView.findViewById(R.id.progress_bar);
-			holder.worldExplored = convertView.findViewById(R.id.worldExploredTv);
+			holder.textTv = convertView.findViewById(R.id.footer_text_tv);
 			convertView.setTag(holder);
 		}
-		final InfiniteLoadingViewHolder holder = (InfiniteLoadingViewHolder) convertView.getTag();
-		if (this.infiniteLoadingListener != null) {
-			if (this.infiniteLoadingListener.isLoadingMore()) {
-				holder.worldExplored.setVisibility(View.GONE);
-				holder.progressBar.setVisibility(View.VISIBLE);
-				convertView.setVisibility(View.VISIBLE);
-			} else if (this.infiniteLoadingListener.showingDone()) {
-				holder.progressBar.setVisibility(View.GONE);
-				holder.worldExplored.setVisibility(View.VISIBLE);
-				convertView.setVisibility(View.VISIBLE);
-			} else {
-				convertView.setVisibility(View.GONE);
+		final FooterViewHolder holder = (FooterViewHolder) convertView.getTag();
+		if (this.footerManager == null) {
+			convertView.setVisibility(View.GONE);
+			return convertView;
+		}
+		if (this.footerManager.isShowLoading()) {
+			holder.textTv.setVisibility(View.GONE);
+			holder.progressBar.setVisibility(View.VISIBLE);
+			convertView.setVisibility(View.VISIBLE);
+		} else if (this.footerManager.isShowText()) {
+			holder.progressBar.setVisibility(View.GONE);
+			CharSequence footerText = this.footerManager.getText();
+			if (footerText == null) {
+				footerText = holder.textTv.getContext().getString(R.string.world_explored); // DEFAULT
 			}
+			holder.textTv.setText(footerText);
+			holder.textTv.setCompoundDrawablesRelativeWithIntrinsicBounds(
+					Objects.requireNonNullElse(this.footerManager.getTextStartDrawableRes(), 0),
+					0,
+					0,
+					0
+			);
+			final View.OnClickListener onClickListener = this.footerManager.getOnTextClickListener();
+			if (onClickListener != null) {
+				holder.textTv.setOnClickListener(onClickListener);
+			} else {
+				holder.textTv.setClickable(false);
+			}
+			holder.textTv.setVisibility(View.VISIBLE);
+			convertView.setVisibility(View.VISIBLE);
 		} else {
 			convertView.setVisibility(View.GONE);
 		}
@@ -1137,9 +1148,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		int position = 0;
 		for (int i = 0; i < this.manualLayout.getChildCount(); i++) {
 			final View childView = this.manualLayout.getChildAt(i);
-			if (!(childView instanceof FrameLayout)) continue; // divider
-			final FrameLayout frameLayout = (FrameLayout) childView;
-			final View itemView = frameLayout.getChildAt(0);
+			if ((childView instanceof ImageView)) continue; // divider
+			final View itemView;
+			if (childView instanceof FrameLayout) { // background selector
+				final FrameLayout frameLayout = (FrameLayout) childView;
+				itemView = frameLayout.getChildAt(0);
+			} else {
+				itemView = childView;
+			}
 			getView(position, itemView, this.manualLayout); // update view
 			position++;
 		}
@@ -1175,6 +1191,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 					showPoiMenu(view, position)
 			);
 			this.manualLayout.addView(frameLayout);
+		}
+		if (this.showFooter) {
+			final View itemView = getView(getPoisCount() + 1, null, this.manualLayout);
+			this.manualLayout.addView(itemView);
 		}
 	}
 
@@ -1314,7 +1334,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		resetCounts();
 		this.poiUUID.clear();
 		onDestroyView();
-		this.infiniteLoadingListener = null;
+		this.footerManager = null;
 	}
 
 	@Nullable
@@ -2002,9 +2022,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		}
 	}
 
-	private static class InfiniteLoadingViewHolder {
+	private static class FooterViewHolder {
 		View progressBar;
-		View worldExplored;
+		TextView textTv;
 	}
 
 	private static class FavoriteFolderHeaderViewHolder {

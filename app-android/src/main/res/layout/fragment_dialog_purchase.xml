@@ -149,10 +149,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:ellipsize="end"
-            android:singleLine="false"
-            android:text="@string/ellipsis"
-            android:textAppearance="?attr/textAppearanceCaption"
-            tools:text="@string/support_subs_try_cancel" />
+            android:text="@string/support_subs_try_cancel"
+            android:textAppearance="?attr/textAppearanceCaption" />
         <!-- DIVIDER -->
         <View
             android:id="@+id/paidTasksDivider"

@@ -10,6 +10,7 @@ import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.ui.view.common.IActivity
 import java.lang.ref.WeakReference
+import kotlin.time.Duration.Companion.days
 
 class RewardedAdOnUserEarnedRewardListener(
     private val globalAdManager: GlobalAdManager,
@@ -32,6 +33,6 @@ class RewardedAdOnUserEarnedRewardListener(
 
     override fun onUserEarnedReward(reward: RewardItem) {
         logAdsD(this, "onUserEarnedReward() > User earned reward from ad $reward.")
-        this.globalAdManager.rewardUser(this.globalAdManager.getRewardedAdAmountInMs(), this.activityWR.get())
+        this.globalAdManager.rewardUser(this.globalAdManager.rewardedAdAmountInDays.days, this.activityWR.get())
     }
 }

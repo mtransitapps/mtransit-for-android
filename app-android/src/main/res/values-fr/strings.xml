@@ -255,7 +255,7 @@
     <string name="support_subs_pref_title">Supporter MonTransit</string>
     <string name="support_subs_pref_summary">Cacher les pubs et supporter le développement de MonTransit.</string>
     <string name="support_link_paid_tasks_incentive">Trop cher ? Cliquer ici pour gagner des crédits Play en répondant à des sondages rapides de Google.</string>
-    <string name="support_link_paid_tasks_incentive_formatted">Trop cher ? Cliquer ici pour <b>gagner des crédits Play</b> en répondant à des sondages rapides de Google</string>
+    <string name="support_link_paid_tasks_incentive_formatted">Trop cher ? Cliquer ici pour <b>gagner des crédits Play</b> en répondant à des sondages rapides de Google.</string>
     <string name="support_title">Supporter MonTransit</string>
     <string name="support_about">MonTransit est l\'une des nombreuses applications construites avec les données ouvertes et librement accessibles publiées par les agences de transport.\nContrairement à d\'autres applications qui reçoivent de l\'argent des titres ou abonnements, des impôts ou encore d\'investisseurs privés, MonTransit est un projet indépendant, auto-financé, gratuit et ouvert (logiciel libre).\nVotre soutien permettra d\'améliorer l\'application plus rapidement pour tout le monde.</string>
     <string name="support_about_short_w_more">Cacher les pubs et supporter le développement de MonTransit. Plus&#8230;</string>
@@ -273,7 +273,7 @@
     <string name="support_subs_authenticity_check_fail_message" tools:ignore="UnusedResources">Impossible de vérifier l\'authenticité !</string>
     <string name="support_subs_purchase_successful_message" tools:ignore="UnusedResources">Merci :)</string>
     <string name="support_subs_pick_price">Choisissez votre prix ;)</string>
-    <string name="support_subs_try_cancel">(annulable en tout temps)</string>
+    <string name="support_subs_try_cancel">(annulable en tout temps sur Play)</string>
     <string name="support_subs_buy_with_play">S\'abonner avec Google Play</string>
     <string name="support_subs_start_trial">Débuter l\'essai gratuit</string>
     <plurals name="support_subs_start_trial_and_days">
@@ -298,22 +298,39 @@
     <string name="support_every_year">an</string>
     <string name="support_yearly_short">Annuel</string>
     <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
+    <string name="support_watch_rewarded_ad_btn">Voir pub</string>
     <plurals name="support_watch_rewarded_ad_btn_and_days">
-        <item quantity="one">Regarder une pub pour avoir %d jour sans-pub</item>
-        <item quantity="other">Regarder une pub pour avoir %d jours sans-pub</item>
-        <item quantity="many">Regarder une pub pour avoir %d jours sans-pub</item>
+        <item quantity="one">Cliquer ici pour obtenir %d jour sans-pub en regardant une pub.</item>
+        <item quantity="other">Cliquer ici pour obtenir %d jours sans-pub en regardant une pub.</item>
+        <item quantity="many">Cliquer ici pour obtenir %d jours sans-pub en regardant une pub.</item>
+    </plurals>
+    <plurals name="support_watch_rewarded_ad_btn_and_days_formatted">
+        <item quantity="one"><![CDATA[Cliquer ici pour <b>obtenir %d jour sans-pub</b> en regardant une pub.]]></item>
+        <item quantity="other"><![CDATA[Cliquer ici pour <b>obtenir %d jours sans-pub</b> en regardant une pub.]]></item>
+        <item quantity="many"><![CDATA[Cliquer ici pour <b>obtenir %d jours sans-pub</b> en regardant une pub.]]></item>
     </plurals>
     <plurals name="support_watch_rewarded_ad_btn_more_and_days">
-        <item quantity="one">Regarder une pub pour avoir +%d jour sans-pub</item>
-        <item quantity="other">Regarder une pub pour avoir +%d jours sans-pub</item>
-        <item quantity="many">Regarder une pub pour avoir +%d jours sans-pub</item>
+        <item quantity="one">Cliquer ici pour obtenir +%d jour sans-pub en regardant une pub.</item>
+        <item quantity="other">Cliquer ici pour obtenir +%d jours sans-pub en regardant une pub.</item>
+        <item quantity="many">Cliquer ici pour obtenir +%d jours sans-pub en regardant une pub.</item>
     </plurals>
+    <plurals name="support_watch_rewarded_ad_btn_more_and_days_formatted">
+        <item quantity="one"><![CDATA[Cliquer ici pour <b>obtenir +%d jour sans-pub</b> en regardant une pub]]></item>
+        <item quantity="other"><![CDATA[Cliquer ici pour <b>obtenir +%d jours sans-pub</b> en regardant une pub]]></item>
+        <item quantity="many"><![CDATA[Cliquer ici pour <b>obtenir +%d jours sans-pub</b> en regardant une pub]]></item>
+    </plurals>
+    <string name="support_watch_rewarded_ad_btn_and_type_amount">Cliquer ici pour obtenir %s sans-pub en regardant une pub.</string>
+    <string name="support_watch_rewarded_ad_btn_and_type_amount_formatted"><![CDATA[Cliquer ici pour <b>obtenir %s sans-pub</b> en regardant une pub.]]></string>
+    <string name="support_watch_rewarded_ad_btn_more_and_type_amount">Cliquer ici pour obtenir +%s sans-pub en regardant une pub.</string>
+    <string name="support_watch_rewarded_ad_btn_more_and_type_amount_formatted"><![CDATA[Cliquer ici pour <b>obtenir +%s sans-pub</b> en regardant une pub]]></string>
     <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
     <string name="support_watch_rewarded_ad_not_ready">Aucune pub disponible actuellement :(</string>
     <string name="support_watch_rewarded_ad_successful_message">Merci :)</string>
 
     <string name="app_update_title_text">Mise à jour disponible</string>
     <string name="app_update_btn_text">Télécharger la mise à jour pour obtenir les dernières informations de l\'agence de transport</string>
+    <string name="app_update_btn_text_short">Télécharger la mise à jour pour obtenir les informations les plus récentes.</string>
+    <string name="app_update_btn_text_short_formatted">Télécharger la mise à jour pour <b>obtenir les informations les plus récentes</b>.</string>
 
     <string name="watch_rewarded_ad_title_text">Sans-pub</string>
     <string name="watch_rewarded_ad_title_text_and_date">Sans-pub jusqu\'au %s</string>
@@ -323,14 +340,24 @@
         <item quantity="many">Sans-pub pour %d jours</item>
     </plurals>
     <plurals name="watch_rewarded_ad_btn_and_days">
-        <item quantity="one">Regarder une pub pour avoir %d jour sans-pub</item>
-        <item quantity="other">Regarder une pub pour avoir %d jours sans-pub</item>
-        <item quantity="many">Regarder une pub pour avoir %d jours sans-pub</item>
+        <item quantity="one">Regarder une pub pour obtenir %d jour sans-pub</item>
+        <item quantity="other">Regarder une pub pour obtenir %d jours sans-pub</item>
+        <item quantity="many">Regarder une pub pour obtenir %d jours sans-pub</item>
     </plurals>
-    <plurals name="watch_rewarded_ad_btn_more_and_days">
-        <item quantity="one">Regarder une pub pour avoir +%d jour sans-pub</item>
-        <item quantity="other">Regarder une pub pour avoir +%d jours sans-pub</item>
-        <item quantity="many">Regarder une pub pour avoir +%d jours sans-pub</item>
+    <plurals name="watch_rewarded_ad_btn_and_days_formatted">
+        <item quantity="one"><![CDATA[Regarder une pub pour <b>obtenir %d jour sans-pub</b>]]></item>
+        <item quantity="other"><![CDATA[Regarder une pub pour <b>obtenir %d jours sans-pub</b>]]></item>
+        <item quantity="many"><![CDATA[Regarder une pub pour <b>obtenir %d jours sans-pub</b>]]></item>
+    </plurals>
+    <plurals name="watch_rewarded_ad_btn_more_and_days" tools:ignore="UnusedResources">
+        <item quantity="one">Regarder une pub pour obtenir +%d jour sans-pub</item>
+        <item quantity="other">Regarder une pub pour obtenir +%d jours sans-pub</item>
+        <item quantity="many">Regarder une pub pour obtenir +%d jours sans-pub</item>
+    </plurals>
+    <plurals name="watch_rewarded_ad_btn_more_and_days_formatted">
+        <item quantity="one"><![CDATA[Regarder une pub pour <b>obtenir +%d jour sans-pub</b>]]></item>
+        <item quantity="other"><![CDATA[Regarder une pub pour <b>obtenir +%d jours sans-pub</b>]]></item>
+        <item quantity="many"><![CDATA[Regarder une pub pour <b>obtenir +%d jours sans-pub</b>]]></item>
     </plurals>
 
     <string name="location_permission_rationale_title">Permission requise</string>

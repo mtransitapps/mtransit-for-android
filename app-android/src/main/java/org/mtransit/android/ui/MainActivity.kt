@@ -154,7 +154,7 @@ class MainActivity : MTActivityWithLocation(),
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        adManager.initForBanner(this)
+        adManager.initForScreens(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         this.currentUiMode = getResources().configuration.uiMode
         LocaleUtils.onCreateActivity(this)
@@ -210,7 +210,7 @@ class MainActivity : MTActivityWithLocation(),
     override fun onBillingResult(productId: String?) {
         productId?.isNotEmpty()?.let { hasSubscription ->
             lifecycleScope.launch(Dispatchers.IO) {
-                adManager.setShowingAds(!hasSubscription, this@MainActivity)
+                adManager.setHasSubscription(hasSubscription, this@MainActivity)
             }
         }
     }
@@ -287,7 +287,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     @WorkerThread
-    override fun skipRewardedAd() = this.adManager.shouldSkipRewardedAd()
+    override fun skipLoadingRewardedAd() = this.adManager.shouldSkipLoadingRewardedAd()
 
     var isMTResumed = false
         private set

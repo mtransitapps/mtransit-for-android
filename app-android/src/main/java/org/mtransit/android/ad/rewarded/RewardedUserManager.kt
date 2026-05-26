@@ -1,7 +1,6 @@
 package org.mtransit.android.ad.rewarded
 
 import android.widget.Toast
-import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -9,25 +8,37 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
+import org.mtransit.android.ad.AdManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.commons.TimeUtils
+import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.ToastUtils
+import org.mtransit.android.commons.millisToInstant
 import org.mtransit.android.commons.pref.liveData
+import org.mtransit.android.commons.toMillis
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.IActivity
-import java.util.concurrent.TimeUnit
+import org.mtransit.commons.toIntOrNull
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 
 @Singleton
 class RewardedUserManager @Inject constructor(
     private val defaultPrefRepository: DefaultPreferenceRepository,
     private val demoModeManager: DemoModeManager,
+    private val remoteConfigProvider: RemoteConfigProvider,
 ) {
 
     companion object {
         private const val REWARDED_UNTIL_NO_VALUE = -1L
+        private const val MAX_LOAD_FOR_NO_SHOW = 33
+        private const val MIN_SHOW_TO_LOAD_RATIO = 0.07f
     }
 
     @get:WorkerThread
@@ -47,8 +58,8 @@ class RewardedUserManager @Inject constructor(
         )
         val newHasLowLoadShowRatio = when {
             loadCounts <= 0 -> false
-            showCounts <= 0 -> loadCounts >= 10
-            else -> (showCounts.toFloat() / loadCounts) < 0.10f
+            showCounts <= 0 -> loadCounts >= MAX_LOAD_FOR_NO_SHOW
+            else -> (showCounts.toFloat() / loadCounts) < MIN_SHOW_TO_LOAD_RATIO
         }
         newHasLowLoadShowRatio
     }
@@ -56,8 +67,8 @@ class RewardedUserManager @Inject constructor(
     private var _rewardedUntilInMs = AtomicLong(REWARDED_UNTIL_NO_VALUE)
 
     @WorkerThread
-    fun getRewardedUntilInMs(): Long {
-        if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever
+    private fun getRewardedUntilInMs(): Long {
+        if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever rewarded (no ads)
         return this._rewardedUntilInMs.updateAndGet { cached ->
             if (cached != REWARDED_UNTIL_NO_VALUE) cached
             else this.defaultPrefRepository.pref.getLong(
@@ -66,47 +77,55 @@ class RewardedUserManager @Inject constructor(
         }.takeUnless { it < 0L } ?: DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT
     }
 
-    val rewardedUntilInMsLive: LiveData<Long> = defaultPrefRepository.pref.liveData(
+    @WorkerThread
+    fun getRewardedUntil(): Instant {
+        if (!AdConstants.AD_ENABLED) return Instant.DISTANT_FUTURE // forever rewarded (no ads)
+        return getRewardedUntilInMs().millisToInstant()
+    }
+
+    private val _rewardedUntilInMsLive: LiveData<Long> = defaultPrefRepository.pref.liveData(
         DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL, DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT,
     ).distinctUntilChanged()
+    val rewardedUntilLive: LiveData<Instant> = _rewardedUntilInMsLive.map { it.millisToInstant() }
 
-    @AnyThread
-    fun setRewardedUntilInMs(newRewardedUntilInMs: Long) {
+
+    private fun setRewardedUntil(newRewardedUntil: Instant) {
+        setRewardedUntilInMs(newRewardedUntil.toMillis())
+    }
+
+    private fun setRewardedUntilInMs(newRewardedUntilInMs: Long) {
         this._rewardedUntilInMs.set(newRewardedUntilInMs)
         defaultPrefRepository.pref.edit {
             putLong(DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL, newRewardedUntilInMs)
         }
     }
 
-    @AnyThread
     fun resetRewarded() {
         setRewardedUntilInMs(DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT)
     }
 
-    val rewardedNowLive: LiveData<Boolean> = this.rewardedUntilInMsLive
+    val rewardedNowLive: LiveData<Boolean> = this.rewardedUntilLive
         .map { isRewardedNow(it) }
 
     @WorkerThread
     fun isRewardedNow(): Boolean {
-        return isRewardedNow(getRewardedUntilInMs())
+        return isRewardedNow(getRewardedUntil())
     }
 
-    @AnyThread
-    fun isRewardedNow(rewardedUntilInMs: Long): Boolean {
+    private fun isRewardedNow(rewardedUntil: Instant): Boolean {
         if (!AdConstants.AD_ENABLED) return true
         if (this.demoModeManager.enabled) return true
-        return rewardedUntilInMs > TimeUtils.currentTimeMillis()
+        return rewardedUntil > TimeUtilsK.currentInstant()
     }
 
     @WorkerThread
-    fun rewardUser(newRewardInMs: Long, activity: IActivity?) {
-        rewardUser(newRewardInMs, getRewardedUntilInMs(), activity)
+    fun rewardUser(newReward: Duration, activity: IActivity?) {
+        rewardUser(newReward, getRewardedUntil(), activity)
     }
 
-    @AnyThread
-    fun rewardUser(newRewardInMs: Long, rewardedUntilInMs: Long, activity: IActivity?) {
-        val currentRewardedUntilOrNow = maxOf(rewardedUntilInMs, TimeUtils.currentTimeMillis())
-        setRewardedUntilInMs(currentRewardedUntilOrNow + newRewardInMs)
+    fun rewardUser(newReward: Duration, rewardedUntil: Instant, activity: IActivity?) {
+        val currentRewardedUntilOrNow = maxOf(rewardedUntil, TimeUtilsK.currentInstant())
+        setRewardedUntil(currentRewardedUntilOrNow + newReward)
         activity?.activity?.let { activity ->
             activity.runOnUiThread {
                 ToastUtils.makeTextAndShow(
@@ -119,28 +138,26 @@ class RewardedUserManager @Inject constructor(
     }
 
     @WorkerThread
-    fun shouldSkipRewardedAd(): Boolean {
-        return shouldSkipRewardedAd(this._dailyUser, this._hasLowLoadShowRatio, getRewardedUntilInMs())
+    fun shouldSkipLoadingRewardedAd(): Boolean {
+        return shouldSkipLoadingRewardedAd(this._dailyUser, this._hasLowLoadShowRatio, getRewardedUntil())
     }
 
-    @AnyThread
-    fun shouldSkipRewardedAd(dailyUser: Boolean, hasLowLoadShowRatio: Boolean, rewardedUntilInMs: Long): Boolean {
+    fun shouldSkipLoadingRewardedAd(dailyUser: Boolean, hasLowLoadShowRatio: Boolean, rewardedUntil: Instant): Boolean {
         if (!dailyUser) return true // always skip for non-daily users
         if (hasLowLoadShowRatio) return true // too much loads for not enough shows
-        if (!isRewardedNow(rewardedUntilInMs)) return false // never skip for non-rewarded users
-        val skipRewardedAdUntilInMs = TimeUtils.currentTimeMillis() -
-                TimeUnit.HOURS.toMillis(1L) + // accounts for "recent" rewards
-                2L * getRewardedAdAmountInMs()
-        return rewardedUntilInMs > skipRewardedAdUntilInMs
+        if (!isRewardedNow(rewardedUntil)) return false // never skip for non-rewarded users
+        val skipRewardedAdUntil = TimeUtilsK.currentInstant() -
+                1.hours + // accounts for "recent" rewards
+                _rewardedAdAmountInDays.days.times(2)
+        return rewardedUntil > skipRewardedAdUntil
     }
 
-    @AnyThread
-    fun getRewardedAdAmount() = 7 // 1 week
-
-    @AnyThread
-    fun getRewardedAdAmountInMs(): Long {
-        val rewardAmount = getRewardedAdAmount() // TODO custom amount? rewardItem.getAmount()
-        val rewardType = TimeUnit.DAYS // TODO custom type? rewardItem.getType()
-        return rewardType.toMillis(rewardAmount.toLong())
+    private val _rewardedAdAmountInDays: Long by lazy {
+        remoteConfigProvider.get(
+            RemoteConfigProvider.AD_REWARDED_AMOUNT_IN_DAYS,
+            RemoteConfigProvider.AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT.toLong(), // 1 week (not possible to have dynamic eCPM/RPM-based value)
+        )
     }
+
+    val rewardedAdAmountInDays get() = _rewardedAdAmountInDays.toIntOrNull() ?: RemoteConfigProvider.AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT
 }

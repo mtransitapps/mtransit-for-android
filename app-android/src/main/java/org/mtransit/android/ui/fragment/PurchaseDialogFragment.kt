@@ -26,16 +26,18 @@ import org.mtransit.android.billing.billingDatePeriod
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
-import org.mtransit.android.commons.TimeUtils
+import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.ToastUtils
+import org.mtransit.android.commons.getQuantityText
 import org.mtransit.android.databinding.FragmentDialogPurchaseBinding
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.textAndVisibility
 import org.mtransit.commons.weeks
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
@@ -122,7 +124,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 }
             } ?: context.getString(R.string.support_subs_buy_with_play) // no trial? (trial already used)
             buyBtn.isEnabled = !productId.isNullOrBlank()
-            afterText.text = context.resources.getString(R.string.support_subs_try_cancel)
         }
     }
 
@@ -160,7 +161,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         billingManager.productIdsWithDetails.observe(viewLifecycleOwner) {
             onProductIdsLoaded(it)
         }
-        adManager.rewardedUntilInMsLive.observe(viewLifecycleOwner) {
+        adManager.rewardedUntilLive.observe(viewLifecycleOwner) {
             refreshRewardedLayout()
         }
         adManager.rewardedNowLive.observe(viewLifecycleOwner) {
@@ -327,31 +328,21 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             return@apply
         }
         val availableToShow = adManager.isRewardedAdAvailableToShow()
-        val rewardedAmount = adManager.getRewardedAdAmount()
-
-        paidTasksDivider2.isVisible = availableToShow || rewardedNow
-
-        rewardedAdsText.textAndVisibility = if (!availableToShow) null else resources.getQuantityString(
-            if (rewardedNow) R.plurals.support_watch_rewarded_ad_btn_more_and_days
-            else R.plurals.support_watch_rewarded_ad_btn_and_days,
-            rewardedAmount,
-            rewardedAmount
+        val rewardedAmountInDays = adManager.rewardedAdAmountInDays
+        rewardedAdsText.textAndVisibility = if (!availableToShow) null else resources.getQuantityText(
+            if (rewardedNow) R.plurals.support_watch_rewarded_ad_btn_more_and_days_formatted
+            else R.plurals.support_watch_rewarded_ad_btn_and_days_formatted,
+            rewardedAmountInDays,
+            rewardedAmountInDays
         )
-        if (availableToShow) {
-            rewardedAdsText.isEnabled = true
-            rewardedAdsText.isVisible = true
-        } else {
-            rewardedAdsText.isEnabled = false
-        }
+        paidTasksDivider2.isVisible = rewardedAdsText.isVisible
+        rewardedAdsText.isEnabled = availableToShow
     }
 
     @WorkerThread
-    override fun skipRewardedAd(): Boolean {
+    override fun skipLoadingRewardedAd(): Boolean {
         if (!adManager.isRewardedNow()) return false
-        val rewardedUntilInMs = adManager.getRewardedUntilInMs()
-        val skipRewardedAdUntilInMs =
-            TimeUtils.currentTimeMillis() - TimeUnit.HOURS.toMillis(1L) + adManager.getRewardedAdAmount() * adManager.getRewardedAdAmountInMs()
-        return rewardedUntilInMs > skipRewardedAdUntilInMs
+        return adManager.getRewardedUntil() > TimeUtilsK.currentInstant() - 1.hours + adManager.rewardedAdAmountInDays.days
     }
 
     @AnyThread

@@ -17,12 +17,15 @@ import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.billing.BillingUtils
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.POIArrayAdapter
+import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.databinding.FragmentHomeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -114,19 +117,34 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     @Inject
     lateinit var demoModeManager: DemoModeManager
+
+    @Inject
+    lateinit var billingManager: IBillingManager
 
     private var mapMenuItem: MenuItem? = null
 
     private var binding: FragmentHomeBinding? = null
 
-    private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
-        override fun isLoadingMore() = attachedViewModel?.loadingPOIs?.value == true
+    private val poiListFooterManager by lazy {
+        object : POIListFooterManager {
 
-        override fun showingDone() = false
+            override val isShowLoading get() = attachedViewModel?.loadingPOIs?.value == true
+
+            override val isShowText get() = billingManager.hasSubscription.value != true
+
+            override val text get() = context?.getString(R.string.support)?.takeIf { isShowText }
+
+            override val textStartDrawableRes get() = R.drawable.ic_volunteer_activism_black_24.takeIf { isShowText }
+
+            override val onTextClickListener = View.OnClickListener {
+                if (!isShowText) return@OnClickListener
+                activity?.let { BillingUtils.showPurchaseDialog(it) }
+            }
+        }
     }
 
     private val typeHeaderButtonsClickListener = POIArrayAdapter.TypeHeaderButtonsClickListener { buttonId, type ->
@@ -172,8 +190,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             setShowBrowseHeaderSection(true)
             setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE)
             setShowTypeHeaderNearby(true)
-            setInfiniteLoading(true)
-            setInfiniteLoadingListener(infiniteLoadingListener)
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
             setOnTypeHeaderButtonsClickListener(typeHeaderButtonsClickListener)
             setPois(attachedViewModel?.nearbyPOIs?.value)
             setLocation(attachedViewModel?.deviceLocation?.value)
@@ -214,6 +232,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             setupScreenToolbar(screenToolbarLayout)
         }
         this.listAdapter.onCreateView(viewLifecycleOwner)
+        billingManager.hasSubscription.observe(viewLifecycleOwner) {
+            listAdapter.notifyDataSetChanged(false)
+        }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             listAdapter.setLocation(it)
         }
@@ -252,6 +273,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             if (loading == false) {
                 binding?.swipeRefresh?.isRefreshing = false
             } // else do nothing
+            listAdapter.notifyDataSetChanged(false) // footer
         }
         viewModel.hasAgenciesAdded.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(hasAgenciesAdded = it)

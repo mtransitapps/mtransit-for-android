@@ -341,12 +341,12 @@ class MTBillingManager @Inject constructor(
         this.lclPrefRepository.pref.edit {
             putString(PREF_KEY_SUBSCRIPTION, productId)
         }
-        broadcastCurrentProductIdChanged()
+        broadcastCurrentProductIdChanged(productId)
     }
 
-    private fun broadcastCurrentProductIdChanged() {
+    private fun broadcastCurrentProductIdChanged(currentSubscription: String) {
         this._listenersWR.keys.forEach { listener ->
-            listener.onBillingResult(this._currentSubscription)
+            listener.onBillingResult(currentSubscription)
         }
     }
 

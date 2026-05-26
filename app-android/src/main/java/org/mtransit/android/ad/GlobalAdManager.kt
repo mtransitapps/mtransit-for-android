@@ -4,7 +4,6 @@ package org.mtransit.android.ad
 // import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration #gmaNextGen
 // import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig #gmaNextGen
 import android.content.Context
-import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import com.google.android.gms.ads.AdRequest
@@ -29,6 +28,8 @@ import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration
+import kotlin.time.Instant
 import com.google.android.ump.FormError as UMPFormError
 
 @Singleton
@@ -71,11 +72,11 @@ class GlobalAdManager(
     private val initialized = AtomicBoolean(false)
     private val initializing = AtomicBoolean(false)
 
-    private var showingAds: Boolean? = null
+    private var hasSubscription: Boolean? = null
     private var hasAgenciesEnabled: Boolean? = null
 
     @Volatile
-    private var _rewardedUntilInMs: Long? = null
+    private var _rewardedUntil: Instant? = null
 
     @Volatile
     private var _rewardedNow: Boolean? = null
@@ -84,15 +85,15 @@ class GlobalAdManager(
         this.dataSourcesRepository.readingHasAgenciesEnabled().observeForever { hasAgenciesEnabled ->
             this.hasAgenciesEnabled = hasAgenciesEnabled
         }
-        this.rewardedUserManager.rewardedUntilInMsLive.observeForever { rewardedUntilInMs ->
-            this._rewardedUntilInMs = rewardedUntilInMs
+        this.rewardedUserManager.rewardedUntilLive.observeForever { rewardedUntilInMs ->
+            this._rewardedUntil = rewardedUntilInMs
         }
         this.rewardedUserManager.rewardedNowLive.observeForever { rewardedNow ->
             this._rewardedNow = rewardedNow
         }
     }
 
-    val rewardedUntilInMs: LiveData<Long> get() = this.rewardedUserManager.rewardedUntilInMsLive
+    val rewardedUntil: LiveData<Instant> get() = this.rewardedUserManager.rewardedUntilLive
     val rewardedNow: LiveData<Boolean> get() = this.rewardedUserManager.rewardedNowLive
 
     fun init(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit, withConsentOnly: Boolean = false) {
@@ -187,22 +188,21 @@ class GlobalAdManager(
         }
     }
 
-    suspend fun initShowingAdsFromCache() = withContext(ioDispatcher) {
+    suspend fun initHasSubscriptionFromCache() = withContext(ioDispatcher) {
         billingManager.getCachedCurrentSubscription()?.isNotEmpty()?.let { hasSubscription ->
-            setShowingAds(!hasSubscription)
+            setHasSubscription(hasSubscription)
         }
     }
 
-    fun setShowingAds(showingAds: Boolean?) {
-        this.showingAds = showingAds
+    fun setHasSubscription(hasSubscription: Boolean?) {
+        this.hasSubscription = hasSubscription
     }
 
     fun canShowAds(): Boolean? {
         if (!AdConstants.AD_ENABLED) return false
-        return this.showingAds
+        return this.hasSubscription?.not()
     }
 
-    @AnyThread
     fun isShowingAds(): Boolean {
         if (!AdConstants.AD_ENABLED) return false
         if (hasAgenciesEnabled == null) {
@@ -220,19 +220,19 @@ class GlobalAdManager(
             logAdsD(this, "isShowingAds() > Not showing ads (demo mode).")
             return false // not showing ads
         }
-        if (showingAds == null) { // paying status unknown
-            logAdsD(this, "isShowingAds() > Not showing ads (paying status unknown).")
+        if (hasSubscription == null) { // subscriptions unknown
+            logAdsD(this, "isShowingAds() > Not showing ads (subscriptions unknown).")
             return false // not showing ads
         }
-        logAdsD(this, "isShowingAds() > Showing ads: '$showingAds'.")
+        logAdsD(this, "isShowingAds() > has subscriptions: '$hasSubscription'.")
         if (AdConstants.IGNORE_REWARD_HIDING_BANNER) {
-            return showingAds == true
+            return hasSubscription == false
         }
         if (this._rewardedNow != false) { // rewarded status
-            logAdsD(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this._rewardedUntilInMs?.toDateTimeLog()}).")
+            logAdsD(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this._rewardedUntil?.toDateTimeLog()}).")
             return false // not showing ads
         }
-        return showingAds == true
+        return hasSubscription == false
     }
 
     fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?) {
@@ -242,9 +242,8 @@ class GlobalAdManager(
     // region Rewarded
 
     @WorkerThread
-    fun getRewardedUntilInMs() = this.rewardedUserManager.getRewardedUntilInMs()
+    fun getRewardedUntil() = this.rewardedUserManager.getRewardedUntil()
 
-    @AnyThread
     fun resetRewarded() {
         this.rewardedUserManager.resetRewarded()
     }
@@ -253,18 +252,14 @@ class GlobalAdManager(
     fun isRewardedNow() = this.rewardedUserManager.isRewardedNow()
 
     @WorkerThread
-    fun rewardUser(newRewardInMs: Long, activity: IActivity?) {
-        this.rewardedUserManager.rewardUser(newRewardInMs, activity)
+    fun rewardUser(newReward: Duration, activity: IActivity?) {
+        this.rewardedUserManager.rewardUser(newReward, activity)
     }
 
     @WorkerThread
-    fun shouldSkipRewardedAd() = this.rewardedUserManager.shouldSkipRewardedAd()
+    fun shouldSkipLoadingRewardedAd() = this.rewardedUserManager.shouldSkipLoadingRewardedAd()
 
-    @AnyThread
-    fun getRewardedAdAmount() = this.rewardedUserManager.getRewardedAdAmount()
-
-    @AnyThread
-    fun getRewardedAdAmountInMs() = this.rewardedUserManager.getRewardedAdAmountInMs()
+    val rewardedAdAmountInDays get() = this.rewardedUserManager.rewardedAdAmountInDays
 
     // endregion Rewarded
 }

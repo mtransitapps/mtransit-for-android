@@ -1,24 +1,24 @@
 package org.mtransit.android.ad
 
 import android.content.res.Configuration
-import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import org.mtransit.android.ui.view.common.IActivity
+import kotlin.time.Instant
 
 interface IAdManager {
 
     fun init(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit = {}, withConsentOnly: Boolean = false)
-    fun initForBanner(activity: IAdScreenActivity)
+    fun initForScreens(activity: IAdScreenActivity)
 
     suspend fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?, activity: IAdScreenActivity)
 
-    suspend fun initShowingAdsFromCache()
+    suspend fun initHasSubscriptionFromCache()
 
     fun canShowAds(): Boolean?
 
-    suspend fun setShowingAds(newShowingAds: Boolean?, activity: IAdScreenActivity)
+    suspend fun setHasSubscription(hasSubscription: Boolean?, activity: IAdScreenActivity)
 
     // region App open ad
 
@@ -35,10 +35,7 @@ interface IAdManager {
 
     // region Rewarded ad
 
-    @AnyThread
-    fun getRewardedAdAmount(): Int
-
-    fun getRewardedAdAmountInMs(): Long
+    val rewardedAdAmountInDays: Int
 
     fun linkRewardedAd(activity: IActivity)
 
@@ -46,7 +43,6 @@ interface IAdManager {
 
     suspend fun refreshRewardedAdStatus(activity: IActivity)
 
-    @AnyThread
     fun isRewardedAdAvailableToShow(): Boolean
 
     fun showRewardedAd(activity: IActivity): Boolean
@@ -68,11 +64,11 @@ interface IAdManager {
 
     fun destroyAd(activity: IAdScreenActivity)
 
-    val rewardedUntilInMsLive: LiveData<Long>
+    val rewardedUntilLive: LiveData<Instant>
     val rewardedNowLive: LiveData<Boolean>
 
     @WorkerThread
-    fun getRewardedUntilInMs(): Long
+    fun getRewardedUntil(): Instant
 
     fun resetRewarded()
 
@@ -84,13 +80,12 @@ interface IAdManager {
     fun openAdInspector(activity: IActivity)
 
     @WorkerThread
-    fun shouldSkipRewardedAd(): Boolean
+    fun shouldSkipLoadingRewardedAd(): Boolean
 
     interface RewardedAdListener {
-        @AnyThread
         fun onRewardedAdStatusChanged()
 
         @WorkerThread
-        fun skipRewardedAd(): Boolean
+        fun skipLoadingRewardedAd(): Boolean
     }
 }

@@ -15,7 +15,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -101,7 +101,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     private var binding: FragmentFavoritesBinding? = null
 

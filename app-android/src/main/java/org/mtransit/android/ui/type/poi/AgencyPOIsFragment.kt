@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -123,7 +123,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider

@@ -58,7 +58,7 @@ public final class LinkUtils implements MTLog.Loggable {
 	@NonNull
 	public static CharSequence linkifyHtml(@NonNull String originalText, boolean isHTML) {
 		try {
-			Spanned text = isHTML ? HtmlUtils.fromHtml(originalText) : new SpannedString(originalText);
+			Spanned text = isHTML ? HtmlUtils.fromHtmlLegacy(originalText) : new SpannedString(originalText);
 			return linkifyHtml(text, isHTML);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error while linkify-ing '%s'!", originalText);

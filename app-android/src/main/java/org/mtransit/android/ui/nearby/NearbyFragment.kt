@@ -20,7 +20,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
@@ -172,7 +172,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     override val screenName = TRACKING_SCREEN_NAME
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     @Inject
     lateinit var defaultPrefRepository: DefaultPreferenceRepository

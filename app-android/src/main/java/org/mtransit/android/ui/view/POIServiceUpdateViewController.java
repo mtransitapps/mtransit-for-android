@@ -168,9 +168,9 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		final boolean hasServiceUpdatesToShow = !serviceUpdateHTMLText.isEmpty();
 		final boolean hasWarnings = UIServiceUpdates.hasWarnings(serviceUpdates);
 		if (UIFeatureFlags.F_SERVICE_UPDATE_ELLIPSIZE_IN_POI) {
-			serviceUpdatesListViewHolder.messagesTv.setText(HtmlUtils.fromHtml(serviceUpdateHTMLText));
+			serviceUpdatesListViewHolder.messagesTv.setText(HtmlUtils.fromHtmlLegacy(serviceUpdateHTMLText));
 		} else {
-			serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdateHTMLText), false), TextView.BufferType.SPANNABLE);
+			serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtmlLegacy(serviceUpdateHTMLText), false), TextView.BufferType.SPANNABLE);
 			serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptor.getInstance(dataProvider));
 		}
 		serviceUpdatesListViewHolder.messagesTv.setBackgroundResource(

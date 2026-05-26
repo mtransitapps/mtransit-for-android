@@ -23,7 +23,7 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsManager
 import org.mtransit.android.commons.ColorUtils
@@ -159,7 +159,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     lateinit var imageManager: ImageManager
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     @Inject
     lateinit var analyticsManager: AnalyticsManager
