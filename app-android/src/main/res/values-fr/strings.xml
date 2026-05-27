@@ -298,7 +298,7 @@
     <string name="support_every_year">an</string>
     <string name="support_yearly_short">Annuel</string>
     <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
-    <string name="support_watch_rewarded_ad_btn">Voir pub</string>
+    <string name="support_watch_rewarded_ad_btn" tools:ignore="UnusedResources">Voir pub</string>
     <plurals name="support_watch_rewarded_ad_btn_and_days">
         <item quantity="one">Cliquer ici pour obtenir %d jour sans-pub en regardant une pub.</item>
         <item quantity="other">Cliquer ici pour obtenir %d jours sans-pub en regardant une pub.</item>
@@ -309,7 +309,7 @@
         <item quantity="other"><![CDATA[Cliquer ici pour <b>obtenir %d jours sans-pub</b> en regardant une pub.]]></item>
         <item quantity="many"><![CDATA[Cliquer ici pour <b>obtenir %d jours sans-pub</b> en regardant une pub.]]></item>
     </plurals>
-    <plurals name="support_watch_rewarded_ad_btn_more_and_days">
+    <plurals name="support_watch_rewarded_ad_btn_more_and_days" tools:ignore="UnusedResources">
         <item quantity="one">Cliquer ici pour obtenir +%d jour sans-pub en regardant une pub.</item>
         <item quantity="other">Cliquer ici pour obtenir +%d jours sans-pub en regardant une pub.</item>
         <item quantity="many">Cliquer ici pour obtenir +%d jours sans-pub en regardant une pub.</item>
@@ -319,26 +319,15 @@
         <item quantity="other"><![CDATA[Cliquer ici pour <b>obtenir +%d jours sans-pub</b> en regardant une pub]]></item>
         <item quantity="many"><![CDATA[Cliquer ici pour <b>obtenir +%d jours sans-pub</b> en regardant une pub]]></item>
     </plurals>
-    <string name="support_watch_rewarded_ad_btn_and_type_amount">Cliquer ici pour obtenir %s sans-pub en regardant une pub.</string>
-    <string name="support_watch_rewarded_ad_btn_and_type_amount_formatted"><![CDATA[Cliquer ici pour <b>obtenir %s sans-pub</b> en regardant une pub.]]></string>
-    <string name="support_watch_rewarded_ad_btn_more_and_type_amount">Cliquer ici pour obtenir +%s sans-pub en regardant une pub.</string>
-    <string name="support_watch_rewarded_ad_btn_more_and_type_amount_formatted"><![CDATA[Cliquer ici pour <b>obtenir +%s sans-pub</b> en regardant une pub]]></string>
     <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
     <string name="support_watch_rewarded_ad_not_ready">Aucune pub disponible actuellement :(</string>
     <string name="support_watch_rewarded_ad_successful_message">Merci :)</string>
 
-    <string name="app_update_title_text">Mise à jour disponible</string>
-    <string name="app_update_btn_text">Télécharger la mise à jour pour obtenir les dernières informations de l\'agence de transport</string>
+    <string name="app_update_title_text" tools:ignore="UnusedResources">Mise à jour disponible</string>
+    <string name="app_update_btn_text" tools:ignore="UnusedResources">Télécharger la mise à jour pour obtenir les dernières informations de l\'agence de transport</string>
     <string name="app_update_btn_text_short">Télécharger la mise à jour pour obtenir les informations les plus récentes.</string>
     <string name="app_update_btn_text_short_formatted">Télécharger la mise à jour pour <b>obtenir les informations les plus récentes</b>.</string>
 
-    <string name="watch_rewarded_ad_title_text">Sans-pub</string>
-    <string name="watch_rewarded_ad_title_text_and_date">Sans-pub jusqu\'au %s</string>
-    <plurals name="watch_rewarded_ad_title_text_and_days_quantity" tools:ignore="UnusedResources">
-        <item quantity="one">Sans-pub pour %d jour</item>
-        <item quantity="other">Sans-pub pour %d jours</item>
-        <item quantity="many">Sans-pub pour %d jours</item>
-    </plurals>
     <plurals name="watch_rewarded_ad_btn_and_days">
         <item quantity="one">Regarder une pub pour obtenir %d jour sans-pub</item>
         <item quantity="other">Regarder une pub pour obtenir %d jours sans-pub</item>

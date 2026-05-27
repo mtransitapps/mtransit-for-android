@@ -292,7 +292,7 @@
     <string name="support_every_year">year</string>
     <string name="support_yearly_short">Yearly</string>
     <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
-    <string name="support_watch_rewarded_ad_btn">Watch ad</string>
+    <string name="support_watch_rewarded_ad_btn" tools:ignore="UnusedResources">Watch ad</string>
     <plurals name="support_watch_rewarded_ad_btn_and_days">
         <item quantity="one">Click here to get %d day ad-free by watching an ad.</item>
         <item quantity="other">Click here to get %d days ad-free by watching an ad.</item>
@@ -301,7 +301,7 @@
         <item quantity="one"><![CDATA[Click here to <b>get %d day ad-free</b> by watching an ad.]]></item>
         <item quantity="other"><![CDATA[Click here to <b>get %d days ad-free</b> by watching an ad.]]></item>
     </plurals>
-    <plurals name="support_watch_rewarded_ad_btn_more_and_days">
+    <plurals name="support_watch_rewarded_ad_btn_more_and_days" tools:ignore="UnusedResources">
         <item quantity="one">Click here to get +%d day ad-free by watching an ad.</item>
         <item quantity="other">Click here to get +%d days ad-free by watching an ad.</item>
     </plurals>
@@ -309,25 +309,15 @@
         <item quantity="one"><![CDATA[Click here to <b>get +%d day ad-free</b> by watching an ad.]]></item>
         <item quantity="other"><![CDATA[Click here to <b>get +%d days ad-free</b> by watching an ad.]]></item>
     </plurals>
-    <string name="support_watch_rewarded_ad_btn_and_type_amount">Click here to get %s ad-free by watching an ad.</string>
-    <string name="support_watch_rewarded_ad_btn_and_type_amount_formatted"><![CDATA[Click here to <b>get %s ad-free</b> by watching an ad.]]></string>
-    <string name="support_watch_rewarded_ad_btn_more_and_type_amount">Click here to get +%s ad-free by watching an ad.</string>
-    <string name="support_watch_rewarded_ad_btn_more_and_type_amount_formatted"><![CDATA[Click here to <b>get +%s ad-free</b> by watching an ad.]]></string>
     <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
     <string name="support_watch_rewarded_ad_not_ready">No ad available at this time :(</string>
     <string name="support_watch_rewarded_ad_successful_message">Thank You :)</string>
 
-    <string name="app_update_title_text">Update available</string>
-    <string name="app_update_btn_text">Download the update to get the latest information from the transit agency.</string>
+    <string name="app_update_title_text" tools:ignore="UnusedResources">Update available</string>
+    <string name="app_update_btn_text" tools:ignore="UnusedResources">Download the update to get the latest information from the transit agency.</string>
     <string name="app_update_btn_text_short">Download app update to get the most up-to-date information.</string>
     <string name="app_update_btn_text_short_formatted">Download app update to <b>get the most up-to-date information</b>.</string>
 
-    <string name="watch_rewarded_ad_title_text">Ad-free</string>
-    <string name="watch_rewarded_ad_title_text_and_date">Ad-free until %s</string>
-    <plurals name="watch_rewarded_ad_title_text_and_days_quantity" tools:ignore="UnusedResources">
-        <item quantity="one">Ad-free for %d day</item>
-        <item quantity="other">Ad-free for %d days</item>
-    </plurals>
     <plurals name="watch_rewarded_ad_btn_and_days">
         <item quantity="one">Watch an ad to get %d day ad-free</item>
         <item quantity="other">Watch an ad to get %d days ad-free</item>
