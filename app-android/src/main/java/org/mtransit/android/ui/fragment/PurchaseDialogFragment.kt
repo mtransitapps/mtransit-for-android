@@ -98,7 +98,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     private fun onPriceOrPeriodSelectionChanged() {
         binding?.apply {
-            val periodCat = periodRadioGroup.checkedRadioButtonId.takeIf { it != AdapterView.INVALID_POSITION }
+            val periodCat = periodRadioGroup.checkedRadioButtonId.takeIf { it != View.NO_ID }
                 ?.let { radioButtonResId ->
                     when (radioButtonResId) {
                         periodWeekly.id -> IBillingManager.WEEKLY
@@ -113,8 +113,8 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 }?.let { priceFormatted ->
                     priceFormattedToPriceCat[priceFormatted]?.takeIf { it.isNotEmpty() }
                 }
-            val productId = periodCat?.let { periodCat -> priceCat?.let { priceCat -> periodAndPriceCatToProductId[periodCat to priceCat] } }
-            val trial = productId?.let { productId -> productIdToFreePeriod[productId] }
+            val productId = if (periodCat == null || priceCat == null) null else periodAndPriceCatToProductId[periodCat to priceCat]
+            val trial = productId?.let { productIdToFreePeriod[it] }
             buyBtn.text = trial?.let { trial ->
                 when {
                     trial.months > 0 -> context.resources.getQuantityString(R.plurals.support_subs_start_trial_and_months, trial.months, trial.months)
@@ -257,7 +257,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)
                 return
             }
-            val periodCat = binding.periodRadioGroup.checkedRadioButtonId.takeIf { it != AdapterView.INVALID_POSITION }
+            val periodCat = binding.periodRadioGroup.checkedRadioButtonId.takeIf { it != View.NO_ID }
                 ?.let { radioButtonResId ->
                     when (radioButtonResId) {
                         binding.periodWeekly.id -> IBillingManager.WEEKLY
