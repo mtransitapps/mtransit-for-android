@@ -351,8 +351,8 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     }
 
     override fun onDetach() {
-        super.onDetach()
         parentActivity?.let { adManager.unlinkRewardedAd(it) }
+        super.onDetach()
     }
 
     private fun showLoading() = binding?.apply {

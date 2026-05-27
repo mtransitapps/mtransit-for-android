@@ -1216,7 +1216,6 @@ public class POIFragment extends ABFragment implements
 							R.plurals.watch_rewarded_ad_btn_and_days_formatted,
 					rewardedAmountInDays,
 					rewardedAmountInDays
-					// getResources().getQuantityString(rewardedPluralRes, rewardedAmount, rewardedAmount)
 			);
 		}
 		ViewKtxKt.setTextAndVisibility(rewardedAdText, rewardedText);
