@@ -252,7 +252,7 @@
     <string name="support_subs_pref_title">Support MonTransit</string>
     <string name="support_subs_pref_summary">Hide ads and support MonTransit development.</string>
     <string name="support_title">Support MonTransit</string>
-    <string name="support_about">MonTransit is one of the many apps built with the freely accessible open-data published by transit agencies.\nUnlike other apps who receive money from tickets or passes, taxes or private investors, MonTransit is an independent self-founded, free and open-source project.\nYour support will brings app improvements faster for everyone.</string>
+    <string name="support_about">MonTransit is one of the many apps built with the freely accessible open-data published by transit agencies.\nUnlike other apps who receive money from tickets or passes, taxes or private investors, MonTransit is an independent self-founded, free and open-source project.\nYour support will bring app improvements faster for everyone.</string>
     <string name="support_about_short_w_more">Hide ads and support MonTransit development. More&#8230;</string>
     <string name="support_basic_title">Basic</string>
     <string name="support_basic_description">Less Ads</string>
@@ -273,17 +273,18 @@
     <string name="support_subs_try_cancel">(cancel any time on Google Play)</string>
     <string name="support_subs_buy_with_play">Subscribe with Google Play</string>
     <string name="support_subs_start_trial">Start free trial</string>
+    <!-- Note: for hyphenated compound adjectives, English uses the singular form (e.g., "7-day", "2-week", "3-month") -->
     <plurals name="support_subs_start_trial_and_days">
         <item quantity="one">Start %d-day free trial</item>
-        <item quantity="other">Start %d-days free trial</item>
+        <item quantity="other">Start %d-day free trial</item>
     </plurals>
     <plurals name="support_subs_start_trial_and_weeks">
         <item quantity="one">Start %d-week free trial</item>
-        <item quantity="other">Start %d-weeks free trial</item>
+        <item quantity="other">Start %d-week free trial</item>
     </plurals>
     <plurals name="support_subs_start_trial_and_months">
         <item quantity="one">Start %d-month free trial</item>
-        <item quantity="other">Start %d-months free trial</item>
+        <item quantity="other">Start %d-month free trial</item>
     </plurals>
     <string name="support_every_week">week</string>
     <string name="support_weekly_short">Weekly</string>
@@ -294,20 +295,20 @@
     <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
     <string name="support_watch_rewarded_ad_btn" tools:ignore="UnusedResources">Watch ad</string>
     <plurals name="support_watch_rewarded_ad_btn_and_days">
-        <item quantity="one">Click here to get %d day ad-free by watching an ad.</item>
-        <item quantity="other">Click here to get %d days ad-free by watching an ad.</item>
+        <item quantity="one">Click here to get %d-day ad-free by watching an ad.</item>
+        <item quantity="other">Click here to get %d-day ad-free by watching an ad.</item>
     </plurals>
     <plurals name="support_watch_rewarded_ad_btn_and_days_formatted">
-        <item quantity="one"><![CDATA[Click here to <b>get %d day ad-free</b> by watching an ad.]]></item>
-        <item quantity="other"><![CDATA[Click here to <b>get %d days ad-free</b> by watching an ad.]]></item>
+        <item quantity="one"><![CDATA[Click here to <b>get %d-day ad-free</b> by watching an ad.]]></item>
+        <item quantity="other"><![CDATA[Click here to <b>get %d-day ad-free</b> by watching an ad.]]></item>
     </plurals>
     <plurals name="support_watch_rewarded_ad_btn_more_and_days" tools:ignore="UnusedResources">
-        <item quantity="one">Click here to get +%d day ad-free by watching an ad.</item>
-        <item quantity="other">Click here to get +%d days ad-free by watching an ad.</item>
+        <item quantity="one">Click here to get +%d-day ad-free by watching an ad.</item>
+        <item quantity="other">Click here to get +%d-day ad-free by watching an ad.</item>
     </plurals>
     <plurals name="support_watch_rewarded_ad_btn_more_and_days_formatted">
-        <item quantity="one"><![CDATA[Click here to <b>get +%d day ad-free</b> by watching an ad.]]></item>
-        <item quantity="other"><![CDATA[Click here to <b>get +%d days ad-free</b> by watching an ad.]]></item>
+        <item quantity="one"><![CDATA[Click here to <b>get +%d-day ad-free</b> by watching an ad.]]></item>
+        <item quantity="other"><![CDATA[Click here to <b>get +%d-day ad-free</b> by watching an ad.]]></item>
     </plurals>
     <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
     <string name="support_watch_rewarded_ad_not_ready">No ad available at this time :(</string>
@@ -319,20 +320,20 @@
     <string name="app_update_btn_text_short_formatted">Download app update to <b>get the most up-to-date information</b>.</string>
 
     <plurals name="watch_rewarded_ad_btn_and_days">
-        <item quantity="one">Watch an ad to get %d day ad-free</item>
-        <item quantity="other">Watch an ad to get %d days ad-free</item>
+        <item quantity="one">Watch an ad to get %d-day ad-free</item>
+        <item quantity="other">Watch an ad to get %d-day ad-free</item>
     </plurals>
     <plurals name="watch_rewarded_ad_btn_and_days_formatted">
-        <item quantity="one"><![CDATA[Watch an ad to get <b>%d day ad-free</b>]]></item>
-        <item quantity="other"><![CDATA[Watch an ad to get <b>%d days ad-free</b>]]></item>
+        <item quantity="one"><![CDATA[Watch an ad to get <b>%d-day ad-free</b>]]></item>
+        <item quantity="other"><![CDATA[Watch an ad to get <b>%d-day ad-free</b>]]></item>
     </plurals>
     <plurals name="watch_rewarded_ad_btn_more_and_days" tools:ignore="UnusedResources">
-        <item quantity="one">Watch an ad to get +%d days ad-free</item>
-        <item quantity="other">Watch an ad to get +%d days ad-free</item>
+        <item quantity="one">Watch an ad to get +%d-day ad-free</item>
+        <item quantity="other">Watch an ad to get +%d-day ad-free</item>
     </plurals>
     <plurals name="watch_rewarded_ad_btn_more_and_days_formatted">
-        <item quantity="one"><![CDATA[Watch an ad to get <b>+%d days ad-free</b>]]></item>
-        <item quantity="other"><![CDATA[Watch an ad to get <b>+%d days ad-free</b>]]></item>
+        <item quantity="one"><![CDATA[Watch an ad to get <b>+%d-day ad-free</b>]]></item>
+        <item quantity="other"><![CDATA[Watch an ad to get <b>+%d-day ad-free</b>]]></item>
     </plurals>
 
     <string name="location_permission_rationale_title">Permission required</string>

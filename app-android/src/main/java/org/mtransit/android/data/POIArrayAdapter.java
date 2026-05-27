@@ -599,8 +599,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				footerText = holder.textTv.getContext().getString(R.string.world_explored); // DEFAULT
 			}
 			holder.textTv.setText(footerText);
+			final Integer startDrawableRes = this.footerManager.getTextStartDrawableRes();
 			holder.textTv.setCompoundDrawablesRelativeWithIntrinsicBounds(
-					Objects.requireNonNullElse(this.footerManager.getTextStartDrawableRes(), 0),
+					startDrawableRes != null ? startDrawableRes : 0,
 					0,
 					0,
 					0
@@ -1171,11 +1172,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	public void initManual() {
 		if (this.manualLayout == null || !hasPois()) return;
 		this.manualLayout.removeAllViews(); // clear the previous list
-		for (int i = 0; i < getPoisCount(); i++) {
+		int position = 0;
+		while (position < getPoisCount()) {
 			if (this.manualLayout.getChildCount() > 0) {
 				this.manualLayout.addView(this.layoutInflater.inflate(R.layout.list_view_divider_rounded, this.manualLayout, false));
 			}
-			final View itemView = getView(i, null, this.manualLayout);
+			final View itemView = getView(position, null, this.manualLayout);
 			final FrameLayout frameLayout = new FrameLayout(getContext());
 			frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 			frameLayout.addView(itemView);
@@ -1183,17 +1185,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			selectorView.setBackground(ThemeUtils.obtainStyledDrawable(getContext(), android.R.attr.selectableItemBackground));
 			selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 			frameLayout.addView(selectorView);
-			final int position = i;
+			final int poiPosition = position;
 			frameLayout.setOnClickListener(view ->
-					showPoiViewerScreen(view, position)
+					showPoiViewerScreen(view, poiPosition)
 			);
 			frameLayout.setOnLongClickListener(view ->
-					showPoiMenu(view, position)
+					showPoiMenu(view, poiPosition)
 			);
 			this.manualLayout.addView(frameLayout);
+			position++;
 		}
 		if (this.showFooter) {
-			final View itemView = getView(getPoisCount() + 1, null, this.manualLayout);
+			final View itemView = getView(position, null, this.manualLayout);
 			this.manualLayout.addView(itemView);
 		}
 	}

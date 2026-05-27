@@ -113,14 +113,14 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 }?.let { priceFormatted ->
                     priceFormattedToPriceCat[priceFormatted]?.takeIf { it.isNotEmpty() }
                 }
-            val productId = periodAndPriceCatToProductId[periodCat to priceCat]
-            val trial = productIdToFreePeriod[productId]
+            val productId = periodCat?.let { periodCat -> priceCat?.let { priceCat -> periodAndPriceCatToProductId[periodCat to priceCat] } }
+            val trial = productId?.let { productId -> productIdToFreePeriod[productId] }
             buyBtn.text = trial?.let { trial ->
                 when {
                     trial.months > 0 -> context.resources.getQuantityString(R.plurals.support_subs_start_trial_and_months, trial.months, trial.months)
                     trial.weeks > 0 -> context.resources.getQuantityString(R.plurals.support_subs_start_trial_and_weeks, trial.weeks, trial.weeks)
                     trial.days > 0 -> context.resources.getQuantityString(R.plurals.support_subs_start_trial_and_days, trial.days, trial.days)
-                    else -> context.getString(R.string.support_subs_start_trial)
+                    else -> context.getString(R.string.support_subs_start_trial) // unexpected trial duration
                 }
             } ?: context.getString(R.string.support_subs_buy_with_play) // no trial? (trial already used)
             buyBtn.isEnabled = !productId.isNullOrBlank()
@@ -186,7 +186,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         // DO NOTHING
     }
 
-    val parentActivity: MTActivity? get() = super.getActivity() as? MTActivity
+    val parentActivity: MTActivity? get() = activity as? MTActivity
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -208,7 +208,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             adManager.showRewardedAd(parentActivity)
             binding?.rewardedAdsText?.isEnabled = false
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while handling download or open paid tasks button!")
+            MTLog.w(this, e, "Error while handling rewarded ad click/show!")
             ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message)
         }
     }
@@ -398,35 +398,35 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         var defaultPriceLabel: String? = null
         productIdsWithDetails.forEach { (productId, productDetails) ->
             val productIdMatch = PRODUCT_ID_REGEX.matchEntire(productId) ?: run {
-                MTLog.w(this, "Skip product ID $productId (unsupported)")
+                MTLog.w(this, "Skip product ID '$productId' (unsupported)")
                 return@forEach
             }
             val periodCat = productIdMatch.groups[PRODUCT_ID_REGEX_GROUP_PERIOD]?.value ?: run {
-                MTLog.w(this, "Skip product ID $productId (missing period)")
+                MTLog.w(this, "Skip product ID '$productId' (missing period)")
                 return@forEach
             }
             val periodResId = PERIOD_CAT_TO_RES_ID[periodCat] ?: run {
-                MTLog.w(this, "Skip product ID $productId (unknown periodCat: $periodCat)")
+                MTLog.w(this, "Skip product ID '$productId' (unknown periodCat: $periodCat)")
                 return@forEach
             }
             val priceCat = productIdMatch.groups[PRODUCT_ID_REGEX_GROUP_PRICE]?.value ?: run {
-                MTLog.w(this, "Skip product ID $productId (missing price)")
+                MTLog.w(this, "Skip product ID '$productId' (missing price)")
                 return@forEach
             }
             this.periodAndPriceCatToProductId[periodCat to priceCat] = productId
             val subOfferDetailsList = productDetails.subscriptionOfferDetails
             if (subOfferDetailsList.isNullOrEmpty()) {
-                MTLog.w(this, "Skip product ID $productId (no offer details)")
+                MTLog.w(this, "Skip product ID '$productId' (no offer details)")
                 return@forEach
             }
             if (subOfferDetailsList.size <= IBillingManager.OFFER_DETAILS_IDX) {
-                MTLog.w(this, "Skip product ID $productId (no offer details item)")
+                MTLog.w(this, "Skip product ID '$productId' (no offer details item)")
                 return@forEach
             }
             val subOfferDetails = subOfferDetailsList[IBillingManager.OFFER_DETAILS_IDX]
             val pricingPhaseList = subOfferDetails.pricingPhases.pricingPhaseList
             if (pricingPhaseList.isEmpty()) {
-                MTLog.w(this, "Skip product ID $productId (no pricing list)")
+                MTLog.w(this, "Skip product ID '$productId' (no pricing list)")
                 return@forEach
             }
             val freePricingPhase = pricingPhaseList.firstOrNull { it.priceAmountMicros == 0L }

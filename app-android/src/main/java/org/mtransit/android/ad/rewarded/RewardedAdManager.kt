@@ -2,7 +2,6 @@ package org.mtransit.android.ad.rewarded
 
 // import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd #gmaNextGen
 import android.content.Context
-import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.core.content.edit
 import com.google.android.gms.ads.rewarded.RewardedAd
@@ -58,19 +57,30 @@ class RewardedAdManager @Inject constructor(
     private var rewardedAdListenerWR: WeakReference<RewardedAdListener?>? = null
 
     private var rewardedAd: RewardedAd? = null
-    private var rewardedAdActivityHashCode = AtomicInteger(0)
-    private var rewardedAdActivityHashCodeLoading = AtomicInteger(0)
+    private var _rewardedAdActivityHashCodeLoaded = AtomicInteger(0)
+    private var rewardedAdActivityHashCodeLoaded: Int?
+        get() = _rewardedAdActivityHashCodeLoaded.get().takeIf { it != 0 }
+        set(value) {
+            _rewardedAdActivityHashCodeLoaded.set(value ?: 0)
+        }
+
+    private var _rewardedAdActivityHashCodeLoading = AtomicInteger(0)
+    private var rewardedAdActivityHashCodeLoading: Int?
+        get() = _rewardedAdActivityHashCodeLoading.get().takeIf { it != 0 }
+        set(value) {
+            _rewardedAdActivityHashCodeLoading.set(value ?: 0)
+        }
 
     private suspend fun loadRewardedAdForActivity(activity: IActivity) = withContext(Dispatchers.Main) {
         val activityHashCode = activity.requireActivity().hashCode()
-        if (rewardedAd != null && (rewardedAdActivityHashCode.get() == activityHashCode)) {
+        if (rewardedAd != null && (rewardedAdActivityHashCodeLoaded == activityHashCode)) {
             logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > SKIP (rewarded ad already loaded for ${activity::class.java.simpleName})")
             return@withContext
-        } else if (rewardedAdActivityHashCodeLoading.get() == activityHashCode) {
+        } else if (rewardedAdActivityHashCodeLoading == activityHashCode) {
             logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > SKIP (rewarded ad already loading for ${activity::class.java.simpleName})")
             return@withContext
         }
-        rewardedAdActivityHashCodeLoading.set(activityHashCode)
+        rewardedAdActivityHashCodeLoading = activityHashCode
         logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > Loading rewarded ad for ${activity::class.java.simpleName}...")
         RewardedAd.load( // Must be called on the main UI thread
             appContext,
@@ -89,8 +99,10 @@ class RewardedAdManager @Inject constructor(
     }
 
     internal fun onRewardedAdLoadingComplete(rewardedAd: RewardedAd?, activityHashCode: Int) {
-        rewardedAdActivityHashCodeLoading.set(0) // not loading
-        rewardedAdActivityHashCode.set(activityHashCode.takeIf { rewardedAd != null } ?: 0)
+        if (rewardedAdActivityHashCodeLoading == activityHashCode) {
+            rewardedAdActivityHashCodeLoading = null
+        }
+        rewardedAdActivityHashCodeLoaded = activityHashCode.takeIf { rewardedAd != null }
         setRewardedAd(rewardedAd)
     }
 
@@ -98,7 +110,7 @@ class RewardedAdManager @Inject constructor(
     private val adUnitStringResId: Int get() = R.string.google_ads_rewarded_ad_unit_id
 
     fun setRewardedAd(rewardedAd: RewardedAd?) {
-        if (this.rewardedAdActivityHashCode.get() == 0) {
+        if (this.rewardedAdActivityHashCodeLoaded == null) {
             logAdsD(this, "setRewardedAd() > SKIP rewarded ad (no activity) $rewardedAd.")
             return // too late
         }
@@ -108,19 +120,19 @@ class RewardedAdManager @Inject constructor(
 
     fun linkRewardedAd(activity: IActivity) {
         val theActivity = activity.requireActivity()
-        if (this.rewardedAdActivityHashCode.get() == theActivity.hashCode()) {
+        if (this.rewardedAdActivityHashCodeLoaded == theActivity.hashCode()) {
             logAdsD(this, "linkRewardedAd() > SKIP (same activity)")
             return // same activity
         }
         this.rewardedAd = null
-        this.rewardedAdActivityHashCode.set(0) // unlink
+        this.rewardedAdActivityHashCodeLoaded = null // unlink
     }
 
     fun unlinkRewardedAd(activity: IActivity) {
         val theActivity = activity.requireActivity()
-        if (this.rewardedAdActivityHashCode.get() == theActivity.hashCode()) {
+        if (this.rewardedAdActivityHashCodeLoaded == theActivity.hashCode()) {
             this.rewardedAd = null
-            this.rewardedAdActivityHashCode.set(0) // unlink
+            this.rewardedAdActivityHashCodeLoaded = null // unlink
         } else {
             logAdsD(this, "unlinkRewardedAd() > SKIP (not this activity)")
         }
@@ -128,8 +140,8 @@ class RewardedAdManager @Inject constructor(
 
     suspend fun refreshRewardedAdStatus(activity: IActivity) = withContext(Dispatchers.IO) {
         if (!AdConstants.AD_ENABLED) return@withContext
-        val isNotPayingUser = globalAdManager.isShowingAds()
-        if (!isNotPayingUser) {
+        val canShowAds = globalAdManager.canShowAds()
+        if (canShowAds != true) {
             logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > SKIP (paying user or unknown)")
             return@withContext
         }
