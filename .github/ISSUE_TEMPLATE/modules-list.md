@@ -9,6 +9,7 @@ labels: MT
 # Modules
 - [ ] ca-100-mile-house-transit-bus
 - [ ] ca-airdrie-transit-bus
+- [ ] ca-ashcroft-cache-creek-clinton-regional-transit-bus
 - [ ] ca-banff-roam-transit-bus
 - [ ] ca-barrie-transit-bus
 - [ ] ca-brampton-transit-bus
