@@ -240,7 +240,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     private fun onSubTitleClick(context: Context) {
         binding?.apply {
-            if (subTitle.text.length > 77) {
+            if (subTitle.text == context.getString(R.string.support_about)) {
                 subTitle.text = context.getString(R.string.support_about_short_w_more)
             } else {
                 subTitle.text = context.getString(R.string.support_about)
@@ -395,6 +395,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         this.priceFormattedToPriceCat.clear()
         this.periodLabelsToPeriodCat.clear()
         this.periodAndPriceCatToProductId.clear()
+        this.productIdToFreePeriod.clear()
         var defaultPriceLabel: String? = null
         productIdsWithDetails.forEach { (productId, productDetails) ->
             val productIdMatch = PRODUCT_ID_REGEX.matchEntire(productId) ?: run {
@@ -483,5 +484,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             IBillingManager.YEARLY -> binding.periodYearly.isChecked = true
         }
         showNotLoading()
+        onPriceOrPeriodSelectionChanged()
     }
 }

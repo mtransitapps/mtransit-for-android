@@ -8,6 +8,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
@@ -33,13 +34,17 @@ class RewardedUserManager @Inject constructor(
     private val defaultPrefRepository: DefaultPreferenceRepository,
     private val demoModeManager: DemoModeManager,
     private val remoteConfigProvider: RemoteConfigProvider,
-) {
+) : MTLog.Loggable {
 
     companion object {
+        private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedUserManager::class.java.simpleName}"
+
         private const val REWARDED_UNTIL_NO_VALUE = -1L
         private const val MAX_LOAD_FOR_NO_SHOW = 33
         private const val MIN_SHOW_TO_LOAD_RATIO = 0.07f
     }
+
+    override fun getLogTag() = LOG_TAG
 
     @get:WorkerThread
     private val _dailyUser: Boolean by lazy {

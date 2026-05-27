@@ -15,9 +15,9 @@ val ProductDetails.PricingPhase.billingDatePeriod: DatePeriod?
 fun ProductDetails.toStringPlus(short: Boolean = false) = buildString {
     append(if (short) "PD{" else "ProductDetails{")
     append("title: $title, ")
-    append("description: $description, ")
+    append(if (short) "desc:" else "description:").append(description).append(", ")
     append("name: $name, ")
-    append("productId: $productId, ")
+    append(if (short) "ID:" else "productId:").append(productId).append(", ")
     subscriptionOfferDetails?.takeIf { it.isNotEmpty() }?.let { append("$productType: ${it.toStringPlus(short = short)}") }
     oneTimePurchaseOfferDetailsList?.takeIf { it.isNotEmpty() }?.let { append("$productType: ${it.size}") } // TODO more details (unused currently)
     append("}")
@@ -32,12 +32,12 @@ fun List<ProductDetails.SubscriptionOfferDetails>.toStringPlus(short: Boolean = 
 
 fun ProductDetails.SubscriptionOfferDetails.toStringPlus(short: Boolean = false) = buildString {
     append(if (short) "SOD{" else "SubscriptionOfferDetails{")
-    append("basePlanId: $basePlanId, ")
+    append(if (short) "base:" else "basePlanId:").append(basePlanId).append(", ")
     installmentPlanDetails?.let { append("installmentPlanId: ${it.toStringPlus(short = short)}, ") }
-    offerId?.let { append("offerId: $it, ") }
-    offerTags.takeIf { it.isNotEmpty() }?.let { append("offerTags: $it, ") }
-    append("offerToken: ${offerToken.length}, ")
-    append("pricingPhases: ${pricingPhases.toStringPlus(short = short)}, ")
+    append(if (short) "ID:" else "offerId:").append(offerId).append(", ")
+    offerTags.takeIf { it.isNotEmpty() }?.let { append(if (short) "tags:" else "offerTags:").append(offerTags).append(", ")}
+    append(if (short) "token:" else "offerToken:").append(offerToken).append(", ")
+    append(if (short) "PHs:" else "pricingPhases:").append(pricingPhases.toStringPlus(short = short)).append(", ")
     append("}")
 }
 

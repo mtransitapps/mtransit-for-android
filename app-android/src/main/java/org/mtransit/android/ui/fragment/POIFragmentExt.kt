@@ -67,7 +67,10 @@ internal fun POIFragment.updateFooter() = binding?.apply {
             footerTextTv.apply {
                 text = footerManager.text
                 setCompoundDrawablesRelativeWithIntrinsicBounds(footerManager.textStartDrawableRes ?: 0, 0, 0, 0)
-                footerManager.onTextClickListener?.let { setOnClickListener(it) } ?: run { isClickable = false }
+                setOnClickListener(footerManager.onTextClickListener)
+                if (footerManager.onTextClickListener == null) {
+                    isClickable = false
+                }
                 isVisible = true
             }
         } else {

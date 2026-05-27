@@ -191,7 +191,10 @@ class MTBillingManager @Inject constructor(
     }
 
     private fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<ProductDetails>) {
-        MTLog.d(LOG_TAG, "onProductDetailsResponse() > ${productDetailsList.size} product details")
+        MTLog.d(LOG_TAG, "onProductDetailsResponse(${billingResult.responseCode}, ${productDetailsList.size})")
+        if (Constants.DEBUG) {
+            MTLog.d(LOG_TAG, "onProductDetailsResponse() > debugMessage: ${billingResult.debugMessage}.")
+        }
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
                 _productIdsWithDetails.postValue(

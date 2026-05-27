@@ -1200,7 +1200,8 @@ public class POIFragment extends ABFragment implements
 		final Boolean rewardedNow = this.adManager.getRewardedNowLive().getValue();
 		if (rewardedNow == null) return;
 		final IAgencyUpdatableProperties agency = getAgencyOrNull();
-		final boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
+		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable()
+				&& agency.shouldShowUpdateLayout();
 		boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
 		if (appUpdateAvailable) {
 			availableToShow = false; // do not overwhelm user with stuff to read

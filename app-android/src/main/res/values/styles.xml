@@ -215,6 +215,7 @@
 
     <style name="MTLayoutSectionTertiary">
         <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingBottom">@dimen/baseline_0</item>
         <item name="android:paddingTop">@dimen/title_top_padding</item>
     </style>

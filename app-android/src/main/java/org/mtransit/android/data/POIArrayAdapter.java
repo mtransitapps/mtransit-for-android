@@ -607,9 +607,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 					0
 			);
 			final View.OnClickListener onClickListener = this.footerManager.getOnTextClickListener();
-			if (onClickListener != null) {
-				holder.textTv.setOnClickListener(onClickListener);
-			} else {
+			holder.textTv.setOnClickListener(onClickListener);
+			if (onClickListener == null) {
 				holder.textTv.setClickable(false);
 			}
 			holder.textTv.setVisibility(View.VISIBLE);

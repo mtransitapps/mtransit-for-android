@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    tools:showIn="@layout/fragment_poi"
-    style="@style/MTLayoutSectionTertiary">
+    style="@style/MTLayoutSectionTertiary"
+    tools:showIn="@layout/fragment_poi">
 
     <TextView
         android:id="@+id/rewardedAdsText"
@@ -18,4 +17,4 @@
         tools:text="@plurals/watch_rewarded_ad_btn_and_days"
         tools:visibility="visible" />
 
-</LinearLayout>
+</FrameLayout>

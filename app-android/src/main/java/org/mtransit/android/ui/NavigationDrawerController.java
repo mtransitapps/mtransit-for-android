@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -630,8 +631,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} else if (navItemId == R.id.nav_rate_review) {
 			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(org.mtransit.android.commons.R.string.google_play));
 		} else if (navItemId == R.id.nav_support) {
-			if (activity instanceof MainActivity) {
-				BillingUtils.showPurchaseDialog((MainActivity) activity);
+			if (activity instanceof FragmentActivity) {
+				BillingUtils.showPurchaseDialog((FragmentActivity) activity);
 			} else {
 				activity.startActivity(PreferencesActivity.newInstance(activity, true));
 			}
