@@ -77,6 +77,7 @@ labels: MT
 - [ ] ca-oakville-transit-bus
 - [ ] ca-ottawa-oc-transpo-bus
 - [ ] ca-ottawa-oc-transpo-train
+- [ ] ca-pemberton-valley-regional-transit-bus
 - [ ] ca-port-alberni-transit-bus
 - [ ] ca-powell-river-regional-transit-system-bus
 - [ ] ca-prince-george-transit-system-bus
