@@ -121,6 +121,7 @@ labels: MT
 - [ ] ca-victoria-regional-transit-system-bus
 - [ ] ca-welland-transit-bus
 - [ ] ca-west-coast-express-train
+- [ ] ca-west-coast-transit-bus
 - [ ] ca-west-kootenay-transit-system-bus
 - [ ] ca-whistler-transit-system-bus
 - [ ] ca-whitehorse-transit-bus
