@@ -7,17 +7,24 @@ on:
       - master
 
 jobs:
-  qodana:
+  QODANA:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
       checks: write
     steps:
-      - uses: actions/checkout@v6
+
+      - name: MT check out main repository code (with submodules)
+        uses: actions/checkout@v6
         with:
+          submodules: true
           ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
           fetch-depth: 0  # a full history is required for pull request analysis
+      - name: MT setup
+        id: mt-setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.2.1
+        
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2026.1
         with:
