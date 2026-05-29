@@ -77,6 +77,7 @@ labels: MT
 - [ ] ca-oakville-transit-bus
 - [ ] ca-ottawa-oc-transpo-bus
 - [ ] ca-ottawa-oc-transpo-train
+- [ ] ca-pemberton-valley-regional-transit-bus
 - [ ] ca-port-alberni-transit-bus
 - [ ] ca-powell-river-regional-transit-system-bus
 - [ ] ca-prince-george-transit-system-bus
@@ -90,6 +91,7 @@ labels: MT
 - [ ] ca-revelstoke-transit-bus
 - [ ] ca-richelieu-citvr-bus
 - [ ] ca-saint-john-transit-bus
+- [ ] ca-salt-spring-island-transit-bus
 - [ ] ca-saskatoon-transit-bus
 - [ ] ca-shawinigan-rtcs-bus
 - [ ] ca-sherbrooke-sts-bus
@@ -119,6 +121,7 @@ labels: MT
 - [ ] ca-victoria-regional-transit-system-bus
 - [ ] ca-welland-transit-bus
 - [ ] ca-west-coast-express-train
+- [ ] ca-west-coast-transit-bus
 - [ ] ca-west-kootenay-transit-system-bus
 - [ ] ca-whistler-transit-system-bus
 - [ ] ca-whitehorse-transit-bus

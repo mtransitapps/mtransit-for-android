@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="module_db_version">113</integer>
+    <integer name="module_db_version">116</integer>
 </resources>
