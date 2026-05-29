@@ -40,7 +40,6 @@ import org.mtransit.android.datasource.DataSourcesReader
 import org.mtransit.android.datasource.DataSourcesStorage
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
-import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.toEvent
@@ -121,9 +120,9 @@ class SplashScreenViewModel @Inject constructor(
                     || readyForNextScreen == true && appOpenAdShowing != true // ready and not currently showing ad
         }.distinctUntilChanged()
 
-    fun initShowingAdsFromCache() {
+    fun initHasSubscriptionFromCache() {
         viewModelScope.launch(Dispatchers.IO) {
-            adManager.initShowingAdsFromCache()
+            adManager.initHasSubscriptionFromCache()
         }
     }
 

@@ -1,15 +1,17 @@
 package org.mtransit.android.ui.fragment
 
+import android.view.View
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
+import org.mtransit.android.billing.BillingUtils
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
@@ -18,6 +20,7 @@ import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.toRouteDirection
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
+import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.latLng
 import org.mtransit.android.data.location
@@ -54,8 +57,47 @@ fun POIFragment.setupViewKt() = this.binding?.apply {
     }
 }
 
+internal fun POIFragment.updateFooter() = binding?.apply {
+    poiListFooter.apply {
+        if (footerManager.isShowLoading) {
+            footerTextTv.isVisible = false
+            progressBar.isVisible = true
+        } else if (footerManager.isShowText) {
+            progressBar.isVisible = false
+            footerTextTv.apply {
+                text = footerManager.text
+                setCompoundDrawablesRelativeWithIntrinsicBounds(footerManager.textStartDrawableRes ?: 0, 0, 0, 0)
+                setOnClickListener(footerManager.onTextClickListener)
+                if (footerManager.onTextClickListener == null) {
+                    isClickable = false
+                }
+                isVisible = true
+            }
+        } else {
+            footerTextTv.isVisible = false
+            progressBar.isVisible = false
+        }
+    }
+}
+
+internal fun POIFragment.makePoiListFooterManager() = object : POIListFooterManager {
+
+    override val isShowLoading get() = attachedViewModel?.nearbyPOIs?.value == null
+
+    override val isShowText get() = billingManager.hasSubscription.value != true
+
+    override val text get() = context?.getString(R.string.support)?.takeIf { isShowText }
+
+    override val textStartDrawableRes get() = R.drawable.ic_volunteer_activism_black_24.takeIf { isShowText }
+
+    override val onTextClickListener = View.OnClickListener {
+        if (!isShowText) return@OnClickListener
+        activity?.let { BillingUtils.showPurchaseDialog(it) }
+    }
+}
+
 fun POIFragment.onResumeKt() {
-    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+    viewLifecycleOwner.lifecycleScope.launch {
         adManager.refreshRewardedAdStatus(this@onResumeKt.requireActivity() as IActivity)
     }
 }

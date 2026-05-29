@@ -55,6 +55,9 @@ class MTBillingManager @Inject constructor(
 
         private const val PREF_KEY_SUBSCRIPTION = "pSubscription"
         private val PREF_KEY_SUBSCRIPTION_DEFAULT: String? = null
+
+        private val OVERRIDE_CURRENT_SUBSCRIPTION: String? = null
+        // private val OVERRIDE_CURRENT_SUBSCRIPTION: String? = "f_monthly_subscription_1".takeIf { Constants.DEBUG } // DEBUG
     }
 
     override fun getLogTag() = LOG_TAG
@@ -71,17 +74,18 @@ class MTBillingManager @Inject constructor(
         .build()
 
     override val currentSubscription: LiveData<String?> by lazy {
+        OVERRIDE_CURRENT_SUBSCRIPTION?.let { return@lazy MutableLiveData(it) }
         lclPrefRepository.pref.liveDataN(
             PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT
         ).distinctUntilChanged()
     }
 
     override suspend fun getCachedCurrentSubscription(): String? = withContext(Dispatchers.IO) {
+        OVERRIDE_CURRENT_SUBSCRIPTION?.let { return@withContext it }
         lclPrefRepository.pref.getString(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
     }
 
-    private val _currentSubscription: String?
-        get() = currentSubscription.value
+    private val _currentSubscription: String? get() = currentSubscription.value
 
     override val hasSubscription: LiveData<Boolean?> by lazy {
         this.currentSubscription.map { it?.isNotBlank() }
@@ -96,7 +100,7 @@ class MTBillingManager @Inject constructor(
     override fun showingPaidFeatures() = (hasSubscription.value == true
             && !isUsingFirebaseTestLab)
             || fullDemoMode == true
-            // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
+    // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
 
@@ -192,22 +196,18 @@ class MTBillingManager @Inject constructor(
     }
 
     private fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<ProductDetails>) {
+        MTLog.d(LOG_TAG, "onProductDetailsResponse(${billingResult.responseCode}, ${productDetailsList.size})")
+        if (Constants.DEBUG) {
+            MTLog.d(LOG_TAG, "onProductDetailsResponse() > debugMessage: ${billingResult.debugMessage}.")
+        }
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
                 _productIdsWithDetails.postValue(
-                    productDetailsList.associateBy { details ->
+                    productDetailsList.associateBy { productDetails ->
                         if (Constants.DEBUG) {
-                            details.subscriptionOfferDetails?.forEach {
-                                MTLog.d(this, "onProductDetailsResponse() > offer details: $it")
-                                it.installmentPlanDetails.let { installmentPlanDetails ->
-                                    MTLog.d(this, "onProductDetailsResponse() > installment plan details: $installmentPlanDetails")
-                                }
-                                it.pricingPhases.pricingPhaseList.forEach { pricingPhase ->
-                                    MTLog.d(this, "onProductDetailsResponse() > pricing phase: $pricingPhase")
-                                }
-                            }
+                            MTLog.d(this, "onProductDetailsResponse() > - product details: ${productDetails.toStringPlus(short = true)}")
                         }
-                        details.productId
+                        productDetails.productId
                     }
                         .also { postedValue ->
                             MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")
@@ -349,12 +349,12 @@ class MTBillingManager @Inject constructor(
         this.lclPrefRepository.pref.edit {
             putString(PREF_KEY_SUBSCRIPTION, productId)
         }
-        broadcastCurrentProductIdChanged()
+        broadcastCurrentProductIdChanged(productId)
     }
 
-    private fun broadcastCurrentProductIdChanged() {
+    private fun broadcastCurrentProductIdChanged(currentSubscription: String) {
         this._listenersWR.keys.forEach { listener ->
-            listener.onBillingResult(this._currentSubscription)
+            listener.onBillingResult(currentSubscription)
         }
     }
 

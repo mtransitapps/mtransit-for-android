@@ -213,6 +213,13 @@
         <item name="drawableTint">?attr/colorOnBackground</item>
     </style>
 
+    <style name="MTLayoutSectionTertiary">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingBottom">@dimen/baseline_0</item>
+        <item name="android:paddingTop">@dimen/title_top_padding</item>
+    </style>
+
     <style name="MTTextSurfaceBody">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -275,6 +282,20 @@
         <item name="lineHeight">24sp</item>
         <item name="android:lineHeight" tools:targetApi="p">24sp</item>
         <item name="android:textAppearance">?attr/textAppearanceBody1</item>
+    </style>
+
+    <style name="MTTextTertiary">
+        <item name="android:alpha">0.70</item>
+        <item name="android:drawablePadding">@dimen/baseline_8</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textAppearance">?attr/textAppearanceCaption</item>
+        <item name="android:textColor">?android:attr/textColorTertiary</item>
+        <item name="android:textSize">@dimen/text_size_extra_extra_small</item>
+        <item name="drawableTint">?android:attr/textColorTertiary</item>
+    </style>
+
+    <style name="MTTextTertiary.Light" parent="@style/MTTextTertiary">
+        <item name="android:alpha">0.30</item>
     </style>
 
     <style name="MTMapTypeSwitch">

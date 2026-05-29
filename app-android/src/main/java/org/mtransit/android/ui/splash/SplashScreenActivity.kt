@@ -13,9 +13,8 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.getText
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.main.NextMainActivity
@@ -55,14 +54,14 @@ open class SplashScreenActivity : MTActivity(),
         splashScreen.setKeepOnScreenCondition { // Keep the splash screen visible for this Activity
             viewModel.shouldKeepSplashScreenOn.value != false // unknown OR true
         }
-        viewModel.initShowingAdsFromCache()
+        viewModel.initHasSubscriptionFromCache()
         adManager.init(activity = this, withConsentOnly = true, onInitCompleteListener = {
             viewModel.onAdInitCompleted()
         })
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
         if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) LocaleUtils.fixWebViewLocale(this.applicationContext)
-        viewModel.shouldKeepSplashScreenOn.observe(this) { shouldKeepSplashScreenOn ->
+        viewModel.shouldKeepSplashScreenOn.observe(this) { _ ->
             // DO NOTHING
         }
         viewModel.showNextScreen.observe(this) { showNextScreen ->
@@ -87,7 +86,7 @@ open class SplashScreenActivity : MTActivity(),
             }
         }
         viewModel.deployingDataFor.observeEvent(this) { agency ->
-            showToast(HtmlUtils.fromHtmlCompact(getString(R.string.deploying_data_in_progress_for_short, agency.getShortNameAndType(context))))
+            showToast(getText(R.string.deploying_data_in_progress_for_short, agency.getShortNameAndType(context)))
         }
     }
 

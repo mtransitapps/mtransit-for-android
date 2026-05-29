@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_view_item_height"
+    android:focusable="false"
+    android:minHeight="@dimen/list_view_item_height"
+    android:paddingStart="@dimen/poi_padding_start_no_extra"
+    android:paddingTop="@dimen/poi_padding_top"
+    android:paddingEnd="@dimen/poi_padding_end"
+    android:paddingBottom="@dimen/poi_padding_bottom">
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:visibility="gone"
+        tools:visibility="gone" />
+
+    <TextView
+        android:id="@+id/footer_text_tv"
+        style="@style/MTTextTertiary.Light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:drawableStartCompat="@drawable/ic_volunteer_activism_black_24"
+        tools:text="@string/support"
+        tools:visibility="visible" />
+
+</RelativeLayout>

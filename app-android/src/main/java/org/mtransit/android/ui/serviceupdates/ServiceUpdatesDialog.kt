@@ -141,7 +141,7 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
             val hasServiceUpdatesToShow = serviceUpdatesHTMLText.isNotEmpty()
             serviceUpdateText.apply {
                 val hasWarning = UIServiceUpdates.hasWarnings(serviceUpdates)
-                setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdatesHTMLText), false), TextView.BufferType.SPANNABLE)
+                setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtmlLegacy(serviceUpdatesHTMLText), false), TextView.BufferType.SPANNABLE)
                 movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
                     this@ServiceUpdatesDialog.dismiss()
                     LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowserPref.value)

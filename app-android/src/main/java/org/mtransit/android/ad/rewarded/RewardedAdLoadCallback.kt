@@ -16,6 +16,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback as GRewardedAd
 class RewardedAdLoadCallback(
     private val rewardedAdManager: RewardedAdManager,
     private val crashReporter: CrashReporter,
+    private val activityHashCode: Int,
     // ) : AdLoadCallback<RewardedAd>, #gmaNextGen
 ) : GRewardedAdLoadCallback(),
     MTLog.Loggable {
@@ -31,16 +32,14 @@ class RewardedAdLoadCallback(
         super.onAdLoaded(ad)
         // val adapterClassName = ad.getResponseInfo().adapterClassName #gmaNextGen
         val adapterClassName = ad.responseInfo.mediationAdapterClassName
-        logAdsD(this, "onAdLoaded() > Rewarded ad loaded from $adapterClassName.")
-        this.rewardedAdManager.setRewardedAd(ad)
-        this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
+        logAdsD(this, "onAdLoaded() > Rewarded ad '${ad.rewardItem.toStringPlus()}' loaded from '$adapterClassName'.")
+        this.rewardedAdManager.onRewardedAdLoadingComplete(ad, activityHashCode)
     }
 
     @AnyThread
     override fun onAdFailedToLoad(adError: LoadAdError) {
         super.onAdFailedToLoad(adError)
-        this.rewardedAdManager.setRewardedAd(null)
-        this.rewardedAdManager.rewardedAdListener?.onRewardedAdStatusChanged()
+        this.rewardedAdManager.onRewardedAdLoadingComplete(null, activityHashCode)
         when (adError.code) {
             AdRequest.ERROR_CODE_APP_ID_MISSING ->
                 // LoadAdError.ErrorCode.APP_ID_MISSING -> #gmaNextGen

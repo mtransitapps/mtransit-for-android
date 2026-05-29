@@ -36,6 +36,9 @@ class RemoteConfigProvider @Inject constructor(
         const val AD_APP_OPEN_ENABLED_DEFAULT = false
         // const val AD_APP_OPEN_ENABLED_DEFAULT = true // DEBUG
 
+        const val AD_REWARDED_AMOUNT_IN_DAYS = "mt_ad_rewarded_amount_days"
+        const val AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT = 7
+
         @Deprecated("use ALLOW_TWITTER_NEWS_CACHED instead")
         const val ALLOW_TWITTER_NEWS_FOR_FREE = "mt_twitter_news_free"
         const val ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT = false

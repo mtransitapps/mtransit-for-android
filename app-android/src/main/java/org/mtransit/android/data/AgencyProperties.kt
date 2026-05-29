@@ -110,6 +110,11 @@ data class AgencyProperties(
         extendedType = extendedType,
     )
 
+    companion object {
+        private val MIN_NUMBER_OF_DAYS_OF_SCHEDULE = TimeUnit.DAYS.toDays(7L)
+        private const val ALWAYS_SHOW_UPDATE_LAYOUT = true
+    }
+
     @Ignore
     override val authority = id
 
@@ -140,7 +145,10 @@ data class AgencyProperties(
         }
 
     override fun shouldShowUpdateLayout(): Boolean {
-        if (TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()) > TimeUnit.DAYS.toDays(7L)) {
+        @Suppress("SimplifyBooleanWithConstants")
+        if (!ALWAYS_SHOW_UPDATE_LAYOUT
+            && TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()) > MIN_NUMBER_OF_DAYS_OF_SCHEDULE
+        ) {
             return false // SKIP (more than 7 days left of schedule)
         }
         return updateAvailable

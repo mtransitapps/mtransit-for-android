@@ -1,9 +1,11 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.makePoiListFooterManager;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.onResumeKt;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.setupViewKt;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.startVehicleLocationCountdownRefresh;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.stopVehicleLocationCountdownRefresh;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.updateFooter;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -56,6 +58,7 @@ import org.mtransit.android.ad.IAdScreenActivity;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
@@ -63,8 +66,8 @@ import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.ResourceExtKt;
 import org.mtransit.android.commons.StoreUtils;
-import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.News;
@@ -80,6 +83,7 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
+import org.mtransit.android.data.POIListFooterManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
 import org.mtransit.android.databinding.FragmentPoiBinding;
@@ -118,6 +122,7 @@ import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.ui.view.common.ViewKtxKt;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
@@ -216,7 +221,7 @@ public class POIFragment extends ABFragment implements
 	private NextMainViewModel nextMainViewModel;
 
 	@Nullable
-	private POIViewModel getAttachedViewModel() {
+	protected POIViewModel getAttachedViewModel() {
 		return FragmentKtxKt.isAttached(this) ? this.viewModel : null;
 	}
 
@@ -234,6 +239,8 @@ public class POIFragment extends ABFragment implements
 	IAnalyticsManager analyticsManager;
 	@Inject
 	FavoriteRepository favoriteRepository;
+	@Inject
+	IBillingManager billingManager;
 	@Inject
 	DemoModeManager demoModeManager;
 	@Inject
@@ -362,8 +369,8 @@ public class POIFragment extends ABFragment implements
 		}
 		setPOIProperties();
 		updateDistanceString();
-		if (this.adapter != null) {
-			this.adapter.clear();
+		if (this.nearbyListAdapter != null) {
+			this.nearbyListAdapter.clear();
 		}
 		this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());
 		POIViewController.updateView(getPOIView(), this.poim, this);
@@ -550,8 +557,8 @@ public class POIFragment extends ABFragment implements
 			nextMainViewModel = new ViewModelProvider(requireActivity()).get(NextMainViewModel.class);
 		}
 		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
-		if (this.adapter != null) {
-			this.adapter.onCreateView(getViewLifecycleOwner());
+		if (this.nearbyListAdapter != null) {
+			this.nearbyListAdapter.onCreateView(getViewLifecycleOwner());
 		}
 		viewModel.getDataSourceRemovedEvent().observe(getViewLifecycleOwner(), new EventObserver<>(removed -> {
 			if (removed) {
@@ -573,8 +580,9 @@ public class POIFragment extends ABFragment implements
 		if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
 			viewModel.getVehicleLocations().observe(getViewLifecycleOwner(), this::onVehicleLocationsLoaded);
 		}
-		this.adManager.getRewardedUntilInMsLive().observe(getViewLifecycleOwner(), rewardedUntilInMs -> refreshRewardedLayout());
+		this.adManager.getRewardedUntilLive().observe(getViewLifecycleOwner(), rewardedUntil -> refreshRewardedLayout());
 		this.adManager.getRewardedNowLive().observe(getViewLifecycleOwner(), rewardedNow -> refreshRewardedLayout());
+		this.billingManager.getHasSubscription().observe(getViewLifecycleOwner(), this::onHasSubscriptionChanged);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
@@ -678,10 +686,10 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private POIArrayAdapter adapter;
+	private POIArrayAdapter nearbyListAdapter;
 
 	private void setupNearbyList() {
-		if (this.adapter != null && this.adapter.isInitialized()) {
+		if (this.nearbyListAdapter != null && this.nearbyListAdapter.isInitialized()) {
 			showNearbyList();
 			return;
 		}
@@ -689,15 +697,15 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void onNearbyPOIsLoaded(@Nullable List<POIManager> nearbyPOIs) {
-		if (this.adapter != null) {
-			this.adapter.setPois(nearbyPOIs);
-			this.adapter.updateDistanceNowAsync(this.deviceLocation);
-			this.adapter.initManual();
-			if (this.adapter.getPoisCount() > 0) {
-				showNearbyList();
-			} else {
-				hideNearbyList(false);
-			}
+		updateFooter(this);
+		if (this.nearbyListAdapter == null) return;
+		this.nearbyListAdapter.setPois(nearbyPOIs);
+		this.nearbyListAdapter.updateDistanceNowAsync(this.deviceLocation);
+		this.nearbyListAdapter.initManual();
+		if (this.nearbyListAdapter.getPoisCount() > 0) {
+			showNearbyList();
+		} else {
+			hideNearbyList(false);
 		}
 	}
 
@@ -714,7 +722,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void initAdapters(IFragment activity) {
-		this.adapter = new POIArrayAdapter(
+		this.nearbyListAdapter = new POIArrayAdapter(
 				activity,
 				this.sensorManager,
 				this.dataSourcesRepository,
@@ -725,7 +733,14 @@ public class POIFragment extends ABFragment implements
 				this.sharedStatusLoader,
 				this.sharedServiceUpdateLoader
 		);
-		this.adapter.setLogTag(getLogTag());
+		this.nearbyListAdapter.setLogTag(getLogTag());
+	}
+
+	@NonNull
+	protected POIListFooterManager footerManager = makePoiListFooterManager(this);
+
+	private void onHasSubscriptionChanged(@Nullable Boolean hasSubscriptionChanged) {
+		updateFooter(this);
 	}
 
 	@MainThread
@@ -737,9 +752,9 @@ public class POIFragment extends ABFragment implements
 		EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP,
 				resources.getDimensionPixelSize(R.dimen.large_header_height)
 		);
-		if (this.adapter != null) {
-			this.adapter.setManualScrollView(this.binding.scrollView);
-			this.adapter.setManualLayout(this.binding.poiNearbyPoisList);
+		if (this.nearbyListAdapter != null) {
+			this.nearbyListAdapter.setManualScrollView(this.binding.scrollView);
+			this.nearbyListAdapter.setManualLayout(this.binding.poiNearbyPoisList);
 		}
 		setupViewKt(this);
 		setupNewsLayout();
@@ -925,17 +940,14 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void setupAppUpdateButton() {
-		final View appUpdateBtn = this.binding == null ? null : this.binding.poiAppUpdate.appUpdateBtn;
-		if (appUpdateBtn == null) return;
-		appUpdateBtn.setOnClickListener(v -> {
+		final TextView appUpdateText = this.binding == null ? null : this.binding.poiAppUpdate.appUpdateText;
+		if (appUpdateText == null) return;
+		appUpdateText.setText(appUpdateText.getContext().getText(R.string.app_update_btn_text_short_formatted));
+		appUpdateText.setOnClickListener(v -> {
 			final Activity activity = getActivity();
-			if (activity == null) {
-				return;
-			}
+			if (activity == null) return;
 			final IAgencyUpdatableProperties agency = getAgencyOrNull();
-			if (agency == null) {
-				return;
-			}
+			if (agency == null) return;
 			final String pkg = agency.getPkg();
 			POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, pkg)
@@ -963,7 +975,7 @@ public class POIFragment extends ABFragment implements
 
 	private void setupRewardedAdButton() {
 		if (this.binding == null) return;
-		this.binding.poiRewardedAd.rewardedAdsBtn.setOnClickListener(v ->
+		this.binding.poiRewardedAd.rewardedAdsText.setOnClickListener(v ->
 				onRewardedAdButtonClick(v.getContext())
 		);
 	}
@@ -981,7 +993,7 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		if (this.binding != null) {
-			this.binding.poiRewardedAd.rewardedAdsBtn.setEnabled(false);
+			this.binding.poiRewardedAd.rewardedAdsText.setEnabled(false);
 		}
 		this.adManager.showRewardedAd((IAdScreenActivity) activity);
 	}
@@ -1066,8 +1078,8 @@ public class POIFragment extends ABFragment implements
 				POIViewController.updatePOIDistanceAndCompass(getPOIView(), poim, this);
 			}
 			this.mapViewController.onDeviceLocationChanged(this.deviceLocation);
-			if (this.adapter != null) {
-				this.adapter.setLocation(newLocation);
+			if (this.nearbyListAdapter != null) {
+				this.nearbyListAdapter.setLocation(newLocation);
 			}
 		}
 	}
@@ -1130,8 +1142,8 @@ public class POIFragment extends ABFragment implements
 		enableTimeChangedReceiver();
 		this.showingAccessibilityInfo = null; // force user preference check
 		this.mapViewController.onResume();
-		if (this.adapter != null) {
-			this.adapter.onResume(this, this.deviceLocation);
+		if (this.nearbyListAdapter != null) {
+			this.nearbyListAdapter.onResume(this, this.deviceLocation);
 		}
 		if (this.newsListAdapter != null) {
 			this.newsListAdapter.onResume(this);
@@ -1169,8 +1181,8 @@ public class POIFragment extends ABFragment implements
 
 	@WorkerThread
 	@Override
-	public boolean skipRewardedAd() {
-		return this.adManager.shouldSkipRewardedAd();
+	public boolean skipLoadingRewardedAd() {
+		return this.adManager.shouldSkipLoadingRewardedAd();
 	}
 
 	@AnyThread
@@ -1181,50 +1193,34 @@ public class POIFragment extends ABFragment implements
 		view.post(this::refreshRewardedLayout);
 	}
 
-	@NonNull
-	private final ThreadSafeDateFormatter rewardedAdDateFormatter = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM);
-
 	@MainThread
 	private void refreshRewardedLayout() {
 		final LayoutPoiRewardedAdBinding rewardedLayout = this.binding == null ? null : this.binding.poiRewardedAd;
 		if (rewardedLayout == null) return;
-		final Long rewardedUntilInMs = this.adManager.getRewardedUntilInMsLive().getValue();
-		if (rewardedUntilInMs == null) return;
 		final Boolean rewardedNow = this.adManager.getRewardedNowLive().getValue();
 		if (rewardedNow == null) return;
-		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
-		final int rewardedAmount = this.adManager.getRewardedAdAmount();
-
-		final TextView rewardedAdTitleTv = rewardedLayout.rewardedAdsTitleLayout.rewardAdTitle;
-		final TextView rewardedAdsBtn = rewardedLayout.rewardedAdsBtn;
-
-		rewardedLayout.getRoot().setVisibility(availableToShow ? View.VISIBLE : View.GONE);
-
-		if (rewardedNow) {
-			rewardedAdTitleTv.setText(getString(
-					R.string.watch_rewarded_ad_title_text_and_date,
-					this.rewardedAdDateFormatter.formatThreadSafe(rewardedUntilInMs)
-			));
-		} else {
-			rewardedAdTitleTv.setText(getString(
-					R.string.watch_rewarded_ad_title_text
-			));
+		final IAgencyUpdatableProperties agency = getAgencyOrNull();
+		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable()
+				&& agency.shouldShowUpdateLayout();
+		boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
+		if (appUpdateAvailable) {
+			availableToShow = false; // do not overwhelm user with stuff to read
 		}
-		rewardedAdTitleTv.setVisibility(View.VISIBLE);
-
-		rewardedAdsBtn.setText(getResources().getQuantityString(
-				rewardedNow ?
-						R.plurals.watch_rewarded_ad_btn_more_and_days :
-						R.plurals.watch_rewarded_ad_btn_and_days,
-				rewardedAmount,
-				rewardedAmount
-		));
-		if (availableToShow) { // only if NOT paying user
-			rewardedAdsBtn.setEnabled(true);
-			rewardedAdsBtn.setVisibility(View.VISIBLE);
-		} else {
-			rewardedAdsBtn.setEnabled(false); // keep but disable
+		final int rewardedAmountInDays = this.adManager.getRewardedAdAmountInDays();
+		final TextView rewardedAdText = rewardedLayout.rewardedAdsText;
+		CharSequence rewardedText = null;
+		if (availableToShow) {
+			rewardedText = ResourceExtKt.getQuantityText(getResources(),
+					rewardedNow ?
+							R.plurals.watch_rewarded_ad_btn_more_and_days_formatted :
+							R.plurals.watch_rewarded_ad_btn_and_days_formatted,
+					rewardedAmountInDays,
+					rewardedAmountInDays
+			);
 		}
+		ViewKtxKt.setTextAndVisibility(rewardedAdText, rewardedText);
+		rewardedLayout.getRoot().setVisibility(rewardedAdText.getVisibility());
+		rewardedAdText.setEnabled(availableToShow);
 	}
 
 	private void refreshAppUpdateLayout() {
@@ -1312,8 +1308,8 @@ public class POIFragment extends ABFragment implements
 			this.viewModel.stopVehicleLocationRefresh();
 			stopVehicleLocationCountdownRefresh(this);
 		}
-		if (this.adapter != null) {
-			this.adapter.onPause();
+		if (this.nearbyListAdapter != null) {
+			this.nearbyListAdapter.onPause();
 		}
 		if (this.newsListAdapter != null) {
 			this.newsListAdapter.onPause(this);
@@ -1604,8 +1600,8 @@ public class POIFragment extends ABFragment implements
 		this.binding = null;
 		this.poiViewBinding = null;
 		this.poiStatusBinding = null;
-		if (this.adapter != null) {
-			this.adapter.onDestroyView();
+		if (this.nearbyListAdapter != null) {
+			this.nearbyListAdapter.onDestroyView();
 		}
 		this.mapViewController.onDestroyView();
 	}
@@ -1614,9 +1610,9 @@ public class POIFragment extends ABFragment implements
 	public void onDestroy() {
 		super.onDestroy();
 		this.mapViewController.onDestroy();
-		if (this.adapter != null) {
-			this.adapter.onDestroy();
-			this.adapter = null;
+		if (this.nearbyListAdapter != null) {
+			this.nearbyListAdapter.onDestroy();
+			this.nearbyListAdapter = null;
 		}
 		if (this.newsListAdapter != null) {
 			this.newsListAdapter.onDestroy(this);

@@ -21,7 +21,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
@@ -169,7 +169,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     private var binding: FragmentRdsRouteBinding? = null
 

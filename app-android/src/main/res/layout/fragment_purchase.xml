@@ -186,6 +186,7 @@
             android:layout_marginTop="@dimen/baseline_16"
             android:enabled="false"
             android:text="@string/support_start"
+            android:textAllCaps="false"
             android:visibility="gone"
             tools:enabled="true"
             tools:text="Start 7-day free trial"
