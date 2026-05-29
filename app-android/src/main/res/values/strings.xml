@@ -260,11 +260,11 @@
     <string name="support_pro_description">No Ads</string>
     <string name="support_start">Start</string>
     <string name="support_start_and_days_trial">Start %d-day free trial</string>
-    <string name="support_cancel_anytime">Cancel anytime.</string>
+    <string name="support_cancel_anytime">Cancel any time on Google Play.</string>
     <string name="support_link_paid_tasks_incentive">Too expensive? Click here to earn Play credit by answering quick surveys from Google.</string>
     <string name="support_link_paid_tasks_incentive_formatted">Too expensive? Click here to <b>earn Play credit</b> by answering quick surveys from Google.</string>
     <string name="support_subs_cancel_pref_title">Thanks for supporting MonTransit!</string>
-    <string name="support_subs_cancel_pref_summary">Cancel anytime.</string>
+    <string name="support_subs_cancel_pref_summary">Cancel any time on Google Play.</string>
     <string name="support_subs_default_failure_message">:(</string>
     <string name="support_subs_user_canceled_message">Maybe another time.</string>
     <string name="support_subs_authenticity_check_fail_message" tools:ignore="UnusedResources">Cannot verify authenticity!</string>

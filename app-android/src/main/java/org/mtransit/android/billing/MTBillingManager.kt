@@ -55,6 +55,9 @@ class MTBillingManager @Inject constructor(
 
         private const val PREF_KEY_SUBSCRIPTION = "pSubscription"
         private val PREF_KEY_SUBSCRIPTION_DEFAULT: String? = null
+
+        private val OVERRIDE_CURRENT_SUBSCRIPTION: String? = null
+        // private val OVERRIDE_CURRENT_SUBSCRIPTION: String? = "f_monthly_subscription_1".takeIf { Constants.DEBUG } // DEBUG
     }
 
     override fun getLogTag() = LOG_TAG
@@ -71,12 +74,14 @@ class MTBillingManager @Inject constructor(
         .build()
 
     override val currentSubscription: LiveData<String?> by lazy {
+        OVERRIDE_CURRENT_SUBSCRIPTION?.let { return@lazy MutableLiveData(it) }
         lclPrefRepository.pref.liveDataN(
             PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT
         ).distinctUntilChanged()
     }
 
     override suspend fun getCachedCurrentSubscription(): String? = withContext(Dispatchers.IO) {
+        OVERRIDE_CURRENT_SUBSCRIPTION?.let { return@withContext it }
         lclPrefRepository.pref.getString(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
     }
 
@@ -95,7 +100,7 @@ class MTBillingManager @Inject constructor(
     override fun showingPaidFeatures() = (hasSubscription.value == true
             && !isUsingFirebaseTestLab)
             || fullDemoMode == true
-            // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
+    // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
 

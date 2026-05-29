@@ -265,9 +265,9 @@
     <string name="support_pro_description">Aucune Pub</string>
     <string name="support_start">Débuter</string>
     <string name="support_start_and_days_trial">Débuter l\'essai gratuit de %d jours</string>
-    <string name="support_cancel_anytime">Annulable en tout temps.</string>
+    <string name="support_cancel_anytime">Annulable en tout temps sur Play.</string>
     <string name="support_subs_cancel_pref_title">Merci de supporter MonTransit !</string>
-    <string name="support_subs_cancel_pref_summary">Annuler n\'importe quand.</string>
+    <string name="support_subs_cancel_pref_summary">Annuler n\'importe quand sur Play.</string>
     <string name="support_subs_default_failure_message">:(</string>
     <string name="support_subs_user_canceled_message">Peut-être une autre fois.</string>
     <string name="support_subs_authenticity_check_fail_message" tools:ignore="UnusedResources">Impossible de vérifier l\'authenticité !</string>

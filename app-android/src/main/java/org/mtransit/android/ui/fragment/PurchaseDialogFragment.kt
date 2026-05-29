@@ -9,10 +9,11 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.RadioGroup
+import android.widget.RadioButton
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
+import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.ProductDetails
@@ -92,10 +93,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     private var binding: FragmentDialogPurchaseBinding? = null
 
-    private val onCheckedChangeListener = RadioGroup.OnCheckedChangeListener { _, checkedId ->
-        onPriceOrPeriodSelectionChanged()
-    }
-
     private fun onPriceOrPeriodSelectionChanged() {
         binding?.apply {
             val periodCat = periodRadioGroup.checkedRadioButtonId.takeIf { it != View.NO_ID }
@@ -127,16 +124,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         }
     }
 
-    private val onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-            onPriceOrPeriodSelectionChanged()
-        }
-
-        override fun onNothingSelected(parent: AdapterView<*>?) {
-            onPriceOrPeriodSelectionChanged()
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -153,10 +140,22 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             closeButton.setOnClickListener { dialog?.cancel() ?: dismiss() }
             buyBtn.setOnClickListener { onBuyBtnClick(it.context) }
             subTitle.setOnClickListener { onSubTitleClick(it.context) }
+            beforeText.setOnClickListener { selectRandomPriceAndPeriod() }
             paidTasksIncentive.setOnClickListener { onDownloadOrOpenPaidTasksBtnClick(it.context) }
             rewardedAdsText.setOnClickListener { onRewardedAdButtonClick(it.context) }
-            price.onItemSelectedListener = onItemSelectedListener
-            periodRadioGroup.setOnCheckedChangeListener(onCheckedChangeListener)
+            price.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    onPriceOrPeriodSelectionChanged()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    onPriceOrPeriodSelectionChanged()
+                }
+
+            }
+            periodRadioGroup.setOnCheckedChangeListener { _, _ ->
+                onPriceOrPeriodSelectionChanged()
+            }
         }
         billingManager.productIdsWithDetails.observe(viewLifecycleOwner) {
             onProductIdsLoaded(it)
@@ -166,6 +165,21 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         }
         adManager.rewardedNowLive.observe(viewLifecycleOwner) {
             refreshRewardedLayout()
+        }
+    }
+
+    private fun selectRandomPriceAndPeriod() {
+        binding?.apply {
+            try {
+                price.setSelection(
+                    (0 until price.count).random()
+                )
+                periodRadioGroup.check(
+                    periodRadioGroup.getChildAt((0 until periodRadioGroup.children.filterIsInstance<RadioButton>().count()).random()).id
+                )
+            } catch (e: Exception) {
+                MTLog.w(this, e, "Error while selecting random price and period!")
+            }
         }
     }
 
