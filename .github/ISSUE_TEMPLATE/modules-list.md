@@ -75,6 +75,7 @@ labels: MT
 - [ ] ca-niagara-falls-wego-bus
 - [ ] ca-niagara-region-transit-bus
 - [ ] ca-oakville-transit-bus
+- [ ] ca-orillia-transit-bus
 - [ ] ca-ottawa-oc-transpo-bus
 - [ ] ca-ottawa-oc-transpo-train
 - [ ] ca-pemberton-valley-regional-transit-bus
