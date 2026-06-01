@@ -487,13 +487,16 @@ public class POIManager implements LocationPOI,
 			int itemClicked,
 			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
-		final String pkg = ((Module) poi).getPkg();
+		final Module module = (Module) poi;
+		final String pkg = module.getPkg();
 		switch (itemClicked) {
 		case 0: // Rate on Google Play
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play));
+			StoreUtils.viewAppPage(activity, module.getStorePkg(),
+					activity.getString(org.mtransit.android.commons.R.string.google_play),
+					activity.getPackageName(), "mt", null, null, null);
 			return true; // HANDLED
 		case 1: // Manage App
 			if (onClickHandledListener != null) {
@@ -811,7 +814,9 @@ public class POIManager implements LocationPOI,
 					return true; // handled
 				}
 			}
-			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play));
+			StoreUtils.viewAppPage(activity, module.getStorePkg(),
+					activity.getString(org.mtransit.android.commons.R.string.google_play),
+					activity.getPackageName(), "mt", null, null, null);
 			return true; // handled
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			if (onClickHandledListener != null) {
