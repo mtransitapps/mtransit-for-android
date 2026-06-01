@@ -493,7 +493,8 @@ public class POIManager implements LocationPOI,
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play));
+			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play),
+					activity.getPackageName(), "mt", null, null, null);
 			return true; // HANDLED
 		case 1: // Manage App
 			if (onClickHandledListener != null) {
@@ -811,7 +812,8 @@ public class POIManager implements LocationPOI,
 					return true; // handled
 				}
 			}
-			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play));
+			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play),
+					activity.getPackageName(), "mt", null, null, null);
 			return true; // handled
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			if (onClickHandledListener != null) {
