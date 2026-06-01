@@ -256,7 +256,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				}
 			}
 			publishProgress(itemId);
-			final boolean hasUserLearnedDrawer = navigationDrawerController.defaultPrefRepository.getPref().getBoolean(
+			final boolean hasUserLearnedDrawer = demoModeManager.isFullDemo() // never open drawer in demo mode
+					|| navigationDrawerController.defaultPrefRepository.getPref().getBoolean(
 					DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT);
 			final Boolean showDrawerLearning = navigationDrawerController.dataSourcesRepository.hasAgenciesEnabled() && !hasUserLearnedDrawer;
 			return new Pair<>(itemId, showDrawerLearning);
@@ -264,13 +265,13 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 
 		@MainThread
 		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable Pair<String, Boolean> itemIdAndUserHasLearned) {
+		protected void onPostExecuteNotCancelledMT(@Nullable Pair<String, Boolean> itemIdAndShowDrawerLearning) {
 			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) return;
 			if (isCancelled()) return;
 			navigationDrawerController.setVisibleMenuItems();
-			final String itemId = itemIdAndUserHasLearned == null ? null : itemIdAndUserHasLearned.first;
-			final Boolean showDrawerLearning = itemIdAndUserHasLearned == null ? null : itemIdAndUserHasLearned.second;
+			final String itemId = itemIdAndShowDrawerLearning == null ? null : itemIdAndShowDrawerLearning.first;
+			final Boolean showDrawerLearning = itemIdAndShowDrawerLearning == null ? null : itemIdAndShowDrawerLearning.second;
 			selectItemId(itemId);
 			if (Boolean.TRUE.equals(showDrawerLearning)) {
 				navigationDrawerController.openDrawer();
