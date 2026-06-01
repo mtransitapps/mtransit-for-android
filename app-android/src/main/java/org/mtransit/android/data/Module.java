@@ -71,6 +71,11 @@ public class Module extends DefaultPOI {
 		return pkg;
 	}
 
+	@NonNull
+	String getStorePkg() {
+		return pkg; // no "debug" pkg on Store
+	}
+
 	@DataSourceTypeId.DataSourceType
 	public int getTargetTypeId() {
 		return targetTypeId;
