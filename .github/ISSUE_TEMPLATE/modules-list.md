@@ -102,6 +102,7 @@ labels: MT
 - [ ] ca-squamish-transit-system-bus
 - [ ] ca-st-albert-transit-bus
 - [ ] ca-st-catharines-transit-bus
+- [ ] ca-st-jean-sur-richelieu-transport-collectif-bus
 - [ ] ca-ste-julie-omitsju-bus
 - [ ] ca-st-john-s-metrobus-transit-bus
 - [ ] ca-strathcona-county-transit-bus
