@@ -37,6 +37,7 @@ import org.mtransit.android.ad.AdsConsentManager;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.billing.BillingUtils;
+import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.BundleUtils;
@@ -114,6 +115,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	private final StatusLoader statusLoader;
 	@NonNull
 	private final AdsConsentManager consentManager;
+	@NonNull
+	private final IBillingManager billingManager;
 	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
 	private final PackageManager packageManager;
@@ -142,6 +145,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			@NonNull LocalPreferenceRepository lclPrefRepository,
 			@NonNull StatusLoader statusLoader,
 			@NonNull AdsConsentManager consentManager,
+			@NonNull IBillingManager billingManager,
 			@NonNull PackageManager packageManager,
 			@NonNull ServiceUpdateLoader serviceUpdateLoader,
 			@NonNull DemoModeManager demoModeManager
@@ -154,6 +158,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.analyticsManager = analyticsManager;
 		this.statusLoader = statusLoader;
 		this.consentManager = consentManager;
+		this.billingManager = billingManager;
 		this.packageManager = packageManager;
 		this.serviceUpdateLoader = serviceUpdateLoader;
 		this.demoModeManager = demoModeManager;
@@ -351,6 +356,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		final boolean hasAgencyWithFaresWeb = Boolean.TRUE.equals(this.hasAgencyWithFaresWeb);
 		final boolean hasAgenciesAdded = Boolean.TRUE.equals(this.hasAgenciesAdded);
+		final boolean hasSubscriptions = Boolean.TRUE.equals(this.billingManager.getHasSubscription().getValue());
 		this.navigationView.getMenu().findItem(R.id.root_nav_map).setVisible(hasAgenciesAdded);
 		// TODO favorites? (favorite manager requires IO
 		final boolean hasNewsProviderEnabled = Boolean.TRUE.equals(this.hasNewsProviderEnabled);
@@ -374,7 +380,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			}
 		}
 		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgenciesAdded);
-		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgenciesAdded);
+		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgenciesAdded && !hasSubscriptions);
 		this.navigationView.getMenu().findItem(R.id.nav_fares).setVisible(hasAgencyWithFaresWeb);
 		this.navigationView.getMenu().findItem(R.id.nav_privacy_setting).setVisible(this.consentManager.isPrivacyOptionsRequired());
 	}

@@ -25,13 +25,11 @@ import com.android.billingclient.api.QueryPurchasesParams
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.SystemSettingManager
-import java.util.WeakHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -56,12 +54,13 @@ class MTBillingManager @Inject constructor(
         private const val LOG_PRODUCT_DETAILS_COMPLETE = false
         // private const val LOG_PRODUCT_DETAILS_COMPLETE = true // DEBUG
 
-        private const val PREF_KEY_SUBSCRIPTION = "pSubscription"
-        private val PREF_KEY_SUBSCRIPTION_DEFAULT: String? = null
-        private const val PREF_KEY_SUBSCRIPTION_NONE = ""
+        private const val PREF_KEY_SUBS_PRODUCT_ID = "pSubscription"
+        private const val PREF_KEY_SUBS_PRODUCT_ID_NONE = ""
+        private val PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN: String? = null
+        private val PREF_KEY_SUBS_PRODUCT_ID_DEFAULT: String? = PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN
 
-        private val OVERRIDE_CURRENT_SUBSCRIPTION: String? = null
-        // private val OVERRIDE_CURRENT_SUBSCRIPTION: String? = "f_monthly_subscription_1".takeIf { Constants.DEBUG } // DEBUG
+        private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = null
+        // private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = "f_monthly_subscription_1".takeIf { Constants.DEBUG } // DEBUG
     }
 
     override fun getLogTag() = LOG_TAG
@@ -78,20 +77,25 @@ class MTBillingManager @Inject constructor(
         .enableAutoServiceReconnection()
         .build()
 
-    override val currentSubscription: LiveData<String?> by lazy {
-        OVERRIDE_CURRENT_SUBSCRIPTION?.let { return@lazy MutableLiveData(it) }
+    override val currentSubsProductId: LiveData<String?> by lazy {
+        OVERRIDE_CURRENT_SUBS_PRODUCT_ID?.let { return@lazy MutableLiveData(it) }
         lclPrefRepository.pref.liveDataN(
-            PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT
+            PREF_KEY_SUBS_PRODUCT_ID, PREF_KEY_SUBS_PRODUCT_ID_DEFAULT
         ).distinctUntilChanged()
     }
 
-    override suspend fun getCachedCurrentSubscription(): String? = withContext(Dispatchers.IO) {
-        OVERRIDE_CURRENT_SUBSCRIPTION?.let { return@withContext it }
-        lclPrefRepository.pref.getString(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
+    override suspend fun getCachedHasSubscription() =
+        getCachedCurrentSubsProductId()?.isNotEmpty()
+
+    override suspend fun getCachedCurrentSubsProductId(): String? = withContext(Dispatchers.IO) {
+        OVERRIDE_CURRENT_SUBS_PRODUCT_ID?.let { return@withContext it }
+        lclPrefRepository.pref.getString(
+            PREF_KEY_SUBS_PRODUCT_ID, PREF_KEY_SUBS_PRODUCT_ID_DEFAULT
+        )
     }
 
     override val hasSubscription: LiveData<Boolean?> by lazy {
-        this.currentSubscription.map { it?.isNotBlank() }
+        this.currentSubsProductId.map { it?.isNotBlank() }
     }
 
     private val isUsingFirebaseTestLab: Boolean by lazy {
@@ -105,11 +109,9 @@ class MTBillingManager @Inject constructor(
             || fullDemoMode == true
     // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
-    private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
-
     private val _productIdsWithDetails = MutableLiveData<Map<String, ProductDetails>>()
 
-    override val productIdsWithDetails = _productIdsWithDetails
+    override val availableProductIdsWithDetails = _productIdsWithDetails
 
     init {
         startConnection()
@@ -196,7 +198,7 @@ class MTBillingManager @Inject constructor(
         MTLog.d(this, "onProductDetailsResponse($billingResult, ${productDetailsResult.productDetailsList.size})")
         if (!LOG_PRODUCT_DETAILS_COMPLETE) {
             productDetailsResult.productDetailsList.let {
-                MTLog.i(this, "onProductDetailsResponse() > product IDs [${it.size}}]: ${it.joinToString { productDetails -> productDetails.productId }}.")
+                MTLog.i(this, "onProductDetailsResponse() > product IDs [${it.size}]: ${it.joinToString { productDetails -> productDetails.productId }}.")
             }
         }
         when (billingResult.responseCode) {
@@ -267,7 +269,7 @@ class MTBillingManager @Inject constructor(
     private fun processPurchases(purchasesList: List<Purchase>) {
         MTLog.d(this, "processPurchases(${purchasesList.size})")
         if (purchasesList.isEmpty()) {
-            setCurrentSubscription(PREF_KEY_SUBSCRIPTION_NONE)
+            setCurrentSubscription(PREF_KEY_SUBS_PRODUCT_ID_NONE)
             return
         }
         purchasesList
@@ -301,13 +303,12 @@ class MTBillingManager @Inject constructor(
             MTLog.w(this, "Could not find offer token for '${productDetails.productId}' purchase.")
             return false
         }
-        val productDetailsParamsList =
-            listOf(
-                BillingFlowParams.ProductDetailsParams.newBuilder()
-                    .setProductDetails(productDetails)
-                    .setOfferToken(offerToken)
-                    .build()
-            )
+        val productDetailsParamsList = listOf(
+            BillingFlowParams.ProductDetailsParams.newBuilder()
+                .setProductDetails(productDetails)
+                .setOfferToken(offerToken)
+                .build()
+        )
         val billingResult = billingClient.launchBillingFlow( // results delivered > onPurchasesUpdated()
             theActivity,
             BillingFlowParams.newBuilder()
@@ -334,31 +335,15 @@ class MTBillingManager @Inject constructor(
 
     private fun handlePurchasesError() {
         MTLog.w(this, "handlePurchasesError()")
-        if (this.currentSubscription.value != null) return // keep cached subscription value
-        setCurrentSubscription(PREF_KEY_SUBSCRIPTION_NONE) // assume no subscription until successful purchases fetched
+        if (this.currentSubsProductId.value != null) return // keep cached subscription value
+        setCurrentSubscription(PREF_KEY_SUBS_PRODUCT_ID_NONE) // assume no subscription until successful purchases fetched
     }
 
     private fun setCurrentSubscription(productId: String) {
         MTLog.d(this, "setCurrentSubscription($productId)")
-        if (this.currentSubscription.value == productId) return // same
+        if (this.currentSubsProductId.value == productId) return // same
         this.lclPrefRepository.pref.edit {
-            putString(PREF_KEY_SUBSCRIPTION, productId)
+            putString(PREF_KEY_SUBS_PRODUCT_ID, productId)
         }
-        broadcastCurrentProductIdChanged(productId)
-    }
-
-    private fun broadcastCurrentProductIdChanged(currentSubscription: String) {
-        this._listenersWR.keys.forEach { listener ->
-            listener.onBillingResult(currentSubscription)
-        }
-    }
-
-    override fun addListener(listener: OnBillingResultListener) {
-        _listenersWR[listener] = null
-        listener.onBillingResult(this.currentSubscription.value)
-    }
-
-    override fun removeListener(listener: OnBillingResultListener) {
-        _listenersWR.remove(listener)
     }
 }

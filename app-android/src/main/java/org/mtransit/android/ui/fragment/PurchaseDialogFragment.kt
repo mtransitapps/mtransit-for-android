@@ -157,8 +157,8 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 onPriceOrPeriodSelectionChanged()
             }
         }
-        billingManager.productIdsWithDetails.observe(viewLifecycleOwner) {
-            onProductIdsLoaded(it)
+        billingManager.availableProductIdsWithDetails.observe(viewLifecycleOwner) {
+            onAvailableProductIdsLoaded(it)
         }
         adManager.rewardedUntilLive.observe(viewLifecycleOwner) {
             refreshRewardedLayout()
@@ -400,7 +400,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     private val periodAndPriceCatToProductId = mutableMapOf<Pair<String, String>, String>()
     private val productIdToFreePeriod = mutableMapOf<String, DatePeriod?>()
 
-    private fun onProductIdsLoaded(productIdsWithDetails: Map<String, ProductDetails>?) {
+    private fun onAvailableProductIdsLoaded(productIdsWithDetails: Map<String, ProductDetails>?) {
         productIdsWithDetails ?: return
         val binding = binding ?: return
         val context = binding.context

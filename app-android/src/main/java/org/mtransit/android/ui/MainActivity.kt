@@ -22,7 +22,6 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Observer
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
@@ -39,7 +38,6 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
@@ -71,7 +69,6 @@ import javax.inject.Inject
 class MainActivity : MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,
     AnalyticsScreen,
-    OnBillingResultListener,
     IActivity, IAdScreenActivity,
     MTLog.Loggable,
     IAdManager.RewardedAdListener {
@@ -176,6 +173,7 @@ class MainActivity : MTActivityWithLocation(),
             this.lclPrefRepository,
             this.statusLoader,
             this.consentManager,
+            this.billingManager,
             this.packageManager,
             this.serviceUpdateLoader,
             this.demoModeManager,
@@ -183,7 +181,7 @@ class MainActivity : MTActivityWithLocation(),
             navigationDrawerController.onCreate(savedInstanceState)
         }
         supportFragmentManager.addOnBackStackChangedListener(this)
-        this.dataSourcesRepository.readingHasAgenciesEnabled().observe(this, Observer { hasAgenciesEnabled: Boolean? ->
+        this.dataSourcesRepository.readingHasAgenciesEnabled().observe(this) { hasAgenciesEnabled: Boolean? ->
             lifecycleScope.launch(Dispatchers.IO) {
                 adManager.onHasAgenciesEnabledUpdated(
                     hasAgenciesEnabled,
@@ -191,28 +189,27 @@ class MainActivity : MTActivityWithLocation(),
                 ) // ad-manager does not persist activity but listen for changes itself
             }
             this.abController?.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
-        })
+        }
         this.defaultPrefRepository.pref.liveData(
             DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
         ).distinctUntilChanged().observe(this) {
             this.navigationDrawerController?.onUseInternalWebBrowserPrefChanged(it)
         }
-        this.dataSourcesRepository.readingHasAgenciesAdded().observe(this, Observer { hasAgenciesAdded: Boolean? ->
+        this.dataSourcesRepository.readingHasAgenciesAdded().observe(this) { hasAgenciesAdded: Boolean? ->
             if (hasAgenciesAdded == true) {
                 onHasAgenciesAddedChanged()
             }
-        })
-        this.billingManager.currentSubscription.observe(this, Observer { _: String? -> })
-        MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
-        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
-    }
-
-    override fun onBillingResult(productId: String?) {
-        productId?.isNotEmpty()?.let { hasSubscription ->
+        }
+        this.billingManager.hasSubscription.observe(this) { hasSubscription: Boolean? ->
             lifecycleScope.launch(Dispatchers.IO) {
                 adManager.setHasSubscription(hasSubscription, this@MainActivity)
             }
         }
+        this.billingManager.currentSubsProductId.observe(this) {
+            // do nothing
+        }
+        MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
+        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -255,7 +252,6 @@ class MainActivity : MTActivityWithLocation(),
         this.adManager.adaptToScreenSize(this)
         this.adManager.setRewardedAdListener(this) // used until POI screen is visible // need to preload ASAP
         this.adManager.linkRewardedAd(this)
-        this.billingManager.addListener(this) // trigger onBillingResult() w/ current value
         this.billingManager.refreshPurchases()
         onLastLocationChanged(deviceLocation)
 
@@ -296,7 +292,6 @@ class MainActivity : MTActivityWithLocation(),
         super.onPause()
         this.isMTResumed = false
         this.navigationDrawerController?.onPause()
-        this.billingManager.removeListener(this)
         this.adManager.pauseAd(this)
     }
 

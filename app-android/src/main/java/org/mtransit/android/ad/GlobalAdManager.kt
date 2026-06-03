@@ -189,7 +189,7 @@ class GlobalAdManager(
     }
 
     suspend fun initHasSubscriptionFromCache() = withContext(ioDispatcher) {
-        billingManager.getCachedCurrentSubscription()?.isNotEmpty()?.let { hasSubscription ->
+        billingManager.getCachedHasSubscription()?.let { hasSubscription ->
             setHasSubscription(hasSubscription)
         }
     }
