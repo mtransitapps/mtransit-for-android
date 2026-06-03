@@ -51,8 +51,8 @@ class MTBillingManager @Inject constructor(
     companion object {
         private val LOG_TAG: String = MTBillingManager::class.java.simpleName
 
-        private const val LOG_PRODUCT_DETAILS_COMPLETE = false
-        // private const val LOG_PRODUCT_DETAILS_COMPLETE = true // DEBUG
+        private const val LOG_COMPLETE_DETAILS = false
+        // private const val LOG_COMPLETE_DETAILS = true // DEBUG
 
         private const val PREF_KEY_SUBS_PRODUCT_ID = "pSubscription"
         private const val PREF_KEY_SUBS_PRODUCT_ID_NONE = ""
