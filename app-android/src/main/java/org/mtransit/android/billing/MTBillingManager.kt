@@ -131,7 +131,7 @@ class MTBillingManager @Inject constructor(
         MTLog.d(this, "onBillingSetupFinished(${billingResult.toStringPlus(short = true)})")
         if (billingResult.responseCode == BillingResponseCode.OK) {
             billingClientConnected = true
-            queryProductDetails()
+            queryAvailableProductDetails()
             queryPurchases()
         } else {
             MTLog.w(this, "Billing setup NOT successful! ${billingResult.responseCode}: ${billingResult.debugMessage}")
@@ -174,12 +174,12 @@ class MTBillingManager @Inject constructor(
 
     override fun refreshAvailableSubscriptions() {
         MTLog.d(this, "refreshAvailableSubscriptions()")
-        queryProductDetails()
+        queryAvailableProductDetails()
     }
 
-    private fun queryProductDetails() {
+    private fun queryAvailableProductDetails() {
         if (!billingClient.isReady) {
-            MTLog.d(this, "queryProductDetails() > BillingClient is not ready")
+            MTLog.d(this, "queryAvailableProductDetails() > BillingClient is not ready")
             if (this.billingClientConnected == false) {
                 startConnection()
             }
@@ -282,20 +282,16 @@ class MTBillingManager @Inject constructor(
 
     private fun processPurchases(purchasesList: List<Purchase>) {
         MTLog.d(this, "processPurchases(${purchasesList.size})")
-        if (purchasesList.isEmpty()) {
-            setCurrentSubscription(PREF_KEY_SUBS_PRODUCT_ID_NONE)
-            return
-        }
         purchasesList
             .filter { !it.isAcknowledged }
             .forEach { purchase ->
                 acknowledgePurchase(purchase.purchaseToken)
             }
-        purchasesList
-            .flatMap { purchase -> purchase.products.filter { product -> product.isNotEmpty() } }
-            .firstOrNull()?.let { purchasedProduct ->
-                setCurrentSubscription(purchasedProduct)
-            }
+        val purchasedProduct = purchasesList
+            .flatMap { it.products }
+            .firstOrNull { it.isNotEmpty() }
+            ?: PREF_KEY_SUBS_PRODUCT_ID_NONE
+        setCurrentSubscription(purchasedProduct)
     }
 
     override fun launchBillingFlow(activity: IActivity, productId: String): Boolean {
