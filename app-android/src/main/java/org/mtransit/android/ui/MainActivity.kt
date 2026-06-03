@@ -204,6 +204,7 @@ class MainActivity : MTActivityWithLocation(),
             lifecycleScope.launch(Dispatchers.IO) {
                 adManager.setHasSubscription(hasSubscription, this@MainActivity)
             }
+            this.navigationDrawerController?.setVisibleMenuItems()
         }
         this.billingManager.currentSubsProductId.observe(this) {
             // do nothing

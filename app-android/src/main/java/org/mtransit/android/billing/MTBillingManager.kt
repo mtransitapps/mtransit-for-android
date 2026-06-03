@@ -128,7 +128,7 @@ class MTBillingManager @Inject constructor(
     }
 
     override fun onBillingSetupFinished(billingResult: BillingResult) {
-        MTLog.d(this, "onBillingSetupFinished(${billingResult})")
+        MTLog.d(this, "onBillingSetupFinished(${billingResult.toStringPlus(short = true)})")
         if (billingResult.responseCode == BillingResponseCode.OK) {
             billingClientConnected = true
             queryProductDetails()
@@ -140,8 +140,13 @@ class MTBillingManager @Inject constructor(
     }
 
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
-        MTLog.d(this, "onPurchasesUpdated(${billingResult}, ${purchases?.size})")
+        MTLog.d(this, "onPurchasesUpdated(${billingResult.toStringPlus(short = true)}, ${purchases?.size})")
         MTLog.i(this, "onPurchasesUpdated() > purchases [${purchases?.size}]: ${purchases?.flatMap { it.products }?.joinToString()}.")
+        if (LOG_COMPLETE_DETAILS) {
+            purchases?.forEach {
+                MTLog.d(this, "onPurchasesUpdated() > - purchase: ${it.toStringPlus(short = true)}")
+            }
+        }
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
                 processPurchases(purchases.orEmpty())
@@ -195,8 +200,8 @@ class MTBillingManager @Inject constructor(
     }
 
     override fun onProductDetailsResponse(billingResult: BillingResult, productDetailsResult: QueryProductDetailsResult) {
-        MTLog.d(this, "onProductDetailsResponse($billingResult, ${productDetailsResult.productDetailsList.size})")
-        if (!LOG_PRODUCT_DETAILS_COMPLETE) {
+        MTLog.d(this, "onProductDetailsResponse(${billingResult.toStringPlus(short = true)}, ${productDetailsResult.productDetailsList.size})")
+        if (!LOG_COMPLETE_DETAILS) {
             productDetailsResult.productDetailsList.let {
                 MTLog.i(this, "onProductDetailsResponse() > product IDs [${it.size}]: ${it.joinToString { productDetails -> productDetails.productId }}.")
             }
@@ -205,7 +210,7 @@ class MTBillingManager @Inject constructor(
             BillingResponseCode.OK -> {
                 _productIdsWithDetails.postValue(
                     productDetailsResult.productDetailsList.associateBy { productDetails ->
-                        if (LOG_PRODUCT_DETAILS_COMPLETE) {
+                        if (LOG_COMPLETE_DETAILS) {
                             MTLog.d(this, "onProductDetailsResponse() > - product details: ${productDetails.toStringPlus(short = true)}")
                         }
                         productDetails.productId
@@ -236,6 +241,10 @@ class MTBillingManager @Inject constructor(
 
     override fun refreshPurchases() {
         MTLog.d(this, "refreshPurchases()")
+        if (this.billingClient.isReady && this.billingClientConnected == true && this.hasSubscription.value != null) {
+            MTLog.d(this, "refreshPurchases() > SKIP (client ready & connected | current subscription status known)")
+            return
+        }
         queryPurchases()
     }
 
@@ -256,8 +265,13 @@ class MTBillingManager @Inject constructor(
     }
 
     override fun onQueryPurchasesResponse(billingResult: BillingResult, purchasesList: List<Purchase>) {
-        MTLog.d(this, "onQueryPurchasesResponse($billingResult, ${purchasesList.size})")
+        MTLog.d(this, "onQueryPurchasesResponse(${billingResult.toStringPlus(short = true)}, ${purchasesList.size})")
         MTLog.i(this, "onQueryPurchasesResponse() > purchases [${purchasesList.size}]: ${purchasesList.flatMap { it.products }.joinToString()}.")
+        if (LOG_COMPLETE_DETAILS) {
+            purchasesList.forEach {
+                MTLog.d(this, "onQueryPurchasesResponse() > - purchase: ${it.toStringPlus(short = true)}")
+            }
+        }
         if (billingResult.responseCode == BillingResponseCode.OK) {
             processPurchases(purchasesList)
         } else {
@@ -315,6 +329,7 @@ class MTBillingManager @Inject constructor(
                 .setProductDetailsParamsList(productDetailsParamsList)
                 .build()
         )
+        MTLog.d(this, "launchBillingFlow() > billing flow launch result: ${billingResult.toStringPlus(short = true)})")
         if (billingResult.responseCode != BillingResponseCode.OK) {
             MTLog.w(this, "Error while launching billing flow! ${billingResult.responseCode}: ${billingResult.debugMessage}")
         }
@@ -327,6 +342,7 @@ class MTBillingManager @Inject constructor(
                 .setPurchaseToken(purchaseToken)
                 .build()
         ) { billingResult ->
+            MTLog.d(this, "onAcknowledgePurchaseResponse(${billingResult.toStringPlus(short = true)})")
             if (billingResult.responseCode != BillingResponseCode.OK) {
                 MTLog.w(this, "Error while acknowledging purchase! ${billingResult.responseCode}: ${billingResult.debugMessage}")
             }

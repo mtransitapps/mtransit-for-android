@@ -2,15 +2,48 @@
 
 package org.mtransit.android.billing
 
+import com.android.billingclient.api.BillingClient.BillingResponseCode
+import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.Purchase
 import kotlinx.datetime.DatePeriod
+import org.mtransit.android.toDateTimeLog
 
+@Suppress("SpellCheckingInspection")
 private const val LOG_TAG = "BillingKtx"
 
 private const val P4W3D = "P4W3D"
 
 val ProductDetails.PricingPhase.billingDatePeriod: DatePeriod?
     get() = DatePeriod.parseOrNull(this.billingPeriod)
+
+fun Purchase.toStringPlus(short: Boolean = false) = buildString {
+    append(if (short) "P{" else "Purchase{")
+    products.takeIf { it.isNotEmpty() }?.let { append("products:${it.joinToString()},") }
+    quantity.takeIf { it > 0 }?.let { append("quantity:$it, ") }
+    orderId?.let { append("orderId:$it, ") }
+    if (short) {
+        append("purchase{time:${purchaseTime.toDateTimeLog()}|state:${purchaseState}|token:${purchaseToken}}, ")
+    } else {
+        append("purchaseTime:${purchaseTime.toDateTimeLog()},")
+        append("purchaseState:${purchaseState}, ")
+        append("purchaseToken:$purchaseToken, ")
+    }
+    if (isAcknowledged) append("acknowledged, ")
+    if (isAutoRenewing) append("autoRenewing, ")
+    if (isSuspended) append("suspended, ")
+    append("}")
+}
+
+fun BillingResult.toStringPlus(short: Boolean = false) = buildString {
+    if (responseCode == BillingResponseCode.OK) {
+        append(if (short) "BR{" else "BillingResult{")
+        append("OK")
+        append("}")
+    } else {
+        append(this@toStringPlus.toString()) // incl. response code string + debug message
+    }
+}
 
 fun ProductDetails.toStringPlus(short: Boolean = false) = buildString {
     append(if (short) "PD{" else "ProductDetails{")
@@ -35,7 +68,7 @@ fun ProductDetails.SubscriptionOfferDetails.toStringPlus(short: Boolean = false)
     append(if (short) "base:" else "basePlanId:").append(basePlanId).append(", ")
     installmentPlanDetails?.let { append("installmentPlanId: ${it.toStringPlus(short = short)}, ") }
     append(if (short) "ID:" else "offerId:").append(offerId).append(", ")
-    offerTags.takeIf { it.isNotEmpty() }?.let { append(if (short) "tags:" else "offerTags:").append(offerTags).append(", ")}
+    offerTags.takeIf { it.isNotEmpty() }?.let { append(if (short) "tags:" else "offerTags:").append(offerTags).append(", ") }
     append(if (short) "token:" else "offerToken:").append(offerToken).append(", ")
     append(if (short) "PHs:" else "pricingPhases:").append(pricingPhases.toStringPlus(short = short)).append(", ")
     append("}")
