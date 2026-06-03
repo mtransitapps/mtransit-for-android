@@ -78,6 +78,7 @@ labels: MT
 - [ ] ca-orillia-transit-bus
 - [ ] ca-ottawa-oc-transpo-bus
 - [ ] ca-ottawa-oc-transpo-train
+- [ ] ca-outaouais-transcollines-bus
 - [ ] ca-pemberton-valley-regional-transit-bus
 - [ ] ca-port-alberni-transit-bus
 - [ ] ca-powell-river-regional-transit-system-bus
