@@ -23,11 +23,11 @@ fun Purchase.toStringPlus(short: Boolean = false) = buildString {
     quantity.takeIf { it > 0 }?.let { append("quantity:$it, ") }
     orderId?.let { append("orderId:$it, ") }
     if (short) {
-        append("purchase{time:${purchaseTime.toDateTimeLog()}|state:${purchaseState}|token:${purchaseToken}}, ")
+        append("purchase{time:${purchaseTime.toDateTimeLog()}|state:${purchaseState}|token:*** (${purchaseToken.length})}, ")
     } else {
         append("purchaseTime:${purchaseTime.toDateTimeLog()},")
         append("purchaseState:${purchaseState}, ")
-        append("purchaseToken:$purchaseToken, ")
+        append("purchaseToken: *** (${purchaseToken.length}), ")
     }
     if (isAcknowledged) append("acknowledged, ")
     if (isAutoRenewing) append("autoRenewing, ")

@@ -283,11 +283,13 @@ class MTBillingManager @Inject constructor(
     private fun processPurchases(purchasesList: List<Purchase>) {
         MTLog.d(this, "processPurchases(${purchasesList.size})")
         purchasesList
+            .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
             .filter { !it.isAcknowledged }
             .forEach { purchase ->
                 acknowledgePurchase(purchase.purchaseToken)
             }
         val purchasedProduct = purchasesList
+            .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
             .flatMap { it.products }
             .firstOrNull { it.isNotEmpty() }
             ?: PREF_KEY_SUBS_PRODUCT_ID_NONE
