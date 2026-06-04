@@ -40,7 +40,6 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.ThemeUtils
@@ -65,7 +64,6 @@ import javax.inject.Inject
 class NextMainActivity : MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,
     AnalyticsScreen,
-    OnBillingResultListener,
     IActivity, IAdScreenActivity,
     IAdManager.RewardedAdListener {
 
@@ -234,18 +232,15 @@ class NextMainActivity : MTActivityWithLocation(),
         viewModel.abBgColor.observe(this) { newBgColor ->
             abBgDrawable?.color = newBgColor ?: defaultBgColor
         }
-        billingManager.currentSubscription.observe(this) {
+        billingManager.currentSubsProductId.observe(this) {
             // do nothing
         }
-        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED)
-    }
-
-    override fun onBillingResult(productId: String?) {
-        productId?.isNotEmpty()?.let { hasSubscription ->
+        billingManager.hasSubscription.observe(this) { hasSubscription->
             lifecycleScope.launch(Dispatchers.IO) {
                 adManager.setHasSubscription(hasSubscription, this@NextMainActivity)
             }
         }
+        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onNewIntent(@SuppressLint("UnknownNullness") intent: Intent) {
@@ -279,7 +274,6 @@ class NextMainActivity : MTActivityWithLocation(),
         adManager.adaptToScreenSize(this, resources.configuration)
         adManager.setRewardedAdListener(this) // used until POI screen is visible // need to preload ASAP
         adManager.linkRewardedAd(this)
-        billingManager.addListener(this) // trigger onBillingResult() w/ current value
         billingManager.refreshPurchases()
         onLastLocationChanged(deviceLocation)
 
@@ -315,7 +309,6 @@ class NextMainActivity : MTActivityWithLocation(),
     override fun onPause() {
         super.onPause()
         isMTResumed = false
-        billingManager.removeListener(this)
         adManager.pauseAd(this)
     }
 

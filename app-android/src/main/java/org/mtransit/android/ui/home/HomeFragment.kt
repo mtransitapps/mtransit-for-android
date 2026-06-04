@@ -134,7 +134,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
             override val isShowLoading get() = attachedViewModel?.loadingPOIs?.value == true
 
-            override val isShowText get() = billingManager.hasSubscription.value != true
+            override val isShowText get() = billingManager.hasSubscription.value != true && !demoModeManager.isFullDemo()
 
             override val text get() = context?.getString(R.string.support)?.takeIf { isShowText }
 
