@@ -349,7 +349,8 @@ class MTBillingManager @Inject constructor(
 
     private fun handlePurchasesError() {
         MTLog.w(this, "handlePurchasesError()")
-        if (this.currentSubsProductId.value != null) return // keep cached subscription value
+        val cachedProductId = this.lclPrefRepository.pref.getString(PREF_KEY_SUBS_PRODUCT_ID, PREF_KEY_SUBS_PRODUCT_ID_DEFAULT)
+        if (cachedProductId != PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN) return // keep cached subscription value
         setCurrentSubscription(PREF_KEY_SUBS_PRODUCT_ID_NONE) // assume no subscription until successful purchases fetched
     }
 
