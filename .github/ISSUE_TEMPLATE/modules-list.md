@@ -28,6 +28,7 @@ labels: MT
 - [ ] ca-cranbrook-transit-system-bus
 - [ ] ca-creston-valley-regional-transit-bus
 - [ ] ca-dawson-creek-transit-system-bus
+- [ ] ca-drummondville-transport-en-commun-bus
 - [ ] ca-durham-region-transit-bus
 - [ ] ca-edmonton-ets-bus
 - [ ] ca-edmonton-ets-train
