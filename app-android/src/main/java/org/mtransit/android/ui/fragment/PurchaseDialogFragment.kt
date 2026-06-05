@@ -32,6 +32,7 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.getQuantityText
 import org.mtransit.android.databinding.FragmentDialogPurchaseBinding
 import org.mtransit.android.ui.MTActivity
+import org.mtransit.android.ui.common.twoPane
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.textAndVisibility
@@ -122,6 +123,16 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
             } ?: context.getString(R.string.support_subs_buy_with_play) // no trial? (trial already used)
             buyBtn.isEnabled = !productId.isNullOrBlank()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.apply {
+            if (!context.twoPane) {
+                setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            }
+        }
+        setStyle(STYLE_NO_TITLE, android.R.style.Theme_NoTitleBar)
     }
 
     override fun onCreateView(
