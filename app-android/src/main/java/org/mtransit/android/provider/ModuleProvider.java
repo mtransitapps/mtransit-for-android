@@ -345,7 +345,6 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Nullable
 	@Override
 	public Cursor getPOIFromDB(@Nullable POIProviderContract.Filter poiFilter) {
-		MTLog.v(this, "getPOIFromDB(%s)", poiFilter);
 		try {
 			if (poiFilter == null) return null;
 			String selection = poiFilter.getSqlSelection(
@@ -414,8 +413,6 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			getStorage(context).edit()
 					.putLong(PREF_KEY_LAST_UPDATE_MS, lastUpdateInMs)
 					.apply();
-			// updateAllModuleDataFromWWW(context, lastUpdateInMs);
-			// return;
 		} else if (lastUpdateInMs + getPOIValidityInMs() >= nowInMs) {
 			MTLog.i(this, "updateModuleDataIfRequired() > SKIP (too soon, next in %s)",
 					MTLog.formatDuration((lastUpdateInMs + getPOIValidityInMs()) - nowInMs)
