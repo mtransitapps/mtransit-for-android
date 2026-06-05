@@ -9,6 +9,7 @@
 {"name":"Brampton Transit (City of Brampton)","name_fr":"","location":"Brampton, ON, Canada","targetTypeId":"3","color":"DB3935","lat":"43.706969","lng":"-79.724756","pkg":"org.mtransit.android.ca_brampton_transit_bus"},
 {"name":"Brandon Transit (City of Brandon)","name_fr":"","location":"Brandon, MB, Canada","targetTypeId":"3","color":"00B8F1","lat":"49.826616","lng":"-99.927767","pkg":"org.mtransit.android.ca_brandon_transit_bus"},
 {"name":"Burlington Transit (City of Burlington)","name_fr":"","location":"Burlington, ON, Canada","targetTypeId":"3","color":"006184","lat":"43.326095","lng":"-79.798886","pkg":"org.mtransit.android.ca_burlington_transit_bus"},
+{"name":"BUS Mont-Tremblant","name_fr":"BUS Mont-Tremblant","location":"Mont-Tremblant, QC, Canada","targetTypeId":"3","color":"044B53","lat":"46.11905150060826","lng":"-74.59286489660158","pkg":"org.mtransit.android.ca_mont_tremblant_bus"},
 {"name":"Calgary Transit Buses","name_fr":"","location":"Calgary, AB, Canada","targetTypeId":"3","color":"B83A3F","lat":"51.046293","lng":"-114.059151","pkg":"org.mtransit.android.ca_calgary_transit_bus"},
 {"name":"Calgary Transit CTrain","name_fr":"","location":"Calgary, AB, Canada","targetTypeId":"0","color":"B83A3F","lat":"51.046803","lng":"-114.072417","pkg":"org.mtransit.android.ca_calgary_transit_train"},
 {"name":"Campbell River Transit Systems (BC Transit)","name_fr":"","location":"Campbell River, BC, Canada","targetTypeId":"3","color":"00B140","lat":"50.023711","lng":"-125.257027","pkg":"org.mtransit.android.ca_campbell_river_transit_system_bus"},
