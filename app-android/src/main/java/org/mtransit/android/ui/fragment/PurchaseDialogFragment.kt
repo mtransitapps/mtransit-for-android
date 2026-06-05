@@ -132,7 +132,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             }
         }
-        setStyle(STYLE_NO_TITLE, android.R.style.Theme_NoTitleBar)
     }
 
     override fun onCreateView(
