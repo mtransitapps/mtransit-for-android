@@ -80,7 +80,7 @@
         <!-- PRICE -->
         <LinearLayout
             android:id="@+id/priceAndPeriodSelection"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="@dimen/baseline_8"
@@ -99,37 +99,44 @@
                 tools:listitem="@android:layout/simple_spinner_item"
                 tools:visibility="visible" />
             <!-- PERIOD -->
-            <RadioGroup
-                android:id="@+id/period_radio_group"
-                android:layout_width="wrap_content"
+            <HorizontalScrollView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <!-- WEEKLY -->
-                <RadioButton
-                    android:id="@+id/period_weekly"
+                android:fillViewport="true"
+                android:scrollbars="horizontal">
+                <RadioGroup
+                    android:id="@+id/period_radio_group"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:minHeight="@dimen/baseline_32"
-                    android:text="@string/support_weekly_short"
-                    tools:ignore="TouchTargetSizeCheck" />
-                <!-- MONTHLY -->
-                <RadioButton
-                    android:id="@+id/period_monthly"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minHeight="@dimen/baseline_32"
-                    android:text="@string/support_monthly_short"
-                    tools:checked="true"
-                    tools:ignore="TouchTargetSizeCheck" />
-                <!-- YEARLY -->
-                <RadioButton
-                    android:id="@+id/period_yearly"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minHeight="@dimen/baseline_32"
-                    android:text="@string/support_yearly_short"
-                    tools:ignore="TouchTargetSizeCheck" />
-            </RadioGroup>
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal">
+                    <!-- WEEKLY -->
+                    <RadioButton
+                        android:id="@+id/period_weekly"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/baseline_32"
+                        android:text="@string/support_weekly_short"
+                        tools:ignore="TouchTargetSizeCheck" />
+                    <!-- MONTHLY -->
+                    <RadioButton
+                        android:id="@+id/period_monthly"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/baseline_32"
+                        android:text="@string/support_monthly_short"
+                        tools:checked="true"
+                        tools:ignore="TouchTargetSizeCheck" />
+                    <!-- YEARLY -->
+                    <RadioButton
+                        android:id="@+id/period_yearly"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/baseline_32"
+                        android:text="@string/support_yearly_short"
+                        tools:ignore="TouchTargetSizeCheck" />
+                </RadioGroup>
+            </HorizontalScrollView>
         </LinearLayout>
         <!-- BUY -->
         <Button
