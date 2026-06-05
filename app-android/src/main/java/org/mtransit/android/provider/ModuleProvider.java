@@ -81,7 +81,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	 */
 	private static final String PREF_KEY_LAST_UPDATE_MS = ModuleDbHelper.PREF_KEY_LAST_UPDATE_MS;
 
-	private static final long MODULE_MAX_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(7L);
+	private static final long MODULE_MAX_VALIDITY_IN_MS = MAX_CACHE_VALIDITY_MS;
 	private static final long MODULE_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(1L);
 
 	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = TimeUnit.MINUTES.toMillis(10L);
@@ -354,7 +354,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 					MODULE_SEARCHABLE_LIKE_COLUMNS,
 					MODULE_SEARCHABLE_EQUALS_COLUMNS
 			);
-			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+			final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 			qb.setTables(getPOITable());
 			ArrayMap<String, String> poiProjectionMap = getPOIProjectionMap();
 			boolean searchKeywordsAdded = false;
@@ -404,16 +404,23 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@WorkerThread
 	private void updateModuleDataIfRequired(@NonNull Context context) {
-		final long lastUpdateInMs = getStorage(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L);
+		long lastUpdateInMs = getStorage(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L);
 		final long nowInMs = UITimeUtils.currentTimeMillis();
 		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
+			MTLog.i(this, "updateModuleDataIfRequired() > module data too old (%s): DELETE ALL.", MTLog.formatDateTime(lastUpdateInMs));
 			deleteAllModuleData();
-			updateAllModuleDataFromWWW(context, lastUpdateInMs);
+			lastUpdateInMs = 0L;
+			getStorage(context).edit()
+					.putLong(PREF_KEY_LAST_UPDATE_MS, lastUpdateInMs)
+					.apply();
+		} else if (lastUpdateInMs + getPOIValidityInMs() >= nowInMs) {
+			MTLog.i(this, "updateModuleDataIfRequired() > SKIP (too soon, next in %s)",
+					MTLog.formatDuration((lastUpdateInMs + getPOIValidityInMs()) - nowInMs)
+			);
 			return;
 		}
-		if (lastUpdateInMs + getPOIValidityInMs() < nowInMs) { // try to refresh?
-			updateAllModuleDataFromWWW(context, lastUpdateInMs);
-		}
+		MTLog.i(this, "updateModuleDataIfRequired() > try to refresh...");
+		updateAllModuleDataFromWWW(context, lastUpdateInMs);
 	}
 
 	@WorkerThread
@@ -429,7 +436,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@WorkerThread
 	private synchronized void updateAllModuleDataFromWWW(@NonNull Context context, long oldLastUpdatedInMs) {
-		if (getStorage(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) return; // too late, another thread already updated
+		final long newLastUpdateInMs = getStorage(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L);
+		if (newLastUpdateInMs > oldLastUpdatedInMs) {
+			MTLog.i(this, "updateAllModuleDataFromWWW() > already updated (#synchronized)");
+			return; // too late, another thread already updated
+		}
 		loadDataFromWWW(context);
 	}
 
@@ -438,8 +449,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	private HashSet<Module> loadDataFromWWW(@NonNull Context context) {
 		try {
 			final long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
-			final int fileResId = R.raw.modules;
-			final String jsonString = FileUtils.fromFileRes(context, fileResId);
+			final String jsonString = FileUtils.fromFileRes(context, R.raw.modules);
+			MTLog.d(this, "loadDataFromWWW() > jsonString: %s.", jsonString);
 			final HashSet<Module> modules = new HashSet<>();
 			final JSONArray jsonArray = new JSONArray(jsonString);
 			for (int i = 0; i < jsonArray.length(); i++) {
@@ -463,18 +474,16 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@WorkerThread
-	private static synchronized int insertModulesLockDB(@NonNull POIProviderContract provider, Collection<Module> defaultPOIs) {
+	private static synchronized int insertModulesLockDB(@NonNull POIProviderContract provider, @NonNull Collection<Module> defaultPOIs) {
 		int affectedRows = 0;
 		SQLiteDatabase db = null;
 		try {
 			db = provider.getWriteDB();
 			db.beginTransaction(); // start the transaction
-			if (defaultPOIs != null) {
-				for (DefaultPOI defaultPOI : defaultPOIs) {
-					long rowId = db.insert(provider.getPOITable(), POIProvider.POIDbHelper.T_POI_K_ID, defaultPOI.toContentValues());
-					if (rowId > 0) {
-						affectedRows++;
-					}
+			for (DefaultPOI defaultPOI : defaultPOIs) {
+				long rowId = db.insert(provider.getPOITable(), POIProvider.POIDbHelper.T_POI_K_ID, defaultPOI.toContentValues());
+				if (rowId > 0) {
+					affectedRows++;
 				}
 			}
 			db.setTransactionSuccessful(); // mark the transaction as successful
@@ -483,6 +492,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		} finally {
 			SqlUtils.endTransaction(db);
 		}
+		MTLog.v(LOG_TAG, "insertModulesLockDB() > inserted %d rows", affectedRows);
 		return affectedRows;
 	}
 
@@ -493,7 +503,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			MTLog.w(this, "getNewStatus() > Can't find new schedule without AppStatusFilter!");
 			return null;
 		}
-		AppStatus.AppStatusFilter moduleStatusFilter = (AppStatus.AppStatusFilter) filter;
+		final AppStatus.AppStatusFilter moduleStatusFilter = (AppStatus.AppStatusFilter) filter;
 		return getNewModuleStatus(moduleStatusFilter);
 	}
 
