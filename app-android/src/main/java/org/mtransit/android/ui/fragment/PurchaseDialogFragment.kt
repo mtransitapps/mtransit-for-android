@@ -129,7 +129,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         super.onStart()
         dialog?.window?.apply {
             if (!context.twoPane) {
-                setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             }
         }
     }
