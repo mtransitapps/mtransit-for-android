@@ -6,15 +6,16 @@
 
     <Button
         android:id="@+id/deleteBtn"
-        style="@style/MTButton.Header"
-        android:text="@string/delete" />
+        style="@style/MTButtonHeaderLight.Last"
+        android:contentDescription="@string/delete"
+        app:icon="@drawable/ic_baseline_delete_24" />
 
     <Button
         android:id="@+id/renameBtn"
-        style="@style/MTButton.Header.Middle"
-        android:layout_marginStart="@dimen/button_padding"
+        style="@style/MTButtonHeaderLight"
         android:layout_toStartOf="@id/deleteBtn"
-        android:text="@string/rename" />
+        android:contentDescription="@string/rename"
+        app:icon="@drawable/ic_baseline_edit_24" />
 
     <TextView
         android:id="@+id/name"

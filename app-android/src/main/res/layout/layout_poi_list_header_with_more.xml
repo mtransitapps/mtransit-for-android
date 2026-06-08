@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/moreSectionTitle"
     style="@style/MTLayoutSection.Clickable">
 
     <Button
         android:id="@+id/moreBtn"
-        style="@style/MTButtonHeaderMoreBtn" />
+        style="@style/MTButtonHeaderLight.Last"
+        android:contentDescription="@string/more"
+        app:icon="@drawable/ic_arrow_forward_24" />
 
     <TextView
         android:id="@+id/name"

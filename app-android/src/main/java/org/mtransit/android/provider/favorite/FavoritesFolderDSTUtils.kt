@@ -20,5 +20,5 @@ object FavoritesFolderDSTUtils {
     @JvmStatic
     fun getFavoriteFolderDataSourceIdOrNull(dataSourceTypeId: Int) =
         dataSourceTypeId.takeIf { isFavoriteFolderDataSourceId(it) }
-            ?.let { generateFavoriteFolderDataSourceId(it) }
+            ?.let { extractFavoriteFolderId(it) }
 }
