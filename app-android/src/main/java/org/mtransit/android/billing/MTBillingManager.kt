@@ -48,6 +48,9 @@ class MTBillingManager @Inject constructor(
         private const val LOG_COMPLETE_DETAILS = false
         // private const val LOG_COMPLETE_DETAILS = true // DEBUG
 
+        private const val AVOID_REFRESH_PURCHASES = false
+        // private const val AVOID_REFRESH_PURCHASES = true
+
         private const val PREF_KEY_SUBS_PRODUCT_ID = "pSubscription"
         private const val PREF_KEY_SUBS_PRODUCT_ID_NONE = ""
         private val PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN: String? = null
@@ -148,9 +151,9 @@ class MTBillingManager @Inject constructor(
         }
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
-                purchases?.takeIf { it.isNotEmpty() }?.let {
-                    processPurchases(it) // handle new/updated purchases
-                } ?: run {
+                if (purchases?.isNotEmpty() == true) {
+                    processPurchases(purchases) // handle new/updated purchases
+                } else {
                     queryPurchases() // query all valid purchases again
                 }
             }
@@ -251,9 +254,13 @@ class MTBillingManager @Inject constructor(
 
     override fun refreshPurchases() {
         MTLog.d(this, "refreshPurchases()")
-        MTLog.d(this, "refreshPurchases() > billing client (ready:${billingClient.isReady}|connected: ${this.billingClientConnected}), subs? ${this.hasSubscription.value}")
-        if (this.billingClient.isReady && this.billingClientConnected == true && this.hasSubscription.value != null) {
-            MTLog.d(this, "refreshPurchases() > SKIP (client ready & connected | current subscription status known)")
+        MTLog.d(
+            this,
+            "refreshPurchases() > billing client (ready:${billingClient.isReady}|connected: ${this.billingClientConnected}), subs? ${this.hasSubscription.value}"
+        )
+        @Suppress("SimplifyBooleanWithConstants")
+        if (AVOID_REFRESH_PURCHASES && this.billingClient.isReady && this.billingClientConnected == true && this.hasSubscription.value != null) {
+            MTLog.d(this, "refreshPurchases() > SKIP (client ready & connected, current subscription status known)")
             return
         }
         queryPurchases()
