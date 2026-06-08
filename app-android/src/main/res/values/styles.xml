@@ -87,7 +87,7 @@
         <item name="android:layout_marginBottom">@dimen/button_padding</item>
     </style>
 
-    <style name="MTButton.Header.Middle" parent="@style/MTButton.Header">
+    <style name="MTButton.Header.Middle" parent="@style/MTButton.Header" tools:ignore="UnusedResources">
         <item name="android:layout_alignParentEnd">false</item>
         <item name="android:layout_marginStart">0dp</item>
         <item name="android:layout_marginEnd">0dp</item>
