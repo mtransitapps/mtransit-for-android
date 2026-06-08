@@ -159,8 +159,10 @@ class FavoritesViewModel @Inject constructor(
     }
 
     class FavoriteFolderNameComparator(
-        private val favFolders: Collection<FavoriteFolder>
+        favFolders: Collection<FavoriteFolder>
     ) : Comparator<POIManager?> {
+
+        private val folderIdToName = favFolders.associate { it.id to it.name }
 
         override fun compare(lhs: POIManager?, rhs: POIManager?): Int {
             val lhsPoi = lhs?.poi
@@ -172,10 +174,10 @@ class FavoritesViewModel @Inject constructor(
             } else if (rhsPoi == null) {
                 return ComparatorUtils.AFTER
             }
-            val lFavFolderId = FavoritesFolderDSTUtils.getFavoriteFolderDataSourceIdOrNull(lhsPoi.dataSourceTypeId)
-            val lFavFolderName = favFolders.singleOrNull { it.id == lFavFolderId }?.name
-            val rFavFolderId = FavoritesFolderDSTUtils.getFavoriteFolderDataSourceIdOrNull(rhsPoi.dataSourceTypeId)
-            val rFavFolderName = favFolders.singleOrNull { it.id == rFavFolderId }?.name
+            val lFavFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(lhsPoi.dataSourceTypeId)
+            val lFavFolderName = folderIdToName[lFavFolderId]
+            val rFavFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(rhsPoi.dataSourceTypeId)
+            val rFavFolderName = folderIdToName[rFavFolderId]
             if (lFavFolderName == null && rFavFolderName == null) {
                 return ComparatorUtils.SAME
             } else if (lFavFolderName == null) {
