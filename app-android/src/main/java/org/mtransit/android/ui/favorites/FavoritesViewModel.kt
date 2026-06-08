@@ -126,7 +126,7 @@ class FavoritesViewModel @Inject constructor(
         if (pois.isNotEmpty()) {
             pois.sortWith(poiTypeShortNameComparator)
         }
-        // UPDATE favorite POI type ID with favorite folder ID
+        // UPDATE favorite POI data source type ID with favorite folder data source type ID
         val uuidToFavoriteFolderId = favorites.associateBy({ it.fkId }, { it.folderId })
         val favFolderIds = mutableSetOf<Int>()
         pois.forEach { favPOIM ->
