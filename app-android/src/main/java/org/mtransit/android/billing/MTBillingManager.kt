@@ -139,7 +139,9 @@ class MTBillingManager @Inject constructor(
     }
 
     /**
-     * This will receive the updated purchases (not canceled still valid)
+     * Receives purchase updates from in-app purchase flows.
+     * Note: canceled/suspended-but-still-valid subscriptions may not appear here;
+     * call queryPurchases() to refresh authoritative state when needed.
      */
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
         MTLog.d(this, "onPurchasesUpdated(${billingResult.toStringPlus(short = true)}, ${purchases?.size})")
