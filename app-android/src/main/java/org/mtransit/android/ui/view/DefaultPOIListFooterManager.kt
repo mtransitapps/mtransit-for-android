@@ -42,12 +42,7 @@ class DefaultPOIListFooterManager(
     private var _showSupportInsteadOfRewardedAd: Boolean? = null
 
     private var showSupportInsteadOfRewardedAd: Boolean
-        get() {
-            if (_showSupportInsteadOfRewardedAd == null) {
-                _showSupportInsteadOfRewardedAd = pickShowSupportInsteadOfRewardedAd
-            }
-            return _showSupportInsteadOfRewardedAd ?: false
-        }
+        get() = _showSupportInsteadOfRewardedAd ?: pickShowSupportInsteadOfRewardedAd.also { _showSupportInsteadOfRewardedAd = it }
         set(value) {
             _showSupportInsteadOfRewardedAd = value
         }
