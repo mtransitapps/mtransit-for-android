@@ -102,14 +102,6 @@
                 tools:visibility="visible" />
 
             <include
-                android:id="@+id/poi_rewarded_ad"
-                layout="@layout/layout_poi_rewarded_ad"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <include
                 android:id="@+id/poi_nearby_pois_title"
                 layout="@layout/layout_poi_nearby_pois_title"
                 android:visibility="gone"

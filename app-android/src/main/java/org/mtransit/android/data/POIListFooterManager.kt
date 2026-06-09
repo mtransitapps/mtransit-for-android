@@ -9,7 +9,7 @@ interface POIListFooterManager {
 
     val isShowText: Boolean get() = false
 
-    val text: String? get() = null
+    val text: CharSequence? get() = null
 
     @get:DrawableRes
     val textStartDrawableRes: Int? get() = null

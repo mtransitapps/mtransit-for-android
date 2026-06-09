@@ -581,6 +581,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			final FooterViewHolder holder = new FooterViewHolder();
 			holder.progressBar = convertView.findViewById(R.id.progress_bar);
 			holder.textTv = convertView.findViewById(R.id.footer_text_tv);
+			holder.layout = convertView;
 			convertView.setTag(holder);
 		}
 		final FooterViewHolder holder = (FooterViewHolder) convertView.getTag();
@@ -607,9 +608,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 					0
 			);
 			final View.OnClickListener onClickListener = this.footerManager.getOnTextClickListener();
-			holder.textTv.setOnClickListener(onClickListener);
+			holder.layout.setOnClickListener(onClickListener);
 			if (onClickListener == null) {
-				holder.textTv.setClickable(false);
+				holder.layout.setClickable(false);
 			}
 			holder.textTv.setVisibility(View.VISIBLE);
 			convertView.setVisibility(View.VISIBLE);
@@ -2027,6 +2028,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	private static class FooterViewHolder {
 		View progressBar;
 		TextView textTv;
+		View layout;
 	}
 
 	private static class FavoriteFolderHeaderViewHolder {
