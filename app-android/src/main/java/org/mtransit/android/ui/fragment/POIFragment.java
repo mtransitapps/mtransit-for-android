@@ -737,8 +737,16 @@ public class POIFragment extends ABFragment implements
 		this.nearbyListAdapter.setLogTag(getLogTag());
 	}
 
+	@Nullable
+	private POIListFooterManager _footerManager = null;
+
 	@NonNull
-	protected POIListFooterManager footerManager = makePoiListFooterManager(this);
+	protected POIListFooterManager getFooterManager() {
+		if (_footerManager == null) {
+			_footerManager = makePoiListFooterManager(this);
+		}
+		return _footerManager;
+	}
 
 	private void onHasSubscriptionChanged(@Nullable Boolean hasSubscriptionChanged) {
 		updateFooter(this);
