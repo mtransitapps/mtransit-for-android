@@ -34,13 +34,17 @@ class DefaultPOIListFooterManager(
 
     override fun getLogTag() = LOG_TAG
 
+    private val pickShowSupportInsteadOfRewardedAd: Boolean by lazy {
+        Random.nextInt(100) < SHOW_SUPPORT_INSTEAD_OF_REWARDED_AD_PCT
+    }
+
     @Volatile
     private var _showSupportInsteadOfRewardedAd: Boolean? = null
 
     private var showSupportInsteadOfRewardedAd: Boolean
         get() {
             if (_showSupportInsteadOfRewardedAd == null) {
-                _showSupportInsteadOfRewardedAd = Random.nextInt(1, 100) > SHOW_SUPPORT_INSTEAD_OF_REWARDED_AD_PCT
+                _showSupportInsteadOfRewardedAd = pickShowSupportInsteadOfRewardedAd
             }
             return _showSupportInsteadOfRewardedAd ?: false
         }
@@ -49,7 +53,6 @@ class DefaultPOIListFooterManager(
         }
 
     override val isShowLoading get() = getShowLoading()
-        // attachedViewModel?.loadingPOIs?.value == true
 
     override val isShowText
         get() =
