@@ -212,7 +212,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
             } ?: newsArticle.sourceLabel
         }
         date.apply {
-            setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
+            text = UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)
             val newsArticleWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
             setOnClickListener { view ->
                 LinkUtils.open(
