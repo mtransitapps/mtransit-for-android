@@ -204,11 +204,7 @@ class MTBillingManager @Inject constructor(
     private fun queryAvailableProductDetails() {
         if (!billingClient.isReady) {
             MTLog.d(this, "queryAvailableProductDetails() > SKIP (billing client NOT ready)")
-            @Suppress("ControlFlowWithEmptyBody")
-            if (this.billingClientResponseCode != BillingResponseCode.OK) {
-                // DO NOTHING (enableAutoServiceReconnection() will retry automatically) // startConnection()
-            }
-            return
+            return // DO NOTHING (enableAutoServiceReconnection() will retry automatically)
         }
         if (billingClientResponseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
             MTLog.d(this, "queryAvailableProductDetails() > SKIP (billing NOT available)")
@@ -289,11 +285,7 @@ class MTBillingManager @Inject constructor(
         MTLog.d(this, "queryPurchases()")
         if (!billingClient.isReady) {
             MTLog.d(this, "queryPurchases() > SKIP (billing client NOT ready)")
-            @Suppress("ControlFlowWithEmptyBody")
-            if (this.billingClientResponseCode != BillingResponseCode.OK) {
-                // DO NOTHING (enableAutoServiceReconnection() will retry automatically) // startConnection()
-            }
-            return
+            return // DO NOTHING (enableAutoServiceReconnection() will retry automatically)
         }
         if (billingClientResponseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
             MTLog.d(this, "queryPurchases() > SKIP (billing NOT available)")
@@ -414,11 +406,7 @@ class MTBillingManager @Inject constructor(
         MTLog.d(this, "queryUserBillingConfig()")
         if (!billingClient.isReady) {
             MTLog.d(this, "queryUserBillingConfig() > SKIP (billing client NOT ready)")
-            @Suppress("ControlFlowWithEmptyBody")
-            if (this.billingClientResponseCode != BillingResponseCode.OK) {
-                // DO NOTHING (enableAutoServiceReconnection() will retry automatically) // startConnection()
-            }
-            return
+            return // DO NOTHING (enableAutoServiceReconnection() will retry automatically)
         }
         if (billingClientResponseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
             MTLog.d(this, "queryUserBillingConfig() > SKIP (billing NOT available)")

@@ -63,7 +63,7 @@ class DefaultPOIListFooterManager(
                 null
             } else if (canShowRewardedAd() && !showSupportInsteadOfRewardedAd) {
                 MTLog.d(LOG_TAG, "adManager.rewardedAdAmountInDays: ${adManager.rewardedAdAmountInDays}")
-                getFragment()?.resources?.getQuantityText(
+                getFragment()?.context?.resources?.getQuantityText(
                     if (adManager.isRewardedNow()) R.plurals.watch_rewarded_ad_btn_more_and_days_formatted
                     else R.plurals.watch_rewarded_ad_btn_and_days_formatted,
                     adManager.rewardedAdAmountInDays,
