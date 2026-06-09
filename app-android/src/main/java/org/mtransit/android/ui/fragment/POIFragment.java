@@ -66,9 +66,7 @@ import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.ResourceExtKt;
 import org.mtransit.android.commons.StoreUtils;
-import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
@@ -90,7 +88,6 @@ import org.mtransit.android.databinding.FragmentPoiBinding;
 import org.mtransit.android.databinding.LayoutPoiAppUpdateBinding;
 import org.mtransit.android.databinding.LayoutPoiAppWasDisabledBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
-import org.mtransit.android.databinding.LayoutPoiRewardedAdBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.dev.DemoModeManager;
@@ -122,7 +119,6 @@ import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
-import org.mtransit.android.ui.view.common.ViewKtxKt;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
@@ -200,8 +196,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@NonNull
-	public static POIFragment newInstance(@NonNull String authority,
-										  @NonNull String uuid) {
+	public static POIFragment newInstance(@NonNull String authority, @NonNull String uuid) {
 		POIFragment f = new POIFragment();
 		f.setArguments(newInstanceArgs(authority, uuid));
 		return f;
@@ -314,7 +309,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private AgencyProperties getAgencyOrNull() {
+	protected AgencyProperties getAgencyOrNull() {
 		return getAttachedViewModel() == null ? null : getAttachedViewModel().getAgency().getValue();
 	}
 
@@ -380,7 +375,6 @@ public class POIFragment extends ABFragment implements
 		setupMoreNewsButton();
 		setupAppUpdateButton();
 		setupAppWasDisabledButton();
-		setupRewardedAdButton();
 		setupMoreNearbyButton();
 		setupNearbyList();
 	}
@@ -583,7 +577,14 @@ public class POIFragment extends ABFragment implements
 		this.adManager.getRewardedUntilLive().observe(getViewLifecycleOwner(), rewardedUntil -> refreshRewardedLayout());
 		this.adManager.getRewardedNowLive().observe(getViewLifecycleOwner(), rewardedNow -> refreshRewardedLayout());
 		this.billingManager.getHasSubscription().observe(getViewLifecycleOwner(), this::onHasSubscriptionChanged);
+		this.dataSourcesRepository.readingHasAgenciesEnabled().observe(getViewLifecycleOwner(), this::onHasAgenciesEnabledChanged);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
+	}
+
+	private void onHasAgenciesEnabledChanged(@Nullable Boolean hasAgenciesEnabled) {
+		if (this.nearbyListAdapter != null) {
+			this.nearbyListAdapter.notifyDataSetChanged(false);
+		}
 	}
 
 	@Nullable
@@ -736,8 +737,16 @@ public class POIFragment extends ABFragment implements
 		this.nearbyListAdapter.setLogTag(getLogTag());
 	}
 
+	@Nullable
+	private POIListFooterManager _footerManager = null;
+
 	@NonNull
-	protected POIListFooterManager footerManager = makePoiListFooterManager(this);
+	protected POIListFooterManager getFooterManager() {
+		if (_footerManager == null) {
+			_footerManager = makePoiListFooterManager(this);
+		}
+		return _footerManager;
+	}
 
 	private void onHasSubscriptionChanged(@Nullable Boolean hasSubscriptionChanged) {
 		updateFooter(this);
@@ -973,31 +982,6 @@ public class POIFragment extends ABFragment implements
 		});
 	}
 
-	private void setupRewardedAdButton() {
-		if (this.binding == null) return;
-		this.binding.poiRewardedAd.rewardedAdsText.setOnClickListener(v ->
-				onRewardedAdButtonClick(v.getContext())
-		);
-	}
-
-	private void onRewardedAdButtonClick(@NonNull Context context) {
-		final Activity activity = getActivity();
-		if (activity == null) {
-			MTLog.w(this, "onRewardedAdButtonClick() > skip (no view or no activity)");
-			ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message);
-			return;
-		}
-		if (!this.adManager.isRewardedAdAvailableToShow()) {
-			MTLog.w(this, "onRewardedAdButtonClick() > skip (no ad available)");
-			ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_not_ready);
-			return;
-		}
-		if (this.binding != null) {
-			this.binding.poiRewardedAd.rewardedAdsText.setEnabled(false);
-		}
-		this.adManager.showRewardedAd((IAdScreenActivity) activity);
-	}
-
 	private @Nullable ViewBinding poiViewBinding = null;
 
 	// TODO @Deprecated
@@ -1157,7 +1141,6 @@ public class POIFragment extends ABFragment implements
 			setupMoreNewsButton();
 			setupAppUpdateButton();
 			setupAppWasDisabledButton();
-			setupRewardedAdButton();
 			setupMoreNearbyButton();
 			setupNearbyList();
 		}
@@ -1195,32 +1178,7 @@ public class POIFragment extends ABFragment implements
 
 	@MainThread
 	private void refreshRewardedLayout() {
-		final LayoutPoiRewardedAdBinding rewardedLayout = this.binding == null ? null : this.binding.poiRewardedAd;
-		if (rewardedLayout == null) return;
-		final Boolean rewardedNow = this.adManager.getRewardedNowLive().getValue();
-		if (rewardedNow == null) return;
-		final IAgencyUpdatableProperties agency = getAgencyOrNull();
-		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable()
-				&& agency.shouldShowUpdateLayout();
-		boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
-		if (appUpdateAvailable) {
-			availableToShow = false; // do not overwhelm user with stuff to read
-		}
-		final int rewardedAmountInDays = this.adManager.getRewardedAdAmountInDays();
-		final TextView rewardedAdText = rewardedLayout.rewardedAdsText;
-		CharSequence rewardedText = null;
-		if (availableToShow) {
-			rewardedText = ResourceExtKt.getQuantityText(getResources(),
-					rewardedNow ?
-							R.plurals.watch_rewarded_ad_btn_more_and_days_formatted :
-							R.plurals.watch_rewarded_ad_btn_and_days_formatted,
-					rewardedAmountInDays,
-					rewardedAmountInDays
-			);
-		}
-		ViewKtxKt.setTextAndVisibility(rewardedAdText, rewardedText);
-		rewardedLayout.getRoot().setVisibility(rewardedAdText.getVisibility());
-		rewardedAdText.setEnabled(availableToShow);
+		updateFooter(this);
 	}
 
 	private void refreshAppUpdateLayout() {
@@ -1231,7 +1189,7 @@ public class POIFragment extends ABFragment implements
 		}
 		final IAgencyUpdatableProperties agency = getAgencyOrNull();
 		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable()
-				&& agency.shouldShowUpdateLayout();
+				&& agency.getShouldShowUpdateLayout();
 		if (demoModeManager.isFullDemo()) {
 			appUpdateAvailable = false; // always false (demo mode ON)
 		}

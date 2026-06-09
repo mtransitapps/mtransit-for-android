@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/MTLayoutSectionTertiary"
-    tools:ignore="MergeRootFrame"
-    tools:showIn="@layout/fragment_poi">
+    tools:ignore="MergeRootFrame,UnusedResources">
 
     <TextView
         android:id="@+id/rewardedAdsText"

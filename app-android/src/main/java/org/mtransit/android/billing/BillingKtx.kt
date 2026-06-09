@@ -3,6 +3,7 @@
 package org.mtransit.android.billing
 
 import com.android.billingclient.api.BillingClient.BillingResponseCode
+import com.android.billingclient.api.BillingConfig
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -43,6 +44,12 @@ fun BillingResult.toStringPlus(short: Boolean = false) = buildString {
     } else {
         append(this@toStringPlus.toString()) // incl. response code string + debug message
     }
+}
+
+fun BillingConfig.toStringPlus(short: Boolean = false) = buildString {
+    append(if (short) "BC{" else "BillingConfig{")
+    append(if (short) "cc:$countryCode," else "countryCode: $countryCode, ")
+    append("}")
 }
 
 fun ProductDetails.toStringPlus(short: Boolean = false) = buildString {

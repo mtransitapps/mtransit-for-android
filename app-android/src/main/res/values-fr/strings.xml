@@ -328,7 +328,7 @@
     <string name="app_update_btn_text_short">Télécharger la mise à jour pour obtenir les informations les plus récentes.</string>
     <string name="app_update_btn_text_short_formatted">Télécharger la mise à jour pour <b>obtenir les informations les plus récentes</b>.</string>
 
-    <plurals name="watch_rewarded_ad_btn_and_days">
+    <plurals name="watch_rewarded_ad_btn_and_days" tools:ignore="UnusedResources">
         <item quantity="one">Regarder une pub pour obtenir %d jour sans-pub</item>
         <item quantity="other">Regarder une pub pour obtenir %d jours sans-pub</item>
         <item quantity="many">Regarder une pub pour obtenir %d jours sans-pub</item>

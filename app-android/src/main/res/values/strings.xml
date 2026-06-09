@@ -319,7 +319,7 @@
     <string name="app_update_btn_text_short">Download app update to get the most up-to-date information.</string>
     <string name="app_update_btn_text_short_formatted">Download app update to <b>get the most up-to-date information</b>.</string>
 
-    <plurals name="watch_rewarded_ad_btn_and_days">
+    <plurals name="watch_rewarded_ad_btn_and_days" tools:ignore="UnusedResources">
         <item quantity="one">Watch an ad to get %d-day ad-free</item>
         <item quantity="other">Watch an ad to get %d-day ad-free</item>
     </plurals>
