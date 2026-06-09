@@ -70,7 +70,7 @@ class MTBillingManager @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    private var _billingClientResponseCode = AtomicInteger(BILLING_CLIENT_RESPONSE_CODE_UNKNOWN)
+    private val _billingClientResponseCode = AtomicInteger(BILLING_CLIENT_RESPONSE_CODE_UNKNOWN)
     private var billingClientResponseCode: Int?
         get() = _billingClientResponseCode.get().takeIf { it != BILLING_CLIENT_RESPONSE_CODE_UNKNOWN }
         set(value) = _billingClientResponseCode.set(value ?: BILLING_CLIENT_RESPONSE_CODE_UNKNOWN)

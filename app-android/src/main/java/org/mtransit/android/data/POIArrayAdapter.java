@@ -86,6 +86,7 @@ import org.mtransit.android.ui.view.POIViewUtils;
 import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.ui.view.common.ViewKtxKt;
 import org.mtransit.android.ui.view.poi.BasicPOIViewHolder;
 import org.mtransit.android.ui.view.poi.CommonViewHolder;
 import org.mtransit.android.ui.view.poi.ModuleViewHolder;
@@ -607,11 +608,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 					0,
 					0
 			);
-			final View.OnClickListener onClickListener = this.footerManager.getOnTextClickListener();
-			holder.layout.setOnClickListener(onClickListener);
-			if (onClickListener == null) {
-				holder.layout.setClickable(false);
-			}
+			ViewKtxKt.setOnClickListenerClickable(holder.layout, this.footerManager.getOnTextClickListener());
 			holder.textTv.setVisibility(View.VISIBLE);
 			convertView.setVisibility(View.VISIBLE);
 		} else {

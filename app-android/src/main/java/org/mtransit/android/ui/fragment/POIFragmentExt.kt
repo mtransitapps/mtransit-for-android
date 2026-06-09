@@ -35,6 +35,7 @@ import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.navigateF
+import org.mtransit.android.ui.view.common.setOnClickListenerClickable
 import org.mtransit.android.ui.view.map.countPOIInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.position
@@ -75,10 +76,7 @@ internal fun POIFragment.updateFooter() = binding?.apply {
                 isVisible = true
             }
             root.apply {
-                setOnClickListener(footerManager.onTextClickListener)
-                if (footerManager.onTextClickListener == null) {
-                    isClickable = false
-                }
+                setOnClickListenerClickable(footerManager.onTextClickListener)
             }
         } else {
             footerTextTv.isVisible = false
