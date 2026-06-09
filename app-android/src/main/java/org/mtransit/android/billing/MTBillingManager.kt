@@ -11,8 +11,10 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingClient.ProductType
 import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingConfig
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.GetBillingConfigParams
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -27,6 +29,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.SystemSettingManager
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -51,6 +54,9 @@ class MTBillingManager @Inject constructor(
         private const val AVOID_REFRESH_PURCHASES = false
         // private const val AVOID_REFRESH_PURCHASES = true
 
+        private const val PREF_KEY_HAS_BILLING_CONFIG = "pBillingConfig"
+        private val PREF_KEY_HAS_BILLING_CONFIG_DEFAULT: Boolean? = null
+
         private const val PREF_KEY_SUBS_PRODUCT_ID = "pSubscription"
         private const val PREF_KEY_SUBS_PRODUCT_ID_NONE = ""
         private val PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN: String? = null
@@ -58,12 +64,17 @@ class MTBillingManager @Inject constructor(
 
         private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = null
         // private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = "f_monthly_subscription_1".takeIf { Constants.DEBUG } // DEBUG
+
+        private const val BILLING_CLIENT_RESPONSE_CODE_UNKNOWN = 999
     }
 
     override fun getLogTag() = LOG_TAG
 
-    @Volatile
-    private var billingClientConnected: Boolean? = false
+    private var _billingClientResponseCode = AtomicInteger(BILLING_CLIENT_RESPONSE_CODE_UNKNOWN)
+    private var billingClientResponseCode: Int?
+        get() = _billingClientResponseCode.get().takeIf { it != BILLING_CLIENT_RESPONSE_CODE_UNKNOWN }
+        set(value) = _billingClientResponseCode.set(value ?: BILLING_CLIENT_RESPONSE_CODE_UNKNOWN)
+    private val billingClientConnected: Boolean? get() = billingClientResponseCode?.let { it == BillingResponseCode.OK }
 
     private val billingClient = BillingClient.newBuilder(appContext)
         .setListener(this)
@@ -117,22 +128,23 @@ class MTBillingManager @Inject constructor(
     }
 
     private fun startConnection() {
-        billingClientConnected = null // unknown
+        MTLog.d(this, "startConnection()")
+        billingClientResponseCode = BILLING_CLIENT_RESPONSE_CODE_UNKNOWN // unknown
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingServiceDisconnected() {
                 MTLog.d(this@MTBillingManager, "onBillingServiceDisconnected()")
-                billingClientConnected = false // will try again at next data refresh triggered from UI
+                billingClientResponseCode = BillingResponseCode.SERVICE_DISCONNECTED // enableAutoServiceReconnection() will retry automatically
             }
 
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 MTLog.d(this@MTBillingManager, "onBillingSetupFinished(${billingResult.toStringPlus(short = true)})")
+                billingClientResponseCode = billingResult.responseCode
                 if (billingResult.responseCode == BillingResponseCode.OK) {
-                    billingClientConnected = true
                     queryAvailableProductDetails()
                     queryPurchases()
+                    queryUserBillingConfig()
                 } else {
                     MTLog.w(this@MTBillingManager, "Billing setup NOT successful! ${billingResult.responseCode}: ${billingResult.debugMessage}")
-                    billingClientConnected = false // will try again at next data refresh triggered from UI
                 }
             }
         })
@@ -191,10 +203,15 @@ class MTBillingManager @Inject constructor(
 
     private fun queryAvailableProductDetails() {
         if (!billingClient.isReady) {
-            MTLog.d(this, "queryAvailableProductDetails() > BillingClient is not ready")
-            if (this.billingClientConnected == false) {
-                startConnection()
+            MTLog.d(this, "queryAvailableProductDetails() > SKIP (billing client NOT ready)")
+            @Suppress("ControlFlowWithEmptyBody")
+            if (this.billingClientResponseCode != BillingResponseCode.OK) {
+                // DO NOTHING (enableAutoServiceReconnection() will retry automatically) // startConnection()
             }
+            return
+        }
+        if (billingClientResponseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
+            MTLog.d(this, "queryAvailableProductDetails() > SKIP (billing NOT available)")
             return
         }
         billingClient.queryProductDetailsAsync(
@@ -258,7 +275,7 @@ class MTBillingManager @Inject constructor(
         MTLog.d(this, "refreshPurchases()")
         MTLog.d(
             this,
-            "refreshPurchases() > billing client (ready:${billingClient.isReady}|connected: ${this.billingClientConnected}), subs? ${this.hasSubscription.value}"
+            "refreshPurchases() > billing client (ready:${billingClient.isReady}|connected:${this.billingClientConnected}), subs? ${this.hasSubscription.value}"
         )
         @Suppress("SimplifyBooleanWithConstants")
         if (AVOID_REFRESH_PURCHASES && this.billingClient.isReady && this.billingClientConnected == true && this.hasSubscription.value != null) {
@@ -271,10 +288,15 @@ class MTBillingManager @Inject constructor(
     private fun queryPurchases() {
         MTLog.d(this, "queryPurchases()")
         if (!billingClient.isReady) {
-            MTLog.d(this, "queryPurchases() > BillingClient is not ready")
-            if (this.billingClientConnected == false) {
-                startConnection()
+            MTLog.d(this, "queryPurchases() > SKIP (billing client NOT ready)")
+            @Suppress("ControlFlowWithEmptyBody")
+            if (this.billingClientResponseCode != BillingResponseCode.OK) {
+                // DO NOTHING (enableAutoServiceReconnection() will retry automatically) // startConnection()
             }
+            return
+        }
+        if (billingClientResponseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
+            MTLog.d(this, "queryPurchases() > SKIP (billing NOT available)")
             return
         }
         billingClient.queryPurchasesAsync(
@@ -380,5 +402,40 @@ class MTBillingManager @Inject constructor(
             MTLog.w(this, "Error while launching billing flow! ${billingResult.responseCode}: ${billingResult.debugMessage}")
         }
         return billingResult.responseCode == BillingResponseCode.OK
+    }
+
+    override val hasBillingConfig: LiveData<Boolean?> by lazy {
+        lclPrefRepository.pref.liveDataN(
+            PREF_KEY_HAS_BILLING_CONFIG, PREF_KEY_HAS_BILLING_CONFIG_DEFAULT
+        ).distinctUntilChanged()
+    }
+
+    private fun queryUserBillingConfig() {
+        MTLog.d(this, "queryUserBillingConfig()")
+        if (!billingClient.isReady) {
+            MTLog.d(this, "queryUserBillingConfig() > SKIP (billing client NOT ready)")
+            @Suppress("ControlFlowWithEmptyBody")
+            if (this.billingClientResponseCode != BillingResponseCode.OK) {
+                // DO NOTHING (enableAutoServiceReconnection() will retry automatically) // startConnection()
+            }
+            return
+        }
+        if (billingClientResponseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
+            MTLog.d(this, "queryUserBillingConfig() > SKIP (billing NOT available)")
+            return
+        }
+        billingClient.getBillingConfigAsync(
+            GetBillingConfigParams.newBuilder().build()
+        ) { billingResult: BillingResult, billingConfig: BillingConfig? ->
+            MTLog.d(this, "onBillingConfigResponse(${billingResult.toStringPlus(short = true)}, ${billingConfig?.toStringPlus(short = true)})")
+            if (billingResult.responseCode == BillingResponseCode.OK && billingConfig != null) {
+                MTLog.d(this, "onBillingConfigResponse() > country code: ${billingConfig.countryCode}.")
+                lclPrefRepository.pref.edit {
+                    putBoolean(PREF_KEY_HAS_BILLING_CONFIG, true)
+                }
+            } else {
+                MTLog.w(this, "Error while querying user billing config! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+            }
+        }
     }
 }

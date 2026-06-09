@@ -84,7 +84,11 @@ internal fun POIFragment.makePoiListFooterManager() = object : POIListFooterMana
 
     override val isShowLoading get() = attachedViewModel?.nearbyPOIs?.value == null
 
-    override val isShowText get() = billingManager.hasSubscription.value != true && !demoModeManager.isFullDemo()
+    override val isShowText
+        get() =
+            dataSourcesRepository.hasAgenciesEnabled()
+                    && billingManager.hasSubscription.value != true
+                    && !demoModeManager.isFullDemo()
 
     override val text get() = context?.getString(R.string.support)?.takeIf { isShowText }
 

@@ -200,8 +200,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@NonNull
-	public static POIFragment newInstance(@NonNull String authority,
-										  @NonNull String uuid) {
+	public static POIFragment newInstance(@NonNull String authority, @NonNull String uuid) {
 		POIFragment f = new POIFragment();
 		f.setArguments(newInstanceArgs(authority, uuid));
 		return f;
@@ -583,7 +582,14 @@ public class POIFragment extends ABFragment implements
 		this.adManager.getRewardedUntilLive().observe(getViewLifecycleOwner(), rewardedUntil -> refreshRewardedLayout());
 		this.adManager.getRewardedNowLive().observe(getViewLifecycleOwner(), rewardedNow -> refreshRewardedLayout());
 		this.billingManager.getHasSubscription().observe(getViewLifecycleOwner(), this::onHasSubscriptionChanged);
+		this.dataSourcesRepository.readingHasAgenciesEnabled().observe(getViewLifecycleOwner(), this::onHasAgenciesEnabledChanged);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
+	}
+
+	private void onHasAgenciesEnabledChanged(@Nullable Boolean hasAgenciesEnabled) {
+		if (this.nearbyListAdapter != null) {
+			this.nearbyListAdapter.notifyDataSetChanged(false);
+		}
 	}
 
 	@Nullable
