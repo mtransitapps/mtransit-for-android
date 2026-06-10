@@ -1,7 +1,7 @@
 #!/bin/bash
 # ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
 #NO DEPENDENCY <= EXECUTED BEFORE GIT SUBMODULE
-function setGitProjectName() { # copy from commons.sh
+setGitProjectName() { # copy from commons.sh
 	GIT_URL=$(git config --get remote.origin.url);
 	GIT_PROJECT_NAME=$(basename -- "${GIT_URL}");
 	GIT_PROJECT_NAME="${GIT_PROJECT_NAME%.*}" # remove ".git" extension
@@ -15,6 +15,12 @@ function setGitProjectName() { # copy from commons.sh
 		exit 1;
 	fi
 }
+
+echo "================================================================================";
+echo "> INIT SUBMODULES...";
+echo "--------------------------------------------------------------------------------";
+BEFORE_DATE=$(date +%D-%X);
+BEFORE_DATE_SEC=$(date +%s);
 
 echo "> GitHub Actions: $GITHUB_ACTIONS.";
 
@@ -34,33 +40,73 @@ fi
 
 setGitProjectName;
 
+CURRENT_PATH=$(pwd);
+
+FIRST_INIT=true
+if [[ -f "$CURRENT_PATH/.gitmodules" ]]; then
+	FIRST_INIT=false
+fi
+
+# SHARED SUBMODULES
 declare -a SUBMODULES=(
 	"commons"
 	"commons-java"
 	"commons-android"
 );
-if [[ "$GIT_PROJECT_NAME" == *"-gradle"* ]]; then # OLD REPO
-	SUBMODULES+=('app-android'); # OLD REPO
-fi
-if [[ -d "parser" ]]; then
-    SUBMODULES+=('parser');
-	if [[ "$GIT_PROJECT_NAME" == *"-gradle"* ]]; then # OLD REPO
-		SUBMODULES+=('agency-parser'); # OLD REPO
+
+#PARSER
+if [[ $PROJECT_NAME == "mtransit-for-android" ]]; then
+	echo "> Main android app: '$PROJECT_NAME' > parser required";
+	SUBMODULES+=('parser');
+elif [[ $PROJECT_NAME == *"-bike"* ]]; then
+	echo "> Bike android app: '$PROJECT_NAME' > parser NOT required";
+else
+	echo "> Bus/Train/... android app: '$PROJECT_NAME' > parser required";
+	SUBMODULES+=('parser');
+	mkdir -p agency-parser/archive; # needed for shared-opt-dir #InitRepo
+	if [[ "$FIRST_INIT" == true ]]; then
+		git lfs track "agency-parser/archive/*"
+		RESULT=$?
+		if [[ ${RESULT} -ne 0 ]]; then
+			echo "> Error while configuring Git LFS tracking for agency-parser archive!"
+			exit ${RESULT}
+		fi
 	fi
 fi
-echo "Submodules:";
-printf '* "%s"\n' "${SUBMODULES[@]}";
+
+echo "> Submodules:";
+printf '> - "%s"\n' "${SUBMODULES[@]}";
 
 for SUBMODULE in "${SUBMODULES[@]}" ; do
-	if ! [[ -d "$SUBMODULE" ]]; then
-		echo "> Submodule does NOT exist '$SUBMODULE'!";
-		exit 1;
+    echo "--------------------------------------------------------------------------------";
+    # Check if the submodule is already registered in .gitmodules
+    if ! git config --file "$CURRENT_PATH/.gitmodules" --get "submodule.${SUBMODULE}.path" >/dev/null 2>&1; then
+		if [[ -d "$CURRENT_PATH/$SUBMODULE" ]]; then
+			echo "> Cannot override '$CURRENT_PATH/$SUBMODULE'!";
+			exit 1;
+		fi
+		echo "> Adding submodule '$SUBMODULE'...";
+		git submodule add "https://github.com/mtransitapps/${SUBMODULE}.git" "$SUBMODULE"; # GitHub secret PAT
+		RESULT=$?;
+		if [[ ${RESULT} -ne 0 ]]; then
+			echo "> Error while cloning '$SUBMODULE' submodule!";
+			exit ${RESULT};
+		fi
+		echo "> Adding submodule '$SUBMODULE'... DONE ✓";
 	fi
 	git submodule update --init --recursive "${SUBMODULE}";
 	RESULT=$?;
 	if [[ ${RESULT} -ne 0 ]]; then
-		echo "Error while update GIT submodule '$SUBMODULE'!";
+		echo "> Error while updating GIT submodule '$SUBMODULE'!";
 		exit ${RESULT};
 	fi
 	echo "'$SUBMODULE' updated successfully."
 done
+
+echo "--------------------------------------------------------------------------------";
+AFTER_DATE=$(date +%D-%X);
+AFTER_DATE_SEC=$(date +%s);
+DURATION_SEC=$((AFTER_DATE_SEC - BEFORE_DATE_SEC));
+echo "> $DURATION_SEC secs FROM $BEFORE_DATE TO $AFTER_DATE";
+echo "> INIT SUBMODULES... DONE ✓";
+echo "================================================================================";

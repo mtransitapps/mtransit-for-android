@@ -17,7 +17,7 @@ on:
         default: false
         required: false
       skip-app-release:
-        description: 'App release > SKIP (event if data change or latest release old)'
+        description: 'App release > SKIP (even if data change or latest release old)'
         type: boolean
         default: false
         required: false
@@ -99,7 +99,7 @@ jobs:
   MT-SYNC-CODE-DATA-JOB:
     name: "MT Sync Code & Data"
     # if: ${{ env.MT_IS_MAIN_REPO != 'true' }} # can NOT use env here:
-    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
+    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && ! contains(github.repository, '/xx-') && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     # timeout-minutes: 45
     timeout-minutes: 90
     runs-on: ubuntu-latest
