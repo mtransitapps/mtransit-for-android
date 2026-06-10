@@ -78,7 +78,7 @@ class MainPreferencesViewModel @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    val currentSubscription = billingManager.currentSubscription
+    val currentSubsProductId = billingManager.currentSubsProductId
     val hasSubscription = billingManager.hasSubscription
 
     val lang = languageManager.langUserPref

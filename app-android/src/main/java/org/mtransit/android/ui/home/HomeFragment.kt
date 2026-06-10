@@ -19,13 +19,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.billing.BillingUtils
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.POIArrayAdapter
-import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.databinding.FragmentHomeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -53,6 +51,7 @@ import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
+import org.mtransit.android.ui.view.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -130,21 +129,15 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     private var binding: FragmentHomeBinding? = null
 
     private val poiListFooterManager by lazy {
-        object : POIListFooterManager {
-
-            override val isShowLoading get() = attachedViewModel?.loadingPOIs?.value == true
-
-            override val isShowText get() = billingManager.hasSubscription.value != true
-
-            override val text get() = context?.getString(R.string.support)?.takeIf { isShowText }
-
-            override val textStartDrawableRes get() = R.drawable.ic_volunteer_activism_black_24.takeIf { isShowText }
-
-            override val onTextClickListener = View.OnClickListener {
-                if (!isShowText) return@OnClickListener
-                activity?.let { BillingUtils.showPurchaseDialog(it) }
-            }
-        }
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            demoModeManager = demoModeManager,
+            billingManager = billingManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { this },
+            getShowLoading = { viewModel.loadingPOIs.value == true },
+            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
+        )
     }
 
     private val typeHeaderButtonsClickListener = POIArrayAdapter.TypeHeaderButtonsClickListener { buttonId, type ->
@@ -231,8 +224,11 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             }
             setupScreenToolbar(screenToolbarLayout)
         }
-        this.listAdapter.onCreateView(viewLifecycleOwner)
+        listAdapter.onCreateView(viewLifecycleOwner)
         billingManager.hasSubscription.observe(viewLifecycleOwner) {
+            listAdapter.notifyDataSetChanged(false)
+        }
+        dataSourcesRepository.readingHasAgenciesEnabled().observe(viewLifecycleOwner) {
             listAdapter.notifyDataSetChanged(false)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {

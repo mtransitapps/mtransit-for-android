@@ -87,7 +87,7 @@
         <item name="android:layout_marginBottom">@dimen/button_padding</item>
     </style>
 
-    <style name="MTButton.Header.Middle" parent="@style/MTButton.Header">
+    <style name="MTButton.Header.Middle" parent="@style/MTButton.Header" tools:ignore="UnusedResources">
         <item name="android:layout_alignParentEnd">false</item>
         <item name="android:layout_marginStart">0dp</item>
         <item name="android:layout_marginEnd">0dp</item>
@@ -120,10 +120,9 @@
         <item name="android:layout_marginEnd">0dp</item>
     </style>
 
-    <style name="MTButtonHeaderMoreBtn" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+    <style name="MTButtonHeaderLight" parent="Widget.MaterialComponents.Button.TextButton.Icon">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:layout_margin">0dp</item>
         <item name="android:includeFontPadding">false</item>
@@ -131,11 +130,13 @@
         <item name="android:minHeight">24dp</item>
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">0dp</item>
-        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
-        <item name="android:contentDescription">@string/more</item>
-        <item name="icon">@drawable/ic_arrow_forward_24</item>
         <item name="iconTint">?attr/colorOnBackground</item>
+    </style>
+
+    <style name="MTButtonHeaderLight.Last" parent="@style/MTButtonHeaderLight">
+        <item name="android:layout_alignParentEnd">true</item>
     </style>
 
     <style name="MTShapeAppearance" parent="@style/ShapeAppearance.Material3.Corner.ExtraSmall" />

@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.annotation.NonNull;
 
 import org.mtransit.android.R;
-import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper;
 import org.mtransit.android.commons.provider.poi.POIProvider;

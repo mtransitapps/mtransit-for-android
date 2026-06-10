@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment
 
-import android.view.View
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -11,7 +10,6 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
-import org.mtransit.android.billing.BillingUtils
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
@@ -20,7 +18,6 @@ import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.toRouteDirection
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
-import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.latLng
 import org.mtransit.android.data.location
@@ -29,8 +26,10 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
+import org.mtransit.android.ui.view.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.navigateF
+import org.mtransit.android.ui.view.common.setOnClickListenerClickable
 import org.mtransit.android.ui.view.map.countPOIInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.position
@@ -67,11 +66,10 @@ internal fun POIFragment.updateFooter() = binding?.apply {
             footerTextTv.apply {
                 text = footerManager.text
                 setCompoundDrawablesRelativeWithIntrinsicBounds(footerManager.textStartDrawableRes ?: 0, 0, 0, 0)
-                setOnClickListener(footerManager.onTextClickListener)
-                if (footerManager.onTextClickListener == null) {
-                    isClickable = false
-                }
                 isVisible = true
+            }
+            root.apply {
+                setOnClickListenerClickable(footerManager.onTextClickListener)
             }
         } else {
             footerTextTv.isVisible = false
@@ -80,21 +78,19 @@ internal fun POIFragment.updateFooter() = binding?.apply {
     }
 }
 
-internal fun POIFragment.makePoiListFooterManager() = object : POIListFooterManager {
-
-    override val isShowLoading get() = attachedViewModel?.nearbyPOIs?.value == null
-
-    override val isShowText get() = billingManager.hasSubscription.value != true
-
-    override val text get() = context?.getString(R.string.support)?.takeIf { isShowText }
-
-    override val textStartDrawableRes get() = R.drawable.ic_volunteer_activism_black_24.takeIf { isShowText }
-
-    override val onTextClickListener = View.OnClickListener {
-        if (!isShowText) return@OnClickListener
-        activity?.let { BillingUtils.showPurchaseDialog(it) }
-    }
-}
+internal fun POIFragment.makePoiListFooterManager() =
+    DefaultPOIListFooterManager(
+        adManager = adManager,
+        demoModeManager = demoModeManager,
+        billingManager = billingManager,
+        dataSourcesRepository = dataSourcesRepository,
+        getFragment = { this },
+        getShowLoading = { attachedViewModel?.nearbyPOIs?.value == null },
+        canShowRewardedAd = {
+            !(agencyOrNull?.updateAvailable == true && agencyOrNull?.shouldShowUpdateLayout == true)
+                    && adManager.isRewardedAdAvailableToShow()
+        },
+    )
 
 fun POIFragment.onResumeKt() {
     viewLifecycleOwner.lifecycleScope.launch {

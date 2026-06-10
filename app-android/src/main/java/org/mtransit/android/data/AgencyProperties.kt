@@ -144,15 +144,16 @@ data class AgencyProperties(
             this.maxValidSec
         }
 
-    override fun shouldShowUpdateLayout(): Boolean {
-        @Suppress("SimplifyBooleanWithConstants")
-        if (!ALWAYS_SHOW_UPDATE_LAYOUT
-            && TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()) > MIN_NUMBER_OF_DAYS_OF_SCHEDULE
-        ) {
-            return false // SKIP (more than 7 days left of schedule)
+    override val shouldShowUpdateLayout: Boolean
+        get() {
+            @Suppress("SimplifyBooleanWithConstants")
+            if (!ALWAYS_SHOW_UPDATE_LAYOUT
+                && TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()) > MIN_NUMBER_OF_DAYS_OF_SCHEDULE
+            ) {
+                return false // SKIP (more than 7 days left of schedule)
+            }
+            return updateAvailable
         }
-        return updateAvailable
-    }
 
     override fun isInArea(area: Area?): Boolean {
         return IAgencyNearbyProperties.isInArea(this, area)

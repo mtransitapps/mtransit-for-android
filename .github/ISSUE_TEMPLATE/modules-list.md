@@ -70,7 +70,9 @@ labels: MT
 - [ ] ca-montreal-rem-light-rail
 - [ ] ca-montreal-stm-bus
 - [ ] ca-montreal-stm-subway
+- [ ] ca-mont-tremblant-bus
 - [ ] ca-mount-waddington-regional-transit-bus
+- [ ] ca-mrc-montcalm-transport-collectif-bus
 - [ ] ca-nanaimo-rdn-transit-system-bus
 - [ ] ca-niagara-falls-transit-bus
 - [ ] ca-niagara-falls-wego-bus
@@ -104,6 +106,7 @@ labels: MT
 - [ ] ca-squamish-transit-system-bus
 - [ ] ca-st-albert-transit-bus
 - [ ] ca-st-catharines-transit-bus
+- [ ] ca-st-hyacinthe-transport-collectif-bus
 - [ ] ca-st-jean-sur-richelieu-transport-collectif-bus
 - [ ] ca-ste-julie-omitsju-bus
 - [ ] ca-st-john-s-metrobus-transit-bus

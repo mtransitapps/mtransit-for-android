@@ -90,13 +90,17 @@ interface IBillingManager {
         val ALL_VALID_SUBSCRIPTIONS = FLEXIBLE_SUBSCRIPTIONS + ORIGINAL_SUBSCRIPTIONS + NEW_SUBSCRIPTIONS
     }
 
-    val productIdsWithDetails: LiveData<Map<String, ProductDetails>>
+    val availableProductIdsWithDetails: LiveData<Map<String, ProductDetails>>
 
-    val currentSubscription: LiveData<String?>
+    val currentSubsProductId: LiveData<String?>
 
-    suspend fun getCachedCurrentSubscription(): String?
+    suspend fun getCachedHasSubscription(): Boolean?
+
+    suspend fun getCachedCurrentSubsProductId(): String?
 
     val hasSubscription: LiveData<Boolean?>
+
+    val hasBillingConfig: LiveData<Boolean?>
 
     var fullDemoMode: Boolean?
 
@@ -107,14 +111,6 @@ interface IBillingManager {
     fun refreshPurchases()
 
     fun launchBillingFlow(activity: IActivity, productId: String): Boolean
-
-    fun addListener(listener: OnBillingResultListener)
-
-    fun removeListener(listener: OnBillingResultListener)
-
-    interface OnBillingResultListener {
-        fun onBillingResult(productId: String?)
-    }
 }
 
 @Suppress("DEPRECATION")

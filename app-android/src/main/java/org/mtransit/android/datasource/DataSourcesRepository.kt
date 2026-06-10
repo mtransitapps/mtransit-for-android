@@ -62,10 +62,7 @@ class DataSourcesRepository @Inject constructor(
         )
     }
 
-    private val includedAgencyCount: Int
-        get() {
-            return defaultAgencies.filterExpansiveAgencyAuthorities(billingManager, remoteConfigProvider).size
-        }
+    private val includedAgencyCount: Int get() = defaultAgencies.filterExpansiveAgencyAuthorities(billingManager, remoteConfigProvider).size
 
     private val defaultAgencyComparator: Comparator<IAgencyProperties> = IAgencyProperties.SHORT_NAME_COMPARATOR
 

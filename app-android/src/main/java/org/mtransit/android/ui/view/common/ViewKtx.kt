@@ -82,6 +82,11 @@ fun TextView.setDrawables(
     }
 }
 
+fun View.setOnClickListenerClickable(listener: View.OnClickListener?) {
+    setOnClickListener(listener)
+    isClickable = listener != null
+}
+
 fun View.setPadding(
     @Px horizontal: Int = 0,
     @Px vertical: Int = 0,

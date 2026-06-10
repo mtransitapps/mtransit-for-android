@@ -18,7 +18,7 @@ object FavoritesFolderDSTUtils {
         DataSourceType.MAX_ID + favoriteFolderId
 
     @JvmStatic
-    fun getFavoriteFolderDataSourceIdOrNull(dataSourceTypeId: Int) =
+    fun getFavoriteFolderIdOrNull(dataSourceTypeId: Int) =
         dataSourceTypeId.takeIf { isFavoriteFolderDataSourceId(it) }
-            ?.let { generateFavoriteFolderDataSourceId(it) }
+            ?.let { extractFavoriteFolderId(it) }
 }

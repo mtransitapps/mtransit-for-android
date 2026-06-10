@@ -82,33 +82,6 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
     private val viewModel by viewModels<MainPreferencesViewModel>()
     private val activityViewModel by activityViewModels<PreferencesViewModel>()
 
-    private val onBillingResultListener = object : IBillingManager.OnBillingResultListener {
-        override fun onBillingResult(productId: String?) {
-            val hasSubscription: Boolean? = productId?.isNotEmpty()
-            (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.apply {
-                when {
-                    hasSubscription == null -> {
-                        setTitle(commonsR.string.ellipsis)
-                        setSummary(commonsR.string.ellipsis)
-                        isEnabled = false
-                    }
-
-                    hasSubscription -> {
-                        setTitle(R.string.support_subs_cancel_pref_title)
-                        setSummary(R.string.support_subs_cancel_pref_summary)
-                        isEnabled = true
-                    }
-
-                    else -> {
-                        setTitle(R.string.support_subs_pref_title)
-                        setSummary(R.string.support_subs_pref_summary)
-                        isEnabled = true
-                    }
-                }
-            }
-        }
-    }
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
     }
@@ -148,7 +121,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 true -> activity?.let {
                     StoreUtils.viewSubscriptionPage(
                         it,
-                        viewModel.currentSubscription.value.orEmpty(),
+                        viewModel.currentSubsProductId.value.orEmpty(),
                         it.packageName,
                         it.getString(commonsR.string.google_play)
                     )
@@ -361,13 +334,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     override fun onResume() {
         super.onResume()
-        billingManager.addListener(this.onBillingResultListener)
         viewModel.refreshData()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        billingManager.removeListener(this.onBillingResultListener)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -383,11 +350,31 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 summary = token ?: "(none)"
             }
         }
-        viewModel.currentSubscription.observe(viewLifecycleOwner) {
+        viewModel.currentSubsProductId.observe(viewLifecycleOwner) {
             // do nothing
         }
-        viewModel.hasSubscription.observe(viewLifecycleOwner) {
-            // do nothing
+        viewModel.hasSubscription.observe(viewLifecycleOwner) { hasSubscription ->
+            (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.apply {
+                when {
+                    hasSubscription == null -> {
+                        setTitle(commonsR.string.ellipsis)
+                        setSummary(commonsR.string.ellipsis)
+                        isEnabled = false
+                    }
+
+                    hasSubscription -> {
+                        setTitle(R.string.support_subs_cancel_pref_title)
+                        setSummary(R.string.support_subs_cancel_pref_summary)
+                        isEnabled = true
+                    }
+
+                    else -> {
+                        setTitle(R.string.support_subs_pref_title)
+                        setSummary(R.string.support_subs_pref_summary)
+                        isEnabled = true
+                    }
+                }
+            }
         }
         activityViewModel.showSupport.observe(viewLifecycleOwner) { showSupport ->
             if (showSupport == true) {

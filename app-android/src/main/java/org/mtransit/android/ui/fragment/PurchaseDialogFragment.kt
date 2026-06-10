@@ -32,6 +32,7 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.getQuantityText
 import org.mtransit.android.databinding.FragmentDialogPurchaseBinding
 import org.mtransit.android.ui.MTActivity
+import org.mtransit.android.ui.common.twoPane
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.textAndVisibility
@@ -124,6 +125,15 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.apply {
+            if (!context.twoPane) {
+                setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -157,8 +167,8 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 onPriceOrPeriodSelectionChanged()
             }
         }
-        billingManager.productIdsWithDetails.observe(viewLifecycleOwner) {
-            onProductIdsLoaded(it)
+        billingManager.availableProductIdsWithDetails.observe(viewLifecycleOwner) {
+            onAvailableProductIdsLoaded(it)
         }
         adManager.rewardedUntilLive.observe(viewLifecycleOwner) {
             refreshRewardedLayout()
@@ -400,7 +410,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
     private val periodAndPriceCatToProductId = mutableMapOf<Pair<String, String>, String>()
     private val productIdToFreePeriod = mutableMapOf<String, DatePeriod?>()
 
-    private fun onProductIdsLoaded(productIdsWithDetails: Map<String, ProductDetails>?) {
+    private fun onAvailableProductIdsLoaded(productIdsWithDetails: Map<String, ProductDetails>?) {
         productIdsWithDetails ?: return
         val binding = binding ?: return
         val context = binding.context
