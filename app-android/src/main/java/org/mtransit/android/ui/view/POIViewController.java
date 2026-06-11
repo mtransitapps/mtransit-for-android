@@ -318,7 +318,8 @@ public class POIViewController implements MTLog.Loggable {
 				poim.getColor(dataProvider.providesDataSourcesRepository()),
 				() -> dataProvider.getActivity() instanceof MainActivity ? (MainActivity) dataProvider.getActivity() : null,
 				true, // marquee forever
-				!dataProvider.providesDemoModeManager().isFullDemo() // marquee forever
+				!dataProvider.providesDemoModeManager().isFullDemo(), // marquee forever
+				(view) -> dataProvider.getAnalyticsManager().trackButtonClick("rds_extra", dataProvider.getAnalyticsScreen())
 		);
 	}
 

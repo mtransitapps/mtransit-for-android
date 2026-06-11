@@ -255,6 +255,7 @@ fun POIFragment.getPOI(position: Int): POIManager? {
 
 fun POIFragment.onMapClick(): Boolean {
     if (!FragmentUtils.isFragmentReady(this)) return false
+    analyticsManager.trackButtonClick("map_click", this)
     val poim = getPoimOrNull() ?: return false
     if (FeatureFlags.F_NAVIGATION) {
         val navController = NavHostFragment.findNavController(this)

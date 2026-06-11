@@ -1806,7 +1806,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				() -> POIArrayAdapter.this.getActivity() instanceof MainActivity ? (MainActivity) POIArrayAdapter.this.getActivity() : null,
 				false,
 				false,
-				(view) -> leaving()
+				(view) -> {
+					analyticsManager.trackButtonClick("rds_extra", getAnalyticsScreen(this));
+					leaving();
+				}
 		);
 	}
 

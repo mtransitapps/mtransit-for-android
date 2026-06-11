@@ -57,6 +57,7 @@ import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.ad.IAdScreenActivity;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
+import org.mtransit.android.analytics.AnalyticsScreen;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.common.IContext;
@@ -964,7 +965,7 @@ public class POIFragment extends ABFragment implements
 			final IAgencyUpdatableProperties agency = getAgencyOrNull();
 			if (agency == null) return;
 			final String pkg = agency.getPkg();
-			POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
+			analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, pkg)
 			);
 			if (agency.getUpdateAvailable()) {
@@ -984,7 +985,7 @@ public class POIFragment extends ABFragment implements
 			if (viewModel != null) {
 				viewModel.onBatteryOptimizationSettingsOpened();
 			}
-			this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_WAS_DISABLED_POI, null);
+			analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_WAS_DISABLED_POI, null);
 			BatteryOptimizationIssueUtils.openDeviceBatteryOptimizationSettings(activity);
 		});
 	}
@@ -1522,6 +1523,17 @@ public class POIFragment extends ABFragment implements
 			}
 		}
 		return false; // not handled
+	}
+
+	@Override
+	public @NonNull AnalyticsScreen getAnalyticsScreen() {
+		return this;
+	}
+
+	@NonNull
+	@Override
+	public IAnalyticsManager getAnalyticsManager() {
+		return this.analyticsManager;
 	}
 
 	@Override
