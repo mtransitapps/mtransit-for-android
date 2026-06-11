@@ -210,7 +210,7 @@ class MainActivity : MTActivityWithLocation(),
             // do nothing
         }
         MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
-        ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED) // Android 13
+        ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
     }
 
     private val modulesReceiver = ModulesReceiver()
