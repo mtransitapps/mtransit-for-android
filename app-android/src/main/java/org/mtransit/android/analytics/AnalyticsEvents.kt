@@ -1,5 +1,8 @@
 package org.mtransit.android.analytics
 
+/**
+ * Adds to [com.google.firebase.analytics.FirebaseAnalytics.Event]
+ */
 interface AnalyticsEvents {
 
     companion object {
@@ -20,8 +23,13 @@ interface AnalyticsEvents {
         const val OPENED_GOOGLE_MAPS_TRIP_PLANNER = "mt_open_google_maps_trip_planner"
 
         const val LOCATION_SETTINGS_RESOLUTION_AVAILABLE = "mt_location_settings_resolution"
+
+        const val BUTTON_CLICK = "mt_button_click"
     }
 
+    /**
+     * Adds to [com.google.firebase.analytics.FirebaseAnalytics.Param]
+     */
     interface Params {
         companion object {
             const val CODE = "mt_code"
@@ -29,6 +37,7 @@ interface AnalyticsEvents {
             const val STATE = "mt_state"
             const val SCREEN = "mt_screen"
             const val COUNT = "mt_count"
+            const val BUTTON_NAME = "mt_button_name"
         }
     }
 }

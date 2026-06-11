@@ -15,4 +15,7 @@ interface IAnalyticsManager {
 
     @MainThread
     fun trackScreenView(page: AnalyticsScreen)
+
+    @MainThread
+    fun trackButtonClick(buttonName: String, page: AnalyticsScreen)
 }
