@@ -131,7 +131,7 @@ jobs:
           fi
 
       - name: MT commit code change
-        if: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) }}
+        if: ${{ github.ref == format('refs/heads/{0}', env.MT_DEFAULT_BRANCH_NAME) || github.event_name == 'pull_request' }}
         run: ./commit_code_change.sh
 
       # DOWNLOAD (not PR, OR PR without archive data) AND PARSE (NOT main repo/bike)
