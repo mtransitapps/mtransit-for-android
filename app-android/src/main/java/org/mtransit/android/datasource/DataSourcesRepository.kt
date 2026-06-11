@@ -10,8 +10,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.billing.IBillingManager
@@ -312,17 +315,21 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
+    private val _updateJobMutex = Mutex()
     private var _updateJob: Job? = null
 
     suspend fun updateLock(forcePkg: String? = null) {
-        _updateJob?.apply {
-            if (isActive) {
-                MTLog.d(this@DataSourcesRepository, "updateLock() > CANCEL (was active)")
+        // 1 - Cancel old job if running
+        _updateJobMutex.withLock {
+            _updateJob?.also {
+                if (it.isActive) {
+                    MTLog.d(this@DataSourcesRepository, "updateLock() > CANCEL (was active)")
+                }
             }
-            cancel()
-        }
+        }?.cancelAndJoin()
+        // 2 - start new job
         coroutineScope {
-            _updateJob = launch {
+            launch {
                 try {
                     MTLog.d(this@DataSourcesRepository, "updateLock() > START...")
                     val updated = update(forcePkg)
@@ -331,6 +338,10 @@ class DataSourcesRepository @Inject constructor(
                     MTLog.d(this@DataSourcesRepository, "updateLock() > CANCELLED")
                 } catch (e: Exception) {
                     MTLog.e(this@DataSourcesRepository, e, "updateLock() > ERROR")
+                }
+            }.also {
+                _updateJobMutex.withLock {
+                    _updateJob = it
                 }
             }
         }

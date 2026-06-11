@@ -40,7 +40,7 @@ class ModulesReceiver : BroadcastReceiver(),
             Intent.ACTION_PACKAGE_VERIFIED
         )
 
-        val intentFilter = IntentFilter().apply {
+        val INTENT_FILTER = IntentFilter().apply {
             for (action in ACTIONS) {
                 addAction(action)
             }
@@ -84,10 +84,11 @@ class ModulesReceiver : BroadcastReceiver(),
             this.crashReporter.w(this, "Modules broadcast receiver with unexpected action '${intent?.action}' ignored!")
             return
         }
+        val appContext = context.applicationContext
         val pendingResult = goAsync()
         ioScope.launch {
             try {
-                processSupportedAction(context, intent, action)
+                processSupportedAction(appContext, intent, action)
             } catch (e: Exception) {
                 MTLog.w(this, e, "Error while processing receive broadcast!")
             } finally {

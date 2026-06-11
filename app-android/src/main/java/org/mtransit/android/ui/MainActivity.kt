@@ -210,8 +210,10 @@ class MainActivity : MTActivityWithLocation(),
             // do nothing
         }
         MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
-        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
+        ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED) // Android 13
     }
+
+    private val modulesReceiver = ModulesReceiver()
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -309,6 +311,7 @@ class MainActivity : MTActivityWithLocation(),
 
     protected override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(this.modulesReceiver)
         this.abController?.destroy()
         this.abController = null
         this.navigationDrawerController?.destroy()

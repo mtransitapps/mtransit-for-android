@@ -235,13 +235,15 @@ class NextMainActivity : MTActivityWithLocation(),
         billingManager.currentSubsProductId.observe(this) {
             // do nothing
         }
-        billingManager.hasSubscription.observe(this) { hasSubscription->
+        billingManager.hasSubscription.observe(this) { hasSubscription ->
             lifecycleScope.launch(Dispatchers.IO) {
                 adManager.setHasSubscription(hasSubscription, this@NextMainActivity)
             }
         }
-        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED)
     }
+
+    private val modulesReceiver = ModulesReceiver()
 
     override fun onNewIntent(@SuppressLint("UnknownNullness") intent: Intent) {
         super.onNewIntent(intent)
@@ -314,6 +316,7 @@ class NextMainActivity : MTActivityWithLocation(),
 
     override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(this.modulesReceiver)
         adManager.destroyAd(this)
         adManager.unlinkRewardedAd(this)
     }
