@@ -12,6 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -126,6 +127,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var adManager: IAdManager
 
     @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
@@ -192,7 +196,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@AgencyPOIsFragment.logTag
             setPois(attachedViewModel?.poiList?.value)

@@ -22,6 +22,8 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.analytics.AnalyticsScreen
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.billingDatePeriod
 import org.mtransit.android.commons.MTLog
@@ -91,6 +93,9 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     @Inject
     lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private var binding: FragmentDialogPurchaseBinding? = null
 
@@ -219,6 +224,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
 
     private fun onRewardedAdButtonClick(context: Context) {
         try {
+            this.analyticsManager.trackButtonClick("purchase_rewarded_ad", activity as? AnalyticsScreen)
             val parentActivity = parentActivity ?: run {
                 MTLog.w(this, "onRewardedAdButtonClick() > skip (no view or no activity)")
                 ToastUtils.makeTextAndShow(context, R.string.support_watch_rewarded_ad_default_failure_message)

@@ -2,6 +2,8 @@ package org.mtransit.android.ui.view
 
 import android.app.Activity
 import android.location.Location
+import org.mtransit.android.analytics.AnalyticsScreen
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
@@ -10,6 +12,8 @@ import org.mtransit.android.util.LinkUtils.OnUrlClickListener
 
 interface POIDataProvider : POIStatusDataProvider, ServiceUpdateLoaderProvider, OnUrlClickListener {
     val activity: Activity?
+    val analyticsManager: IAnalyticsManager
+    val analyticsScreen: AnalyticsScreen
     val isShowingExtra: Boolean
     fun isClosestPOI(uuid: String): Boolean
     fun isFavorite(): Boolean

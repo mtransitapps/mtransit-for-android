@@ -15,8 +15,7 @@ import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.ui.MainActivity
-import org.mtransit.android.ui.rds.route.RDSRouteFragment.Companion.newInstance
-import org.mtransit.android.ui.rds.route.RDSRouteFragment.Companion.newInstanceArgs
+import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.view.POIViewUtils
 import org.mtransit.android.ui.view.common.MTTransitions.setTransitionName
 import org.mtransit.android.ui.view.common.navigateF
@@ -80,12 +79,12 @@ object POIViewHolderUtils {
                 }
                 navController.navigateF(
                     R.id.nav_to_rds_route_screen,
-                    newInstanceArgs(rds),
+                    RDSRouteFragment.newInstanceArgs(rds),
                     null,
                     extras
                 )
             } else {
-                getMainActivity()?.addFragmentToStack(newInstance(rds), view)
+                getMainActivity()?.addFragmentToStack(RDSRouteFragment.newInstance(rds), view)
             }
         }
     }

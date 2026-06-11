@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
@@ -103,6 +104,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     @Inject
     lateinit var adManager: IAdManager
 
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
     private var binding: FragmentFavoritesBinding? = null
 
     private val listAdapter: POIArrayAdapter by lazy {
@@ -115,11 +119,12 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager,
         ).apply {
             logTag = this@FavoritesFragment.logTag
             setShowFavorite(false) // all items in this screen are favorites
-            setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY)
+            setShowTypeSectionHeader(POIArrayAdapter.SECTION_TYPE_HEADER_ALL_NEARBY)
             setTimeChangedListener { this@FavoritesFragment.onTimeChanged() }
         }
     }

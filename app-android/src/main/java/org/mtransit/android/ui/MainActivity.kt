@@ -228,6 +228,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     override fun onSearchRequested(): Boolean {
+        analyticsManager.trackButtonClick("toolbar_search", this)
         onSearchQueryRequested(null)
         return true // processed
     }
@@ -408,11 +409,13 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     @get:MainThread
-    override val currentFragment: Fragment?
-        get() = FragmentUtils.getFragment(this, R.id.content_frame)
+    override val currentFragment: Fragment? get() = FragmentUtils.getFragment(this, R.id.content_frame)
 
-    private val currentABFragment: ABFragment?
-        get() = currentFragment as? ABFragment
+    @get:MainThread
+    private val currentABFragment: ABFragment? get() = currentFragment as? ABFragment
+
+    @get:MainThread
+    val currentAnalyticsScreen: AnalyticsScreen? get() = currentABFragment as? AnalyticsScreen
 
     override fun onBackStackChanged() {
         resetBackStackEntryCount()
@@ -513,6 +516,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     fun onUpIconClick(): Boolean {
+        analyticsManager.trackButtonClick("up_icon", currentAnalyticsScreen)
         return FragmentUtils.popLatestEntryFromStack(this, null)
     }
 

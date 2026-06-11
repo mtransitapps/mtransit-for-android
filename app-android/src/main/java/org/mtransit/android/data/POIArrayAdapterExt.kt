@@ -6,8 +6,10 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.pref.preferenceChangeLiveData
 import org.mtransit.android.ui.view.common.MediatorLiveData2
@@ -62,7 +64,7 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     }.distinctUntilChanged() // listening all shared pref changes
         .observe(viewLifecycleOwner) { dstIdToSelectedAuthority ->
             this.dstIdToSelectedAuthority = dstIdToSelectedAuthority
-            if (this.showBrowseHeaderSection || this.showTypeHeader == POIArrayAdapter.TYPE_HEADER_ALL_NEARBY) {
+            if (this.showBrowseHeaderSection || this.showTypeSectionHeader == POIArrayAdapter.SECTION_TYPE_HEADER_ALL_NEARBY) {
                 this.nbDisplayedAgencyTypes = -1 // reset
                 notifyDataSetChanged()
             }
@@ -84,5 +86,22 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     ).distinctUntilChanged().observe(viewLifecycleOwner) {
         this.distanceUnitsPref = it
         updateDistanceNowAsync(this.location)
+    }
+}
+
+internal val POIArrayAdapter.analyticsScreen: AnalyticsScreen? get() = this.fragmentWR?.get() as? AnalyticsScreen
+
+internal fun POIArrayAdapter.trackTypeHeaderButtonClick(buttonId: Int) {
+    when (buttonId) {
+        POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE ->
+            analyticsManager.trackButtonClick("header_more", analyticsScreen)
+        POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_NEARBY ->
+            analyticsManager.trackButtonClick("header_nearby", analyticsScreen)
+        POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_ALL ->
+            analyticsManager.trackButtonClick("header_all", analyticsScreen)
+        else -> {
+            MTLog.w(this, "trackTypeHeaderButtonClick() > Unexpected button ID '$buttonId'!")
+            this.analyticsManager.trackButtonClick("header_unknown", analyticsScreen)
+        }
     }
 }

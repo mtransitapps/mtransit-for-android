@@ -1,6 +1,7 @@
 package org.mtransit.android.ui;
 
 import static org.mtransit.android.ui.NavigationDrawerControllerExtKt.setUserLearnedDrawer;
+import static org.mtransit.android.ui.NavigationDrawerControllerExtKt.trackNavigationItemSelected;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -100,11 +101,11 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	private static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
 
 	@NonNull
-	private final WeakReference<MainActivity> mainActivityWR;
+	protected final WeakReference<MainActivity> mainActivityWR;
 	@NonNull
 	private final CrashReporter crashReporter;
 	@NonNull
-	private final IAnalyticsManager analyticsManager;
+	protected final IAnalyticsManager analyticsManager;
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 	@NonNull
@@ -521,6 +522,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 		closeDrawer();
+		trackNavigationItemSelected(this, menuItem);
 		selectItem(menuItem.getItemId(), true);
 		return true; // processed
 	}

@@ -4,6 +4,7 @@ import android.view.View
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.BillingUtils
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.MTLog
@@ -17,6 +18,7 @@ import kotlin.random.Random
 
 class DefaultPOIListFooterManager(
     private val adManager: IAdManager,
+    private val analyticsManager: IAnalyticsManager,
     private val demoModeManager: DemoModeManager,
     private val billingManager: IBillingManager,
     private val dataSourcesRepository: DataSourcesRepository,
@@ -86,6 +88,7 @@ class DefaultPOIListFooterManager(
         if (!isShowText) {
             return@OnClickListener
         } else if (!showSupportInsteadOfRewardedAd) { // rewarded ad
+            this.analyticsManager.trackButtonClick("list_footer_rewarded_ad", getFragment())
             if (!adManager.isRewardedAdAvailableToShow()) {
                 MTLog.w(LOG_TAG, "footer.onTextClick() > skip (no ad available)")
                 ToastUtils.makeTextAndShow(getFragment()?.context, R.string.support_watch_rewarded_ad_not_ready)
@@ -98,6 +101,7 @@ class DefaultPOIListFooterManager(
                     return@OnClickListener
                 }
         } else { // support
+            this.analyticsManager.trackButtonClick("list_footer_support", getFragment())
             getFragment()?.activity?.let { BillingUtils.showPurchaseDialog(it) }
         }
     }

@@ -57,6 +57,7 @@ import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.ad.IAdScreenActivity;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
+import org.mtransit.android.analytics.AnalyticsScreen;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.common.IContext;
@@ -732,7 +733,8 @@ public class POIFragment extends ABFragment implements
 				this.poiRepository,
 				this.favoriteRepository,
 				this.sharedStatusLoader,
-				this.sharedServiceUpdateLoader
+				this.sharedServiceUpdateLoader,
+				this.analyticsManager
 		);
 		this.nearbyListAdapter.setLogTag(getLogTag());
 	}
@@ -776,6 +778,7 @@ public class POIFragment extends ABFragment implements
 		final TextView serviceUpdateText = this.binding.poiServiceUpdate.serviceUpdateText;
 		serviceUpdateText.setMaxLines(SERVICE_UPDATE_MAX_LINES);
 		serviceUpdateText.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("service_update_more", this);
 			final POIManager poim = getPoimOrNull();
 			if (poim == null) return;
 			if (FeatureFlags.F_NAVIGATION) {
@@ -809,6 +812,7 @@ public class POIFragment extends ABFragment implements
 			rdsScheduleBtn.setBackgroundColor(poiColor);
 		}
 		rdsScheduleBtn.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("full_schedule", this);
 			final POIManager poim = getPoimOrNull();
 			if (poim == null || !(poim.poi instanceof RouteDirectionStop)) {
 				MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RDS)");
@@ -847,6 +851,7 @@ public class POIFragment extends ABFragment implements
 		if (this.binding == null) return;
 		final View moreBtn = binding.poiNews.newsTitleLayout.moreBtn;
 		moreBtn.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("news_more", this);
 			final POIManager poim = getPoimOrNull();
 			if (poim == null) return;
 			if (FeatureFlags.F_NAVIGATION) {
@@ -893,6 +898,7 @@ public class POIFragment extends ABFragment implements
 		if (this.binding == null) return;
 		final View moreBtn = binding.poiNearbyPoisTitle.moreBtn;
 		moreBtn.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("nearby_more", this);
 			final POIManager poim = getPoimOrNull();
 			if (poim == null) return;
 			if (FeatureFlags.F_NAVIGATION) {
@@ -953,12 +959,13 @@ public class POIFragment extends ABFragment implements
 		if (appUpdateText == null) return;
 		appUpdateText.setText(appUpdateText.getContext().getText(R.string.app_update_btn_text_short_formatted));
 		appUpdateText.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("app_update", this);
 			final Activity activity = getActivity();
 			if (activity == null) return;
 			final IAgencyUpdatableProperties agency = getAgencyOrNull();
 			if (agency == null) return;
 			final String pkg = agency.getPkg();
-			POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
+			analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, pkg)
 			);
 			if (agency.getUpdateAvailable()) {
@@ -972,12 +979,13 @@ public class POIFragment extends ABFragment implements
 	private void setupAppWasDisabledButton() {
 		if (this.binding == null) return;
 		this.binding.poiModuleWasDisabled.appWasDisabledBtn.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("module_was_disabled", this);
 			final Activity activity = getActivity();
 			if (activity == null) return;
 			if (viewModel != null) {
 				viewModel.onBatteryOptimizationSettingsOpened();
 			}
-			this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_WAS_DISABLED_POI, null);
+			analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_WAS_DISABLED_POI, null);
 			BatteryOptimizationIssueUtils.openDeviceBatteryOptimizationSettings(activity);
 		});
 	}
@@ -1515,6 +1523,17 @@ public class POIFragment extends ABFragment implements
 			}
 		}
 		return false; // not handled
+	}
+
+	@Override
+	public @NonNull AnalyticsScreen getAnalyticsScreen() {
+		return this;
+	}
+
+	@NonNull
+	@Override
+	public IAnalyticsManager getAnalyticsManager() {
+		return this.analyticsManager;
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
@@ -96,6 +97,9 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     lateinit var adManager: IAdManager
 
     @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     private var binding: FragmentNearbyAgencyTypeBinding? = null
@@ -119,7 +123,8 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@NearbyAgencyTypeFragment.logTag
             setShowFooter(true)
