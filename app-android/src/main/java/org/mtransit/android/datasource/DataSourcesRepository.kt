@@ -6,11 +6,12 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.room.concurrent.AtomicBoolean
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.billing.IBillingManager
@@ -86,7 +87,9 @@ class DataSourcesRepository @Inject constructor(
             .sortedWith(defaultAgencyComparator)
     }.distinctUntilChanged()
 
-    fun readingAllAgenciesByType() = readingAllAgencies().map { it.groupBy { it.getSupportedType() } }
+    fun readingAllAgenciesByType() = readingAllAgencies().map { agencies ->
+        agencies.groupBy { it.getSupportedType() }
+    }
 
     fun readingAllAgenciesBase() = this.dataSourcesStorage.readingAllAgenciesBase().map { agencies ->
         agencies
@@ -238,10 +241,9 @@ class DataSourcesRepository @Inject constructor(
     fun getVehicleLocationProvider(authority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProvider(authority)
 
     fun readingVehicleLocationProviders(targetAuthority: String?) = liveData {
-        targetAuthority?.let { providerAuthority ->
-            emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(providerAuthority))
-            emitSource(dataSourcesStorage.readingVehicleLocationProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
-        }
+        targetAuthority ?: return@liveData
+        emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(targetAuthority))
+        emitSource(dataSourcesStorage.readingVehicleLocationProviders(targetAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
     }.distinctUntilChanged()
 
     // endregion
@@ -310,24 +312,27 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
-    private var runningUpdate = AtomicBoolean(false)
+    private var _updateJob: Job? = null
 
-    private val mutex = Mutex()
-
-    suspend fun updateLock(forcePkg: String? = null): Boolean {
-        if (runningUpdate.get()) {
-            MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - before sync)")
-            return false
-        }
-        this.mutex.withLock {
-            if (runningUpdate.getAndSet(true)) {
-                MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - in lock)")
-                return false
+    suspend fun updateLock(forcePkg: String? = null) {
+        _updateJob?.apply {
+            if (isActive) {
+                MTLog.d(this@DataSourcesRepository, "updateLock() > CANCEL (was active)")
             }
-            val updated = update(forcePkg)
-            runningUpdate.set(false)
-            MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
-            return updated
+            cancel()
+        }
+        coroutineScope {
+            _updateJob = launch {
+                try {
+                    MTLog.d(this@DataSourcesRepository, "updateLock() > START...")
+                    val updated = update(forcePkg)
+                    MTLog.d(this@DataSourcesRepository, "updateLock() > DONE > $updated")
+                } catch (e: CancellationException) {
+                    MTLog.d(this@DataSourcesRepository, "updateLock() > CANCELLED")
+                } catch (e: Exception) {
+                    MTLog.e(this@DataSourcesRepository, e, "updateLock() > ERROR")
+                }
+            }
         }
     }
 
