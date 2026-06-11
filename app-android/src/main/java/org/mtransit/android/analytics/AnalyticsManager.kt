@@ -77,7 +77,7 @@ class AnalyticsManager @Inject internal constructor(
         try {
             firebaseAnalytics?.setUserProperty(name, value)
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while tracing user property (%s:%s)", name, value)
+            MTLog.w(this, e, "Error while tracing user property ($name:$value)")
         }
     }
 
@@ -91,18 +91,15 @@ class AnalyticsManager @Inject internal constructor(
         params: AnalyticsEventsParamsProvider?
     ) {
         if (!ANALYTICS_ENABLED) return
-        // var bundle: Bundle? = null
         val bundle = params?.let {
             Bundle().apply {
-                for (param in it.to()) {
-                    param.value.let { paramValue ->
-                        when (paramValue) {
-                            is String -> putString(param.key, paramValue)
-                            is Boolean -> putBoolean(param.key, paramValue)
-                            is Int -> putInt(param.key, paramValue)
+                for ((key, value) in it.to()) {
+                    when (value) {
+                        is String -> putString(key, value)
+                        is Boolean -> putBoolean(key, value)
+                        is Int -> putInt(key, value)
 
-                            else -> MTLog.w(this@AnalyticsManager, "Unexpected event parameter type for '" + param.key + "'>'" + param.value + "'!")
-                        }
+                        else -> MTLog.w(this@AnalyticsManager, "Unexpected event parameter type for '${key}'>'${value}'!")
                     }
                 }
             }
@@ -119,21 +116,23 @@ class AnalyticsManager @Inject internal constructor(
                 putString(FirebaseAnalytics.Param.SCREEN_CLASS, page.screenClass)
             })
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while tracing screen view! (%s)", page)
+            MTLog.w(this, e, "Error while tracking screen view! ($page)")
         }
     }
 
     @MainThread
-    override fun trackButtonClick(buttonName: String, page: AnalyticsScreen) {
+    override fun trackButtonClick(buttonName: String, page: AnalyticsScreen?) {
         if (!ANALYTICS_ENABLED) return
         try {
             firebaseAnalytics?.logEvent(AnalyticsEvents.BUTTON_CLICK, Bundle().apply {
                 putString(AnalyticsEvents.Params.BUTTON_NAME, buttonName)
-                putString(FirebaseAnalytics.Param.SCREEN_NAME, page.screenName)
-                putString(FirebaseAnalytics.Param.SCREEN_CLASS, page.screenClass)
+                page?.let {
+                    putString(FirebaseAnalytics.Param.SCREEN_NAME, it.screenName)
+                    putString(FirebaseAnalytics.Param.SCREEN_CLASS, it.screenClass)
+                }
             })
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while tracing screen view! (%s)", page)
+            MTLog.w(this, e, "Error while tracking button $buttonName click! (page:$page)")
         }
     }
 }

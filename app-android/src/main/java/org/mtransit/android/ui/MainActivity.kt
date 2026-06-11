@@ -408,11 +408,10 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     @get:MainThread
-    override val currentFragment: Fragment?
-        get() = FragmentUtils.getFragment(this, R.id.content_frame)
+    override val currentFragment: Fragment? get() = FragmentUtils.getFragment(this, R.id.content_frame)
 
-    private val currentABFragment: ABFragment?
-        get() = currentFragment as? ABFragment
+    @get:MainThread
+    val currentABFragment: ABFragment? get() = currentFragment as? ABFragment
 
     override fun onBackStackChanged() {
         resetBackStackEntryCount()

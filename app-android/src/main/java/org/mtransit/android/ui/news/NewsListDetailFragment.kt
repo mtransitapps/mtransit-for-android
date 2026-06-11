@@ -25,7 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.analytics.AnalyticsManager
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
@@ -162,7 +162,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     lateinit var adManager: IAdManager
 
     @Inject
-    lateinit var analyticsManager: AnalyticsManager
+    lateinit var analyticsManager: IAnalyticsManager
 
     override val viewModel by viewModels<NewsListViewModel>()
     override val attachedViewModel
