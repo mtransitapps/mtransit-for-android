@@ -94,10 +94,12 @@ class AnalyticsManager @Inject internal constructor(
         val bundle = params?.let {
             Bundle().apply {
                 for ((key, value) in it.to()) {
+                    // Firebase: "String, long and double param types are supported."
+                    // https://firebase.google.com/docs/reference/kotlin/com/google/firebase/analytics/FirebaseAnalytics#logEvent(java.lang.String,android.os.Bundle)
                     when (value) {
                         is String -> putString(key, value)
-                        is Boolean -> putBoolean(key, value)
-                        is Int -> putInt(key, value)
+                        is Long -> putLong(key, value)
+                        is Double -> putDouble(key, value)
 
                         else -> MTLog.w(this@AnalyticsManager, "Unexpected event parameter type for '${key}'>'${value}'!")
                     }
