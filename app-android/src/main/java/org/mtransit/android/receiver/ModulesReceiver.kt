@@ -40,12 +40,13 @@ class ModulesReceiver : BroadcastReceiver(),
             Intent.ACTION_PACKAGE_VERIFIED
         )
 
-        val INTENT_FILTER = IntentFilter().apply {
-            for (action in ACTIONS) {
-                addAction(action)
+        val INTENT_FILTER
+            get() = IntentFilter().apply {
+                for (action in ACTIONS) {
+                    addAction(action)
+                }
+                addDataScheme("package")
             }
-            addDataScheme("package")
-        }
     }
 
     override fun getLogTag() = LOG_TAG

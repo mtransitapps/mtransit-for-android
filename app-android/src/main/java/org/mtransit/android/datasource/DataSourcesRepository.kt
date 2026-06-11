@@ -311,7 +311,7 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
-    private var runningUpdate = AtomicBoolean(false)
+    private val runningUpdate = AtomicBoolean(false)
     private val updateLockMutex = Mutex()
 
     suspend fun updateLock(forcePkg: String? = null): Boolean {
