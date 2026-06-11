@@ -240,7 +240,7 @@ class NextMainActivity : MTActivityWithLocation(),
                 adManager.setHasSubscription(hasSubscription, this@NextMainActivity)
             }
         }
-        ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED)
     }
 
     private val modulesReceiver = ModulesReceiver()

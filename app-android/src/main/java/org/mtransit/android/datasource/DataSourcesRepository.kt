@@ -321,11 +321,8 @@ class DataSourcesRepository @Inject constructor(
             return false
         }
         this.updateLockMutex.withLock {
-            if (runningUpdate.getAndSet(true)) {
-                MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - in lock)")
-                return false
-            }
             try {
+                runningUpdate.set(true)
                 val updated = update(forcePkg)
                 MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
                 return updated
