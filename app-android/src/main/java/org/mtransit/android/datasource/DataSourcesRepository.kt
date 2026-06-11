@@ -325,10 +325,13 @@ class DataSourcesRepository @Inject constructor(
                 MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - in lock)")
                 return false
             }
-            val updated = update(forcePkg)
-            runningUpdate.set(false)
-            MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
-            return updated
+            try {
+                val updated = update(forcePkg)
+                MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
+                return updated
+            } finally {
+                runningUpdate.set(false)
+            }
         }
     }
 

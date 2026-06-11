@@ -120,8 +120,8 @@ class ModulesReceiver : BroadcastReceiver(),
         val providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg) ?: return false
         val agencyProviderMetaData = context.getString(commonsR.string.agency_provider)
         for (provider in providers) {
-            provider?.metaData ?: continue
-            if (agencyProviderMetaData == provider.metaData.getString(agencyProviderMetaData)) {
+            val metaData = provider?.metaData ?: continue
+            if (metaData.getString(agencyProviderMetaData) == agencyProviderMetaData) {
                 MTLog.i(this, "Ping: %s", provider.authority)
                 dataSourceRequestManager.ping(provider.authority)
                 return true
