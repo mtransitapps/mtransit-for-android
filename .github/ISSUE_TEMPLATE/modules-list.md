@@ -97,6 +97,7 @@ labels: MT
 - [ ] ca-revelstoke-transit-bus
 - [ ] ca-richelieu-citvr-bus
 - [ ] ca-saint-john-transit-bus
+- [ ] ca-salaberry-de-valleyfield-stsv-bus
 - [ ] ca-salt-spring-island-transit-bus
 - [ ] ca-saskatoon-transit-bus
 - [ ] ca-shawinigan-rtcs-bus
