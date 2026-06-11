@@ -8,9 +8,6 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -35,6 +32,7 @@ import org.mtransit.android.dev.takeIfDemoModeTargeted
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.commons.addAllNNE
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -313,33 +311,24 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
-    private val _updateJobMutex = Mutex()
-    private var _updateJob: Job? = null
+    private var runningUpdate = AtomicBoolean(false)
+    private val updateLockMutex = Mutex()
 
-    suspend fun updateLock(forcePkg: String? = null) {
-        val currentJob = currentCoroutineContext()[Job]
-        // 1 - Cancel old job if running
-        _updateJobMutex.withLock {
-            _updateJob?.also {
-                if (it.isActive) {
-                    MTLog.d(this@DataSourcesRepository, "updateLock() > CANCEL (was active)")
-                }
-            }
-        }?.cancelAndJoin()
-        // 2 - start new job
-        _updateJobMutex.withLock {
-            _updateJob = currentJob
+    suspend fun updateLock(forcePkg: String? = null): Boolean {
+        MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg)")
+        if (runningUpdate.get()) {
+            MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - before sync)")
+            return false
         }
-        try {
-            MTLog.d(this@DataSourcesRepository, "updateLock() > START...")
-            val updated = update(forcePkg)
-            MTLog.d(this@DataSourcesRepository, "updateLock() > DONE > $updated")
-        } finally {
-            _updateJobMutex.withLock {
-                if (_updateJob === currentJob) {
-                    _updateJob = null
-                }
+        this.updateLockMutex.withLock {
+            if (runningUpdate.getAndSet(true)) {
+                MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - in lock)")
+                return false
             }
+            val updated = update(forcePkg)
+            runningUpdate.set(false)
+            MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
+            return updated
         }
     }
 

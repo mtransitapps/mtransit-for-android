@@ -113,7 +113,7 @@ class ModulesReceiver : BroadcastReceiver(),
             MTLog.d(this, "onReceive() > SKIP (can NOT be a provider: pkg:%s, action:%s)", pkg, action)
             return
         }
-        dataSourcesRepository.updateLock()
+        dataSourcesRepository.updateLock(pkg)
     }
 
     private suspend fun ping(context: Context, pkg: String?): Boolean {
