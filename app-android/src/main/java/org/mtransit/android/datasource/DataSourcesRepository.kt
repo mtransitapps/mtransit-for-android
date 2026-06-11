@@ -7,12 +7,10 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -319,6 +317,7 @@ class DataSourcesRepository @Inject constructor(
     private var _updateJob: Job? = null
 
     suspend fun updateLock(forcePkg: String? = null) {
+        val currentJob = currentCoroutineContext()[Job]
         // 1 - Cancel old job if running
         _updateJobMutex.withLock {
             _updateJob?.also {
@@ -328,20 +327,17 @@ class DataSourcesRepository @Inject constructor(
             }
         }?.cancelAndJoin()
         // 2 - start new job
-        coroutineScope {
-            launch {
-                try {
-                    MTLog.d(this@DataSourcesRepository, "updateLock() > START...")
-                    val updated = update(forcePkg)
-                    MTLog.d(this@DataSourcesRepository, "updateLock() > DONE > $updated")
-                } catch (e: CancellationException) {
-                    MTLog.d(this@DataSourcesRepository, "updateLock() > CANCELLED")
-                } catch (e: Exception) {
-                    MTLog.e(this@DataSourcesRepository, e, "updateLock() > ERROR")
-                }
-            }.also {
-                _updateJobMutex.withLock {
-                    _updateJob = it
+        _updateJobMutex.withLock {
+            _updateJob = currentJob
+        }
+        try {
+            MTLog.d(this@DataSourcesRepository, "updateLock() > START...")
+            val updated = update(forcePkg)
+            MTLog.d(this@DataSourcesRepository, "updateLock() > DONE > $updated")
+        } finally {
+            _updateJobMutex.withLock {
+                if (_updateJob === currentJob) {
+                    _updateJob = null
                 }
             }
         }

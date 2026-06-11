@@ -50,7 +50,7 @@ class ModuleDataChangeReceiver : BroadcastReceiver(),
         }
         MTLog.i(this, "Broadcast received: %s", action)
         val extras = intent.extras
-        val pkg = extras?.getString(DataChange.PKG, null)
+        val pkg = extras?.getString(DataChange.PKG)
             .takeIf { extras?.getBoolean(DataChange.FORCE, false) == true }
         val pendingResult = goAsync()
         ioScope.launch {
