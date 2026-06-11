@@ -150,10 +150,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.logTag = LOG_TAG + "-" + tag;
 	}
 
-	public static final int TYPE_HEADER_NONE = 0;
-	public static final int TYPE_HEADER_BASIC = 1;
-	public static final int TYPE_HEADER_ALL_NEARBY = 2;
-	public static final int TYPE_HEADER_MORE = 3;
+	public static final int SECTION_TYPE_HEADER_NONE = 0;
+	public static final int SECTION_TYPE_HEADER_BASIC = 1;
+	public static final int SECTION_TYPE_HEADER_ALL_NEARBY = 2;
+	public static final int SECTION_TYPE_HEADER_MORE = 3;
 
 	private final LayoutInflater layoutInflater;
 
@@ -191,9 +191,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	protected boolean showBrowseHeaderSection = false; // show header with shortcut to agency type screens
 
-	protected int showTypeHeader = TYPE_HEADER_NONE;
+	protected int showTypeSectionHeader = SECTION_TYPE_HEADER_NONE;
 
-	private boolean showTypeHeaderNearby = false; // show nearby header instead of default type header
+	private boolean showTypeSectionHeaderNearby = false; // show nearby header instead of default type header
 
 	private boolean showFooter = false; // infinite loading, support...
 
@@ -318,12 +318,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.showBrowseHeaderSection = showBrowseHeaderSection;
 	}
 
-	public void setShowTypeHeader(int showTypeHeader) {
-		this.showTypeHeader = showTypeHeader;
+	public void setShowTypeSectionHeader(int showTypeSectionHeader) {
+		this.showTypeSectionHeader = showTypeSectionHeader;
 	}
 
-	public void setShowTypeHeaderNearby(boolean showTypeHeaderNearby) {
-		this.showTypeHeaderNearby = showTypeHeaderNearby;
+	public void setShowTypeSectionHeaderNearby(boolean showTypeSectionHeaderNearby) {
+		this.showTypeSectionHeaderNearby = showTypeSectionHeaderNearby;
 	}
 
 	public void setShowFooter(boolean showFooter) {
@@ -357,7 +357,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			if (this.showFooter && position + 1 == getCount()) {
 				return 9; // FOOTER
 			}
-			if (this.showTypeHeader != TYPE_HEADER_NONE) {
+			if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
 				if (this.poisByType != null) {
 					final Integer typeId = getItemTypeHeader(position);
 					if (typeId != null) {
@@ -422,7 +422,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		}
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				if (this.showTypeHeader != TYPE_HEADER_NONE) {
+				if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
 					this.count++;
 				}
 				final List<POIManager> typePOIMs = this.poisByType.get(type);
@@ -442,7 +442,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		}
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				if (this.showTypeHeader != TYPE_HEADER_NONE) {
+				if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
 					position++;
 				}
 				final List<POIManager> typePOIMs = this.poisByType.get(type);
@@ -484,7 +484,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		}
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				if (this.showTypeHeader != TYPE_HEADER_NONE) {
+				if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
 					index++;
 				}
 				final List<POIManager> typePOIMs = this.poisByType.get(type);
@@ -522,7 +522,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if (this.showBrowseHeaderSection) {
 			index++;
 		}
-		if (this.showTypeHeader != TYPE_HEADER_NONE && this.poisByType != null) {
+		if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE && this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
 				if (index == position) {
 					return type;
@@ -546,7 +546,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			if (this.showFooter && position + 1 == getCount()) {
 				return getFooterView(convertView, parent);
 			}
-			if (this.showTypeHeader != TYPE_HEADER_NONE) {
+			if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
 				final Integer typeId = getItemTypeHeader(position);
 				if (typeId != null) {
 					if (FavoritesFolderDSTUtils.isFavoriteFolderDataSourceId(typeId)) {
@@ -1410,15 +1410,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@LayoutRes
 	private int getTypeSectionHeaderLayoutResId() {
-		switch (this.showTypeHeader) {
-		case TYPE_HEADER_BASIC:
+		switch (this.showTypeSectionHeader) {
+		case SECTION_TYPE_HEADER_BASIC:
 			return R.layout.layout_poi_list_header;
-		case TYPE_HEADER_MORE:
+		case SECTION_TYPE_HEADER_MORE:
 			return R.layout.layout_poi_list_header_with_more;
-		case TYPE_HEADER_ALL_NEARBY:
+		case SECTION_TYPE_HEADER_ALL_NEARBY:
 			return R.layout.layout_poi_list_header_with_all_nearby;
 		default:
-			MTLog.w(this, "Unexpected header type '%s'!", this.showTypeHeader);
+			MTLog.w(this, "Unexpected section header type '%s'!", this.showTypeSectionHeader);
 			return R.layout.layout_poi_list_header;
 		}
 	}
@@ -1563,7 +1563,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			convertView.setTag(holder);
 		}
 		final TypeSectionHeaderViewHolder holder = (TypeSectionHeaderViewHolder) convertView.getTag();
-		holder.nameTv.setText(this.showTypeHeaderNearby ? type.getNearbyName(holder.nameTv.getContext()) : type.getPoiShortName(holder.nameTv.getContext()));
+		holder.nameTv.setText(this.showTypeSectionHeaderNearby ? type.getNearbyName(holder.nameTv.getContext()) : type.getPoiShortName(holder.nameTv.getContext()));
 		if (type.getIconResId() != -1) {
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getIconResId(), 0, 0, 0);
 		}

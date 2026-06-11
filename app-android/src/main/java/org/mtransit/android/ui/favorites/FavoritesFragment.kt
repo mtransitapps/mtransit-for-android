@@ -124,7 +124,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         ).apply {
             logTag = this@FavoritesFragment.logTag
             setShowFavorite(false) // all items in this screen are favorites
-            setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY)
+            setShowTypeSectionHeader(POIArrayAdapter.SECTION_TYPE_HEADER_ALL_NEARBY)
             setTimeChangedListener { this@FavoritesFragment.onTimeChanged() }
         }
     }

@@ -64,7 +64,7 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     }.distinctUntilChanged() // listening all shared pref changes
         .observe(viewLifecycleOwner) { dstIdToSelectedAuthority ->
             this.dstIdToSelectedAuthority = dstIdToSelectedAuthority
-            if (this.showBrowseHeaderSection || this.showTypeHeader == POIArrayAdapter.TYPE_HEADER_ALL_NEARBY) {
+            if (this.showBrowseHeaderSection || this.showTypeSectionHeader == POIArrayAdapter.SECTION_TYPE_HEADER_ALL_NEARBY) {
                 this.nbDisplayedAgencyTypes = -1 // reset
                 notifyDataSetChanged()
             }

@@ -187,8 +187,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         ).apply {
             logTag = this@HomeFragment.logTag
             setShowBrowseHeaderSection(true)
-            setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE)
-            setShowTypeHeaderNearby(true)
+            setShowTypeSectionHeader(POIArrayAdapter.SECTION_TYPE_HEADER_MORE)
+            setShowTypeSectionHeaderNearby(true)
             setShowFooter(true)
             setFooterManager(poiListFooterManager)
             setOnTypeHeaderButtonsClickListener(typeHeaderButtonsClickListener)

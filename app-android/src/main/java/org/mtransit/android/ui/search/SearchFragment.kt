@@ -212,7 +212,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 setSelection(typeFilterAdapter.getPosition(dst))
                 isVisible = dst != null
             }
-            listAdapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
+            listAdapter.setShowTypeSectionHeader(if (dst == null) POIArrayAdapter.SECTION_TYPE_HEADER_MORE else POIArrayAdapter.SECTION_TYPE_HEADER_NONE)
             onBackPressedCallback.isEnabled = dst != null
         }
         viewModel.searchHasFocus.observe(viewLifecycleOwner) {
