@@ -44,6 +44,7 @@ import kotlin.time.Duration.Companion.seconds
 fun POIFragment.setupViewKt() = this.binding?.apply {
     fabFavorite.apply {
         setOnClickListener {
+            analyticsManager.trackButtonClick("fav_fab", this@setupViewKt)
             val poim = getPoimOrNull()?.takeIf { it.isFavoritable } ?: return@setOnClickListener
             viewLifecycleOwner.lifecycleScope.launch {
                 favoriteRepository.addOrRemoveFavoriteUI(requireActivity(), poim.poi.uuid)
@@ -81,6 +82,7 @@ internal fun POIFragment.updateFooter() = binding?.apply {
 internal fun POIFragment.makePoiListFooterManager() =
     DefaultPOIListFooterManager(
         adManager = adManager,
+        analyticsManager = analyticsManager,
         demoModeManager = demoModeManager,
         billingManager = billingManager,
         dataSourcesRepository = dataSourcesRepository,

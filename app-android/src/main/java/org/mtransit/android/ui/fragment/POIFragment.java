@@ -732,7 +732,8 @@ public class POIFragment extends ABFragment implements
 				this.poiRepository,
 				this.favoriteRepository,
 				this.sharedStatusLoader,
-				this.sharedServiceUpdateLoader
+				this.sharedServiceUpdateLoader,
+				this.analyticsManager
 		);
 		this.nearbyListAdapter.setLogTag(getLogTag());
 	}
@@ -776,6 +777,7 @@ public class POIFragment extends ABFragment implements
 		final TextView serviceUpdateText = this.binding.poiServiceUpdate.serviceUpdateText;
 		serviceUpdateText.setMaxLines(SERVICE_UPDATE_MAX_LINES);
 		serviceUpdateText.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("service_update_more", this);
 			final POIManager poim = getPoimOrNull();
 			if (poim == null) return;
 			if (FeatureFlags.F_NAVIGATION) {
@@ -809,6 +811,7 @@ public class POIFragment extends ABFragment implements
 			rdsScheduleBtn.setBackgroundColor(poiColor);
 		}
 		rdsScheduleBtn.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("full_schedule", this);
 			final POIManager poim = getPoimOrNull();
 			if (poim == null || !(poim.poi instanceof RouteDirectionStop)) {
 				MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RDS)");
@@ -847,6 +850,7 @@ public class POIFragment extends ABFragment implements
 		if (this.binding == null) return;
 		final View moreBtn = binding.poiNews.newsTitleLayout.moreBtn;
 		moreBtn.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("news_more", this);
 			final POIManager poim = getPoimOrNull();
 			if (poim == null) return;
 			if (FeatureFlags.F_NAVIGATION) {
@@ -893,6 +897,7 @@ public class POIFragment extends ABFragment implements
 		if (this.binding == null) return;
 		final View moreBtn = binding.poiNearbyPoisTitle.moreBtn;
 		moreBtn.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("nearby_more", this);
 			final POIManager poim = getPoimOrNull();
 			if (poim == null) return;
 			if (FeatureFlags.F_NAVIGATION) {
@@ -953,6 +958,7 @@ public class POIFragment extends ABFragment implements
 		if (appUpdateText == null) return;
 		appUpdateText.setText(appUpdateText.getContext().getText(R.string.app_update_btn_text_short_formatted));
 		appUpdateText.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("app_update", this);
 			final Activity activity = getActivity();
 			if (activity == null) return;
 			final IAgencyUpdatableProperties agency = getAgencyOrNull();
@@ -972,6 +978,7 @@ public class POIFragment extends ABFragment implements
 	private void setupAppWasDisabledButton() {
 		if (this.binding == null) return;
 		this.binding.poiModuleWasDisabled.appWasDisabledBtn.setOnClickListener(v -> {
+			analyticsManager.trackButtonClick("module_was_disabled", this);
 			final Activity activity = getActivity();
 			if (activity == null) return;
 			if (viewModel != null) {

@@ -411,7 +411,10 @@ class MainActivity : MTActivityWithLocation(),
     override val currentFragment: Fragment? get() = FragmentUtils.getFragment(this, R.id.content_frame)
 
     @get:MainThread
-    val currentABFragment: ABFragment? get() = currentFragment as? ABFragment
+    private val currentABFragment: ABFragment? get() = currentFragment as? ABFragment
+
+    @get:MainThread
+    val currentAnalyticsScreen: AnalyticsScreen? get() = currentABFragment as? AnalyticsScreen
 
     override fun onBackStackChanged() {
         resetBackStackEntryCount()
@@ -512,6 +515,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     fun onUpIconClick(): Boolean {
+        analyticsManager.trackButtonClick("up_icon", currentAnalyticsScreen)
         return FragmentUtils.popLatestEntryFromStack(this, null)
     }
 

@@ -15,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ToastUtils
@@ -99,6 +100,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     @Inject
     lateinit var adManager: IAdManager
 
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
     private var binding: FragmentSearchBinding? = null
 
     private val listAdapter: POIArrayAdapter by lazy {
@@ -111,7 +115,8 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@SearchFragment.logTag
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)

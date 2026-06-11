@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -119,6 +120,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var adManager: IAdManager
 
     @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    @Inject
     lateinit var demoModeManager: DemoModeManager
 
     @Inject
@@ -131,6 +135,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     private val poiListFooterManager by lazy {
         DefaultPOIListFooterManager(
             adManager = adManager,
+            analyticsManager = analyticsManager,
             demoModeManager = demoModeManager,
             billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
@@ -177,7 +182,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager,
         ).apply {
             logTag = this@HomeFragment.logTag
             setShowBrowseHeaderSection(true)

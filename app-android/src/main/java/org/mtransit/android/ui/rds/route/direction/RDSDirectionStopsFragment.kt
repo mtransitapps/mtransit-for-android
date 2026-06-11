@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -156,6 +157,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     lateinit var adManager: IAdManager
 
     @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
@@ -226,7 +230,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@RDSDirectionStopsFragment.logTag
             setShowExtra(false) // show route short name & direction

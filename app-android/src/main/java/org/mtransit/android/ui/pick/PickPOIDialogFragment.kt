@@ -16,6 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
@@ -95,6 +96,9 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
     private var binding: FragmentDialogPickPoiBinding? = null
 
     private var behavior: BottomSheetBehavior<*>? = null
@@ -116,7 +120,8 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@PickPOIDialogFragment.logTag
             setOnClickHandledListener(onClickHandledListener)
