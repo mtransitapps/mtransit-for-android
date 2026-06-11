@@ -83,6 +83,7 @@ labels: MT
 - [ ] ca-ottawa-oc-transpo-train
 - [ ] ca-outaouais-transcollines-bus
 - [ ] ca-pemberton-valley-regional-transit-bus
+- [ ] ca-pierre-de-saurel-stc-bus
 - [ ] ca-port-alberni-transit-bus
 - [ ] ca-powell-river-regional-transit-system-bus
 - [ ] ca-prince-george-transit-system-bus
