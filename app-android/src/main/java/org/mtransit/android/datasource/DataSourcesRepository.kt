@@ -6,6 +6,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import androidx.room.concurrent.AtomicBoolean
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -309,24 +310,22 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
-    private var runningUpdate: Boolean = false
+    private var runningUpdate = AtomicBoolean(false)
 
     private val mutex = Mutex()
 
-    @JvmOverloads
     suspend fun updateLock(forcePkg: String? = null): Boolean {
-        if (runningUpdate) {
+        if (runningUpdate.get()) {
             MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - before sync)")
             return false
         }
         this.mutex.withLock {
-            if (runningUpdate) {
+            if (runningUpdate.getAndSet(true)) {
                 MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - in lock)")
                 return false
             }
-            runningUpdate = true
             val updated = update(forcePkg)
-            runningUpdate = false
+            runningUpdate.set(false)
             MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
             return updated
         }

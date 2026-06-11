@@ -240,7 +240,7 @@ class NextMainActivity : MTActivityWithLocation(),
                 adManager.setHasSubscription(hasSubscription, this@NextMainActivity)
             }
         }
-        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onNewIntent(@SuppressLint("UnknownNullness") intent: Intent) {

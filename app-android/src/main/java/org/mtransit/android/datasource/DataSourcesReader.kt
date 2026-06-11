@@ -172,7 +172,7 @@ class DataSourcesReader @Inject constructor(
         return false
     }
 
-    suspend fun update(forcePkg: String? = null): Boolean {
+    internal suspend fun update(forcePkg: String? = null): Boolean {
         var updated = false
         withContext(Dispatchers.IO) {
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
@@ -212,6 +212,7 @@ class DataSourcesReader @Inject constructor(
         }
         var updated = false
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().filter { forcePkg == null || forcePkg == it.pkg }.forEach { agencyProperties ->
+            yield() // stop if canceled
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
             if (skipNotSupportedPkg(pkg)) {
@@ -296,6 +297,7 @@ class DataSourcesReader @Inject constructor(
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
         @Suppress("DEPRECATION") // DO request all PKG providers info
         pm.getAllInstalledProvidersWithMetaData().forEach pkg@{ packageInfo ->
+            yield() // stop if canceled
             val pkg = packageInfo.packageName
             if (!pm.isAppEnabled(pkg)) return@pkg // skip unknown disabled (processed before)
             if (skipNotSupportedPkg(pkg)) {
@@ -406,6 +408,7 @@ class DataSourcesReader @Inject constructor(
     ) { // UPDATE NOT-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
         // AGENCY: only apply to agency (other properties are deleted when uninstalled/disabled)
         dataSourcesDatabase.agencyPropertiesDao().getAllNotInstalledOrNotEnabledAgencies().forEach { agencyProperties ->
+            yield() // stop if canceled
             val pkg = agencyProperties.pkg
             if (skipNotSupportedPkg(pkg)) {
                 agencyProperties.let {
@@ -458,6 +461,7 @@ class DataSourcesReader @Inject constructor(
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
         // AGENCY (only 1 property kept in cache even when uninstalled/disabled to save refreshing data)
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().forEach { agencyProperties ->
+            yield() // stop if canceled
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
             if (skipNotSupportedPkg(pkg)) {
