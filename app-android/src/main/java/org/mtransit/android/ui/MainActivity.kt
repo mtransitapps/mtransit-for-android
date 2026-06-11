@@ -228,6 +228,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     override fun onSearchRequested(): Boolean {
+        analyticsManager.trackButtonClick("toolbar_search", this)
         onSearchQueryRequested(null)
         return true // processed
     }

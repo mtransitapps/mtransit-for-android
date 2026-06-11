@@ -227,6 +227,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     }
 
     override fun onScreenToolbarNavigationClick(v: View) {
+        analyticsManager.trackButtonClick("up_icon", this)
         if (onUpBackPressed()) {
             return // handled
         }

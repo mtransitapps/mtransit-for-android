@@ -499,6 +499,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     }
 
     override fun onScreenToolbarNavigationClick(v: View) {
+        analyticsManager.trackButtonClick("up_icon", this)
         if (handleExitFullscreen()) {
             return // handled
         }
