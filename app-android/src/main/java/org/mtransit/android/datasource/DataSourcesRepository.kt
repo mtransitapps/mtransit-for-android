@@ -32,6 +32,7 @@ import org.mtransit.android.dev.takeIfDemoModeTargeted
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.commons.addAllNNE
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -85,7 +86,9 @@ class DataSourcesRepository @Inject constructor(
             .sortedWith(defaultAgencyComparator)
     }.distinctUntilChanged()
 
-    fun readingAllAgenciesByType() = readingAllAgencies().map { it.groupBy { it.getSupportedType() } }
+    fun readingAllAgenciesByType() = readingAllAgencies().map { agencies ->
+        agencies.groupBy { it.getSupportedType() }
+    }
 
     fun readingAllAgenciesBase() = this.dataSourcesStorage.readingAllAgenciesBase().map { agencies ->
         agencies
@@ -237,10 +240,9 @@ class DataSourcesRepository @Inject constructor(
     fun getVehicleLocationProvider(authority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProvider(authority)
 
     fun readingVehicleLocationProviders(targetAuthority: String?) = liveData {
-        targetAuthority?.let { providerAuthority ->
-            emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(providerAuthority))
-            emitSource(dataSourcesStorage.readingVehicleLocationProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
-        }
+        targetAuthority ?: return@liveData
+        emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(targetAuthority))
+        emitSource(dataSourcesStorage.readingVehicleLocationProviders(targetAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
     }.distinctUntilChanged()
 
     // endregion
@@ -309,26 +311,24 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
-    private var runningUpdate: Boolean = false
+    private val runningUpdate = AtomicBoolean(false)
+    private val updateLockMutex = Mutex()
 
-    private val mutex = Mutex()
-
-    @JvmOverloads
     suspend fun updateLock(forcePkg: String? = null): Boolean {
-        if (runningUpdate) {
+        MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg)")
+        if (runningUpdate.get()) {
             MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - before sync)")
             return false
         }
-        this.mutex.withLock {
-            if (runningUpdate) {
-                MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - in lock)")
-                return false
+        this.updateLockMutex.withLock {
+            try {
+                runningUpdate.set(true)
+                val updated = update(forcePkg)
+                MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
+                return updated
+            } finally {
+                runningUpdate.set(false)
             }
-            runningUpdate = true
-            val updated = update(forcePkg)
-            runningUpdate = false
-            MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
-            return updated
         }
     }
 
