@@ -45,6 +45,7 @@ import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class RDSDirectionStopsViewModel @Inject constructor(
@@ -122,7 +123,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val _vehicleLocationDataRefreshMinMs = remoteConfigProvider.get(
         RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS,
         RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT,
-    )
+    ).milliseconds
 
     fun startVehicleLocationRefresh() {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
@@ -211,7 +212,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
             if (routeDirectionM.value?.routeDirection?.uuid != targetUUID) {
-                delay(333L) // wait for 0.333 secs BECAUSE many POIMs can also trigger it
+                delay(333.milliseconds) // wait for 0.333 secs BECAUSE many POIMs can also trigger it
             }
             routeDirectionM.value?.apply {
                 if (this.routeDirection.uuid != targetUUID) {

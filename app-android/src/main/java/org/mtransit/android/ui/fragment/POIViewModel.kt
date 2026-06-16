@@ -61,6 +61,7 @@ import org.mtransit.commons.takeAnd
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class POIViewModel @Inject constructor(
@@ -134,7 +135,7 @@ class POIViewModel @Inject constructor(
     private val _vehicleLocationDataRefreshMinMs = remoteConfigProvider.get(
         RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS,
         RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT,
-    )
+    ).milliseconds
 
     fun startVehicleLocationRefresh() {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
