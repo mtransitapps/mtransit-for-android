@@ -91,6 +91,7 @@ labels: MT
 - [ ] ca-quebec-a-velo-bike
 - [ ] ca-quebec-orleans-express-bus
 - [ ] ca-quebec-rtc-bus
+- [ ] ca-quebec-traversiers-ferry
 - [ ] ca-quesnel-transit-bus
 - [ ] ca-red-deer-transit-bus
 - [ ] ca-regina-transit-bus
