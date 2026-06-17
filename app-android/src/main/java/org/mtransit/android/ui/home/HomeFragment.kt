@@ -52,7 +52,7 @@ import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
-import org.mtransit.android.ui.view.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible

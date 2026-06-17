@@ -33,7 +33,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
-import org.mtransit.android.ui.view.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -116,6 +116,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                     ?: return@DefaultPOIListFooterManager false
                 (binding?.listGrid?.layoutManager as? GridLayoutManager)?.spanCount?.let { spanCount ->
                     routesCount = routesCount.plus(spanCount - 1).div(spanCount) // round up
+                }
                 1 + // for tabs
                         routesCount < minListItemToNotHide
             },

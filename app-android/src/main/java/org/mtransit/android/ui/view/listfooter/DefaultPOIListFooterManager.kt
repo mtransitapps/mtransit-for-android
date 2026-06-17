@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.view
+package org.mtransit.android.ui.view.listfooter
 
 import android.content.Context
 import android.view.View

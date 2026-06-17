@@ -108,7 +108,7 @@ import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog;
-import org.mtransit.android.ui.view.DefaultPOIListFooterManager;
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;

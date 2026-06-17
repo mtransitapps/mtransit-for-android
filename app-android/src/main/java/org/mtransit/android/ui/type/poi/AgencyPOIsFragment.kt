@@ -40,7 +40,7 @@ import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
-import org.mtransit.android.ui.view.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached

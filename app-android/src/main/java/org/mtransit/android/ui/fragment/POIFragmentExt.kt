@@ -26,7 +26,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
-import org.mtransit.android.ui.view.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.navigateF
 import org.mtransit.android.ui.view.common.setOnClickListenerClickable

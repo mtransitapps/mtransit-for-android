@@ -42,7 +42,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.NewsListDetailFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
-import org.mtransit.android.ui.view.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
