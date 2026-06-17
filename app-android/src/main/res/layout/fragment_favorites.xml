@@ -26,7 +26,7 @@
         <!-- LIST -->
         <include
             android:id="@id/list_layout"
-            layout="@layout/layout_poi_list_padding_bottom"
+            layout="@layout/layout_poi_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible"

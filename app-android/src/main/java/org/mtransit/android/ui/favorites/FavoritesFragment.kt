@@ -18,12 +18,14 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI.showAddFolderDialog
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -40,6 +42,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.NewsListDetailFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
+import org.mtransit.android.ui.view.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
@@ -107,7 +110,26 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     @Inject
     lateinit var analyticsManager: IAnalyticsManager
 
+    @Inject
+    lateinit var demoModeManager: DemoModeManager
+
+    @Inject
+    lateinit var billingManager: IBillingManager
+
     private var binding: FragmentFavoritesBinding? = null
+
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            demoModeManager = demoModeManager,
+            billingManager = billingManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { this },
+            getShowLoading = { attachedViewModel?.favoritePOIs?.value == null },
+            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
+        )
+    }
 
     private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
@@ -126,6 +148,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             setShowFavorite(false) // all items in this screen are favorites
             setShowTypeSectionHeader(POIArrayAdapter.SECTION_TYPE_HEADER_ALL_NEARBY)
             setTimeChangedListener { this@FavoritesFragment.onTimeChanged() }
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
         }
     }
 
@@ -155,6 +179,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
             listAdapter.setPois(favoritePOIS)
             listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+            updateFooter()
             updateEmptyLayout(empty = favoritePOIS.isNullOrEmpty())
             binding?.apply {
                 when {
@@ -181,6 +206,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             listAdapter.setLocation(deviceLocation)
         }
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, billingManager, dataSourcesRepository) {
+            updateFooter()
+        }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.scrollToTopEvent.observeEvent(viewLifecycleOwner) { scroll ->
@@ -189,6 +217,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 }
             }
         }
+    }
+
+    private fun updateFooter() {
+        listAdapter.notifyDataSetChanged(false)
     }
 
     @MainThread

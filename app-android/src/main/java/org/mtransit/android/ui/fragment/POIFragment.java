@@ -108,6 +108,7 @@ import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog;
+import org.mtransit.android.ui.view.DefaultPOIListFooterManager;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
@@ -577,15 +578,11 @@ public class POIFragment extends ABFragment implements
 		}
 		this.adManager.getRewardedUntilLive().observe(getViewLifecycleOwner(), rewardedUntil -> refreshRewardedLayout());
 		this.adManager.getRewardedNowLive().observe(getViewLifecycleOwner(), rewardedNow -> refreshRewardedLayout());
-		this.billingManager.getHasSubscription().observe(getViewLifecycleOwner(), this::onHasSubscriptionChanged);
-		this.dataSourcesRepository.readingHasAgenciesEnabled().observe(getViewLifecycleOwner(), this::onHasAgenciesEnabledChanged);
+		DefaultPOIListFooterManager.observe(getViewLifecycleOwner(), this.billingManager, this.dataSourcesRepository, () -> {
+			updateFooter(this);
+			return kotlin.Unit.INSTANCE;
+		});
 		this.mapViewController.onViewCreated(view, savedInstanceState);
-	}
-
-	private void onHasAgenciesEnabledChanged(@Nullable Boolean hasAgenciesEnabled) {
-		if (this.nearbyListAdapter != null) {
-			this.nearbyListAdapter.notifyDataSetChanged(false);
-		}
 	}
 
 	@Nullable
@@ -748,10 +745,6 @@ public class POIFragment extends ABFragment implements
 			_footerManager = makePoiListFooterManager(this);
 		}
 		return _footerManager;
-	}
-
-	private void onHasSubscriptionChanged(@Nullable Boolean hasSubscriptionChanged) {
-		updateFooter(this);
 	}
 
 	@MainThread

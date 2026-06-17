@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.view
 
 import android.view.View
+import androidx.lifecycle.LifecycleOwner
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -32,6 +33,21 @@ class DefaultPOIListFooterManager(
         private val LOG_TAG: String = DefaultPOIListFooterManager::class.java.simpleName
 
         private const val SHOW_SUPPORT_INSTEAD_OF_REWARDED_AD_PCT = 50 // 50% support | 50% rewarded
+
+        @JvmStatic
+        fun observe(
+            lifecycleOwner: LifecycleOwner,
+            billingManager: IBillingManager,
+            dataSourcesRepository: DataSourcesRepository,
+            onChanged: () -> Unit,
+        ) {
+            billingManager.hasSubscription.observe(lifecycleOwner) {
+                onChanged()
+            }
+            dataSourcesRepository.readingHasAgenciesEnabled().observe(lifecycleOwner) {
+                onChanged()
+            }
+        }
     }
 
     override fun getLogTag() = LOG_TAG

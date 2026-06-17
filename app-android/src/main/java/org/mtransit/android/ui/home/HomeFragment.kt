@@ -140,7 +140,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
             getFragment = { this },
-            getShowLoading = { viewModel.loadingPOIs.value == true },
+            getShowLoading = { attachedViewModel?.loadingPOIs?.value == true },
             canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )
     }
@@ -231,11 +231,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             setupScreenToolbar(screenToolbarLayout)
         }
         listAdapter.onCreateView(viewLifecycleOwner)
-        billingManager.hasSubscription.observe(viewLifecycleOwner) {
-            listAdapter.notifyDataSetChanged(false)
-        }
-        dataSourcesRepository.readingHasAgenciesEnabled().observe(viewLifecycleOwner) {
-            listAdapter.notifyDataSetChanged(false)
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, billingManager, dataSourcesRepository) {
+            updateFooter()
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             listAdapter.setLocation(it)
@@ -275,7 +272,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             if (loading == false) {
                 binding?.swipeRefresh?.isRefreshing = false
             } // else do nothing
-            listAdapter.notifyDataSetChanged(false) // footer
+            updateFooter()
         }
         viewModel.hasAgenciesAdded.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(hasAgenciesAdded = it)
@@ -291,6 +288,10 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 }
             }
         }
+    }
+
+    private fun updateFooter() {
+        listAdapter.notifyDataSetChanged(false)
     }
 
     private fun onTimeChanged() {
