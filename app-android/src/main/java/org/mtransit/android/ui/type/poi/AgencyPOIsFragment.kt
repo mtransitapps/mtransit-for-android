@@ -13,6 +13,7 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -24,6 +25,7 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -31,12 +33,14 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.common.twoPane
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
+import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
+import org.mtransit.android.ui.view.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -130,6 +134,12 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
+    lateinit var billingManager: IBillingManager
+
+    @Inject
+    lateinit var demoModeManager: DemoModeManager
+
+    @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
@@ -186,6 +196,26 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         }
     }
 
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            demoModeManager = demoModeManager,
+            billingManager = billingManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { parentFragment as? ABFragment },
+            getShowLoading = { attachedViewModel?.poiList?.value == null },
+            getHideText = {
+                val poiList = attachedViewModel?.poiList?.value
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                poiList.size < minListItemToNotHide
+            },
+            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
+        )
+    }
+
     private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
@@ -202,6 +232,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             logTag = this@AgencyPOIsFragment.logTag
             setPois(attachedViewModel?.poiList?.value)
             setLocation(attachedParentViewModel?.deviceLocation?.value)
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
         }
     }
 
@@ -237,7 +269,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             }
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
         }
-        this.listAdapter.onCreateView(viewLifecycleOwner)
+        listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             colorInt?.let {
                 binding?.apply {
@@ -296,6 +328,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             mapViewController.notifyMarkerChanged(mapMarkerProvider)
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
+        }
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository) {
+            this.listAdapter.notifyDataSetChanged(false)
         }
         viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedMapCameraPosition ->
             selectedMapCameraPosition?.let { cameraPosition ->

@@ -240,8 +240,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             setupScreenToolbar(screenToolbarLayout)
         }
         listAdapter.onCreateView(viewLifecycleOwner)
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, billingManager, dataSourcesRepository) {
-            updateFooter()
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository) {
+            listAdapter.notifyDataSetChanged(false)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             listAdapter.setLocation(it)
@@ -281,7 +281,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             if (loading == false) {
                 binding?.swipeRefresh?.isRefreshing = false
             } // else do nothing
-            updateFooter()
         }
         viewModel.hasAgenciesAdded.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(hasAgenciesAdded = it)
@@ -297,10 +296,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 }
             }
         }
-    }
-
-    private fun updateFooter() {
-        listAdapter.notifyDataSetChanged(false)
     }
 
     private fun onTimeChanged() {

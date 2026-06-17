@@ -14,11 +14,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@id/list_grid"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:fastScrollAlwaysVisible="false"
         android:fastScrollEnabled="false"
-        android:paddingBottom="@dimen/list_view_item_height"
         android:scrollbarStyle="insideOverlay"
         android:visibility="visible"
         tools:listitem="@layout/layout_rds_route_item"
@@ -49,7 +48,7 @@
         android:id="@id/empty_layout"
         layout="@layout/layout_empty"
         android:visibility="gone"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
 
     <include layout="@layout/layout_shadow" />
 </FrameLayout>

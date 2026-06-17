@@ -17,13 +17,16 @@ import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.IAgencyUIProperties
+import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.data.RouteManager
+import org.mtransit.android.databinding.LayoutPoiListFooterBinding
 import org.mtransit.android.databinding.LayoutRdsRouteItemBinding
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
+import org.mtransit.android.ui.view.common.setOnClickListenerClickable
 import org.mtransit.android.ui.view.common.setPadding
 import org.mtransit.android.ui.view.common.textAndVisibility
 import org.mtransit.android.ui.view.setJSONAndVisibility
@@ -31,12 +34,16 @@ import org.mtransit.android.util.UIRouteUtils
 
 class RDSAgencyRoutesAdapter(
     private val serviceUpdateLoader: ServiceUpdateLoader,
+    private val footerManager: POIListFooterManager,
     private val onClick: (View, RouteManager) -> Unit,
-) : ListAdapter<RouteManager, RDSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
+) : ListAdapter<RouteManager, RecyclerView.ViewHolder>(RoutesDiffCallback),
     MTLog.Loggable {
 
     companion object {
         private val LOG_TAG: String = RDSAgencyRoutesAdapter::class.java.simpleName
+
+        private const val TYPE_ROUTE = 0
+        private const val TYPE_FOOTER = 1
     }
 
     private var theLogTag: String = LOG_TAG
@@ -81,6 +88,14 @@ class RDSAgencyRoutesAdapter(
         notifyDataSetChanged()
     }
 
+    override fun getItemCount(): Int = super.getItemCount() + 1 // footer
+
+    override fun getItemViewType(position: Int): Int =
+        when (position) {
+            super.getItemCount() -> TYPE_FOOTER
+            else -> TYPE_ROUTE
+        }
+
     @SuppressLint("NotifyDataSetChanged")
     fun onServiceUpdatesLoaded() {
         notifyDataSetChanged()
@@ -88,17 +103,60 @@ class RDSAgencyRoutesAdapter(
 
     fun isReady() = _agency != null && _showingListInsteadOfGrid != null && _listSet != null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteViewHolder {
-        return RouteViewHolder.from(parent, serviceUpdateLoader)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+        when (viewType) {
+            TYPE_ROUTE -> return RouteViewHolder.from(parent, serviceUpdateLoader)
+            TYPE_FOOTER -> return FooterViewHolder.from(parent, footerManager)
+            else -> throw RuntimeException("Unexpected view type $viewType!")
+        }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is RouteViewHolder -> holder.bind(
+                getItem(position),
+                _agency,
+                _showingListInsteadOfGrid,
+                onClick
+            )
+            is FooterViewHolder -> holder.bind()
+            else -> throw RuntimeException("Unexpected view type!")
+        }
     }
 
-    override fun onBindViewHolder(holder: RouteViewHolder, position: Int) {
-        holder.bind(
-            getItem(position),
-            _agency,
-            _showingListInsteadOfGrid,
-            onClick
-        )
+    class FooterViewHolder private constructor(
+        private val binding: LayoutPoiListFooterBinding,
+        private val footerManager: POIListFooterManager,
+    ) : RecyclerView.ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup, footerManager: POIListFooterManager): FooterViewHolder {
+                val binding = LayoutPoiListFooterBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+                return FooterViewHolder(binding, footerManager)
+            }
+        }
+
+        fun bind() = binding.apply {
+            if (footerManager.isShowLoading) {
+                footerTextTv.isVisible = false
+                progressBar.isVisible = true
+            } else if (footerManager.isShowText) {
+                progressBar.isVisible = false
+                footerTextTv.apply {
+                    text = footerManager.text
+                    setCompoundDrawablesRelativeWithIntrinsicBounds(footerManager.textStartDrawableRes ?: 0, 0, 0, 0)
+                    isVisible = true
+                }
+                root.apply {
+                    setOnClickListenerClickable(footerManager.onTextClickListener)
+                }
+            } else {
+                footerTextTv.isVisible = false
+                progressBar.isVisible = false
+            }
+        }
     }
 
     class RouteViewHolder private constructor(

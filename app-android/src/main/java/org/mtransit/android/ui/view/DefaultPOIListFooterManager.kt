@@ -3,6 +3,7 @@ package org.mtransit.android.ui.view
 import android.content.Context
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -41,10 +42,14 @@ class DefaultPOIListFooterManager(
         @JvmStatic
         fun observe(
             lifecycleOwner: LifecycleOwner,
+            mainListLivedata: LiveData<*>,
             billingManager: IBillingManager,
             dataSourcesRepository: DataSourcesRepository,
             onChanged: () -> Unit,
         ) {
+            mainListLivedata.observe(lifecycleOwner) {
+                onChanged()
+            }
             billingManager.hasSubscription.observe(lifecycleOwner) {
                 onChanged()
             }

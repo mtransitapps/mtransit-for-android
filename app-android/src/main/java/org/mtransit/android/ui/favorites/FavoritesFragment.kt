@@ -186,7 +186,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
             listAdapter.setPois(favoritePOIS)
             listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
-            updateFooter()
             updateEmptyLayout(empty = favoritePOIS.isNullOrEmpty())
             binding?.apply {
                 when {
@@ -213,8 +212,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             listAdapter.setLocation(deviceLocation)
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, billingManager, dataSourcesRepository) {
-            updateFooter()
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.favoritePOIs, billingManager, dataSourcesRepository) {
+            listAdapter.notifyDataSetChanged(false)
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
@@ -224,10 +223,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 }
             }
         }
-    }
-
-    private fun updateFooter() {
-        listAdapter.notifyDataSetChanged(false)
     }
 
     @MainThread

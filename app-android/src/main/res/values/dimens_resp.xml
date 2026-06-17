@@ -35,7 +35,7 @@
 
     <integer name="rds_routes_default_grid_min_count">10</integer>
 
-    <integer name="footer_text_list_min_item">7</integer>
+    <integer name="footer_text_list_min_item">10</integer>
 
     <dimen name="bottom_sheet_min_height">@dimen/baseline_0</dimen>
 </resources>

@@ -578,7 +578,7 @@ public class POIFragment extends ABFragment implements
 		}
 		this.adManager.getRewardedUntilLive().observe(getViewLifecycleOwner(), rewardedUntil -> refreshRewardedLayout());
 		this.adManager.getRewardedNowLive().observe(getViewLifecycleOwner(), rewardedNow -> refreshRewardedLayout());
-		DefaultPOIListFooterManager.observe(getViewLifecycleOwner(), this.billingManager, this.dataSourcesRepository, () -> {
+		DefaultPOIListFooterManager.observe(getViewLifecycleOwner(), viewModel.getNearbyPOIs(), this.billingManager, this.dataSourcesRepository, () -> {
 			updateFooter(this);
 			return kotlin.Unit.INSTANCE;
 		});
@@ -696,7 +696,6 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void onNearbyPOIsLoaded(@Nullable List<POIManager> nearbyPOIs) {
-		updateFooter(this);
 		if (this.nearbyListAdapter == null) return;
 		this.nearbyListAdapter.setPois(nearbyPOIs);
 		this.nearbyListAdapter.updateDistanceNowAsync(this.deviceLocation);

@@ -240,11 +240,11 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.poiList?.value == null },
             getHideText = {
-                val list = attachedViewModel?.poiList?.value
+                val poiList = attachedViewModel?.poiList?.value
                     ?: return@DefaultPOIListFooterManager false
                 val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
                     ?: return@DefaultPOIListFooterManager false
-                list.size < minListItemToNotHide
+                poiList.size < minListItemToNotHide
             },
             canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )
@@ -442,15 +442,10 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
             }
             switchView()
-            updateFooter()
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, billingManager, dataSourcesRepository) {
-            updateFooter()
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository) {
+            this.listAdapter.notifyDataSetChanged(false)
         }
-    }
-
-    private fun updateFooter() {
-        this.listAdapter.notifyDataSetChanged(false)
     }
 
     private fun onTimeChanged() {
