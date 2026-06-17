@@ -20,6 +20,7 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -37,12 +38,14 @@ import org.mtransit.android.data.RouteDirectionManager
 import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.common.twoPane
+import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.rds.route.RDSRouteViewModel
@@ -51,6 +54,7 @@ import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
+import org.mtransit.android.ui.view.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -160,10 +164,16 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
+    lateinit var billingManager: IBillingManager
+
+    @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
+
+    @Inject
+    lateinit var demoModeManager: DemoModeManager
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
@@ -220,6 +230,26 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
     }
 
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            demoModeManager = demoModeManager,
+            billingManager = billingManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { parentFragment as? ABFragment },
+            getShowLoading = { attachedViewModel?.poiList?.value == null },
+            getHideText = {
+                val list = attachedViewModel?.poiList?.value
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                list.size < minListItemToNotHide
+            },
+            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
+        )
+    }
+
     private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
@@ -242,6 +272,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 setIgnoredTargetUUIDs(attachedParentViewModel?.routeM?.value?.route?.allUUIDs)
             }
             setTimeChangedListener { this@RDSDirectionStopsFragment.onTimeChanged() }
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
         }
     }
 
@@ -410,7 +442,15 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
             }
             switchView()
+            updateFooter()
         }
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, billingManager, dataSourcesRepository) {
+            updateFooter()
+        }
+    }
+
+    private fun updateFooter() {
+        this.listAdapter.notifyDataSetChanged(false)
     }
 
     private fun onTimeChanged() {

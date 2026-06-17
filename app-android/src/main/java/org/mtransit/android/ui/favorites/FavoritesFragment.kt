@@ -127,6 +127,13 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             dataSourcesRepository = dataSourcesRepository,
             getFragment = { this },
             getShowLoading = { attachedViewModel?.favoritePOIs?.value == null },
+            getHideText = {
+                val favoritePOIs = attachedViewModel?.favoritePOIs?.value
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                favoritePOIs.size < minListItemToNotHide
+            },
             canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )
     }

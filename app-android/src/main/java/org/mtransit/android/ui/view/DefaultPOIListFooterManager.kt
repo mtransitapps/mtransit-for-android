@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view
 
+import android.content.Context
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import org.mtransit.android.R
@@ -25,6 +26,7 @@ class DefaultPOIListFooterManager(
     private val dataSourcesRepository: DataSourcesRepository,
     private val getFragment: () -> ABFragment?,
     private val getShowLoading: () -> Boolean,
+    private val getHideText: () -> Boolean = { false },
     private val canShowRewardedAd: () -> Boolean = { adManager.isRewardedAdAvailableToShow() },
 ) : POIListFooterManager, MTLog.Loggable {
 
@@ -32,7 +34,9 @@ class DefaultPOIListFooterManager(
 
         private val LOG_TAG: String = DefaultPOIListFooterManager::class.java.simpleName
 
-        private const val SHOW_SUPPORT_INSTEAD_OF_REWARDED_AD_PCT = 50 // 50% support | 50% rewarded
+        fun getMinListItemToNotHide(context: Context): Int = context.resources.getInteger(R.integer.footer_text_list_min_item)
+
+        private const val SHOW_SUPPORT_INSTEAD_OF_REWARDED_AD_PCT = 30 // 30% support | 70% rewarded
 
         @JvmStatic
         fun observe(
@@ -72,6 +76,7 @@ class DefaultPOIListFooterManager(
             dataSourcesRepository.hasAgenciesEnabled()
                     && billingManager.hasSubscription.value != true
                     && !demoModeManager.isFullDemo()
+                    && !getHideText()
 
     override val text: CharSequence?
         get() =

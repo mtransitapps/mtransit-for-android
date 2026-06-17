@@ -79,6 +79,8 @@ internal fun POIFragment.updateFooter() = binding?.apply {
     }
 }
 
+private const val SCREEN_HEIGHT_DEFAULT = 5 // items
+
 internal fun POIFragment.makePoiListFooterManager() =
     DefaultPOIListFooterManager(
         adManager = adManager,
@@ -91,6 +93,19 @@ internal fun POIFragment.makePoiListFooterManager() =
         canShowRewardedAd = {
             !(agencyOrNull?.updateAvailable == true && agencyOrNull?.shouldShowUpdateLayout == true)
                     && adManager.isRewardedAdAvailableToShow()
+        },
+        getHideText = {
+            val nearbyPOIs = attachedViewModel?.nearbyPOIs?.value
+                ?: return@DefaultPOIListFooterManager false
+            val latestNewsArticles = attachedViewModel?.latestNewsArticleList?.value?.isNotEmpty() == true
+            val poiHasServiceUpdate = attachedViewModel?.poim?.value?.serviceUpdatesOrNull?.isNotEmpty() == true
+            val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                ?: return@DefaultPOIListFooterManager false
+            (SCREEN_HEIGHT_DEFAULT
+                    + nearbyPOIs.size
+                    + if (latestNewsArticles) 3 else 0
+                    + if (poiHasServiceUpdate) 3 else 0
+                    ) < minListItemToNotHide
         },
     )
 

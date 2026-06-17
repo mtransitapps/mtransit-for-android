@@ -75,6 +75,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
         const val TRACKING_SCREEN_NAME = "Home"
 
+        private const val SCREEN_HEIGHT_DEFAULT = 3 // items
+
         @JvmStatic
         fun newInstance(): HomeFragment {
             return HomeFragment()
@@ -141,6 +143,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             dataSourcesRepository = dataSourcesRepository,
             getFragment = { this },
             getShowLoading = { attachedViewModel?.loadingPOIs?.value == true },
+            getHideText = {
+                val nearbyPOIs = attachedViewModel?.nearbyPOIs?.value
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                SCREEN_HEIGHT_DEFAULT + nearbyPOIs.size < minListItemToNotHide
+            },
             canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )
     }

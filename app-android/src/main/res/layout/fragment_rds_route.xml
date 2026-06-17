@@ -112,8 +112,6 @@
         <include
             android:id="@id/loading_layout"
             layout="@layout/layout_loading_large"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:visibility="gone"
             tools:visibility="visible" />
         <!-- VIEWPAGER -->
@@ -129,8 +127,6 @@
         <include
             android:id="@id/empty_layout"
             layout="@layout/layout_empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:visibility="gone"
             tools:visibility="visible" />
 
