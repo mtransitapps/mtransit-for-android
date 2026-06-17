@@ -98,6 +98,7 @@ labels: MT
 - [ ] ca-revelstoke-transit-bus
 - [ ] ca-richelieu-citvr-bus
 - [ ] ca-rimouski-str-bus
+- [ ] ca-rouyn-noranda-bus
 - [ ] ca-saint-john-transit-bus
 - [ ] ca-salaberry-de-valleyfield-stsv-bus
 - [ ] ca-salt-spring-island-transit-bus
