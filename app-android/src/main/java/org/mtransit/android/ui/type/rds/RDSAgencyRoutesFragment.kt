@@ -254,10 +254,8 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                             layoutManager = GridLayoutManager(requireContext(), gridSpanCount).apply {
                                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                                     override fun getSpanSize(position: Int): Int {
-                                        val count = attachedViewModel?.routesM?.value?.size
-                                            ?: return 1 // default
                                         return when (position) {
-                                            count -> spanCount // last = full row width
+                                            (listGridAdapter?.itemCount ?: 0) -> spanCount // last = full row width
                                             else -> 1 // default
                                         }
                                     }

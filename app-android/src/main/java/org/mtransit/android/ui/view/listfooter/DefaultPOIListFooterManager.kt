@@ -80,7 +80,7 @@ class DefaultPOIListFooterManager(
                 .forEach {
                     (it.marginStart + it.width + it.marginEnd).let { viewTotalWidth ->
                         when (this) {
-                            is FrameLayout -> widthInPx = viewTotalWidth
+                            is FrameLayout -> widthInPx = maxOf(widthInPx, viewTotalWidth)
                             is RelativeLayout -> widthInPx += viewTotalWidth
                             else -> {
                                 MTLog.w(LOG_TAG, "Unexpected footer root view type: ${this.javaClass.simpleName}")
