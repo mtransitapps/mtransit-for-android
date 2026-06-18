@@ -12,6 +12,7 @@ import androidx.core.view.marginStart
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -25,6 +26,7 @@ import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.view.common.getSizeDimension
 import kotlin.random.Random
 
 class DefaultPOIListFooterManager(
@@ -70,16 +72,19 @@ class DefaultPOIListFooterManager(
         }
 
         @Px
-        fun ViewBinding.computeWidth(vararg viewsFromEndToStart: View?) = this.root.computeWidth(*viewsFromEndToStart)
+        fun ViewBinding.computeWidth(vararg viewsFromEndToStart: FloatingActionButton?) = this.root.computeWidth(*viewsFromEndToStart)
 
         @Px
-        fun View.computeWidth(vararg viewsFromEndToStart: View?): Int {
+        fun View.computeWidth(vararg viewsFromEndToStart: FloatingActionButton?): Int {
             var widthInPx = 0
             viewsFromEndToStart
                 .filterNotNull()
                 .filter { it.isVisible }
-                .forEach {
-                    (it.marginStart + it.width + it.marginEnd).let { viewTotalWidth ->
+                .forEach { view ->
+                    val viewWidth = view.width
+                        .takeIf { it > 0 } // before layout pass
+                        ?: view.getSizeDimension()
+                    (view.marginStart + viewWidth + view.marginEnd).let { viewTotalWidth ->
                         when (this) {
                             is FrameLayout -> widthInPx = maxOf(widthInPx, viewTotalWidth)
                             is ConstraintLayout,

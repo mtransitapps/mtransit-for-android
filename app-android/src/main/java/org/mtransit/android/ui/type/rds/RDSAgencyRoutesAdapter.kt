@@ -30,7 +30,6 @@ import org.mtransit.android.ui.view.common.textAndVisibility
 import org.mtransit.android.ui.view.listfooter.FooterViewHolder
 import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.UIRouteUtils
-import java.util.concurrent.atomic.AtomicBoolean
 
 class RDSAgencyRoutesAdapter(
     private val serviceUpdateLoader: ServiceUpdateLoader,
@@ -54,10 +53,7 @@ class RDSAgencyRoutesAdapter(
 
     private var _showingListInsteadOfGrid: Boolean? = null
 
-    private var _listSet = AtomicBoolean(false)
-    private var listSet: Boolean
-        get() = _listSet.get()
-        set(value) = _listSet.set(value)
+    private var listSet = false
 
     @SuppressLint("NotifyDataSetChanged")
     fun setAgency(agency: IAgencyUIProperties?) {
