@@ -29,7 +29,7 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
             <!-- LIST -->
-            <!-- layout_height="match_parent" needed for header (?) -->
+            <!-- layout_height="match_parent" needed for header -->
             <include
                 android:id="@id/list_layout"
                 layout="@layout/layout_poi_list"

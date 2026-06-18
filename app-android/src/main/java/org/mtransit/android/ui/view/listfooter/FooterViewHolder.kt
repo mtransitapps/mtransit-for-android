@@ -28,15 +28,12 @@ class FooterViewHolder private constructor(
 
         @JvmStatic
         fun LayoutPoiListFooterBinding.bind(footerManager: POIListFooterManager?) {
-            if (footerManager == null) {
-                root.isVisible = false
-                return
-            }
-            if (footerManager.isShowLoading) {
+            if (footerManager?.isShowLoading == true) {
                 footerTextTv.isVisible = false
                 progressBar.isVisible = true
+                root.setOnClickListenerClickable(null)
                 root.isVisible = true
-            } else if (footerManager.isShowText) {
+            } else if (footerManager?.isShowText == true) {
                 progressBar.isVisible = false
                 footerTextTv.apply {
                     text = footerManager.text
@@ -53,6 +50,7 @@ class FooterViewHolder private constructor(
             } else {
                 footerTextTv.isVisible = false
                 progressBar.isVisible = false
+                root.setOnClickListenerClickable(null)
                 root.isVisible = false
             }
         }

@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.concurrent.AtomicBoolean
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.distinctByOriginalId
@@ -53,7 +54,10 @@ class RDSAgencyRoutesAdapter(
 
     private var _showingListInsteadOfGrid: Boolean? = null
 
-    private var _listSet: Boolean? = null
+    private var _listSet = AtomicBoolean(false)
+    private var listSet: Boolean
+        get() = _listSet.get()
+        set(value) = _listSet.set(value)
 
     @SuppressLint("NotifyDataSetChanged")
     fun setAgency(agency: IAgencyUIProperties?) {
@@ -79,19 +83,22 @@ class RDSAgencyRoutesAdapter(
     @SuppressLint("NotifyDataSetChanged")
     fun setList(list: List<RouteManager>?) {
         submitList(list)
-        if (_listSet == (list != null)) {
-            MTLog.d(this, "setListSet() > SKIP (same: $_listSet)")
+        val newListSet = list != null
+        if (listSet == newListSet) {
+            MTLog.d(this, "setListSet() > SKIP (same: ${listSet})")
             return
         }
-        _listSet = list != null
+        listSet = newListSet
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int = super.getItemCount() + 1 // footer
+    val routeCount: Int get() = super.getItemCount()
+
+    override fun getItemCount(): Int = routeCount + 1 // footer
 
     override fun getItemViewType(position: Int): Int =
         when (position) {
-            super.getItemCount() -> TYPE_FOOTER
+            getItemCount() - 1 -> TYPE_FOOTER // last = footer
             else -> TYPE_ROUTE
         }
 
@@ -100,12 +107,12 @@ class RDSAgencyRoutesAdapter(
         notifyDataSetChanged()
     }
 
-    fun isReady() = _agency != null && _showingListInsteadOfGrid != null && _listSet != null
+    fun isReady() = _agency != null && _showingListInsteadOfGrid != null && listSet
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         when (viewType) {
-            TYPE_ROUTE -> return RouteViewHolder.from(parent, serviceUpdateLoader)
-            TYPE_FOOTER -> return FooterViewHolder.from(parent)
+            TYPE_ROUTE -> RouteViewHolder.from(parent, serviceUpdateLoader)
+            TYPE_FOOTER -> FooterViewHolder.from(parent)
             else -> throw RuntimeException("Unexpected view type $viewType!")
         }
 
@@ -117,6 +124,7 @@ class RDSAgencyRoutesAdapter(
                 _showingListInsteadOfGrid,
                 onClick
             )
+
             is FooterViewHolder -> holder.bind(footerManager)
             else -> throw RuntimeException("Unexpected view type!")
         }

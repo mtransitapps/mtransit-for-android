@@ -254,8 +254,10 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                             layoutManager = GridLayoutManager(requireContext(), gridSpanCount).apply {
                                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                                     override fun getSpanSize(position: Int): Int {
+                                        val itemCount = listGridAdapter?.itemCount
+                                            ?: return 1 // default
                                         return when (position) {
-                                            (listGridAdapter?.itemCount ?: 0) -> spanCount // last = full row width
+                                            (itemCount - 1) -> spanCount // last = full row width
                                             else -> 1 // default
                                         }
                                     }
@@ -303,18 +305,21 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             listGridAdapter?.isReady() != true -> {
                 emptyLayout.isVisible = false
                 listGrid.isVisible = false
+
                 loadingLayout.isVisible = true
             }
 
-            listGridAdapter?.itemCount == 0 -> {
+            listGridAdapter?.routeCount == 0 -> {
                 loadingLayout.isVisible = false
                 listGrid.isVisible = false
+
                 emptyLayout.isVisible = true
             }
 
             else -> {
                 emptyLayout.isVisible = false
                 loadingLayout.isVisible = false
+
                 listGrid.isVisible = true
             }
         }
