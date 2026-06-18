@@ -164,8 +164,6 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         }
     }
 
-    private var gridSpanCount: Int = 4
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentRdsAgencyRoutesBinding.bind(view).apply {
@@ -250,8 +248,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                         if (layoutManager == null || layoutManager !is GridLayoutManager) {
                             removeItemDecoration(listItemDecoration)
                             addItemDecoration(gridItemDecoration)
-                            gridSpanCount = calculateNoOfColumns(requireContext(), 64f)
-                            layoutManager = GridLayoutManager(requireContext(), gridSpanCount).apply {
+                            layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns(requireContext(), 64f)).apply {
                                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                                     override fun getSpanSize(position: Int): Int {
                                         val itemCount = listGridAdapter?.itemCount
