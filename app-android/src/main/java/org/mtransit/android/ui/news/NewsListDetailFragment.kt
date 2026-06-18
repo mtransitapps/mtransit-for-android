@@ -1,4 +1,3 @@
-@file:JvmName("NewsFragment") // ANALYTIC
 package org.mtransit.android.ui.news
 
 import android.annotation.SuppressLint
@@ -24,11 +23,10 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.analytics.AnalyticsManager
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
@@ -44,10 +42,10 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
 import org.mtransit.android.ui.setUpListEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
@@ -154,17 +152,20 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String =
-        attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
+    override val screenName: String
+        get() = attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.let { "$TRACKING_SCREEN_NAME/$it" }
+            ?: TRACKING_SCREEN_NAME
+
+    override val screenClass = "NewsFragment" // ANALYTICS // do not change
 
     @Inject
     lateinit var imageManager: ImageManager
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     @Inject
-    lateinit var analyticsManager: AnalyticsManager
+    lateinit var analyticsManager: IAnalyticsManager
 
     override val viewModel by viewModels<NewsListViewModel>()
     override val attachedViewModel
@@ -374,11 +375,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
-            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+            nextMainViewModel.scrollToTopEvent.observeEvent(viewLifecycleOwner) { scroll ->
                 if (scroll) {
                     binding?.newsContainerLayout?.newsList?.scrollToPosition(0)
                 }
-            })
+            }
         }
     }
 
@@ -499,6 +500,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     }
 
     override fun onScreenToolbarNavigationClick(v: View) {
+        analyticsManager.trackButtonClick("up_icon", this)
         if (handleExitFullscreen()) {
             return // handled
         }

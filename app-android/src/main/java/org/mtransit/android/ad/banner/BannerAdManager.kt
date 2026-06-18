@@ -4,8 +4,12 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
+import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdSize #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdView #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -25,6 +29,7 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
 
 // Anchored adaptive banner
+@MainThread
 @Singleton
 class BannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
@@ -67,24 +72,21 @@ class BannerAdManager @Inject constructor(
         this.adBannerLoaded = loaded
     }
 
+    @MainThread
     fun onResumeScreen(activity: IAdScreenActivity) {
-        if (!loadOnScreenResume) {
-            logAdsD(this, "onResumeScreen() > SKIP (disabled)")
-            return
-        }
-        refreshBannerAdStatus(activity, force = true)
+        logAdsD(this, "onResumeScreen($activity)")
+        refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
     fun onTimeChanged(activity: IAdScreenActivity) {
-        if (!loadOnScreenResume) {
-            logAdsD(this, "onTimeChanged() > SKIP (disabled)")
-            return
-        }
-        refreshBannerAdStatus(activity, force = true)
+        logAdsD(this, "onTimeChanged($activity)")
+        refreshBannerAdStatus(activity, force = loadOnScreenResume)
     }
 
     @JvmOverloads
+    @MainThread
     fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
+        logAdsD(this, "refreshBannerAdStatus($force)")
         if (this.globalAdManager.isShowingAds() // showing ads across the app
             && activity.currentAdFragment?.hasAds() == false // this specific screen doesn't include ads already
         ) {
@@ -99,16 +101,11 @@ class BannerAdManager @Inject constructor(
         }
     }
 
+    @MainThread
     fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        if (!this.globalAdManager.isShowingAds()) {
-            return
-        }
-        if (activity.currentAdFragment?.hasAds() == true) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
+        if (!this.globalAdManager.isShowingAds()) return
+        if (activity.currentAdFragment?.hasAds() == true) return
         if (isEnoughSpaceForBanner(configuration)) {
             if (this.adBannerLoaded == true) {
                 resumeAd(activity)
@@ -121,20 +118,15 @@ class BannerAdManager @Inject constructor(
     }
 
     fun isEnoughSpaceForBanner(configuration: Configuration?): Boolean {
-        if (FeatureFlags.F_NAVIGATION) {
-            return true // always show
-        }
-        if (configuration == null) {
-            return false
-        }
-        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            return true
-        }
+        if (FeatureFlags.F_NAVIGATION) return true // always show
+        if (configuration == null) return false
+        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) return true
         val sizeMask = configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK
         val smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL
         return !smallScreen
     }
 
+    @AnyThread
     private fun setupBannerAd(activity: IAdScreenActivity, force: Boolean) {
         logAdsD(this, "setupAd($force) --------------------")
         if (!AdConstants.AD_ENABLED) {
@@ -159,11 +151,11 @@ class BannerAdManager @Inject constructor(
                 logAdsD(this, "setupAd() > not cancelling previous setup ad task...")
             }
         } else {
-            logAdsD(this, "setupAd() > SKIP (force?$force|setupBannerAdTask?${setupBannerAdTask!=null}|adBannerLoaded:$adBannerLoaded)")
+            logAdsD(this, "setupAd() > SKIP (force?$force|setupBannerAdTask?${setupBannerAdTask != null}|adBannerLoaded:$adBannerLoaded)")
         }
         if (setupBannerAdTask == null) {
             logAdsD(this, "setupAd() > STARTING setup ad task...")
-            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, this.remoteConfigProvider, activity)
+            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)
             TaskUtils.execute(setupBannerAdTask)
             this.adBannerLoaded = null // loading
         } else {
@@ -172,43 +164,39 @@ class BannerAdManager @Inject constructor(
         logAdsD(this, "setupAd() > DONE --------------------")
     }
 
+    @MainThread
     private fun showBannerAd(activity: IAdScreenActivity) {
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adView?.isVisibleOnce = true
+        getAdLayout(activity)?.let { adLayout ->
+            getAdView(adLayout)?.isVisibleOnce = true
             adLayout.isVisibleOnce = true
         }
     }
 
+    @MainThread
     fun hideBannerAd(activity: IAdScreenActivity) {
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
+        getAdLayout(activity)?.let { adLayout ->
             adLayout.isVisibleOnce = false
-            adView?.isVisibleOnce = false
+            getAdView(adLayout)?.isVisibleOnce = false
         }
     }
 
+    @MainThread
+    // fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) { #gmaNextGen
+    // DO NOTHING #gmaNextGen
     fun resumeAd(activity: IAdScreenActivity) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adView?.resume()
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(activity)?.let { adLayout ->
+            getAdView(adLayout)?.resume()
         }
     }
 
+    @MainThread
+    // fun pauseAd(@Suppress("unused") activity: IAdScreenActivity) { #gmaNextGen
+    // DO NOTHING #gmaNextGen
     fun pauseAd(activity: IAdScreenActivity) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        val adLayout = getAdLayout(activity)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adView?.pause()
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(activity)?.let { adLayout ->
+            getAdView(adLayout)?.pause()
         }
     }
 
@@ -221,10 +209,9 @@ class BannerAdManager @Inject constructor(
     fun getAdView(adLayout: ViewGroup): AdView? =
         adLayout.findViewById(R.id.ad)
 
+    @MainThread
     fun destroyAd(activity: IAdScreenActivity) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
         val adLayout = getAdLayout(activity)
         if (adLayout != null) {
             val adView = getAdView(adLayout)
@@ -242,16 +229,11 @@ class BannerAdManager @Inject constructor(
         setupBannerAdTask = null
     }
 
+    @MainThread
     fun getBannerHeightInPx(activity: IAdScreenActivity?): Int {
-        if (this.adBannerLoaded != true) {
-            return 0 // ad not loaded
-        }
-        if (!this.globalAdManager.isShowingAds()) {
-            return 0 // not showing ads (0 agency installed, paying user...)
-        }
-        if (activity == null) {
-            return 0 // can't measure w/o context
-        }
+        if (this.adBannerLoaded != true) return 0 // ad not loaded
+        if (!this.globalAdManager.isShowingAds()) return 0 // not showing ads (0 agency installed, paying user...)
+        if (activity == null) return 0 // can't measure w/o context
         val adSize = getAdSize(activity)
         return adSize.getHeightInPixels(activity.requireContext())
     }

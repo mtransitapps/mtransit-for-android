@@ -1,4 +1,3 @@
-@file:JvmName("NearbyFragment") // ANALYTICS
 package org.mtransit.android.ui.nearby
 
 import android.app.PendingIntent
@@ -21,8 +20,9 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.DataSourceTypeId
@@ -168,10 +168,13 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     override val viewModel by viewModels<NearbyViewModel>()
     override val attachedViewModel
@@ -275,6 +278,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             abController?.setABReady(this, isABReady, true)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
     }
 
     override fun updateScreenToolbarBgColor() {
@@ -364,7 +370,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
                     activity = requireActivity(),
                     optDestLat = locationPick.latitude,
                     optDestLng = locationPick.longitude,
-                    optQuery = viewModel.fixedOnName.value
+                    optQuery = viewModel.fixedOnName.value,
+                    useInternalWebBrowserPref = viewModel.useInternalWebBrowserPref.value
                 )
                 true // handled
             }

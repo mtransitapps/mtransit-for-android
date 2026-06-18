@@ -244,20 +244,18 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	public void onDestroy() {
 		super.onDestroy();
 		final WebView webView = this.binding == null ? null : this.binding.webView;
-		if (webView != null) {
-			webView.destroy();
-		}
+		if (webView == null) return;
+		webView.destroy();
 	}
 
 	private void onProgressChanged(int newProgress) {
 		final ProgressBar progressBar = this.binding == null ? null : this.binding.progressBar;
-		if (progressBar != null) {
-			progressBar.setProgress(newProgress);
-			if (newProgress < 100) {
-				progressBar.setVisibility(View.VISIBLE);
-			} else {
-				progressBar.setVisibility(View.INVISIBLE);
-			}
+		if (progressBar == null) return;
+		progressBar.setProgress(newProgress);
+		if (newProgress < 100) {
+			progressBar.setVisibility(View.VISIBLE);
+		} else {
+			progressBar.setVisibility(View.INVISIBLE);
 		}
 	}
 
@@ -292,13 +290,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		updateScreenToolbarSubtitle();
 	}
 
-	// TODO later view model
-	// @Nullable
-	// private POIViewModel getAddedViewModel() {
-	// return isAttached() ? this.viewModel : null;
-	// }
-	//
-	//
 	@Override
 	public boolean hasToolbar() {
 		return true;
@@ -375,7 +366,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
 		if (menuItem.getItemId() == R.id.menu_open_www) {
-			LinkUtils.open(null, requireActivity(), this.currentUrl, getString(org.mtransit.android.commons.R.string.web_browser), false);
+			LinkUtils.open(null, requireActivity(), this.currentUrl, getString(org.mtransit.android.commons.R.string.web_browser), false, false);
 			return true; // handled
 		}
 		return false; // not handled

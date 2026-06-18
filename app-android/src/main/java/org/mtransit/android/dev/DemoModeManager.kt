@@ -27,7 +27,7 @@ import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.ITargetedProviderProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
-import org.mtransit.android.datasource.DataSourcesCache
+import org.mtransit.android.datasource.DataSourcesStorage
 import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.GTFSCommons
 import org.mtransit.commons.removeAllAnd
@@ -54,7 +54,7 @@ class DemoModeManager @Inject constructor(
 
         // overriding current time inside main app doesn't load static/real-time schedule for overridden time
         private const val FORCE_TIMESTAMP_SEC = "force_timestamp_sec"
-        private const val FORCE_TIMEZONE = "force_tz"
+        private const val FORCE_TIMEZONE_ID = "force_tz"
         private const val FORCE_TIME_FORMAT = "force_time"
 
         private const val FORCE_TIME_FORMAT_12 = "12"
@@ -144,9 +144,9 @@ class DemoModeManager @Inject constructor(
     private var forceTimestampSec: String? = null
     private val forceTimestampMs: Long? get() = forceTimestampSec?.toLongOrNull()?.let { it * 1000L }
 
-    private var forceTimeZone: String? = null
+    private var forceTimeZoneId: String? = null
     private val forceTZ: TimeZone
-        get() = forceTimeZone
+        get() = forceTimeZoneId
             ?.takeIf { it.isNotEmpty() && AVAILABLE_TIMEZONE_IDS.contains(it) }
             ?.let { TimeZone.getTimeZone(it) }
             ?: TimeZone.getDefault()
@@ -167,7 +167,7 @@ class DemoModeManager @Inject constructor(
                                 || !filterScreen.isNullOrBlank()
                                 || !forceLang.isNullOrBlank()
                                 || !forceTimestampSec.isNullOrBlank()
-                                || !forceTimeZone.isNullOrBlank()
+                                || !forceTimeZoneId.isNullOrBlank()
                                 || !forceTimeFormat.isNullOrBlank()
                         )
                 )
@@ -179,22 +179,22 @@ class DemoModeManager @Inject constructor(
                 && !forceLang.isNullOrBlank()
     // not mandatory: forceTimestampSec, forceTimeZone, forceTimeFormat
 
-    suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesCache: DataSourcesCache) {
+    suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesStorage: DataSourcesStorage) {
         filterAgencyAuthority = savedStateHandle[FILTER_AGENCY_AUTHORITY]
         filterScreen = savedStateHandle[FILTER_SCREEN]
         forceLang = savedStateHandle[FORCE_LANG]
         forceTimestampSec = savedStateHandle[FORCE_TIMESTAMP_SEC]
-        forceTimeZone = savedStateHandle[FORCE_TIMEZONE]
+        forceTimeZoneId = savedStateHandle[FORCE_TIMEZONE_ID]
         forceTimeFormat = savedStateHandle[FORCE_TIME_FORMAT]
         if (enabled) {
-            apply(dataSourcesCache)
+            apply(dataSourcesStorage)
         }
     }
 
-    private suspend fun apply(dataSourcesCache: DataSourcesCache) = withContext(Dispatchers.IO) {
+    private suspend fun apply(dataSourcesStorage: DataSourcesStorage) = withContext(Dispatchers.IO) {
         billingManager.fullDemoMode = isFullDemo()
         filterAgencyAuthority?.let { authority ->
-            filterAgency = dataSourcesCache.getAgency(authority)
+            filterAgency = dataSourcesStorage.getAgency(authority)
         }
 
         filterAgencyPOIM = filterAgency?.let { agency ->

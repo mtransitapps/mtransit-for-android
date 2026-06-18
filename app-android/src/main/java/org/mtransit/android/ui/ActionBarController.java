@@ -441,7 +441,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		MainActivity mainActivity = getMainActivityOrNull();
+		final MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
 			if (item.getItemId() == android.R.id.home) {
 				if (mainActivity.onUpIconClick()) {

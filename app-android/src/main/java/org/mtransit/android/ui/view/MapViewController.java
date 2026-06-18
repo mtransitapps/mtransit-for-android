@@ -37,11 +37,11 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.Area;
@@ -177,8 +177,8 @@ public class MapViewController implements
 	private final boolean indoorLevelPickerEnabled;
 	private final boolean trafficEnabled;
 	private final boolean indoorEnabled;
-	private int paddingTopSp;
-	private int paddingBottomSp;
+	private int paddingTopDp;
+	private int paddingBottomDp;
 	private final boolean followingDevice;
 	private final boolean hasButtons;
 	private final boolean clusteringEnabled;
@@ -199,6 +199,8 @@ public class MapViewController implements
 
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
+	@Nullable
+	private LocalPreferenceRepository lclPrefRepository;
 
 	public MapViewController(
 			@NonNull String logTag,
@@ -210,8 +212,8 @@ public class MapViewController implements
 			boolean indoorLevelPickerEnabled,
 			boolean trafficEnabled,
 			boolean indoorEnabled,
-			int paddingTopSp,
-			int paddingBottomSp,
+			int paddingTopDp,
+			int paddingBottomDp,
 			boolean followingDevice,
 			boolean hasButtons,
 			boolean clusteringEnabled,
@@ -227,8 +229,8 @@ public class MapViewController implements
 		this.indoorLevelPickerEnabled = indoorLevelPickerEnabled;
 		this.trafficEnabled = trafficEnabled;
 		this.indoorEnabled = indoorEnabled;
-		this.paddingTopSp = paddingTopSp;
-		this.paddingBottomSp = paddingBottomSp;
+		this.paddingTopDp = paddingTopDp;
+		this.paddingBottomDp = paddingBottomDp;
 		this.followingDevice = followingDevice;
 		this.hasButtons = hasButtons;
 		this.clusteringEnabled = clusteringEnabled;
@@ -252,8 +254,12 @@ public class MapViewController implements
 		setActivity(activity);
 	}
 
-	public void setDataSourcesRepository(@Nullable DataSourcesRepository dataSourcesRepository) {
+	public void setDI(
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull LocalPreferenceRepository lclPrefRepository
+	) {
 		this.dataSourcesRepository = dataSourcesRepository;
+		this.lclPrefRepository = lclPrefRepository;
 	}
 
 	public void setHideMapMarkerSnippet(boolean hideMapMarkerSnippet) {
@@ -400,17 +406,23 @@ public class MapViewController implements
 				.clusterOptionsProvider(new MTClusterOptionsProvider(activity))
 				.addMarkersDynamically(true)
 		);
-		final MapCapabilities capabilities = googleMap.getMapCapabilities();
-		this.advancedMarkersAvailable = capabilities.isAdvancedMarkersAvailable();
+		try {
+			final MapCapabilities capabilities = googleMap.getMapCapabilities();
+			this.advancedMarkersAvailable = capabilities.isAdvancedMarkersAvailable();
+		} catch (RuntimeException e) {
+			//noinspection deprecation // FIXME
+			CrashUtils.w(this, e, "Error while getting map capabilities!");
+			this.advancedMarkersAvailable = false;
+		}
 		MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
 		clearMarkers();
 		int paddingTopPx = 0;
-		if (this.paddingTopSp > 0) {
-			paddingTopPx = (int) ResourceUtils.convertSPtoPX(activity, this.paddingTopSp); // action bar
+		if (this.paddingTopDp > 0) {
+			paddingTopPx = (int) ResourceUtils.convertDPtoPX(activity, this.paddingTopDp); // action bar
 		}
 		int paddingBottomPx = 0;
-		if (this.paddingBottomSp > 0) {
-			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(activity, this.paddingBottomSp); // fab
+		if (this.paddingBottomDp > 0) {
+			paddingBottomPx = (int) ResourceUtils.convertDPtoPX(activity, this.paddingBottomDp); // fab
 		}
 		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
 		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
@@ -420,44 +432,38 @@ public class MapViewController implements
 		showMapInternal(null);
 	}
 
-	public void setPaddingTopSp(int paddingTopSp) {
-		this.paddingTopSp = paddingTopSp;
+	public void setPaddingTopDp(int paddingTopDp) {
+		this.paddingTopDp = paddingTopDp;
 	}
 
-	public void setPaddingBottomSp(int paddingBottomSp) {
-		this.paddingBottomSp = paddingBottomSp;
+	public void setPaddingBottomDp(int paddingBottomDp) {
+		this.paddingBottomDp = paddingBottomDp;
 	}
 
 	public void applyPaddings() {
-		if (this.extendedGoogleMap == null) {
-			return; // SKIP (map not ready)
-		}
+		if (this.extendedGoogleMap == null) return; // SKIP (map not ready)
 		int paddingTopPx = 0;
-		if (this.paddingTopSp > 0) {
+		if (this.paddingTopDp > 0) {
 			final Context context = getActivityOrNull();
-			paddingTopPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
+			paddingTopPx = (int) ResourceUtils.convertDPtoPX(context, this.paddingTopDp); // action bar
 		}
 		int paddingBottomPx = 0;
-		if (this.paddingBottomSp > 0) {
+		if (this.paddingBottomDp > 0) {
 			final Context context = getActivityOrNull();
-			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingBottomSp); // fab
+			paddingBottomPx = (int) ResourceUtils.convertDPtoPX(context, this.paddingBottomDp); // fab
 		}
 		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
 	}
 
 	public void setLocationPermissionGranted(boolean locationPermissionGranted) {
-		if (this.locationPermissionGranted == locationPermissionGranted) {
-			return; // no change
-		}
+		if (this.locationPermissionGranted == locationPermissionGranted) return; // no change
 		this.locationPermissionGranted = locationPermissionGranted;
 		setupGoogleMapMyLocation();
 	}
 
 	@SuppressLint("MissingPermission")
 	private void setupGoogleMapMyLocation() {
-		if (this.extendedGoogleMap == null) {
-			return; // SKIP (map not ready)
-		}
+		if (this.extendedGoogleMap == null) return; // SKIP (map not ready)
 		if (this.locationPermissionGranted) {
 			this.extendedGoogleMap.setMyLocationEnabled(this.myLocationEnabled);
 			this.extendedGoogleMap.getUiSettings().setMyLocationButtonEnabled(this.myLocationButtonEnabled);
@@ -500,9 +506,7 @@ public class MapViewController implements
 	}
 
 	private void initTypeSwitch() {
-		if (this.typeSwitchView == null) {
-			return;
-		}
+		if (this.typeSwitchView == null) return;
 		setTypeSwitchImg();
 		this.typeSwitchView.setOnClickListener(v ->
 				switchMapType()
@@ -518,13 +522,16 @@ public class MapViewController implements
 
 	private int getMapType() {
 		if (this.mapType < 0) {
-			this.mapType = PreferenceUtils.getPrefLcl(getActivityOrNull(), MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);
+			if (this.lclPrefRepository == null) {
+				return MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT;
+			}
+			this.mapType = this.lclPrefRepository.getPref().getInt(MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);
 		}
 		return this.mapType;
 	}
 
 	private void switchMapType() {
-		int newMapType = getMapType() == MapUtils.MAP_TYPE_NORMAL ? MapUtils.MAP_TYPE_SATELLITE : MapUtils.MAP_TYPE_NORMAL; // switch
+		final int newMapType = getMapType() == MapUtils.MAP_TYPE_NORMAL ? MapUtils.MAP_TYPE_SATELLITE : MapUtils.MAP_TYPE_NORMAL; // switch
 		setMapType(newMapType);
 	}
 
@@ -532,27 +539,20 @@ public class MapViewController implements
 		this.mapType = newMapType;
 		setTypeSwitchImg();
 		applyMapType();
-		final Context context = getActivityOrNull();
-		if (context != null) {
-			PreferenceUtils.savePrefLclAsync(context, MapUtils.PREFS_LCL_MAP_TYPE, this.mapType); // asynchronous
+		if (this.lclPrefRepository != null) {
+			this.lclPrefRepository.getPref().edit().putInt(MapUtils.PREFS_LCL_MAP_TYPE, this.mapType).apply();
 		}
 	}
 
 	private void applyMapType() {
-		if (this.extendedGoogleMap == null) {
-			return;
-		}
+		if (this.extendedGoogleMap == null) return;
 		this.extendedGoogleMap.setMapType(getMapType());
 	}
 
 	private void applyMapStyle() {
-		if (this.extendedGoogleMap == null) {
-			return;
-		}
+		if (this.extendedGoogleMap == null) return;
 		final Context context = getActivityOrNull();
-		if (context == null) {
-			return;
-		}
+		if (context == null) return;
 		// https://mapstyle.withgoogle.com/
 		this.extendedGoogleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default));
 	}
@@ -894,12 +894,8 @@ public class MapViewController implements
 	}
 
 	private boolean showDeviceLocation(boolean anim) {
-		if (!this.mapLayoutReady) {
-			return false;
-		}
-		if (this.deviceLocation == null) {
-			return false;
-		}
+		if (!this.mapLayoutReady) return false;
+		if (this.deviceLocation == null) return false;
 		return updateMapCamera(anim,
 				CameraUpdateFactory.newLatLngZoom(
 						LatLngUtils.fromLocation(this.deviceLocation),
@@ -1343,9 +1339,7 @@ public class MapViewController implements
 	}
 
 	public void notifyMarkerChanged(@Nullable MapMarkerProvider markerProvider) {
-		if (markerProvider == null) {
-			return;
-		}
+		if (markerProvider == null) return;
 		setMarkerProvider(markerProvider);
 		clearMarkers();
 	}

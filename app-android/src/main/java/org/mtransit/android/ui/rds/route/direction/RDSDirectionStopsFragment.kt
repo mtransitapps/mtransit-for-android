@@ -1,4 +1,3 @@
-@file:JvmName("RTSTripStopsFragment") // ANALYTICS // do not change to avoid breaking tracking
 package org.mtransit.android.ui.rds.route.direction
 
 import android.content.Context
@@ -18,8 +17,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -28,6 +28,7 @@ import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.findClosestPOISIdxUuid
+import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
@@ -36,7 +37,7 @@ import org.mtransit.android.data.RouteDirectionManager
 import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -51,10 +52,10 @@ import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
@@ -115,8 +116,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
         }
 
-        private const val TOP_PADDING_SP = 0
-        private const val BOTTOM_PADDING_SP = 56
+        private const val TOP_PADDING_DP = 0
+        private const val BOTTOM_PADDING_DP = 56
     }
 
     private var theLogTag: String = LOG_TAG
@@ -141,19 +142,22 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
@@ -197,14 +201,14 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             logTag,
             mapMarkerProvider,
             null, // DO NOTHING (map click, camera change)
-            true,
+            false,
             true,
             true,
             false,
             false,
             false,
-            TOP_PADDING_SP,
-            BOTTOM_PADDING_SP,
+            TOP_PADDING_DP,
+            BOTTOM_PADDING_DP,
             false,
             true,
             false,
@@ -222,11 +226,12 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@RDSDirectionStopsFragment.logTag
             setShowExtra(false) // show route short name & direction
@@ -285,8 +290,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 )
                 updateServiceUpdateImg()
             }
-            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.routeDirectionM.observe(viewLifecycleOwner) { routeDirectionM ->
             updateServiceUpdateImg(routeDirectionM)
             if (viewModel.mapVisible(context)) {
@@ -298,9 +304,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
             }
         }
-        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
+        viewModel.serviceUpdateLoadedEvent.observeEvent(viewLifecycleOwner) { _ ->
             updateServiceUpdateImg()
-        })
+        }
         parentViewModel.routeM.observe(viewLifecycleOwner) {
             if (SHOW_SERVICE_UPDATE_FAB) {
                 // elsewhere
@@ -339,6 +345,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 applySelectedIdChanged()
                 mapViewController.onResume()
                 viewModel.startVehicleLocationRefresh()
+                startVehicleLocationCountdownRefresh()
             } else { // LIST
                 mapViewController.onPause()
                 viewModel.stopVehicleLocationRefresh()
@@ -363,12 +370,12 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             // DO NOTHING
         }
         if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
-            viewModel.vehicleLocationsDistinct.observe(viewLifecycleOwner) { vehicleLocations ->
+            viewModel.vehicleLocations.observe(viewLifecycleOwner) { vehicleLocations ->
                 context?.let { mapViewController.updateVehicleLocationMarkers(it, vehicleLocations = vehicleLocations) }
-                if (vehicleLocations.isNullOrEmpty()) {
-                    stopVehicleLocationCountdownRefresh()
+                if (viewModel.mapVisible(context) && !vehicleLocations.isNullOrEmpty()) {
+                    startVehicleLocationCountdownRefresh(vehicleLocations)
                 } else {
-                    startVehicleLocationCountdownRefresh()
+                    stopVehicleLocationCountdownRefresh()
                 }
             }
             parentViewModel.colorInt.observe(viewLifecycleOwner) {
@@ -523,7 +530,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDataSourcesRepository(dataSourcesRepository)
+            setDI(dataSourcesRepository, lclPrefRepository)
             onAttach(requireActivity())
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }
@@ -544,6 +551,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         if (viewModel.mapVisible(context)) {
             mapViewController.onResume()
             viewModel.startVehicleLocationRefresh()
+            startVehicleLocationCountdownRefresh()
         } else {
             viewModel.stopVehicleLocationRefresh()
             stopVehicleLocationCountdownRefresh()
@@ -555,8 +563,11 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     private var _vehicleLocationCountdownRefreshJob: Job? = null
 
-    private fun startVehicleLocationCountdownRefresh() {
+    private fun startVehicleLocationCountdownRefresh(
+        vehicleLocations: Collection<VehicleLocation>? = viewModel.vehicleLocations.value,
+    ) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+        if (vehicleLocations.isNullOrEmpty()) return
         _vehicleLocationCountdownRefreshJob?.cancel()
         _vehicleLocationCountdownRefreshJob = viewModel.viewModelScope.launch {
             while (true) {

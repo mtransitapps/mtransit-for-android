@@ -1,4 +1,3 @@
-@file:JvmName("ModulesFragment") // ANALYTICS
 package org.mtransit.android.ui.modules
 
 import android.annotation.SuppressLint

@@ -1,9 +1,9 @@
-@file:JvmName("ModulesActivity") // ANALYTICS
 package org.mtransit.android.ui.modules
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -33,6 +33,7 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
         super.onCreate(savedInstanceState)
     }
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment
 

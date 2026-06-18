@@ -1,4 +1,3 @@
-@file:JvmName("MainActivity") // ANALYTICS
 package org.mtransit.android.ui.main
 
 import android.annotation.SuppressLint
@@ -13,6 +12,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -30,13 +32,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.ThemeUtils
@@ -60,8 +63,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class NextMainActivity : MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,
-    IAnalyticsManager.Trackable,
-    OnBillingResultListener,
+    AnalyticsScreen,
     IActivity, IAdScreenActivity,
     IAdManager.RewardedAdListener {
 
@@ -77,7 +79,9 @@ class NextMainActivity : MTActivityWithLocation(),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName() = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
+
+    override val screenClass get() = "MainActivity" // ANALYTICS // do not change
 
     private val viewModel by viewModels<NextMainViewModel>()
 
@@ -159,7 +163,7 @@ class NextMainActivity : MTActivityWithLocation(),
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        adManager.init(this)
+        adManager.initForScreens(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
@@ -209,8 +213,10 @@ class NextMainActivity : MTActivityWithLocation(),
             }
         }
         viewModel.hasAgenciesEnabled.observe(this) { hasAgenciesEnabled ->
-            // ad-manager does not persist activity but listen for changes itself
-            adManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled, this)
+            lifecycleScope.launch(Dispatchers.IO) {
+                // ad-manager does not persist activity but listen for changes itself
+                adManager.onHasAgenciesEnabledUpdated(hasAgenciesEnabled, this@NextMainActivity)
+            }
         }
         viewModel.hasAgenciesAdded.observe(this) { hasAgenciesEnabled ->
             if (hasAgenciesEnabled) {
@@ -226,17 +232,18 @@ class NextMainActivity : MTActivityWithLocation(),
         viewModel.abBgColor.observe(this) { newBgColor ->
             abBgDrawable?.color = newBgColor ?: defaultBgColor
         }
-        billingManager.currentSubscription.observe(this) {
+        billingManager.currentSubsProductId.observe(this) {
             // do nothing
         }
-        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED)
+        billingManager.hasSubscription.observe(this) { hasSubscription ->
+            lifecycleScope.launch(Dispatchers.IO) {
+                adManager.setHasSubscription(hasSubscription, this@NextMainActivity)
+            }
+        }
+        ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED)
     }
 
-    override fun onBillingResult(productId: String?) {
-        productId?.isNotEmpty()?.let { hasSubscription ->
-            adManager.setShowingAds(!hasSubscription, this)
-        }
-    }
+    private val modulesReceiver = ModulesReceiver()
 
     override fun onNewIntent(@SuppressLint("UnknownNullness") intent: Intent) {
         super.onNewIntent(intent)
@@ -267,16 +274,15 @@ class NextMainActivity : MTActivityWithLocation(),
     override fun onResume() {
         super.onResume()
         adManager.adaptToScreenSize(this, resources.configuration)
-        adManager.setRewardedAdListener(this) // used until POI screen is visible // need to pre-load ASAP
+        adManager.setRewardedAdListener(this) // used until POI screen is visible // need to preload ASAP
         adManager.linkRewardedAd(this)
-        billingManager.addListener(this) // trigger onBillingResult() w/ current value
         billingManager.refreshPurchases()
         onLastLocationChanged(deviceLocation)
 
         isMTResumed = true
         if (currentUiMode != resources.configuration.uiMode) {
             lifecycleScope.launch {
-                NightModeUtils.setDefaultNightMode(activity, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+                NightModeUtils.setDefaultNightMode(activity, demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             }
         }
         viewModel.onAppVisible()
@@ -292,25 +298,25 @@ class NextMainActivity : MTActivityWithLocation(),
         // TODO later
     }
 
+    @AnyThread
     override fun onRewardedAdStatusChanged() {
         // DO NOTHING
     }
 
-    override fun skipRewardedAd(): Boolean {
-        return adManager.shouldSkipRewardedAd()
-    }
+    @WorkerThread
+    override fun skipLoadingRewardedAd() = adManager.shouldSkipLoadingRewardedAd()
 
     var isMTResumed = false
 
     override fun onPause() {
         super.onPause()
         isMTResumed = false
-        billingManager.removeListener(this)
         adManager.pauseAd(this)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(this.modulesReceiver)
         adManager.destroyAd(this)
         adManager.unlinkRewardedAd(this)
     }
@@ -334,6 +340,7 @@ class NextMainActivity : MTActivityWithLocation(),
 
     override fun getLastLocationSettingsResolution() = this.locationSettingsResolution
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment // TODO ?
 
@@ -368,7 +375,7 @@ class NextMainActivity : MTActivityWithLocation(),
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (this.currentUiMode != newConfig.uiMode) {
-            NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+            NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             NightModeUtils.recreate(this) // not recreated because uiMode in configChanges AndroidManifest.xml
             return
         }

@@ -1,7 +1,11 @@
 package org.mtransit.android.ad
 
-import androidx.annotation.AnyThread
+// import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig #gmaNextGen
+import android.content.Context
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
@@ -9,18 +13,23 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants.logAdsD
-import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedUserManager
-import org.mtransit.android.common.IContext
+import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.toDateTimeLog
+import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration
+import kotlin.time.Instant
 import com.google.android.ump.FormError as UMPFormError
 
 @Singleton
@@ -30,6 +39,7 @@ class GlobalAdManager(
     private val demoModeManager: DemoModeManager,
     private val consentManager: AdsConsentManager,
     private val rewardedUserManager: RewardedUserManager,
+    private val billingManager: IBillingManager,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {
 
@@ -40,103 +50,162 @@ class GlobalAdManager(
         demoModeManager: DemoModeManager,
         consentManager: AdsConsentManager,
         rewardedUserManager: RewardedUserManager,
+        billingManager: IBillingManager,
     ) : this(
         dataSourcesRepository = dataSourcesRepository,
         crashReporter = crashReporter,
         demoModeManager = demoModeManager,
         consentManager = consentManager,
         rewardedUserManager = rewardedUserManager,
+        billingManager = billingManager,
         ioDispatcher = Dispatchers.IO,
     )
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${GlobalAdManager::class.java.simpleName}"
+
+        private const val GOOGLE_ADS_TEST_IDS_START_WITH = "ca-app-pub-3940256099942544"
     }
 
     override fun getLogTag() = LOG_TAG
 
     private val initialized = AtomicBoolean(false)
+    private val initializing = AtomicBoolean(false)
 
-    private var showingAds: Boolean? = null
+    private var hasSubscription: Boolean? = null
     private var hasAgenciesEnabled: Boolean? = null
+
+    @Volatile
+    private var _rewardedUntil: Instant? = null
+
+    @Volatile
+    private var _rewardedNow: Boolean? = null
 
     init {
         this.dataSourcesRepository.readingHasAgenciesEnabled().observeForever { hasAgenciesEnabled ->
             this.hasAgenciesEnabled = hasAgenciesEnabled
         }
+        this.rewardedUserManager.rewardedUntilLive.observeForever { rewardedUntilInMs ->
+            this._rewardedUntil = rewardedUntilInMs
+        }
+        this.rewardedUserManager.rewardedNowLive.observeForever { rewardedNow ->
+            this._rewardedNow = rewardedNow
+        }
     }
 
-    fun init(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
+    val rewardedUntil: LiveData<Instant> get() = this.rewardedUserManager.rewardedUntilLive
+    val rewardedNow: LiveData<Boolean> get() = this.rewardedUserManager.rewardedNowLive
+
+    fun init(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit, withConsentOnly: Boolean = false) {
+        if (!AdConstants.AD_ENABLED) return
         val theActivity = activity.activity
         if (theActivity == null) {
             MTLog.w(this, "Trying to initialized w/o activity!")
             return // SKIP
         }
-        consentManager.gatherConsent(theActivity) { formError: UMPFormError? ->
-            formError?.let {
-                logAdsD(this@GlobalAdManager, "Consent not obtained [${formError.errorCode}]: ${formError.message}.")
+        consentManager.gatherConsent(
+            theActivity,
+            noUI = withConsentOnly,
+            onConsentGatheringComplete = { error: UMPFormError? ->
+                error?.let { logAdsD(this@GlobalAdManager, "Consent not obtained [${it.errorCode}]: ${it.message}.") }
+                if (consentManager.canRequestAds) {
+                    initWithConsent(activity, onInitCompleteListener)
+                }
+                if (consentManager.isPrivacyOptionsRequired) {
+                    activity.onPrivacyOptionsRequiredChanged()
+                }
             }
-            if (consentManager.canRequestAds) {
-                initWithConsent(activity, bannerAdManager)
-            }
-            if (consentManager.isPrivacyOptionsRequired) {
-                activity.onPrivacyOptionsRequiredChanged()
-            }
-        }
+        )
         if (consentManager.canRequestAds) { // IF consent already given in previous session DO
-            initWithConsent(activity, bannerAdManager)
+            initWithConsent(activity, onInitCompleteListener)
         }
     }
 
-    private fun initWithConsent(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (initialized.getAndSet(true)) {
-            logAdsD(this, "init() > SKIP (initialized: ${this.initialized.get()})")
+    private fun initWithConsent(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit) {
+        if (initialized.get()) {
+            logAdsD(this, "initWithConsent() > SKIP (initialized: ${this.initialized.get()})")
+            onInitCompleteListener()
+            return // SKIP
+        }
+        if (initializing.getAndSet(true)) {
+            logAdsD(this, "initWithConsent() > SKIP (initializing: ${this.initializing.get()})")
             return // SKIP
         }
         try {
             CoroutineScope(ioDispatcher).launch {
-                initOnBackgroundThread(activity, bannerAdManager)
+                initOnBackgroundThread(activity, onInitCompleteListener)
             }
         } catch (e: Exception) {
             this.crashReporter.w(this, e, "Error while initializing Ads!")
         }
     }
 
-    @WorkerThread
-    private fun initOnBackgroundThread(activity: IAdScreenActivity, bannerAdManager: BannerAdManager) {
-        if (AdConstants.DEBUG) {
-            MobileAds.setRequestConfiguration(
-                RequestConfiguration.Builder()
-                    .setTestDeviceIds(
-                        listOf(*activity.requireContext().resources.getStringArray(R.array.google_ads_test_devices_ids))
-                                + listOf(AdRequest.DEVICE_ID_EMULATOR)
-                    )
-                    .build()
+    private fun makeAdsRequestConfig(context: Context) =
+        RequestConfiguration.Builder()
+            .setTestDeviceIds(
+                listOf(*context.resources.getStringArray(R.array.google_ads_test_devices_ids))
+                        + listOf(AdRequest.DEVICE_ID_EMULATOR)
+                // Android emulators are automatically configured as test devices. #gmaNextGen
             )
+            .build()
+
+    // private fun InitializationConfig.Builder.disableMediationAdapterInit(@Suppress("unused") context: Context, appId: String) { #gmaNextGen
+    private fun disableMediationAdapterInit(context: Context, appId: String) {
+        if (appId.startsWith(GOOGLE_ADS_TEST_IDS_START_WITH)) {
+            // disableMediationAdapterInitialization() // all will fail/timeout #gmaNextGen
+            MobileAds.disableMediationAdapterInitialization(context) // all will fail/timeout
         }
-        // https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk
+    }
+
+    @WorkerThread
+    private fun initOnBackgroundThread(activity: IAdScreenActivity, onInitCompleteListener: () -> Unit) {
+        // https://developers.google.com/admob/android/next-gen/quick-start
+        val context = activity.requireContext()
+        val appId = context.getString(R.string.google_ads_app_id)
+        // val initConfig = InitializationConfig.Builder(applicationId = appId) #gmaNextGen
+        //     .apply { #gmaNextGen
+        if (Constants.DEBUG && Constants.IS_DEBUG_BUILD) {
+            // setRequestConfiguration(makeAdsRequestConfig(context)) #gmaNextGen
+            MobileAds.setRequestConfiguration(makeAdsRequestConfig(context))
+            disableMediationAdapterInit(context, appId)
+        }
+        //     } #gmaNextGen
+        // } #gmaNextGen
+        // .build() #gmaNextGen
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
+            // initConfig, #gmaNextGen
         ) { initializationStatus ->
+            this.initialized.set(true)
+            this.initializing.set(false)
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
-                logAdsD(this, "onInitializationComplete() > Adapter name: $adapterClass, Description: ${status.description}, Latency: ${status.latency}")
+                logAdsD(
+                    this@GlobalAdManager,
+                    "onAdapterInitializationComplete() > Adapter name: $adapterClass, Status: ${status.initializationState}, Description: ${status.description}, Latency: ${status.latency}"
+                )
             }
-            bannerAdManager.refreshBannerAdStatus(activity, force = false)
+            onInitCompleteListener()
         }
     }
 
-    fun setShowingAds(showingAds: Boolean?) {
-        this.showingAds = showingAds
+    suspend fun initHasSubscriptionFromCache() = withContext(ioDispatcher) {
+        billingManager.getCachedHasSubscription()?.let { hasSubscription ->
+            setHasSubscription(hasSubscription)
+        }
     }
 
-    @AnyThread
+    fun setHasSubscription(hasSubscription: Boolean?) {
+        this.hasSubscription = hasSubscription
+    }
+
+    fun canShowAds(): Boolean? {
+        if (!AdConstants.AD_ENABLED) return false
+        if (demoModeManager.enabled) return false
+        return this.hasSubscription?.not()
+    }
+
     fun isShowingAds(): Boolean {
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
+        if (!AdConstants.AD_ENABLED) return false
         if (hasAgenciesEnabled == null) {
             hasAgenciesEnabled = this.dataSourcesRepository.hasAgenciesEnabled()
         }
@@ -152,19 +221,19 @@ class GlobalAdManager(
             logAdsD(this, "isShowingAds() > Not showing ads (demo mode).")
             return false // not showing ads
         }
-        if (showingAds == null) { // paying status unknown
-            logAdsD(this, "isShowingAds() > Not showing ads (paying status unknown).")
+        if (hasSubscription == null) { // subscriptions unknown
+            logAdsD(this, "isShowingAds() > Not showing ads (subscriptions unknown).")
             return false // not showing ads
         }
-        logAdsD(this, "isShowingAds() > Showing ads: '$showingAds'.")
+        logAdsD(this, "isShowingAds() > has subscriptions: '$hasSubscription'.")
         if (AdConstants.IGNORE_REWARD_HIDING_BANNER) {
-            return showingAds == true
+            return hasSubscription == false
         }
-        if (isRewardedNow()) { // rewarded status
-            logAdsD(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this.rewardedUserManager.getRewardedUntilInMs()}).")
+        if (this._rewardedNow != false) { // rewarded status
+            logAdsD(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this._rewardedUntil?.toDateTimeLog()}).")
             return false // not showing ads
         }
-        return showingAds == true
+        return hasSubscription == false
     }
 
     fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?) {
@@ -173,33 +242,25 @@ class GlobalAdManager(
 
     // region Rewarded
 
-    fun getRewardedUntilInMs(): Long {
-        return this.rewardedUserManager.getRewardedUntilInMs()
-    }
+    @WorkerThread
+    fun getRewardedUntil() = this.rewardedUserManager.getRewardedUntil()
 
     fun resetRewarded() {
         this.rewardedUserManager.resetRewarded()
     }
 
-    fun isRewardedNow(): Boolean {
-        return this.rewardedUserManager.isRewardedNow()
+    @WorkerThread
+    fun isRewardedNow() = this.rewardedUserManager.isRewardedNow()
+
+    @WorkerThread
+    fun rewardUser(newReward: Duration, activity: IActivity?) {
+        this.rewardedUserManager.rewardUser(newReward, activity)
     }
 
-    fun rewardUser(newRewardInMs: Long, context: IContext?) {
-        this.rewardedUserManager.rewardUser(newRewardInMs, context)
-    }
+    @WorkerThread
+    fun shouldSkipLoadingRewardedAd() = this.rewardedUserManager.shouldSkipLoadingRewardedAd()
 
-    fun shouldSkipRewardedAd(): Boolean {
-        return this.rewardedUserManager.shouldSkipRewardedAd()
-    }
-
-    fun getRewardedAdAmount(): Int {
-        return this.rewardedUserManager.getRewardedAdAmount()
-    }
-
-    fun getRewardedAdAmountInMs(): Long {
-        return this.rewardedUserManager.getRewardedAdAmountInMs()
-    }
+    val rewardedAdAmountInDays get() = this.rewardedUserManager.rewardedAdAmountInDays
 
     // endregion Rewarded
 }

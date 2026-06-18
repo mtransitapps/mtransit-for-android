@@ -10,6 +10,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper;
+import org.mtransit.android.data.FavoriteFolder;
 import org.mtransit.commons.sql.SQLCreateBuilder;
 import org.mtransit.commons.sql.SQLInsertBuilder;
 
@@ -45,7 +46,7 @@ public class FavoriteDbHelper extends MTSQLiteOpenHelper {
 	private static final String T_FAVORITE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_FAVORITE);
 
 	private static final String T_FAVORITE_SQL_UPGRADE_BEFORE_2 = "ALTER TABLE " + T_FAVORITE + " ADD " + T_FAVORITE_K_FOLDER_ID + " " + SqlUtils.INT
-			+ " NOT NULL DEFAULT(" + FavoriteManager.DEFAULT_FOLDER_ID + ")";
+			+ " NOT NULL DEFAULT(" + FavoriteFolder.DEFAULT_FOLDER_ID + ")";
 
 	private static final String T_FAVORITE_FOLDER_SQL_CREATE = SQLCreateBuilder.getNew(T_FAVORITE_FOLDER) //
 			.appendColumn(T_FAVORITE_FOLDER_K_ID, SqlUtils.INT_PK) //
@@ -53,7 +54,7 @@ public class FavoriteDbHelper extends MTSQLiteOpenHelper {
 			.build();
 	private static final String T_FAVORITE_FOLDER_SQL_INIT = String.format(
 			SQLInsertBuilder.getNew(T_FAVORITE_FOLDER).appendColumns(T_FAVORITE_FOLDER_K_ID, T_FAVORITE_FOLDER_K_NAME).build(), //
-			FavoriteManager.DEFAULT_FOLDER_ID + "," + SqlUtils.escapeString(StringUtils.EMPTY));
+			FavoriteFolder.DEFAULT_FOLDER_ID + "," + SqlUtils.escapeString(StringUtils.EMPTY));
 	private static final String T_FAVORITE_FOLDER_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_FAVORITE_FOLDER);
 
 	private static final int DB_VERSION = 2;

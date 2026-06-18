@@ -1,4 +1,3 @@
-@file:JvmName("AgencyPOIsFragment") // ANALYTICS
 package org.mtransit.android.ui.type.poi
 
 import android.content.Context
@@ -11,8 +10,9 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -24,7 +24,7 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -81,8 +81,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             }
         }
 
-        private const val TOP_PADDING_SP = 0
-        private const val BOTTOM_PADDING_SP = 56
+        private const val TOP_PADDING_DP = 0
+        private const val BOTTOM_PADDING_DP = 56
     }
 
     private var theLogTag: String = LOG_TAG
@@ -109,13 +109,13 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -124,7 +124,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
@@ -164,14 +167,14 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             logTag,
             mapMarkerProvider,
             null, // DO NOTHING (map click, camera change)
-            true,
+            false,
             true,
             true,
             false,
             false,
             false,
-            TOP_PADDING_SP,
-            BOTTOM_PADDING_SP,
+            TOP_PADDING_DP,
+            BOTTOM_PADDING_DP,
             false,
             true,
             false,
@@ -189,11 +192,12 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@AgencyPOIsFragment.logTag
             setPois(attachedViewModel?.poiList?.value)
@@ -231,8 +235,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
-            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             colorInt?.let {
                 binding?.apply {
@@ -247,6 +252,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 }
             }
         }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
         viewModel.agency.observe(viewLifecycleOwner) { agency ->
             theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             listAdapter.logTag = this@AgencyPOIsFragment.logTag
@@ -256,7 +264,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     isVisible = true
                     setOnClickListener {
                         activity?.let { activity ->
-                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true, viewModel.useInternalWebBrowserPref.value)
                         }
                     }
                 } ?: run {
@@ -366,7 +374,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDataSourcesRepository(dataSourcesRepository)
+            setDI(dataSourcesRepository, lclPrefRepository)
             onAttach(requireActivity())
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }

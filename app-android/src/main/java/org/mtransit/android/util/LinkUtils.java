@@ -17,6 +17,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,10 +26,10 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.commons.HtmlUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.data.AgencyProperties;
@@ -44,7 +45,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("unused")
 public final class LinkUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = LinkUtils.class.getSimpleName();
@@ -58,7 +58,7 @@ public final class LinkUtils implements MTLog.Loggable {
 	@NonNull
 	public static CharSequence linkifyHtml(@NonNull String originalText, boolean isHTML) {
 		try {
-			Spanned text = isHTML ? HtmlUtils.fromHtml(originalText) : new SpannedString(originalText);
+			Spanned text = isHTML ? HtmlUtils.fromHtmlLegacy(originalText) : new SpannedString(originalText);
 			return linkifyHtml(text, isHTML);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error while linkify-ing '%s'!", originalText);
@@ -82,20 +82,33 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, boolean www) {
-		return open(view, activity, url, label, null, www);
+	@AnyThread
+	public static boolean open(
+			@Nullable View view,
+			@NonNull Activity activity,
+			@Nullable String url,
+			@Nullable String label,
+			boolean www,
+			@Nullable Boolean useInternalWebBrowserPref
+	) {
+		return open(view, activity, url, label, null, www, useInternalWebBrowserPref);
 	}
 
-	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, @Nullable String titleStatic, boolean www) {
-		if (url == null || url.isEmpty()) {
-			return false;
-		}
-		if (intercept(activity, url)) {
-			return true;
-		}
+	@AnyThread
+	public static boolean open(
+			@Nullable View view,
+			@NonNull Activity activity,
+			@Nullable String url,
+			@Nullable String label,
+			@Nullable String titleStatic,
+			boolean www,
+			@Nullable Boolean useInternalWebBrowserPref
+	) {
+		if (url == null || url.isEmpty()) return false;
+		if (intercept(activity, url)) return true;
 		if (www && (!FeatureFlags.F_NAVIGATION || view != null)) {
-			boolean useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
-					&& PreferenceUtils.getPrefDefault(activity, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
+			final boolean useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
+					&& (useInternalWebBrowserPref == null ? DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT : useInternalWebBrowserPref);
 			if (useInternalWebBrowser) {
 				if (FeatureFlags.F_NAVIGATION) {
 					final NavController navController = Navigation.findNavController(view);
@@ -257,6 +270,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	public static boolean isPDFIntent(@Nullable Uri uri) {
 		return isPDFIntent(uri == null ? null : uri.toString());
 	}

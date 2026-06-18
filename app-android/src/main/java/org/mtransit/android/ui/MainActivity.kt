@@ -1,4 +1,3 @@
-@file:JvmName("MainActivity") // ANALYTICS
 package org.mtransit.android.ui
 
 import android.app.PendingIntent
@@ -14,14 +13,16 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Observer
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -34,13 +35,15 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.AdsConsentManager
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.databinding.ActivityMainBinding
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
@@ -67,8 +70,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,
-    IAnalyticsManager.Trackable,
-    OnBillingResultListener,
+    AnalyticsScreen,
     IActivity, IAdScreenActivity,
     MTLog.Loggable,
     IAdManager.RewardedAdListener {
@@ -85,7 +87,7 @@ class MainActivity : MTActivityWithLocation(),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName() = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     private var navigationDrawerController: NavigationDrawerController? = null
 
@@ -128,6 +130,9 @@ class MainActivity : MTActivityWithLocation(),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+
+    @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
@@ -151,7 +156,7 @@ class MainActivity : MTActivityWithLocation(),
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        adManager.init(this)
+        adManager.initForScreens(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         this.currentUiMode = getResources().configuration.uiMode
         LocaleUtils.onCreateActivity(this)
@@ -171,38 +176,51 @@ class MainActivity : MTActivityWithLocation(),
             this.crashReporter,
             this.analyticsManager,
             this.dataSourcesRepository,
+            this.defaultPrefRepository,
+            this.lclPrefRepository,
             this.statusLoader,
             this.consentManager,
+            this.billingManager,
             this.packageManager,
             this.serviceUpdateLoader,
-            this.demoModeManager
+            this.demoModeManager,
         ).also { navigationDrawerController ->
             navigationDrawerController.onCreate(savedInstanceState)
         }
         supportFragmentManager.addOnBackStackChangedListener(this)
-        this.dataSourcesRepository.readingHasAgenciesEnabled().observe(this, Observer { hasAgenciesEnabled: Boolean? ->
-            this.adManager.onHasAgenciesEnabledUpdated(
-                hasAgenciesEnabled,
-                this,
-            ) // ad-manager does not persist activity but listen for changes itself
+        this.dataSourcesRepository.readingHasAgenciesEnabled().observe(this) { hasAgenciesEnabled: Boolean? ->
+            lifecycleScope.launch(Dispatchers.IO) {
+                adManager.onHasAgenciesEnabledUpdated(
+                    hasAgenciesEnabled,
+                    this@MainActivity,
+                ) // ad-manager does not persist activity but listen for changes itself
+            }
             this.abController?.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
-        })
-        this.dataSourcesRepository.readingHasAgenciesAdded().observe(this, Observer { hasAgenciesAdded: Boolean? ->
+        }
+        this.defaultPrefRepository.pref.liveData(
+            DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+        ).distinctUntilChanged().observe(this) {
+            this.navigationDrawerController?.onUseInternalWebBrowserPrefChanged(it)
+        }
+        this.dataSourcesRepository.readingHasAgenciesAdded().observe(this) { hasAgenciesAdded: Boolean? ->
             if (hasAgenciesAdded == true) {
                 onHasAgenciesAddedChanged()
             }
-        })
-        this.billingManager.currentSubscription.observe(this, Observer { _: String? -> })
+        }
+        this.billingManager.hasSubscription.observe(this) { hasSubscription: Boolean? ->
+            lifecycleScope.launch(Dispatchers.IO) {
+                adManager.setHasSubscription(hasSubscription, this@MainActivity)
+            }
+            this.navigationDrawerController?.setVisibleMenuItems()
+        }
+        this.billingManager.currentSubsProductId.observe(this) {
+            // do nothing
+        }
         binding?.apply { MapUtils.fixScreenFlickering(contentFrame) }
-        ContextCompat.registerReceiver(this, ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED) // Android 13
+        ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED) // Android 13
     }
 
-    override fun onBillingResult(productId: String?) {
-        val hasSubscription = if (productId == null) null else !productId.isEmpty()
-        if (hasSubscription != null) {
-            this.adManager.setShowingAds(!hasSubscription, this)
-        }
-    }
+    private val modulesReceiver = ModulesReceiver()
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -219,6 +237,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     override fun onSearchRequested(): Boolean {
+        analyticsManager.trackButtonClick("toolbar_search", this)
         onSearchQueryRequested(null)
         return true // processed
     }
@@ -244,7 +263,6 @@ class MainActivity : MTActivityWithLocation(),
         this.adManager.adaptToScreenSize(this)
         this.adManager.setRewardedAdListener(this) // used until POI screen is visible // need to preload ASAP
         this.adManager.linkRewardedAd(this)
-        this.billingManager.addListener(this) // trigger onBillingResult() w/ current value
         this.billingManager.refreshPurchases()
         onLastLocationChanged(deviceLocation)
 
@@ -270,11 +288,13 @@ class MainActivity : MTActivityWithLocation(),
         this.navigationDrawerController?.setVisibleMenuItems()
     }
 
+    @AnyThread
     override fun onRewardedAdStatusChanged() {
         // DO NOTHING
     }
 
-    override fun skipRewardedAd() = this.adManager.shouldSkipRewardedAd()
+    @WorkerThread
+    override fun skipLoadingRewardedAd() = this.adManager.shouldSkipLoadingRewardedAd()
 
     var isMTResumed = false
         private set
@@ -283,7 +303,6 @@ class MainActivity : MTActivityWithLocation(),
         super.onPause()
         this.isMTResumed = false
         this.navigationDrawerController?.onPause()
-        this.billingManager.removeListener(this)
         this.adManager.pauseAd(this)
     }
 
@@ -299,6 +318,7 @@ class MainActivity : MTActivityWithLocation(),
 
     protected override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(this.modulesReceiver)
         this.abController?.destroy()
         this.abController = null
         this.navigationDrawerController?.destroy()
@@ -400,9 +420,14 @@ class MainActivity : MTActivityWithLocation(),
         return FragmentUtils.isCurrentFragmentVisible(this, R.id.content_frame, fragment)
     }
 
+    @get:MainThread
     override val currentFragment: Fragment? get() = FragmentUtils.getFragment(this, R.id.content_frame)
 
+    @get:MainThread
     private val currentABFragment: ABFragment? get() = currentFragment as? ABFragment
+
+    @get:MainThread
+    val currentAnalyticsScreen: AnalyticsScreen? get() = currentABFragment as? AnalyticsScreen
 
     @MainThread
     override fun onBackStackChanged() {
@@ -489,6 +514,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     fun onUpIconClick(): Boolean {
+        analyticsManager.trackButtonClick("up_icon", currentAnalyticsScreen)
         return FragmentUtils.popLatestEntryFromStack(this, null)
     }
 

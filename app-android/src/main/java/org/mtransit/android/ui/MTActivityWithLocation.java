@@ -96,17 +96,12 @@ public abstract class MTActivityWithLocation extends MTActivity implements
 	public static void broadcastDeviceLocationChanged(@SuppressWarnings("unused") @NonNull MTLog.Loggable loggable,
 													  @Nullable Collection<Fragment> fragments,
 													  @Nullable Location newLocation) {
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment == null) {
-					continue;
-				}
-				if (fragment instanceof DeviceLocationListener) {
-					if (!fragment.isResumed() && !fragment.isVisible()) {
-						continue;
-					}
-					((DeviceLocationListener) fragment).onDeviceLocationChanged(newLocation);
-				}
+		if (fragments == null) return;
+		for (Fragment fragment : fragments) {
+			if (fragment == null) continue;
+			if (fragment instanceof DeviceLocationListener) {
+				if (!fragment.isResumed() && !fragment.isVisible()) continue;
+				((DeviceLocationListener) fragment).onDeviceLocationChanged(newLocation);
 			}
 		}
 	}

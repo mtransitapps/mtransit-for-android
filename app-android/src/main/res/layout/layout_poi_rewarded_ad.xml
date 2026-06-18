@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <include
-        android:id="@+id/rewardedAdsTitleLayout"
-        layout="@layout/layout_poi_rewarded_ad_title" />
+    style="@style/MTLayoutSectionTertiary"
+    tools:ignore="MergeRootFrame,UnusedResources">
 
     <TextView
-        android:id="@+id/rewardedAdsBtn"
-        style="@style/MTTextSurfaceBody"
-        android:enabled="false"
+        android:id="@+id/rewardedAdsText"
+        style="@style/MTTextTertiary.Light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
         android:visibility="gone"
+        app:drawableStartCompat="@drawable/ic_on_demand_video_black_24"
         tools:text="@plurals/watch_rewarded_ad_btn_and_days"
         tools:visibility="visible" />
 
-</LinearLayout>
+</FrameLayout>

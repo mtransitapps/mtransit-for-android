@@ -28,12 +28,16 @@ class RemoteConfigProvider @Inject constructor(
         const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC = "mt_ad_banner_load_on_screen_resume_min_duration_sec"
         const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT = 1L // -> 1 second is outperforming Baseline (-1=disabled) by 114% (& 2,3,5,7,10)
 
-        const val AD_BANNER_KEEP_OLD_AD_VISIBLE = "mt_ad_banner_keep_old_ad_visible"
-        const val AD_BANNER_KEEP_OLD_AD_VISIBLE_DEFAULT = false
-        // const val AD_BANNER_KEEP_OLD_AD_VISIBLE_DEFAULT = true // DEBUG
-
         const val AD_BANNER_LARGE = "mt_ad_banner_large"
         const val AD_BANNER_LARGE_DEFAULT = false
+        // const val AD_BANNER_LARGE_DEFAULT = true // DEBUG
+
+        const val AD_APP_OPEN_ENABLED = "mt_ad_app_open"
+        const val AD_APP_OPEN_ENABLED_DEFAULT = false
+        // const val AD_APP_OPEN_ENABLED_DEFAULT = true // DEBUG
+
+        const val AD_REWARDED_AMOUNT_IN_DAYS = "mt_ad_rewarded_amount_days"
+        const val AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT = 7
 
         @Deprecated("use ALLOW_TWITTER_NEWS_CACHED instead")
         const val ALLOW_TWITTER_NEWS_FOR_FREE = "mt_twitter_news_free"

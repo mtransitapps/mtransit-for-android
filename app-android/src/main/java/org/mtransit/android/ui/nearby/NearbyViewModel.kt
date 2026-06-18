@@ -3,6 +3,7 @@ package org.mtransit.android.ui.nearby
 import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
 import android.location.Location
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -21,6 +22,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsEvents
 import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocationUtils
@@ -30,7 +32,6 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.location.MTLocationProvider
-import org.mtransit.android.provider.location.getNearbyLocationAddress
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -41,6 +42,7 @@ import org.mtransit.android.ui.inappnotification.locationpermission.LocationPerm
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
+import org.mtransit.android.ui.location.UILocationUtils.getLocationString
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData4
@@ -59,6 +61,7 @@ class NearbyViewModel @Inject constructor(
     private val networkLocationRepository: NetworkLocationRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
+    private val defaultPrefRepository: DefaultPreferenceRepository,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
     private val pm: PackageManager,
@@ -104,7 +107,7 @@ class NearbyViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    private val _nearbyLocationForceReset = MutableLiveData(Event(false))
+    private val _nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
     val nearbyLocationForceReset: LiveData<Event<Boolean>> = _nearbyLocationForceReset
 
     fun checkIfNetworkLocationRefreshNecessary() {
@@ -115,13 +118,8 @@ class NearbyViewModel @Inject constructor(
 
     private val _ipLocation = networkLocationRepository.ipLocation
 
-    val nearbyLocation: LiveData<Location?> =
-        MediatorLiveData4(
-            fixedOnLocation,
-            deviceLocation,
-            _nearbyLocationForceReset,
-            _ipLocation
-        ).switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent, ipLocation) ->
+    val nearbyLocation: LiveData<Location?> = MediatorLiveData4(fixedOnLocation, deviceLocation, _nearbyLocationForceReset, _ipLocation)
+        .switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
                 if (forceReset) {
@@ -170,11 +168,30 @@ class NearbyViewModel @Inject constructor(
         it != null
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    val nearbyLocationAddress: LiveData<String?> = nearbyLocation.switchMap { nearbyLocation ->
+    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+    ).distinctUntilChanged()
+
+    private val _distanceUnitsPref = this.defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
+    ).distinctUntilChanged()
+
+    private val _locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(locationProvider.getNearbyLocationAddress(nearbyLocation))
+            nearbyLocation ?: return@liveData
+            LocationUtils.getLocationAddress(appContext, nearbyLocation)
+                ?.let {
+                    emit(it)
+                }
         }
     }
+
+    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(nearbyLocation, _locationAddress, _distanceUnitsPref)
+        .map { (nearbyLocation, locationAddress, distanceUnitsPref) ->
+            nearbyLocation ?: return@map null
+            distanceUnitsPref ?: return@map null
+            getLocationString(this.appContext, locationAddress, nearbyLocation.accuracy, distanceUnitsPref)
+        }
 
     val fixedOnName = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
 
@@ -244,6 +261,7 @@ class NearbyViewModel @Inject constructor(
         }
         val newDeviceLocation = this.deviceLocation.value ?: return false
         val currentNearbyLocation = this.nearbyLocation.value
+        @Suppress("SimplifyBooleanWithConstants")
         if (!IGNORE_SAME_LOCATION_CHECK
             && LocationUtils.areAlmostTheSame(currentNearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)
         ) {

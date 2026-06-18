@@ -1,6 +1,7 @@
 # ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
 name: MT release
 on:
+  pull_request: # make available for initial PR but job is Skipped by default
   workflow_dispatch: # manual
     inputs:
       allowNonDefault:
@@ -18,13 +19,43 @@ on:
         type: boolean
         default: false
         required: false
+      skipStoreBetaPrivate:
+        description: 'Skip beta-private store release'
+        type: boolean
+        default: false
+        required: false
       skipStoreAlpha:
         description: 'Skip alpha store release'
         type: boolean
         default: false
         required: false
-      skipStoreBetaPrivate:
-        description: 'Skip beta-private store release'
+      skipStoreInternal:
+        description: 'Skip internal store release'
+        type: boolean
+        default: false
+        required: false
+      allowStoreInternal:
+        description: 'Allow internal store release'
+        type: boolean
+        default: false
+        required: false
+      allowStoreAlpha:
+        description: 'Allow alpha store release'
+        type: boolean
+        default: false
+        required: false
+      allowStoreBetaPrivate:
+        description: 'Allow beta-private store release'
+        type: boolean
+        default: false
+        required: false
+      allowStoreProduction:
+        description: 'Allow production store release'
+        type: boolean
+        default: false
+        required: false
+      skipPublishRelease:
+        description: 'Skip GitHub & all Play Store release (useful to generate APK/AAB)'
         type: boolean
         default: false
         required: false
@@ -32,6 +63,7 @@ on:
 # gh workflow run mt-release.yml --ref $(git rev-parse --abbrev-ref HEAD) -f allowNonDefault=true
 # gh workflow run mt-release.yml -f skipStoreAll=true
 # gh workflow run mt-release.yml -f skipStoreProduction=true
+# gh workflow run mt-release.yml -f skipPublishRelease=true
 # gh run list --workflow=mt-release.yml
 # gh run watch ; gh browse --branch
 concurrency:
@@ -59,6 +91,11 @@ env:
   MT_ORG_PUSH_STORE_OFF: ${{ secrets.MT_ORG_PUSH_STORE_OFF }}
   MT_PUSH_STORE_ON: ${{ secrets.MT_PUSH_STORE_ON }}
   MT_PUSH_STORE_OFF: ${{ secrets.MT_PUSH_STORE_OFF }}
+  # push to store > internal
+  MT_ORG_STORE_INTERNAL_ON: ${{ secrets.MT_ORG_STORE_INTERNAL_ON }}
+  MT_ORG_STORE_INTERNAL_OFF: ${{ secrets.MT_ORG_STORE_INTERNAL_OFF }}
+  MT_STORE_INTERNAL_ON: ${{ secrets.MT_STORE_INTERNAL_ON }}
+  MT_STORE_INTERNAL_OFF: ${{ secrets.MT_STORE_INTERNAL_OFF }}
   # push to store > alpha
   MT_ORG_STORE_ALPHA_ON: ${{ secrets.MT_ORG_STORE_ALPHA_ON }}
   MT_ORG_STORE_ALPHA_OFF: ${{ secrets.MT_ORG_STORE_ALPHA_OFF }}
@@ -90,7 +127,7 @@ jobs:
 
       - name: MT setup
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.2.1
 
       - name: MT enable app release
         run: |
@@ -114,11 +151,33 @@ jobs:
             app-android/build/outputs/apk
             app-android/build/outputs/bundle
 
+      - name: MT allow store releases
+        if: ${{ github.event.inputs.allowStoreInternal == 'true' || github.event.inputs.allowStoreAlpha == 'true' || github.event.inputs.allowStoreBetaPrivate == 'true' || github.event.inputs.allowStoreProduction == 'true' }}
+        run: |
+          mkdir -p config/store
+          if [[ "${{ github.event.inputs.allowStoreInternal }}" == "true" ]]; then
+            echo "Allowing internal store release..."
+            touch config/store/internal
+          fi
+          if [[ "${{ github.event.inputs.allowStoreAlpha }}" == "true" ]]; then
+            echo "Allowing alpha store release..."
+            touch config/store/alpha
+          fi
+          if [[ "${{ github.event.inputs.allowStoreBetaPrivate }}" == "true" ]]; then
+            echo "Allowing beta-private store release..."
+            touch config/store/beta-private
+          fi
+          if [[ "${{ github.event.inputs.allowStoreProduction }}" == "true" ]]; then
+            echo "Allowing production store release..."
+            touch config/store/production
+          fi
+
       - name: MT skip store releases
-        if: ${{ github.event.inputs.skipStoreAll == 'true' || github.event.inputs.skipStoreProduction == 'true' || github.event.inputs.skipStoreAlpha == 'true' || github.event.inputs.skipStoreBetaPrivate == 'true' }}
+        if: ${{ github.event.inputs.skipStoreAll == 'true' || github.event.inputs.skipStoreProduction == 'true' ||  github.event.inputs.skipStoreBetaPrivate == 'true' || github.event.inputs.skipStoreAlpha == 'true' || github.event.inputs.skipStoreInternal == 'true' }}
         run: |
           if [[ "${{ github.event.inputs.skipStoreAll }}" == "true" ]]; then
             echo "Skipping all store releases..."
+            rm -f config/store/internal
             rm -f config/store/production
             rm -f config/store/alpha
             rm -f config/store/beta-private
@@ -127,17 +186,22 @@ jobs:
               echo "Skipping production store release..."
               rm -f config/store/production
             fi
-            if [[ "${{ github.event.inputs.skipStoreAlpha }}" == "true" ]]; then
-              echo "Skipping alpha store release..."
-              rm -f config/store/alpha
-            fi
             if [[ "${{ github.event.inputs.skipStoreBetaPrivate }}" == "true" ]]; then
               echo "Skipping beta-private store release..."
               rm -f config/store/beta-private
             fi
+            if [[ "${{ github.event.inputs.skipStoreAlpha }}" == "true" ]]; then
+              echo "Skipping alpha store release..."
+              rm -f config/store/alpha
+            fi
+            if [[ "${{ github.event.inputs.skipStoreInternal }}" == "true" ]]; then
+              echo "Skipping internal store release..."
+              rm -f config/store/internal
+            fi
           fi
 
       - name: MT Publish release
+        if: ${{ github.event.inputs.skipPublishRelease != 'true' }}
         run: ./publish_app_release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
@@ -145,6 +209,7 @@ jobs:
 
       - name: MT check screenshot age
         id: mt-check-screenshot-age
+        if: ${{ github.event.inputs.skipPublishRelease != 'true' }}
         continue-on-error: true
         run: |
           SCREENSHOT_DIR="app-android/src/main/play/listings/en-US/graphics/phone-screenshots"

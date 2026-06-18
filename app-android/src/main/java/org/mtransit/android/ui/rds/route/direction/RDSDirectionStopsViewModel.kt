@@ -45,6 +45,7 @@ import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class RDSDirectionStopsViewModel @Inject constructor(
@@ -122,7 +123,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val _vehicleLocationDataRefreshMinMs = remoteConfigProvider.get(
         RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS,
         RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT,
-    )
+    ).milliseconds
 
     fun startVehicleLocationRefresh() {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
@@ -155,9 +156,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
                     }.flatten()
                 )
             }
-        }
-
-    val vehicleLocationsDistinct = vehicleLocations.distinctUntilChanged()
+        }.distinctUntilChanged()
 
     val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
         .map { if (it < 0) null else it }
@@ -213,7 +212,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
             if (routeDirectionM.value?.routeDirection?.uuid != targetUUID) {
-                delay(333L) // wait for 0.333 secs BECAUSE many POIMs can also trigger it
+                delay(333.milliseconds) // wait for 0.333 secs BECAUSE many POIMs can also trigger it
             }
             routeDirectionM.value?.apply {
                 if (this.routeDirection.uuid != targetUUID) {
@@ -251,32 +250,29 @@ class RDSDirectionStopsViewModel @Inject constructor(
             }
         }
 
-    val showingListInsteadOfMap: LiveData<Boolean> = MediatorLiveData3(_authority, _routeId, directionId).switchMap { (authority, routeId, directionId) ->
-        liveData {
-            authority ?: return@liveData
-            routeId ?: return@liveData
-            directionId ?: return@liveData
-            if (demoModeManager.isFullDemo()) {
-                emit(false) // show map (demo mode ON)
-                return@liveData
-            }
-            emitSource(
-                lclPrefRepository.pref.liveData(
-                    LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(authority, routeId, directionId),
-                    LocalPreferenceRepository.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+    val showingListInsteadOfMap: LiveData<Boolean> = _routeDirection
+        .switchMap { routeDirection ->
+            liveData {
+                if (demoModeManager.isFullDemo()) {
+                    emit(false) // show map (demo mode ON)
+                    return@liveData
+                }
+                routeDirection ?: return@liveData
+                emitSource(
+                    lclPrefRepository.pref.liveData(
+                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
+                        LocalPreferenceRepository.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+                    )
                 )
-            )
-        }
-    }.distinctUntilChanged()
+            }
+        }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
         if (demoModeManager.isFullDemo()) return // SKIP (demo mode ON)
-        val authority = _authority.value ?: return
-        val routeId = _routeId.value ?: return
-        val directionId = directionId.value ?: return
+        val routeDirection = _routeDirection.value ?: return
         lclPrefRepository.pref.edit {
             putBoolean(
-                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(authority, routeId, directionId),
+                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
                 showingListInsteadOfMap
             )
         }

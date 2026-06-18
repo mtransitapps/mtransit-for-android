@@ -1,4 +1,3 @@
-@file:JvmName("HomeFragment") // ANALYTICS
 package org.mtransit.android.ui.home
 
 import android.app.PendingIntent
@@ -18,8 +17,10 @@ import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
@@ -28,7 +29,7 @@ import org.mtransit.android.databinding.FragmentHomeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -51,10 +52,11 @@ import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
-import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.view.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
@@ -81,7 +83,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     override val viewModel by viewModels<HomeViewModel>()
     override val attachedViewModel
@@ -100,13 +102,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -115,19 +117,32 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
     lateinit var demoModeManager: DemoModeManager
+
+    @Inject
+    lateinit var billingManager: IBillingManager
 
     private var mapMenuItem: MenuItem? = null
 
     private var binding: FragmentHomeBinding? = null
 
-    private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
-        override fun isLoadingMore() = attachedViewModel?.loadingPOIs?.value == true
-
-        override fun showingDone() = false
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            demoModeManager = demoModeManager,
+            billingManager = billingManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { this },
+            getShowLoading = { viewModel.loadingPOIs.value == true },
+            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
+        )
     }
 
     private val typeHeaderButtonsClickListener = POIArrayAdapter.TypeHeaderButtonsClickListener { buttonId, type ->
@@ -163,19 +178,19 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager,
         ).apply {
             logTag = this@HomeFragment.logTag
-            setFavoriteUpdateListener { listAdapter.onFavoriteUpdated() }
             setShowBrowseHeaderSection(true)
-            setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE)
-            setShowTypeHeaderNearby(true)
-            setInfiniteLoading(true)
-            setInfiniteLoadingListener(infiniteLoadingListener)
+            setShowTypeSectionHeader(POIArrayAdapter.SECTION_TYPE_HEADER_MORE)
+            setShowTypeSectionHeaderNearby(true)
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
             setOnTypeHeaderButtonsClickListener(typeHeaderButtonsClickListener)
             setPois(attachedViewModel?.nearbyPOIs?.value)
             setLocation(attachedViewModel?.deviceLocation?.value)
@@ -215,6 +230,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             }
         }
         setupScreenToolbar() // w/ binding
+        listAdapter.onCreateView(viewLifecycleOwner)
+        billingManager.hasSubscription.observe(viewLifecycleOwner) {
+            listAdapter.notifyDataSetChanged(false)
+        }
+        dataSourcesRepository.readingHasAgenciesEnabled().observe(viewLifecycleOwner) {
+            listAdapter.notifyDataSetChanged(false)
+        }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             listAdapter.setLocation(it)
         }
@@ -228,11 +250,11 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         viewModel.nearbyPOIsTriggerListener.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
-        viewModel.nearbyPOIsTrigger.observe(viewLifecycleOwner, EventObserver { triggered ->
+        viewModel.nearbyPOIsTrigger.observeEvent(viewLifecycleOwner) { triggered ->
             if (triggered) {
                 listAdapter.clear()
             }
-        })
+        }
         viewModel.sortedTypeToHomeAgencies.observe(viewLifecycleOwner) {
             listAdapter.initPOITypes(it ?: return@observe)
         }
@@ -253,6 +275,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             if (loading == false) {
                 binding?.swipeRefresh?.isRefreshing = false
             } // else do nothing
+            listAdapter.notifyDataSetChanged(false) // footer
         }
         viewModel.hasAgenciesAdded.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(hasAgenciesAdded = it)
@@ -262,11 +285,11 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         LocationPermissionUI.onViewCreated(this)
         NewLocationUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
-            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+            nextMainViewModel.scrollToTopEvent.observeEvent(viewLifecycleOwner) { scroll ->
                 if (scroll) {
                     binding?.listLayout?.list?.setSelection(0)
                 }
-            })
+            }
         }
     }
 

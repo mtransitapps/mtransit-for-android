@@ -7,17 +7,19 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
+import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.databinding.FragmentNearbyAgencyTypeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -80,31 +82,35 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     private var binding: FragmentNearbyAgencyTypeBinding? = null
 
-    private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
-        override fun isLoadingMore(): Boolean {
-            return attachedViewModel?.isLoadingMore() == true
-        }
+    private val poiListFooterManager = object : POIListFooterManager {
 
-        override fun showingDone() = true
+        override val isShowLoading get() = attachedViewModel?.isLoadingMore() == true
+
+        override val isShowText = true
+
+        override val text get() = context?.getString(R.string.world_explored)
     }
 
     private val listAdapter: POIArrayAdapter by lazy {
@@ -113,15 +119,16 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@NearbyAgencyTypeFragment.logTag
-            setInfiniteLoading(true)
-            setInfiniteLoadingListener(infiniteLoadingListener)
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
             setPois(attachedViewModel?.nearbyPOIs?.value)
             setLocation(attachedParentViewModel?.deviceLocation?.value)
             setTimeChangedListener { this@NearbyAgencyTypeFragment.onTimeChanged() }
@@ -149,6 +156,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 }
             }
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         parentViewModel.isFixedOn.observe(viewLifecycleOwner) { isFixedOn ->
             binding?.swipeRefresh?.setRefreshEnabled(isFixedOn != true)
         }

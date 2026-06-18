@@ -1,12 +1,12 @@
 package org.mtransit.android.provider;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper;
 import org.mtransit.android.commons.provider.poi.POIProvider;
@@ -65,11 +65,11 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	}
 
 	@NonNull
-	private final Context context;
+	private final SharedPreferences storage;
 
-	public ModuleDbHelper(@NonNull Context context) {
+	public ModuleDbHelper(@NonNull Context context, @NonNull SharedPreferences storage) {
 		super(context, DB_NAME, null, getDbVersion(context));
-		this.context = context;
+		this.storage = storage;
 	}
 
 	@Override
@@ -92,6 +92,8 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	private void initAllDbTables(@NonNull SQLiteDatabase db) {
 		db.execSQL(T_MODULE_SQL_CREATE);
 		db.execSQL(T_MODULE_STATUS_SQL_CREATE);
-		PreferenceUtils.savePrefLclSync(this.context, PREF_KEY_LAST_UPDATE_MS, 0L);
+		storage.edit()
+				.remove(PREF_KEY_LAST_UPDATE_MS)
+				.apply();
 	}
 }

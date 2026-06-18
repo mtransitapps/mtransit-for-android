@@ -1,4 +1,3 @@
-@file:JvmName("PreferencesFragment") // ANALYTICS
 package org.mtransit.android.ui.pref.main
 
 import android.annotation.SuppressLint
@@ -41,6 +40,7 @@ import org.mtransit.android.ui.feedback.FeedbackDialog
 import org.mtransit.android.ui.modules.ModulesActivity
 import org.mtransit.android.ui.pref.PreferencesViewModel
 import org.mtransit.android.ui.setUpListEdgeToEdge
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
@@ -82,33 +82,6 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
     private val viewModel by viewModels<MainPreferencesViewModel>()
     private val activityViewModel by activityViewModels<PreferencesViewModel>()
 
-    private val onBillingResultListener = object : IBillingManager.OnBillingResultListener {
-        override fun onBillingResult(productId: String?) {
-            val hasSubscription: Boolean? = productId?.isNotEmpty()
-            (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.apply {
-                when {
-                    hasSubscription == null -> {
-                        setTitle(commonsR.string.ellipsis)
-                        setSummary(commonsR.string.ellipsis)
-                        isEnabled = false
-                    }
-
-                    hasSubscription -> {
-                        setTitle(R.string.support_subs_cancel_pref_title)
-                        setSummary(R.string.support_subs_cancel_pref_summary)
-                        isEnabled = true
-                    }
-
-                    else -> {
-                        setTitle(R.string.support_subs_pref_title)
-                        setSummary(R.string.support_subs_pref_summary)
-                        isEnabled = true
-                    }
-                }
-            }
-        }
-    }
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
     }
@@ -148,7 +121,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 true -> activity?.let {
                     StoreUtils.viewSubscriptionPage(
                         it,
-                        viewModel.currentSubscription.value.orEmpty(),
+                        viewModel.currentSubsProductId.value.orEmpty(),
                         it.packageName,
                         it.getString(commonsR.string.google_play)
                     )
@@ -161,34 +134,76 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         (findPreference(MainPreferencesViewModel.SOCIAL_FACEBOOK_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
-            LinkUtils.open(null, activity, MainPreferencesViewModel.FACEBOOK_PAGE_URL, activity.getString(R.string.facebook), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                MainPreferencesViewModel.FACEBOOK_PAGE_URL,
+                activity.getString(R.string.facebook),
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.SOCIAL_TWITTER_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
-            LinkUtils.open(null, activity, MainPreferencesViewModel.TWITTER_PAGE_URL, activity.getString(R.string.twitter), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                MainPreferencesViewModel.TWITTER_PAGE_URL,
+                activity.getString(R.string.twitter),
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.ABOUT_PRIVACY_POLICY_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
             val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.PRIVACY_POLICY_FR_PAGE_URL else MainPreferencesViewModel.PRIVACY_POLICY_PAGE_URL
-            LinkUtils.open(null, activity, url, activity.getString(R.string.privacy_policy), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                url,
+                activity.getString(R.string.privacy_policy),
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.ABOUT_TERMS_OF_USE_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
             val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.TERMS_OF_USE_FR_PAGE_URL else MainPreferencesViewModel.TERMS_OF_USE_PAGE_URL
-            LinkUtils.open(null, activity, url, activity.getString(R.string.terms_of_use), FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                url,
+                activity.getString(R.string.terms_of_use),
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.THIRD_PARTY_GOOGLE_PRIVACY_POLICY_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
-            LinkUtils.open(null, activity, MainPreferencesViewModel.GOOGLE_PRIVACY_POLICY_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                MainPreferencesViewModel.GOOGLE_PRIVACY_POLICY_PAGE_URL,
+                null,
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.THIRD_PARTY_YOUTUBE_TERMS_OF_SERVICE_PREF) as? Preference)?.setOnPreferenceClickListener {
             val activity = activity ?: return@setOnPreferenceClickListener false // not handled
-            LinkUtils.open(null, activity, MainPreferencesViewModel.YOUTUBE_TERMS_OF_SERVICE_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
+            LinkUtils.open(
+                null,
+                activity,
+                MainPreferencesViewModel.YOUTUBE_TERMS_OF_SERVICE_PAGE_URL,
+                null,
+                FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                viewModel.useInternalWebBrowser.value
+            )
             true // handled
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_MODULE_PREF) as? Preference)?.setOnPreferenceClickListener {
@@ -238,7 +253,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             true // handled
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_AD_INSPECTOR_PREF) as? Preference)?.setOnPreferenceClickListener {
-            viewModel.openAdInspector()
+            (activity as? IActivity)?.let { viewModel.openAdInspector(it) }
             true // handled
         }
         (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_POWER_MANAGEMENT_PREF) as? Preference)?.apply {
@@ -271,14 +286,15 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         activity,
                         BatteryOptimizationIssueUtils.getDoNotKillMyAppUrlExtended(),
                         BatteryOptimizationIssueUtils.DO_NOT_KILL_MY_APP_LABEL,
-                        FORCE_OPEN_IN_EXTERNAL_BROWSER
+                        FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                        viewModel.useInternalWebBrowser.value
                     )
                 }
             }
             findViewById<TextView>(R.id.battery_optimization_issue_text_2).apply {
                 text = LinkUtils.linkifyHtml(getString(R.string.battery_optimization_issue_message_2), false)
                 movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                    LinkUtils.open(view, activity, url, getString(commonsR.string.web_browser), true)
+                    LinkUtils.open(view, activity, url, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowser.value)
                 }
             }
             findViewById<TextView>(R.id.battery_optimization_issue_custom).apply {
@@ -307,7 +323,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         it,
                         BatteryOptimizationIssueUtils.getDoNotKillMyAppUrlExtended(),
                         BatteryOptimizationIssueUtils.DO_NOT_KILL_MY_APP_LABEL,
-                        FORCE_OPEN_IN_EXTERNAL_BROWSER
+                        FORCE_OPEN_IN_EXTERNAL_BROWSER,
+                        viewModel.useInternalWebBrowser.value,
                     )
                 }
             }
@@ -317,13 +334,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     override fun onResume() {
         super.onResume()
-        billingManager.addListener(this.onBillingResultListener)
         viewModel.refreshData()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        billingManager.removeListener(this.onBillingResultListener)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -339,11 +350,31 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 summary = token ?: "(none)"
             }
         }
-        viewModel.currentSubscription.observe(viewLifecycleOwner) {
+        viewModel.currentSubsProductId.observe(viewLifecycleOwner) {
             // do nothing
         }
-        viewModel.hasSubscription.observe(viewLifecycleOwner) {
-            // do nothing
+        viewModel.hasSubscription.observe(viewLifecycleOwner) { hasSubscription ->
+            (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.apply {
+                when {
+                    hasSubscription == null -> {
+                        setTitle(commonsR.string.ellipsis)
+                        setSummary(commonsR.string.ellipsis)
+                        isEnabled = false
+                    }
+
+                    hasSubscription -> {
+                        setTitle(R.string.support_subs_cancel_pref_title)
+                        setSummary(R.string.support_subs_cancel_pref_summary)
+                        isEnabled = true
+                    }
+
+                    else -> {
+                        setTitle(R.string.support_subs_pref_title)
+                        setSummary(R.string.support_subs_pref_summary)
+                        isEnabled = true
+                    }
+                }
+            }
         }
         activityViewModel.showSupport.observe(viewLifecycleOwner) { showSupport ->
             if (showSupport == true) {
@@ -354,11 +385,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             }
         }
         viewModel.units.observe(viewLifecycleOwner) { units ->
-            (findPreference(DefaultPreferenceRepository.PREFS_UNITS) as? Preference)?.apply {
+            (findPreference(DefaultPreferenceRepository.PREFS_DISTANCE_UNITS) as? Preference)?.apply {
                 setSummary(
                     when (units) {
-                        DefaultPreferenceRepository.PREFS_UNITS_METRIC -> R.string.unit_pref_meter
-                        DefaultPreferenceRepository.PREFS_UNITS_IMPERIAL -> R.string.unit_pref_imperial
+                        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_METRIC -> R.string.unit_pref_meter
+                        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL -> R.string.unit_pref_imperial
                         else -> R.string.unit_pref_summary
                     }
                 )

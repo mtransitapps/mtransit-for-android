@@ -32,6 +32,7 @@ import org.mtransit.android.dev.takeIfDemoModeTargeted
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.commons.addAllNNE
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,7 +42,7 @@ import javax.inject.Singleton
 class DataSourcesRepository @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
-    private val dataSourcesIOCache: DataSourcesCache, // I/O - DB
+    private val dataSourcesStorage: DataSourcesStorage,
     private val dataSourcesReader: DataSourcesReader,
     private val demoModeManager: DemoModeManager,
     private val billingManager: IBillingManager,
@@ -62,10 +63,7 @@ class DataSourcesRepository @Inject constructor(
         )
     }
 
-    private val includedAgencyCount: Int
-        get() {
-            return defaultAgencies.filterExpansiveAgencyAuthorities(billingManager, remoteConfigProvider).size
-        }
+    private val includedAgencyCount: Int get() = defaultAgencies.filterExpansiveAgencyAuthorities(billingManager, remoteConfigProvider).size
 
     private val defaultAgencyComparator: Comparator<IAgencyProperties> = IAgencyProperties.SHORT_NAME_COMPARATOR
 
@@ -75,18 +73,24 @@ class DataSourcesRepository @Inject constructor(
 
     fun getAllAgencies() = this.dataSourcesInMemoryCache.getAllAgencies()
 
-    fun getAllTypeToAgencies() = getAllAgencies().groupBy {
+    suspend fun getAllAgenciesNow() = this.dataSourcesStorage.getAllAgencies()
+
+    fun getAllAgenciesByType() = getAllAgencies().groupBy {
         it.getSupportedType()
     }
 
-    fun readingAllAgencies() = this.dataSourcesIOCache.readingAllAgencies().map { agencies ->
+    fun readingAllAgencies() = this.dataSourcesStorage.readingAllAgencies().map { agencies ->
         agencies
             .filterExpansiveAgencies(billingManager, remoteConfigProvider)
             .filterDemoModeAgency(demoModeManager)
             .sortedWith(defaultAgencyComparator)
     }.distinctUntilChanged()
 
-    fun readingAllAgenciesBase() = this.dataSourcesIOCache.readingAllAgenciesBase().map { agencies ->
+    fun readingAllAgenciesByType() = readingAllAgencies().map { agencies ->
+        agencies.groupBy { it.getSupportedType() }
+    }
+
+    fun readingAllAgenciesBase() = this.dataSourcesStorage.readingAllAgenciesBase().map { agencies ->
         agencies
             .filterExpansiveAgencies(billingManager, remoteConfigProvider)
             .filterDemoModeAgency(demoModeManager)
@@ -121,14 +125,14 @@ class DataSourcesRepository @Inject constructor(
     fun readingAgency(authority: String?) = liveData {
         authority?.let {
             emit(dataSourcesInMemoryCache.getAgency(it))
-            emitSource(dataSourcesIOCache.readingAgency(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingAgency(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
     fun readingAgencyBase(authority: String?) = liveData {
         authority?.let {
             emit(dataSourcesInMemoryCache.getAgencyBase(it))
-            emitSource(dataSourcesIOCache.readingAgencyBase(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingAgencyBase(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -143,8 +147,8 @@ class DataSourcesRepository @Inject constructor(
     }
 
     private fun readingAllSupportedDataSourceTypesIO() = MediatorLiveData2(
-        dataSourcesIOCache.readingAllNotExtendedDataSourceTypes(),
-        dataSourcesIOCache.readingAllExtendedDataSourceTypes()
+        dataSourcesStorage.readingAllNotExtendedDataSourceTypes(),
+        dataSourcesStorage.readingAllExtendedDataSourceTypes()
     ).switchMap { (notExtendedDST, extendedDST) ->
         liveData {
             if (notExtendedDST == null || extendedDST == null) return@liveData
@@ -184,7 +188,7 @@ class DataSourcesRepository @Inject constructor(
     fun readingStatusProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
             emit(dataSourcesInMemoryCache.getStatusProviders(providerAuthority))
-            emitSource(dataSourcesIOCache.readingStatusProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingStatusProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -202,7 +206,7 @@ class DataSourcesRepository @Inject constructor(
     fun readingScheduleProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
             emit(dataSourcesInMemoryCache.getScheduleProvidersList(providerAuthority))
-            emitSource(dataSourcesIOCache.readingScheduleProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingScheduleProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -211,7 +215,7 @@ class DataSourcesRepository @Inject constructor(
     fun readingScheduleProvider(authority: String?) = liveData {
         authority?.let { providerAuthority ->
             emit(dataSourcesInMemoryCache.getScheduleProvider(providerAuthority))
-            emitSource(dataSourcesIOCache.readingScheduleProvider(providerAuthority).map { it.takeIfDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingScheduleProvider(providerAuthority).map { it.takeIfDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -236,10 +240,9 @@ class DataSourcesRepository @Inject constructor(
     fun getVehicleLocationProvider(authority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProvider(authority)
 
     fun readingVehicleLocationProviders(targetAuthority: String?) = liveData {
-        targetAuthority?.let { providerAuthority ->
-            emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(providerAuthority))
-            emitSource(dataSourcesIOCache.readingVehicleLocationProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
-        }
+        targetAuthority ?: return@liveData
+        emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(targetAuthority))
+        emitSource(dataSourcesStorage.readingVehicleLocationProviders(targetAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
     }.distinctUntilChanged()
 
     // endregion
@@ -278,7 +281,7 @@ class DataSourcesRepository @Inject constructor(
         emit(
             dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
         )
-        emitSource(dataSourcesIOCache.readingAllNewsProviders().map { newsProviders ->
+        emitSource(dataSourcesStorage.readingAllNewsProviders().map { newsProviders ->
             newsProviders
                 .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
                 .filterDemoModeTargeted(demoModeManager)
@@ -295,7 +298,7 @@ class DataSourcesRepository @Inject constructor(
                 dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority).filterNewsProviders()
             )
             emitSource(
-                dataSourcesIOCache.readingNewsProviders(providerAuthority).map { newsProviders ->
+                dataSourcesStorage.readingNewsProviders(providerAuthority).map { newsProviders ->
                     newsProviders
                         .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
                         .filterDemoModeTargeted(demoModeManager)
@@ -308,26 +311,24 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
-    private var runningUpdate: Boolean = false
+    private val runningUpdate = AtomicBoolean(false)
+    private val updateLockMutex = Mutex()
 
-    private val mutex = Mutex()
-
-    @JvmOverloads
     suspend fun updateLock(forcePkg: String? = null): Boolean {
-        if (runningUpdate) {
+        MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg)")
+        if (runningUpdate.get()) {
             MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - before sync)")
             return false
         }
-        this.mutex.withLock {
-            if (runningUpdate) {
-                MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - in lock)")
-                return false
+        this.updateLockMutex.withLock {
+            try {
+                runningUpdate.set(true)
+                val updated = update(forcePkg)
+                MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
+                return updated
+            } finally {
+                runningUpdate.set(false)
             }
-            runningUpdate = true
-            val updated = update(forcePkg)
-            runningUpdate = false
-            MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
-            return updated
         }
     }
 
@@ -348,6 +349,20 @@ class DataSourcesRepository @Inject constructor(
             forcePkg = forcePkg,
             skipTimeCheck = true,
             forceAppUpdateRefresh = forceAppUpdateRefresh,
+        ) {
+            updated = true
+        }
+        updated
+    }
+
+    suspend fun refreshSetupRequired(
+        forcePkg: String? = null,
+        skipTimeCheck: Boolean = false,
+    ) = withContext(Dispatchers.IO) {
+        var updated = false
+        dataSourcesReader.refreshSetupRequired(
+            forcePkg = forcePkg,
+            skipTimeCheck = skipTimeCheck,
         ) {
             updated = true
         }

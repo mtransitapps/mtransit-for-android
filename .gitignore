@@ -1,6 +1,7 @@
 # ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
 # Built application files
 *.apk
+*.aab
 *.ap_
 
 # Files for the ART/Dalvik VM
@@ -8,6 +9,9 @@
 
 # Java class files
 *.class
+*.jar
+*.war
+*.ear
 
 # Generated files
 bin/
@@ -31,6 +35,10 @@ proguard/
 
 # Log Files
 *.log
+*.out
+
+# Do Not Publish files
+*.donotpublish
 
 # Android Studio Navigation editor temp files
 .navigation/
@@ -94,6 +102,8 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+# virtual machine crash logs, see https://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
 # Editor-based Rest Client
 .idea/httpRequests
 # Android studio 3.1+ serialized cache file
@@ -224,3 +234,79 @@ dev.properties
 
 # Kotlin 2.0
 /.kotlin/
+
+
+# Merged from shared/app-android/MT.gitignore
+/app-android/app-signing-debug-keys.properties
+/app-android/app-signing-debug-keystore.keystore
+/app-android/build.gradle
+/app-android/build.sh
+/app-android/dependencies/*
+/app-android/decrypt_file.sh
+/app-android/encrypt_file.sh
+/app-android/keys_cleanup.sh
+/app-android/keys_files.sh
+/app-android/keys_setup.sh
+/app-android/keys_reset.sh
+/app-android/lint.xml
+/app-android/listing_pull.sh
+/app-android/listing_push.sh
+/app-android/module-proguard-rules.pro
+/app-android/print_current_next_rts_diff.sh
+/app-android/print_git_diff_stat.sh
+/app-android/promote.sh
+/app-android/promote_*.sh
+/app-android/publish.sh
+/app-android/publish_*.sh
+/app-android/src/main/play/default-language.txt
+/app-android/src/main/AndroidManifest.xml
+/app-android/src/main/play/contact-website.txt
+/app-android/src/main/play/listings/*/title.txt
+/app-android/src/main/play/listings/*/short-description.txt
+/app-android/src/main/play/listings/*/full-description.txt
+/app-android/src/main/res/mipmap-anydpi-v26/module_app_icon.xml
+/app-android/src/main/res/values*/bike_station_strings.xml
+/app-android/src/main/res/values*/strings.xml
+/app-android/src/main/res/values*/gtfs_rts_strings.xml
+/app-android/src/main/res/values/module_app_icon_color.xml
+/app-android/src/main/res/values/parent_agency_values.xml
+/app-android/app-signing-release-keys.properties
+/app-android/app-signing-release-keystore-encrypted.keystore
+/app-android/app-signing-release-keystore.keystore
+/app-android/clr
+/app-android/enc/app-signing-release-keys.properties
+/app-android/enc/app-signing-release-keystore-encrypted.keystore
+/app-android/enc/app-signing-release-keystore.keystore
+/app-android/enc/google-play-auto-publisher.json
+/app-android/enc/google-play-upload-certificate.pem
+/app-android/enc/google-play-upload-keys.properties
+/app-android/enc/google-play-upload-keystore.keystore
+/app-android/enc/src/main/play/contact-email.txt
+/app-android/google-play-auto-publisher.json
+/app-android/google-play-upload-certificate.pem
+/app-android/google-play-upload-keys.properties
+/app-android/google-play-upload-keystore.keystore
+/app-android/src/main/play/contact-email.txt
+/app-android/src/main/res/values/keys.xml
+/app-android/src/debug/res/values/keys.xml
+/app-android/stage_res_all_schedule_stops.sh
+/app-android/stage_res_current_schedule_stops.sh
+/app-android/stage_res_next_schedule_stops.sh
+
+# Merged from shared-opt-dir/agency-parser/MT.gitignore
+/agency-parser/.mtj.tmp/
+/agency-parser/input/
+/agency-parser/output/
+/agency-parser/archive.sh
+/agency-parser/archive_selection.sh
+/agency-parser/build.gradle
+/agency-parser/check_data_not_outdated.sh
+/agency-parser/check_data_outdated.sh
+/agency-parser/download.sh
+/agency-parser/force_single_thread_off.sh
+/agency-parser/force_single_thread_on.sh
+/agency-parser/list_change.sh
+/agency-parser/lookup_*.sh
+/agency-parser/parse_*.sh
+/agency-parser/reset_schedule_changes.sh
+/agency-parser/unzip_gtfs.sh

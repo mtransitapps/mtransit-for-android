@@ -1,4 +1,3 @@
-@file:JvmName("RTSRouteFragment") // ANALYTICS // do not change to avoid breaking tracking
 package org.mtransit.android.ui.rds.route
 
 import android.app.PendingIntent
@@ -20,7 +19,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
@@ -41,10 +40,11 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.NextMainActivity
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
 import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
@@ -154,9 +154,11 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName() =
-        attachedViewModel?.routeM?.value?.let { "$TRACKING_SCREEN_NAME/${it.authority}/${it.route.id}" }
+    override val screenName: String
+        get() = attachedViewModel?.routeM?.value?.let { "$TRACKING_SCREEN_NAME/${it.authority}/${it.route.id}" }
             ?: TRACKING_SCREEN_NAME
+
+    override val screenClass get() = "RTSRouteFragment" // ANALYTICS // do not change
 
     private val viewModel by viewModels<RDSRouteViewModel>()
     private val attachedViewModel get() = if (isAttached()) viewModel else null
@@ -165,7 +167,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     private var binding: FragmentRdsRouteBinding? = null
 
@@ -241,9 +243,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             abController?.setABReady(this, isABReady, true)
             updateServiceUpdateImg(routeM = routeM)
         }
-        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
+        viewModel.serviceUpdateLoadedEvent.observeEvent(viewLifecycleOwner) { _ ->
             updateServiceUpdateImg()
-        })
+        }
         viewModel.colorInt.observe(viewLifecycleOwner) {
             updateScreenToolbarBgColor()
         }
@@ -266,11 +268,14 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             }
             (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
-        })
+        }
+        viewModel.agency.observe(viewLifecycleOwner) { agency ->
+            binding?.routeTypeImg?.setJSONAndVisibility(agency)
+        }
     }
 
     override fun updateScreenToolbarBgColor() {

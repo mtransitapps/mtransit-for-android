@@ -1,4 +1,3 @@
-@file:JvmName("SearchFragment") // ANALYTICS
 package org.mtransit.android.ui.search
 
 import android.app.PendingIntent
@@ -9,12 +8,14 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.SearchView.OnQueryTextListener
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ToastUtils
@@ -24,7 +25,7 @@ import org.mtransit.android.data.POIArrayAdapter.TypeHeaderButtonsClickListener
 import org.mtransit.android.databinding.FragmentSearchBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -67,11 +68,10 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<SearchViewModel>()
-    private val attachedViewModel
-        get() = if (isAttached()) viewModel else null
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -83,13 +83,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -98,7 +98,10 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private var binding: FragmentSearchBinding? = null
 
@@ -108,11 +111,12 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@SearchFragment.logTag
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)
@@ -125,7 +129,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.listAdapter.setActivity(this)
+        this.listAdapter.setFragment(this)
+    }
+
+    private val onBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
+        override fun handleOnBackPressed() {
+            onUpBackPressed()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -143,6 +153,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             }
         }
         setupScreenToolbar() // w/ binding
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
                 emptyLayout.isVisible = false // hide by default
@@ -197,17 +208,36 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 setSelection(typeFilterAdapter.getPosition(dst))
                 isVisible = dst != null
             }
-            listAdapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
+            listAdapter.setShowTypeSectionHeader(if (dst == null) POIArrayAdapter.SECTION_TYPE_HEADER_MORE else POIArrayAdapter.SECTION_TYPE_HEADER_NONE)
+            onBackPressedCallback.isEnabled = dst != null
         }
         viewModel.searchHasFocus.observe(viewLifecycleOwner) {
             updateScreenToolbarCustomView()
         }
         viewModel.devEnabled.observe(viewLifecycleOwner) { devEnabled ->
             if (lastDevEnabled != null && lastDevEnabled != devEnabled) {
-                ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled")
+                ToastUtils.makeTextAndShow(requireContext(), "DEV MODE: $devEnabled")
             }
             lastDevEnabled = devEnabled
         }
+    }
+
+    override fun onScreenToolbarNavigationClick(v: View) {
+        analyticsManager.trackButtonClick("up_icon", this)
+        if (onUpBackPressed()) {
+            return // handled
+        }
+        super.onScreenToolbarNavigationClick(v)
+    }
+
+    private fun onUpBackPressed(): Boolean {
+        attachedViewModel?.let { viewModel ->
+            if (viewModel.typeFilter.value != null) {
+                viewModel.setTypeFilter(null)
+                return true // handled
+            }
+        }
+        return false
     }
 
     private fun onTimeChanged() {

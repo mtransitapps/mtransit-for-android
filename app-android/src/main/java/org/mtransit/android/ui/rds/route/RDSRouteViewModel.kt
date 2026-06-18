@@ -83,11 +83,11 @@ class RDSRouteViewModel @Inject constructor(
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
-    private val _agency: LiveData<AgencyBaseProperties?> = _authority.switchMap { authority ->
+    val agency: LiveData<AgencyBaseProperties?> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    private val _route: LiveData<Route?> = MediatorLiveData2(_agency, _routeId).switchMap { (agency, routeId) ->
+    private val _route: LiveData<Route?> = MediatorLiveData2(agency, _routeId).switchMap { (agency, routeId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getRoute(agency, routeId))
         }
@@ -130,11 +130,11 @@ class RDSRouteViewModel @Inject constructor(
         return newRoute
     }
 
-    val colorInt: LiveData<Int?> = MediatorLiveData2(_route, _agency).map { (route, agency) ->
+    val colorInt: LiveData<Int?> = MediatorLiveData2(_route, agency).map { (route, agency) ->
         route?.let { if (it.hasColor()) route.colorInt else agency?.colorInt }
     }
 
-    val routeType: LiveData<DataSourceType?> = _agency.map { it?.type }
+    val routeType: LiveData<DataSourceType?> = agency.map { it?.type }
 
     val routeDirections: LiveData<List<Direction>?> = MediatorLiveData2(_authority, _routeId).switchMap { (authority, routeId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {

@@ -1,22 +1,21 @@
 package org.mtransit.android.ui.type.rds
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
-import org.mtransit.android.commons.dp
-import org.mtransit.android.commons.getDimensionInt
+import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.LayoutRdsRouteItemBinding
@@ -24,7 +23,10 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
+import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 import org.mtransit.android.ui.view.common.setPadding
+import org.mtransit.android.ui.view.common.textAndVisibility
+import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.UIRouteUtils
 
 class RDSAgencyRoutesAdapter(
@@ -112,6 +114,9 @@ class RDSAgencyRoutesAdapter(
                 )
                 return RouteViewHolder(binding, serviceUpdateLoader)
             }
+
+            private const val DEBUG_LAYOUT = false
+            // private const val DEBUG_LAYOUT = true // DEBUG
         }
 
         fun bind(
@@ -128,27 +133,27 @@ class RDSAgencyRoutesAdapter(
             val route = routeM.route
             MTTransitions.setTransitionName(routeLayout, "r_" + agency.authority + "_" + route.id)
             // SHORT NAME & LOGO
-            if (route.shortName.isBlank()) { // NO RSN
-                routeShortName.isInvisible = true // keep size
-                if (routeTypeImg.hasPaths()
-                    && agency.authority == routeTypeImg.tag
-                ) {
-                    routeTypeImg.isVisible = true
-                } else {
-                    agency.logo?.let {
-                        routeTypeImg.setJSON(it)
-                        routeTypeImg.tag = agency.authority
-                        routeTypeImg.isVisible = true
-                    } ?: run {
-                        routeTypeImg.isVisible = false
-                    }
+            routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
+            routeTypeImg.setJSONAndVisibility(agency)
+            if (routeShortName.isVisible && routeTypeImg.isVisible) {
+                routeSpaceStart.isVisible = showingListInsteadOfGrid
+                routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 2f
                 }
+                routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 2f
+                }
+                routeShortName.gravity = Gravity.START or Gravity.CENTER_VERTICAL
             } else {
-                routeTypeImg.isVisible = false
-                routeShortName.text = UIRouteUtils.decorateRouteShortName(context, route.shortName)
-                routeShortName.isVisible = true
+                routeSpaceStart.isVisible = false
+                routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 4f
+                }
+                routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 4f
+                }
+                routeShortName.gravity = Gravity.CENTER
             }
-
             serviceUpdateLayout.routeServiceUpdateImg.apply {
                 val serviceUpdates = routeM.getServiceUpdates(
                     serviceUpdateLoader = serviceUpdateLoader,
@@ -156,41 +161,34 @@ class RDSAgencyRoutesAdapter(
                 ).distinctByOriginalId()
                 val (isWarning, isInfo) = serviceUpdates.isSeverityWarningInfo()
                 if (isWarning) {
-                    setImageResource(R.drawable.ic_warning_on_surface_16dp)
-                    isVisible = true
+                    setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
                 } else if (isInfo) {
-                    setImageResource(R.drawable.ic_info_outline_on_surface_16dp)
-                    isVisible = true
+                    setImageResourceAndVisibility(R.drawable.ic_info_outline_on_surface_16dp)
                 } else {
-                    setImageDrawable(null)
-                    isVisible = false
+                    setImageResourceAndVisibility(null)
                 }
             }
             // LONG NAME (grid only)
-            if (showingListInsteadOfGrid != false) { // LIST
-                routeLayout.setPadding(horizontal = 8.dp, relative = true)
+            if (showingListInsteadOfGrid) { // LIST
+                routeLayout.setPadding(horizontal = 8.dpToPx, relative = true)
                 serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    topMargin = 8.dp
+                    topMargin = 8.dpToPx
                 }
-                rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
-                    context.resources.getDimensionInt(R.dimen.poi_extra_width),
+                rsnImgServiceUpdate.updateLayoutParams {
+                    width = context.resources.getDimensionPixelSize(R.dimen.poi_extra_width)
                     // 64.dp, // TO DO poi_extra_width
                     // ResourceUtils.convertDPtoPX(context, 64).toInt(),
-                    LinearLayout.LayoutParams.MATCH_PARENT
-                )
-                routeLongName.text = route.longName
-                routeLongName.isVisible = route.longName.isNotBlank()
-            } else { // GRID
-                routeLayout.setPadding(horizontal = 4.dp, relative = true)
-                serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    topMargin = 4.dp
                 }
-                rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT
-                )
-                routeLongName.text = null
-                routeLongName.isVisible = false
+                routeLongName.textAndVisibility = route.longName.takeIf { it.isNotBlank() }
+            } else { // GRID
+                routeLayout.setPadding(horizontal = 4.dpToPx, relative = true)
+                serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = 4.dpToPx
+                }
+                rsnImgServiceUpdate.updateLayoutParams {
+                    width = ViewGroup.LayoutParams.MATCH_PARENT
+                }
+                routeLongName.textAndVisibility = null
             }
             // BG COLOR
             routeLayout.setBackgroundColor(
@@ -199,11 +197,22 @@ class RDSAgencyRoutesAdapter(
                     (if (route.hasColor()) route.colorInt else null) ?: agency.colorInt ?: UIColorUtils.DEFAULT_BACKGROUND_COLOR
                 )
             )
-            routeLayout.isVisible = true
             routeLayout.apply {
                 setOnClickListener { view ->
                     onClick(view, routeM)
                 }
+                isVisible = true
+            }
+            if (DEBUG_LAYOUT) {
+                serviceUpdateLayout.routeServiceUpdateImg.apply {
+                    setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
+                    setBackgroundColor(Color.RED)
+                }
+                routeLayout.setBackgroundColor(Color.YELLOW)
+                rsnImgServiceUpdate.setBackgroundColor(Color.BLUE)
+                routeTypeImg.setBackgroundColor(Color.CYAN)
+                routeShortName.setBackgroundColor(Color.MAGENTA)
+                rsnImg.setBackgroundColor(Color.GREEN)
             }
         }
     }

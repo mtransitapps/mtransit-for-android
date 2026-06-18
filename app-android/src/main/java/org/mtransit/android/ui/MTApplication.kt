@@ -3,7 +3,6 @@ package org.mtransit.android.ui
 import android.content.Context
 import android.os.Build
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.mtransit.android.BuildConfig
@@ -65,7 +64,7 @@ class MTApplication : MTCommonApp() {
         this.crashReporter.setup(!BuildConfig.DEBUG)
         this.strictMode.setup() // uses crash reporter
         this.analyticsManager.setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER)
-        mainScope.launch(Dispatchers.Default) {
+        this.mainScope.launch {
             MapsInitializerUtil.initMap(this@MTApplication)
         }
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.2" type="baseline" client="gradle" dependencies="true" name="AGP (8.13.2)" variant="all" version="8.13.2">
+<issues format="6" by="lint 9.2.0" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0)" variant="all" version="9.2.0">
 
     <issue
         id="DoNotMockPlatformTypes"
@@ -107,7 +107,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="1035"
+            line="1139"
             column="26"/>
     </issue>
 
@@ -118,503 +118,8 @@
         errorLine2="                         ^">
         <location
             file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="1096"
+            line="1200"
             column="26"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="548"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="653"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>(shortTimeSpan1SSB, shortTimeSpan2SSB);"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="661"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="724"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="730"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="736"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="744"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="750"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="756"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="762"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="770"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="776"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="784"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="   return new Pair&lt;>( //"
-        errorLine2="          ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="794"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="  return new Pair&lt;>( //"
-        errorLine2="         ^">
-        <location
-            file="src/main/java/org/mtransit/android/util/UITimeUtils.java"
-            line="797"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="180"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="180"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="185"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
-        errorLine2="                                             ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="185"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="185"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLogTag is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.logTag = this@AgencyPOIsFragment.logTag"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="229"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLogTag is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.logTag = this@AgencyPOIsFragment.logTag"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="229"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="245"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
-        errorLine2="                                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="245"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.onResume()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="254"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.onPause()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="256"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="264"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="264"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
-        errorLine1="                mapViewController.hideMap()"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="291"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
-        errorLine1="                mapViewController.hideMap()"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="299"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.showMap(view)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="310"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.showMap(view)"
-        errorLine2="                                              ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="310"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.hideMap()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="312"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.showMap(view)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="316"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.showMap(view)"
-        errorLine2="                                              ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="316"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
-        errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="325"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
-        errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="325"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
-        errorLine1="            onAttach(requireActivity())"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="326"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
-        errorLine1="            onAttach(requireActivity())"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="326"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
-        errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="327"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onSaveInstanceState(outState)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="332"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onSaveInstanceState(outState)"
-        errorLine2="                                              ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="332"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDetach is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onDetach()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="338"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.onResume()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="346"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onPause()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="355"
-            column="9"/>
     </issue>
 
     <issue
@@ -624,40 +129,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="360"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onLowMemory is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onLowMemory()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="361"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroyView is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onDestroyView()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="366"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroy is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onDestroy()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="374"
+            line="403"
             column="9"/>
     </issue>
 
@@ -668,7 +140,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="136"
+            line="158"
             column="33"/>
     </issue>
 
@@ -679,7 +151,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="136"
+            line="158"
             column="33"/>
     </issue>
 
@@ -745,7 +217,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/datasource/DataSourcesReader.kt"
-            line="260"
+            line="236"
             column="9"/>
     </issue>
 
@@ -778,52 +250,8 @@
         errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingGoogleMap.java"
-            line="73"
+            line="80"
             column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="This class or method is deprecated; consider using an alternative."
-        errorLine1="  real.setOnCameraChangeListener(new DelegatingOnCameraChangeListener());"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingGoogleMap.java"
-            line="387"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.map.impl.IGoogleMap.setOnCameraChangeListener is deprecated; consider using an alternative."
-        errorLine1="  real.setOnCameraChangeListener(new DelegatingOnCameraChangeListener());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingGoogleMap.java"
-            line="387"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.map.ExtendedGoogleMap.OnCameraChangeListener.onCameraChange is deprecated; consider using an alternative."
-        errorLine1="    onCameraChangeListener.onCameraChange(cameraPosition);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingGoogleMap.java"
-            line="398"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.map.ExtendedGoogleMap.OnCameraChangeListener.onCameraChange is deprecated; consider using an alternative."
-        errorLine1="    onCameraChangeListener.onCameraChange(cameraPosition);"
-        errorLine2="                                          ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingGoogleMap.java"
-            line="398"
-            column="43"/>
     </issue>
 
     <issue
@@ -833,7 +261,7 @@
         errorLine2="         ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingMarker.java"
-            line="90"
+            line="93"
             column="10"/>
     </issue>
 
@@ -844,7 +272,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/impl/DelegatingMarker.java"
-            line="193"
+            line="203"
             column="3"/>
     </issue>
 
@@ -1264,83 +692,6 @@
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
             line="217"
             column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Activity.getFragmentManager is deprecated; consider using an alternative."
-        errorLine1="   android.app.FragmentManager fm = fa.getFragmentManager();"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="221"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.FragmentManager.beginTransaction is deprecated; consider using an alternative."
-        errorLine1="   android.app.FragmentTransaction ft = fm.beginTransaction();"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="222"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.FragmentManager.findFragmentByTag is deprecated; consider using an alternative."
-        errorLine1="   android.app.Fragment prev = fm.findFragmentByTag(tag);"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="223"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.FragmentTransaction.remove is deprecated; consider using an alternative."
-        errorLine1="    ft.remove(prev);"
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="226"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.FragmentTransaction.addToBackStack is deprecated; consider using an alternative."
-        errorLine1="   ft.addToBackStack(null);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="228"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.FragmentTransaction.addToBackStack is deprecated; consider using an alternative."
-        errorLine1="   ft.addToBackStack(null);"
-        errorLine2="                     ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="228"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.show is deprecated; consider using an alternative."
-        errorLine1="    dialogFragment.show(ft, tag);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="231"
-            column="5"/>
     </issue>
 
     <issue
@@ -1829,17 +1180,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="com.google.android.gms.maps.GoogleMap.setOnCameraChangeListener is deprecated; consider using an alternative."
-        errorLine1="  map.setOnCameraChangeListener(listener);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/map/impl/GoogleMapWrapper.java"
-            line="207"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout.setListViewWR is deprecated; consider using an alternative."
         errorLine1="                swipeRefresh.setListViewWR(this)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1867,7 +1207,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="376"
+            line="387"
             column="13"/>
     </issue>
 
@@ -1878,7 +1218,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/inlinebanner/InlineBannerAdManager.kt"
-            line="100"
+            line="104"
             column="50"/>
     </issue>
 
@@ -1889,7 +1229,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/inlinebanner/InlineBannerAdManager.kt"
-            line="100"
+            line="104"
             column="50"/>
     </issue>
 
@@ -2071,347 +1411,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="android.app.DialogFragment.DialogFragment is deprecated; consider using an alternative."
-        errorLine1="  super();"
-        errorLine2="  ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="32"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onCreateDialog is deprecated; consider using an alternative."
-        errorLine1="  return super.onCreateDialog(savedInstanceState);"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="44"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.show is deprecated; consider using an alternative."
-        errorLine1="  super.show(manager, tag);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="52"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.show is deprecated; consider using an alternative."
-        errorLine1="  return super.show(transaction, tag);"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="60"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onCancel is deprecated; consider using an alternative."
-        errorLine1="  super.onCancel(dialog);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="68"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onDismiss is deprecated; consider using an alternative."
-        errorLine1="  super.onDismiss(dialog);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="76"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onActivityCreated is deprecated; consider using an alternative."
-        errorLine1="  super.onActivityCreated(savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="85"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onActivityCreated is deprecated; consider using an alternative."
-        errorLine1="  super.onActivityCreated(savedInstanceState);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="85"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onActivityResult is deprecated; consider using an alternative."
-        errorLine1="  super.onActivityResult(requestCode, resultCode, data);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="93"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onAttach is deprecated; consider using an alternative."
-        errorLine1="  super.onAttach(activity);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="101"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onAttach is deprecated; consider using an alternative."
-        errorLine1="  super.onAttach(context);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="109"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onConfigurationChanged is deprecated; consider using an alternative."
-        errorLine1="  super.onConfigurationChanged(newConfig);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="117"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onConfigurationChanged is deprecated; consider using an alternative."
-        errorLine1="  super.onConfigurationChanged(newConfig);"
-        errorLine2="                               ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="117"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onCreate is deprecated; consider using an alternative."
-        errorLine1="  super.onCreate(savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="125"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onCreate is deprecated; consider using an alternative."
-        errorLine1="  super.onCreate(savedInstanceState);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="125"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onCreateView is deprecated; consider using an alternative."
-        errorLine1="  return super.onCreateView(inflater, container, savedInstanceState);"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="134"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onCreateView is deprecated; consider using an alternative."
-        errorLine1="  return super.onCreateView(inflater, container, savedInstanceState);"
-        errorLine2="                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="134"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onDestroy is deprecated; consider using an alternative."
-        errorLine1="  super.onDestroy();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="142"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onDestroyView is deprecated; consider using an alternative."
-        errorLine1="  super.onDestroyView();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="150"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onDetach is deprecated; consider using an alternative."
-        errorLine1="  super.onDetach();"
-        errorLine2="  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="158"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onInflate is deprecated; consider using an alternative."
-        errorLine1="  super.onInflate(activity, attrs, savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="166"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onInflate is deprecated; consider using an alternative."
-        errorLine1="  super.onInflate(context, attrs, savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="174"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onLowMemory is deprecated; consider using an alternative."
-        errorLine1="  super.onLowMemory();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="182"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onPause is deprecated; consider using an alternative."
-        errorLine1="  super.onPause();"
-        errorLine2="  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="190"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onResume is deprecated; consider using an alternative."
-        errorLine1="  super.onResume();"
-        errorLine2="  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="198"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onSaveInstanceState is deprecated; consider using an alternative."
-        errorLine1="  super.onSaveInstanceState(outState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="206"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onStart is deprecated; consider using an alternative."
-        errorLine1="  super.onStart();"
-        errorLine2="  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="214"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.onStop is deprecated; consider using an alternative."
-        errorLine1="  super.onStop();"
-        errorLine2="  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="222"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="  super.onViewCreated(view, savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="230"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="  super.onViewCreated(view, savedInstanceState);"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="230"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.onViewStateRestored is deprecated; consider using an alternative."
-        errorLine1="  super.onViewStateRestored(savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTDialogFragment.java"
-            line="238"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="androidx.fragment.app.DialogFragment.onActivityCreated is deprecated; consider using an alternative."
         errorLine1="  super.onActivityCreated(savedInstanceState);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -2485,94 +1484,6 @@
             file="src/main/java/org/mtransit/android/ui/MTFragmentActivity.java"
             line="143"
             column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onActivityCreated is deprecated; consider using an alternative."
-        errorLine1="  super.onActivityCreated(savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="49"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onActivityResult is deprecated; consider using an alternative."
-        errorLine1="  super.onActivityResult(requestCode, resultCode, data);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="58"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onAttach is deprecated; consider using an alternative."
-        errorLine1="  super.onAttach(activity);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="67"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onInflate is deprecated; consider using an alternative."
-        errorLine1="  super.onInflate(activity, attrs, savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="134"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onLowMemory is deprecated; consider using an alternative."
-        errorLine1="  super.onLowMemory();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="150"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onCreateOptionsMenu is deprecated; consider using an alternative."
-        errorLine1="  super.onCreateOptionsMenu(menu, inflater);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="231"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onPrepareOptionsMenu is deprecated; consider using an alternative."
-        errorLine1="  super.onPrepareOptionsMenu(menu);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="244"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.fragment.app.Fragment.onOptionsItemSelected is deprecated; consider using an alternative."
-        errorLine1="  return super.onOptionsItemSelected(item);"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/MTFragmentX.java"
-            line="253"
-            column="10"/>
     </issue>
 
     <issue
@@ -3044,7 +1955,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="414"
+            line="423"
             column="20"/>
     </issue>
 
@@ -3055,7 +1966,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="414"
+            line="423"
             column="20"/>
     </issue>
 
@@ -3066,7 +1977,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="423"
+            line="432"
             column="9"/>
     </issue>
 
@@ -3077,7 +1988,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="423"
+            line="432"
             column="9"/>
     </issue>
 
@@ -3088,19 +1999,19 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
-            line="273"
+            line="263"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.os.Handler.Handler is deprecated; consider using an alternative."
-        errorLine1=" private Handler handler = new Handler(msg -> {"
-        errorLine2="                           ^">
+        errorLine1=" private final Handler handler = new Handler(msg -> {"
+        errorLine2="                                 ^">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/impl/MarkerAnimator.java"
-            line="19"
-            column="28"/>
+            line="21"
+            column="34"/>
     </issue>
 
     <issue
@@ -3110,7 +2021,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="199"
+            line="200"
             column="39"/>
     </issue>
 
@@ -3121,7 +2032,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="202"
+            line="203"
             column="26"/>
     </issue>
 
@@ -3132,7 +2043,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="202"
+            line="203"
             column="26"/>
     </issue>
 
@@ -3143,7 +2054,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="248"
+            line="249"
             column="4"/>
     </issue>
 
@@ -3154,7 +2065,7 @@
         errorLine2="       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="260"
+            line="261"
             column="8"/>
     </issue>
 
@@ -3165,7 +2076,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="266"
+            line="267"
             column="4"/>
     </issue>
 
@@ -3176,7 +2087,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="266"
+            line="267"
             column="4"/>
     </issue>
 
@@ -3187,7 +2098,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="266"
+            line="267"
             column="17"/>
     </issue>
 
@@ -3198,7 +2109,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="266"
+            line="267"
             column="17"/>
     </issue>
 
@@ -3209,7 +2120,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="287"
+            line="284"
             column="4"/>
     </issue>
 
@@ -3220,7 +2131,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="287"
+            line="284"
             column="4"/>
     </issue>
 
@@ -3231,7 +2142,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="287"
+            line="284"
             column="17"/>
     </issue>
 
@@ -3242,7 +2153,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="287"
+            line="284"
             column="17"/>
     </issue>
 
@@ -3253,7 +2164,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="347"
+            line="346"
             column="53"/>
     </issue>
 
@@ -3264,7 +2175,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="130"
+            line="135"
             column="17"/>
     </issue>
 
@@ -3275,7 +2186,7 @@
         errorLine2="                                           ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="130"
+            line="135"
             column="44"/>
     </issue>
 
@@ -3286,7 +2197,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="139"
+            line="144"
             column="17"/>
     </issue>
 
@@ -3297,7 +2208,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="148"
+            line="154"
             column="13"/>
     </issue>
 
@@ -3308,7 +2219,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="214"
+            line="224"
             column="21"/>
     </issue>
 
@@ -3319,7 +2230,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="214"
+            line="224"
             column="51"/>
     </issue>
 
@@ -3330,7 +2241,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="224"
+            line="234"
             column="21"/>
     </issue>
 
@@ -3341,7 +2252,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="224"
+            line="234"
             column="49"/>
     </issue>
 
@@ -3352,7 +2263,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="252"
+            line="262"
             column="13"/>
     </issue>
 
@@ -3363,7 +2274,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="332"
+            line="370"
             column="4"/>
     </issue>
 
@@ -3374,7 +2285,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="332"
+            line="370"
             column="17"/>
     </issue>
 
@@ -3385,7 +2296,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="332"
+            line="370"
             column="23"/>
     </issue>
 
@@ -3396,7 +2307,7 @@
         errorLine2="                                                                ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="332"
+            line="370"
             column="65"/>
     </issue>
 
@@ -3407,7 +2318,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="364"
+            line="402"
             column="4"/>
     </issue>
 
@@ -3418,7 +2329,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="364"
+            line="402"
             column="17"/>
     </issue>
 
@@ -3429,7 +2340,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="364"
+            line="402"
             column="23"/>
     </issue>
 
@@ -3440,7 +2351,7 @@
         errorLine2="                                                                    ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="364"
+            line="402"
             column="69"/>
     </issue>
 
@@ -3451,7 +2362,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="507"
+            line="564"
             column="4"/>
     </issue>
 
@@ -3462,7 +2373,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="507"
+            line="564"
             column="17"/>
     </issue>
 
@@ -3473,7 +2384,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="507"
+            line="564"
             column="23"/>
     </issue>
 
@@ -3484,7 +2395,7 @@
         errorLine2="                                                                                       ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="507"
+            line="564"
             column="88"/>
     </issue>
 
@@ -3495,7 +2406,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="522"
+            line="579"
             column="4"/>
     </issue>
 
@@ -3506,7 +2417,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="522"
+            line="579"
             column="17"/>
     </issue>
 
@@ -3517,7 +2428,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="522"
+            line="579"
             column="23"/>
     </issue>
 
@@ -3528,30 +2439,8 @@
         errorLine2="                                                                       ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="522"
+            line="579"
             column="72"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.datasource.DataSourcesRepository.filterDataSourceTypes is deprecated; consider using an alternative."
-        errorLine1="    this.dataSourcesRepository.filterDataSourceTypes("
-        errorLine2="    ^">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="561"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.datasource.DataSourcesRepository.getAllSupportedDataSourceTypes is deprecated; consider using an alternative."
-        errorLine1="      this.dataSourcesRepository.getAllSupportedDataSourceTypes()"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="562"
-            column="7"/>
     </issue>
 
     <issue
@@ -3561,7 +2450,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="711"
+            line="746"
             column="4"/>
     </issue>
 
@@ -3572,7 +2461,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1028"
+            line="1050"
             column="40"/>
     </issue>
 
@@ -3583,7 +2472,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1028"
+            line="1050"
             column="40"/>
     </issue>
 
@@ -3594,7 +2483,7 @@
         errorLine2="          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1059"
+            line="1081"
             column="11"/>
     </issue>
 
@@ -3605,118 +2494,8 @@
         errorLine2="       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1077"
+            line="1099"
             column="8"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1839"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
-        errorLine2="                ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1839"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1839"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
-        errorLine2="                                                                                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1839"
-            column="94"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(this, &quot;updateRouteDirectionStopView() > unexpected holder class &apos;%s&apos;! (%s)&quot;, convertView.getTag(), getLogTag());"
-        errorLine2="                                                                                                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1839"
-            column="116"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.os.AsyncTask.getStatus is deprecated; consider using an alternative."
-        errorLine1="  if (this.refreshFavoritesTask != null &amp;&amp; this.refreshFavoritesTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2112"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.RefreshFavoritesTask.RefreshFavoritesTask is deprecated; consider using an alternative."
-        errorLine1="  this.refreshFavoritesTask = new RefreshFavoritesTask(this);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2115"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.RefreshFavoritesTask.RefreshFavoritesTask is deprecated; consider using an alternative."
-        errorLine1="  this.refreshFavoritesTask = new RefreshFavoritesTask(this);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2115"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.RefreshFavoritesTask.RefreshFavoritesTask is deprecated; consider using an alternative."
-        errorLine1="  this.refreshFavoritesTask = new RefreshFavoritesTask(this);"
-        errorLine2="                                                       ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2115"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.RefreshFavoritesTask.RefreshFavoritesTask is deprecated; consider using an alternative."
-        errorLine1="  this.refreshFavoritesTask = new RefreshFavoritesTask(this);"
-        errorLine2="                                                       ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="2115"
-            column="56"/>
     </issue>
 
     <issue
@@ -3765,463 +2544,12 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="   new MapViewController("
-        errorLine2="   ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="234"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="     LOG_TAG,"
-        errorLine2="     ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="235"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="     this,"
-        errorLine2="     ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="236"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.MapViewController is deprecated; consider using an alternative."
-        errorLine1="     this,"
-        errorLine2="     ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="237"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="353"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="                                              ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="353"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.showMap(view);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="354"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.showMap(view);"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="354"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setFocusedOnUUID is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="356"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setFocusedOnUUID is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="356"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onConfigurationChanged is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onConfigurationChanged(newConfig);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="436"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onConfigurationChanged is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onConfigurationChanged(newConfig);"
-        errorLine2="                                                ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="436"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="560"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="560"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="561"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onAttach(requireActivity());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="562"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onAttach(requireActivity());"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="562"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDetach is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onDetach();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="568"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onCreate(savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="575"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onCreate(savedInstanceState);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="575"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onViewCreated(view, savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="621"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onViewCreated(view, savedInstanceState);"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="621"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onViewCreated(view, savedInstanceState);"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="621"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="626"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="                                             ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="626"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.showMap(getView());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="627"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.showMap(getView());"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="627"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onSaveInstanceState(outState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="701"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onSaveInstanceState(outState);"
-        errorLine2="                                             ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="701"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1144"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.onDeviceLocationChanged(this.deviceLocation);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1158"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
-        errorLine1="   this.mapViewController.onDeviceLocationChanged(this.deviceLocation);"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1158"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onResume();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1224"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="    this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1234"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="    this.mapViewController.notifyMarkerChanged(this);"
-        errorLine2="                                               ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1234"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="    this.mapViewController.showMap(view);"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1235"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="    this.mapViewController.showMap(view);"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1235"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onPause();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1398"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
         errorLine1="  super.onLowMemory();"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1709"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onLowMemory is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onLowMemory();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1710"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroyView is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onDestroyView();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1719"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroy is deprecated; consider using an alternative."
-        errorLine1="  this.mapViewController.onDestroy();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1725"
+            line="1575"
             column="3"/>
     </issue>
 
@@ -4232,1361 +2560,8 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/ui/view/POIStatusDetailViewController.java"
-            line="140"
+            line="142"
             column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.graphics.drawable.Drawable.setColorFilter is deprecated; consider using an alternative."
-        errorLine1="    availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter("
-        errorLine2="    ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/POIStatusDetailViewController.java"
-            line="218"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="This class or method is deprecated; consider using an alternative."
-        errorLine1="  return new PurchaseDialogFragment();"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="66"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreateView is deprecated; consider using an alternative."
-        errorLine1="  super.onCreateView(inflater, container, savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="93"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreateView is deprecated; consider using an alternative."
-        errorLine1="  super.onCreateView(inflater, container, savedInstanceState);"
-        errorLine2="                     ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="93"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreateView is deprecated; consider using an alternative."
-        errorLine1="  super.onCreateView(inflater, container, savedInstanceState);"
-        errorLine2="                               ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="93"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreateView is deprecated; consider using an alternative."
-        errorLine1="  super.onCreateView(inflater, container, savedInstanceState);"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="93"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.setupView is deprecated; consider using an alternative."
-        errorLine1="  setupView(view);"
-        errorLine2="  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="95"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreateDialog is deprecated; consider using an alternative."
-        errorLine1="  Dialog dialog = super.onCreateDialog(savedInstanceState);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="102"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreateDialog is deprecated; consider using an alternative."
-        errorLine1="  Dialog dialog = super.onCreateDialog(savedInstanceState);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="102"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreate is deprecated; consider using an alternative."
-        errorLine1="  super.onCreate(savedInstanceState);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="111"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onCreate is deprecated; consider using an alternative."
-        errorLine1="  super.onCreate(savedInstanceState);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="111"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="113"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="113"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="113"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="113"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="114"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="114"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="114"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="114"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onCancel is deprecated; consider using an alternative."
-        errorLine1="  super.onCancel(dialog);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="119"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_user_canceled_message);"
-        errorLine2="                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="120"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.onBuyBtnClick is deprecated; consider using an alternative."
-        errorLine1="    onBuyBtnClick(v.getContext())"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="128"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.onBuyBtnClick is deprecated; consider using an alternative."
-        errorLine1="    onBuyBtnClick(v.getContext())"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="128"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.onDownloadOrOpenPaidTasksBtnClick is deprecated; consider using an alternative."
-        errorLine1="    onDownloadOrOpenPaidTasksBtnClick(v.getContext())"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="131"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.onDownloadOrOpenPaidTasksBtnClick is deprecated; consider using an alternative."
-        errorLine1="    onDownloadOrOpenPaidTasksBtnClick(v.getContext())"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="131"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.onRewardedAdButtonClick is deprecated; consider using an alternative."
-        errorLine1="    onRewardedAdButtonClick(v.getContext())"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="134"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.onRewardedAdButtonClick is deprecated; consider using an alternative."
-        errorLine1="    onRewardedAdButtonClick(v.getContext())"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="134"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getContext is deprecated; consider using an alternative."
-        errorLine1="  final Context context = getContext();"
-        errorLine2="                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="141"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="151"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onDestroy is deprecated; consider using an alternative."
-        errorLine1="  super.onDestroy();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="172"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="174"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="174"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="174"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="174"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="176"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="176"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="176"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="176"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireActivity is deprecated; consider using an alternative."
-        errorLine1="  requireActivity().finish();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="181"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="185"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="   if (!getEntryPoint(context).adManager().isRewardedAdAvailableToShow()) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="192"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   if (!getEntryPoint(context).adManager().isRewardedAdAvailableToShow()) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="192"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   if (!getEntryPoint(context).adManager().isRewardedAdAvailableToShow()) {"
-        errorLine2="                      ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="192"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(context).adManager().showRewardedAd(this);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="197"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(context).adManager().showRewardedAd(this);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="197"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   getEntryPoint(context).adManager().showRewardedAd(this);"
-        errorLine2="                 ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="197"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="   final View view = getView();"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="198"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="209"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.getDialog is deprecated; consider using an alternative."
-        errorLine1="   Dialog dialog = getDialog();"
-        errorLine2="                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="224"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="235"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="   View view = getView();"
-        errorLine2="               ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="237"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="   final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, productId);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="277"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, productId);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="277"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="   final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, productId);"
-        errorLine2="                                                     ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="277"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.DialogFragment.getDialog is deprecated; consider using an alternative."
-        errorLine1="   Dialog dialog = getDialog();"
-        errorLine2="                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="283"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onResume is deprecated; consider using an alternative."
-        errorLine1="  super.onResume();"
-        errorLine2="  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="298"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="299"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="299"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="299"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.billingManager is deprecated; consider using an alternative."
-        errorLine1="  entryPoint.billingManager().refreshAvailableSubscriptions();"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="300"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager iAdManager = entryPoint.adManager();"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="301"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.showLoading is deprecated; consider using an alternative."
-        errorLine1="  showLoading();"
-        errorLine2="  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="305"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="  View view = getView();"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="306"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.refreshRewardedLayout is deprecated; consider using an alternative."
-        errorLine1="   refreshRewardedLayout(view);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="312"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.refreshRewardedLayout is deprecated; consider using an alternative."
-        errorLine1="   refreshRewardedLayout(view);"
-        errorLine2="                         ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="312"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onPause is deprecated; consider using an alternative."
-        errorLine1="  super.onPause();"
-        errorLine2="  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="318"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="319"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="319"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="319"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="319"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(view.getContext()).adManager();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="323"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(view.getContext()).adManager();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="323"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(view.getContext()).adManager();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="323"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getString is deprecated; consider using an alternative."
-        errorLine1="   rewardedAdStatusTv.setText(getString("
-        errorLine2="                              ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="336"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getString is deprecated; consider using an alternative."
-        errorLine1="     R.string.support_watch_rewarded_ad_status_until_and_date,"
-        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="337"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getResources is deprecated; consider using an alternative."
-        errorLine1="  rewardedAdsBtn.setText(getResources().getQuantityString("
-        errorLine2="                         ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="346"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(requireContext()).adManager();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="363"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(requireContext()).adManager();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="363"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(requireContext()).adManager();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="363"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  final IAdManager adManager = getEntryPoint(requireContext()).adManager();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="363"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="  View view = getView();"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="376"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.refreshRewardedLayout is deprecated; consider using an alternative."
-        errorLine1="   refreshRewardedLayout(view);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="378"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.refreshRewardedLayout is deprecated; consider using an alternative."
-        errorLine1="   refreshRewardedLayout(view);"
-        errorLine2="                         ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="378"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.MTDialogFragment.onDetach is deprecated; consider using an alternative."
-        errorLine1="  super.onDetach();"
-        errorLine2="  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="384"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.PurchaseDialogEntryPoint.adManager is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="385"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="385"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.getEntryPoint is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="385"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.requireContext is deprecated; consider using an alternative."
-        errorLine1="  getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="385"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="  View view = getView();"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="389"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="  View view = getView();"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="405"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getView is deprecated; consider using an alternative."
-        errorLine1="  View view = getView();"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="442"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.getActivity is deprecated; consider using an alternative."
-        errorLine1="  Activity activity = getActivity();"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="443"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.showNotLoading is deprecated; consider using an alternative."
-        errorLine1="  showNotLoading();"
-        errorLine2="  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/fragment/PurchaseDialogFragment.java"
-            line="543"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="195"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onCreate is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onCreate(savedInstanceState)"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="195"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="200"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
-        errorLine2="                                             ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="200"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onViewCreated is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onViewCreated(view, savedInstanceState)"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="200"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLogTag is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.logTag = this@RDSDirectionStopsFragment.logTag"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="280"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLogTag is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.logTag = this@RDSDirectionStopsFragment.logTag"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="280"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="283"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDeviceLocationChanged is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.onDeviceLocationChanged(deviceLocation)"
-        errorLine2="                                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="283"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.onResume()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="292"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.onPause()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="294"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="322"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.notifyMarkerChanged is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.notifyMarkerChanged(mapMarkerProvider)"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="322"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.hideMap()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="402"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
-        errorLine1="                    mapViewController.hideMap()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="409"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="                        mapViewController.showMap(view)"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="418"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="                        mapViewController.showMap(view)"
-        errorLine2="                                                  ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="418"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.hideMap is deprecated; consider using an alternative."
-        errorLine1="                        mapViewController.hideMap()"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="420"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="                        mapViewController.showMap(view)"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="424"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.showMap is deprecated; consider using an alternative."
-        errorLine1="                        mapViewController.showMap(view)"
-        errorLine2="                                                  ~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="424"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
-        errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="435"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setDataSourcesRepository is deprecated; consider using an alternative."
-        errorLine1="            setDataSourcesRepository(dataSourcesRepository)"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="435"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
-        errorLine1="            onAttach(requireActivity())"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="436"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onAttach is deprecated; consider using an alternative."
-        errorLine1="            onAttach(requireActivity())"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="436"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.setLocationPermissionGranted is deprecated; consider using an alternative."
-        errorLine1="            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="437"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onSaveInstanceState(outState)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="442"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onSaveInstanceState is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onSaveInstanceState(outState)"
-        errorLine2="                                              ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="442"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDetach is deprecated; consider using an alternative."
-        errorLine1="        this.mapViewController.onDetach()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="448"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onResume is deprecated; consider using an alternative."
-        errorLine1="            mapViewController.onResume()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="456"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onPause is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onPause()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="465"
-            column="9"/>
     </issue>
 
     <issue
@@ -5596,40 +2571,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="470"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onLowMemory is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onLowMemory()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="471"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroyView is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onDestroyView()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="477"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.view.MapViewController.onDestroy is deprecated; consider using an alternative."
-        errorLine1="        mapViewController.onDestroy()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="484"
+            line="591"
             column="9"/>
     </issue>
 
@@ -5651,7 +2593,7 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="186"
+            line="179"
             column="4"/>
     </issue>
 
@@ -5662,7 +2604,7 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="186"
+            line="179"
             column="4"/>
     </issue>
 
@@ -5673,7 +2615,7 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="186"
+            line="179"
             column="4"/>
     </issue>
 
@@ -5684,7 +2626,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="186"
+            line="179"
             column="37"/>
     </issue>
 
@@ -5695,7 +2637,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="186"
+            line="179"
             column="37"/>
     </issue>
 
@@ -5706,7 +2648,7 @@
         errorLine2="     ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="187"
+            line="180"
             column="6"/>
     </issue>
 
@@ -5717,7 +2659,7 @@
         errorLine2="     ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="187"
+            line="180"
             column="6"/>
     </issue>
 
@@ -5728,7 +2670,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="188"
+            line="181"
             column="6"/>
     </issue>
 
@@ -5739,7 +2681,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="188"
+            line="181"
             column="6"/>
     </issue>
 
@@ -5750,7 +2692,7 @@
         errorLine2="     ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="189"
+            line="182"
             column="6"/>
     </issue>
 
@@ -5761,7 +2703,7 @@
         errorLine2="     ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="189"
+            line="182"
             column="6"/>
     </issue>
 
@@ -5772,7 +2714,7 @@
         errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="190"
+            line="183"
             column="6"/>
     </issue>
 
@@ -5783,7 +2725,7 @@
         errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="190"
+            line="183"
             column="6"/>
     </issue>
 
@@ -5794,7 +2736,7 @@
         errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="191"
+            line="184"
             column="6"/>
     </issue>
 
@@ -5805,7 +2747,7 @@
         errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="191"
+            line="184"
             column="6"/>
     </issue>
 
@@ -5816,7 +2758,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="243"
+            line="236"
             column="12"/>
     </issue>
 
@@ -5827,7 +2769,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="243"
+            line="236"
             column="12"/>
     </issue>
 
@@ -5838,7 +2780,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="24"
+            line="25"
             column="5"/>
     </issue>
 
@@ -5849,7 +2791,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="24"
+            line="25"
             column="5"/>
     </issue>
 
@@ -5860,7 +2802,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="31"
+            line="32"
             column="9"/>
     </issue>
 
@@ -5871,6 +2813,83 @@
         errorLine2="        ^">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
+            line="32"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
+        errorLine1="        if (isShowingAds &amp;&amp; !isCancelled) { // show ads"
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
+            line="55"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.banner.SetupBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
+        errorLine1="                    ?: makeNewAdView(activity, adLayout)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
+            line="58"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.banner.SetupBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
+        errorLine1="                    ?: makeNewAdView(activity, adLayout)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
+            line="58"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.SetupInlineBannerAdTask is deprecated; consider using an alternative."
+        errorLine1="    ) : this("
+        errorLine2="        ^">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="31"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.SetupInlineBannerAdTask is deprecated; consider using an alternative."
+        errorLine1="    ) : this("
+        errorLine2="        ^">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
             line="31"
             column="9"/>
     </issue>
@@ -5881,130 +2900,42 @@
         errorLine1="        return !isCancelled &amp;&amp; this.globalAdManager.isShowingAds() // TODO can be called from any thread"
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="50"
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="47"
             column="17"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
-        errorLine1="        if (isShowingAds == true &amp;&amp; !isCancelled) { // show ads"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="60"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.banner.SetupBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
-        errorLine1="                    adView = makeNewAdView(activity, adLayout)"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="65"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.banner.SetupBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
-        errorLine1="                    adView = makeNewAdView(activity, adLayout)"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
-            line="65"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
-        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        if (isShowingAds &amp;&amp; !isCancelled) { // show ads"
+        errorLine2="                             ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
-            line="23"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
-        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
-            line="23"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.SetupInlineBannerAdTask is deprecated; consider using an alternative."
-        errorLine1="    ) : this("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.SetupInlineBannerAdTask is deprecated; consider using an alternative."
-        errorLine1="    ) : this("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
-        errorLine1="        return !isCancelled &amp;&amp; this.globalAdManager.isShowingAds() // TODO can be called from any thread"
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
-            line="48"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
-        errorLine1="        if (isShowingAds == true &amp;&amp; !isCancelled) { // show ads"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
-            line="59"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
-        errorLine1="                    adView = makeNewAdView(activity, adLayout)"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
-            line="64"
+            line="54"
             column="30"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
-        errorLine1="                    adView = makeNewAdView(activity, adLayout)"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                    ?: makeNewAdView(fragment, adLayout)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
-            line="64"
-            column="30"/>
+            line="57"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.makeNewAdView is deprecated; consider using an alternative."
+        errorLine1="                    ?: makeNewAdView(fragment, adLayout)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
+            line="57"
+            column="24"/>
     </issue>
 
     <issue
@@ -6824,8 +3755,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).t);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="210"
@@ -6835,8 +3766,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).t);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="211"
@@ -6857,8 +3788,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L), result.get(0).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="227"
@@ -6868,8 +3799,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="228"
@@ -6890,8 +3821,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="244"
@@ -6901,8 +3832,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="245"
@@ -6923,8 +3854,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="262"
@@ -6934,8 +3865,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="263"
@@ -6956,8 +3887,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="282"
@@ -6967,8 +3898,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="283"
@@ -6989,8 +3920,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="301"
@@ -7000,8 +3931,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="302"
@@ -7022,8 +3953,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="321"
@@ -7033,8 +3964,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="322"
@@ -7055,8 +3986,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="342"
@@ -7066,8 +3997,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="343"
@@ -7088,8 +4019,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(0L), result.get(0).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(0L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="362"
@@ -7099,8 +4030,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(3L), result.get(1).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(3L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="363"
@@ -7121,8 +4052,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="384"
@@ -7132,8 +4063,8 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(2L), result.get(1).getT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(2L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="385"
@@ -7400,7 +4331,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="255"
+            line="261"
             column="13"/>
     </issue>
 

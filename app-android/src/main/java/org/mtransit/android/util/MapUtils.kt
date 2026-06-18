@@ -16,13 +16,13 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog.Loggable
-import org.mtransit.android.commons.PreferenceUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ResourceUtils
 
 @Suppress("unused")
-object MapUtils : Loggable {
+object MapUtils : MTLog.Loggable {
 
     private val LOG_TAG: String = MapUtils::class.java.simpleName
 
@@ -72,6 +72,7 @@ object MapUtils : Loggable {
     private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "dirflg"
     private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE = "r"
 
+    @JvmOverloads
     @JvmStatic
     fun showDirection(
         binding: ViewBinding? = null,
@@ -79,12 +80,10 @@ object MapUtils : Loggable {
         optDestLat: Double? = null, optDestLng: Double? = null,
         optSrcLat: Double? = null, optSrcLng: Double? = null,
         optQuery: String? = null,
+        useInternalWebBrowserPref: Boolean?
     ) {
-        val useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity) && PreferenceUtils.getPrefDefault(
-            activity,
-            PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER,
-            PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-        )
+        val useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
+                && (useInternalWebBrowserPref ?: DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT)
         val gmmIntentUri = getMapsDirectionUrl(optDestLat, optDestLng, optSrcLat, optSrcLng, optQuery)
         if (useInternalWebBrowser) {
             LinkUtils.open(
@@ -92,7 +91,8 @@ object MapUtils : Loggable {
                 activity,
                 gmmIntentUri.toString(),
                 activity.getString(R.string.google_maps),
-                true
+                true,
+                true,
             )
             return
         }

@@ -11,7 +11,7 @@ interface IAgencyUpdatableProperties : IAgencyProperties {
 
     val availableVersionCode: Int
 
-    fun shouldShowUpdateLayout(): Boolean
+    val shouldShowUpdateLayout: Boolean
 
     fun isUpdateAvailable(pm: PackageManager): Boolean =
         updateAvailable

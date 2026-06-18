@@ -14,7 +14,6 @@ import androidx.fragment.app.FragmentTransaction;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.commons.FeatureFlags;
 
-@SuppressWarnings("WeakerAccess")
 public final class FragmentUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = FragmentUtils.class.getSimpleName();
@@ -47,23 +46,18 @@ public final class FragmentUtils implements MTLog.Loggable {
 				&& !fragment.isDetached() && !fragment.isRemoving();
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public static boolean isFragmentReady(@Nullable FragmentActivity fa,
 										  @NonNull @IdRes Integer fragmentResId) {
-		Fragment fragment = getFragment(fa, fragmentResId);
+		final Fragment fragment = getFragment(fa, fragmentResId);
 		return isFragmentReady(fragment);
 	}
 
 	@Nullable
 	public static Fragment getFragment(@Nullable FragmentActivity fa,
 									   @NonNull @IdRes Integer fragmentResId) {
-		FragmentManager fm = fa == null ? null : fa.getSupportFragmentManager();
+		final FragmentManager fm = fa == null ? null : fa.getSupportFragmentManager();
 		return fm == null ? null : fm.findFragmentById(fragmentResId);
-	}
-
-	@Deprecated
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	public static boolean isFragmentReady(@Nullable android.app.Fragment fragment) {
-		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
 	}
 
 	@SuppressWarnings("unused")
@@ -203,41 +197,6 @@ public final class FragmentUtils implements MTLog.Loggable {
 		} catch (Exception e) {
 			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, e, "Unexpected error while replacing support dialog fragment '%s'!", dialogFragment);
-		}
-	}
-
-	@SuppressWarnings("DeprecatedIsStillUsed") // TODO migrate to AndroidX Fragment Dialog
-	@Deprecated
-	public static void replaceDialogFragment(@Nullable android.app.Activity fa,
-											 @Nullable String tag,
-											 @Nullable android.app.DialogFragment dialogFragment,
-											 @Nullable android.app.Fragment optSource) {
-		try {
-			if (fa == null || fa.isFinishing()) {
-				MTLog.d(LOG_TAG, "replaceDialogFragment() > SKIP (activity is null/finishing)");
-				return;
-			}
-			if (optSource != null // optional check
-					&& !isFragmentReady(optSource)) {
-				MTLog.d(LOG_TAG, "replaceDialogFragment() > SKIP (source fragment is !added/detached/removing)");
-				return;
-			}
-			android.app.FragmentManager fm = fa.getFragmentManager();
-			android.app.FragmentTransaction ft = fm.beginTransaction();
-			android.app.Fragment prev = fm.findFragmentByTag(tag);
-			if (prev != null) {
-				MTLog.d(LOG_TAG, "replaceDialogFragment() > remove old dialog %s", prev);
-				ft.remove(prev);
-			}
-			ft.addToBackStack(null);
-			if (dialogFragment != null) {
-				MTLog.d(LOG_TAG, "replaceDialogFragment() > add new dialog %s", dialogFragment);
-				dialogFragment.show(ft, tag);
-			}
-		} catch (IllegalStateException ise) {
-			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while replacing dialog fragment '%s'!", dialogFragment);
-		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Unexpected error while replacing dialog fragment '%s'!", dialogFragment);
 		}
 	}
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -11,10 +12,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.toRouteDirectionM
@@ -31,6 +34,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ServiceUpdatesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    defaultPrefRepository: DefaultPreferenceRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
 ) : ViewModel(), MTLog.Loggable {
     companion object {
@@ -105,4 +109,8 @@ class ServiceUpdatesViewModel @Inject constructor(
             _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
         }
     }
+
+    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+    ).distinctUntilChanged()
 }

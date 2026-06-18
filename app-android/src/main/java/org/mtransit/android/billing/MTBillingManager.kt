@@ -11,74 +11,101 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingClient.ProductType
 import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingConfig
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.GetBillingConfigParams
 import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.ProductDetailsResponseListener
 import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
-import com.android.billingclient.api.QueryProductDetailsResult
 import com.android.billingclient.api.QueryPurchasesParams
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.SystemSettingManager
-import java.util.WeakHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
-// DEBUG: `adb shell setprop log.tag.BillingClient VERBOSE`
+/**
+ * DEBUG: `adb shell setprop log.tag.BillingClient VERBOSE`
+ */
 @Singleton
 class MTBillingManager @Inject constructor(
     @ApplicationContext appContext: Context,
     private val lclPrefRepository: LocalPreferenceRepository,
 ) : MTLog.Loggable,
     IBillingManager,
-    BillingClientStateListener, // connection to billing
-    PurchasesResponseListener, // purchases requested
-    PurchasesUpdatedListener, // purchases updated
-    ProductDetailsResponseListener // product ID details (name, price...)
+    PurchasesUpdatedListener // purchases updated
 {
 
     companion object {
         private val LOG_TAG: String = MTBillingManager::class.java.simpleName
 
-        private const val PREF_KEY_SUBSCRIPTION = "pSubscription"
-        private val PREF_KEY_SUBSCRIPTION_DEFAULT: String? = null
+        private const val LOG_COMPLETE_DETAILS = false
+        // private const val LOG_COMPLETE_DETAILS = true // DEBUG
+
+        private const val AVOID_REFRESH_PURCHASES = false
+        // private const val AVOID_REFRESH_PURCHASES = true
+
+        private const val PREF_KEY_HAS_BILLING_CONFIG = "pBillingConfig"
+        private val PREF_KEY_HAS_BILLING_CONFIG_DEFAULT: Boolean? = null
+
+        private const val PREF_KEY_SUBS_PRODUCT_ID = "pSubscription"
+        private const val PREF_KEY_SUBS_PRODUCT_ID_NONE = ""
+        private val PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN: String? = null
+        private val PREF_KEY_SUBS_PRODUCT_ID_DEFAULT: String? = PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN
+
+        private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = null
+        // private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = "f_monthly_subscription_1".takeIf { Constants.DEBUG } // DEBUG
+
+        private const val BILLING_CLIENT_RESPONSE_CODE_UNKNOWN = 999
     }
 
     override fun getLogTag() = LOG_TAG
 
-    private var billingClientConnected: Boolean? = false
+    private val _billingClientResponseCode = AtomicInteger(BILLING_CLIENT_RESPONSE_CODE_UNKNOWN)
+    private var billingClientResponseCode: Int?
+        get() = _billingClientResponseCode.get().takeIf { it != BILLING_CLIENT_RESPONSE_CODE_UNKNOWN }
+        set(value) = _billingClientResponseCode.set(value ?: BILLING_CLIENT_RESPONSE_CODE_UNKNOWN)
+    private val billingClientConnected: Boolean? get() = billingClientResponseCode?.let { it == BillingResponseCode.OK }
 
     private val billingClient = BillingClient.newBuilder(appContext)
         .setListener(this)
         .enablePendingPurchases(
             PendingPurchasesParams.newBuilder()
                 .enableOneTimeProducts()
+                .enablePrepaidPlans()
                 .build()
         )
+        .enableAutoServiceReconnection()
         .build()
 
-    override val currentSubscription: LiveData<String?> by lazy {
+    override val currentSubsProductId: LiveData<String?> by lazy {
+        OVERRIDE_CURRENT_SUBS_PRODUCT_ID?.let { return@lazy MutableLiveData(it) }
         lclPrefRepository.pref.liveDataN(
-            PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT
+            PREF_KEY_SUBS_PRODUCT_ID, PREF_KEY_SUBS_PRODUCT_ID_DEFAULT
         ).distinctUntilChanged()
     }
 
-    private val _currentSubscription: String?
-        get() = currentSubscription.value
+    override suspend fun getCachedHasSubscription() =
+        getCachedCurrentSubsProductId()?.isNotEmpty()
+
+    override suspend fun getCachedCurrentSubsProductId(): String? = withContext(Dispatchers.IO) {
+        OVERRIDE_CURRENT_SUBS_PRODUCT_ID?.let { return@withContext it }
+        lclPrefRepository.pref.getString(
+            PREF_KEY_SUBS_PRODUCT_ID, PREF_KEY_SUBS_PRODUCT_ID_DEFAULT
+        )
+    }
 
     override val hasSubscription: LiveData<Boolean?> by lazy {
-        this.currentSubscription.map { it?.isNotBlank() }
+        this.currentSubsProductId.map { it?.isNotBlank() }
     }
 
     private val isUsingFirebaseTestLab: Boolean by lazy {
@@ -90,48 +117,58 @@ class MTBillingManager @Inject constructor(
     override fun showingPaidFeatures() = (hasSubscription.value == true
             && !isUsingFirebaseTestLab)
             || fullDemoMode == true
-            // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
-
-    private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
+    // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
     private val _productIdsWithDetails = MutableLiveData<Map<String, ProductDetails>>()
 
-    override val productIdsWithDetails = _productIdsWithDetails
+    override val availableProductIdsWithDetails = _productIdsWithDetails
 
     init {
         startConnection()
     }
 
     private fun startConnection() {
-        billingClientConnected = null // unknown
-        billingClient.startConnection(this)
+        MTLog.d(this, "startConnection()")
+        billingClientResponseCode = BILLING_CLIENT_RESPONSE_CODE_UNKNOWN // unknown
+        billingClient.startConnection(object : BillingClientStateListener {
+            override fun onBillingServiceDisconnected() {
+                MTLog.d(this@MTBillingManager, "onBillingServiceDisconnected()")
+                billingClientResponseCode = BillingResponseCode.SERVICE_DISCONNECTED // enableAutoServiceReconnection() will retry automatically
+            }
+
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                MTLog.d(this@MTBillingManager, "onBillingSetupFinished(${billingResult.toStringPlus(short = true)})")
+                billingClientResponseCode = billingResult.responseCode
+                if (billingResult.responseCode == BillingResponseCode.OK) {
+                    queryAvailableProductDetails()
+                    queryPurchases()
+                    queryUserBillingConfig()
+                } else {
+                    MTLog.w(this@MTBillingManager, "Billing setup NOT successful! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                }
+            }
+        })
     }
 
-    override fun onBillingServiceDisconnected() {
-        billingClientConnected = false // will try again at next data refresh triggered from UI
-    }
-
-    override fun onBillingSetupFinished(billingResult: BillingResult) {
-        if (billingResult.responseCode == BillingResponseCode.OK) {
-            billingClientConnected = true
-            queryProductDetails()
-            queryPurchases()
-        } else {
-            MTLog.w(this, "Billing setup NOT successful! ${billingResult.responseCode}: ${billingResult.debugMessage}")
-            billingClientConnected = false // will try again at next data refresh triggered from UI
+    /**
+     * Receives purchase updates from in-app purchase flows.
+     * Note: canceled/suspended-but-still-valid subscriptions may not appear here;
+     * call queryPurchases() to refresh authoritative state when needed.
+     */
+    override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
+        MTLog.d(this, "onPurchasesUpdated(${billingResult.toStringPlus(short = true)}, ${purchases?.size})")
+        MTLog.i(this, "onPurchasesUpdated() > purchases [${purchases?.size}]: ${purchases?.flatMap { it.products }?.joinToString()}.")
+        if (LOG_COMPLETE_DETAILS) {
+            purchases?.forEach {
+                MTLog.d(this, "onPurchasesUpdated() > - purchase: ${it.toStringPlus(short = true)}")
+            }
         }
-    }
-
-    override fun onPurchasesUpdated(
-        billingResult: BillingResult,
-        purchases: MutableList<Purchase>?,
-    ) {
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
-                if (purchases == null) {
-                    processPurchases(null)
+                if (purchases?.isNotEmpty() == true) {
+                    processPurchases(purchases) // handle new/updated purchases
                 } else {
-                    processPurchases(purchases)
+                    queryPurchases() // query all valid purchases again
                 }
             }
 
@@ -152,19 +189,25 @@ class MTBillingManager @Inject constructor(
                             "are using must be signed with release keys."
                 )
             }
+
+            else -> {
+                MTLog.w(this, "Error while updating purchases! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+            }
         }
     }
 
     override fun refreshAvailableSubscriptions() {
-        queryProductDetails()
+        MTLog.d(this, "refreshAvailableSubscriptions()")
+        queryAvailableProductDetails()
     }
 
-    private fun queryProductDetails() {
+    private fun queryAvailableProductDetails() {
         if (!billingClient.isReady) {
-            MTLog.d(this, "queryProductDetails() > BillingClient is not ready")
-            if (this.billingClientConnected == false) {
-                startConnection()
-            }
+            MTLog.d(this, "queryAvailableProductDetails() > SKIP (billing client NOT ready)")
+            return // DO NOTHING (enableAutoServiceReconnection() will retry automatically)
+        }
+        if (billingClientResponseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
+            MTLog.d(this, "queryAvailableProductDetails() > SKIP (billing NOT available)")
             return
         }
         billingClient.queryProductDetailsAsync(
@@ -176,108 +219,147 @@ class MTBillingManager @Inject constructor(
                             .setProductId(productId)
                             .build()
                     }
-                ).build(),
-            this
-        )
-    }
-
-    override fun onProductDetailsResponse(billingResult: BillingResult, productDetailsResult: QueryProductDetailsResult) {
-        onProductDetailsResponse(billingResult, productDetailsResult.productDetailsList)
-    }
-
-    private fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<ProductDetails>) {
-        when (billingResult.responseCode) {
-            BillingResponseCode.OK -> {
-                _productIdsWithDetails.postValue(
-                    productDetailsList.associateBy { details ->
-                        if (Constants.DEBUG) {
-                            details.subscriptionOfferDetails?.forEach {
-                                MTLog.d(this, "onProductDetailsResponse() > offer details: $it")
-                                it.installmentPlanDetails.let { installmentPlanDetails ->
-                                    MTLog.d(this, "onProductDetailsResponse() > installment plan details: $installmentPlanDetails")
-                                }
-                                it.pricingPhases.pricingPhaseList.forEach { pricingPhase ->
-                                    MTLog.d(this, "onProductDetailsResponse() > pricing phase: $pricingPhase")
-                                }
+                ).build()
+        ) { billingResult, productDetailsResult ->
+            MTLog.d(this, "onProductDetailsResponse(${billingResult.toStringPlus(short = true)}, ${productDetailsResult.productDetailsList.size})")
+            if (!LOG_COMPLETE_DETAILS) {
+                productDetailsResult.productDetailsList.let {
+                    MTLog.i(
+                        this,
+                        "onProductDetailsResponse() > product IDs [${it.size}]: ${it.joinToString { productDetails -> productDetails.productId }}."
+                    )
+                }
+            }
+            when (billingResult.responseCode) {
+                BillingResponseCode.OK -> {
+                    _productIdsWithDetails.postValue(
+                        productDetailsResult.productDetailsList.associateBy { productDetails ->
+                            if (LOG_COMPLETE_DETAILS) {
+                                MTLog.d(this, "onProductDetailsResponse() > - product details: ${productDetails.toStringPlus(short = true)}")
                             }
+                            productDetails.productId
                         }
-                        details.productId
-                    }
-                        .also { postedValue ->
-                            MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")
-                        }
-                )
-            }
+                            .also { postedValue ->
+                                MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")
+                            }
+                    )
+                }
 
-            BillingResponseCode.SERVICE_DISCONNECTED,
-            BillingResponseCode.SERVICE_UNAVAILABLE,
-            BillingResponseCode.BILLING_UNAVAILABLE,
-            BillingResponseCode.ITEM_UNAVAILABLE,
-            BillingResponseCode.DEVELOPER_ERROR,
-            BillingResponseCode.ERROR -> {
-                MTLog.w(this, "Error while fetching product details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
-            }
+                BillingResponseCode.SERVICE_DISCONNECTED,
+                BillingResponseCode.SERVICE_UNAVAILABLE,
+                BillingResponseCode.BILLING_UNAVAILABLE,
+                BillingResponseCode.ITEM_UNAVAILABLE,
+                BillingResponseCode.DEVELOPER_ERROR,
+                BillingResponseCode.ERROR -> {
+                    MTLog.w(this, "Error while fetching product details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                }
 
-            BillingResponseCode.USER_CANCELED,
-            BillingResponseCode.FEATURE_NOT_SUPPORTED,
-            BillingResponseCode.ITEM_ALREADY_OWNED,
-            BillingResponseCode.ITEM_NOT_OWNED -> {
-                MTLog.e(this, "Unexpected error while fetching product details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                BillingResponseCode.USER_CANCELED,
+                BillingResponseCode.FEATURE_NOT_SUPPORTED,
+                BillingResponseCode.ITEM_ALREADY_OWNED,
+                BillingResponseCode.ITEM_NOT_OWNED -> {
+                    MTLog.e(this, "Unexpected error while fetching product details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                }
+
+                else ->
+                    MTLog.e(this@MTBillingManager, "Unknown error while fetching product details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
             }
         }
     }
 
     override fun refreshPurchases() {
+        MTLog.d(this, "refreshPurchases()")
+        MTLog.d(
+            this,
+            "refreshPurchases() > billing client (ready:${billingClient.isReady}|connected:${this.billingClientConnected}), subs? ${this.hasSubscription.value}"
+        )
+        @Suppress("SimplifyBooleanWithConstants")
+        if (AVOID_REFRESH_PURCHASES && this.billingClient.isReady && this.billingClientConnected == true && this.hasSubscription.value != null) {
+            MTLog.d(this, "refreshPurchases() > SKIP (client ready & connected, current subscription status known)")
+            return
+        }
         queryPurchases()
     }
 
     private fun queryPurchases() {
+        MTLog.d(this, "queryPurchases()")
         if (!billingClient.isReady) {
-            MTLog.d(this, "queryPurchases() > BillingClient is not ready")
-            if (this.billingClientConnected == false) {
-                startConnection()
-            }
+            MTLog.d(this, "queryPurchases() > SKIP (billing client NOT ready)")
+            return // DO NOTHING (enableAutoServiceReconnection() will retry automatically)
+        }
+        if (billingClientResponseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
+            MTLog.d(this, "queryPurchases() > SKIP (billing NOT available)")
             return
         }
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder()
                 .setProductType(ProductType.SUBS)
-                .build(),
-            this
-        )
-    }
-
-    override fun onQueryPurchasesResponse(billingResult: BillingResult, purchasesList: List<Purchase>) {
-        if (billingResult.responseCode != BillingResponseCode.OK) {
-            MTLog.w(this, "Error while querying purchases! ${billingResult.responseCode}: ${billingResult.debugMessage}")
-        }
-        processPurchases(purchasesList)
-    }
-
-    private fun processPurchases(purchasesList: List<Purchase>?) {
-        if (isUnchangedPurchaseList(purchasesList)) {
-            MTLog.d(this, "processPurchases() > SKIP (purchase list has not changed)")
-            return
-        }
-        purchasesList?.let { list ->
-            list.forEach { purchase ->
-                handlePurchase(purchase)
+                .build()
+        ) { billingResult, purchasesList -> // These will receive all active purchases (incl. canceled still valid)
+            MTLog.d(this, "onQueryPurchasesResponse(${billingResult.toStringPlus(short = true)}, ${purchasesList.size})")
+            MTLog.i(this, "onQueryPurchasesResponse() > purchases [${purchasesList.size}]: ${purchasesList.flatMap { it.products }.joinToString()}.")
+            if (LOG_COMPLETE_DETAILS) {
+                purchasesList.forEach {
+                    MTLog.d(this, "onQueryPurchasesResponse() > - purchase: ${it.toStringPlus(short = true)}")
+                }
+            }
+            if (billingResult.responseCode == BillingResponseCode.OK) {
+                processPurchases(purchasesList)
+            } else {
+                MTLog.w(this, "Error while querying purchases! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                handlePurchasesError()
             }
         }
-        setCurrentSubscription(
-            purchasesList?.flatMap { purchase ->
-                purchase.products
-            }?.firstOrNull { product ->
-                product.isNotEmpty()
-            }.orEmpty()
-        )
     }
 
-    private fun isUnchangedPurchaseList(@Suppress("unused") purchasesList: List<Purchase>?): Boolean {
-        return false // TODO optimized to avoid updates with identical data.
+    private fun processPurchases(purchasesList: List<Purchase>) {
+        MTLog.d(this, "processPurchases(${purchasesList.size})")
+        purchasesList
+            .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+            .filter { !it.isAcknowledged }
+            .forEach { purchase ->
+                acknowledgePurchase(purchase.purchaseToken)
+            }
+        val purchasedProduct = purchasesList
+            .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+            .flatMap { it.products }
+            .firstOrNull { it.isNotEmpty() }
+            ?: PREF_KEY_SUBS_PRODUCT_ID_NONE
+        setCurrentSubscription(purchasedProduct)
+    }
+
+    private fun acknowledgePurchase(purchaseToken: String) {
+        billingClient.acknowledgePurchase(
+            AcknowledgePurchaseParams.newBuilder()
+                .setPurchaseToken(purchaseToken)
+                .build()
+        ) { billingResult ->
+            MTLog.d(this, "onAcknowledgePurchaseResponse(${billingResult.toStringPlus(short = true)})")
+            if (billingResult.responseCode != BillingResponseCode.OK) {
+                MTLog.w(this, "Error while acknowledging purchase! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+            }
+        }
+    }
+
+    private fun handlePurchasesError() {
+        MTLog.w(this, "handlePurchasesError()")
+        val cachedProductId = this.lclPrefRepository.pref.getString(PREF_KEY_SUBS_PRODUCT_ID, PREF_KEY_SUBS_PRODUCT_ID_DEFAULT)
+        if (cachedProductId != PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN) return // keep cached subscription value
+        setCurrentSubscription(PREF_KEY_SUBS_PRODUCT_ID_NONE) // assume no subscription until successful purchases fetched
+    }
+
+    private fun setCurrentSubscription(productId: String) {
+        MTLog.d(this, "setCurrentSubscription($productId)")
+        MTLog.d(this, "setCurrentSubscription() > this.currentSubsProductId.value: ${this.currentSubsProductId.value}.")
+        if (this.currentSubsProductId.value == productId) return // same
+        this.lclPrefRepository.pref.edit {
+            putString(PREF_KEY_SUBS_PRODUCT_ID, productId)
+        }
+        MTLog.d(this, "setCurrentSubscription() > this.currentSubsProductId.value: $productId.")
     }
 
     override fun launchBillingFlow(activity: IActivity, productId: String): Boolean {
+        MTLog.d(this, "launchBillingFlow($productId)")
         val productDetails = _productIdsWithDetails.value?.get(productId) ?: run {
             MTLog.w(this, "Could not find ProductDetails to make purchase.")
             return false
@@ -295,71 +377,53 @@ class MTBillingManager @Inject constructor(
             MTLog.w(this, "Could not find offer token for '${productDetails.productId}' purchase.")
             return false
         }
-        val productDetailsParamsList =
-            listOf(
-                BillingFlowParams.ProductDetailsParams.newBuilder()
-                    .setProductDetails(productDetails)
-                    .setOfferToken(offerToken)
-                    .build()
-            )
+        val productDetailsParamsList = listOf(
+            BillingFlowParams.ProductDetailsParams.newBuilder()
+                .setProductDetails(productDetails)
+                .setOfferToken(offerToken)
+                .build()
+        )
         val billingResult = billingClient.launchBillingFlow( // results delivered > onPurchasesUpdated()
             theActivity,
             BillingFlowParams.newBuilder()
                 .setProductDetailsParamsList(productDetailsParamsList)
                 .build()
         )
+        MTLog.d(this, "launchBillingFlow() > billing flow launch result: ${billingResult.toStringPlus(short = true)})")
         if (billingResult.responseCode != BillingResponseCode.OK) {
             MTLog.w(this, "Error while launching billing flow! ${billingResult.responseCode}: ${billingResult.debugMessage}")
         }
         return billingResult.responseCode == BillingResponseCode.OK
     }
 
-    private fun handlePurchase(purchase: Purchase) {
-        if (!purchase.isAcknowledged) {
-            acknowledgePurchase(purchase.purchaseToken)
-        }
-        setCurrentSubscription(
-            purchase.products
-                .firstOrNull { product ->
-                    product.isNotEmpty()
-                }.orEmpty()
-        )
+    override val hasBillingConfig: LiveData<Boolean?> by lazy {
+        lclPrefRepository.pref.liveDataN(
+            PREF_KEY_HAS_BILLING_CONFIG, PREF_KEY_HAS_BILLING_CONFIG_DEFAULT
+        ).distinctUntilChanged()
     }
 
-    private fun acknowledgePurchase(purchaseToken: String) {
-        billingClient.acknowledgePurchase(
-            AcknowledgePurchaseParams.newBuilder()
-                .setPurchaseToken(purchaseToken)
-                .build()
-        ) { billingResult ->
-            if (billingResult.responseCode != BillingResponseCode.OK) {
-                MTLog.w(this, "Error while acknowledging purchase! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+    private fun queryUserBillingConfig() {
+        MTLog.d(this, "queryUserBillingConfig()")
+        if (!billingClient.isReady) {
+            MTLog.d(this, "queryUserBillingConfig() > SKIP (billing client NOT ready)")
+            return // DO NOTHING (enableAutoServiceReconnection() will retry automatically)
+        }
+        if (billingClientResponseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
+            MTLog.d(this, "queryUserBillingConfig() > SKIP (billing NOT available)")
+            return
+        }
+        billingClient.getBillingConfigAsync(
+            GetBillingConfigParams.newBuilder().build()
+        ) { billingResult: BillingResult, billingConfig: BillingConfig? ->
+            MTLog.d(this, "onBillingConfigResponse(${billingResult.toStringPlus(short = true)}, ${billingConfig?.toStringPlus(short = true)})")
+            if (billingResult.responseCode == BillingResponseCode.OK && billingConfig != null) {
+                MTLog.d(this, "onBillingConfigResponse() > country code: ${billingConfig.countryCode}.")
+                lclPrefRepository.pref.edit {
+                    putBoolean(PREF_KEY_HAS_BILLING_CONFIG, true)
+                }
+            } else {
+                MTLog.w(this, "Error while querying user billing config! ${billingResult.responseCode}: ${billingResult.debugMessage}")
             }
         }
-    }
-
-    private fun setCurrentSubscription(productId: String) {
-        if (_currentSubscription == productId) {
-            return // same
-        }
-        this.lclPrefRepository.pref.edit {
-            putString(PREF_KEY_SUBSCRIPTION, productId)
-        }
-        broadcastCurrentProductIdChanged()
-    }
-
-    private fun broadcastCurrentProductIdChanged() {
-        this._listenersWR.keys.forEach { listener ->
-            listener.onBillingResult(this._currentSubscription)
-        }
-    }
-
-    override fun addListener(listener: OnBillingResultListener) {
-        _listenersWR[listener] = null
-        listener.onBillingResult(this._currentSubscription)
-    }
-
-    override fun removeListener(listener: OnBillingResultListener) {
-        _listenersWR.remove(listener)
     }
 }

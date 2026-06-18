@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.fragment
 
+import androidx.core.content.edit
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
@@ -12,15 +15,21 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.data.toRouteDirection
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.latLng
 import org.mtransit.android.data.location
+import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
+import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
+import org.mtransit.android.ui.view.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.navigateF
+import org.mtransit.android.ui.view.common.setOnClickListenerClickable
 import org.mtransit.android.ui.view.map.countPOIInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.position
@@ -32,8 +41,71 @@ import org.mtransit.commons.FeatureFlags
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
-fun POIFragment.startVehicleLocationCountdownRefresh() {
+fun POIFragment.setupViewKt() = this.binding?.apply {
+    fabFavorite.apply {
+        setOnClickListener {
+            analyticsManager.trackButtonClick("fav_fab", this@setupViewKt)
+            val poim = getPoimOrNull()?.takeIf { it.isFavoritable } ?: return@setOnClickListener
+            viewLifecycleOwner.lifecycleScope.launch {
+                favoriteRepository.addOrRemoveFavoriteUI(requireActivity(), poim.poi.uuid)
+            }
+        }
+        setUpFabEdgeToEdge(
+            R.dimen.fab_auto_margin_end,
+            R.dimen.fab_auto_margin_bottom
+        )
+    }
+}
+
+internal fun POIFragment.updateFooter() = binding?.apply {
+    poiListFooter.apply {
+        if (footerManager.isShowLoading) {
+            footerTextTv.isVisible = false
+            progressBar.isVisible = true
+        } else if (footerManager.isShowText) {
+            progressBar.isVisible = false
+            footerTextTv.apply {
+                text = footerManager.text
+                setCompoundDrawablesRelativeWithIntrinsicBounds(footerManager.textStartDrawableRes ?: 0, 0, 0, 0)
+                isVisible = true
+            }
+            root.apply {
+                setOnClickListenerClickable(footerManager.onTextClickListener)
+            }
+        } else {
+            footerTextTv.isVisible = false
+            progressBar.isVisible = false
+        }
+    }
+}
+
+internal fun POIFragment.makePoiListFooterManager() =
+    DefaultPOIListFooterManager(
+        adManager = adManager,
+        analyticsManager = analyticsManager,
+        demoModeManager = demoModeManager,
+        billingManager = billingManager,
+        dataSourcesRepository = dataSourcesRepository,
+        getFragment = { this },
+        getShowLoading = { attachedViewModel?.nearbyPOIs?.value == null },
+        canShowRewardedAd = {
+            !(agencyOrNull?.updateAvailable == true && agencyOrNull?.shouldShowUpdateLayout == true)
+                    && adManager.isRewardedAdAvailableToShow()
+        },
+    )
+
+fun POIFragment.onResumeKt() {
+    viewLifecycleOwner.lifecycleScope.launch {
+        adManager.refreshRewardedAdStatus(this@onResumeKt.requireActivity() as IActivity)
+    }
+}
+
+@JvmOverloads
+fun POIFragment.startVehicleLocationCountdownRefresh(
+    vehicleLocations: Collection<VehicleLocation>? = viewModel?.vehicleLocations?.value,
+) {
     if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+    if (vehicleLocations.isNullOrEmpty()) return
     _vehicleLocationCountdownRefreshJob?.cancel()
     _vehicleLocationCountdownRefreshJob = viewModel?.viewModelScope?.launch {
         while (true) {
@@ -62,7 +134,8 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
             viewModel?.poiList?.value?.let { poiList ->
                 poiList.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
                     val sortedPreviousPOIList = poiList.subList(0, poimIndex).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
-                    val sortedNextPOIList = poiList.subList(poimIndex + 1, poiList.size).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                    val sortedNextPOIList =
+                        poiList.subList(poimIndex + 1, poiList.size).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
                     val previousPOIM = sortedPreviousPOIList.getOrNull(0)
                     val nextPOIM = sortedNextPOIList.getOrNull(0)
                     val nextRelevantPOIM = nextPOIM ?: previousPOIM  // next or previous
@@ -182,6 +255,7 @@ fun POIFragment.getPOI(position: Int): POIManager? {
 
 fun POIFragment.onMapClick(): Boolean {
     if (!FragmentUtils.isFragmentReady(this)) return false
+    analyticsManager.trackButtonClick("map_click", this)
     val poim = getPoimOrNull() ?: return false
     if (FeatureFlags.F_NAVIGATION) {
         val navController = NavHostFragment.findNavController(this)
@@ -192,14 +266,12 @@ fun POIFragment.onMapClick(): Boolean {
         }
         when (poim.poi) {
             is RouteDirectionStop -> {
-                this.localPreferenceRepository.saveAsync(
-                    LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-                        poim.poi.authority,
-                        poim.poi.route.id,
-                        poim.poi.direction.id,
-                    ),
-                    false, // show map
-                )
+                this.lclPrefRepository.pref.edit {
+                    putBoolean(
+                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(poim.poi.toRouteDirection()),
+                        false, // show map
+                    )
+                }
                 navController.navigateF(
                     R.id.nav_to_rds_route_screen,
                     RDSRouteFragment.newInstanceArgs(poim.poi, this.mapViewController.cameraPosition),
@@ -209,14 +281,18 @@ fun POIFragment.onMapClick(): Boolean {
             }
 
             else -> {
-                this.localPreferenceRepository.saveAsync(
-                    LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
-                    poim.poi.authority,
-                )
-                this.defaultPrefRepository.saveAsync(
-                    DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
-                    false, // show map
-                )
+                this.lclPrefRepository.pref.edit {
+                    putString(
+                        LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
+                        poim.poi.authority,
+                    )
+                }
+                this.defaultPrefRepository.pref.edit {
+                    putBoolean(
+                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
+                        false, // show map
+                    )
+                }
                 navController.navigateF(
                     R.id.nav_to_type_screen,
                     AgencyTypeFragment.newInstanceArgs(poim.poi, this.mapViewController.cameraPosition),
@@ -229,14 +305,12 @@ fun POIFragment.onMapClick(): Boolean {
         val mainActivity = activity as? MainActivity ?: return false
         when (poim.poi) {
             is RouteDirectionStop -> {
-                this.localPreferenceRepository.saveAsync(
-                    LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(
-                        poim.poi.authority,
-                        poim.poi.route.id,
-                        poim.poi.direction.id
-                    ),
-                    false, // show map
-                )
+                this.lclPrefRepository.pref.edit {
+                    putBoolean(
+                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(poim.poi.toRouteDirection()),
+                        false, // show map
+                    )
+                }
                 mainActivity.addFragmentToStack(
                     RDSRouteFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),
                     this,
@@ -244,14 +318,18 @@ fun POIFragment.onMapClick(): Boolean {
             }
 
             else -> {
-                this.localPreferenceRepository.saveAsync(
-                    LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
-                    poim.poi.authority,
-                )
-                this.defaultPrefRepository.saveAsync(
-                    DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
-                    false, // show map
-                )
+                this.lclPrefRepository.pref.edit {
+                    putString(
+                        LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
+                        poim.poi.authority,
+                    )
+                }
+                this.defaultPrefRepository.pref.edit {
+                    putBoolean(
+                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
+                        false, // show map
+                    )
+                }
                 mainActivity.addFragmentToStack(
                     AgencyTypeFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),
                     this,

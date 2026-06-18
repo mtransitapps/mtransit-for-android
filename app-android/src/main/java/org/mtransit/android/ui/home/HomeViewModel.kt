@@ -3,6 +3,7 @@ package org.mtransit.android.ui.home
 import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
 import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,12 +22,14 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
@@ -34,16 +37,15 @@ import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
-import org.mtransit.android.data.dataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.dataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.location.MTLocationProvider
-import org.mtransit.android.provider.location.getNearbyLocationAddress
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.MTActivityWithLocation
@@ -52,6 +54,7 @@ import org.mtransit.android.ui.inappnotification.locationpermission.LocationPerm
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
+import org.mtransit.android.ui.location.UILocationUtils.getLocationString
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -68,6 +71,7 @@ class HomeViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
+    private val defaultPrefRepository: DefaultPreferenceRepository,
     private val locationPermissionProvider: LocationPermissionProvider,
     private val locationProvider: MTLocationProvider,
     private val networkLocationRepository: NetworkLocationRepository,
@@ -106,10 +110,10 @@ class HomeViewModel @Inject constructor(
 
     private val _ipLocation = networkLocationRepository.ipLocation
 
-    private val _nearbyLocationForceReset = MutableLiveData(Event(false))
+    private val _nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
 
-    private val _nearbyLocation: LiveData<Location?> =
-        MediatorLiveData3(deviceLocation, _nearbyLocationForceReset, _ipLocation).switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
+    private val _nearbyLocation: LiveData<Location?> = MediatorLiveData3(deviceLocation, _nearbyLocationForceReset, _ipLocation)
+        .switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
                 if (forceReset) {
@@ -154,11 +158,26 @@ class HomeViewModel @Inject constructor(
         it != null
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    val nearbyLocationAddress: LiveData<String?> = _nearbyLocation.switchMap { nearbyLocation ->
+    private val _distanceUnitsPref = this.defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
+    ).distinctUntilChanged()
+
+    private val _locationAddress: LiveData<Address> = _nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(locationProvider.getNearbyLocationAddress(nearbyLocation))
+            nearbyLocation ?: return@liveData
+            LocationUtils.getLocationAddress(appContext, nearbyLocation)
+                ?.let {
+                    emit(it)
+                }
         }
     }
+
+    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(_nearbyLocation, _locationAddress, _distanceUnitsPref)
+        .map { (nearbyLocation, locationAddress, distanceUnitsPref) ->
+            nearbyLocation ?: return@map null
+            distanceUnitsPref ?: return@map null
+            getLocationString(this.appContext, locationAddress, nearbyLocation.accuracy, distanceUnitsPref)
+        }
 
     override val newLocationAvailable: LiveData<Boolean?> =
         MediatorLiveData2(_nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
@@ -367,7 +386,7 @@ class HomeViewModel @Inject constructor(
         // TODO latter optimize val optLastArea = if (optLastAroundDiff == null) null else LocationUtils.getArea(lat, lng, optLastAroundDiff)
         val aroundDiff = ad.aroundDiff
         val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
-        val hideBookingRequired = lclPrefRepository.getValue(
+        val hideBookingRequired = lclPrefRepository.pref.getBoolean(
             LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
         )
         val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {

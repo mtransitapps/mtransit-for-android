@@ -50,7 +50,7 @@ val News.hasImagesOrVideoThumbnail: Boolean
 // region Twitter
 
 val News.isTwitterVideo: Boolean
-    get() = this.imageUrls.any { it.isTwitterVideo }
+    get() = this.imageUrls.any { it.isTwitterVideo } || this.textHTML.contains("https://video.twimg.com/ext_tw_video/")
 
 val NewsImage.isTwitterVideo: Boolean
     get() = this.imageUrl.contains("video_thumb")

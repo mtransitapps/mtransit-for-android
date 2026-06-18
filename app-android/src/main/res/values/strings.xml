@@ -91,7 +91,7 @@
     <string name="no_favorites">No favorites.</string>
     <string name="no_favorites_details">Browse the app or use the search 🔍 feature to find stops or stations you need to access quickly.\n\nYou can also create folders 📁 to group them together.</string>
     <string name="favorite_removed">Favorite removed.</string>
-    <string name="favorite_removed_to_folder_and_folder">Favorite removed from %s.</string>
+    <string name="favorite_removed_from_folder_and_folder">Favorite removed from %s.</string>
     <string name="favorite_moved">Favorite moved.</string>
     <string name="favorite_moved_to_folder_and_folder">Favorite moved to %s.</string>
     <string name="favorite_added">Favorite added.</string>
@@ -252,61 +252,88 @@
     <string name="support_subs_pref_title">Support MonTransit</string>
     <string name="support_subs_pref_summary">Hide ads and support MonTransit development.</string>
     <string name="support_title">Support MonTransit</string>
-    <string name="support_about">MonTransit is one of the many apps built with the open-data published by transit agencies.\nUnlike other apps who receive money from tickets, taxes or investors, MonTransit is an independent self-founded, free and open-source project.\nYour support will brings app improvements faster for everyone.</string>
+    <string name="support_about">MonTransit is one of the many apps built with the freely accessible open-data published by transit agencies.\nUnlike other apps who receive money from tickets or passes, taxes or private investors, MonTransit is an independent self-funded, free and open-source project.\nYour support will bring app improvements faster for everyone, in cities big and small.</string>
+    <string name="support_about_short_w_more">Hide ads and support MonTransit development. More&#8230;</string>
     <string name="support_basic_title">Basic</string>
     <string name="support_basic_description">Less Ads</string>
     <string name="support_pro_title">Pro</string>
     <string name="support_pro_description">No Ads</string>
     <string name="support_start">Start</string>
     <string name="support_start_and_days_trial">Start %d-day free trial</string>
-    <string name="support_cancel_anytime">Cancel anytime.</string>
-    <string name="support_link_paid_tasks_incentive">No money? Click here to earn Google Play credit by answering quick surveys from Google.</string>
+    <string name="support_cancel_anytime">Cancel any time on Google Play.</string>
+    <string name="support_link_paid_tasks_incentive">Too expensive? Click here to earn Play credit by answering quick surveys from Google.</string>
+    <string name="support_link_paid_tasks_incentive_formatted">Too expensive? Click here to <b>earn Play credit</b> by answering quick surveys from Google.</string>
     <string name="support_subs_cancel_pref_title">Thanks for supporting MonTransit!</string>
-    <string name="support_subs_cancel_pref_summary">Cancel anytime.</string>
+    <string name="support_subs_cancel_pref_summary">Cancel any time on Google Play.</string>
     <string name="support_subs_default_failure_message">:(</string>
     <string name="support_subs_user_canceled_message">Maybe another time.</string>
     <string name="support_subs_authenticity_check_fail_message" tools:ignore="UnusedResources">Cannot verify authenticity!</string>
     <string name="support_subs_purchase_successful_message" tools:ignore="UnusedResources">Thank You :)</string>
     <string name="support_subs_pick_price">Pick your price ;)</string>
-    <string name="support_subs_try_cancel">(1 month free, cancel anytime)</string>
-    <string name="support_subs_buy_with_play">Buy with Google Play</string>
-    <string name="support_subs_price_and_period_separator"> / </string>
-    <string name="support_every_week">week</string>
-    <string name="support_every_month">month</string>
-    <string name="support_every_year">year</string>
-    <string name="support_paid_tasks_incentive">No money? Earn Google Play credit by answering quick surveys from Google.</string>
-    <string name="support_paid_tasks_incentive_open_btn">Open Google Opinion Rewards</string>
-    <string name="support_paid_tasks_incentive_download_btn">Download Google Opinion Rewards</string>
-    <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
-    <string name="support_watch_rewarded_ad_status_until_and_date">Ad-free until %s</string>
-    <plurals name="support_watch_rewarded_ad_btn_and_days">
-        <item quantity="one">Watch an ad to\nget %d day ad-free</item>
-        <item quantity="other">Watch an ad to\nget %d days ad-free</item>
+    <string name="support_subs_try_cancel">(cancel any time on Google Play)</string>
+    <string name="support_subs_buy_with_play">Subscribe with Google Play</string>
+    <string name="support_subs_start_trial">Start free trial</string>
+    <!-- Note: for hyphenated compound adjectives, English uses the singular form (e.g., "7-day", "2-week", "3-month") -->
+    <plurals name="support_subs_start_trial_and_days">
+        <item quantity="one">Start %d-day free trial</item>
+        <item quantity="other">Start %d-day free trial</item>
     </plurals>
-    <plurals name="support_watch_rewarded_ad_btn_more_and_days">
-        <item quantity="one">Watch an ad to\nget +%d day ad-free</item>
-        <item quantity="other">Watch an ad to\nget +%d days ad-free</item>
+    <plurals name="support_subs_start_trial_and_weeks">
+        <item quantity="one">Start %d-week free trial</item>
+        <item quantity="other">Start %d-week free trial</item>
+    </plurals>
+    <plurals name="support_subs_start_trial_and_months">
+        <item quantity="one">Start %d-month free trial</item>
+        <item quantity="other">Start %d-month free trial</item>
+    </plurals>
+    <string name="support_every_week">week</string>
+    <string name="support_weekly_short">Weekly</string>
+    <string name="support_every_month">month</string>
+    <string name="support_monthly_short">Monthly</string>
+    <string name="support_every_year">year</string>
+    <string name="support_yearly_short">Yearly</string>
+    <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
+    <string name="support_watch_rewarded_ad_btn" tools:ignore="UnusedResources">Watch ad</string>
+    <plurals name="support_watch_rewarded_ad_btn_and_days">
+        <item quantity="one">Click here to get %d-day ad-free by watching an ad.</item>
+        <item quantity="other">Click here to get %d-day ad-free by watching an ad.</item>
+    </plurals>
+    <plurals name="support_watch_rewarded_ad_btn_and_days_formatted">
+        <item quantity="one"><![CDATA[Click here to <b>get %d-day ad-free</b> by watching an ad.]]></item>
+        <item quantity="other"><![CDATA[Click here to <b>get %d-day ad-free</b> by watching an ad.]]></item>
+    </plurals>
+    <plurals name="support_watch_rewarded_ad_btn_more_and_days" tools:ignore="UnusedResources">
+        <item quantity="one">Click here to get +%d-day ad-free by watching an ad.</item>
+        <item quantity="other">Click here to get +%d-day ad-free by watching an ad.</item>
+    </plurals>
+    <plurals name="support_watch_rewarded_ad_btn_more_and_days_formatted">
+        <item quantity="one"><![CDATA[Click here to <b>get +%d-day ad-free</b> by watching an ad.]]></item>
+        <item quantity="other"><![CDATA[Click here to <b>get +%d-day ad-free</b> by watching an ad.]]></item>
     </plurals>
     <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
     <string name="support_watch_rewarded_ad_not_ready">No ad available at this time :(</string>
     <string name="support_watch_rewarded_ad_successful_message">Thank You :)</string>
 
-    <string name="app_update_title_text">Update available</string>
-    <string name="app_update_btn_text">Download the update to get the latest information from the transit agency.</string>
+    <string name="app_update_title_text" tools:ignore="UnusedResources">Update available</string>
+    <string name="app_update_btn_text" tools:ignore="UnusedResources">Download the update to get the latest information from the transit agency.</string>
+    <string name="app_update_btn_text_short">Download app update to get the most up-to-date information.</string>
+    <string name="app_update_btn_text_short_formatted">Download app update to <b>get the most up-to-date information</b>.</string>
 
-    <string name="watch_rewarded_ad_title_text">Ad-free</string>
-    <string name="watch_rewarded_ad_title_text_and_date">Ad-free until %s</string>
-    <plurals name="watch_rewarded_ad_title_text_and_days_quantity" tools:ignore="UnusedResources">
-        <item quantity="one">Ad-free for %d day</item>
-        <item quantity="other">Ad-free for %d days</item>
+    <plurals name="watch_rewarded_ad_btn_and_days" tools:ignore="UnusedResources">
+        <item quantity="one">Watch an ad to get %d-day ad-free</item>
+        <item quantity="other">Watch an ad to get %d-day ad-free</item>
     </plurals>
-    <plurals name="watch_rewarded_ad_btn_and_days">
-        <item quantity="one">Watch an ad to get %d day ad-free</item>
-        <item quantity="other">Watch an ad to get %d days ad-free</item>
+    <plurals name="watch_rewarded_ad_btn_and_days_formatted">
+        <item quantity="one"><![CDATA[Watch an ad to get <b>%d-day ad-free</b>]]></item>
+        <item quantity="other"><![CDATA[Watch an ad to get <b>%d-day ad-free</b>]]></item>
     </plurals>
-    <plurals name="watch_rewarded_ad_btn_more_and_days">
-        <item quantity="one">Watch an ad to get +%d days ad-free</item>
-        <item quantity="other">Watch an ad to get +%d days ad-free</item>
+    <plurals name="watch_rewarded_ad_btn_more_and_days" tools:ignore="UnusedResources">
+        <item quantity="one">Watch an ad to get +%d-day ad-free</item>
+        <item quantity="other">Watch an ad to get +%d-day ad-free</item>
+    </plurals>
+    <plurals name="watch_rewarded_ad_btn_more_and_days_formatted">
+        <item quantity="one"><![CDATA[Watch an ad to get <b>+%d-day ad-free</b>]]></item>
+        <item quantity="other"><![CDATA[Watch an ad to get <b>+%d-day ad-free</b>]]></item>
     </plurals>
 
     <string name="location_permission_rationale_title">Permission required</string>
@@ -318,6 +345,14 @@
         <item quantity="one">Source: %s</item>
         <item quantity="other">Sources: %s</item>
     </plurals>
+    <plurals name="source_label_and_sources_and_time">
+        <item quantity="one">Source: %1$s (%2$s)</item>
+        <item quantity="other">Sources: %1$s (%2$s)</item>
+    </plurals>
 
     <string name="news_video_play">Play</string>
+
+    <string name="deploying_data_in_progress_short">Preparing schedule&#8230;</string>
+    <string name="deploying_data_in_progress_for_short"><![CDATA[Preparing schedule for <b>%s</b>&#8230;]]></string>
+    <string name="deploying_data_done_short">Preparing schedule done&#10003;</string>
 </resources>

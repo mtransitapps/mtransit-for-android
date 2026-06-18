@@ -3,10 +3,11 @@ package org.mtransit.android.task;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.mtransit.android.BuildConfig;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.ServiceUpdate;
@@ -119,7 +120,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	static {
 		Set<String> collection = new HashSet<>();
-		collection.add("org.mtransit.android.ca_montreal_stm_subway" + (BuildConfig.DEBUG ? ".debug" : "")); // + ".stminfo"
+		collection.add("org.mtransit.android.ca_montreal_stm_subway" + (Constants.IS_DEBUG_BUILD ? ".debug" : "") + ".gtfs"); // + ".stminfo"
 		ROUTE_DIRECTION_NOT_SUPPORTED = collection;
 	}
 
@@ -127,9 +128,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
-		if (ROUTE_DIRECTION_NOT_SUPPORTED.contains(routeDirectionM.getAuthority())) {
-			return true; // not skipped // not supported
-		}
+		if (ROUTE_DIRECTION_NOT_SUPPORTED.contains(routeDirectionM.getAuthority())) return true; // not skipped // not supported
 		return findServiceUpdate(
 				routeDirectionM.getAuthority(),
 				routeDirectionM.getRouteDirection().getUUID(),
@@ -144,8 +143,9 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	static {
 		Set<String> collection = new HashSet<>();
-		collection.add("org.mtransit.android.ca_laval_stl_bus" + (BuildConfig.DEBUG ? ".debug" : "")); // + ".nextbus"
-		collection.add("org.mtransit.android.ca_montreal_stm_bus" + (BuildConfig.DEBUG ? ".debug" : "")); // + ".stminfoapi"
+		collection.add("org.mtransit.android.ca_laval_stl_bus" + (Constants.IS_DEBUG_BUILD ? ".debug" : "") + ".gtfs"); // + ".nextbus"
+		// STM buses now uses new GTFS-like API
+		// collection.add("org.mtransit.android.ca_montreal_stm_bus" + (Constants.IS_DEBUG_BUILD ? ".debug" : "") + ".gtfs"); // + ".stminfoapi"
 		ROUTE_NOT_SUPPORTED = collection;
 	}
 
@@ -153,9 +153,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									 boolean skipIfBusy) {
-		if (ROUTE_NOT_SUPPORTED.contains(routeM.getAuthority())) {
-			return true; // not skipped // not supported
-		}
+		if (ROUTE_NOT_SUPPORTED.contains(routeM.getAuthority())) return true; // not skipped // not supported
 		return findServiceUpdate(
 				routeM.getAuthority(),
 				routeM.getRoute().getUUID(),
@@ -166,23 +164,18 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		);
 	}
 
+	@AnyThread
 	private boolean findServiceUpdate(@NonNull String targetAuthority,
 									  @NonNull String targetUUID,
 									  @NonNull ServiceUpdateLoaderListener mainListener,
 									  @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									  @Nullable Collection<ServiceUpdateLoaderListener> listeners,
 									  boolean skipIfBusy) {
-		if (skipIfBusy && isBusy()) {
-			return false;
-		}
+		if (skipIfBusy && isBusy()) return false;
 		final Collection<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(targetAuthority);
-		if (providers.isEmpty()) {
-			return true;
-		}
+		if (providers.isEmpty()) return true;
 		for (ServiceUpdateProviderProperties provider : providers) {
-			if (provider == null) {
-				continue;
-			}
+			if (provider == null) continue;
 			new ServiceUpdateFetcherCallable(this.appContext,
 					listeners,
 					provider,

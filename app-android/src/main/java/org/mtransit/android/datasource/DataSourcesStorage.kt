@@ -5,7 +5,7 @@ import javax.inject.Singleton
 
 @Suppress("unused")
 @Singleton
-class DataSourcesCache @Inject constructor(
+class DataSourcesStorage @Inject constructor(
     private val dataSourcesDatabase: DataSourcesDatabase,
 ) {
 

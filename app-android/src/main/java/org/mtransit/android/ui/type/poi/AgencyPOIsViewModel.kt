@@ -97,7 +97,7 @@ class AgencyPOIsViewModel @Inject constructor(
             emitSource(
                 defaultPrefRepository.pref.liveData(
                     DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority),
-                    defaultPrefRepository.getValue(
+                    defaultPrefRepository.pref.getBoolean(
                         DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
                         DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
                     )
@@ -117,4 +117,8 @@ class AgencyPOIsViewModel @Inject constructor(
             }
         }
     }
+
+    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+    ).distinctUntilChanged()
 }

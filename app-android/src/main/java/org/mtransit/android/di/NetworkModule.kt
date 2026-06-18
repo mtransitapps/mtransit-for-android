@@ -16,7 +16,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun providesOkHttpClient(@ApplicationContext context: Context): OkHttpClient {
-        return NetworkComponents.getOkHttpClient(context)
+    fun providesOkHttpClient(@ApplicationContext appContext: Context): OkHttpClient {
+        return NetworkComponents.getOkHttpClient(appContext)
     }
 }

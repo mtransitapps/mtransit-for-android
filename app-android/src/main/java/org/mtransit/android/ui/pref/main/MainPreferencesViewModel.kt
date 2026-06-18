@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.pref.main
 
+import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,6 +17,7 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.LanguageManager
 import javax.inject.Inject
 
@@ -76,7 +78,7 @@ class MainPreferencesViewModel @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    val currentSubscription = billingManager.currentSubscription
+    val currentSubsProductId = billingManager.currentSubsProductId
     val hasSubscription = billingManager.hasSubscription
 
     val lang = languageManager.langUserPref
@@ -86,7 +88,7 @@ class MainPreferencesViewModel @Inject constructor(
     ).distinctUntilChanged()
 
     val units: LiveData<String> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_UNITS, DefaultPreferenceRepository.PREFS_UNITS_DEFAULT
+        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
     ).distinctUntilChanged()
 
     val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
@@ -118,10 +120,11 @@ class MainPreferencesViewModel @Inject constructor(
         adManager.resetRewarded()
     }
 
-    fun openAdInspector() {
-        adManager.openAdInspector()
+    fun openAdInspector(activity: IActivity) {
+        adManager.openAdInspector(activity)
     }
 
+    @MainThread
     fun refreshData() {
         fetchFirebaseInstallationToken()
         billingManager.refreshPurchases()

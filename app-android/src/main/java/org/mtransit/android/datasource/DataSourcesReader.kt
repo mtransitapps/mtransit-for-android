@@ -4,17 +4,18 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import android.os.Bundle
-import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.mtransit.android.BuildConfig
+import kotlinx.coroutines.yield
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
+import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.getAllInstalledProvidersWithMetaData
 import org.mtransit.android.commons.getAppLongVersionCode
 import org.mtransit.android.commons.getInstalledProviderWithMetaData
@@ -22,6 +23,8 @@ import org.mtransit.android.commons.getInstalledProvidersWithMetaData
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.isAppInstalled
 import org.mtransit.android.commons.isKeyMT
+import org.mtransit.android.commons.millisToInstant
+import org.mtransit.android.commons.toMillis
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
@@ -30,10 +33,12 @@ import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
+import org.mtransit.android.toDurationLog
 import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.hours
 import org.mtransit.android.commons.R as commonsR
 
 @Singleton
@@ -49,10 +54,19 @@ class DataSourcesReader @Inject constructor(
     companion object {
         private val LOG_TAG: String = DataSourcesReader::class.java.simpleName
 
+        private fun skipNotSupportedPkg(pkg: String) =
+            (SUPPORTED_APPS_PKG.isNotEmpty() && !SUPPORTED_APPS_PKG.contains(pkg))
+                    || NOT_SUPPORTED_APPS_PKG.contains(pkg)
+
+        private val SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) listOf(
+        ) else emptyList()
+
         @Suppress("SpellCheckingInspection")
-        private val NOT_SUPPORTED_APPS_PKG: List<String> = if (BuildConfig.DEBUG) listOf(
+        private val NOT_SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) listOf(
+            "org.mtransit.android.ca_chilliwack_transit_system_bus.debug", // merged into ca_central_fraser_valley_transit_system_bus
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
             "org.mtransit.android.ca_fort_erie_transit_bus.debug", // not supported anymore
+            "org.mtransit.android.ca_fraser_valley_express_bus.debug", // merged into ca_central_fraser_valley_transit_system_bus
             "org.mtransit.android.ca_haut_st_laurent_cithsl_bus.debug", // not supported anymore
             "org.mtransit.android.ca_joliette_ctjm_bus.debug", // not supported anymore
             "org.mtransit.android.ca_lanaudiere_crtl_bus.debug", // not supported anymore
@@ -92,8 +106,10 @@ class DataSourcesReader @Inject constructor(
             // "org.mtransit.android.ca_via_rail_train.debug", // FIXME DEBUG
             // DEBUG
         ) else listOf(
+            "org.mtransit.android.ca_chilliwack_transit_system_bus", // merged into ca_central_fraser_valley_transit_system_bus
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
             "org.mtransit.android.ca_fort_erie_transit_bus", // not supported anymore
+            "org.mtransit.android.ca_fraser_valley_express_bus", // merged into ca_central_fraser_valley_transit_system_bus
             "org.mtransit.android.ca_haut_st_laurent_cithsl_bus", // not supported anymore
             "org.mtransit.android.ca_joliette_ctjm_bus", // not supported anymore
             "org.mtransit.android.ca_lanaudiere_crtl_bus", // not supported anymore
@@ -109,27 +125,13 @@ class DataSourcesReader @Inject constructor(
         )
 
         private const val PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS = "pLclAvailableVersionLastCheck"
-
         private val MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS = TimeUnit.HOURS.toMillis(6L)
+
+        private const val PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS = "pLclSetupRequiredLastCheck"
+        private val MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK_IN_MS = 12.hours
     }
 
     override fun getLogTag() = LOG_TAG
-
-    @get:WorkerThread
-    @set:WorkerThread
-    private var hasSeenDisabledModule: Boolean = LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        get() = lclPrefRepository.getValue(
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        )
-        set(value) {
-            if (hasSeenDisabledModule != value) {
-                lclPrefRepository.pref.edit {
-                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, value)
-                }
-                field = value
-            }
-        }
 
     private val agencyProviderMetaData by lazy { appContext.getString(commonsR.string.agency_provider) }
 
@@ -149,45 +151,28 @@ class DataSourcesReader @Inject constructor(
     private val newsProviderTargetMetaData by lazy { appContext.getString(commonsR.string.news_provider_target) }
 
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
-        if (pkg.isNullOrBlank()) {
-            return false
-        }
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
-            MTLog.d(this, "isAProvider() > SKIP not supported '$pkg .")
+        if (pkg.isNullOrBlank()) return false
+        if (skipNotSupportedPkg(pkg)) {
+            MTLog.d(this, "isAProvider() > SKIP not supported '$pkg'.")
             return false
         }
         pm.getInstalledProvidersWithMetaData(pkg)?.forEach { providerInfo ->
             val providerMetaData: Bundle = providerInfo.metaData ?: return@forEach
-            if (providerMetaData.isKeyMT(agencyProviderMetaData)) {
-                return true
-            }
-            if (agencyOnly) {
-                return false
-            }
-            if (providerMetaData.isKeyMT(statusProviderMetaData)) {
-                return true
-            }
-            if (providerMetaData.isKeyMT(scheduleProviderMetaData)) {
-                return true
-            }
-            if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
-                return true
-            }
-            if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
-                if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
-                    return true
-                }
-            }
+            if (providerMetaData.isKeyMT(agencyProviderMetaData)) return true
+            if (agencyOnly) return false
+            if (providerMetaData.isKeyMT(statusProviderMetaData)) return true
+            if (providerMetaData.isKeyMT(scheduleProviderMetaData)) return true
+            if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) return true
+            @Suppress("SimplifyBooleanWithConstants")
+            if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION && providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) return true
             @Suppress("RedundantIf")
-            if (providerMetaData.isKeyMT(newsProviderMetaData)) {
-                return true
-            }
+            if (providerMetaData.isKeyMT(newsProviderMetaData)) return true
             return false
         }
         return false
     }
 
-    suspend fun update(forcePkg: String? = null): Boolean {
+    internal suspend fun update(forcePkg: String? = null): Boolean {
         var updated = false
         withContext(Dispatchers.IO) {
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
@@ -198,6 +183,8 @@ class DataSourcesReader @Inject constructor(
             lookForNewDataSources(forcePkg) { updated = true }
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
             refreshAvailableVersions(skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
+            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
+            refreshSetupRequired(skipTimeCheck = false) { updated = true }
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
             if (updated) {
                 analyticsManager.setUserProperty(
@@ -216,7 +203,7 @@ class DataSourcesReader @Inject constructor(
         forceAppUpdateRefresh: Boolean = false,
         markUpdated: () -> Unit,
     ) {
-        val lastCheckInMs = lclPrefRepository.getValue(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
+        val lastCheckInMs = lclPrefRepository.pref.getLong(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
         val shortTimeAgo = TimeUtils.currentTimeMillis() - MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
@@ -225,9 +212,10 @@ class DataSourcesReader @Inject constructor(
         }
         var updated = false
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().filter { forcePkg == null || forcePkg == it.pkg }.forEach { agencyProperties ->
+            yield() // stop if canceled
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
-            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            if (skipNotSupportedPkg(pkg)) {
                 MTLog.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
@@ -252,8 +240,49 @@ class DataSourcesReader @Inject constructor(
             }
         }
         if (!skipTimeCheck || updated) {
-            lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
+            lclPrefRepository.pref.edit { putLong(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis()) }
         }
+    }
+
+    internal suspend fun refreshSetupRequired(
+        forcePkg: String? = null,
+        skipTimeCheck: Boolean = false,
+        markUpdated: () -> Unit,
+    ): Boolean {
+        val now = TimeUtilsK.currentInstant()
+        if (!skipTimeCheck) {
+            val lastCheck = lclPrefRepository.pref.getLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, -1L).millisToInstant()
+            if (now < lastCheck + MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK_IN_MS) {
+                MTLog.d(this, "refreshSetupRequired() > SKIP (last successful refresh too recent: ${(now - lastCheck).toDurationLog()} ago)")
+                return false
+            }
+        }
+        var updated = false
+        dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies()
+            .filter { forcePkg == null || forcePkg == it.pkg }
+            .forEach { agencyProperties ->
+                yield() // stop if canceled #SplashScreen
+                val pkg = agencyProperties.pkg
+                val authority = agencyProperties.authority
+                if (skipNotSupportedPkg(pkg)) {
+                    MTLog.d(this, "refreshSetupRequired > SKIP not supported '$pkg .")
+                    return@forEach // skip not supported
+                }
+                this.dataSourceRequestManager.findAgencySetupRequired(authority)?.let { newSetupRequired ->
+                    if (agencyProperties.setupRequired != newSetupRequired) {
+                        MTLog.d(this, "Agency '$authority' > new setup required: $newSetupRequired.")
+                        dataSourcesDatabase.agencyPropertiesDao().update(
+                            agencyProperties.copy(setupRequired = newSetupRequired)
+                        )
+                        markUpdated()
+                        updated = true
+                    }
+                }
+            }
+        if (!skipTimeCheck || updated) { // store last check (if time checked) OR if updated
+            lclPrefRepository.pref.edit { putLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, now.toMillis()) }
+        }
+        return updated
     }
 
     private suspend fun lookForNewDataSources(
@@ -268,11 +297,10 @@ class DataSourcesReader @Inject constructor(
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
         @Suppress("DEPRECATION") // DO request all PKG providers info
         pm.getAllInstalledProvidersWithMetaData().forEach pkg@{ packageInfo ->
+            yield() // stop if canceled
             val pkg = packageInfo.packageName
-            if (!pm.isAppEnabled(pkg)) {
-                return@pkg // skip unknown disabled (processed before)
-            }
-            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            if (!pm.isAppEnabled(pkg)) return@pkg // skip unknown disabled (processed before)
+            if (skipNotSupportedPkg(pkg)) {
                 MTLog.d(this, "lookForNewDataSources() > SKIP not supported '$pkg .")
                 return@pkg // skip not supported
             }
@@ -380,8 +408,9 @@ class DataSourcesReader @Inject constructor(
     ) { // UPDATE NOT-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
         // AGENCY: only apply to agency (other properties are deleted when uninstalled/disabled)
         dataSourcesDatabase.agencyPropertiesDao().getAllNotInstalledOrNotEnabledAgencies().forEach { agencyProperties ->
+            yield() // stop if canceled
             val pkg = agencyProperties.pkg
-            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            if (skipNotSupportedPkg(pkg)) {
                 agencyProperties.let {
                     MTLog.d(this, "Agency '${agencyProperties.authority}' not supported (removed).")
                     dataSourcesDatabase.agencyPropertiesDao().delete(it)
@@ -430,17 +459,18 @@ class DataSourcesReader @Inject constructor(
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
         val knownVehicleLocationProviderProperties = dataSourcesDatabase.vehicleLocationProviderPropertiesDao().getAllVehicleLocationProvider()
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
-        // AGENCY (only one properties kept in cache even when uninstalled/disabled to save refreshing data)
+        // AGENCY (only 1 property kept in cache even when uninstalled/disabled to save refreshing data)
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().forEach { agencyProperties ->
+            yield() // stop if canceled
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
-            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            if (skipNotSupportedPkg(pkg)) {
                 agencyProperties.let {
                     MTLog.d(this, "Agency '$authority' not supported (removed).")
                     dataSourcesDatabase.agencyPropertiesDao().delete(it)
                     markUpdated()
                 }
-                MTLog.d(this, "updateKnownActiveDataSources > SKIP not supported '$pkg .")
+                MTLog.d(this, "updateKnownActiveDataSources() > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
             if (!pm.isAppInstalled(pkg)) { // APP UNINSTALLED
@@ -448,7 +478,9 @@ class DataSourcesReader @Inject constructor(
                 return@forEach
             }
             if (!pm.isAppEnabled(pkg)) { // APP DISABLED #DontKillMyApp
-                hasSeenDisabledModule = true
+                lclPrefRepository.pref.edit {
+                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, true)
+                }
                 updateDisabledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
             }
@@ -587,7 +619,7 @@ class DataSourcesReader @Inject constructor(
     private suspend fun refreshStatusProviderProperties(statusProviderProperties: StatusProviderProperties, markUpdated: () -> Unit) {
         val pkg = statusProviderProperties.pkg
         val authority = statusProviderProperties.authority
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+        if (skipNotSupportedPkg(pkg)) {
             MTLog.d(this, "Status '$authority' not supported")
             dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
             markUpdated()
@@ -628,7 +660,7 @@ class DataSourcesReader @Inject constructor(
     private suspend fun refreshScheduleProviderProperties(scheduleProviderProperties: ScheduleProviderProperties, markUpdated: () -> Unit) {
         val pkg = scheduleProviderProperties.pkg
         val authority = scheduleProviderProperties.authority
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+        if (skipNotSupportedPkg(pkg)) {
             MTLog.d(this, "Schedule '$authority' not supported")
             dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
             markUpdated()
@@ -669,7 +701,7 @@ class DataSourcesReader @Inject constructor(
     private suspend fun refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties: ServiceUpdateProviderProperties, markUpdated: () -> Unit) {
         val pkg = serviceUpdateProviderProperties.pkg
         val authority = serviceUpdateProviderProperties.authority
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+        if (skipNotSupportedPkg(pkg)) {
             MTLog.d(this, "Service Update '$authority' not supported")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
             markUpdated()
@@ -714,7 +746,7 @@ class DataSourcesReader @Inject constructor(
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
         val pkg = vehicleLocationProviderProperties.pkg
         val authority = vehicleLocationProviderProperties.authority
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+        if (skipNotSupportedPkg(pkg)) {
             MTLog.d(this, "Vehicle Location '$authority' not supported")
             dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
             markUpdated()
@@ -755,7 +787,7 @@ class DataSourcesReader @Inject constructor(
     private suspend fun refreshNewsProviderProperties(newsProviderProperties: NewsProviderProperties, markUpdated: () -> Unit) {
         val pkg = newsProviderProperties.pkg
         val authority = newsProviderProperties.authority
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+        if (skipNotSupportedPkg(pkg)) {
             MTLog.d(this, "News '$authority' not supported")
             dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
             markUpdated()

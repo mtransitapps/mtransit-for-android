@@ -1,4 +1,3 @@
-//@file:JvmName("POIFragment") // ANALYTICS
 package org.mtransit.android.ui.poi
 //
 //import android.content.Context
@@ -13,6 +12,7 @@ package org.mtransit.android.ui.poi
 //import android.view.MenuInflater
 //import android.view.MenuItem
 //import android.view.View
+//import androidx.annotation.AnyThread
 //import androidx.core.os.bundleOf
 //import androidx.core.view.isVisible
 //import androidx.fragment.app.viewModels
@@ -103,7 +103,7 @@ package org.mtransit.android.ui.poi
 //
 // override fun getLogTag(): String = this.theLogTag
 //
-// override fun getScreenName(): String = viewModel.uuid.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
+// override val screenName = viewModel.uuid.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 //
 // private val viewModel by viewModels<POIViewModel>()
 //
@@ -244,6 +244,7 @@ package org.mtransit.android.ui.poi
 // }
 //
 // private val rewardedAdListener = object : RewardedAdListener {
+// @AnyThread
 // override fun onRewardedAdStatusChanged() {
 // viewModel.onRewardedAdStatusChanged()
 // }

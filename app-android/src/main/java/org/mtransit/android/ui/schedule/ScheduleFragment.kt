@@ -1,4 +1,3 @@
-@file:JvmName("ScheduleFragment") // ANALYTICS
 package org.mtransit.android.ui.schedule
 
 import android.content.Context
@@ -19,12 +18,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.dp
+import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.getNewOneLineSubtitleForSchedule
 import org.mtransit.android.data.getNewOneLineTitleForSchedule
@@ -36,18 +35,19 @@ import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.common.scrollToPositionWithOffset
 import org.mtransit.android.ui.view.common.start
 import org.mtransit.android.ui.view.common.startMargin
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.android.util.formatTime
 import java.util.TimeZone
 import javax.inject.Inject
 
@@ -97,10 +97,10 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     private val viewModel by viewModels<ScheduleViewModel>()
     private val attachedViewModel
@@ -174,9 +174,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         viewModel.scrolledToNow.observe(viewLifecycleOwner) {
             // NOTHING
         }
-        viewModel.sourceLabel.observe(viewLifecycleOwner) { sourceLabel ->
+        viewModel.sourceLabelAndReadFromSource.observe(viewLifecycleOwner) { (sourceLabel, readFromSource) ->
             binding?.apply {
-                UISourceLabelUtils.setSourceLabelTextView(this.sourceLabel, sourceLabel)
+                UISourceLabelUtils.setSourceLabelTextView(this.sourceLabel, readFromSource, sourceLabel)
             }
         }
         viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
@@ -186,7 +186,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 if (timestamps != null) {
                     if (viewModel.scrolledToNow.value == false) {
                         listAdapter.getScrollToNowPosition()?.let {
-                            list.scrollToPositionWithOffset(it, 48.dp)
+                            list.scrollToPositionWithOffset(it, 48.dpToPx)
                         }
                         viewModel.setScrolledToNow(true)
                     } else if (scrollPosition > 0) {
@@ -200,11 +200,11 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
             listAdapter.showingAccessibility = showAccessibility
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
-        })
+        }
         viewModel.colorInt.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
         }
@@ -227,9 +227,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
     private fun bindLocaleTime(localTimeZone: TimeZone?) = binding?.apply {
         localTimeZone?.let {
             val nowInMs = UITimeUtils.currentTimeToTheMinuteMillis()
-            UITimeUtils.formatTime(context, nowInMs, it)
+            formatTime(context, nowInMs, it)
                 .takeIf { timeLocalTimeZone ->
-                    timeLocalTimeZone != UITimeUtils.formatTime(context, nowInMs, TimeZone.getDefault())
+                    timeLocalTimeZone != formatTime(context, nowInMs, TimeZone.getDefault())
                 }
         }.let { localTimeDifferent ->
             localTime.apply {
@@ -250,7 +250,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             R.id.menu_today -> {
                 binding?.apply {
                     listAdapter.getScrollToNowPosition()?.let {
-                        this.list.scrollToPositionWithOffset(it, 48.dp)
+                        this.list.scrollToPositionWithOffset(it, 48.dpToPx)
                     }
                     viewModel.setScrolledToNow(true)
                 }

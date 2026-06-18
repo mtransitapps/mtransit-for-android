@@ -1,4 +1,3 @@
-@file:JvmName("FavoritesFragment") // ANALYTICS
 package org.mtransit.android.ui.favorites
 
 import android.app.PendingIntent
@@ -9,22 +8,24 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.MainThread
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
-import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener
+import org.mtransit.android.provider.FavoriteRepository
+import org.mtransit.android.provider.favorite.FavoritesUI.showAddFolderDialog
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -39,16 +40,15 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.NewsListDetailFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     DeviceLocationListener,
-    FavoriteUpdateListener,
     ModuleDisabledAwareFragment,
     MenuProvider {
 
@@ -68,7 +68,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     override val viewModel by viewModels<FavoritesViewModel>()
     override val attachedViewModel
@@ -87,13 +87,13 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -102,7 +102,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private var binding: FragmentFavoritesBinding? = null
 
@@ -112,23 +115,23 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager,
         ).apply {
             logTag = this@FavoritesFragment.logTag
             setShowFavorite(false) // all items in this screen are favorites
-            setFavoriteUpdateListener(this@FavoritesFragment)
-            setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY)
+            setShowTypeSectionHeader(POIArrayAdapter.SECTION_TYPE_HEADER_ALL_NEARBY)
             setTimeChangedListener { this@FavoritesFragment.onTimeChanged() }
         }
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.listAdapter.setActivity(this)
+        this.listAdapter.setFragment(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -142,6 +145,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             }
         }
         setupScreenToolbar() // w/ binding
+        listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.oneAgency.observe(viewLifecycleOwner) { oneAgency ->
             updateEmptyLayout(pkg = oneAgency?.pkg)
         }
@@ -179,16 +183,17 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
-            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+            nextMainViewModel.scrollToTopEvent.observeEvent(viewLifecycleOwner) { scroll ->
                 if (scroll) {
                     binding?.listLayout?.list?.setSelection(0)
                 }
-            })
+            }
         }
     }
 
+    @MainThread
     private fun onTimeChanged() {
-         (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun updateEmptyLayout(
@@ -209,10 +214,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 }
             }
         }
-    }
-
-    override fun onFavoriteUpdated() {
-        attachedViewModel?.onFavoriteUpdated()
     }
 
     override fun onResume() {
@@ -245,7 +246,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
-                this.favoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
+                activity?.let {
+                    favoriteRepository.showAddFolderDialog(it)
+                }
                 true // handled
             }
 

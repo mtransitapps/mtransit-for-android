@@ -1,4 +1,3 @@
-@file:JvmName("AgencyTypeFragment") // ANALYTICS
 package org.mtransit.android.ui.type
 
 import android.app.PendingIntent
@@ -13,8 +12,10 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.WorkerThread
 import androidx.core.view.MenuProvider
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -26,7 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -37,6 +38,7 @@ import org.mtransit.android.databinding.FragmentAgencyTypeBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
@@ -48,6 +50,7 @@ import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import kotlin.math.abs
@@ -185,10 +188,12 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
+    override val screenName: String
+        get() = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" }
+            ?: TRACKING_SCREEN_NAME
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     override val viewModel by viewModels<AgencyTypeViewModel>()
     override val attachedViewModel
@@ -272,6 +277,11 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 }
             }
             showSelectedTab()
+            typeImg.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = false) { insets ->
+                updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = insets.top
+                }
+            }
         }
         setupScreenToolbar() // w/ binding
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
@@ -302,6 +312,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         viewModel.tabsVisible.observe(viewLifecycleOwner) { tabsVisible ->
             binding?.apply {
                 tabs.isVisible = tabsVisible
+                updateTypeImage()
             }
         }
         viewModel.selectedTypeAgencyPosition.observe(viewLifecycleOwner) { newLastPageSelected ->
@@ -321,6 +332,11 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         }
         viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
             this.pagerAdapter?.selectedUUID = selectedUUID
+        }
+        viewModel.type.observe(viewLifecycleOwner) {
+            binding?.apply {
+                updateTypeImage()
+            }
         }
         ModuleDisabledUI.onViewCreated(this)
     }
@@ -369,6 +385,12 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
         updateABColorNow()
         binding?.switchView()
+    }
+
+    private fun FragmentAgencyTypeBinding.updateTypeImage() {
+        typeImg.setImageResourceAndVisibility(
+            viewModel.type.value?.iconResId?.takeIf { viewModel.tabsVisible.value == true }
+        )
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {

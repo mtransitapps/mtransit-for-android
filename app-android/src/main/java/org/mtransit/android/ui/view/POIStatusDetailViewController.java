@@ -36,6 +36,7 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusAvailabilityPercent
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
 import org.mtransit.android.ui.common.UISourceLabelUtils;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.android.util.UITimeUtilsExtKt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -326,7 +327,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static final long MIN_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(1L);
-	private static final long MAX_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(86L);
+	private static final long MAX_COVERAGE_IN_MS = TimeUnit.DAYS.toMillis(5L);
 
 	private static void updateScheduleView(@NonNull Context context,
 										   @NonNull CommonStatusViewHolder statusViewHolder,
@@ -399,8 +400,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		UISourceLabelUtils.setSourceLabelTextView(scheduleStatusViewHolder.sourceLabelTv, status);
 		if (localTimeZone != null) {
 			final long nowInMs = UITimeUtils.currentTimeToTheMinuteMillis();
-			final String localTime = UITimeUtils.formatTime(context, nowInMs, localTimeZone);
-			final String deviceTime = UITimeUtils.formatTime(context, nowInMs, TimeZone.getDefault());
+			final String localTime = UITimeUtilsExtKt.formatTime(context, nowInMs, localTimeZone);
+			final String deviceTime = UITimeUtilsExtKt.formatTime(context, nowInMs, TimeZone.getDefault());
 			if (localTime.equals(deviceTime)) {
 				scheduleStatusViewHolder.localTimeTv.setText(null);
 				scheduleStatusViewHolder.localTimeTv.setVisibility(View.GONE);

@@ -2,8 +2,11 @@ package org.mtransit.android.ad.inlinebanner
 
 import android.os.Build
 import android.view.ViewGroup
+import androidx.annotation.MainThread
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdSize #gmaNextGen
+// import com.google.android.libraries.ads.mobile.sdk.banner.AdView #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -17,10 +20,12 @@ import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.IViewFinder
 import org.mtransit.android.ui.view.common.isVisibleOnce
 import org.mtransit.android.util.UIFeatureFlags
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@MainThread
 @Singleton
 class InlineBannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
@@ -36,10 +41,11 @@ class InlineBannerAdManager @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    private val inlineAdBannerLoaded = mutableMapOf<Int, AtomicBoolean>()
+    private val inlineAdBannerLoaded = ConcurrentHashMap<Int, AtomicBoolean>()
 
-    private val setupInlineBannerAdTasks = mutableMapOf<Int, SetupInlineBannerAdTask>()
+    private val setupInlineBannerAdTasks = ConcurrentHashMap<Int, SetupInlineBannerAdTask>()
 
+    @MainThread
     @JvmOverloads
     fun refreshBannerAdStatus(fragment: IFragment, adScreenFragment: IAdScreenFragment?, force: Boolean = false) {
         @Suppress("SimplifyBooleanWithConstants")
@@ -52,7 +58,7 @@ class InlineBannerAdManager @Inject constructor(
         } else { // ELSE IF not showing ads DO
             if (isAdBannerLoaded(fragment)) { // IF ad was loaded DO
                 hideBannerAd(fragment)
-                pauseAd(fragment)
+                onPause(fragment)
             }
         }
     }
@@ -82,12 +88,8 @@ class InlineBannerAdManager @Inject constructor(
     }
 
     private fun setupBannerAd(fragment: IFragment, force: Boolean) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
+        if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) return
         if (!this.globalAdManager.isShowingAds()) {
             logAdsD(this, "setupBannerAd() > SKIP (not showing ads)")
             return
@@ -113,20 +115,25 @@ class InlineBannerAdManager @Inject constructor(
     fun getAdView(adLayout: ViewGroup): AdView? =
         adLayout.findViewById(R.id.inline_banner_ad)
 
-    fun onResume(fragment: IFragment) {
-        resumeAd(fragment)
+    @MainThread
+    fun onResume(viewFinder: IViewFinder) {
+        resumeAd(viewFinder)
+    }
+
+    @MainThread
+    // fun resumeAd(@Suppress("unused") viewFinder: IViewFinder) { #gmaNextGen
+    // DO NOTHING #gmaNextGen
+    fun resumeAd(viewFinder: IViewFinder) {
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(viewFinder)?.let { adLayout ->
+            getAdView(adLayout)?.resume()
+        }
     }
 
     fun adaptToScreenSize(fragment: IFragment) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) {
-            return
-        }
-        if (!this.globalAdManager.isShowingAds()) {
-            return
-        }
+        if (!AdConstants.AD_ENABLED) return
+        if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) return
+        if (!this.globalAdManager.isShowingAds()) return
         if (isAdBannerLoaded(fragment)) {
             showBannerAd(fragment)
         } else {
@@ -134,53 +141,32 @@ class InlineBannerAdManager @Inject constructor(
         }
     }
 
-    private fun resumeAd(viewFinder: IViewFinder) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) {
-            return
-        }
-        val adLayout = getAdLayout(viewFinder)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adView?.resume()
-        }
-    }
-
+    @MainThread
     fun onPause(viewFinder: IViewFinder) {
         pauseAd(viewFinder)
     }
 
-    private fun pauseAd(viewFinder: IViewFinder) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) {
-            return
-        }
-        val adLayout = getAdLayout(viewFinder)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adView?.pause()
+    @MainThread
+    // fun pauseAd(@Suppress("unused") viewFinder: IViewFinder) { #gmaNextGen
+    // DO NOTHING #gmaNextGen
+    fun pauseAd(viewFinder: IViewFinder) {
+        if (!AdConstants.AD_ENABLED) return
+        getAdLayout(viewFinder)?.let { adLayout ->
+            getAdView(adLayout)?.pause()
         }
     }
 
     private fun showBannerAd(viewFinder: IViewFinder) {
-        val adLayout = getAdLayout(viewFinder)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            adView?.isVisibleOnce = true
+        getAdLayout(viewFinder)?.let { adLayout ->
+            getAdView(adLayout)?.isVisibleOnce = true
             adLayout.isVisibleOnce = true
         }
     }
 
     internal fun hideBannerAd(viewFinder: IViewFinder) {
-        val adLayout = getAdLayout(viewFinder)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
+        getAdLayout(viewFinder)?.let { adLayout ->
             adLayout.isVisibleOnce = false
-            adView?.isVisibleOnce = false
+            getAdView(adLayout)?.isVisibleOnce = false
         }
     }
 
@@ -204,16 +190,10 @@ class InlineBannerAdManager @Inject constructor(
     }
 
     fun destroyAd(fragment: IFragment) {
-        if (!AdConstants.AD_ENABLED) {
-            return
-        }
-        if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) {
-            return
-        }
-        val adLayout = getAdLayout(fragment)
-        if (adLayout != null) {
-            val adView = getAdView(adLayout)
-            if (adView != null) {
+        if (!AdConstants.AD_ENABLED) return
+        if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) return
+        getAdLayout(fragment)?.let { adLayout ->
+            getAdView(adLayout)?.let { adView ->
                 try {
                     adView.removeAllViews()
                     adView.destroy()

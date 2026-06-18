@@ -102,14 +102,6 @@
                 tools:visibility="visible" />
 
             <include
-                android:id="@+id/poi_rewarded_ad"
-                layout="@layout/layout_poi_rewarded_ad"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <include
                 android:id="@+id/poi_nearby_pois_title"
                 layout="@layout/layout_poi_nearby_pois_title"
                 android:visibility="gone"
@@ -121,13 +113,13 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone"
+                tools:background="#00ff00"
+                tools:minHeight="100dp"
                 tools:visibility="visible" />
 
-            <!-- scroll padding -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/list_view_item_height"
-                android:background="@null" />
+            <include
+                android:id="@+id/poi_list_footer"
+                layout="@layout/layout_poi_list_footer" />
 
         </LinearLayout>
 

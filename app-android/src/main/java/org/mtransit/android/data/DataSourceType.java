@@ -81,7 +81,7 @@ public enum DataSourceType {
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.drawable.ic_library_add_black_24dp, //
 			R.id.root_nav_module, //
-			true, true, true, false, false), //
+			true, true, true, false, true), //
 	TYPE_FAVORITE(DataSourceTypeId.FAVORITE, false,//
 			DataSourceStopType.FAVORITE,
 			R.string.agency_type_favorite_short_name, R.string.agency_type_favorite_all, //
@@ -168,7 +168,7 @@ public enum DataSourceType {
 
 	@NonNull
 	public CharSequence getPoiShortName(@NonNull Context context) {
-		if (this.stopType == DataSourceStopType.PLACE) {
+		if (this.stopType == DataSourceStopType.PLACE || this.stopType == DataSourceStopType.MODULE) {
 			return context.getString(this.stopType.getStopsStringResId());
 		}
 		return context.getString(R.string.agency_type_stops_short_name,
@@ -289,17 +289,14 @@ public enum DataSourceType {
 		@Override
 		public int compare(@NonNull DataSourceType lType, @NonNull DataSourceType rType) {
 			final Context context = this.contextWR.get();
-			if (context == null) {
-				return ComparatorUtils.SAME;
-			}
-			if (lType.equals(rType)) {
-				return ComparatorUtils.SAME;
-			}
+			if (context == null) return ComparatorUtils.SAME;
+			if (lType.equals(rType)) return ComparatorUtils.SAME;
 			if (TYPE_MODULE.equals(lType)) {
 				return ComparatorUtils.AFTER;
 			} else if (TYPE_MODULE.equals(rType)) {
 				return ComparatorUtils.BEFORE;
-			} else if (TYPE_PLACE.equals(lType)) {
+			}
+			if (TYPE_PLACE.equals(lType)) {
 				return ComparatorUtils.AFTER;
 			} else if (TYPE_PLACE.equals(rType)) {
 				return ComparatorUtils.BEFORE;
@@ -329,9 +326,7 @@ public enum DataSourceType {
 		public int compare(@NonNull POIManager lPoim, @NonNull POIManager rPoim) {
 			final AgencyProperties lAgency = this.dataSourcesRepository.getAgency(lPoim.poi.getAuthority());
 			final AgencyProperties rAgency = this.dataSourcesRepository.getAgency(rPoim.poi.getAuthority());
-			if (lAgency == null || rAgency == null) {
-				return 0;
-			}
+			if (lAgency == null || rAgency == null) return ComparatorUtils.SAME;
 			final int lShortNameResId = lAgency.getSupportedType().getShortNameResId();
 			final int rShortNameResId = rAgency.getSupportedType().getShortNameResId();
 			final String lShortName = this.appContext.getString(lShortNameResId);

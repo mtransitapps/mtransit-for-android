@@ -15,12 +15,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.data.distinctByOriginalId
-import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.UIServiceUpdates
 import org.mtransit.android.databinding.FragmentDialogServiceUpdatesBinding
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
-import org.mtransit.android.ui.common.UISourceLabelUtils.setSourceLabelTextView
+import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -93,7 +92,7 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
         return super.onCreateDialog(savedInstanceState).apply {
             behavior = (this as? BottomSheetDialog)?.behavior
                 ?.apply {
-                    resources.getDimensionInt(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
+                    resources.getDimensionPixelSize(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
                         peekHeight = it
                     }
                 }
@@ -118,6 +117,9 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
         viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner) {
             updateServiceUpdatesView()
         }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
     }
 
     private fun updateServiceUpdatesView(
@@ -139,16 +141,16 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
             val hasServiceUpdatesToShow = serviceUpdatesHTMLText.isNotEmpty()
             serviceUpdateText.apply {
                 val hasWarning = UIServiceUpdates.hasWarnings(serviceUpdates)
-                setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(serviceUpdatesHTMLText), false), TextView.BufferType.SPANNABLE)
+                setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtmlLegacy(serviceUpdatesHTMLText), false), TextView.BufferType.SPANNABLE)
                 movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
                     this@ServiceUpdatesDialog.dismiss()
-                    LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
+                    LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowserPref.value)
                 }
                 setBackgroundResource(
                     if (hasWarning) R.drawable.service_update_warning else R.drawable.service_update_info
                 )
             }
-            setSourceLabelTextView(sourceLabel, serviceUpdates)
+            UISourceLabelUtils.setSourceLabelTextView(sourceLabel, serviceUpdates)
             root.isVisible = hasServiceUpdatesToShow
             emptyLayout.isVisible = !hasServiceUpdatesToShow
         }

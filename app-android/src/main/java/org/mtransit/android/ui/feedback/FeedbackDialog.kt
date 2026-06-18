@@ -14,7 +14,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.databinding.FragmentDialogFeedbackBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.common.adater.AgenciesLinkAdapter
@@ -62,7 +61,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
     private val agenciesAdapter by lazy {
         AgenciesLinkAdapter(AgenciesLinkType.CONTACT_US, onClick = { view, url ->
             activity?.let {
-                LinkUtils.open(view, it, url, getString(commonsR.string.web_browser), false) // force external web browser
+                LinkUtils.open(view, it, url, getString(commonsR.string.web_browser), false, false) // force external web browser
                 behavior?.state = BottomSheetBehavior.STATE_HIDDEN
                 dismissAllowingStateLoss()
             }
@@ -73,7 +72,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
         return super.onCreateDialog(savedInstanceState).apply {
             behavior = (this as? BottomSheetDialog)?.behavior
                 ?.apply {
-                    resources.getDimensionInt(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
+                    resources.getDimensionPixelSize(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
                         peekHeight = it
                     }
                 }

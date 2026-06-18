@@ -1,4 +1,3 @@
-@file:JvmName("MapFragment") // ANALYTICS
 package org.mtransit.android.ui.map
 
 import android.app.PendingIntent
@@ -16,6 +15,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
@@ -87,13 +87,13 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             putInt(MapViewModel.EXTRA_INCLUDE_TYPE_ID, optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT)
         }
 
-        private const val TOP_PADDING_SP = 64
-        private const val BOTTOM_PADDING_SP = 0
+        private const val TOP_PADDING_DP = 64
+        private const val BOTTOM_PADDING_DP = 0
     }
 
     override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     override val viewModel by viewModels<MapViewModel>()
     override val attachedViewModel
@@ -107,6 +107,9 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
@@ -138,14 +141,14 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             logTag,
             null, // DO NOTHING (not linked with list adapter)
             mapListener,
-            true,
+            false,
             true,
             true,
             false,
             false,
             false,
-            TOP_PADDING_SP,
-            BOTTOM_PADDING_SP,
+            TOP_PADDING_DP,
+            BOTTOM_PADDING_DP,
             false,
             true,
             true,
@@ -161,7 +164,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDataSourcesRepository(dataSourcesRepository)
+            setDI(dataSourcesRepository, lclPrefRepository)
             onAttach(requireActivity())
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }
@@ -176,7 +179,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
-            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
         }
         setupScreenToolbar() // w/ binding
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
@@ -331,7 +334,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun isABStatusBarTransparent() = true
 
-    override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE
+    override fun isABOverrideGradient() = hasToolbar() || UIFeatureFlags.F_EDGE_TO_EDGE
 
     override fun getABTitle(context: Context?) = context?.let { makeABTitle(it) } ?: super.getABTitle(null)
 

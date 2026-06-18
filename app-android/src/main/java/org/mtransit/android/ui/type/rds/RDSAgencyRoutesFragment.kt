@@ -1,4 +1,3 @@
-@file:JvmName("RTSAgencyRoutesFragment") // ANALYTICS // do not change to avoid breaking tracking
 package org.mtransit.android.ui.type.rds
 
 import android.content.Context
@@ -17,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.ad.AdManager
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
@@ -28,10 +27,10 @@ import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -70,7 +69,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var adManager: AdManager
+    lateinit var adManager: IAdManager
 
     private var binding: FragmentRdsAgencyRoutesBinding? = null
 
@@ -154,7 +153,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                     isVisible = true
                     setOnClickListener {
                         activity?.let { activity ->
-                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true, viewModel.useInternalWebBrowserPref.value)
                         }
                     }
                 } ?: run {
@@ -162,6 +161,9 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                     setOnClickListener(null)
                 }
             }
+        }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
         }
         viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner) { listInsteadOfGrid ->
             listInsteadOfGrid ?: return@observe
@@ -205,9 +207,9 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(routes.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
-        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { _ ->
+        viewModel.serviceUpdateLoadedEvent.observeEvent(viewLifecycleOwner) { _ ->
             listGridAdapter?.onServiceUpdatesLoaded()
-        })
+        }
     }
 
     private fun calculateNoOfColumns(context: Context, @Suppress("SameParameterValue") columnWidthDp: Float): Int {

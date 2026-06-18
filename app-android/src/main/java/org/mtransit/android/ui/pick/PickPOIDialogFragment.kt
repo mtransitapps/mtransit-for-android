@@ -1,4 +1,3 @@
-@file:JvmName("PickPOIDialogFragment") // ANALYTICS
 package org.mtransit.android.ui.pick
 
 import android.app.Dialog
@@ -17,24 +16,24 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -83,19 +82,22 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private var binding: FragmentDialogPickPoiBinding? = null
 
@@ -114,11 +116,12 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.lclPrefRepository,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@PickPOIDialogFragment.logTag
             setOnClickHandledListener(onClickHandledListener)
@@ -127,14 +130,14 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.adapter.setActivity(this)
+        this.adapter.setFragment(this)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
             behavior = (this as? BottomSheetDialog)?.behavior
                 ?.apply {
-                    resources.getDimensionInt(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
+                    resources.getDimensionPixelSize(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
                         peekHeight = it
                     }
                 }
@@ -155,6 +158,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
         }
+        this.adapter.onCreateView(viewLifecycleOwner)
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
@@ -184,11 +188,11 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
-            if (removed == true) {
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
+            if (removed) {
                 dismiss()
             }
-        })
+        }
     }
 
     override fun onResume() {
