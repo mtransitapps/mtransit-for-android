@@ -52,7 +52,7 @@ import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
-import org.mtransit.android.ui.view.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -140,8 +140,16 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
             getFragment = { this },
-            getShowLoading = { viewModel.loadingPOIs.value == true },
-            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
+            getShowLoading = { attachedViewModel?.loadingPOIs?.value == true },
+            getHideText = {
+                val nearbyPOIs = attachedViewModel?.nearbyPOIs?.value
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                val listItemCount = 3 + // for browse header
+                        nearbyPOIs.size
+                listItemCount < minListItemToNotHide
+            },
         )
     }
 
@@ -231,10 +239,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             setupScreenToolbar(screenToolbarLayout)
         }
         listAdapter.onCreateView(viewLifecycleOwner)
-        billingManager.hasSubscription.observe(viewLifecycleOwner) {
-            listAdapter.notifyDataSetChanged(false)
-        }
-        dataSourcesRepository.readingHasAgenciesEnabled().observe(viewLifecycleOwner) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository) {
             listAdapter.notifyDataSetChanged(false)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
@@ -275,7 +280,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             if (loading == false) {
                 binding?.swipeRefresh?.isRefreshing = false
             } // else do nothing
-            listAdapter.notifyDataSetChanged(false) // footer
         }
         viewModel.hasAgenciesAdded.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(hasAgenciesAdded = it)

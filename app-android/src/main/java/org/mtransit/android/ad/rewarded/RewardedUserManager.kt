@@ -40,7 +40,7 @@ class RewardedUserManager @Inject constructor(
         private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedUserManager::class.java.simpleName}"
 
         private const val REWARDED_UNTIL_NO_VALUE = -1L
-        private const val MAX_LOAD_FOR_NO_SHOW = 33
+        private const val MAX_LOAD_FOR_NO_SHOW = 333
         private const val MIN_SHOW_TO_LOAD_RATIO = 0.07f
     }
 
@@ -62,8 +62,8 @@ class RewardedUserManager @Inject constructor(
             DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT
         )
         val newHasLowLoadShowRatio = when {
-            loadCounts <= 0 -> false
-            showCounts <= 0 -> loadCounts >= MAX_LOAD_FOR_NO_SHOW
+            loadCounts <= 0 -> false // never loaded
+            showCounts <= 0 -> loadCounts >= MAX_LOAD_FOR_NO_SHOW // never showed
             else -> (showCounts.toFloat() / loadCounts) < MIN_SHOW_TO_LOAD_RATIO
         }
         newHasLowLoadShowRatio

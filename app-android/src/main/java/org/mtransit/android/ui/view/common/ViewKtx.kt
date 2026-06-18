@@ -14,6 +14,9 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlin.math.max
+import com.google.android.material.R as materialR
 
 val ViewBinding.context: Context get() = root.context
 
@@ -29,14 +32,17 @@ var TextView.textAndVisibility: CharSequence?
         text = value
     }
 
+@Suppress("unused")
 fun TextView.setTextQuantityText(@PluralsRes resId: Int, quantity: Int) {
     this.text = this.resources.getQuantityText(resId, quantity)
 }
 
+@Suppress("unused")
 fun TextView.setTextQuantityString(@PluralsRes resId: Int, quantity: Int) {
     this.text = this.resources.getQuantityString(resId, quantity)
 }
 
+@Suppress("unused")
 fun TextView.setTextQuantityString(@PluralsRes resId: Int, quantity: Int, vararg formatArgs: Any) {
     this.text = this.resources.getQuantityString(resId, quantity, *formatArgs)
 }
@@ -164,3 +170,23 @@ fun View.prettyId(): String {
     }
     return out.toString()
 }
+
+// https://github.com/material-components/material-components-android/blob/master/lib/java/com/google/android/material/floatingactionbutton/FloatingActionButton.java
+private const val AUTO_MINI_LARGEST_SCREEN_WIDTH = 470
+
+@Px
+fun FloatingActionButton.getSizeDimension() = context.resources.getDimensionPixelSize(
+    when (size) {
+        FloatingActionButton.SIZE_NORMAL -> materialR.dimen.design_fab_size_normal
+        FloatingActionButton.SIZE_MINI -> materialR.dimen.design_fab_size_mini
+        else -> { // FloatingActionButton.SIZE_AUTO
+            val width = context.resources.configuration.screenWidthDp
+            val height = context.resources.configuration.screenHeightDp
+            if (max(width, height) < AUTO_MINI_LARGEST_SCREEN_WIDTH) {
+                materialR.dimen.design_fab_size_mini
+            } else {
+                materialR.dimen.design_fab_size_normal
+            }
+        }
+    }
+)

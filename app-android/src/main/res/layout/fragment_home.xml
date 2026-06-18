@@ -26,11 +26,10 @@
             <include
                 android:id="@id/loading_layout"
                 layout="@layout/layout_loading_large"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
                 android:visibility="gone"
                 tools:visibility="visible" />
             <!-- LIST -->
+            <!-- layout_height="match_parent" needed for header -->
             <include
                 android:id="@id/list_layout"
                 layout="@layout/layout_poi_list"
@@ -42,8 +41,6 @@
             <include
                 android:id="@id/empty_layout"
                 layout="@layout/layout_empty"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
                 android:visibility="gone"
                 tools:visibility="visible" />
 

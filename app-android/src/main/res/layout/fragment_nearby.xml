@@ -35,16 +35,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
         <!-- LOADING -->
         <include
             android:id="@id/loading_layout"
             layout="@layout/layout_loading_large"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:visibility="gone"
             tools:visibility="visible" />
-
         <!-- VIEWPAGER -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@id/view_pager"
@@ -54,13 +50,10 @@
             android:visibility="visible"
             tools:layout="@layout/fragment_nearby_agency_type"
             tools:visibility="visible" />
-
         <!-- EMPTY -->
         <include
             android:id="@id/empty_layout"
             layout="@layout/layout_empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:visibility="gone"
             tools:visibility="visible" />
 

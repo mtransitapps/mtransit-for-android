@@ -49,8 +49,8 @@
     <dimen name="map_type_switch_above_google_logo_margin_bottom">@dimen/baseline_32</dimen>
     <dimen name="map_type_switch_margin_bottom">@dimen/baseline_8</dimen>
 
-    <dimen name="fab_mini_margin_end_above_fab">@dimen/baseline_56</dimen>
     <dimen name="fab_mini_margin_end">@dimen/baseline_8</dimen>
+    <dimen name="fab_mini_margin_end_not_last">@dimen/baseline_0</dimen>
     <dimen name="fab_mini_margin_bottom">@dimen/baseline_8</dimen>
 
     <dimen name="fab_auto_margin_end">@dimen/baseline_16</dimen>

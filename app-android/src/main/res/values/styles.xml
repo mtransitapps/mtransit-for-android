@@ -288,6 +288,8 @@
     <style name="MTTextTertiary">
         <item name="android:alpha">0.70</item>
         <item name="android:drawablePadding">@dimen/baseline_8</item>
+        <item name="android:paddingStart">@dimen/baseline_8</item>
+        <item name="android:paddingEnd">@dimen/baseline_8</item>
         <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:textAppearance">?attr/textAppearanceCaption</item>
         <item name="android:textColor">?android:attr/textColorTertiary</item>
@@ -331,6 +333,11 @@
         <item name="android:layout_marginBottom">@dimen/fab_mini_margin_bottom</item>
     </style>
 
+    <style name="MTFabMiniBottomEndNotLast" parent="@style/MTFabMiniBottomEnd">
+        <item name="android:layout_alignParentEnd">false</item>
+        <item name="android:layout_marginEnd">@dimen/fab_mini_margin_end_not_last</item>
+    </style>
+
     <style name="MTFabAutoBottomEnd" parent="@style/MTFabBottomEnd">
         <item name="fabSize">auto</item>
         <item name="android:layout_marginEnd">@dimen/fab_auto_margin_end</item>
@@ -339,7 +346,7 @@
 
     <style name="MTPOIList">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item><!-- height wrap_content needed to hide last divider -->
 
         <item name="android:drawSelectorOnTop">true</item>
         <item name="android:listSelector">?android:attr/selectableItemBackground</item>

@@ -24,16 +24,14 @@
     <!-- LIST -->
     <include
         android:id="@id/list_layout"
-        layout="@layout/layout_poi_list_padding_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        layout="@layout/layout_poi_list"
         android:visibility="visible"
         tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_service_update"
-        style="@style/MTFabMiniBottomEnd"
-        android:layout_marginEnd="@dimen/fab_mini_margin_end_above_fab"
+        style="@style/MTFabMiniBottomEndNotLast"
+        android:layout_toStartOf="@id/fab_list_map"
         android:contentDescription="@string/menu_action_show_service_updates"
         android:src="@drawable/ic_info_outline_on_surface_16dp"
         android:visibility="gone"
@@ -55,16 +53,12 @@
     <include
         android:id="@id/loading_layout"
         layout="@layout/layout_loading_large"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:visibility="gone"
         tools:visibility="visible" />
     <!-- EMPTY -->
     <include
         android:id="@id/empty_layout"
         layout="@layout/layout_empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:visibility="gone"
         tools:visibility="visible" />
 

@@ -10,12 +10,14 @@
     <ScrollView
         android:id="@id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        tools:background="#0000ff">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:background="#ff00ff">
 
             <org.mtransit.android.ui.view.common.MapViewInScroll
                 android:id="@id/map"

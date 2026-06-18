@@ -2,13 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/list_view_item_height"
+    android:layout_height="wrap_content"
     android:focusable="false"
     android:minHeight="@dimen/list_view_item_height"
     android:paddingStart="@dimen/poi_padding_start_no_extra"
     android:paddingTop="@dimen/poi_padding_top"
     android:paddingEnd="@dimen/poi_padding_end"
-    android:paddingBottom="@dimen/poi_padding_bottom">
+    android:paddingBottom="@dimen/poi_padding_bottom"
+    tools:background="#4DFFFF00">
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -17,8 +18,9 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:indeterminate="true"
+        android:minHeight="@dimen/list_view_item_height"
         android:visibility="gone"
-        tools:visibility="gone" />
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/footer_text_tv"
@@ -26,10 +28,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:gravity="center"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="3"
+        android:minHeight="@dimen/list_view_item_height"
         android:visibility="gone"
-        tools:drawableStartCompat="@drawable/ic_volunteer_activism_black_24"
-        tools:text="@string/support"
+        tools:drawableStartCompat="@drawable/ic_on_demand_video_black_24"
+        tools:layout_marginEnd="77dp"
+        tools:layout_marginStart="77dp"
+        tools:text="@tools:sample/lorem/random"
         tools:visibility="visible" />
 
 </RelativeLayout>

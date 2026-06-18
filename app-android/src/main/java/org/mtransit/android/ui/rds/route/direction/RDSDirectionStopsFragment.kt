@@ -20,6 +20,7 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
@@ -37,12 +38,14 @@ import org.mtransit.android.data.RouteDirectionManager
 import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.common.twoPane
+import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.rds.route.RDSRouteViewModel
@@ -56,6 +59,9 @@ import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
@@ -160,10 +166,16 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
+    lateinit var billingManager: IBillingManager
+
+    @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
+
+    @Inject
+    lateinit var demoModeManager: DemoModeManager
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
@@ -220,6 +232,33 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
     }
 
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            demoModeManager = demoModeManager,
+            billingManager = billingManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { parentFragment as? ABFragment },
+            getShowLoading = { attachedViewModel?.poiList?.value == null },
+            getHideText = {
+                val poiList = attachedViewModel?.poiList?.value
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                val listItemCount = 1 + // for tabs
+                        poiList.size
+                listItemCount < minListItemToNotHide
+            },
+            getTextHorizontalMargin = {
+                binding?.let {
+                    it.computeWidth(it.fabListMap, it.fabServiceUpdate)
+                } ?: 0
+            },
+            canShowRewardedAd = { adManager.canShowRewardedAd() && binding?.fabServiceUpdate?.isVisible == false },
+        )
+    }
+
     private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
@@ -242,6 +281,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 setIgnoredTargetUUIDs(attachedParentViewModel?.routeM?.value?.route?.allUUIDs)
             }
             setTimeChangedListener { this@RDSDirectionStopsFragment.onTimeChanged() }
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
         }
     }
 
@@ -285,7 +326,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                     }
                 }
                 setUpFabEdgeToEdge(
-                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last,
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
                 updateServiceUpdateImg()
@@ -410,6 +451,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
             }
             switchView()
+        }
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository) {
+            this.listAdapter.notifyDataSetChanged(false)
         }
     }
 

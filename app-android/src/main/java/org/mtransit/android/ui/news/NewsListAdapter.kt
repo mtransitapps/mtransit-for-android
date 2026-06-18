@@ -181,22 +181,17 @@ class NewsListAdapter(
         }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (getItemViewType(position)) {
-            ITEM_VIEW_TYPE_MOMENT_SEPARATORS -> {
-                (holder as? MomentSeparatorViewHolder)?.bind(
-                    geMomentItem(position),
-                )
-            }
-
-            ITEM_VIEW_TYPE_NEWS -> {
-                val newsArticle = getNewsItem(position)
-                val selected = isSelected(newsArticle)
-                (holder as? NewsListItemViewHolder)?.bind(
-                    imageManager, position, itemCount, newsArticle, selected, minLines, horizontal,
-                    getTimeFormatter(holder.context),
-                    onClick
-                )
-            }
+        when (holder) {
+            is MomentSeparatorViewHolder -> holder.bind(geMomentItem(position))
+            is NewsListItemViewHolder ->
+                getNewsItem(position).let { newsArticle ->
+                    val selected = isSelected(newsArticle)
+                    holder.bind(
+                        imageManager, position, itemCount, newsArticle, selected, minLines, horizontal,
+                        getTimeFormatter(holder.context),
+                        onClick
+                    )
+                }
 
             else -> throw RuntimeException("Unexpected view to bind $position!")
         }

@@ -63,7 +63,7 @@ class MTBillingManager @Inject constructor(
         private val PREF_KEY_SUBS_PRODUCT_ID_DEFAULT: String? = PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN
 
         private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = null
-        // private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = "f_monthly_subscription_1".takeIf { Constants.DEBUG } // DEBUG
+        // private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = "f_monthly_subscription_1".takeIf { org.mtransit.android.commons.Constants.DEBUG } // DEBUG
 
         private const val BILLING_CLIENT_RESPONSE_CODE_UNKNOWN = 999
     }

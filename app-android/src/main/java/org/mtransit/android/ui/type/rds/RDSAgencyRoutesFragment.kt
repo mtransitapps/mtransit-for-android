@@ -10,20 +10,25 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import com.google.android.material.divider.MaterialDividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.FragmentRdsAgencyRoutesBinding
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
+import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
@@ -31,6 +36,9 @@ import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -71,15 +79,65 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
     @Inject
     lateinit var adManager: IAdManager
 
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    @Inject
+    lateinit var billingManager: IBillingManager
+
+    @Inject
+    lateinit var demoModeManager: DemoModeManager
+
+    @Inject
+    lateinit var dataSourcesRepository: DataSourcesRepository
+
     private var binding: FragmentRdsAgencyRoutesBinding? = null
 
-    private val listItemDecoration: ItemDecoration by lazy { DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL) }
+    private val listItemDecoration: ItemDecoration by lazy {
+        MaterialDividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL).apply {
+            isLastItemDecorated = false
+        }
+    }
 
     private val gridItemDecoration: ItemDecoration by lazy { SpacesItemDecoration(requireContext(), R.dimen.grid_view_spacing) }
 
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            demoModeManager = demoModeManager,
+            billingManager = billingManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { parentFragment as? ABFragment },
+            getShowLoading = { attachedViewModel?.routesM?.value == null },
+            getHideText = {
+                var routesCount = attachedViewModel?.routesM?.value?.size
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                (binding?.listGrid?.layoutManager as? GridLayoutManager)?.spanCount?.let { spanCount ->
+                    routesCount = routesCount.plus(spanCount - 1).div(spanCount) // round up
+                }
+                val listItemCount = 1 + // for tabs
+                        routesCount
+                listItemCount < minListItemToNotHide
+            },
+            getTextHorizontalMargin = {
+                binding?.let {
+                    it.computeWidth(it.fabListGrid, it.fabFares)
+                } ?: 0
+            },
+            canShowRewardedAd = { adManager.canShowRewardedAd() && binding?.fabFares?.isVisible == false },
+        )
+    }
+
     private var listGridAdapter: RDSAgencyRoutesAdapter? = null
 
-    private fun makeListGridAdapter() = RDSAgencyRoutesAdapter(serviceUpdateLoader, this::openRouteScreen).apply {
+    private fun makeListGridAdapter() = RDSAgencyRoutesAdapter(
+        serviceUpdateLoader,
+        poiListFooterManager,
+        this::openRouteScreen,
+    ).apply {
         setAgency(attachedViewModel?.agency?.value)
         setShowingListInsteadOfGrid(attachedViewModel?.showingListInsteadOfGrid?.value)
         submitList(attachedViewModel?.routesM?.value)
@@ -121,7 +179,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             }
             fabFares.apply {
                 setUpFabEdgeToEdge(
-                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last,
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
@@ -190,7 +248,18 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                         if (layoutManager == null || layoutManager !is GridLayoutManager) {
                             removeItemDecoration(listItemDecoration)
                             addItemDecoration(gridItemDecoration)
-                            layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns(requireContext(), 64f))
+                            layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns(requireContext(), 64f)).apply {
+                                spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                                    override fun getSpanSize(position: Int): Int {
+                                        val itemCount = listGridAdapter?.itemCount
+                                            ?: return 1 // default
+                                        return when (position) {
+                                            (itemCount - 1) -> spanCount // last = full row width
+                                            else -> 1 // default
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     if (scrollPosition > 0) {
@@ -200,16 +269,27 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                 listGridAdapter?.setShowingListInsteadOfGrid(listInsteadOfGrid)
                 switchView()
             }
+            updateFooter()
             (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.routesM.observe(viewLifecycleOwner) { routes ->
             listGridAdapter?.setList(routes)
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(routes.isEmpty(), viewModel.agency.value?.pkg, activity)
+            updateFooter()
         }
         viewModel.serviceUpdateLoadedEvent.observeEvent(viewLifecycleOwner) { _ ->
             listGridAdapter?.onServiceUpdatesLoaded()
         }
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.routesM, billingManager, dataSourcesRepository) {
+            updateFooter()
+        }
+    }
+
+    private fun updateFooter() {
+        val adapter = listGridAdapter ?: return
+        val footerPosition = adapter.itemCount - 1
+        listGridAdapter?.notifyItemChanged(footerPosition)
     }
 
     private fun calculateNoOfColumns(context: Context, @Suppress("SameParameterValue") columnWidthDp: Float): Int {
@@ -223,18 +303,21 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             listGridAdapter?.isReady() != true -> {
                 emptyLayout.isVisible = false
                 listGrid.isVisible = false
+
                 loadingLayout.isVisible = true
             }
 
-            listGridAdapter?.itemCount == 0 -> {
+            listGridAdapter?.routeCount == 0 -> {
                 loadingLayout.isVisible = false
                 listGrid.isVisible = false
+
                 emptyLayout.isVisible = true
             }
 
             else -> {
                 emptyLayout.isVisible = false
                 loadingLayout.isVisible = false
+
                 listGrid.isVisible = true
             }
         }

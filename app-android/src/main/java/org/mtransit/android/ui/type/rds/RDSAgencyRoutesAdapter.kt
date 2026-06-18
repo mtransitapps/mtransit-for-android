@@ -17,6 +17,7 @@ import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.IAgencyUIProperties
+import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.LayoutRdsRouteItemBinding
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -26,17 +27,22 @@ import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 import org.mtransit.android.ui.view.common.setPadding
 import org.mtransit.android.ui.view.common.textAndVisibility
+import org.mtransit.android.ui.view.listfooter.FooterViewHolder
 import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.UIRouteUtils
 
 class RDSAgencyRoutesAdapter(
     private val serviceUpdateLoader: ServiceUpdateLoader,
+    private val footerManager: POIListFooterManager,
     private val onClick: (View, RouteManager) -> Unit,
-) : ListAdapter<RouteManager, RDSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
+) : ListAdapter<RouteManager, RecyclerView.ViewHolder>(RoutesDiffCallback),
     MTLog.Loggable {
 
     companion object {
         private val LOG_TAG: String = RDSAgencyRoutesAdapter::class.java.simpleName
+
+        private const val TYPE_ROUTE = 0
+        private const val TYPE_FOOTER = 1
     }
 
     private var theLogTag: String = LOG_TAG
@@ -47,7 +53,7 @@ class RDSAgencyRoutesAdapter(
 
     private var _showingListInsteadOfGrid: Boolean? = null
 
-    private var _listSet: Boolean? = null
+    private var listSet = false
 
     @SuppressLint("NotifyDataSetChanged")
     fun setAgency(agency: IAgencyUIProperties?) {
@@ -72,33 +78,46 @@ class RDSAgencyRoutesAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setList(list: List<RouteManager>?) {
-        submitList(list)
-        if (_listSet == (list != null)) {
-            MTLog.d(this, "setListSet() > SKIP (same: $_listSet)")
-            return
-        }
-        _listSet = list != null
-        notifyDataSetChanged()
+        listSet = list != null
+        submitList(list) // triggers notifyDataSetChanged()/notifyItem()
     }
+
+    val routeCount: Int get() = super.getItemCount()
+
+    override fun getItemCount(): Int = routeCount + 1 // footer
+
+    override fun getItemViewType(position: Int): Int =
+        when (position) {
+            getItemCount() - 1 -> TYPE_FOOTER // last = footer
+            else -> TYPE_ROUTE
+        }
 
     @SuppressLint("NotifyDataSetChanged")
     fun onServiceUpdatesLoaded() {
         notifyDataSetChanged()
     }
 
-    fun isReady() = _agency != null && _showingListInsteadOfGrid != null && _listSet != null
+    fun isReady() = _agency != null && _showingListInsteadOfGrid != null && listSet
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteViewHolder {
-        return RouteViewHolder.from(parent, serviceUpdateLoader)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+        when (viewType) {
+            TYPE_ROUTE -> RouteViewHolder.from(parent, serviceUpdateLoader)
+            TYPE_FOOTER -> FooterViewHolder.from(parent)
+            else -> throw RuntimeException("Unexpected view type $viewType!")
+        }
 
-    override fun onBindViewHolder(holder: RouteViewHolder, position: Int) {
-        holder.bind(
-            getItem(position),
-            _agency,
-            _showingListInsteadOfGrid,
-            onClick
-        )
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is RouteViewHolder -> holder.bind(
+                getItem(position),
+                _agency,
+                _showingListInsteadOfGrid,
+                onClick
+            )
+
+            is FooterViewHolder -> holder.bind(footerManager)
+            else -> throw RuntimeException("Unexpected view type!")
+        }
     }
 
     class RouteViewHolder private constructor(

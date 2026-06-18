@@ -472,38 +472,29 @@ class ScheduleAdapter :
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (getItemViewType(position)) {
-            ITEM_VIEW_TYPE_DAY_SEPARATORS -> {
-                (holder as? DaySeparatorViewHolder)?.bind(
-                    getDayItem(position),
-                    nowToTheMinute,
-                    this.dayDateFormat,
-                    this.localTimeZone,
-                )
-            }
+        when (holder) {
+            is DaySeparatorViewHolder -> holder.bind(
+                getDayItem(position),
+                nowToTheMinute,
+                this.dayDateFormat,
+                this.localTimeZone,
+            )
 
-            ITEM_VIEW_TYPE_HOUR_SEPARATORS -> {
-                (holder as? HourSeparatorViewHolder)?.bind(
-                    getHourItemTimestamp(position),
-                    getHourFormatter(holder.context),
-                    this.localTimeZone,
-                )
-            }
+            is HourSeparatorViewHolder -> holder.bind(
+                getHourItemTimestamp(position),
+                getHourFormatter(holder.context),
+                this.localTimeZone,
+            )
 
-            ITEM_VIEW_TYPE_TIME -> {
-                (holder as? TimeViewHolder)?.bind(
-                    getTimestampItem(position),
-                    nowToTheMinute,
-                    nextTimestamp,
-                    this.optPOIM,
-                    this.showingAccessibility,
-                )
-            }
+            is TimeViewHolder -> holder.bind(
+                getTimestampItem(position),
+                nowToTheMinute,
+                nextTimestamp,
+                this.optPOIM,
+                this.showingAccessibility,
+            )
 
-            ITEM_VIEW_TYPE_LOADING -> {
-                (holder as? LoadingViewHolder)?.bind(
-                )
-            }
+            is LoadingViewHolder -> holder.bind()
 
             else -> throw RuntimeException("Unexpected view to bind $position!")
         }
