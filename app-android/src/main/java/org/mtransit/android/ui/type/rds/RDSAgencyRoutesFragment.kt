@@ -290,8 +290,9 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
     }
 
     private fun updateFooter() {
-        val routeM = attachedViewModel?.routesM?.value ?: return
-        listGridAdapter?.notifyItemChanged(routeM.size)
+        val adapter = listGridAdapter ?: return
+        val footerPosition = adapter.itemCount - 1
+        listGridAdapter?.notifyItemChanged(footerPosition)
     }
 
     private fun calculateNoOfColumns(context: Context, @Suppress("SameParameterValue") columnWidthDp: Float): Int {

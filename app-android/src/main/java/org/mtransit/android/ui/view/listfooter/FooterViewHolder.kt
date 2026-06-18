@@ -2,6 +2,7 @@ package org.mtransit.android.ui.view.listfooter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
@@ -51,7 +52,7 @@ class FooterViewHolder private constructor(
                 footerTextTv.isVisible = false
                 progressBar.isVisible = false
                 root.setOnClickListenerClickable(null)
-                root.isVisible = false
+                root.isInvisible = true // keep empty footer
             }
         }
     }

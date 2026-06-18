@@ -82,14 +82,15 @@ class RDSAgencyRoutesAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setList(list: List<RouteManager>?) {
-        submitList(list)
-        val newListSet = list != null
-        if (listSet == newListSet) {
-            MTLog.d(this, "setListSet() > SKIP (same: ${listSet})")
-            return
+        submitList(list) {
+            val newListSet = list != null
+            if (listSet == newListSet) {
+                MTLog.d(this, "setListSet() > SKIP (same: ${listSet})")
+                return@submitList
+            }
+            listSet = newListSet
+            notifyDataSetChanged()
         }
-        listSet = newListSet
-        notifyDataSetChanged()
     }
 
     val routeCount: Int get() = super.getItemCount()
