@@ -11,7 +11,6 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.concurrent.AtomicBoolean
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.distinctByOriginalId
@@ -31,6 +30,7 @@ import org.mtransit.android.ui.view.common.textAndVisibility
 import org.mtransit.android.ui.view.listfooter.FooterViewHolder
 import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.UIRouteUtils
+import java.util.concurrent.atomic.AtomicBoolean
 
 class RDSAgencyRoutesAdapter(
     private val serviceUpdateLoader: ServiceUpdateLoader,
