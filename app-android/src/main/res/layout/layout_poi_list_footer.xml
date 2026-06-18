@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/poi_padding_top"
     android:paddingEnd="@dimen/poi_padding_end"
     android:paddingBottom="@dimen/poi_padding_bottom"
-    tools:background="#FFFF00">
+    tools:background="#4DFFFF00">
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -29,12 +29,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerInParent="true"
-        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="3"
         android:minHeight="@dimen/list_view_item_height"
         android:visibility="gone"
-        tools:drawableStartCompat="@drawable/ic_volunteer_activism_black_24"
-        tools:text="@string/support"
+        tools:drawableStartCompat="@drawable/ic_on_demand_video_black_24"
+        tools:layout_marginEnd="77dp"
+        tools:layout_marginStart="77dp"
+        tools:text="@tools:sample/lorem/random"
         tools:visibility="visible" />
 
 </RelativeLayout>

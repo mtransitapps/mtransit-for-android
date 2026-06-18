@@ -40,11 +40,13 @@ import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
-import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
@@ -214,7 +216,12 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                         poiList.size
                 listItemCount < minListItemToNotHide
             },
-            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
+            getTextHorizontalMargin = {
+                binding?.let {
+                    it.computeWidth(it.fabListMap, it.fabFares)
+                } ?: 0
+            },
+            canShowRewardedAd = { adManager.canShowRewardedAd() && binding?.fabFares?.isVisible == false },
         )
     }
 

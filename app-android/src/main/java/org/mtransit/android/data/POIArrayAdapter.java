@@ -89,7 +89,7 @@ import org.mtransit.android.ui.view.POIViewUtils;
 import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
-import org.mtransit.android.ui.view.common.ViewKtxKt;
+import org.mtransit.android.ui.view.listfooter.FooterViewHolder;
 import org.mtransit.android.ui.view.poi.BasicPOIViewHolder;
 import org.mtransit.android.ui.view.poi.CommonViewHolder;
 import org.mtransit.android.ui.view.poi.ModuleViewHolder;
@@ -585,42 +585,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@NonNull
 	private View getFooterView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null || !(convertView.getTag() instanceof FooterViewHolder)) {
-			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_footer, parent, false);
-			final FooterViewHolder holder = new FooterViewHolder();
-			holder.progressBar = convertView.findViewById(R.id.progress_bar);
-			holder.textTv = convertView.findViewById(R.id.footer_text_tv);
-			holder.layout = convertView;
+			final FooterViewHolder holder = FooterViewHolder.from(parent);
+			convertView = holder.itemView;
 			convertView.setTag(holder);
 		}
 		final FooterViewHolder holder = (FooterViewHolder) convertView.getTag();
-		if (this.footerManager == null) {
-			convertView.setVisibility(View.GONE);
-			return convertView;
-		}
-		if (this.footerManager.isShowLoading()) {
-			holder.textTv.setVisibility(View.GONE);
-			holder.progressBar.setVisibility(View.VISIBLE);
-			convertView.setVisibility(View.VISIBLE);
-		} else if (this.footerManager.isShowText()) {
-			holder.progressBar.setVisibility(View.GONE);
-			CharSequence footerText = this.footerManager.getText();
-			if (footerText == null) {
-				footerText = holder.textTv.getContext().getString(R.string.world_explored); // DEFAULT
-			}
-			holder.textTv.setText(footerText);
-			final Integer startDrawableRes = this.footerManager.getTextStartDrawableRes();
-			holder.textTv.setCompoundDrawablesRelativeWithIntrinsicBounds(
-					startDrawableRes != null ? startDrawableRes : 0,
-					0,
-					0,
-					0
-			);
-			ViewKtxKt.setOnClickListenerClickable(holder.layout, this.footerManager.getOnTextClickListener());
-			holder.textTv.setVisibility(View.VISIBLE);
-			convertView.setVisibility(View.VISIBLE);
-		} else {
-			convertView.setVisibility(View.GONE);
-		}
+		holder.bind(this.footerManager);
 		return convertView;
 	}
 
@@ -2035,12 +2005,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if (newFav) {
 			notifyDataSetChanged(true);
 		}
-	}
-
-	private static class FooterViewHolder {
-		View progressBar;
-		TextView textTv;
-		View layout;
 	}
 
 	private static class FavoriteFolderHeaderViewHolder {

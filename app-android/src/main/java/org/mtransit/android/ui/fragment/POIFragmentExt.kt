@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.fragment
 
 import androidx.core.content.edit
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigator
@@ -26,10 +25,11 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
-import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.navigateF
-import org.mtransit.android.ui.view.common.setOnClickListenerClickable
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
+import org.mtransit.android.ui.view.listfooter.FooterViewHolder.Companion.bind
 import org.mtransit.android.ui.view.map.countPOIInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.position
@@ -58,25 +58,7 @@ fun POIFragment.setupViewKt() = this.binding?.apply {
 }
 
 internal fun POIFragment.updateFooter() = binding?.apply {
-    poiListFooter.apply {
-        if (footerManager.isShowLoading) {
-            footerTextTv.isVisible = false
-            progressBar.isVisible = true
-        } else if (footerManager.isShowText) {
-            progressBar.isVisible = false
-            footerTextTv.apply {
-                text = footerManager.text
-                setCompoundDrawablesRelativeWithIntrinsicBounds(footerManager.textStartDrawableRes ?: 0, 0, 0, 0)
-                isVisible = true
-            }
-            root.apply {
-                setOnClickListenerClickable(footerManager.onTextClickListener)
-            }
-        } else {
-            footerTextTv.isVisible = false
-            progressBar.isVisible = false
-        }
-    }
+    poiListFooter.bind(footerManager)
 }
 
 internal fun POIFragment.makePoiListFooterManager() =
@@ -89,8 +71,8 @@ internal fun POIFragment.makePoiListFooterManager() =
         getFragment = { this },
         getShowLoading = { attachedViewModel?.nearbyPOIs?.value == null },
         canShowRewardedAd = {
-            !(agencyOrNull?.updateAvailable == true && agencyOrNull?.shouldShowUpdateLayout == true)
-                    && adManager.isRewardedAdAvailableToShow()
+            adManager.canShowRewardedAd()
+                    && !(agencyOrNull?.updateAvailable == true && agencyOrNull?.shouldShowUpdateLayout == true)
         },
         getHideText = {
             val nearbyPOIs = attachedViewModel?.nearbyPOIs?.value

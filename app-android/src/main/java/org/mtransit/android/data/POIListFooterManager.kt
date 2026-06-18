@@ -2,6 +2,7 @@ package org.mtransit.android.data
 
 import android.view.View
 import androidx.annotation.DrawableRes
+import androidx.annotation.Px
 
 interface POIListFooterManager {
 
@@ -10,6 +11,9 @@ interface POIListFooterManager {
     val isShowText: Boolean get() = false
 
     val text: CharSequence? get() = null
+
+    @get:Px
+    val textHorizontalMargin: Int get() = 0
 
     @get:DrawableRes
     val textStartDrawableRes: Int? get() = null

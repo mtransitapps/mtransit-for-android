@@ -20,7 +20,6 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.FragmentRdsAgencyRoutesBinding
@@ -33,11 +32,13 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
-import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -121,7 +122,12 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                         routesCount
                 listItemCount < minListItemToNotHide
             },
-            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
+            getTextHorizontalMargin = {
+                binding?.let {
+                    it.computeWidth(it.fabListGrid, it.fabFares)
+                } ?: 0
+            },
+            canShowRewardedAd = { adManager.canShowRewardedAd() && binding?.fabFares?.isVisible == false },
         )
     }
 

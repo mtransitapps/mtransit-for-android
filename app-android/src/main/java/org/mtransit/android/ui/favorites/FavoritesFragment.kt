@@ -136,7 +136,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 val listItemCount = favoritePOIs.size + dst.size
                 listItemCount < minListItemToNotHide
             },
-            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )
     }
 

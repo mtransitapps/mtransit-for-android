@@ -19,16 +19,15 @@ import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.data.RouteManager
-import org.mtransit.android.databinding.LayoutPoiListFooterBinding
 import org.mtransit.android.databinding.LayoutRdsRouteItemBinding
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
-import org.mtransit.android.ui.view.common.setOnClickListenerClickable
 import org.mtransit.android.ui.view.common.setPadding
 import org.mtransit.android.ui.view.common.textAndVisibility
+import org.mtransit.android.ui.view.listfooter.FooterViewHolder
 import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.UIRouteUtils
 
@@ -106,7 +105,7 @@ class RDSAgencyRoutesAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         when (viewType) {
             TYPE_ROUTE -> return RouteViewHolder.from(parent, serviceUpdateLoader)
-            TYPE_FOOTER -> return FooterViewHolder.from(parent, footerManager)
+            TYPE_FOOTER -> return FooterViewHolder.from(parent)
             else -> throw RuntimeException("Unexpected view type $viewType!")
         }
 
@@ -118,44 +117,8 @@ class RDSAgencyRoutesAdapter(
                 _showingListInsteadOfGrid,
                 onClick
             )
-            is FooterViewHolder -> holder.bind()
+            is FooterViewHolder -> holder.bind(footerManager)
             else -> throw RuntimeException("Unexpected view type!")
-        }
-    }
-
-    class FooterViewHolder private constructor(
-        private val binding: LayoutPoiListFooterBinding,
-        private val footerManager: POIListFooterManager,
-    ) : RecyclerView.ViewHolder(binding.root) {
-        companion object {
-            fun from(parent: ViewGroup, footerManager: POIListFooterManager): FooterViewHolder {
-                val binding = LayoutPoiListFooterBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-                return FooterViewHolder(binding, footerManager)
-            }
-        }
-
-        fun bind() = binding.apply {
-            if (footerManager.isShowLoading) {
-                footerTextTv.isVisible = false
-                progressBar.isVisible = true
-            } else if (footerManager.isShowText) {
-                progressBar.isVisible = false
-                footerTextTv.apply {
-                    text = footerManager.text
-                    setCompoundDrawablesRelativeWithIntrinsicBounds(footerManager.textStartDrawableRes ?: 0, 0, 0, 0)
-                    isVisible = true
-                }
-                root.apply {
-                    setOnClickListenerClickable(footerManager.onTextClickListener)
-                }
-            } else {
-                footerTextTv.isVisible = false
-                progressBar.isVisible = false
-            }
         }
     }
 

@@ -150,7 +150,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                         nearbyPOIs.size
                 listItemCount < minListItemToNotHide
             },
-            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )
     }
 

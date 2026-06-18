@@ -2,8 +2,15 @@ package org.mtransit.android.ui.view.listfooter
 
 import android.content.Context
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.RelativeLayout
+import androidx.annotation.Px
+import androidx.core.view.isVisible
+import androidx.core.view.marginEnd
+import androidx.core.view.marginStart
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.viewbinding.ViewBinding
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -27,13 +34,16 @@ class DefaultPOIListFooterManager(
     private val dataSourcesRepository: DataSourcesRepository,
     private val getFragment: () -> ABFragment?,
     private val getShowLoading: () -> Boolean,
-    private val getHideText: () -> Boolean = { false },
-    private val canShowRewardedAd: () -> Boolean = { adManager.isRewardedAdAvailableToShow() },
+    private val getHideText: () -> Boolean, // additional condition do hide text
+    @get:Px private val getTextHorizontalMargin: () -> Int = { 0 },
+    private val canShowRewardedAd: () -> Boolean = { adManager.canShowRewardedAd() },
 ) : POIListFooterManager, MTLog.Loggable {
 
     companion object {
 
         private val LOG_TAG: String = DefaultPOIListFooterManager::class.java.simpleName
+
+        fun IAdManager.canShowRewardedAd() = isRewardedAdAvailableToShow()
 
         fun getMinListItemToNotHide(context: Context): Int = context.resources.getInteger(R.integer.footer_text_list_min_item)
 
@@ -56,6 +66,30 @@ class DefaultPOIListFooterManager(
             dataSourcesRepository.readingHasAgenciesEnabled().observe(lifecycleOwner) {
                 onChanged()
             }
+        }
+
+        @Px
+        fun ViewBinding.computeWidth(vararg viewsFromEndToStart: View?) = this.root.computeWidth(*viewsFromEndToStart)
+
+        @Px
+        fun View.computeWidth(vararg viewsFromEndToStart: View?): Int {
+            var widthInPx = 0
+            viewsFromEndToStart
+                .filterNotNull()
+                .filter { it.isVisible }
+                .forEach {
+                    (it.marginStart + it.width + it.marginEnd).let { viewTotalWidth ->
+                        when (this) {
+                            is FrameLayout -> widthInPx = viewTotalWidth
+                            is RelativeLayout -> widthInPx += viewTotalWidth
+                            else -> {
+                                MTLog.w(LOG_TAG, "Unexpected footer root view type: ${this.javaClass.simpleName}")
+                                widthInPx += viewTotalWidth
+                            }
+                        }
+                    }
+                }
+            return widthInPx
         }
     }
 
@@ -100,6 +134,8 @@ class DefaultPOIListFooterManager(
                 getFragment()?.context?.getString(R.string.support)
             }
         }
+
+    override val textHorizontalMargin: Int get() = getTextHorizontalMargin()
 
     override val textStartDrawableRes: Int?
         get() {

@@ -54,12 +54,14 @@ import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
@@ -248,7 +250,12 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                         poiList.size
                 listItemCount < minListItemToNotHide
             },
-            canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
+            getTextHorizontalMargin = {
+                binding?.let {
+                    it.computeWidth(it.fabListMap, it.fabServiceUpdate)
+                } ?: 0
+            },
+            canShowRewardedAd = { adManager.canShowRewardedAd() && binding?.fabServiceUpdate?.isVisible == false },
         )
     }
 
