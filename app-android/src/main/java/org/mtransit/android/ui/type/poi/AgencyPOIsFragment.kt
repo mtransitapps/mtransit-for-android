@@ -210,7 +210,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     ?: return@DefaultPOIListFooterManager false
                 val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
                     ?: return@DefaultPOIListFooterManager false
-                poiList.size < minListItemToNotHide
+                val listItemCount = 1 + // for tabs
+                        poiList.size
+                listItemCount < minListItemToNotHide
             },
             canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )

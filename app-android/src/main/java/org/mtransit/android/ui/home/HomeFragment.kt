@@ -75,8 +75,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
         const val TRACKING_SCREEN_NAME = "Home"
 
-        private const val SCREEN_HEIGHT_DEFAULT = 3 // items
-
         @JvmStatic
         fun newInstance(): HomeFragment {
             return HomeFragment()
@@ -148,7 +146,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                     ?: return@DefaultPOIListFooterManager false
                 val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
                     ?: return@DefaultPOIListFooterManager false
-                SCREEN_HEIGHT_DEFAULT + nearbyPOIs.size < minListItemToNotHide
+                val listItemCount = 3 + // for browse header
+                        nearbyPOIs.size
+                listItemCount < minListItemToNotHide
             },
             canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )

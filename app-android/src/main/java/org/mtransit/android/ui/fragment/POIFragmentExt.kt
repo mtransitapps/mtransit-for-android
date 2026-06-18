@@ -99,11 +99,13 @@ internal fun POIFragment.makePoiListFooterManager() =
             val poiHasServiceUpdate = attachedViewModel?.poim?.value?.serviceUpdatesOrNull?.isNotEmpty() == true
             val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
                 ?: return@DefaultPOIListFooterManager false
-            (5 // POI screen top layouts
-                    + nearbyPOIs.size
+            val listItemCount = (2 // top map
+                    + 1 // this POI list item
+                    + 2 // this POI detailed status
+                    + nearbyPOIs.size.let { if (it > 0) it + 1 else it } // nearby section header + nearby POIs
                     + if (latestNewsArticles) 3 else 0
-                    + if (poiHasServiceUpdate) 3 else 0
-                    ) < minListItemToNotHide
+                    + if (poiHasServiceUpdate) 3 else 0)
+            listItemCount < minListItemToNotHide
         },
     )
 

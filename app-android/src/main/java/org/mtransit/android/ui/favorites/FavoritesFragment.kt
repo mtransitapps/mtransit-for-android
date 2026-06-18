@@ -42,10 +42,10 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.NextMainViewModel
 import org.mtransit.android.ui.news.NewsListDetailFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
-import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -132,7 +132,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                     ?: return@DefaultPOIListFooterManager false
                 val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
                     ?: return@DefaultPOIListFooterManager false
-                favoritePOIs.size < minListItemToNotHide
+                val dst = favoritePOIs.map { it.poi.dataSourceTypeId }.distinct()
+                val listItemCount = favoritePOIs.size + dst.size
+                listItemCount < minListItemToNotHide
             },
             canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )

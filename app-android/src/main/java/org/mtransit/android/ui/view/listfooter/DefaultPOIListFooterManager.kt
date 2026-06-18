@@ -76,19 +76,19 @@ class DefaultPOIListFooterManager(
 
     override val isShowLoading get() = getShowLoading()
 
-    override val isShowText
-        get() =
-            dataSourcesRepository.hasAgenciesEnabled()
+    override val isShowText: Boolean
+        get() {
+            return (dataSourcesRepository.hasAgenciesEnabled()
                     && billingManager.hasSubscription.value != true
                     && !demoModeManager.isFullDemo()
-                    && !getHideText()
+                    && !getHideText())
+        }
 
     override val text: CharSequence?
-        get() =
-            if (!isShowText) {
+        get() {
+            return if (!isShowText) {
                 null
             } else if (canShowRewardedAd() && !showSupportInsteadOfRewardedAd) {
-                MTLog.d(LOG_TAG, "adManager.rewardedAdAmountInDays: ${adManager.rewardedAdAmountInDays}")
                 getFragment()?.context?.resources?.getQuantityText(
                     if (adManager.isRewardedNow()) R.plurals.watch_rewarded_ad_btn_more_and_days_formatted
                     else R.plurals.watch_rewarded_ad_btn_and_days_formatted,
@@ -99,15 +99,18 @@ class DefaultPOIListFooterManager(
                 showSupportInsteadOfRewardedAd = true
                 getFragment()?.context?.getString(R.string.support)
             }
+        }
 
     override val textStartDrawableRes: Int?
-        get() = if (!isShowText) {
-            null
-        } else if (canShowRewardedAd() && !showSupportInsteadOfRewardedAd) {
-            R.drawable.ic_on_demand_video_black_24
-        } else {
-            showSupportInsteadOfRewardedAd = true
-            R.drawable.ic_volunteer_activism_black_24
+        get() {
+            return if (!isShowText) {
+                null
+            } else if (canShowRewardedAd() && !showSupportInsteadOfRewardedAd) {
+                R.drawable.ic_on_demand_video_black_24
+            } else {
+                showSupportInsteadOfRewardedAd = true
+                R.drawable.ic_volunteer_activism_black_24
+            }
         }
 
     override val onTextClickListener = View.OnClickListener {

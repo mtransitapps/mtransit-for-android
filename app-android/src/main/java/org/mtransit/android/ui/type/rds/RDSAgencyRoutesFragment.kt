@@ -117,8 +117,9 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                 (binding?.listGrid?.layoutManager as? GridLayoutManager)?.spanCount?.let { spanCount ->
                     routesCount = routesCount.plus(spanCount - 1).div(spanCount) // round up
                 }
-                1 + // for tabs
-                        routesCount < minListItemToNotHide
+                val listItemCount = 1 + // for tabs
+                        routesCount
+                listItemCount < minListItemToNotHide
             },
             canShowRewardedAd = { adManager.isRewardedAdAvailableToShow() },
         )
