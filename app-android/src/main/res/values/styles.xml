@@ -346,7 +346,7 @@
 
     <style name="MTPOIList">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item><!-- height wrap_content hides last divider -->
+        <item name="android:layout_height">wrap_content</item><!-- height wrap_content needed to hide last divider -->
 
         <item name="android:drawSelectorOnTop">true</item>
         <item name="android:listSelector">?android:attr/selectableItemBackground</item>
