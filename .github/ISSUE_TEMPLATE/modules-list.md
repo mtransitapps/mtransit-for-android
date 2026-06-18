@@ -72,6 +72,7 @@ labels: MT
 - [ ] ca-montreal-stm-subway
 - [ ] ca-mont-tremblant-bus
 - [ ] ca-mount-waddington-regional-transit-bus
+- [ ] ca-mrc-haut-st-laurent-bus
 - [ ] ca-mrc-montcalm-transport-collectif-bus
 - [ ] ca-nanaimo-rdn-transit-system-bus
 - [ ] ca-niagara-falls-transit-bus
