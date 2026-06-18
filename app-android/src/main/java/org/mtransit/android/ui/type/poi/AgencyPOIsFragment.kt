@@ -272,7 +272,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             }
             fabFares.apply {
                 setUpFabEdgeToEdge(
-                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
+                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last,
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }

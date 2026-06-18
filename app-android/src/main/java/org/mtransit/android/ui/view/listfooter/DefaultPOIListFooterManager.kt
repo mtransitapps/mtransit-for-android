@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import androidx.annotation.Px
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.core.view.marginEnd
 import androidx.core.view.marginStart
@@ -81,6 +82,7 @@ class DefaultPOIListFooterManager(
                     (it.marginStart + it.width + it.marginEnd).let { viewTotalWidth ->
                         when (this) {
                             is FrameLayout -> widthInPx = maxOf(widthInPx, viewTotalWidth)
+                            is ConstraintLayout,
                             is RelativeLayout -> widthInPx += viewTotalWidth
                             else -> {
                                 MTLog.w(LOG_TAG, "Unexpected footer root view type: ${this.javaClass.simpleName}")

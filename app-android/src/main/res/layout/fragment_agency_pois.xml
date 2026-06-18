@@ -30,8 +30,8 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_fares"
-        style="@style/MTFabMiniBottomEnd"
-        android:layout_marginEnd="@dimen/fab_mini_margin_end_above_fab"
+        style="@style/MTFabMiniBottomEndNotLast"
+        android:layout_toStartOf="@id/fab_list_map"
         android:contentDescription="@string/menu_action_fares"
         android:src="@drawable/ic_payments_black_24"
         android:visibility="gone"

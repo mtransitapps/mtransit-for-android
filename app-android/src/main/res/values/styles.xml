@@ -333,6 +333,11 @@
         <item name="android:layout_marginBottom">@dimen/fab_mini_margin_bottom</item>
     </style>
 
+    <style name="MTFabMiniBottomEndNotLast" parent="@style/MTFabMiniBottomEnd">
+        <item name="android:layout_alignParentEnd">false</item>
+        <item name="android:layout_marginEnd">@dimen/fab_mini_margin_end_not_last</item>
+    </style>
+
     <style name="MTFabAutoBottomEnd" parent="@style/MTFabBottomEnd">
         <item name="fabSize">auto</item>
         <item name="android:layout_marginEnd">@dimen/fab_auto_margin_end</item>
