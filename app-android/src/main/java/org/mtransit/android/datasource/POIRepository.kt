@@ -87,7 +87,7 @@ class POIRepository(
         val poiFilter = commonSetup(POIProviderContract.Filter.getNewUUIDFilter(uuid))
         // 1 & 2: [provider] disk cache only & NOT cache only
         listOf(true, false).forEach { cacheOnly ->
-            poiFilter.cacheOnly = cacheOnly
+            poiFilter.cacheOnly = cacheOnly // POI_FILTER_EXTRA_AVOID_LOADING is similar
             dataSourceRequestManager.findPOI(agency.authority, poiFilter)
                 ?.updateSupportedType(agency)
                 ?.let { newPOIFromModule -> // WITHOUT status OR service update

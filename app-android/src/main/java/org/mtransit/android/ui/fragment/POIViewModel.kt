@@ -181,7 +181,7 @@ class POIViewModel @Inject constructor(
             agency ?: return@liveData
             poi ?: return@liveData
             emit(
-                getPOIList(agency, poi)
+                poiRepository.findPOIMs(agency, getFilter(poi))
                     .apply {
                         if (poi !is RouteDirectionStop) {
                             updateDistanceM(poi.lat, poi.lng)
@@ -192,26 +192,25 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getPOIList(agency: IAgencyProperties, poi: POI) =
-        this.poiRepository.findPOIMs(
-            agency,
-            when (poi) {
-                is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
-                    SqlUtils.getWhereEquals(
-                        GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
-                    )
-                ).apply {
-                    addExtra(
-                        POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
-                        SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
-                    )
-                    cacheOnly = true // RDS = local disk cache
-                }
+    private fun getFilter(poi: POI): POIProviderContract.Filter = when (poi) {
+        is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
+            SqlUtils.getWhereEquals(
+                GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
+            )
+        ).apply {
+            addExtra(
+                POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
+                SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
+            )
+            cacheOnly = true // RDS = local disk cache
+        }
 
-                else -> POIProviderContract.Filter.getNewEmptyFilter()
-                    .apply { cacheOnly = true } // good enough
+        else -> POIProviderContract.Filter.getNewEmptyFilter()
+            .apply {
+                addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
             }
-        )
+    }
 
     private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)
@@ -293,8 +292,8 @@ class POIViewModel @Inject constructor(
             }
             val aroundDiff = ad.aroundDiff
             val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-                addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                cacheOnly = true // nearby = good enough
+                addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
             }
             nearbyAgencies
                 .forEach { nearbyAgency ->
@@ -374,8 +373,8 @@ class POIViewModel @Inject constructor(
                 val aroundDiff = ad.aroundDiff
                 maxDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
                 val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-                    addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                    cacheOnly = true // nearby = good enough
+                    addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                    cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
                 }
                 nearbyPOIs.addAllN(
                     poiRepository.findPOIMs(agency, poiFilter)

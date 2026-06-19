@@ -119,7 +119,7 @@ class FavoritesViewModel @Inject constructor(
                     _hasFavoritesAgencyDisabled.postValue(true)
                 }
                 val poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs)
-                    .apply { this.cacheOnly = cacheOnly }
+                    .apply { this.cacheOnly = cacheOnly } // POI_FILTER_EXTRA_AVOID_LOADING is similar
                 this.poiRepository.findPOIMs(agency, poiFilter)
                     .let { agencyPOIs ->
                         if (agencyPOIs.isNotEmpty()) {

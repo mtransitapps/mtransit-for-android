@@ -391,8 +391,8 @@ class HomeViewModel @Inject constructor(
             LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
         )
         val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-            addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-            cacheOnly = true
+            addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+            cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
             addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
         }
         typeAgencies

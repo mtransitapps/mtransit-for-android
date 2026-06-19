@@ -148,7 +148,8 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         val aroundDiff = ad.aroundDiff
         val nearbyPOIs = mutableListOf<POIManager>()
         val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-            addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+            addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+            cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
         }
         typeAgencies
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
