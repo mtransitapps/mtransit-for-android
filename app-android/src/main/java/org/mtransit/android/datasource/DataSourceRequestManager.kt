@@ -28,11 +28,8 @@ import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocat
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
-import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.JPaths
-import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.util.KeysManager
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
@@ -103,8 +100,6 @@ class DataSourceRequestManager(
         DataSourceManager.findPOIs(appContext, authority, poiFilter).map { it.poi }
     }
 
-    suspend fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
-
     suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager> = withContext(ioDispatcher) {
         DataSourceManager.findPOIs(appContext, authority, poiFilter)
     }
@@ -139,15 +134,11 @@ class DataSourceRequestManager(
     }
 
     suspend fun findRDSVehicleLocations(
-        vehicleLocationProviderProperties: VehicleLocationProviderProperties,
+        authority: String,
         filter: VehicleLocationProviderContract.Filter
     ): List<VehicleLocation>? = withContext(ioDispatcher) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@withContext null
-        DataSourceManager.findVehicleLocations(
-            appContext,
-            vehicleLocationProviderProperties.authority,
-            filter.appendProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))
-        )
+        DataSourceManager.findVehicleLocations(appContext, authority, filter.appendProvidedKeys(keysManager.getKeysMap(authority)))
     }
 
     suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {
@@ -204,10 +195,10 @@ class DataSourceRequestManager(
         }
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
-        DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)
+        DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter) // no WWW = no cache only needed
     }
 
-    suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter) = withContext(ioDispatcher) {
-        DataSourceManager.findNews(appContext, newsProvider.authority, newsFilter.appendProvidedKeys(keysManager.getKeysMap(newsProvider.authority)))
+    suspend fun findNews(authority: String, newsFilter: NewsProviderContract.Filter) = withContext(ioDispatcher) {
+        DataSourceManager.findNews(appContext, authority, newsFilter.appendProvidedKeys(keysManager.getKeysMap(authority)))
     }
 }

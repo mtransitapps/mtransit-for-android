@@ -152,7 +152,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
                 trigger ?: return@liveData // skip when not visible
                 emit(
                     vehicleLocationProviders.mapNotNull {
-                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rd).apply { setInFocus(true) })
+                        dataSourceRequestManager.findRDSVehicleLocations(it.authority, VehicleLocationProviderContract.Filter(rd).apply { setInFocus(true) })
                     }.flatten()
                 )
             }

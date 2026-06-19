@@ -111,7 +111,7 @@ class NewsRepository @Inject constructor(
             .map { provider ->
                 async<List<News>?> {
                     ensureActive()
-                    dataSourceRequestManager.findNews(provider, filter)
+                    dataSourceRequestManager.findNews(provider.authority, filter)
                 }
             }
             .awaitAll()
@@ -158,5 +158,5 @@ class NewsRepository @Inject constructor(
     private suspend fun loadNewsArticle(
         provider: NewsProviderProperties,
         filter: NewsProviderContract.Filter,
-    ) = dataSourceRequestManager.findNews(provider, filter)?.firstOrNull()
+    ) = dataSourceRequestManager.findNews(provider.authority, filter)?.firstOrNull()
 }

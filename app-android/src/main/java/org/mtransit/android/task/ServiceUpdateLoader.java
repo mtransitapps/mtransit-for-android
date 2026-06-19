@@ -195,6 +195,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return true;
 	}
 
+	@SuppressLint("DeprecatedCall")
 	@SuppressWarnings("deprecation") // FIXME
 	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, ServiceUpdates, List<ServiceUpdate>> {
 

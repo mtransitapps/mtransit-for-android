@@ -1,5 +1,7 @@
 package org.mtransit.android.task;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -128,6 +130,7 @@ public class StatusLoader implements MTLog.Loggable {
 		return true; // not skipped
 	}
 
+	@SuppressLint("DeprecatedCall")
 	@SuppressWarnings("deprecation")
 	private static class StatusFetcherCallable extends MTCancellableAsyncTask<Void, POIStatus, POIStatus> {
 
