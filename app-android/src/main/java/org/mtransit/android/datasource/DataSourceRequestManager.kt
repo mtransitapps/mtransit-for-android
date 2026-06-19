@@ -85,44 +85,49 @@ class DataSourceRequestManager(
     }
 
     suspend fun ping(agencyAuthority: String) = withContext(ioDispatcher) {
-        DataSourceManager.ping(appContext, agencyAuthority)
+        DataSourceManager.ping(appContext, agencyAuthority) // no WWW = no cache only needed
     }
 
-    suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = withContext(ioDispatcher) {
-        DataSourceManager.findPOI(appContext, authority, poiFilter)?.poi
-    }
+    // region POI
+
+    suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = findPOIM(authority, poiFilter)?.poi
 
     suspend fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? = withContext(ioDispatcher) {
-        DataSourceManager.findPOI(appContext, authority, poiFilter)
+        gateNotCacheOnly(authority, poiFilter) {
+            DataSourceManager.findPOIM(appContext, authority, poiFilter)
+        }
     }
 
-    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI> = withContext(ioDispatcher) {
-        DataSourceManager.findPOIs(appContext, authority, poiFilter).map { it.poi }
-    }
+    @Suppress("unused")
+    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI> = findPOIMs(authority, poiFilter).map { it.poi }
 
     suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager> = withContext(ioDispatcher) {
-        DataSourceManager.findPOIs(appContext, authority, poiFilter)
+        gateNotCacheOnly(authority, poiFilter) {
+            DataSourceManager.findPOIMs(appContext, authority, poiFilter)
+        }
     }
 
+    // endregion POI
+
     suspend fun findAgencyAvailableVersionCode(authority: String, forceAppUpdateRefresh: Boolean = false, inFocus: Boolean = false): Int? =
-        withContext(ioDispatcher) {
+        withContext(ioDispatcher) { // no WWW = no cache only needed
             DataSourceManager.findAgencyAvailableVersionCode(appContext, authority, forceAppUpdateRefresh, inFocus)
         }
 
     suspend fun findAgencyRDSRouteLogo(agencyAuthority: String): JPaths? = withContext(ioDispatcher) {
-        DataSourceManager.findAgencyRDSRouteLogo(appContext, agencyAuthority)
+        DataSourceManager.findAgencyRDSRouteLogo(appContext, agencyAuthority) // no WWW = no cache only needed
     }
 
     suspend fun findAllRDSAgencyRoutes(agencyAuthority: String): List<Route> = withContext(ioDispatcher) {
-        DataSourceManager.findAllRDSAgencyRoutes(appContext, agencyAuthority)
+        DataSourceManager.findAllRDSAgencyRoutes(appContext, agencyAuthority) // no WWW = no cache only needed
     }
 
     suspend fun findRDSRoute(agencyAuthority: String, routeId: Long): Route? = withContext(ioDispatcher) {
-        DataSourceManager.findRDSRoute(appContext, agencyAuthority, routeId)
+        DataSourceManager.findRDSRoute(appContext, agencyAuthority, routeId) // no WWW = no cache only needed
     }
 
     suspend fun findRDSDirection(agencyAuthority: String, directionId: Long): Direction? = withContext(ioDispatcher) {
-        DataSourceManager.findRDSDirection(appContext, agencyAuthority, directionId)
+        DataSourceManager.findRDSDirection(appContext, agencyAuthority, directionId) // no WWW = no cache only needed
     }
 
     @Suppress("unused")
@@ -130,7 +135,7 @@ class DataSourceRequestManager(
     suspend fun findRDSTrips(agencyAuthority: String, routeId: Long, directionId: Long? = null): List<Trip>? = withContext(ioDispatcher) {
         if (!FeatureFlags.F_EXPORT_TRIP_ID) return@withContext null
         //noinspection DiscouragedApi
-        DataSourceManager.findRDSTrips(appContext, agencyAuthority, routeId, directionId)
+        DataSourceManager.findRDSTrips(appContext, agencyAuthority, routeId, directionId) // no WWW = no cache only needed
     }
 
     suspend fun findRDSVehicleLocations(
@@ -138,17 +143,19 @@ class DataSourceRequestManager(
         filter: VehicleLocationProviderContract.Filter
     ): List<VehicleLocation>? = withContext(ioDispatcher) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@withContext null
-        DataSourceManager.findVehicleLocations(appContext, authority, filter.appendProvidedKeys(keysManager.getKeysMap(authority)))
+        gateNotCacheOnly(authority, filter) {
+            DataSourceManager.findVehicleLocations(appContext, authority, filter.appendProvidedKeys(keysManager.getKeysMap(authority)))
+        }
     }
 
     suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {
-        DataSourceManager.findRDSRouteDirections(appContext, agencyAuthority, routeId)
+        DataSourceManager.findRDSRouteDirections(appContext, agencyAuthority, routeId) // no WWW = no cache only needed
     }
 
     suspend fun findAgencySetupRequired(
         agencyAuthority: String
     ): Boolean? = withContext(ioDispatcher) {
-        DataSourceManager.findAgencySetupRequired(appContext, agencyAuthority)
+        DataSourceManager.findAgencySetupRequired(appContext, agencyAuthority) // no WWW = no cache only needed
     }
 
     suspend fun findAgencyProperties(
@@ -160,7 +167,7 @@ class DataSourceRequestManager(
         longVersionCode: Long,
         enabled: Boolean,
         trigger: Int
-    ): AgencyProperties? = withContext(ioDispatcher) {
+    ): AgencyProperties? = withContext(ioDispatcher) { // no WWW = no cache only needed
         DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, isRDS, logo, pkg, longVersionCode, enabled, trigger)
     }
 

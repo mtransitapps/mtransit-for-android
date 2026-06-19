@@ -150,9 +150,17 @@ class RDSDirectionStopsViewModel @Inject constructor(
                 vehicleLocationProviders ?: return@liveData
                 rd ?: return@liveData
                 trigger ?: return@liveData // skip when not visible
+                val filter = VehicleLocationProviderContract.Filter(rd).apply { inFocus = true }
+                // 1 - cache only
                 emit(
                     vehicleLocationProviders.mapNotNull {
-                        dataSourceRequestManager.findRDSVehicleLocations(it.authority, VehicleLocationProviderContract.Filter(rd).apply { setInFocus(true) })
+                        dataSourceRequestManager.findRDSVehicleLocations(it.authority, filter.apply { cacheOnly = true })
+                    }.flatten()
+                )
+                // 2 - not cache only
+                emit(
+                    vehicleLocationProviders.mapNotNull {
+                        dataSourceRequestManager.findRDSVehicleLocations(it.authority, filter.apply { cacheOnly = false })
                     }.flatten()
                 )
             }
@@ -243,6 +251,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
                     POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
                     SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
                 )
+                cacheOnly = true // RDS = local disk cache
             }
         ).apply {
             forEach { poim ->

@@ -597,16 +597,16 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static POIManager findPOI(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
-		final List<POIManager> pois = findPOIs(context, authority, poiFilter);
+	public static POIManager findPOIM(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
+		final List<POIManager> pois = findPOIMs(context, authority, poiFilter);
 		return pois.isEmpty() ? null : pois.get(0);
 	}
 
 	@NonNull
-	public static List<POIManager> findPOIs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
+	public static List<POIManager> findPOIMs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {
-			JSONObject filterJSON = POIProviderContract.Filter.toJSON(poiFilter);
+			final JSONObject filterJSON = POIProviderContract.Filter.toJSON(poiFilter);
 			if (filterJSON == null) {
 				CrashUtils.w(LOG_TAG, "Invalid POI filter '%s'!", poiFilter); // should never happen
 				return Collections.emptyList();
@@ -614,7 +614,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			String filterJsonString = filterJSON.toString();
 			Uri uri = getPOIUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
-			return getPOIs(cursor, authority);
+			return getPOIMs(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' POIs from '%s'!", poiFilter, authority);
 			return Collections.emptyList();
@@ -624,7 +624,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static List<POIManager> getPOIs(@Nullable Cursor cursor, @NonNull String authority) {
+	private static List<POIManager> getPOIMs(@Nullable Cursor cursor, @NonNull String authority) {
 		final ArrayList<POIManager> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {

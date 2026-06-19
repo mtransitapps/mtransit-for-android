@@ -322,6 +322,7 @@ class MapViewModel @Inject constructor(
             loadedArea?.let { min(it.northeast.longitude, it.southwest.longitude) },
             loadedArea?.let { max(it.northeast.longitude, it.southwest.longitude) },
         )
+            .apply { cacheOnly = false } // need to fetch from WWW at least once, no easy way to split
         coroutineScope.ensureActive()
         val agencyPOIs = poiRepository.findPOIMs(agency, poiFilter)
         val agencyShortName = agency.shortName

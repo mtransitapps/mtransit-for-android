@@ -67,7 +67,7 @@ data class RouteManager(
             isNotSkipped = serviceUpdateLoader.findServiceUpdate(
                 this,
                 ServiceUpdateProviderContract.Filter(this.authority, this.route).apply {
-                    setInFocus(inFocus)
+                    inFocus = this@RouteManager.inFocus
                 },
                 this.serviceUpdateLoaderListenersWR.keys,
                 skipIfBusy

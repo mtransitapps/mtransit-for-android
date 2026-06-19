@@ -242,6 +242,13 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
+		public boolean isCancelledMT() {
+			if (super.isCancelledMT()) return true;
+			if (this.mainListenerWR.get() == null && this.listenerWR.isEmpty()) return true;
+			return false;
+		}
+
+		@Override
 		protected List<ServiceUpdate> doInBackgroundNotCancelledMT(Void... params) {
 			try {
 				final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
@@ -249,13 +256,14 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				// 1 - cache only
 				this.serviceUpdateFilter.setCacheOnly(true);
 				//noinspection DiscouragedApi
-				final List<ServiceUpdate> cacheOnlyServiceUpdates = dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter, this::isCancelled);
-				if (isCancelled()) return cacheOnlyServiceUpdates;
+				final List<ServiceUpdate> cacheOnlyServiceUpdates =
+						dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter, this::isCancelledMT);
+				if (isCancelledMT()) return cacheOnlyServiceUpdates;
 				publishProgress(new ServiceUpdates(cacheOnlyServiceUpdates));
 				// 2 - not cache only
 				this.serviceUpdateFilter.setCacheOnly(false);
 				//noinspection DiscouragedApi
-				return dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter, this::isCancelled);
+				return dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter, this::isCancelledMT);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while running task!");
 				return null;

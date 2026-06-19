@@ -30,6 +30,7 @@ import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -107,7 +108,7 @@ class SearchViewModel @Inject constructor(
         }
         searchJob = viewModelScope.launch {
             if (newQuery.isNotBlank()) {
-                delay(777L) // debounce / throttle
+                delay(777.milliseconds) // debounce / throttle
             }
             setQuery(newQuery)
         }

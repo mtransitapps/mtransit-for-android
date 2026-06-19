@@ -168,6 +168,13 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 
 		@Override
+		public boolean isCancelledMT() {
+			if (super.isCancelledMT()) return true;
+			if (this.poiWR.get() == null && this.listenerWR.get() == null) return true;
+			return false;
+		}
+
+		@Override
 		protected POIStatus doInBackgroundNotCancelledMT(Void... params) {
 			try {
 				final POIManager poim = this.poiWR.get();
@@ -175,13 +182,13 @@ public class StatusLoader implements MTLog.Loggable {
 				// 1 - cache only
 				this.statusFilter.setCacheOnly(true);
 				//noinspection DiscouragedApi
-				final POIStatus cacheOnlyStatus = dataSourceRequestManager.findStatusSync(this.statusProvider.getAuthority(), this.statusFilter, this::isCancelled);
-				if (isCancelled()) return cacheOnlyStatus;
+				final POIStatus cacheOnlyStatus = dataSourceRequestManager.findStatusSync(this.statusProvider.getAuthority(), this.statusFilter, this::isCancelledMT);
+				if (isCancelledMT()) return cacheOnlyStatus;
 				publishProgress(cacheOnlyStatus);
 				// 2 - not cache only
 				this.statusFilter.setCacheOnly(false);
 				//noinspection DiscouragedApi
-				return dataSourceRequestManager.findStatusSync(this.statusProvider.getAuthority(), this.statusFilter, this::isCancelled);
+				return dataSourceRequestManager.findStatusSync(this.statusProvider.getAuthority(), this.statusFilter, this::isCancelledMT);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while running task!");
 				return null;

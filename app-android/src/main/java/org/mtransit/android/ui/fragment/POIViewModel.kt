@@ -106,14 +106,12 @@ class POIViewModel @Inject constructor(
         DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
     ).distinctUntilChanged()
 
-    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
-        getPOIManager(agency, uuid)
-    }
-
-    private fun getPOIManager(agency: IAgencyProperties?, uuid: String?) =
-        poiRepository.readingPOIM(agency, uuid, poim.value, onDataSourceRemoved = {
-            dataSourceRemovedEvent.postValue(Event(true))
-        })
+    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid)
+        .switchMap { (agency, uuid) -> // #onModulesUpdated
+            poiRepository.readingPOIM(agency, uuid, currentValue = poim.value, onDataSourceRemoved = {
+                dataSourceRemovedEvent.postValue(Event(true))
+            })
+        }
 
     private val _poi = this.poim.map {
         it?.poi
@@ -162,9 +160,17 @@ class POIViewModel @Inject constructor(
                 vehicleLocationProviders ?: return@liveData
                 rds ?: return@liveData
                 trigger ?: return@liveData // skip when not visible
+                val filter = VehicleLocationProviderContract.Filter(rds).apply { inFocus = true }
+                // 1 - cache only
                 emit(
                     vehicleLocationProviders.mapNotNull {
-                        dataSourceRequestManager.findRDSVehicleLocations(it.authority, VehicleLocationProviderContract.Filter(rds).apply { setInFocus(true) })
+                        dataSourceRequestManager.findRDSVehicleLocations(it.authority, filter.apply { cacheOnly = true })
+                    }.flatten()
+                )
+                // 2 - not cache only
+                emit(
+                    vehicleLocationProviders.mapNotNull {
+                        dataSourceRequestManager.findRDSVehicleLocations(it.authority, filter.apply { cacheOnly = false })
                     }.flatten()
                 )
             }
@@ -199,9 +205,11 @@ class POIViewModel @Inject constructor(
                         POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
                         SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
                     )
+                    cacheOnly = true // RDS = local disk cache
                 }
 
                 else -> POIProviderContract.Filter.getNewEmptyFilter()
+                    .apply { cacheOnly = true } // good enough
             }
         )
 
@@ -286,6 +294,7 @@ class POIViewModel @Inject constructor(
             val aroundDiff = ad.aroundDiff
             val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
                 addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+                cacheOnly = true // nearby = good enough
             }
             nearbyAgencies
                 .forEach { nearbyAgency ->
@@ -366,6 +375,7 @@ class POIViewModel @Inject constructor(
                 maxDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
                 val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
                     addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+                    cacheOnly = true // nearby = good enough
                 }
                 nearbyPOIs.addAllN(
                     poiRepository.findPOIMs(agency, poiFilter)

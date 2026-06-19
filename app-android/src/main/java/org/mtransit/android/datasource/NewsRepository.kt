@@ -94,10 +94,10 @@ class NewsRepository @Inject constructor(
         }
         // 1 - cache only
         if (firstLoad) {
-            emit(loadNewsArticles(providers, filter.apply { setCacheOnly(true) }, comparator, let))
+            emit(loadNewsArticles(providers, filter.apply { cacheOnly = true }, comparator, let))
         }
         // 2 - look for new news
-        emit(loadNewsArticles(providers, filter.apply { setCacheOnly(false) }, comparator, let))
+        emit(loadNewsArticles(providers, filter.apply { cacheOnly = false }, comparator, let))
         onSuccess?.invoke()
     }
 

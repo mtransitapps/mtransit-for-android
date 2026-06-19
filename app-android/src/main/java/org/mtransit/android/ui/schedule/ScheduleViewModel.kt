@@ -89,14 +89,12 @@ class ScheduleViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
-        getPOIManager(agency, uuid)
-    }
-
-    private fun getPOIManager(agency: IAgencyProperties?, uuid: String?) =
-        poiRepository.readingPOIM(agency, uuid, currentValue = poim.value, onDataSourceRemoved = {
-            dataSourceRemovedEvent.postValue(Event(true))
-        })
+    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid)
+        .switchMap { (agency, uuid) -> // #onModulesUpdated
+            poiRepository.readingPOIM(agency, uuid, currentValue = poim.value, onDataSourceRemoved = {
+                dataSourceRemovedEvent.postValue(Event(true))
+            })
+        }
 
     val rds: LiveData<RouteDirectionStop?> = this.poim.map { it?.poi as? RouteDirectionStop }
 

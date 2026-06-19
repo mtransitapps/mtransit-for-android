@@ -526,9 +526,7 @@ public class POIFragment extends ABFragment implements
 
 	private void onDataSourceRemoved() {
 		final MainActivity activity = (MainActivity) getActivity();
-		if (activity == null) {
-			return;
-		}
+		if (activity == null) return;
 		if (activity.isMTResumed()) {
 			activity.popFragmentFromStack(this); // close this fragment
 		}
