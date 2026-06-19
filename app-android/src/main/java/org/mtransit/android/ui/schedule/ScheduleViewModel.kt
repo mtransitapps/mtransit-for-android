@@ -238,8 +238,7 @@ class ScheduleViewModel @Inject constructor(
                 rtStatusProviders ?: return@liveData
                 val statusFilter = poim?.filter ?: return@liveData
                 rtStatusProviders.forEach { statusProvider ->
-                    val newStatus = dataSourceRequestManager.findStatus(statusProvider.authority, statusFilter)
-                    val schedule = newStatus as? Schedule
+                    val schedule = dataSourceRequestManager.findStatus(statusProvider.authority, statusFilter) as? Schedule
                     _readFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })
                     _rtSourceLabel.postValue(schedule?.sourceLabel?.takeIf { schedule.hasRealTime })
                     emit(schedule?.timestamps) // always emit to erase old real-time value

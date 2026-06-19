@@ -196,9 +196,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static ScheduleTimestamps findScheduleTimestamps(@NonNull Context context,
-															@NonNull String authority,
-															@Nullable ScheduleTimestampsProviderContract.Filter scheduleTimestampsFilter) {
+	public static ScheduleTimestamps findScheduleTimestamps(
+			@NonNull Context context,
+			@NonNull String authority,
+			@Nullable ScheduleTimestampsProviderContract.Filter scheduleTimestampsFilter
+	) {
 		Cursor cursor = null;
 		try {
 			String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
@@ -528,11 +530,13 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static Cursor queryContentResolver(@NonNull ContentResolver contentResolver,
-											  @NonNull Uri uri,
-											  @Nullable String[] projection, @Nullable String selection,
-											  @Nullable String[] selectionArgs,
-											  @Nullable String sortOrder) {
+	public static Cursor queryContentResolver(
+			@NonNull ContentResolver contentResolver,
+			@NonNull Uri uri,
+			@Nullable String[] projection, @Nullable String selection,
+			@Nullable String[] selectionArgs,
+			@Nullable String sortOrder
+	) {
 		if (Constants.LOG_MT_QUERY) {
 			MTLog.d(LOG_TAG,
 					"QUERY['%s':'%s'(%s:%s)'%s'] ...",
@@ -652,12 +656,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@NonNull
 	public static HashSet<String> getSearchSuggest(@Nullable Cursor cursor) {
-		HashSet<String> results = new HashSet<>();
+		final HashSet<String> results = new HashSet<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				int text1ColumnIdx = cursor.getColumnIndexOrThrow(SearchManager.SUGGEST_COLUMN_TEXT_1);
 				do {
-					String suggest = cursor.getString(text1ColumnIdx);
+					final String suggest = cursor.getString(text1ColumnIdx);
 					results.add(suggest);
 				} while (cursor.moveToNext());
 			}

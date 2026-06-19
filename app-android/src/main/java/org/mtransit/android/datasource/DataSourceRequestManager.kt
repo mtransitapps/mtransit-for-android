@@ -2,18 +2,26 @@ package org.mtransit.android.datasource
 
 import android.content.Context
 import androidx.annotation.Discouraged
+import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
+import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.Trip
+import org.mtransit.android.commons.provider.common.ProviderContract
 import org.mtransit.android.commons.provider.news.NewsProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract
 import org.mtransit.android.commons.provider.status.StatusProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
@@ -28,6 +36,7 @@ import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.util.KeysManager
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -53,6 +62,30 @@ class DataSourceRequestManager(
     }
 
     override fun getLogTag() = LOG_TAG
+
+    private val providersAuthorityRunningNotCacheOnly = ConcurrentHashMap<String, Mutex>()
+
+    private suspend fun <T> CoroutineScope.gateNotCacheOnly(authority: String, filter: ProviderContract.Filter, doWork: suspend () -> T): T {
+        if (!filter.isCacheOnlyOrDefault) {
+            providersAuthorityRunningNotCacheOnly.getOrPut(authority) { Mutex() }.withLock {
+                ensureActive()
+                return doWork()
+            }
+        } else {
+            return doWork()
+        }
+    }
+
+    private fun <T> gateNotCacheOnlySync(authority: String, filter: ProviderContract.Filter, isCancelled: () -> Boolean, doWork: () -> T): T? {
+        if (!filter.isCacheOnlyOrDefault) {
+            synchronized(providersAuthorityRunningNotCacheOnly.getOrPut(authority) { Mutex() }) {
+                if (isCancelled()) return null
+                return doWork()
+            }
+        } else {
+            return doWork()
+        }
+    }
 
     suspend fun ping(agencyAuthority: String) = withContext(ioDispatcher) {
         DataSourceManager.ping(appContext, agencyAuthority)
@@ -140,9 +173,35 @@ class DataSourceRequestManager(
         DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, isRDS, logo, pkg, longVersionCode, enabled, trigger)
     }
 
-    suspend fun findStatus(authority: String, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
-        DataSourceManager.findStatus(appContext, authority, statusFilter)
+    @Suppress("unused")
+    suspend fun findServiceUpdates(
+        authority: String,
+        serviceUpdateFilter: ServiceUpdateProviderContract.Filter
+    ): List<ServiceUpdate>? = withContext(ioDispatcher) {
+        gateNotCacheOnly(authority, serviceUpdateFilter) {
+            DataSourceManager.findServiceUpdates(appContext, authority, serviceUpdateFilter)
+        }
     }
+
+    @Discouraged("use suspend function instead")
+    @WorkerThread
+    fun findServiceUpdatesSync(authority: String, serviceUpdateFilter: ServiceUpdateProviderContract.Filter, isCancelled: () -> Boolean): List<ServiceUpdate>? =
+        gateNotCacheOnlySync(authority, serviceUpdateFilter, isCancelled) {
+            DataSourceManager.findServiceUpdates(appContext, authority, serviceUpdateFilter)
+        }
+
+    suspend fun findStatus(authority: String, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
+        gateNotCacheOnly(authority, statusFilter) {
+            DataSourceManager.findStatus(appContext, authority, statusFilter)
+        }
+    }
+
+    @Discouraged("use suspend function instead")
+    @WorkerThread
+    fun findStatusSync(authority: String, statusFilter: StatusProviderContract.Filter, isCancelled: () -> Boolean) =
+        gateNotCacheOnlySync(authority, statusFilter, isCancelled) {
+            DataSourceManager.findStatus(appContext, authority, statusFilter)
+        }
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
         DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)

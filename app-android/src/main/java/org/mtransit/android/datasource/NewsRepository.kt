@@ -39,18 +39,10 @@ class NewsRepository @Inject constructor(
         coroutineContext: CoroutineContext,
     ) = loadingNewsArticles(
         providers,
-        poi?.let {
-            NewsProviderContract.Filter
-                .getNewTargetFilter(poi)
+        filter = poi?.let {
+            NewsProviderContract.Filter.getNewTargetFilter(poi)
                 .apply { setInFocus(true) } // focuses on POI
-                .setMinCreatedAtInMs(
-                    UITimeUtils.currentTimeMillis() -
-                            if (demoModeManager.enabled) {
-                                TimeUnit.DAYS.toMillis(365L)
-                            } else {
-                                TimeUnit.DAYS.toMillis(100L)
-                            }
-                )
+                .setMinCreatedAtInMs(UITimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(if (demoModeManager.enabled) 365L else 100L))
         },
         comparator,
         firstLoad,
