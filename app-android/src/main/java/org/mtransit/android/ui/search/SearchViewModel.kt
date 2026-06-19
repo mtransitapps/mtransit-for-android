@@ -160,6 +160,8 @@ class SearchViewModel @Inject constructor(
                             addExtra("lat", it.latitude)
                             addExtra("lng", it.longitude)
                         }
+                        addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                        cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
                     }
                 },
                 deviceLocation = deviceLocation.value,

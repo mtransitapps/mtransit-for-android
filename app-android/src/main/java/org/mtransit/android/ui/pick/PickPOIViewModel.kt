@@ -49,8 +49,8 @@ class PickPOIViewModel @Inject constructor(
     val dataSourceRemovedEvent: LiveData<Event<Boolean>> = MediatorLiveData2(_poiAuthorities, _allAgencies)
         .switchMap { (authorities, allAgencies) ->
             liveData {
-                authorities?: return@liveData
-                allAgencies?: return@liveData
+                authorities ?: return@liveData
+                allAgencies ?: return@liveData
                 emit(Event(checkForDataSourceRemoved(authorities, allAgencies)))
             }
         }
@@ -90,7 +90,10 @@ class PickPOIViewModel @Inject constructor(
         val poiList = mutableListOf<POIManager>()
         agencyToUUIDs.forEach { (agency, uuids) ->
             val poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(uuids)
-                .apply { cacheOnly = true } // good enough
+                .apply {
+                    addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                    cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
+                }
             poiRepository.findPOIMs(agency, poiFilter).let {
                 poiList.addAll(it)
             }

@@ -105,7 +105,8 @@ class DemoModeManager @Inject constructor(
         while (true) {
             val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).apply {
                 addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
-                cacheOnly = true // sure? what about GBFS?
+                addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
             }
             poim = this.dataSourceRequestManager.findPOIMs(agency.authority, filter)
                 .removeAllAnd {

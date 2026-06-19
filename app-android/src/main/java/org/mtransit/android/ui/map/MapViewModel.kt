@@ -321,8 +321,10 @@ class MapViewModel @Inject constructor(
             loadedArea?.let { max(it.northeast.latitude, it.southwest.latitude) },
             loadedArea?.let { min(it.northeast.longitude, it.southwest.longitude) },
             loadedArea?.let { max(it.northeast.longitude, it.southwest.longitude) },
-        )
-            .apply { cacheOnly = false } // need to fetch from WWW at least once, no easy way to split
+        ).apply {
+            addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+            cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
+        }
         coroutineScope.ensureActive()
         val agencyPOIs = poiRepository.findPOIMs(agency, poiFilter)
         val agencyShortName = agency.shortName
