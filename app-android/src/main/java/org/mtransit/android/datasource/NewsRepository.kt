@@ -42,7 +42,7 @@ class NewsRepository @Inject constructor(
         poi?.let {
             NewsProviderContract.Filter
                 .getNewTargetFilter(poi)
-                .setInFocus(true) // focuses on POI
+                .setInFocusAnd(true) // focuses on POI
                 .setMinCreatedAtInMs(
                     UITimeUtils.currentTimeMillis() -
                             if (demoModeManager.enabled) {
@@ -80,7 +80,7 @@ class NewsRepository @Inject constructor(
             filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs)
             filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets)
             else -> NewsProviderContract.Filter.getNewEmptyFilter()
-        }?.apply { setInFocus(inFocus) },
+        }?.apply { setInFocusAnd(inFocus) },
         comparator,
         firstLoad,
         let,
@@ -102,10 +102,10 @@ class NewsRepository @Inject constructor(
         }
         // 1 - cache only
         if (firstLoad) {
-            emit(loadNewsArticles(providers, filter.setCacheOnly(true), comparator, let))
+            emit(loadNewsArticles(providers, filter.setCacheOnlyAnd(true), comparator, let))
         }
         // 2 - look for new news
-        emit(loadNewsArticles(providers, filter.setCacheOnly(false), comparator, let))
+        emit(loadNewsArticles(providers, filter.setCacheOnlyAnd(false), comparator, let))
         onSuccess?.invoke()
     }
 
