@@ -91,6 +91,7 @@ labels: MT
 - [ ] ca-prince-rupert-transit-bus
 - [ ] ca-quebec-a-velo-bike
 - [ ] ca-quebec-orleans-express-bus
+- [ ] ca-quebec-plumobile-bus
 - [ ] ca-quebec-rtc-bus
 - [ ] ca-quebec-traversiers-ferry
 - [ ] ca-quesnel-transit-bus
