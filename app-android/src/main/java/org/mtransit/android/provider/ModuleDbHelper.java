@@ -84,6 +84,11 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 		initAllDbTables(db);
 	}
 
+	@Override
+	public void onDowngrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
+		onUpgradeMT(db, oldVersion, newVersion);
+	}
+
 	@SuppressWarnings("unused")
 	public boolean isDbExist(@NonNull Context context) {
 		return SqlUtils.isDbExist(context, DB_NAME);
