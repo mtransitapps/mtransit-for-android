@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
 
-import org.mtransit.android.R;
+import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper;
 import org.mtransit.android.commons.provider.poi.POIProvider;
@@ -59,7 +59,8 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	 */
 	public static int getDbVersion(@NonNull Context context) {
 		if (dbVersion < 0) {
-			dbVersion = context.getResources().getInteger(R.integer.module_db_version); // do not change to avoid breaking compat w/ old modules
+			// use app version code as DB version (can only update w/ new app release) (fallback to 1 if PM error)
+			dbVersion = Math.max(1, PackageManagerUtils.getAppVersionCode(context));
 		}
 		return dbVersion;
 	}
@@ -82,6 +83,11 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 		db.execSQL(T_MODULE_SQL_DROP);
 		db.execSQL(T_MODULE_STATUS_SQL_DROP);
 		initAllDbTables(db);
+	}
+
+	@Override
+	public void onDowngrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
+		onUpgradeMT(db, oldVersion, newVersion);
 	}
 
 	@SuppressWarnings("unused")
