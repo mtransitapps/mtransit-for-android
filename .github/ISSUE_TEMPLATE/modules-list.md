@@ -90,6 +90,7 @@ labels: MT
 - [ ] ca-prince-george-transit-system-bus
 - [ ] ca-prince-rupert-transit-bus
 - [ ] ca-quebec-a-velo-bike
+- [ ] ca-quebec-intercar-bus
 - [ ] ca-quebec-orleans-express-bus
 - [ ] ca-quebec-plumobile-bus
 - [ ] ca-quebec-rtc-bus
