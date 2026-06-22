@@ -59,7 +59,8 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	 */
 	public static int getDbVersion(@NonNull Context context) {
 		if (dbVersion < 0) {
-			dbVersion = PackageManagerUtils.getAppVersionCode(context); // use app version code as DB version (can only update w/ new app release)
+			// use app version code as DB version (can only update w/ new app release) (fallback to 1 if PM error)
+			dbVersion = Math.max(1, PackageManagerUtils.getAppVersionCode(context));
 		}
 		return dbVersion;
 	}
