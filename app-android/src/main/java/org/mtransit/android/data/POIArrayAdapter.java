@@ -1109,11 +1109,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			boolean doNotIgnore,
 			@SuppressWarnings("SameParameterValue") long minAdapterThresholdInMs
 	) {
-		final boolean canIgnore = !(doNotIgnore || NEVER_IGNORE_NOTIFY_DATA_CHANGED);
 		final long now = UITimeUtils.currentTimeMillis();
 		final long adapterThreshold = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
+		final boolean timeElapsed = (now - this.lastNotifyDataSetChanged) > adapterThreshold;
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
-				&& (!canIgnore || (now - this.lastNotifyDataSetChanged) > adapterThreshold)) {
+				&& (doNotIgnore || timeElapsed)) {
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
 			this.lastNotifyDataSetChanged = now;
@@ -1122,17 +1122,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				this.notifyDataSetChangedLater = null;
 			}
 		} else {
-			if (!canIgnore && this.notifyDataSetChangedLater == null) {
+			final boolean canIgnore = !(doNotIgnore || NEVER_IGNORE_NOTIFY_DATA_CHANGED);
+			if (canIgnore) {
+				MTLog.d(this, "notifyDataSetChanged() > IGNORED");
+			} else if (this.notifyDataSetChangedLater != null) {
+				MTLog.d(this, "notifyDataSetChanged() > already scheduled");
+			} else {
 				this.notifyDataSetChangedLater = () -> {
 					this.notifyDataSetChangedLater = null;
 					notifyDataSetChanged(true);
 				};
 				this.notifyDataSetChangedHandler.postDelayed(this.notifyDataSetChangedLater, adapterThreshold);
-			} else {
-				MTLog.d(this, "notifyDataSetChanged() > IGNORE");
 			}
 		}
 	}
+
 	private void notifyDataSetChangedManual() {
 		if (this.manualLayout == null || !hasPois()) return;
 		int position = 0;
