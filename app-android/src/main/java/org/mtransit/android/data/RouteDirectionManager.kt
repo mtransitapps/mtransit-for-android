@@ -4,7 +4,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.ServiceUpdates
-import org.mtransit.android.commons.data.orEmpty
+import org.mtransit.android.commons.data.orNewEmpty
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
@@ -51,7 +51,7 @@ data class RouteDirectionManager(
         if (this.serviceUpdates.isEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful) {
             findServiceUpdates(serviceUpdateLoader, skipIfBusy = false)
         }
-        ignoredUUIDsOrUnknown ?: return ServiceUpdates.empty() // IF filter not ready DO wait for filter
+        ignoredUUIDsOrUnknown ?: return ServiceUpdates.newEmpty() // IF filter not ready DO wait for filter
         return this.serviceUpdates
             .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
     }
@@ -87,4 +87,4 @@ data class RouteDirectionManager(
 }
 
 fun RouteDirection.toRouteDirectionM(authority: String, serviceUpdates: ServiceUpdates? = null) =
-    RouteDirectionManager(authority, this, serviceUpdates.orEmpty())
+    RouteDirectionManager(authority, this, serviceUpdates.orNewEmpty())

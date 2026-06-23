@@ -46,7 +46,7 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
                 dataProvider.providesServiceUpdateLoader(),
                 emptyList() // filter later
             )
-        } else ServiceUpdates.empty()
+        } else ServiceUpdates.newEmpty()
     }
 
     fun update(
