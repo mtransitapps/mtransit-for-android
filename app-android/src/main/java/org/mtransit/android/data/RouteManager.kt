@@ -10,7 +10,6 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.CollectionUtils
 import java.util.WeakHashMap
 
 data class RouteManager(
@@ -51,7 +50,7 @@ data class RouteManager(
         if (this.serviceUpdates.isEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful) {
             findServiceUpdates(serviceUpdateLoader, skipIfBusy = false)
         }
-        ignoredUUIDsOrUnknown ?: return ServiceUpdates.EMPTY // IF filter not ready DO wait for filter
+        ignoredUUIDsOrUnknown ?: return ServiceUpdates.empty() // IF filter not ready DO wait for filter
         return this.serviceUpdates
             .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
     }

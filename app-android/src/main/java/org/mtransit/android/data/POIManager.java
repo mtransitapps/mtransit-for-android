@@ -328,10 +328,10 @@ public class POIManager implements LocationPOI,
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(serviceUpdateLoader, false);
 		}
-		if (ignoredUUIDsOrUnknown == null) return ServiceUpdates.EMPTY; // IF filter not ready DO wait for filter
+		if (ignoredUUIDsOrUnknown == null) return ServiceUpdates.empty(); // IF filter not ready DO wait for filter
 		final ServiceUpdates filtered = this.serviceUpdates == null ? null
 				: this.serviceUpdates.filter(serviceUpdate -> !ignoredUUIDsOrUnknown.contains(serviceUpdate.getTargetUUID()));
-		return filtered != null ? filtered : ServiceUpdates.EMPTY;
+		return filtered != null ? filtered : ServiceUpdates.empty();
 	}
 
 	private boolean areServiceUpdatesUseful() {

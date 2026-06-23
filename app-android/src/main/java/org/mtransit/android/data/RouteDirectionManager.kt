@@ -51,7 +51,7 @@ data class RouteDirectionManager(
         if (this.serviceUpdates.isEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful) {
             findServiceUpdates(serviceUpdateLoader, skipIfBusy = false)
         }
-        ignoredUUIDsOrUnknown ?: return ServiceUpdates.EMPTY // IF filter not ready DO wait for filter
+        ignoredUUIDsOrUnknown ?: return ServiceUpdates.empty() // IF filter not ready DO wait for filter
         return this.serviceUpdates
             .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
     }
