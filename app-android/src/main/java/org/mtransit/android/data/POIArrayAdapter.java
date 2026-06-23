@@ -1092,34 +1092,44 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return didReset;
 	}
 
-	public void notifyDataSetChanged(boolean force) {
-		notifyDataSetChanged(force, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
+	public void notifyDataSetChanged(boolean doNotIgnore) {
+		MTLog.d(this, "notifyDataSetChanged(%s)", doNotIgnore);
+		notifyDataSetChanged(doNotIgnore, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 	}
 
 	@NonNull
-	private final Handler handler = new Handler(Looper.getMainLooper());
+	private final Handler notifyDataSetChangedHandler = new Handler(Looper.getMainLooper());
 
-	@NonNull
-	private final Runnable notifyDataSetChangedLater = () -> {
-		notifyDataSetChanged(true); // it still really needs to show new data
-	};
+	@Nullable
+	private Runnable notifyDataSetChangedLater = null;
 
-	public void notifyDataSetChanged(boolean force, long minAdapterThresholdInMs) {
+	private static final boolean NEVER_IGNORE_NOTIFY_DATA_CHANGED = true;
+
+	private void notifyDataSetChanged(
+			boolean doNotIgnore,
+			@SuppressWarnings("SameParameterValue") long minAdapterThresholdInMs
+	) {
+		final boolean canIgnore = !(doNotIgnore && NEVER_IGNORE_NOTIFY_DATA_CHANGED);
 		final long now = UITimeUtils.currentTimeMillis();
 		final long adapterThreshold = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
-				&& (force || (now - this.lastNotifyDataSetChanged) > adapterThreshold)) {
+				&& (!canIgnore || (now - this.lastNotifyDataSetChanged) > adapterThreshold)) {
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
 			this.lastNotifyDataSetChanged = now;
-			this.handler.removeCallbacks(this.notifyDataSetChangedLater);
+			if (this.notifyDataSetChangedLater != null) {
+				this.notifyDataSetChangedHandler.removeCallbacks(this.notifyDataSetChangedLater);
+				this.notifyDataSetChangedLater = null;
+			}
 		} else {
-			if (force) {
-				this.handler.postDelayed(this.notifyDataSetChangedLater, adapterThreshold);
+			if (!canIgnore && this.notifyDataSetChangedLater == null) {
+				this.notifyDataSetChangedLater = () -> notifyDataSetChanged(true);
+				this.notifyDataSetChangedHandler.postDelayed(this.notifyDataSetChangedLater, adapterThreshold);
+			} else {
+				MTLog.d(this, "notifyDataSetChanged() > IGNORE");
 			}
 		}
 	}
-
 	private void notifyDataSetChangedManual() {
 		if (this.manualLayout == null || !hasPois()) return;
 		int position = 0;
@@ -1233,7 +1243,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			this.sensorManager.unregisterSensorListener(this);
 			this.compassUpdatesEnabled = false;
 		}
-		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
+		if (this.notifyDataSetChangedLater != null) {
+			this.notifyDataSetChangedHandler.removeCallbacks(this.notifyDataSetChangedLater);
+			this.notifyDataSetChangedLater = null;
+		}
 		disableTimeChangedReceiver();
 	}
 
@@ -1282,7 +1295,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.accelerometerValues = new float[3];
 		this.magneticFieldValues = new float[3];
 		this.lastNotifyDataSetChanged = -1L;
-		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
+		if (this.notifyDataSetChangedLater != null) {
+			this.notifyDataSetChangedHandler.removeCallbacks(this.notifyDataSetChangedLater);
+			this.notifyDataSetChangedLater = null;
+		}
 		this.poiStatusViewHoldersWR.clear();
 		this.poiServiceUpdateViewHoldersWR.clear();
 		this.location = null;
