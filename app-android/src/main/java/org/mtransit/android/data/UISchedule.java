@@ -30,6 +30,7 @@ import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.Accessibility;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.util.UIAccessibilityUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
@@ -458,7 +459,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable String optDefaultHeadSign,
 			boolean showingAccessibilityInfo,
-			@Nullable List<ServiceUpdate> serviceUpdates
+			@Nullable ServiceUpdates serviceUpdates
 	) {
 		if (this.scheduleList == null || this.scheduleListTimestamp != after) {
 			generateScheduleList(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, optDefaultHeadSign, showingAccessibilityInfo, serviceUpdates);
@@ -475,7 +476,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable String optDefaultHeadSign,
 			boolean showingAccessibilityInfo,
-			@Nullable List<ServiceUpdate> serviceUpdates
+			@Nullable ServiceUpdates serviceUpdates
 	) {
 		ArrayList<Timestamp> timestamps =
 				getNextTimestamps(after - getUIProviderPrecisionInMs(), optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
@@ -528,7 +529,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@NonNull List<Timestamp> timestamps,
 			@Nullable String optDefaultHeadSign,
 			boolean showingAccessibilityInfo,
-			@Nullable List<ServiceUpdate> serviceUpdates
+			@Nullable ServiceUpdates serviceUpdates
 	) {
 		// 1 - Find the start/end time sections
 		final TimeSections ts = findTimesSectionsStartEnd(after, timestamps);
@@ -775,7 +776,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	@NonNull
 	public static SpannableStringBuilder decorateCancelled(@NonNull Timestamp t,
 														   @NonNull SpannableStringBuilder timeSSB,
-														   @Nullable List<ServiceUpdate> serviceUpdates) {
+														   @Nullable ServiceUpdates serviceUpdates) {
 		if (t.isCancelled()) {
 			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
 			return timeSSB;
@@ -791,7 +792,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	@NonNull
 	public static CharSequence decorateCancelled(@NonNull Timestamp t,
 												 @NonNull CharSequence timeCS,
-												 @Nullable List<ServiceUpdate> serviceUpdates) {
+												 @Nullable ServiceUpdates serviceUpdates) {
 		if (t.isCancelled()) {
 			return SpanUtils.setAll(timeCS, CANCELLED_STYLE);
 		}
@@ -942,7 +943,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Long optMaxCoverageInMs,
 			@Nullable Integer optMinCount,
 			@Nullable Integer optMaxCount,
-			@Nullable List<ServiceUpdate> serviceUpdates
+			@Nullable ServiceUpdates serviceUpdates
 	) {
 		if (this.statusStrings == null || this.statusStringsTimestamp != after) {
 			generateStatus(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, serviceUpdates);
@@ -957,7 +958,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Long optMaxCoverageInMs,
 			@Nullable Integer optMinCount,
 			@Nullable Integer optMaxCount,
-			List<ServiceUpdate> serviceUpdates
+			ServiceUpdates serviceUpdates
 	) {
 		if (isNoData()) { // NO DATA
 			generateStatusStringsNoService(context);
@@ -1080,7 +1081,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			long recentEnoughToBeNow,
 			long diffInMs,
 			@NonNull ArrayList<Timestamp> nextTimestamps,
-			@Nullable List<ServiceUpdate> serviceUpdates
+			@Nullable ServiceUpdates serviceUpdates
 	) {
 		final Timestamp nextTimestamp = nextTimestamps.get(0);
 		final Pair<CharSequence, CharSequence> statusCS = UITimeUtils.getShortTimeSpan(context,

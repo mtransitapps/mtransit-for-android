@@ -5,7 +5,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import org.mtransit.android.commons.data.AppStatus
 import org.mtransit.android.commons.data.POIStatus
-import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.LayoutPoiStatusAppBinding
 import org.mtransit.android.ui.view.common.context
@@ -29,7 +29,7 @@ data class POIAppStatusViewHolder(
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         status: POIStatus?,
         dataProvider: POIStatusDataProvider,
-        serviceUpdates: List<ServiceUpdate>?,
+        serviceUpdates: ServiceUpdates?,
     ) {
         if (dataProvider.isShowingStatus && statusViewHolder is POIAppStatusViewHolder) {
             statusViewHolder.bind(status as? AppStatus, dataProvider, serviceUpdates)
@@ -38,7 +38,7 @@ data class POIAppStatusViewHolder(
         }
     }
 
-    override fun bind(status: AppStatus?, dataProvider: POIStatusDataProvider, serviceUpdates: List<ServiceUpdate>?) {
+    override fun bind(status: AppStatus?, dataProvider: POIStatusDataProvider, serviceUpdates: ServiceUpdates?) {
         super.bind(status, dataProvider, serviceUpdates)
         status?.let { appStatus ->
             binding.apply {

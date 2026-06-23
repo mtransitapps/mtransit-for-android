@@ -10,12 +10,13 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.data.POIManager
 
 interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
 
     @CallSuper
-    fun bind(status: STATUS?, dataProvider: POIStatusDataProvider, serviceUpdates: List<ServiceUpdate>?) {
+    fun bind(status: STATUS?, dataProvider: POIStatusDataProvider, serviceUpdates: ServiceUpdates?) {
         statusV.isVisible = status != null
     }
 
@@ -41,7 +42,7 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         status: POIStatus?,
         dataProvider: POIStatusDataProvider,
-        serviceUpdates: List<ServiceUpdate>?,
+        serviceUpdates: ServiceUpdates?,
     )
 
     fun fetchAndUpdate(statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIStatusDataProvider) {
@@ -67,7 +68,7 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
             statusViewHolder: POICommonStatusViewHolder<*, *>?,
             poiStatus: POIStatus,
             dataProvider: POIStatusDataProvider,
-            serviceUpdates: List<ServiceUpdate>?,
+            serviceUpdates: ServiceUpdates?,
         ) {
             statusViewHolder?.update(statusViewHolder, poiStatus, dataProvider, serviceUpdates)
         }

@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.distinctByOriginalId
-import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIListFooterManager
@@ -178,7 +177,7 @@ class RDSAgencyRoutesAdapter(
                     serviceUpdateLoader = serviceUpdateLoader,
                     ignoredUUIDsOrUnknown = emptyList() // TODO agency-level UI?
                 ).distinctByOriginalId()
-                val (isWarning, isInfo) = serviceUpdates.isSeverityWarningInfo()
+                val (isWarning, isInfo) = serviceUpdates.isSeverityWarningXorInfo()
                 if (isWarning) {
                     setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
                 } else if (isInfo) {

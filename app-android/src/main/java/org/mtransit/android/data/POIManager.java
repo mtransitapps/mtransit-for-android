@@ -18,6 +18,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.ColorUtils;
@@ -35,6 +37,7 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.status.StatusProviderContract;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -52,14 +55,10 @@ import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.UITimeUtils;
-import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.WeakHashMap;
 
@@ -92,7 +91,7 @@ public class POIManager implements LocationPOI,
 	@Nullable
 	private POIStatus status = null;
 	@Nullable
-	private List<ServiceUpdate> serviceUpdates = null;
+	private ServiceUpdates serviceUpdates = null; // null == not loaded | empty == loaded w/o service updates
 	private boolean inFocus = false;
 
 	private long lastFindStatusTimestampMs = -1L;
@@ -120,7 +119,7 @@ public class POIManager implements LocationPOI,
 	public String toStringSimple() {
 		return POIManager.class.getSimpleName() + '[' +
 				"poi:" + this.poi.getUUID() + ',' +
-				"status:" + this.hasStatus() + ',' +
+				"status:" + (this.status != null) + ',' +
 				"service updated:" + (this.serviceUpdates == null ? null : this.serviceUpdates.size()) + ',' +
 				']';
 	}
@@ -180,11 +179,6 @@ public class POIManager implements LocationPOI,
 		return this.poi.getStatusType();
 	}
 
-	@SuppressWarnings("unused")
-	public boolean hasStatus() {
-		return this.status != null;
-	}
-
 	public boolean setStatus(@NonNull POIStatus newStatus) {
 		if (!newStatus.isUseful() || newStatus.isNoData()) {
 			return false; // no change
@@ -226,17 +220,9 @@ public class POIManager implements LocationPOI,
 		return true; // change
 	}
 
-	@SuppressWarnings("unused")
 	@Nullable
 	public POIStatus getStatusOrNull() {
 		return this.status;
-	}
-
-	@Deprecated
-	@Nullable
-	public POIStatus getStatus(@Nullable Context ignoredContext,
-							   @NonNull StatusLoader statusLoader) {
-		return getStatus(statusLoader);
 	}
 
 	@Nullable
@@ -248,17 +234,11 @@ public class POIManager implements LocationPOI,
 		return this.status;
 	}
 
-	@Deprecated
-	@SuppressWarnings({"UnusedReturnValue", "unused"})
-	private boolean findStatus(@Nullable Context ignoredContext,
-							   @NonNull StatusLoader statusLoader,
-							   @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
-		return findStatus(statusLoader, skipIfBusy);
-	}
-
 	@SuppressWarnings("UnusedReturnValue")
-	private boolean findStatus(@NonNull StatusLoader statusLoader,
-							   @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
+	private boolean findStatus(
+			@NonNull StatusLoader statusLoader,
+			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
+	) {
 		long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
@@ -321,61 +301,54 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates) {
 		setServiceUpdates(serviceUpdates);
 	}
 
-	public void setServiceUpdates(@NonNull Collection<ServiceUpdate> newServiceUpdates) {
+	public void setServiceUpdates(@NonNull ServiceUpdates newServiceUpdates) {
 		if (this.serviceUpdates == null) {
-			this.serviceUpdates = new ArrayList<>();
+			this.serviceUpdates = new ServiceUpdates();
 		} else {
 			this.serviceUpdates.clear();
 		}
 		if (!newServiceUpdates.isEmpty()) {
 			this.serviceUpdates.addAll(newServiceUpdates);
-			CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
+			this.serviceUpdates.sort(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
 		}
 	}
 
 	@Nullable
-	public List<ServiceUpdate> getServiceUpdatesOrNull() {
+	public ServiceUpdates getServiceUpdatesOrNull() {
 		return this.serviceUpdates;
 	}
 
 	@NonNull
 	@Override
-	public List<ServiceUpdate> getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
+	public ServiceUpdates getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(serviceUpdateLoader, false);
 		}
-		if (ignoredUUIDsOrUnknown == null) return Collections.emptyList(); // IF filter not ready DO wait for filter
-		final List<ServiceUpdate> filtered = CollectionUtils.filterN(this.serviceUpdates, serviceUpdate ->
-				!ignoredUUIDsOrUnknown.contains(serviceUpdate.getTargetUUID())
-		);
-		return filtered != null ? filtered : Collections.emptyList();
+		if (ignoredUUIDsOrUnknown == null) return ServiceUpdates.EMPTY; // IF filter not ready DO wait for filter
+		final ServiceUpdates filtered = this.serviceUpdates == null ? null
+				: this.serviceUpdates.filter(serviceUpdate -> !ignoredUUIDsOrUnknown.contains(serviceUpdate.getTargetUUID()));
+		return filtered != null ? filtered : ServiceUpdates.EMPTY;
 	}
 
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean areServiceUpdatesUseful() {
-		if (this.serviceUpdates != null) {
-			for (ServiceUpdate serviceUpdate : this.serviceUpdates) {
-				if (serviceUpdate.isUseful()) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return this.serviceUpdates != null && this.serviceUpdates.areUseful();
 	}
 
 	private long lastFindServiceUpdateTimestampMs = -1L;
 
-	@SuppressWarnings("UnusedReturnValue")
-	private boolean findServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader,
-									   @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
-		long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
+	@CanIgnoreReturnValue
+	private boolean findServiceUpdates(
+			@NonNull ServiceUpdateLoader serviceUpdateLoader,
+			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
+	) {
+		final long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
-			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);
+			final ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);
 			filter.setInFocus(this.inFocus);
 			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
 			if (isNotSkipped) {
@@ -456,13 +429,15 @@ public class POIManager implements LocationPOI,
 		}
 	}
 
-	private boolean onActionsItemClick(@NonNull FragmentActivity activity,
-									   @NonNull View view,
-									   @NonNull LifecycleOwner viewLifecycleOwner,
-									   @NonNull FavoriteRepository favoriteRepository,
-									   @NonNull DataSourcesRepository dataSourcesRepository,
-									   int itemClicked,
-									   POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean onActionsItemClick(
+			@NonNull FragmentActivity activity,
+			@NonNull View view,
+			@NonNull LifecycleOwner viewLifecycleOwner,
+			@NonNull FavoriteRepository favoriteRepository,
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			int itemClicked,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener
+	) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return false; // NOT HANDLED
@@ -588,9 +563,11 @@ public class POIManager implements LocationPOI,
 	@SuppressWarnings("unused")
 	@Nullable
 	@ColorInt
-	public static Integer getNewColor(@Nullable POI poi,
-									  @Nullable DataSourcesRepository dataSourcesRepository,
-									  @Nullable Integer defaultColor) {
+	public static Integer getNewColor(
+			@Nullable POI poi,
+			@Nullable DataSourcesRepository dataSourcesRepository,
+			@Nullable Integer defaultColor
+	) {
 		return getNewColor(
 				poi,
 				() -> dataSourcesRepository != null && poi != null ? dataSourcesRepository.getAgency(poi.getAuthority()) : null,
@@ -601,9 +578,11 @@ public class POIManager implements LocationPOI,
 	@SuppressWarnings("unused")
 	@Nullable
 	@ColorInt
-	public static Integer getNewColor(@Nullable POI poi,
-									  @Nullable AgencyProperties agency,
-									  @Nullable Integer defaultColor) {
+	public static Integer getNewColor(
+			@Nullable POI poi,
+			@Nullable AgencyProperties agency,
+			@Nullable Integer defaultColor
+	) {
 		return getNewColor(
 				poi,
 				() -> agency,
@@ -613,9 +592,11 @@ public class POIManager implements LocationPOI,
 
 	@Nullable
 	@ColorInt
-	public static Integer getNewColor(@Nullable POI poi,
-									  @NonNull AgencyResolver agencyResolver,
-									  @Nullable Integer defaultColor) {
+	public static Integer getNewColor(
+			@Nullable POI poi,
+			@NonNull AgencyResolver agencyResolver,
+			@Nullable Integer defaultColor
+	) {
 		if (poi != null) {
 			if (poi instanceof RouteDirectionStop) {
 				if (((RouteDirectionStop) poi).getRoute().hasColor()) {
@@ -637,18 +618,22 @@ public class POIManager implements LocationPOI,
 	@SuppressWarnings("unused")
 	@Nullable
 	@ColorInt
-	public static Integer getNewRouteColor(@Nullable DataSourcesRepository dataSourcesRepository,
-										   @Nullable Route route,
-										   @Nullable String authority,
-										   @Nullable Integer defaultColor) {
+	public static Integer getNewRouteColor(
+			@Nullable DataSourcesRepository dataSourcesRepository,
+			@Nullable Route route,
+			@Nullable String authority,
+			@Nullable Integer defaultColor
+	) {
 		return getNewRouteColor(route, defaultColor, () -> dataSourcesRepository != null && authority != null ? dataSourcesRepository.getAgency(authority) : null);
 	}
 
 	@Nullable
 	@ColorInt
-	public static Integer getNewRouteColor(@Nullable Route route,
-										   @Nullable Integer defaultColor,
-										   @NonNull AgencyResolver agencyResolver) {
+	public static Integer getNewRouteColor(
+			@Nullable Route route,
+			@Nullable Integer defaultColor,
+			@NonNull AgencyResolver agencyResolver
+	) {
 		if (route != null) {
 			if (route.hasColor()) {
 				return route.getColorInt();
@@ -664,17 +649,21 @@ public class POIManager implements LocationPOI,
 
 	@SuppressWarnings("unused")
 	@ColorInt
-	public static int getRouteColorNN(@Nullable DataSourcesRepository dataSourcesRepository,
-									  @Nullable Route route,
-									  @Nullable String authority,
-									  int defaultColor) {
+	public static int getRouteColorNN(
+			@Nullable DataSourcesRepository dataSourcesRepository,
+			@Nullable Route route,
+			@Nullable String authority,
+			int defaultColor
+	) {
 		return getRouteColorNN(route, defaultColor, () -> dataSourcesRepository != null && authority != null ? dataSourcesRepository.getAgency(authority) : null);
 	}
 
 	@ColorInt
-	public static int getRouteColorNN(@Nullable Route route,
-									  int defaultColor,
-									  @NonNull AgencyResolver agencyResolver) {
+	public static int getRouteColorNN(
+			@Nullable Route route,
+			int defaultColor,
+			@NonNull AgencyResolver agencyResolver
+	) {
 		if (route != null) {
 			if (route.hasColor()) {
 				return route.getColorInt();

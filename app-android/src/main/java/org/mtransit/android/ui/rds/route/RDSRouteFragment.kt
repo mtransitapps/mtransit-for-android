@@ -29,7 +29,6 @@ import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.distinctByOriginalId
-import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.FragmentRdsRouteBinding
@@ -309,7 +308,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
             val (isWarning, isInfo) = routeM.getServiceUpdates(
                 serviceUpdateLoader = serviceUpdateLoader,
                 ignoredUUIDsOrUnknown = emptyList(),
-            ).distinctByOriginalId().isSeverityWarningInfo()
+            ).distinctByOriginalId().isSeverityWarningXorInfo()
             if (isWarning) {
                 setIcon(R.drawable.ic_warning_black_24dp)
                 isVisible = SHOW_SERVICE_UPDATE_IN_TOOLBAR

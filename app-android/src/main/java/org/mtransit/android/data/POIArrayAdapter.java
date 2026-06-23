@@ -63,6 +63,7 @@ import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderBinding;
 import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderButtonBinding;
@@ -1056,7 +1057,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
 			if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.getUuid())) {
 				final POIManager poim = getItemByUUID(status.getTargetUUID());
-				final List<ServiceUpdate> poiServiceUpdates = poim == null ? null : poim.getServiceUpdatesOrNull();
+				final ServiceUpdates poiServiceUpdates = poim == null ? null : poim.getServiceUpdatesOrNull();
 				POICommonStatusViewHolder.updateView(statusViewHolder, status, this, poiServiceUpdates);
 			} else {
 				notifyDataSetChanged(false);
@@ -1065,7 +1066,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates) {
 		if (this.showServiceUpdate) {
 			final POIServiceUpdateViewHolder serviceUpdateViewHolder = this.poiServiceUpdateViewHoldersWR.get(targetUUID);
 			if (serviceUpdateViewHolder != null && targetUUID.equals(serviceUpdateViewHolder.getUuid())) {

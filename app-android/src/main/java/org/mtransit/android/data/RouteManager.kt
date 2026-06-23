@@ -3,6 +3,8 @@ package org.mtransit.android.data
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.ServiceUpdates
+import org.mtransit.android.commons.data.orEmpty
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
@@ -14,7 +16,7 @@ import java.util.WeakHashMap
 data class RouteManager(
     val authority: String,
     val route: Route,
-    private val serviceUpdates: MutableList<ServiceUpdate> = mutableListOf(),
+    private val serviceUpdates: ServiceUpdates = ServiceUpdates(),
     private var lastFindServiceUpdateTimestampMs: Long = -1L,
     private var inFocus: Boolean = false, // TODO?
 ) : ServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLog.Loggable {
@@ -31,11 +33,11 @@ data class RouteManager(
         this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null
     }
 
-    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>) {
+    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
         setServiceUpdates(serviceUpdates)
     }
 
-    fun setServiceUpdates(newServiceUpdates: Collection<ServiceUpdate>) {
+    fun setServiceUpdates(newServiceUpdates: ServiceUpdates) {
         if (this.serviceUpdates.isNotEmpty()) {
             this.serviceUpdates.clear()
         }
@@ -45,17 +47,16 @@ data class RouteManager(
         }
     }
 
-    override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): List<ServiceUpdate> {
+    override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): ServiceUpdates {
         if (this.serviceUpdates.isEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful) {
             findServiceUpdates(serviceUpdateLoader, skipIfBusy = false)
         }
-        if (ignoredUUIDsOrUnknown == null) return emptyList() // IF filter not ready DO wait for filter
+        ignoredUUIDsOrUnknown ?: return ServiceUpdates.EMPTY // IF filter not ready DO wait for filter
         return this.serviceUpdates
             .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
     }
 
-    private val areServiceUpdatesUseful: Boolean
-        get() = this.serviceUpdates.any { it.isUseful }
+    private val areServiceUpdatesUseful: Boolean get() = this.serviceUpdates.any { it.isUseful }
 
     private fun findServiceUpdates(
         serviceUpdateLoader: ServiceUpdateLoader,
@@ -80,5 +81,5 @@ data class RouteManager(
     }
 }
 
-fun Route.toRouteM(authority: String, serviceUpdates: List<ServiceUpdate>? = null) =
-    RouteManager(authority, this, serviceUpdates.orEmpty().toMutableList())
+fun Route.toRouteM(authority: String, serviceUpdates: ServiceUpdates? = null) =
+    RouteManager(authority, this, serviceUpdates.orEmpty())

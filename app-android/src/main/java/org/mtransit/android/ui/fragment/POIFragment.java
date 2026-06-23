@@ -74,7 +74,7 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
-import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.provider.news.NewsProviderContract;
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.data.AgencyProperties;
@@ -108,7 +108,6 @@ import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog;
-import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
@@ -121,6 +120,7 @@ import org.mtransit.android.ui.view.common.IFragment;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
@@ -1009,7 +1009,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates) {
 		if (this.binding == null) return;
 		POIViewController.updateServiceUpdatesView(getPOIView(), serviceUpdates, this);
 		POIServiceUpdateViewController.updateServiceUpdate(getPOIServiceUpdateView(), serviceUpdates, this);

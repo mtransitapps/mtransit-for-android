@@ -7,7 +7,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.POIStatus
-import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.data.readFromSource
 import org.mtransit.android.commons.toMillis
@@ -22,7 +22,7 @@ object UISourceLabelUtils : MTLog.Loggable {
     override fun getLogTag() = LOG_TAG
 
     @JvmStatic
-    fun setSourceLabelTextView(textView: TextView, serviceUpdates: List<ServiceUpdate>?) {
+    fun setSourceLabelTextView(textView: TextView, serviceUpdates: ServiceUpdates?) {
         serviceUpdates
             ?.distinctByOriginalId()
             ?.filter { it.shouldDisplay() }

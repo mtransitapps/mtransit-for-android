@@ -158,7 +158,7 @@ package org.mtransit.android.ui.poi
 // this._poimMutable.value = poim
 // }
 //
-// fun onServiceUpdatesLoaded(serviceUpdates: List<ServiceUpdate>?) {
+// fun onServiceUpdatesLoaded(serviceUpdates: ServiceUpdates?) {
 // val poim = this._poimMutable.value
 // poim?.setServiceUpdates(serviceUpdates)
 // this._poimMutable.value = poim
@@ -173,7 +173,7 @@ package org.mtransit.android.ui.poi
 // this._poimMutable.value = poim
 // }
 //
-// val poiServiceUpdates: LiveData<List<ServiceUpdate>?> = _poim.map {
+// val poiServiceUpdates: LiveData<ServiceUpdates?> = _poim.map {
 // it?.serviceUpdatesOrNull
 // }.distinctUntilChanged()
 // // .distinctUntilChanged()

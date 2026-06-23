@@ -32,6 +32,7 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
 import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.GTFSProviderContract;
 import org.mtransit.android.commons.provider.agency.AgencyProviderContract;
@@ -100,7 +101,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static List<ServiceUpdate> findServiceUpdates(
+	public static ServiceUpdates findServiceUpdates(
 			@NonNull Context context,
 			@NonNull String authority,
 			@Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter
@@ -120,8 +121,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static List<ServiceUpdate> getServiceUpdates(@Nullable Cursor cursor) {
-		final List<ServiceUpdate> result = new ArrayList<>();
+	private static ServiceUpdates getServiceUpdates(@Nullable Cursor cursor) {
+		final ServiceUpdates result = new ServiceUpdates();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
