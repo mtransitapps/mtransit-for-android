@@ -1109,7 +1109,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			boolean doNotIgnore,
 			@SuppressWarnings("SameParameterValue") long minAdapterThresholdInMs
 	) {
-		final boolean canIgnore = !(doNotIgnore && NEVER_IGNORE_NOTIFY_DATA_CHANGED);
+		final boolean canIgnore = !(doNotIgnore || NEVER_IGNORE_NOTIFY_DATA_CHANGED);
 		final long now = UITimeUtils.currentTimeMillis();
 		final long adapterThreshold = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
