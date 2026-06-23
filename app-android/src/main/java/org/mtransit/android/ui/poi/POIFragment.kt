@@ -595,7 +595,7 @@ package org.mtransit.android.ui.poi
 //
 // private fun updatePOIServiceUpdatesView(
 // poiTypeAndStatus: Pair<Int, Int>? = viewModel.poiTypeAndStatus.value,
-// poiServiceUpdates: List<ServiceUpdate>? = viewModel.poiServiceUpdates.value,
+// poiServiceUpdates: ServiceUpdates? = viewModel.poiServiceUpdates.value,
 // poiView: View? = getPOIView(poiTypeAndStatus),
 // ) {
 // // poiStatusN?.let { poiStatus ->
@@ -659,7 +659,7 @@ package org.mtransit.android.ui.poi
 //
 // private fun updateServiceUpdateView(
 // // poimN: POIManager? = viewModel.poimV,
-// poiServiceUpdates: List<ServiceUpdate>? = viewModel.poiServiceUpdates.value,
+// poiServiceUpdates: ServiceUpdates? = viewModel.poiServiceUpdates.value,
 // serviceUpdateView: View? = getPOIServiceUpdateView(),
 // ) {
 // // poimN?.let { poim ->
@@ -789,7 +789,7 @@ package org.mtransit.android.ui.poi
 // // }
 // }
 //
-// override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>) {
+// override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
 // MTLog.v(this, "onServiceUpdatesLoaded($targetUUID, $serviceUpdates)")
 // // T ODO this serviceUpdates needs to be added to view model POI Manager
 // //

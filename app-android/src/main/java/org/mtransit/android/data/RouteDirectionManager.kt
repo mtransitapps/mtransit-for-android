@@ -3,19 +3,20 @@ package org.mtransit.android.data
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.ServiceUpdates
+import org.mtransit.android.commons.data.orNewEmpty
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.CollectionUtils
 import java.util.WeakHashMap
 import kotlin.time.Duration.Companion.minutes
 
 data class RouteDirectionManager(
     val authority: String,
     val routeDirection: RouteDirection,
-    private val serviceUpdates: MutableList<ServiceUpdate> = mutableListOf(),
+    private val serviceUpdates: ServiceUpdates = ServiceUpdates(),
     private var lastFindServiceUpdateTimestampMs: Long = -1L,
     private var inFocus: Boolean = false, // TODO?
 ) : ServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLog.Loggable {
@@ -32,25 +33,25 @@ data class RouteDirectionManager(
         this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null
     }
 
-    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>) {
+    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
         setServiceUpdates(serviceUpdates)
     }
 
-    fun setServiceUpdates(newServiceUpdates: Collection<ServiceUpdate>) {
+    fun setServiceUpdates(newServiceUpdates: ServiceUpdates) {
         if (this.serviceUpdates.isNotEmpty()) {
             this.serviceUpdates.clear()
         }
         if (newServiceUpdates.isNotEmpty()) {
             this.serviceUpdates.addAll(newServiceUpdates)
-            CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
+            this.serviceUpdates.sortWith(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
         }
     }
 
-    override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): List<ServiceUpdate> {
+    override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): ServiceUpdates {
         if (this.serviceUpdates.isEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful) {
             findServiceUpdates(serviceUpdateLoader, skipIfBusy = false)
         }
-        if (ignoredUUIDsOrUnknown == null) return emptyList() // IF filter not ready DO wait for filter
+        ignoredUUIDsOrUnknown ?: return ServiceUpdates.newEmpty() // IF filter not ready DO wait for filter
         return this.serviceUpdates
             .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
     }
@@ -85,5 +86,5 @@ data class RouteDirectionManager(
     }
 }
 
-fun RouteDirection.toRouteDirectionM(authority: String, serviceUpdates: List<ServiceUpdate>? = null) =
-    RouteDirectionManager(authority, this, serviceUpdates.orEmpty().toMutableList())
+fun RouteDirection.toRouteDirectionM(authority: String, serviceUpdates: ServiceUpdates? = null) =
+    RouteDirectionManager(authority, this, serviceUpdates.orNewEmpty())

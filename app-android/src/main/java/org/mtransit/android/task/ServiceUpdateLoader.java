@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
@@ -24,7 +24,6 @@ import org.mtransit.android.util.KeysManager;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -188,7 +187,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	@SuppressWarnings("deprecation") // FIXME
-	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, List<ServiceUpdate>> {
+	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, ServiceUpdates> {
 
 		private static final String LOG_TAG = ServiceUpdateLoader.LOG_TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
 
@@ -231,7 +230,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected List<ServiceUpdate> doInBackgroundNotCancelledMT(Void... params) {
+		protected ServiceUpdates doInBackgroundNotCancelledMT(Void... params) {
 			try {
 				return call();
 			} catch (Exception e) {
@@ -241,7 +240,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable List<ServiceUpdate> result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable ServiceUpdates result) {
 			if (result == null) {
 				return;
 			}
@@ -256,7 +255,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Nullable
-		List<ServiceUpdate> call() {
+		ServiceUpdates call() {
 			final Context context = this.contextWR.get();
 			if (context == null) return null;
 			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
@@ -300,6 +299,6 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	public interface ServiceUpdateLoaderListener {
-		void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates);
+		void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates);
 	}
 }

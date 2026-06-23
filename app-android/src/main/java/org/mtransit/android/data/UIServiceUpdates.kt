@@ -4,14 +4,14 @@ import android.content.Context
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.data.ServiceUpdate
-import org.mtransit.android.commons.data.distinctByOriginalId
+import org.mtransit.android.commons.data.ServiceUpdates
 
 object UIServiceUpdates {
 
     @JvmStatic
     fun makeServiceUpdatesHTMLText(
         context: Context,
-        serviceUpdates: List<ServiceUpdate>?,
+        serviceUpdates: ServiceUpdates?,
     ) = buildString {
         serviceUpdates
             ?.distinctByOriginalId()
@@ -34,7 +34,7 @@ object UIServiceUpdates {
     }
 
     @JvmStatic
-    fun hasWarnings(serviceUpdates: List<ServiceUpdate>?) =
+    fun hasWarnings(serviceUpdates: ServiceUpdates?) =
         serviceUpdates
             ?.distinctByOriginalId()
             ?.any { it.isSeverityWarning } ?: false

@@ -15,6 +15,7 @@ import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
@@ -36,7 +37,7 @@ fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean)
 }
 
 fun <P : POI> P.toPOIM(
-    serviceUpdates: List<ServiceUpdate>? = null,
+    serviceUpdates: ServiceUpdates? = null,
     status: POIStatus? = null
 ) = POIManager(this).apply {
     serviceUpdates?.let { setServiceUpdates(serviceUpdates) }

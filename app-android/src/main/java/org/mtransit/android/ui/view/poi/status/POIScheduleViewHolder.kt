@@ -5,7 +5,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.Schedule
-import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.databinding.LayoutPoiStatusScheduleBinding
@@ -31,7 +31,7 @@ data class POIScheduleViewHolder(
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         status: POIStatus?,
         dataProvider: POIStatusDataProvider,
-        serviceUpdates: List<ServiceUpdate>?,
+        serviceUpdates: ServiceUpdates?,
     ) {
         if (dataProvider.isShowingStatus && statusViewHolder is POIScheduleViewHolder) {
             statusViewHolder.bind(status as Schedule?, dataProvider, serviceUpdates)
@@ -40,7 +40,7 @@ data class POIScheduleViewHolder(
         }
     }
 
-    override fun bind(status: Schedule?, dataProvider: POIStatusDataProvider, serviceUpdates: List<ServiceUpdate>?) {
+    override fun bind(status: Schedule?, dataProvider: POIStatusDataProvider, serviceUpdates: ServiceUpdates?) {
         super.bind(status, dataProvider, serviceUpdates)
         status?.let { schedule ->
             binding.apply {
