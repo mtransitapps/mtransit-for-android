@@ -1123,7 +1123,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			}
 		} else {
 			if (!canIgnore && this.notifyDataSetChangedLater == null) {
-				this.notifyDataSetChangedLater = () -> notifyDataSetChanged(true);
+				this.notifyDataSetChangedLater = () -> {
+					this.notifyDataSetChangedLater = null;
+					notifyDataSetChanged(true);
+				};
 				this.notifyDataSetChangedHandler.postDelayed(this.notifyDataSetChangedLater, adapterThreshold);
 			} else {
 				MTLog.d(this, "notifyDataSetChanged() > IGNORE");
