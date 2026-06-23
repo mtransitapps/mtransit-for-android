@@ -43,7 +43,7 @@ data class RouteManager(
         }
         if (newServiceUpdates.isNotEmpty()) {
             this.serviceUpdates.addAll(newServiceUpdates)
-            CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
+            this.serviceUpdates.sortWith(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
         }
     }
 

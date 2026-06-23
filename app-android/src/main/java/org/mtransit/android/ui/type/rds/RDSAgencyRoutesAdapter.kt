@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIListFooterManager

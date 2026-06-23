@@ -26,7 +26,6 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.commons.findClosestPOISIdxUuid
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance

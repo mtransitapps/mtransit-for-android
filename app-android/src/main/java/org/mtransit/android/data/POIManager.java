@@ -313,7 +313,7 @@ public class POIManager implements LocationPOI,
 		}
 		if (!newServiceUpdates.isEmpty()) {
 			this.serviceUpdates.addAll(newServiceUpdates);
-			this.serviceUpdates.sort(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
+			this.serviceUpdates.sortWith(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
 		}
 	}
 

@@ -9,7 +9,6 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.ServiceUpdates
-import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
 import org.mtransit.android.ui.view.common.setImageResourceAndVisibility

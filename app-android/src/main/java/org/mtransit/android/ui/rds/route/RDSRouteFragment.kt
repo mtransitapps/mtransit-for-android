@@ -28,7 +28,6 @@ import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.distinctByOriginalId
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.FragmentRdsRouteBinding

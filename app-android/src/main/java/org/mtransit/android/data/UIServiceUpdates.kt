@@ -5,7 +5,6 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.ServiceUpdates
-import org.mtransit.android.commons.data.distinctByOriginalId
 
 object UIServiceUpdates {
 

@@ -10,7 +10,6 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.CollectionUtils
 import java.util.WeakHashMap
 import kotlin.time.Duration.Companion.minutes
 
@@ -44,7 +43,7 @@ data class RouteDirectionManager(
         }
         if (newServiceUpdates.isNotEmpty()) {
             this.serviceUpdates.addAll(newServiceUpdates)
-            CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
+            this.serviceUpdates.sortWith(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
         }
     }
 
