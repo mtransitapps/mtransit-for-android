@@ -74,6 +74,7 @@ labels: MT
 - [ ] ca-mount-waddington-regional-transit-bus
 - [ ] ca-mrc-haut-st-laurent-bus
 - [ ] ca-mrc-montcalm-transport-collectif-bus
+- [ ] ca-mrc-nicolet-yamaska-bili-bus
 - [ ] ca-nanaimo-rdn-transit-system-bus
 - [ ] ca-niagara-falls-transit-bus
 - [ ] ca-niagara-falls-wego-bus
