@@ -41,8 +41,8 @@ class NewsRepository @Inject constructor(
         providers,
         poi?.let {
             NewsProviderContract.Filter
-                .getNewTargetFilter(poi)
-                .setInFocus(true) // focuses on POI
+                .getNewTargetUUIDsFilter(poi)
+                .apply { inFocus = true } // focuses on POI
                 .setMinCreatedAtInMs(
                     UITimeUtils.currentTimeMillis() -
                             if (demoModeManager.enabled) {
@@ -62,8 +62,8 @@ class NewsRepository @Inject constructor(
     fun loadingNewsArticles(
         allProviders: Iterable<NewsProviderProperties>?,
         targetProviderAuthorities: List<String>?,
-        filterTargets: List<String>?,
-        filterUUIDs: List<String>?,
+        filterTargetUUIDs: List<String>?,
+        filterArticleUUIDs: List<String>?,
         comparator: Comparator<News>,
         firstLoad: Boolean,
         inFocus: Boolean = false,
@@ -76,9 +76,9 @@ class NewsRepository @Inject constructor(
                     && (targetProviderAuthorities.isEmpty() || targetProviderAuthorities.contains(it.targetAuthority))
         },
         filter = when {
-            filterUUIDs == null || filterTargets == null -> null // SKIP (bundle extra not read yet)
-            filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs)
-            filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets)
+            filterArticleUUIDs == null || filterTargetUUIDs == null -> null // SKIP (bundle extra not read yet)
+            filterArticleUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewArticleUUIDsFilter(filterArticleUUIDs)
+            filterTargetUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsUUIDsFilter(filterTargetUUIDs)
             else -> NewsProviderContract.Filter.getNewEmptyFilter()
         }?.apply { setInFocus(inFocus) },
         comparator,
@@ -97,15 +97,13 @@ class NewsRepository @Inject constructor(
         onSuccess: (() -> Unit)? = null,
         coroutineContext: CoroutineContext,
     ) = liveData(coroutineContext) {
-        if (providers == null || filter == null) {
-            return@liveData // SKIP (bundle extra not read yet)
-        }
+        if (providers == null || filter == null) return@liveData // SKIP (bundle extra not read yet)
         // 1 - cache only
         if (firstLoad) {
-            emit(loadNewsArticles(providers, filter.setCacheOnly(true), comparator, let))
+            emit(loadNewsArticles(providers, filter.apply { cacheOnly = true }, comparator, let))
         }
         // 2 - look for new news
-        emit(loadNewsArticles(providers, filter.setCacheOnly(false), comparator, let))
+        emit(loadNewsArticles(providers, filter.apply { cacheOnly = false }, comparator, let))
         onSuccess?.invoke()
     }
 
@@ -131,14 +129,14 @@ class NewsRepository @Inject constructor(
     }
 
     fun loadingNewsArticle(
-        uuid: String?,
+        articleUUID: String?,
         provider: NewsProviderProperties?,
         onMissingProvider: ((oldNews: News?) -> (Unit)) = {},
         onNewsLoaded: ((loadedNews: News?) -> (Unit)) = {},
         coroutineContext: CoroutineContext,
     ) = loadingNewsArticle(
         provider,
-        uuid?.let { NewsProviderContract.Filter.getNewUUIDFilter(uuid) },
+        articleUUID?.let { NewsProviderContract.Filter.getNewArticleUUIDFilter(articleUUID) },
         onMissingProvider,
         onNewsLoaded,
         coroutineContext,

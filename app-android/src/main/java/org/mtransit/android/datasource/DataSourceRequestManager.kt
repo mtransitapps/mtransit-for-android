@@ -2,6 +2,7 @@ package org.mtransit.android.datasource
 
 import android.content.Context
 import androidx.annotation.Discouraged
+import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +15,7 @@ import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.provider.news.NewsProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
+import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract
 import org.mtransit.android.commons.provider.status.StatusProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
@@ -24,6 +26,8 @@ import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.JPaths
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.ServiceUpdateProviderProperties
+import org.mtransit.android.data.StatusProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.util.KeysManager
 import org.mtransit.android.util.UIFeatureFlags
@@ -113,7 +117,7 @@ class DataSourceRequestManager(
         DataSourceManager.findVehicleLocations(
             appContext,
             vehicleLocationProviderProperties.authority,
-            filter.appendProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))
+            filter.apply { appendProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority)) },
         )
     }
 
@@ -140,15 +144,53 @@ class DataSourceRequestManager(
         DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, isRDS, logo, pkg, longVersionCode, enabled, trigger)
     }
 
-    suspend fun findStatus(authority: String, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
-        DataSourceManager.findStatus(appContext, authority, statusFilter)
+    @Suppress("unused")
+    suspend fun findServiceUpdates(
+        serviceUpdateProvider: ServiceUpdateProviderProperties,
+        serviceUpdateFilter: ServiceUpdateProviderContract.Filter
+    ) = withContext(ioDispatcher) {
+        DataSourceManager.findServiceUpdates(
+            appContext,
+            serviceUpdateProvider.authority,
+            serviceUpdateFilter.apply { appendProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority)) },
+        )
     }
+
+    @Discouraged("use suspend function instead")
+    @WorkerThread
+    fun findServiceUpdatesSync(serviceUpdateProvider: ServiceUpdateProviderProperties, serviceUpdateFilter: ServiceUpdateProviderContract.Filter) =
+        DataSourceManager.findServiceUpdates(
+            appContext,
+            serviceUpdateProvider.authority,
+            serviceUpdateFilter.apply { appendProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority)) },
+        )
+
+    suspend fun findStatus(statusProvider: StatusProviderProperties, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
+        DataSourceManager.findStatus(
+            appContext,
+            statusProvider.authority,
+            statusFilter.apply { appendProvidedKeys(keysManager.getKeysMap(statusProvider.authority)) },
+        )
+    }
+
+    @Discouraged("use suspend function instead")
+    @WorkerThread
+    fun findStatusSync(statusProvider: StatusProviderProperties, statusFilter: StatusProviderContract.Filter) =
+        DataSourceManager.findStatus(
+            appContext,
+            statusProvider.authority,
+            statusFilter.apply { appendProvidedKeys(keysManager.getKeysMap(statusProvider.authority)) },
+        )
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
         DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)
     }
 
     suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter) = withContext(ioDispatcher) {
-        DataSourceManager.findNews(appContext, newsProvider.authority, newsFilter.appendProvidedKeys(keysManager.getKeysMap(newsProvider.authority)))
+        DataSourceManager.findNews(
+            appContext,
+            newsProvider.authority,
+            newsFilter.apply { appendProvidedKeys(keysManager.getKeysMap(newsProvider.authority)) },
+        )
     }
 }
