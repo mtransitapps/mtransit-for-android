@@ -80,7 +80,7 @@ class NewsRepository @Inject constructor(
             filterArticleUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewArticlesUUIDsFilter(filterArticleUUIDs)
             filterTargetUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsUUIDsFilter(filterTargetUUIDs)
             else -> NewsProviderContract.Filter.getNewEmptyFilter()
-        }?.apply { setInFocus(inFocus) },
+        }?.apply { this.inFocus = inFocus },
         comparator,
         firstLoad,
         let,

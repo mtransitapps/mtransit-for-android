@@ -117,7 +117,7 @@ class DataSourceRequestManager(
         DataSourceManager.findVehicleLocations(
             appContext,
             vehicleLocationProviderProperties.authority,
-            filter.apply { setProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority)) },
+            filter.apply { setProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority)) }.toJSONString(),
         )
     }
 
@@ -152,7 +152,7 @@ class DataSourceRequestManager(
         DataSourceManager.findServiceUpdates(
             appContext,
             serviceUpdateProvider.authority,
-            serviceUpdateFilter.apply { setProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority)) },
+            serviceUpdateFilter.apply { setProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority)) }.toJSONString(),
         )
     }
 
@@ -162,14 +162,14 @@ class DataSourceRequestManager(
         DataSourceManager.findServiceUpdates(
             appContext,
             serviceUpdateProvider.authority,
-            serviceUpdateFilter.apply { setProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority)) },
+            serviceUpdateFilter.apply { setProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority)) }.toJSONString(),
         )
 
     suspend fun findStatus(statusProvider: StatusProviderProperties, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
         DataSourceManager.findStatus(
             appContext,
             statusProvider.authority,
-            statusFilter.apply { setProvidedKeys(keysManager.getKeysMap(statusProvider.authority)) },
+            statusFilter.apply { setProvidedKeys(keysManager.getKeysMap(statusProvider.authority)) }.toJSONString(),
         )
     }
 
@@ -179,7 +179,7 @@ class DataSourceRequestManager(
         DataSourceManager.findStatus(
             appContext,
             statusProvider.authority,
-            statusFilter.apply { setProvidedKeys(keysManager.getKeysMap(statusProvider.authority)) },
+            statusFilter.apply { setProvidedKeys(keysManager.getKeysMap(statusProvider.authority)) }.toJSONString(),
         )
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
@@ -190,7 +190,7 @@ class DataSourceRequestManager(
         DataSourceManager.findNews(
             appContext,
             newsProvider.authority,
-            newsFilter.apply { setProvidedKeys(keysManager.getKeysMap(newsProvider.authority)) },
+            newsFilter.apply { setProvidedKeys(keysManager.getKeysMap(newsProvider.authority)) }.toJSONString(),
         )
     }
 }

@@ -104,16 +104,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static ServiceUpdates findServiceUpdates(
 			@NonNull Context context,
 			@NonNull String authority,
-			@Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter
+			@Nullable String serviceUpdateFilterJSONString
 	) {
 		Cursor cursor = null;
 		try {
-			final String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProviderContract.SERVICE_UPDATE_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
 			return getServiceUpdates(cursor);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' service updates from '%s'!", serviceUpdateFilter, authority);
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' service updates from '%s'!", serviceUpdateFilterJSONString, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -134,15 +133,14 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static ArrayList<News> findNews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
+	public static ArrayList<News> findNews(@NonNull Context context, @NonNull String authority, @Nullable String newsFilterJSONString) {
 		Cursor cursor = null;
 		try {
-			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJSONString();
-			Uri uri = Uri.withAppendedPath(getUri(authority), NewsProviderContract.NEWS_PATH);
+			final Uri uri = Uri.withAppendedPath(getUri(authority), NewsProviderContract.NEWS_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
 			return getNews(cursor, authority);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' news from '%s'!", newsFilter, authority);
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' news from '%s'!", newsFilterJSONString, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -151,7 +149,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@NonNull
 	private static ArrayList<News> getNews(@Nullable Cursor cursor, @NonNull String authority) {
-		ArrayList<News> result = new ArrayList<>();
+		final ArrayList<News> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -166,17 +164,16 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static ArrayList<VehicleLocation> findVehicleLocations(
 			@NonNull Context context,
 			@NonNull String authority,
-			@Nullable VehicleLocationProviderContract.Filter vehicleLocationFilter
+			@Nullable String vehicleLocationFilterJSONString
 	) {
 		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return null;
 		Cursor cursor = null;
 		try {
-			final String vehicleLocationFilterJSONString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJSONString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), VehicleLocationProviderContract.VEHICLE_LOCATION_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, vehicleLocationFilterJSONString, null, null);
 			return getVehicleLocations(cursor, authority);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' vehicle locations from '%s'!", vehicleLocationFilter, authority);
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' vehicle locations from '%s'!", vehicleLocationFilterJSONString, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -226,15 +223,14 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static POIStatus findStatus(@NonNull Context context, @NonNull String authority, @NonNull StatusProviderContract.Filter statusFilter) {
+	public static POIStatus findStatus(@NonNull Context context, @NonNull String authority, @Nullable String statusFilterJSONString) {
 		Cursor cursor = null;
 		try {
-			String statusFilterJSONString = statusFilter.toJSONStringStatic(statusFilter);
-			Uri uri = Uri.withAppendedPath(getUri(authority), StatusProviderContract.STATUS_PATH);
+			final Uri uri = Uri.withAppendedPath(getUri(authority), StatusProviderContract.STATUS_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
 			return getPOIStatus(cursor);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' status from '%s'!", statusFilter, authority);
+			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' status from '%s'!", statusFilterJSONString, authority);
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -246,7 +242,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		POIStatus result = null;
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
-				int status = POIStatus.getTypeFromCursor(cursor);
+				final int status = POIStatus.getTypeFromCursor(cursor);
 				switch (status) {
 				case POI.ITEM_STATUS_TYPE_NONE:
 					break;
