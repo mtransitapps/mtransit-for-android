@@ -31,6 +31,7 @@ import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
+import org.mtransit.android.commons.data.AppStatusFilter;
 import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
@@ -39,6 +40,7 @@ import org.mtransit.android.commons.data.POI.POIUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.provider.agency.AgencyProvider;
 import org.mtransit.android.commons.provider.common.ContentProviderConstants;
+import org.mtransit.android.commons.provider.common.ProviderContract;
 import org.mtransit.android.commons.provider.poi.POIProvider;
 import org.mtransit.android.commons.provider.poi.POIProviderContract;
 import org.mtransit.android.commons.provider.status.StatusProvider;
@@ -81,7 +83,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	 */
 	private static final String PREF_KEY_LAST_UPDATE_MS = ModuleDbHelper.PREF_KEY_LAST_UPDATE_MS;
 
-	private static final long MODULE_MAX_VALIDITY_IN_MS = MAX_CACHE_VALIDITY_MS;
+	private static final long MODULE_MAX_VALIDITY_IN_MS = ProviderContract.getMAX_CACHE_VALIDITY_MS();
 	private static final long MODULE_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(1L);
 
 	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = TimeUnit.MINUTES.toMillis(10L);
@@ -356,7 +358,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			);
 			final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 			qb.setTables(getPOITable());
-			ArrayMap<String, String> poiProjectionMap = getPOIProjectionMap();
+			ArrayMap<String, String> poiProjectionMap = getPoiProjectionMap();
 			boolean searchKeywordsAdded = false;
 			if (POIProviderContract.Filter.isSearchKeywords(poiFilter) && poiFilter.getSearchKeywords() != null) {
 				poiProjectionMap = new ArrayMap<>(poiProjectionMap); // clone to avoid updating shared static map
@@ -366,7 +368,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				searchKeywordsAdded = true;
 			}
 			qb.setProjectionMap(poiProjectionMap);
-			String[] poiProjection = getPOIProjection();
+			String[] poiProjection = getPoiProjection();
 			if (searchKeywordsAdded) {
 				poiProjection = ArrayUtils.addAllNonNull(poiProjection, new String[]{POIProviderContract.Columns.T_POI_K_SCORE_META_OPT});
 			}
@@ -383,12 +385,12 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public long getPOIMaxValidityInMs() {
+	public long getPoiMaxValidityInMs() {
 		return MODULE_MAX_VALIDITY_IN_MS;
 	}
 
 	@Override
-	public long getPOIValidityInMs() {
+	public long getPoiValidityInMs() {
 		return MODULE_VALIDITY_IN_MS;
 	}
 
@@ -406,16 +408,16 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	private void updateModuleDataIfRequired(@NonNull Context context) {
 		long lastUpdateInMs = getStorage(context).getLong(PREF_KEY_LAST_UPDATE_MS, 0L);
 		final long nowInMs = UITimeUtils.currentTimeMillis();
-		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
+		if (lastUpdateInMs + getPoiMaxValidityInMs() < nowInMs) { // too old to display?
 			MTLog.i(this, "updateModuleDataIfRequired() > module data too old (%s): DELETE ALL.", MTLog.formatDateTime(lastUpdateInMs));
 			deleteAllModuleData();
 			lastUpdateInMs = 0L;
 			getStorage(context).edit()
 					.putLong(PREF_KEY_LAST_UPDATE_MS, lastUpdateInMs)
 					.apply();
-		} else if (lastUpdateInMs + getPOIValidityInMs() >= nowInMs) {
+		} else if (lastUpdateInMs + getPoiValidityInMs() >= nowInMs) {
 			MTLog.i(this, "updateModuleDataIfRequired() > SKIP (too soon, next in %s)",
-					MTLog.formatDuration((lastUpdateInMs + getPOIValidityInMs()) - nowInMs)
+					MTLog.formatDuration((lastUpdateInMs + getPoiValidityInMs()) - nowInMs)
 			);
 			return;
 		}
@@ -499,16 +501,16 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Nullable
 	@Override
 	public POIStatus getNewStatus(@NonNull StatusProviderContract.Filter filter) {
-		if (!(filter instanceof AppStatus.AppStatusFilter)) {
+		if (!(filter instanceof AppStatusFilter)) {
 			MTLog.w(this, "getNewStatus() > Can't find new schedule without AppStatusFilter!");
 			return null;
 		}
-		final AppStatus.AppStatusFilter moduleStatusFilter = (AppStatus.AppStatusFilter) filter;
+		final AppStatusFilter moduleStatusFilter = (AppStatusFilter) filter;
 		return getNewModuleStatus(moduleStatusFilter);
 	}
 
 	@NonNull
-	private POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
+	private POIStatus getNewModuleStatus(@NonNull AppStatusFilter filter) {
 		final long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 		final Context context = requireContextCompat();
 		boolean appInstalled = PackageManagerUtils.isAppInstalled(context, filter.getPkg());
@@ -742,7 +744,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@NonNull
 	@Override
-	public ArrayMap<String, String> getPOIProjectionMap() {
+	public ArrayMap<String, String> getPoiProjectionMap() {
 		if (poiProjectionMap == null) {
 			poiProjectionMap = getNewPoiProjectionMap(getAUTHORITY(requireContextCompat()));
 		}
@@ -782,11 +784,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			new String[]{ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, ModuleColumns.T_MODULE_K_COLOR,
 					ModuleColumns.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_NAME_FR};
 
-	private static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAllNonNull(POIProvider.PROJECTION_POI, PROJECTION_MODULE);
+	private static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAllNonNull(POIProviderContract.getPROJECTION_POI(), PROJECTION_MODULE);
 
 	@NonNull
 	@Override
-	public String[] getPOIProjection() {
+	public String[] getPoiProjection() {
 		return PROJECTION_MODULE_POI;
 	}
 

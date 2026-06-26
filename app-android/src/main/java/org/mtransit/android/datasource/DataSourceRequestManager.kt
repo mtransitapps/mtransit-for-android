@@ -12,6 +12,7 @@ import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.Trip
+import org.mtransit.android.commons.provider.common.ProviderContract.Filter.Companion.toProvidedKeys
 import org.mtransit.android.commons.provider.news.NewsProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
@@ -117,7 +118,7 @@ class DataSourceRequestManager(
         DataSourceManager.findVehicleLocations(
             appContext,
             vehicleLocationProviderProperties.authority,
-            filter.apply { setProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority)) }.toJSONString(),
+            filter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))).toJSONString(),
         )
     }
 
@@ -152,7 +153,7 @@ class DataSourceRequestManager(
         DataSourceManager.findServiceUpdates(
             appContext,
             serviceUpdateProvider.authority,
-            serviceUpdateFilter.apply { setProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority)) }.toJSONString(),
+            serviceUpdateFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority))).toJSONString(),
         )
     }
 
@@ -162,14 +163,14 @@ class DataSourceRequestManager(
         DataSourceManager.findServiceUpdates(
             appContext,
             serviceUpdateProvider.authority,
-            serviceUpdateFilter.apply { setProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority)) }.toJSONString(),
+            serviceUpdateFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority))).toJSONString(),
         )
 
     suspend fun findStatus(statusProvider: StatusProviderProperties, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
         DataSourceManager.findStatus(
             appContext,
             statusProvider.authority,
-            statusFilter.apply { setProvidedKeys(keysManager.getKeysMap(statusProvider.authority)) }.toJSONString(),
+            statusFilter.copyWith(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))).toJSONString(),
         )
     }
 
@@ -179,7 +180,7 @@ class DataSourceRequestManager(
         DataSourceManager.findStatus(
             appContext,
             statusProvider.authority,
-            statusFilter.apply { setProvidedKeys(keysManager.getKeysMap(statusProvider.authority)) }.toJSONString(),
+            statusFilter.copyWith(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))).toJSONString(),
         )
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
@@ -190,7 +191,7 @@ class DataSourceRequestManager(
         DataSourceManager.findNews(
             appContext,
             newsProvider.authority,
-            newsFilter.apply { setProvidedKeys(keysManager.getKeysMap(newsProvider.authority)) }.toJSONString(),
+            newsFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(newsProvider.authority))).toJSONString(),
         )
     }
 }

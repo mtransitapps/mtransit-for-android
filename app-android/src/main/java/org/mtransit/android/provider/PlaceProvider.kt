@@ -52,23 +52,23 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private val _uriMatcher: UriMatcher by lazy { getNewUriMatcher(_authority) }
 
-    override fun getURI_MATCHER() = _uriMatcher
+    override val URI_MATCHER: UriMatcher get() = _uriMatcher
 
-    override fun getAgencyUriMatcher() = getURI_MATCHER()
+    override fun getAgencyUriMatcher() = URI_MATCHER
 
-    override fun getSearchSuggest(query: String?): Cursor? = null // TODO implement Place/Query auto-complete
+    override fun getSearchSuggest(query: String?) = null // TODO implement Place/Query auto-complete
 
-    override fun getSearchSuggestProjectionMap(): ArrayMap<String?, String?>? = null // TODO implement Place/Query auto-complete
+    override val searchSuggestProjectionMap = null // TODO implement Place/Query auto-complete
 
-    override fun getSearchSuggestTable(): String? = null // TODO implement Place/Query auto-complete
+    override val searchSuggestTable = null // TODO implement Place/Query auto-complete
 
-    override fun getPOITable() = PlaceDbHelper.T_PLACE
+    override val pOITable = PlaceDbHelper.T_PLACE
 
-    override fun getPOIProjection() = PROJECTION_PLACE_POI
+    override val poiProjection get() = PROJECTION_PLACE_POI
 
-    override fun getPOIMaxValidityInMs() = POI_MAX_VALIDITY_IN_MS
+    override val poiMaxValidityInMs = POI_MAX_VALIDITY_IN_MS
 
-    override fun getPOIValidityInMs() = POI_VALIDITY_IN_MS
+    override val poiValidityInMs = POI_VALIDITY_IN_MS
 
     override fun getPOI(poiFilter: POIProviderContract.Filter?): Cursor? {
         if (poiFilter == null) {
@@ -219,7 +219,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private var _poiProjectionMap: ArrayMap<String, String>? = null
 
-    override fun getPOIProjectionMap() = _poiProjectionMap ?: getNewPoiProjectionMap(_authority).also { _poiProjectionMap = it }
+    override val poiProjectionMap = _poiProjectionMap ?: getNewPoiProjectionMap(_authority).also { _poiProjectionMap = it }
 
     override fun queryMT(uri: Uri, projection: Array<String?>?, selection: String?, selectionArgs: Array<String?>?, sortOrder: String?): Cursor? {
         try {
@@ -271,11 +271,11 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private fun getDBHelper(): SQLiteOpenHelper = getDBHelper(requireContextCompat())
 
-    @WorkerThread
-    override fun getReadDB(): SQLiteDatabase = getDBHelper().readableDatabase
+    @get:WorkerThread
+    override val readDB: SQLiteDatabase get() = getDBHelper().readableDatabase
 
-    @WorkerThread
-    override fun getWriteDB(): SQLiteDatabase = getDBHelper().writableDatabase
+    @get:WorkerThread
+    override val writeDB: SQLiteDatabase get() = getDBHelper().writableDatabase
 
     private var _dbHelper: PlaceDbHelper? = null
     private var _currentDbVersion: Int = -1
@@ -405,7 +405,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             PlaceColumns.T_PLACE_K_ICON_BG_COLOR,
         )
 
-        private val PROJECTION_PLACE_POI: Array<String> = POIProvider.PROJECTION_POI + PROJECTION_PLACE
+        private val PROJECTION_PLACE_POI: Array<String> = POIProviderContract.PROJECTION_POI + PROJECTION_PLACE
 
         // https://developers.google.com/maps/documentation/places/android-sdk/text-search
         // https://developers.google.com/maps/documentation/places/android-sdk/usage-and-billing#text-search-id-only-ess-sku
@@ -428,7 +428,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             optLat: Double?,
             optLng: Double?,
             optRadiusInMeters: Int?,
-            searchKeywords: Array<String?>?,
+            searchKeywords: Iterable<String?>?,
         ): SearchByTextRequest? {
             var keywordMaxLength = -1
             val textQuery = searchKeywords
