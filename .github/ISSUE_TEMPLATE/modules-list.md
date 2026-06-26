@@ -20,7 +20,7 @@ labels: MT
 - [ ] ca-campbell-river-transit-system-bus
 - [ ] ca-central-fraser-valley-transit-system-bus
 - [ ] ca-chambly-richelieu-carignan-citcrc-bus
-- [ ] ca-chilliwack-transit-system-bus (merged in ca-central-fraser-valley-transit-system-bus)
+- [ ] ca-charlottetown-t3-transit-bus
 - [ ] ca-clearwater-regional-transit-bus
 - [ ] ca-comox-valley-transit-system-bus
 - [ ] ca-cornwall-transit-bus
@@ -33,7 +33,6 @@ labels: MT
 - [ ] ca-edmonton-ets-bus
 - [ ] ca-edmonton-ets-train
 - [ ] ca-fort-st-john-transit-system-bus
-- [ ] ca-fraser-valley-express-bus (merged in ca-central-fraser-valley-transit-system-bus)
 - [ ] ca-fredericton-transit-bus
 - [ ] ca-gatineau-sto-bus
 - [ ] ca-grande-prairie-transit-bus
