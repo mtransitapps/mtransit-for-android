@@ -87,6 +87,26 @@ jobs:
         run: ./commit_code_change.sh
       - name: MT push commits
         run: ./push_commits.sh
+      - name: MT trigger submodule builds
+        run: |
+          SUBMODULES_CHANGED=false
+          while IFS= read -r SUBMODULE_PATH; do
+            if git diff --quiet "$MT_SHA" HEAD -- "$SUBMODULE_PATH"; then
+              continue
+            fi
+            SUBMODULES_CHANGED=true
+            SUBMODULE_NAME=$(basename "$SUBMODULE_PATH")
+            echo "Triggering mt-build.yml for '${SUBMODULE_NAME}' on branch '${MT_GIT_BRANCH}'..."
+            gh workflow run mt-build.yml \
+              --repo "mtransitapps/${SUBMODULE_NAME}" \
+              --ref "$MT_GIT_BRANCH"
+          done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
+
+          if [ "$SUBMODULES_CHANGED" = "false" ]; then
+            echo "No submodule changes detected between '$MT_SHA' and HEAD."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
       - name: MT commit data change
         run: ./commit_data_change.sh
       - name: MT set app release required
