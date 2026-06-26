@@ -118,7 +118,7 @@ class DataSourceRequestManager(
         DataSourceManager.findVehicleLocations(
             appContext,
             vehicleLocationProviderProperties.authority,
-            filter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))).toJSONString(),
+            filter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))),
         )
     }
 
@@ -153,7 +153,7 @@ class DataSourceRequestManager(
         DataSourceManager.findServiceUpdates(
             appContext,
             serviceUpdateProvider.authority,
-            serviceUpdateFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority))).toJSONString(),
+            serviceUpdateFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority))),
         )
     }
 
@@ -163,14 +163,14 @@ class DataSourceRequestManager(
         DataSourceManager.findServiceUpdates(
             appContext,
             serviceUpdateProvider.authority,
-            serviceUpdateFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority))).toJSONString(),
+            serviceUpdateFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority))),
         )
 
     suspend fun findStatus(statusProvider: StatusProviderProperties, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
         DataSourceManager.findStatus(
             appContext,
             statusProvider.authority,
-            statusFilter.copyWith(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))).toJSONString(),
+            statusFilter.copyWith(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
         )
     }
 
@@ -180,7 +180,7 @@ class DataSourceRequestManager(
         DataSourceManager.findStatus(
             appContext,
             statusProvider.authority,
-            statusFilter.copyWith(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))).toJSONString(),
+            statusFilter.copyWith(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
         )
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
@@ -191,7 +191,7 @@ class DataSourceRequestManager(
         DataSourceManager.findNews(
             appContext,
             newsProvider.authority,
-            newsFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(newsProvider.authority))).toJSONString(),
+            newsFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(newsProvider.authority))),
         )
     }
 }
