@@ -197,9 +197,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static ScheduleTimestamps findScheduleTimestamps(@NonNull Context context,
-	                                                        @NonNull String authority,
-	                                                        @Nullable ScheduleTimestampsProviderContract.Filter scheduleTimestampsFilter) {
+	public static ScheduleTimestamps findScheduleTimestamps(
+			@NonNull Context context,
+			@NonNull String authority,
+			@Nullable ScheduleTimestampsProviderContract.Filter scheduleTimestampsFilter
+	) {
 		Cursor cursor = null;
 		try {
 			final String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();

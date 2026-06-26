@@ -71,9 +71,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     override val poiValidityInMs = POI_VALIDITY_IN_MS
 
     override fun getPOI(poiFilter: POIProviderContract.Filter?): Cursor? {
-        if (poiFilter == null) {
-            return null
-        }
+        if (poiFilter == null) return null
         if (POIProviderContract.Filter.isAreaFilter(poiFilter)) {
             return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
         } else if (POIProviderContract.Filter.isSearchKeywords(poiFilter)) {
@@ -219,7 +217,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private var _poiProjectionMap: ArrayMap<String, String>? = null
 
-    override val poiProjectionMap = _poiProjectionMap ?: getNewPoiProjectionMap(_authority).also { _poiProjectionMap = it }
+    override val poiProjectionMap get() = _poiProjectionMap ?: getNewPoiProjectionMap(_authority).also { _poiProjectionMap = it }
 
     override fun queryMT(uri: Uri, projection: Array<String?>?, selection: String?, selectionArgs: Array<String?>?, sortOrder: String?): Cursor? {
         try {

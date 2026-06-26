@@ -71,8 +71,8 @@ class NewsRepository @Inject constructor(
         },
         filter = when {
             filterArticleUUIDs == null || filterTargetUUIDs == null -> null // SKIP (bundle extra not read yet)
-            filterArticleUUIDs.isNotEmpty() -> NewsProviderContract.Filter(articlesUUIDs = filterArticleUUIDs)
-            filterTargetUUIDs.isNotEmpty() -> NewsProviderContract.Filter(targetsUUIDs = filterTargetUUIDs)
+            filterArticleUUIDs.isNotEmpty() -> NewsProviderContract.Filter.newArticlesUUIDsFilter(filterArticleUUIDs)
+            filterTargetUUIDs.isNotEmpty() -> NewsProviderContract.Filter.newTargetsUUIDsFilter(filterTargetUUIDs)
             else -> NewsProviderContract.Filter.newEmptyFilter()
         }?.copy(inFocus = inFocus),
         comparator,

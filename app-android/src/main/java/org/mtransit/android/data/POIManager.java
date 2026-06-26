@@ -268,7 +268,7 @@ public class POIManager implements LocationPOI,
 				true,
 				() -> {
 					if (this.poi instanceof Module) {
-						return this.poi.getUUID();
+						return ((Module) this.poi).getPkg();
 					}
 					return null;
 				}
