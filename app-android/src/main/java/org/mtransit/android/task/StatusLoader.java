@@ -6,6 +6,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
@@ -16,7 +17,6 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.StatusProviderProperties;
 import org.mtransit.android.datasource.DataSourceRequestManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
@@ -48,7 +48,7 @@ public class StatusLoader implements MTLog.Loggable {
 	private final DataSourceRequestManager dataSourceRequestManager;
 
 	@NonNull
-	private final KeysManager keysManager;
+	private final DataSourceRequestManager dataSourceRequestManager;
 
 	@Inject
 	public StatusLoader(
@@ -123,7 +123,7 @@ public class StatusLoader implements MTLog.Loggable {
 						listener,
 						provider,
 						poim,
-						statusFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))
+						statusFilter
 				).executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
 			}
 		}
@@ -167,6 +167,7 @@ public class StatusLoader implements MTLog.Loggable {
 			this.statusFilter = statusFilter;
 		}
 
+		@WorkerThread
 		@Override
 		public boolean isCancelledMT() {
 			if (super.isCancelledMT()) return true;

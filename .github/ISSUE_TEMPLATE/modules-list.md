@@ -20,7 +20,7 @@ labels: MT
 - [ ] ca-campbell-river-transit-system-bus
 - [ ] ca-central-fraser-valley-transit-system-bus
 - [ ] ca-chambly-richelieu-carignan-citcrc-bus
-- [ ] ca-chilliwack-transit-system-bus (merged in ca-central-fraser-valley-transit-system-bus)
+- [ ] ca-charlottetown-t3-transit-bus
 - [ ] ca-clearwater-regional-transit-bus
 - [ ] ca-comox-valley-transit-system-bus
 - [ ] ca-cornwall-transit-bus
@@ -33,7 +33,6 @@ labels: MT
 - [ ] ca-edmonton-ets-bus
 - [ ] ca-edmonton-ets-train
 - [ ] ca-fort-st-john-transit-system-bus
-- [ ] ca-fraser-valley-express-bus (merged in ca-central-fraser-valley-transit-system-bus)
 - [ ] ca-fredericton-transit-bus
 - [ ] ca-gatineau-sto-bus
 - [ ] ca-grande-prairie-transit-bus
@@ -74,6 +73,7 @@ labels: MT
 - [ ] ca-mount-waddington-regional-transit-bus
 - [ ] ca-mrc-haut-st-laurent-bus
 - [ ] ca-mrc-montcalm-transport-collectif-bus
+- [ ] ca-mrc-nicolet-yamaska-bili-bus
 - [ ] ca-nanaimo-rdn-transit-system-bus
 - [ ] ca-niagara-falls-transit-bus
 - [ ] ca-niagara-falls-wego-bus
@@ -90,7 +90,9 @@ labels: MT
 - [ ] ca-prince-george-transit-system-bus
 - [ ] ca-prince-rupert-transit-bus
 - [ ] ca-quebec-a-velo-bike
+- [ ] ca-quebec-intercar-bus
 - [ ] ca-quebec-orleans-express-bus
+- [ ] ca-quebec-plumobile-bus
 - [ ] ca-quebec-rtc-bus
 - [ ] ca-quebec-traversiers-ferry
 - [ ] ca-quesnel-transit-bus

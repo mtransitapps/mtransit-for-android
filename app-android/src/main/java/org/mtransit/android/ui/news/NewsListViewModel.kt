@@ -116,8 +116,8 @@ class NewsListViewModel @Inject constructor(
             newsRepository.loadingNewsArticles(
                 allProviders = allNewsProviders,
                 targetProviderAuthorities = vmFilters?.targetAuthorities,
-                filterTargets = vmFilters?.filterTargets,
-                filterUUIDs = vmFilters?.filterUUIDs,
+                filterTargetUUIDs = vmFilters?.filterTargets,
+                filterArticleUUIDs = vmFilters?.filterUUIDs,
                 comparator = News.NEWS_COMPARATOR,
                 inFocus = vmFilters?.filterTargets?.isNotEmpty() == true,
                 firstLoad = newsArticles.value == null,

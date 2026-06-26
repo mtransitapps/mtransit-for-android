@@ -234,7 +234,7 @@ class ScheduleViewModel @Inject constructor(
         .switchMap { (poim, rtStatusProviders) ->
             liveData(viewModelScope.coroutineContext) {
                 rtStatusProviders ?: return@liveData
-                val statusFilter = poim?.filter ?: return@liveData
+                val statusFilter = poim?.getFilter(null) ?: return@liveData
                 rtStatusProviders.forEach { statusProvider ->
                     val schedule = dataSourceRequestManager.findStatus(statusProvider.authority, statusFilter) as? Schedule
                     _readFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })

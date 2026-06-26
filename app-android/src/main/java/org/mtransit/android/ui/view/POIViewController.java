@@ -24,7 +24,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.data.POIManager;
@@ -47,8 +47,6 @@ import org.mtransit.android.ui.view.poi.PlaceViewHolder;
 import org.mtransit.android.ui.view.poi.RouteDirectionStopViewHolder;
 import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder;
 import org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder;
-
-import java.util.List;
 
 public class POIViewController implements MTLog.Loggable {
 
@@ -345,7 +343,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	public static void updateServiceUpdatesView(@Nullable View view,
-												@NonNull List<ServiceUpdate> serviceUpdates,
+												@NonNull ServiceUpdates serviceUpdates,
 												@NonNull POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			MTLog.d(LOG_TAG, "updateServiceUpdatesView() > SKIP (no view or view holder)");

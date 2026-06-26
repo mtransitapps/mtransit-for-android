@@ -8,9 +8,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.ServiceUpdate
-import org.mtransit.android.commons.data.distinctByOriginalId
-import org.mtransit.android.commons.data.isSeverityWarningInfo
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
 import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
@@ -41,18 +39,18 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
     fun fetch(
         dataProvider: ServiceUpdateLoaderProvider,
         poim: POIManager
-    ): List<ServiceUpdate> {
+    ): ServiceUpdates {
         return if (dataProvider.isShowingServiceUpdates && serviceUpdateImg != null) {
             poim.addServiceUpdateLoaderListener(dataProvider)
             poim.getServiceUpdates(
                 dataProvider.providesServiceUpdateLoader(),
                 emptyList() // filter later
             )
-        } else emptyList()
+        } else ServiceUpdates.newEmpty()
     }
 
     fun update(
-        allServiceUpdates: List<ServiceUpdate>,
+        allServiceUpdates: ServiceUpdates,
         dataProvider: ServiceUpdateLoaderProvider,
     ) {
         serviceUpdateImg?.update(allServiceUpdates, dataProvider, other = false)
@@ -60,7 +58,7 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
     }
 
     private fun ImageView.update(
-        allServiceUpdates: List<ServiceUpdate>,
+        allServiceUpdates: ServiceUpdates,
         dataProvider: ServiceUpdateLoaderProvider,
         other: Boolean,
     ) {
@@ -75,7 +73,7 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
                 else !ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
             }
             .distinctByOriginalId()
-        val (isWarning, isInfo) = filteredServiceUpdates.isSeverityWarningInfo()
+        val (isWarning, isInfo) = filteredServiceUpdates.isSeverityWarningXorInfo()
         if (isWarning) {
             this.setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
         } else if (isInfo) {
@@ -109,7 +107,7 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
         @JvmStatic
         fun updateView(
             serviceUpdateViewHolder: POIServiceUpdateViewHolder?,
-            allServiceUpdates: List<ServiceUpdate>,
+            allServiceUpdates: ServiceUpdates,
             dataProvider: ServiceUpdateLoaderProvider
         ) {
             serviceUpdateViewHolder?.update(allServiceUpdates, dataProvider)

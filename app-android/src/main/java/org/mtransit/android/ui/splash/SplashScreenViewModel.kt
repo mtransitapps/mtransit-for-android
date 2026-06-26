@@ -17,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -74,11 +75,13 @@ class SplashScreenViewModel @Inject constructor(
 
         private const val KEEP_SPLASH_SCREEN_BELOW_AD = true
 
-        private val STATUS_DELAY = 500.milliseconds
+        private val DEPLOY_DATA_STATUS_DELAY = 500.milliseconds
 
-        private val DEPLOY_DATA_MAX_DURATION = 13.seconds
+        private val DEPLOY_DATA_UI_REPEATED = 3.seconds
 
-        private val DEPLOYING_FOR_REPEAT = 3.seconds
+        private val DEPLOY_DATA_MAX_DURATION = 7.seconds
+
+        private val DEPLOY_DATA_OVERALL_MAX_DURATION = 13.seconds
 
         private val FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT = 3.seconds
     }
@@ -198,26 +201,31 @@ class SplashScreenViewModel @Inject constructor(
     }
 
     private suspend fun deployAgencyData(agenciesWithSetupRequired: List<AgencyProperties>) = withContext(Dispatchers.IO) {
-        agenciesWithSetupRequired.forEach { agency ->
-            if (checkState()) return@withContext // BREAK
-            var deployingForTime = TimeUtilsK.currentInstant()
-            _deployingDataFor.postValue(agency.toEvent())
-            val start = TimeUtilsK.currentInstant()
-            dataSourceRequestManager.ping(agency.authority) // ASYNC (uses WorkManager)
-            if (checkState()) return@withContext // BREAK
-            var setupRequired = true
-            do {
-                delay(STATUS_DELAY)
-                if (checkState()) return@withContext // BREAK
-                if (deployingForTime + DEPLOYING_FOR_REPEAT < TimeUtilsK.currentInstant()) {
-                    deployingForTime = TimeUtilsK.currentInstant()
-                    _deployingDataFor.postValue(agency.toEvent())
-                }
-                dataSourcesReader.refreshSetupRequired(forcePkg = agency.pkg, skipTimeCheck = true, markUpdated = {})
-                dataSourcesStorage.getAgency(agency.authority)?.let { updatedAgency ->
-                    setupRequired = updatedAgency.setupRequired
-                }
-            } while (setupRequired && TimeUtilsK.currentInstant() < start + DEPLOY_DATA_MAX_DURATION)
+        withTimeoutOrNull(DEPLOY_DATA_OVERALL_MAX_DURATION) {
+            agenciesWithSetupRequired.forEach { agency ->
+                if (checkState()) return@withTimeoutOrNull // BREAK
+                ensureActive()
+                var deployingForTime = TimeUtilsK.currentInstant()
+                _deployingDataFor.postValue(agency.toEvent())
+                val start = TimeUtilsK.currentInstant()
+                dataSourceRequestManager.ping(agency.authority) // ASYNC (uses WorkManager)
+                if (checkState()) return@withTimeoutOrNull // BREAK
+                ensureActive()
+                var setupRequired = true
+                do {
+                    delay(DEPLOY_DATA_STATUS_DELAY)
+                    if (checkState()) return@withTimeoutOrNull // BREAK
+                    ensureActive()
+                    if (deployingForTime + DEPLOY_DATA_UI_REPEATED < TimeUtilsK.currentInstant()) {
+                        deployingForTime = TimeUtilsK.currentInstant()
+                        _deployingDataFor.postValue(agency.toEvent())
+                    }
+                    dataSourcesReader.refreshSetupRequired(forcePkg = agency.pkg, skipTimeCheck = true, markUpdated = {})
+                    dataSourcesStorage.getAgency(agency.authority)?.let { updatedAgency ->
+                        setupRequired = updatedAgency.setupRequired
+                    }
+                } while (setupRequired && TimeUtilsK.currentInstant() < start + DEPLOY_DATA_MAX_DURATION)
+            }
         }
         _deployingData.postValue(false.toEvent()) // maybe not fully done (if longer than max duration) but good enough
     }

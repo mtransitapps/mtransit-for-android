@@ -26,8 +26,6 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.distinctByOriginalId
-import org.mtransit.android.commons.data.isSeverityWarningInfo
 import org.mtransit.android.commons.findClosestPOISIdxUuid
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
@@ -487,7 +485,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 serviceUpdateLoader = serviceUpdateLoader,
                 ignoredUUIDsOrUnknown = routeDirectionM.routeDirection.route.allUUIDs
             ).distinctByOriginalId()
-            val (isWarning, isInfo) = serviceUpdates.isSeverityWarningInfo()
+            val (isWarning, isInfo) = serviceUpdates.isSeverityWarningXorInfo()
             if (isWarning) {
                 setImageResource(R.drawable.ic_warning_black_24dp)
                 isVisible = SHOW_SERVICE_UPDATE_FAB

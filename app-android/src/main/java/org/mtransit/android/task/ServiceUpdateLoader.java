@@ -19,12 +19,10 @@ import org.mtransit.android.data.RouteManager;
 import org.mtransit.android.data.ServiceUpdateProviderProperties;
 import org.mtransit.android.datasource.DataSourceRequestManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -52,7 +50,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	private final DataSourceRequestManager dataSourceRequestManager;
 
 	@NonNull
-	private final KeysManager keysManager;
+	private final DataSourceRequestManager dataSourceRequestManager;
 
 	@Inject
 	public ServiceUpdateLoader(
@@ -189,7 +187,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 					provider,
 					targetUUID,
 					mainListener,
-					serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))
+					serviceUpdateFilter
 			).executeOnExecutor(getFetchServiceUpdateExecutor());
 		}
 		return true;
@@ -330,6 +328,6 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	public interface ServiceUpdateLoaderListener {
-		void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull List<ServiceUpdate> serviceUpdates);
+		void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates);
 	}
 }

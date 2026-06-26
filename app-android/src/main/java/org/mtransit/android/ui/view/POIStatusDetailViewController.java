@@ -27,7 +27,7 @@ import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteDirectionStop;
-import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.data.UISchedule.DetailsNextDepartures;
@@ -39,7 +39,6 @@ import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.android.util.UITimeUtilsExtKt;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -335,7 +334,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 										   @NonNull POIDataProvider dataProvider,
 										   @Nullable POIManager optPOIM) {
 		final POI optPOI = optPOIM == null ? null : optPOIM.poi;
-		final List<ServiceUpdate> serviceUpdates = optPOIM == null ? null : optPOIM.getServiceUpdatesOrNull();
+		final ServiceUpdates serviceUpdates = optPOIM == null ? null : optPOIM.getServiceUpdatesOrNull();
 		ArrayList<DetailsNextDepartures> nextDeparturesList = null;
 		TimeZone localTimeZone = null;
 		if (status instanceof UISchedule) {

@@ -32,6 +32,7 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
 import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.GTFSProviderContract;
 import org.mtransit.android.commons.provider.agency.AgencyProviderContract;
@@ -100,7 +101,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static List<ServiceUpdate> findServiceUpdates(
+	public static ServiceUpdates findServiceUpdates(
 			@NonNull Context context,
 			@NonNull String authority,
 			@Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter
@@ -120,8 +121,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static List<ServiceUpdate> getServiceUpdates(@Nullable Cursor cursor) {
-		final List<ServiceUpdate> result = new ArrayList<>();
+	private static ServiceUpdates getServiceUpdates(@Nullable Cursor cursor) {
+		final ServiceUpdates result = new ServiceUpdates();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -137,7 +138,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJSONString();
-			Uri uri = Uri.withAppendedPath(getUri(authority), NewsProviderContract.NEWS_PATH);
+			final Uri uri = Uri.withAppendedPath(getUri(authority), NewsProviderContract.NEWS_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
 			return getNews(cursor, authority);
 		} catch (Exception e) {
@@ -150,7 +151,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@NonNull
 	private static ArrayList<News> getNews(@Nullable Cursor cursor, @NonNull String authority) {
-		ArrayList<News> result = new ArrayList<>();
+		final ArrayList<News> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -203,8 +204,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 	) {
 		Cursor cursor = null;
 		try {
-			String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
-			Uri uri = Uri.withAppendedPath(getUri(authority), ScheduleTimestampsProviderContract.SCHEDULE_TIMESTAMPS_PATH);
+			final String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
+			final Uri uri = Uri.withAppendedPath(getUri(authority), ScheduleTimestampsProviderContract.SCHEDULE_TIMESTAMPS_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJSONString, null, null);
 			return getScheduleTimestamp(cursor);
 		} catch (Exception e) {
@@ -230,8 +231,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static POIStatus findStatus(@NonNull Context context, @NonNull String authority, @NonNull StatusProviderContract.Filter statusFilter) {
 		Cursor cursor = null;
 		try {
-			String statusFilterJSONString = statusFilter.toJSONStringStatic(statusFilter);
-			Uri uri = Uri.withAppendedPath(getUri(authority), StatusProviderContract.STATUS_PATH);
+			final String statusFilterJSONString = statusFilter.toJSONStringStatic(statusFilter);
+			final Uri uri = Uri.withAppendedPath(getUri(authority), StatusProviderContract.STATUS_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
 			return getPOIStatus(cursor);
 		} catch (Exception e) {
@@ -247,7 +248,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		POIStatus result = null;
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
-				int status = POIStatus.getTypeFromCursor(cursor);
+				final int status = POIStatus.getTypeFromCursor(cursor);
 				switch (status) {
 				case POI.ITEM_STATUS_TYPE_NONE:
 					break;
@@ -412,7 +413,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		JPaths result = null;
 		Cursor cursor = null;
 		try {
-			Uri uri = Uri.withAppendedPath(getUri(authority), GTFSProviderContract.ROUTE_LOGO_PATH);
+			final Uri uri = Uri.withAppendedPath(getUri(authority), GTFSProviderContract.ROUTE_LOGO_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
@@ -431,10 +432,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static Direction findRDSDirection(@NonNull Context context, @NonNull String authority, long directionId) {
 		Cursor cursor = null;
 		try {
-			Uri uri = getRDSDirectionsUri(authority);
-			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ID, directionId);
+			final Uri uri = getRDSDirectionsUri(authority);
+			final String selection = SqlUtils.getWhereEquals(GTFSProviderContract.DirectionColumns.T_DIRECTION_K_ID, directionId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_DIRECTION, selection, null, null);
-			ArrayList<Direction> rdsDirections = getRDSDirections(cursor, authority);
+			final ArrayList<Direction> rdsDirections = getRDSDirections(cursor, authority);
 			return rdsDirections.isEmpty() ? null : rdsDirections.get(0);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading route direction '%d' from '%s'!", directionId, authority);
@@ -529,8 +530,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	@Nullable
-	public static Cursor queryContentResolver(
+	private static Cursor queryContentResolver(
 			@NonNull ContentResolver contentResolver,
 			@NonNull Uri uri,
 			@Nullable String[] projection, @Nullable String selection,
@@ -571,7 +573,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static List<Route> findAllRDSAgencyRoutes(@NonNull Context context, @NonNull String authority) {
 		Cursor cursor = null;
 		try {
-			Uri uri = getRDSRoutesUri(authority);
+			final Uri uri = getRDSRoutesUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, null, null, null);
 			return getRDSRoutes(cursor, authority);
 		} catch (Exception e) {
@@ -611,8 +613,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 				CrashUtils.w(LOG_TAG, "Invalid POI filter '%s'!", poiFilter); // should never happen
 				return Collections.emptyList();
 			}
-			String filterJsonString = filterJSON.toString();
-			Uri uri = getPOIUri(authority);
+			final String filterJsonString = filterJSON.toString();
+			final Uri uri = getPOIUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
 			return getPOIMs(cursor, authority);
 		} catch (Exception e) {

@@ -4,13 +4,14 @@ import android.content.Context
 import org.mtransit.android.R
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.commons.data.originalDepartureDelay
 import kotlin.math.roundToLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.DurationUnit
 
-fun List<ServiceUpdate>?.findServiceUpdate(tripId: String?): ServiceUpdate? {
+fun ServiceUpdates?.findServiceUpdate(tripId: String?): ServiceUpdate? {
     tripId ?: return null
     this ?: return null
     return find { serviceUpdate -> serviceUpdate.targetTripId == tripId }

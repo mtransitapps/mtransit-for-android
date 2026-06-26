@@ -7,6 +7,9 @@ import static org.junit.Assert.assertNull;
 
 import com.google.android.libraries.places.api.net.SearchByTextRequest;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 public class PlaceProviderTest {
 
 	private static final Double LAT = 45.503937;
@@ -16,7 +19,7 @@ public class PlaceProviderTest {
 	@Test
 	public void testGetTextSearchUrlString_null() {
 		// Arrange
-		String[] searchKeywords = null;
+		Iterable<String> searchKeywords = null;
 		// Act
 		//noinspection ConstantConditions
 		SearchByTextRequest result = PlaceProvider.getTextSearchRequest(LAT, LNG, RADIUS_IN_METERS, searchKeywords);
@@ -27,7 +30,7 @@ public class PlaceProviderTest {
 	@Test
 	public void testGetTextSearchUrlString_empty() {
 		// Arrange
-		String[] searchKeywords = new String[0];
+		Iterable<String> searchKeywords = Collections.emptyList();
 		// Act
 		SearchByTextRequest result = PlaceProvider.getTextSearchRequest(LAT, LNG, RADIUS_IN_METERS, searchKeywords);
 		// Assert
@@ -37,7 +40,7 @@ public class PlaceProviderTest {
 	@Test
 	public void testGetTextSearchUrlString_emptyArray() {
 		// Arrange
-		String[] searchKeywords = new String[]{null, "", " "};
+		Iterable<String> searchKeywords = Arrays.asList(null, "", " ");
 		// Act
 		SearchByTextRequest result = PlaceProvider.getTextSearchRequest(LAT, LNG, RADIUS_IN_METERS, searchKeywords);
 		// Assert
@@ -47,7 +50,7 @@ public class PlaceProviderTest {
 	@Test
 	public void testGetTextSearchUrlString_digitOnly() {
 		// Arrange
-		String[] searchKeywords = new String[]{"1234"};
+		Iterable<String> searchKeywords = Collections.singleton("1234");
 		// Act
 		SearchByTextRequest result = PlaceProvider.getTextSearchRequest(LAT, LNG, RADIUS_IN_METERS, searchKeywords);
 		// Assert
@@ -57,7 +60,7 @@ public class PlaceProviderTest {
 	@Test
 	public void testGetTextSearchUrlString_digitAndString() {
 		// Arrange
-		String[] searchKeywords = new String[]{"1234", "Street st"};
+		Iterable<String> searchKeywords = Arrays.asList("1234", "Street st");
 		// Act
 		SearchByTextRequest result = PlaceProvider.getTextSearchRequest(LAT, LNG, RADIUS_IN_METERS, searchKeywords);
 		// Assert
@@ -67,7 +70,7 @@ public class PlaceProviderTest {
 	@Test
 	public void testGetTextSearchUrlString_smallString() {
 		// Arrange
-		String[] searchKeywords = new String[]{"ab"};
+		Iterable<String> searchKeywords = Collections.singleton("ab");
 		// Act
 		SearchByTextRequest result = PlaceProvider.getTextSearchRequest(LAT, LNG, RADIUS_IN_METERS, searchKeywords);
 		// Assert
@@ -77,11 +80,10 @@ public class PlaceProviderTest {
 	@Test
 	public void testGetTextSearchUrlString_bigString() {
 		// Arrange
-		String[] searchKeywords = new String[]{"abc"};
+		Iterable<String> searchKeywords = Collections.singleton("abc");
 		// Act
 		SearchByTextRequest result = PlaceProvider.getTextSearchRequest(LAT, LNG, RADIUS_IN_METERS, searchKeywords);
 		// Assert
 		assertNotNull(result);
 	}
-
 }
