@@ -502,7 +502,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public POIStatus getNewStatus(@NonNull StatusProviderContract.Filter filter) {
 		if (!(filter instanceof AppStatusFilter)) {
-			MTLog.w(this, "getNewStatus() > Can't find new schedule without AppStatusFilter!");
+			MTLog.w(this, "getNewStatus() > Can't find new app status without AppStatusFilter!");
 			return null;
 		}
 		final AppStatusFilter moduleStatusFilter = (AppStatusFilter) filter;
