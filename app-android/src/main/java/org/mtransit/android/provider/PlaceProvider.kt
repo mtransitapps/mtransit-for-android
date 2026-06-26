@@ -56,11 +56,11 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     override fun getAgencyUriMatcher() = URI_MATCHER
 
-    override fun getSearchSuggest(query: String?) = null // TODO implement Place/Query auto-complete
+    override fun getSearchSuggest(query: String?): Cursor? = null // TODO implement Place/Query auto-complete
 
-    override val searchSuggestProjectionMap = null // TODO implement Place/Query auto-complete
+    override val searchSuggestProjectionMap: ArrayMap<String, String>? = null // TODO implement Place/Query auto-complete
 
-    override val searchSuggestTable = null // TODO implement Place/Query auto-complete
+    override val searchSuggestTable: String? = null // TODO implement Place/Query auto-complete
 
     override val pOITable = PlaceDbHelper.T_PLACE
 
