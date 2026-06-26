@@ -73,7 +73,7 @@ import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteDirectionStop;
-import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
+import org.mtransit.android.commons.data.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.provider.news.NewsProviderContract;
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
@@ -644,7 +644,7 @@ public class POIFragment extends ABFragment implements
 											poim.getColor(dataSourcesRepository),
 											POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 											Collections.singletonList(poim.poi.getAuthority()),
-											NewsProviderContract.Filter.makeTargets(poim.poi),
+											NewsProviderContract.Filter.toTargetsUUIDs(poim.poi),
 											null,
 											article.getAuthority(),
 											article.getUUID()
@@ -660,7 +660,7 @@ public class POIFragment extends ABFragment implements
 												poim.getColor(dataSourcesRepository),
 												POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 												Collections.singletonList(poim.poi.getAuthority()),
-												NewsProviderContract.Filter.makeTargets(poim.poi),
+												NewsProviderContract.Filter.toTargetsUUIDs(poim.poi),
 												null,
 												article.getAuthority(),
 												article.getUUID()
@@ -860,7 +860,7 @@ public class POIFragment extends ABFragment implements
 								poim.getColor(dataSourcesRepository),
 								POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 								Collections.singletonList(poim.poi.getAuthority()),
-								NewsProviderContract.Filter.makeTargets(poim.poi)
+								NewsProviderContract.Filter.toTargetsUUIDs(poim.poi)
 						),
 						null,
 						extras
@@ -876,7 +876,7 @@ public class POIFragment extends ABFragment implements
 								poim.getColor(dataSourcesRepository),
 								POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
 								Collections.singletonList(poim.poi.getAuthority()),
-								NewsProviderContract.Filter.makeTargets(poim.poi)
+								NewsProviderContract.Filter.toTargetsUUIDs(poim.poi)
 						),
 						POIFragment.this
 				);

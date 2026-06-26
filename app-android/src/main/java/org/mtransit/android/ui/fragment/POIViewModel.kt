@@ -164,7 +164,7 @@ class POIViewModel @Inject constructor(
                 trigger ?: return@liveData // skip when not visible
                 emit(
                     vehicleLocationProviders.mapNotNull {
-                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds).apply { inFocus = true })
+                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds).copy(inFocus = true))
                     }.flatten()
                 )
             }

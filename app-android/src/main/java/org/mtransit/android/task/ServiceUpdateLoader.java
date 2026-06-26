@@ -1,7 +1,6 @@
 package org.mtransit.android.task;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
@@ -13,13 +12,12 @@ import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
-import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.RouteDirectionManager;
 import org.mtransit.android.data.RouteManager;
 import org.mtransit.android.data.ServiceUpdateProviderProperties;
+import org.mtransit.android.datasource.DataSourceRequestManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
@@ -33,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import dagger.hilt.android.qualifiers.ApplicationContext;
-
 @Singleton
 public class ServiceUpdateLoader implements MTLog.Loggable {
 
@@ -47,23 +43,18 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private final Context appContext;
-
-	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
 	@NonNull
-	private final KeysManager keysManager;
+	private final DataSourceRequestManager dataSourceRequestManager;
 
 	@Inject
 	public ServiceUpdateLoader(
-			@NonNull @ApplicationContext Context appContext,
 			@NonNull DataSourcesRepository dataSourcesRepository,
-			@NonNull KeysManager keysManager
+			@NonNull DataSourceRequestManager dataSourceRequestManager
 	) {
-		this.appContext = appContext;
 		this.dataSourcesRepository = dataSourcesRepository;
-		this.keysManager = keysManager;
+		this.dataSourceRequestManager = dataSourceRequestManager;
 	}
 
 	private ThreadPoolExecutor fetchServiceUpdateExecutor;
@@ -100,10 +91,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findServiceUpdate(@NonNull POIManager poim,
-									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
-									 boolean skipIfBusy) {
+	public boolean findServiceUpdate(
+			@NonNull POIManager poim,
+			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
+			@Nullable Collection<ServiceUpdateLoaderListener> listeners,
+			boolean skipIfBusy
+	) {
 		// SUPPORTED BY ALL SERVICE UPDATE PROVIDERS
 		return findServiceUpdate(
 				poim.poi.getAuthority(),
@@ -123,10 +116,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		ROUTE_DIRECTION_NOT_SUPPORTED = collection;
 	}
 
-	public boolean findServiceUpdate(@NonNull RouteDirectionManager routeDirectionM,
-									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
-									 boolean skipIfBusy) {
+	public boolean findServiceUpdate(
+			@NonNull RouteDirectionManager routeDirectionM,
+			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
+			@Nullable Collection<ServiceUpdateLoaderListener> listeners,
+			boolean skipIfBusy
+	) {
 		if (ROUTE_DIRECTION_NOT_SUPPORTED.contains(routeDirectionM.getAuthority())) return true; // not skipped // not supported
 		return findServiceUpdate(
 				routeDirectionM.getAuthority(),
@@ -148,10 +143,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		ROUTE_NOT_SUPPORTED = collection;
 	}
 
-	public boolean findServiceUpdate(@NonNull RouteManager routeM,
-									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
-									 boolean skipIfBusy) {
+	public boolean findServiceUpdate(
+			@NonNull RouteManager routeM,
+			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
+			@Nullable Collection<ServiceUpdateLoaderListener> listeners,
+			boolean skipIfBusy
+	) {
 		if (ROUTE_NOT_SUPPORTED.contains(routeM.getAuthority())) return true; // not skipped // not supported
 		return findServiceUpdate(
 				routeM.getAuthority(),
@@ -164,23 +161,26 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	@AnyThread
-	private boolean findServiceUpdate(@NonNull String targetAuthority,
-									  @NonNull String targetUUID,
-									  @NonNull ServiceUpdateLoaderListener mainListener,
-									  @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									  @Nullable Collection<ServiceUpdateLoaderListener> listeners,
-									  boolean skipIfBusy) {
+	private boolean findServiceUpdate(
+			@NonNull String targetAuthority,
+			@NonNull String targetUUID,
+			@NonNull ServiceUpdateLoaderListener mainListener,
+			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
+			@Nullable Collection<ServiceUpdateLoaderListener> listeners,
+			boolean skipIfBusy
+	) {
 		if (skipIfBusy && isBusy()) return false;
 		final Collection<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(targetAuthority);
 		if (providers.isEmpty()) return true;
 		for (ServiceUpdateProviderProperties provider : providers) {
 			if (provider == null) continue;
-			new ServiceUpdateFetcherCallable(this.appContext,
+			new ServiceUpdateFetcherCallable(
+					this.dataSourceRequestManager,
 					listeners,
 					provider,
 					targetUUID,
 					mainListener,
-					serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))
+					serviceUpdateFilter
 			).executeOnExecutor(getFetchServiceUpdateExecutor());
 		}
 		return true;
@@ -198,7 +198,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@NonNull
-		private final WeakReference<Context> contextWR;
+		private final DataSourceRequestManager dataSourceRequestManager;
 		@NonNull
 		private final ServiceUpdateProviderProperties serviceUpdateProvider;
 		@NonNull
@@ -210,13 +210,15 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		@NonNull
 		private final ServiceUpdateProviderContract.Filter serviceUpdateFilter;
 
-		ServiceUpdateFetcherCallable(@Nullable Context context,
-									 @Nullable Collection<ServiceUpdateLoaderListener> listeners,
-									 @NonNull ServiceUpdateProviderProperties serviceUpdateProvider,
-									 @NonNull String targetUUID,
-									 @Nullable ServiceUpdateLoaderListener mainListener,
-									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
-			this.contextWR = new WeakReference<>(context);
+		ServiceUpdateFetcherCallable(
+				@NonNull DataSourceRequestManager dataSourceRequestManager,
+				@Nullable Collection<ServiceUpdateLoaderListener> listeners,
+				@NonNull ServiceUpdateProviderProperties serviceUpdateProvider,
+				@NonNull String targetUUID,
+				@Nullable ServiceUpdateLoaderListener mainListener,
+				@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter
+		) {
+			this.dataSourceRequestManager = dataSourceRequestManager;
 			this.listenerWR = new WeakHashMap<>();
 			if (listeners != null) {
 				for (ServiceUpdateLoaderListener listener : listeners) {
@@ -232,7 +234,10 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		@Override
 		protected ServiceUpdates doInBackgroundNotCancelledMT(Void... params) {
 			try {
-				return call();
+				final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
+				if (mainListener == null) return null;
+				//noinspection DiscouragedApi
+				return dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider, this.serviceUpdateFilter);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while running task!");
 				return null;
@@ -241,26 +246,13 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable ServiceUpdates result) {
-			if (result == null) {
-				return;
-			}
+			if (result == null) return;
 			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
-			if (mainListener == null) {
-				return;
-			}
+			if (mainListener == null) return;
 			mainListener.onServiceUpdatesLoaded(targetUUID, result);
 			for (ServiceUpdateLoaderListener listener : this.listenerWR.keySet()) {
 				listener.onServiceUpdatesLoaded(targetUUID, result);
 			}
-		}
-
-		@Nullable
-		ServiceUpdates call() {
-			final Context context = this.contextWR.get();
-			if (context == null) return null;
-			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
-			if (mainListener == null) return null;
-			return DataSourceManager.findServiceUpdates(context, this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter);
 		}
 	}
 

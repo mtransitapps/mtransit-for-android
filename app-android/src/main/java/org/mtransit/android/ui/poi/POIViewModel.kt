@@ -27,7 +27,7 @@ package org.mtransit.android.ui.poi
 //import org.mtransit.android.commons.data.News
 //import org.mtransit.android.commons.data.POI
 //import org.mtransit.android.commons.data.POIStatus
-//import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter
+//import org.mtransit.android.commons.data.ScheduleStatusFilter
 //import org.mtransit.android.commons.data.ServiceUpdate
 //import org.mtransit.android.commons.provider.news.NewsProviderContract
 //import org.mtransit.android.commons.provider.poi.POIProviderContract

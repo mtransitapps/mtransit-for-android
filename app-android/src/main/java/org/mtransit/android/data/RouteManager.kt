@@ -66,9 +66,9 @@ data class RouteManager(
         if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
             isNotSkipped = serviceUpdateLoader.findServiceUpdate(
                 this,
-                ServiceUpdateProviderContract.Filter(this.authority, this.route).apply {
-                    setInFocus(inFocus)
-                },
+                ServiceUpdateProviderContract.Filter(this.authority, this.route).copy(
+                    inFocus = this.inFocus
+                ),
                 this.serviceUpdateLoaderListenersWR.keys,
                 skipIfBusy
             )

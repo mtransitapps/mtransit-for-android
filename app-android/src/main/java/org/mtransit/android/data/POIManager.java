@@ -35,7 +35,7 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteDirectionStop;
-import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
+import org.mtransit.android.commons.data.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
@@ -242,9 +242,8 @@ public class POIManager implements LocationPOI,
 		long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
-			StatusProviderContract.Filter filter = getFilter();
+			StatusProviderContract.Filter filter = getFilter(this.inFocus);
 			if (filter != null) {
-				filter.setInFocus(this.inFocus);
 				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
 				isNotSkipped = statusLoader.findStatus(this, filter, listener, skipIfBusy);
 				if (isNotSkipped) {
@@ -260,36 +259,20 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Nullable
-	public StatusProviderContract.Filter getFilter() {
-		switch (getStatusType()) {
-		case POI.ITEM_STATUS_TYPE_NONE:
-			return null;
-		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			if (this.poi instanceof RouteDirectionStop) {
-				RouteDirectionStop rds = (RouteDirectionStop) this.poi;
-				ScheduleStatusFilter filter = new ScheduleStatusFilter(rds);
-				filter.setLookBehindInMs(UITimeUtils.RECENT_IN_MILLIS);
-				filter.setMaxDataRequests(this.scheduleMaxDataRequests);
-				filter.setIncludeCancelledTimestamps(true);
-				return filter;
-			} else {
-				MTLog.w(this, "Schedule filter w/o '%s'!", this.poi);
-				return null;
-			}
-		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			return new AvailabilityPercent.AvailabilityPercentStatusFilter(this.poi.getUUID());
-		case POI.ITEM_STATUS_TYPE_APP:
-			if (poi instanceof Module) {
-				Module module = (Module) this.poi;
-				return new AppStatus.AppStatusFilter(this.poi.getUUID(), module.getPkg());
-			} else {
-				MTLog.w(this, "App status filter w/o '%s'!", this.poi);
-				return null;
-			}
-		default:
-			MTLog.w(this, "Unexpected status type '%s´  for filter!", getStatusType());
-			return null;
-		}
+	public StatusProviderContract.Filter getFilter(@Nullable Boolean inFocus) {
+		return StatusProviderContract.Filter.from(
+				this.poi,
+				inFocus,
+				UITimeUtils.RECENT_IN_MILLIS,
+				this.scheduleMaxDataRequests,
+				true,
+				() -> {
+					if (this.poi instanceof Module) {
+						return ((Module) this.poi).getPkg();
+					}
+					return null;
+				}
+		);
 	}
 
 	@NonNull
@@ -348,8 +331,7 @@ public class POIManager implements LocationPOI,
 		final long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
-			final ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);
-			filter.setInFocus(this.inFocus);
+			final ServiceUpdateProviderContract.Filter filter = ServiceUpdateProviderContract.Filter.from(this.poi, this.inFocus);
 			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
 			if (isNotSkipped) {
 				this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
