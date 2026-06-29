@@ -23,7 +23,6 @@ import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocat
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
-import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.JPaths
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
@@ -63,23 +62,22 @@ class DataSourceRequestManager(
         DataSourceManager.ping(appContext, agencyAuthority)
     }
 
-    suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = withContext(ioDispatcher) {
-        DataSourceManager.findPOI(appContext, authority, poiFilter)?.poi
-    }
+    // region POI
+
+    suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = findPOIM(authority, poiFilter)?.poi
 
     suspend fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? = withContext(ioDispatcher) {
-        DataSourceManager.findPOI(appContext, authority, poiFilter)
+        DataSourceManager.findPOIM(appContext, authority, poiFilter)
     }
 
-    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI> = withContext(ioDispatcher) {
-        DataSourceManager.findPOIs(appContext, authority, poiFilter).map { it.poi }
-    }
-
-    suspend fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
+    @Suppress("unused")
+    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI> = findPOIMs(authority, poiFilter).map { it.poi }
 
     suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager> = withContext(ioDispatcher) {
-        DataSourceManager.findPOIs(appContext, authority, poiFilter)
+        DataSourceManager.findPOIMs(appContext, authority, poiFilter)
     }
+
+    // endregion POI
 
     suspend fun findAgencyAvailableVersionCode(authority: String, forceAppUpdateRefresh: Boolean = false, inFocus: Boolean = false): Int? =
         withContext(ioDispatcher) {

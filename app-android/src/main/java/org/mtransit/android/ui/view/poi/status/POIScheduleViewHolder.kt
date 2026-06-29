@@ -3,6 +3,7 @@ package org.mtransit.android.ui.view.poi.status
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.ServiceUpdates
@@ -16,7 +17,9 @@ data class POIScheduleViewHolder(
     override var uuid: String,
     override val statusV: View,
     override val binding: LayoutPoiStatusScheduleBinding,
-) : POICommonStatusViewHolder<LayoutPoiStatusScheduleBinding, Schedule> {
+) : POICommonStatusViewHolder<LayoutPoiStatusScheduleBinding, Schedule>, MTLog.Loggable {
+
+    override fun getLogTag() = "$LOG_TAG-$uuid"
 
     override fun fetch(
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
@@ -70,6 +73,8 @@ data class POIScheduleViewHolder(
     }
 
     companion object {
+        private val LOG_TAG: String = POIScheduleViewHolder::class.java.simpleName
+
         @JvmStatic
         fun fromStatusView(view: View, uuid: String) = POIScheduleViewHolder(
             uuid = uuid,

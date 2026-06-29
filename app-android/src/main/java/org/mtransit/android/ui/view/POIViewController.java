@@ -264,9 +264,11 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updatePlaceExtra(@NonNull POIManager poim,
-										 @NonNull PlaceViewHolder holder,
-										 @NonNull POIDataProvider dataProvider) {
+	private static void updatePlaceExtra(
+			@NonNull POIManager poim,
+			@NonNull PlaceViewHolder holder,
+			@NonNull POIDataProvider dataProvider
+	) {
 		if (poim.poi instanceof Place) {
 			final Place place = (Place) poim.poi;
 			POIViewUtils.setupPOIExtraLayoutBackground(holder.getPlaceIconImg(), poim, dataProvider.providesDataSourcesRepository());
@@ -285,9 +287,11 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateModuleExtra(@NonNull POIManager poim,
-										  @NonNull ModuleViewHolder holder,
-										  @NonNull POIDataProvider dataProvider) {
+	private static void updateModuleExtra(
+			@NonNull POIManager poim,
+			@NonNull ModuleViewHolder holder,
+			@NonNull POIDataProvider dataProvider
+	) {
 		if (poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
 			POIViewUtils.setupPOIExtraLayoutBackground(holder.getModuleExtraTypeImg(), poim, dataProvider.providesDataSourcesRepository());
@@ -342,9 +346,11 @@ public class POIViewController implements MTLog.Loggable {
 		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, dataProvider);
 	}
 
-	public static void updateServiceUpdatesView(@Nullable View view,
-												@NonNull ServiceUpdates serviceUpdates,
-												@NonNull POIDataProvider dataProvider) {
+	public static void updateServiceUpdatesView(
+			@Nullable View view,
+			@NonNull ServiceUpdates serviceUpdates,
+			@NonNull POIDataProvider dataProvider
+	) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			MTLog.d(LOG_TAG, "updateServiceUpdatesView() > SKIP (no view or view holder)");
 			return;
@@ -353,9 +359,11 @@ public class POIViewController implements MTLog.Loggable {
 		POIServiceUpdateViewHolder.updateView(holder.getServiceUpdateViewHolder(), serviceUpdates, dataProvider);
 	}
 
-	public static void updatePOIServiceUpdate(@Nullable View view,
-											  @NonNull POIManager poim,
-											  @NonNull POIDataProvider dataProvider) {
+	public static void updatePOIServiceUpdate(
+			@Nullable View view,
+			@NonNull POIManager poim,
+			@NonNull POIDataProvider dataProvider
+	) {
 		if (view == null) {
 			MTLog.d(LOG_TAG, "updatePOIServiceUpdate() > SKIP (no view");
 			return;

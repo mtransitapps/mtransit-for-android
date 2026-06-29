@@ -426,6 +426,7 @@ class HomeViewModel @Inject constructor(
     override fun initiateRefresh(): Boolean {
         val newDeviceLocation = this.deviceLocation.value ?: return false
         val currentNearbyLocation = this._nearbyLocation.value
+        @Suppress("SimplifyBooleanWithConstants")
         if (!IGNORE_SAME_LOCATION_CHECK
             && LocationUtils.areAlmostTheSame(currentNearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)
         ) {

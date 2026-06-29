@@ -107,14 +107,12 @@ class POIViewModel @Inject constructor(
         DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
     ).distinctUntilChanged()
 
-    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
-        getPOIManager(agency, uuid)
-    }
-
-    private fun getPOIManager(agency: IAgencyProperties?, uuid: String?) =
-        poiRepository.readingPOIM(agency, uuid, poim.value, onDataSourceRemoved = {
-            dataSourceRemovedEvent.postValue(Event(true))
-        })
+    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid)
+        .switchMap { (agency, uuid) -> // #onModulesUpdated
+            poiRepository.readingPOIM(agency, uuid, currentValue = poim.value, onDataSourceRemoved = {
+                dataSourceRemovedEvent.postValue(Event(true))
+            })
+        }
 
     private val _poi = this.poim.map {
         it?.poi
@@ -165,7 +163,8 @@ class POIViewModel @Inject constructor(
                 trigger ?: return@liveData // skip when not visible
                 emit(
                     vehicleLocationProviders.mapNotNull {
-                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds).copy(inFocus = true))
+                        val filter = VehicleLocationProviderContract.Filter(rds).copy(inFocus = true)
+                        dataSourceRequestManager.findRDSVehicleLocations(it, filter)
                     }.flatten()
                 )
             }
@@ -176,7 +175,7 @@ class POIViewModel @Inject constructor(
             agency ?: return@liveData
             poi ?: return@liveData
             emit(
-                getPOIList(agency, poi)
+                poiRepository.findPOIMs(agency, getFilter(poi))
                     .apply {
                         if (poi !is RouteDirectionStop) {
                             updateDistanceM(poi.lat, poi.lng)
@@ -187,26 +186,22 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getPOIList(agency: IAgencyProperties, poi: POI) =
-        this.poiRepository.findPOIMs(
-            agency,
-            when (poi) {
-                is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
-                    SqlUtils.getWhereEquals(
-                        GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
-                    )
-                ).copy(
-                    extras = SimpleArrayMap<String, Any>().apply {
-                        put(
-                            POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
-                            SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
-                        )
-                    },
+    private fun getFilter(poi: POI): POIProviderContract.Filter = when (poi) {
+        is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
+            SqlUtils.getWhereEquals(
+                GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
+            )
+        ).copy(
+            extras = SimpleArrayMap<String, Any>().apply {
+                put(
+                    POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
+                    SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
                 )
-
-                else -> POIProviderContract.Filter.getNewEmptyFilter()
-            }
+            },
         )
+
+        else -> POIProviderContract.Filter.getNewEmptyFilter()
+    }
 
     private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)
