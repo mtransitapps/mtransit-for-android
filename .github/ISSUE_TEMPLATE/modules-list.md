@@ -71,6 +71,7 @@ labels: MT
 - [ ] ca-montreal-stm-bus
 - [ ] ca-montreal-stm-subway
 - [ ] ca-mont-tremblant-bus
+- [ ] ca-moose-jaw-transit-bus
 - [ ] ca-mount-waddington-regional-transit-bus
 - [ ] ca-mrc-haut-st-laurent-bus
 - [ ] ca-mrc-montcalm-transport-collectif-bus
