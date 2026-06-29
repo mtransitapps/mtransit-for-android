@@ -1060,7 +1060,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				POICommonStatusViewHolder.updateView(statusViewHolder, status, this, poiServiceUpdates);
 			} else if (isResumed()) {
 				notifyDataSetChanged(false);
-			} else {
 			}
 		}
 	}
@@ -1112,7 +1111,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	) {
 		final long now = UITimeUtils.currentTimeMillis();
 		final long adapterThresholdMs = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
-		final boolean timeElapsed = this.lastNotifyDataSetChanged + adapterThresholdMs < now;
 		if ((this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE // WARNING: scroll state can stay stuck in other state
 				&& (doNotIgnore || this.lastNotifyDataSetChanged + adapterThresholdMs < now))
 				|| (this.lastNotifyDataSetChanged + (adapterThresholdMs * 2L) < now)) {
