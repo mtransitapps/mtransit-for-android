@@ -9,6 +9,7 @@ labels: MT
 # Modules
 - [ ] ca-100-mile-house-transit-bus
 - [ ] ca-airdrie-transit-bus
+- [ ] ca-annapolis-valley-tidal-transit-bus
 - [ ] ca-ashcroft-cache-creek-clinton-regional-transit-bus
 - [ ] ca-banff-roam-transit-bus
 - [ ] ca-barrie-transit-bus
@@ -70,6 +71,7 @@ labels: MT
 - [ ] ca-montreal-stm-bus
 - [ ] ca-montreal-stm-subway
 - [ ] ca-mont-tremblant-bus
+- [ ] ca-moose-jaw-transit-bus
 - [ ] ca-mount-waddington-regional-transit-bus
 - [ ] ca-mrc-haut-st-laurent-bus
 - [ ] ca-mrc-montcalm-transport-collectif-bus
