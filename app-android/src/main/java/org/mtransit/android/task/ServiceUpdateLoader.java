@@ -235,9 +235,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 		@Override
 		public boolean isCancelledMT() {
-			if (super.isCancelledMT()) return true;
-			if (this.mainListenerWR.get() == null && this.listenerWR.isEmpty()) return true;
-			return false;
+			return super.isCancelledMT()
+					|| (this.mainListenerWR.get() == null && this.listenerWR.isEmpty());
 		}
 
 		@Override

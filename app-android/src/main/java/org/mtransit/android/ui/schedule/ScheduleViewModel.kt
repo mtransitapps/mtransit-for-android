@@ -24,7 +24,6 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
 import org.mtransit.android.commons.provider.status.findClosestTripTimestamp
 import org.mtransit.android.data.AgencyBaseProperties
-import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
