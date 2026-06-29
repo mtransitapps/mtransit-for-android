@@ -62,7 +62,6 @@ import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderBinding;
@@ -925,7 +924,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				this.poisByType = new LinkedHashMap<>();
 			}
 			for (POIManager poim : pois) {
-				List<POIManager> typePOIMs = CollectionUtils.getOrDefault(this.poisByType, poim.poi.getDataSourceTypeId(), new ArrayList<>());
+				final List<POIManager> typePOIMs = CollectionUtils.getOrDefault(this.poisByType, poim.poi.getDataSourceTypeId(), new ArrayList<>());
 				if (!this.poiUUID.contains(poim.poi.getUUID())) {
 					typePOIMs.add(poim);
 					this.poiUUID.add(poim.poi.getUUID());
@@ -935,7 +934,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			}
 		}
 		if (dataSetChanged) {
-			this.lastNotifyDataSetChanged = -1; // last notify was with old data
+			this.lastNotifyDataSetChanged = -1L; // last notify was with old data
 			initCount();
 			initPoisCount();
 			updateClosestPoi();
@@ -1059,8 +1058,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				final POIManager poim = getItemByUUID(status.getTargetUUID());
 				final ServiceUpdates poiServiceUpdates = poim == null ? null : poim.getServiceUpdatesOrNull();
 				POICommonStatusViewHolder.updateView(statusViewHolder, status, this, poiServiceUpdates);
-			} else {
+			} else if (isResumed()) {
 				notifyDataSetChanged(false);
+			} else {
 			}
 		}
 	}
@@ -1071,7 +1071,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			final POIServiceUpdateViewHolder serviceUpdateViewHolder = this.poiServiceUpdateViewHoldersWR.get(targetUUID);
 			if (serviceUpdateViewHolder != null && targetUUID.equals(serviceUpdateViewHolder.getUuid())) {
 				POIServiceUpdateViewHolder.updateView(serviceUpdateViewHolder, serviceUpdates, this);
-			} else {
+			} else if (isResumed()) {
 				notifyDataSetChanged(false);
 			}
 		}
@@ -1111,10 +1111,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			@SuppressWarnings("SameParameterValue") long minAdapterThresholdInMs
 	) {
 		final long now = UITimeUtils.currentTimeMillis();
-		final long adapterThreshold = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
-		final boolean timeElapsed = (now - this.lastNotifyDataSetChanged) > adapterThreshold;
-		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
-				&& (doNotIgnore || timeElapsed)) {
+		final long adapterThresholdMs = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
+		final boolean timeElapsed = this.lastNotifyDataSetChanged + adapterThresholdMs < now;
+		if ((this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE // WARNING: scroll state can stay stuck in other state
+				&& (doNotIgnore || this.lastNotifyDataSetChanged + adapterThresholdMs < now))
+				|| (this.lastNotifyDataSetChanged + (adapterThresholdMs * 2L) < now)) {
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
 			this.lastNotifyDataSetChanged = now;
@@ -1133,7 +1134,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 					this.notifyDataSetChangedLater = null;
 					notifyDataSetChanged(true);
 				};
-				this.notifyDataSetChangedHandler.postDelayed(this.notifyDataSetChangedLater, adapterThreshold);
+				this.notifyDataSetChangedHandler.postDelayed(this.notifyDataSetChangedLater, adapterThresholdMs);
 			}
 		}
 	}
@@ -1205,9 +1206,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@SuppressLint("ClickableViewAccessibility") // TODO Accessibility
 	public void setManualScrollView(@Nullable ScrollView scrollView) {
 		this.manualScrollView = scrollView;
-		if (scrollView == null) {
-			return;
-		}
+		if (scrollView == null) return;
 		scrollView.setOnTouchListener((v, event) -> {
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_SCROLL:
@@ -1251,6 +1250,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			this.sensorManager.unregisterSensorListener(this);
 			this.compassUpdatesEnabled = false;
 		}
+		this.lastNotifyDataSetChanged = -1L;
 		if (this.notifyDataSetChangedLater != null) {
 			this.notifyDataSetChangedHandler.removeCallbacks(this.notifyDataSetChangedLater);
 			this.notifyDataSetChangedLater = null;
@@ -1270,6 +1270,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.location = null; // clear current location to force refresh
 		setLocation(deviceLocation);
 		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
+	}
+
+	private boolean isResumed() {
+		return this.fragmentWR != null;
 	}
 
 	public void setFragment(@NonNull IFragment fragment) {
