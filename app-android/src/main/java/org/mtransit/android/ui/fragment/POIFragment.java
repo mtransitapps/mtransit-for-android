@@ -75,7 +75,6 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdates;
-import org.mtransit.android.commons.provider.news.NewsProviderContract;
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceType;
@@ -84,7 +83,6 @@ import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIListFooterManager;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.data.POIManagerExtKt;
 import org.mtransit.android.databinding.FragmentPoiBinding;
 import org.mtransit.android.databinding.LayoutPoiAppUpdateBinding;
 import org.mtransit.android.databinding.LayoutPoiAppWasDisabledBinding;
@@ -639,13 +637,9 @@ public class POIFragment extends ABFragment implements
 							NavControllerExtKt.navigateF(navController,
 									R.id.nav_to_news_detail_screen,
 									NewsListDetailFragment.newInstanceArgs(
-											poim.getColor(dataSourcesRepository),
-											POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
-											Collections.singletonList(poim.poi.getAuthority()),
-											NewsProviderContract.Filter.toTargetsUUIDs(poim.poi),
-											null,
-											article.getAuthority(),
-											article.getUUID()
+											poim,
+											dataSourcesRepository,
+											article
 									),
 									null,
 									extras
@@ -655,13 +649,9 @@ public class POIFragment extends ABFragment implements
 							if (activity != null) {
 								((MainActivity) activity).addFragmentToStack(
 										NewsListDetailFragment.newInstance(
-												poim.getColor(dataSourcesRepository),
-												POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
-												Collections.singletonList(poim.poi.getAuthority()),
-												NewsProviderContract.Filter.toTargetsUUIDs(poim.poi),
-												null,
-												article.getAuthority(),
-												article.getUUID()
+												poim,
+												dataSourcesRepository,
+												article
 										),
 										POIFragment.this
 								);
@@ -855,10 +845,9 @@ public class POIFragment extends ABFragment implements
 				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_news_screen,
 						NewsListDetailFragment.newInstanceArgs(
-								poim.getColor(dataSourcesRepository),
-								POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
-								Collections.singletonList(poim.poi.getAuthority()),
-								NewsProviderContract.Filter.toTargetsUUIDs(poim.poi)
+								poim,
+								dataSourcesRepository,
+								null
 						),
 						null,
 						extras
@@ -871,10 +860,9 @@ public class POIFragment extends ABFragment implements
 				}
 				((MainActivity) activity).addFragmentToStack(
 						NewsListDetailFragment.newInstance(
-								poim.getColor(dataSourcesRepository),
-								POIManagerExtKt.getNewOneLineDescriptionForNews(poim.poi, POIFragment.this.dataSourcesRepository),
-								Collections.singletonList(poim.poi.getAuthority()),
-								NewsProviderContract.Filter.toTargetsUUIDs(poim.poi)
+								poim,
+								dataSourcesRepository,
+								null
 						),
 						POIFragment.this
 				);

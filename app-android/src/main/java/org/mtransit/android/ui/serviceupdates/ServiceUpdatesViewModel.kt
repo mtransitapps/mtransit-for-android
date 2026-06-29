@@ -18,9 +18,7 @@ import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
-import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.toRouteDirectionM
 import org.mtransit.android.data.toRouteM

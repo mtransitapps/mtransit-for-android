@@ -64,7 +64,7 @@ import java.util.WeakHashMap;
 
 @SuppressWarnings({"WeakerAccess"})
 public class POIManager implements LocationPOI,
-		ServiceUpdateLoader.ServiceUpdateLoaderListener,
+		ServiceUpdateLoader.MainServiceUpdateLoaderListener,
 		ServiceUpdatesHolder,
 		MTLog.Loggable {
 
@@ -234,17 +234,17 @@ public class POIManager implements LocationPOI,
 		return this.status;
 	}
 
-	@SuppressWarnings("UnusedReturnValue")
+	@CanIgnoreReturnValue
 	private boolean findStatus(
 			@NonNull StatusLoader statusLoader,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
 	) {
-		long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
+		final long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
-			StatusProviderContract.Filter filter = getFilter(this.inFocus);
+			final StatusProviderContract.Filter filter = getFilter(this.inFocus);
 			if (filter != null) {
-				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
+				final StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
 				isNotSkipped = statusLoader.findStatus(this, filter, listener, skipIfBusy);
 				if (isNotSkipped) {
 					this.lastFindStatusTimestampMs = findStatusTimestampMs;
@@ -301,6 +301,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Nullable
+	@Override
 	public ServiceUpdates getServiceUpdatesOrNull() {
 		return this.serviceUpdates;
 	}

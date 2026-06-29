@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.location.Location
+import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.SavedStateHandle
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -103,11 +104,13 @@ class DemoModeManager @Inject constructor(
         val ad = LocationUtils.getNewDefaultAroundDiff()
         var poim: POIManager?
         while (true) {
-            val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).apply {
-                addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
-                addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
-                cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
-            }
+            val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).copy(
+                extras = SimpleArrayMap<String, Any>().apply {
+                    put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
+                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                },
+                cacheOnly = false, // POI_FILTER_EXTRA_AVOID_LOADING is similar
+            )
             poim = this.dataSourceRequestManager.findPOIMs(agency.authority, filter)
                 .removeAllAnd {
                     if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {

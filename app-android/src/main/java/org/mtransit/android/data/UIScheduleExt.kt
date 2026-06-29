@@ -11,10 +11,10 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.DurationUnit
 
-fun ServiceUpdates?.findServiceUpdate(tripId: String?): ServiceUpdate? {
+fun ServiceUpdates?.findTripServiceUpdate(tripId: String?): ServiceUpdate? {
     tripId ?: return null
     this ?: return null
-    return find { serviceUpdate -> serviceUpdate.targetTripId == tripId }
+    return list.find { serviceUpdate -> serviceUpdate.targetTripId == tripId }
 }
 
 fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffEarlyMs: Long, minDiffLateMs: Long, short: Boolean): String? =

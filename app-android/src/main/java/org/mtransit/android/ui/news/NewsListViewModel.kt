@@ -52,10 +52,10 @@ class NewsListViewModel @Inject constructor(
         internal const val EXTRA_SUB_TITLE = "extra_subtitle"
         internal const val EXTRA_FILTER_TARGET_AUTHORITIES = "extra_filter_target_authorities"
         internal val EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT: Array<String> = emptyArray()
-        internal const val EXTRA_FILTER_TARGETS = "extra_filter_targets"
-        internal val EXTRA_FILTER_TARGETS_DEFAULT: Array<String> = emptyArray()
-        internal const val EXTRA_FILTER_UUIDS = "extra_filter_uuids"
-        internal val EXTRA_FILTER_UUIDS_DEFAULT: Array<String> = emptyArray()
+        internal const val EXTRA_FILTER_TARGETS_UUIDS = "extra_filter_targets"
+        internal val EXTRA_FILTER_TARGETS_UUIDS_DEFAULT: Array<String> = emptyArray()
+        internal const val EXTRA_FILTER_ARTICLE_UUIDS = "extra_filter_uuids"
+        internal val EXTRA_FILTER_ARTICLE_UUIDS_DEFAULT: Array<String> = emptyArray()
 
         internal const val EXTRA_SELECTED_ARTICLE_AUTHORITY = "extra_selected_article_agency_authority"
         internal const val EXTRA_SELECTED_ARTICLE_UUID = "extra_selected_article_uuid"
@@ -72,13 +72,13 @@ class NewsListViewModel @Inject constructor(
 
     private val _targetAuthorities = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_TARGET_AUTHORITIES, EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT)
 
-    private val _filterTargets = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_TARGETS, EXTRA_FILTER_TARGETS_DEFAULT)
+    private val _filterTargetsUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_TARGETS_UUIDS, EXTRA_FILTER_TARGETS_UUIDS_DEFAULT)
 
-    private val _filterUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_UUIDS, EXTRA_FILTER_UUIDS_DEFAULT)
+    private val _filterArticleUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_ARTICLE_UUIDS, EXTRA_FILTER_ARTICLE_UUIDS_DEFAULT)
 
-    private val _filters = MediatorLiveData3(_targetAuthorities, _filterTargets, _filterUUIDs)
-        .map { (targetAuthorities, filterTargets, filterUUIDs) ->
-            Filters(targetAuthorities?.toList(), filterTargets?.toList(), filterUUIDs?.toList())
+    private val _filters = MediatorLiveData3(_targetAuthorities, _filterTargetsUUIDs, _filterArticleUUIDs)
+        .map { (targetAuthorities, filterTargetsUUIDs, filterArticleUUIDs) ->
+            Filters(targetAuthorities?.toList(), filterTargetsUUIDs?.toList(), filterArticleUUIDs?.toList())
         }.distinctUntilChanged()
 
     private val _allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
@@ -116,10 +116,10 @@ class NewsListViewModel @Inject constructor(
             newsRepository.loadingNewsArticles(
                 allProviders = allNewsProviders,
                 targetProviderAuthorities = vmFilters?.targetAuthorities,
-                filterTargetUUIDs = vmFilters?.filterTargets,
-                filterArticleUUIDs = vmFilters?.filterUUIDs,
+                filterTargetUUIDs = vmFilters?.filterTargetsUUIDs,
+                filterArticleUUIDs = vmFilters?.filterArticleUUIDs,
                 comparator = News.NEWS_COMPARATOR,
-                inFocus = vmFilters?.filterTargets?.isNotEmpty() == true,
+                inFocus = vmFilters?.filterTargetsUUIDs?.isNotEmpty() == true,
                 firstLoad = newsArticles.value == null,
                 onSuccess = {
                     _loading.postValue(false)
@@ -174,7 +174,7 @@ class NewsListViewModel @Inject constructor(
 
     private data class Filters(
         val targetAuthorities: List<String>?,
-        val filterTargets: List<String>?,
-        val filterUUIDs: List<String>?,
+        val filterTargetsUUIDs: List<String>?,
+        val filterArticleUUIDs: List<String>?,
     )
 }

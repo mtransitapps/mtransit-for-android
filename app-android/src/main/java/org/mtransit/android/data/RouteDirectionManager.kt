@@ -7,6 +7,7 @@ import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.commons.data.orNewEmpty
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract
 import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.ServiceUpdateLoader.MainServiceUpdateLoaderListener
 import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.util.UITimeUtils
@@ -19,7 +20,7 @@ data class RouteDirectionManager(
     private val serviceUpdates: ServiceUpdates = ServiceUpdates(),
     private var lastFindServiceUpdateTimestampMs: Long = -1L,
     private var inFocus: Boolean = false, // TODO?
-) : ServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLog.Loggable {
+) : MainServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLog.Loggable {
 
     companion object {
         private val LOG_TAG: String = RouteDirectionManager::class.java.simpleName
@@ -47,6 +48,11 @@ data class RouteDirectionManager(
         }
     }
 
+    override fun getServiceUpdatesOrNull() =
+        this.serviceUpdates.takeIf {
+            it.isNotEmpty() || this.lastFindServiceUpdateTimestampMs > 0L
+        }
+
     override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): ServiceUpdates {
         if (this.serviceUpdates.isEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful) {
             findServiceUpdates(serviceUpdateLoader, skipIfBusy = false)
@@ -56,8 +62,7 @@ data class RouteDirectionManager(
             .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
     }
 
-    private val areServiceUpdatesUseful: Boolean
-        get() = this.serviceUpdates.any { it.isUseful }
+    private val areServiceUpdatesUseful: Boolean get() = this.serviceUpdates.areUseful()
 
     fun allowFindServiceUpdates() {
         this.lastFindServiceUpdateTimestampMs -= 1.minutes.inWholeMilliseconds

@@ -85,11 +85,9 @@ class AgencyPOIsViewModel @Inject constructor(
             val agency = agency ?: return@liveData
             val poiFilter = POIProviderContract.Filter.getNewEmptyFilter()
             // 1 - cache only
-            poiFilter.cacheOnly = true
-            emit(poiRepository.findPOIMs(agency, poiFilter))
+            emit(poiRepository.findPOIMs(agency, poiFilter.copy(cacheOnly = true)))
             // 2 - not cache only
-            poiFilter.cacheOnly = false
-            emit(poiRepository.findPOIMs(agency, poiFilter))
+            emit(poiRepository.findPOIMs(agency, poiFilter.copy(cacheOnly = false)))
         }
     }.distinctUntilChanged()
 

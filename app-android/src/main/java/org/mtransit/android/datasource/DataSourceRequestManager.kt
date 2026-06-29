@@ -14,12 +14,15 @@ import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.Route
-import org.mtransit.android.commons.data.ServiceUpdate
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.provider.common.ProviderContract
+import org.mtransit.android.commons.provider.common.ProviderContract.Filter.Companion.toProvidedKeys
 import org.mtransit.android.commons.provider.news.NewsProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
+import org.mtransit.android.commons.provider.poi.avoidLoadingOrDefault
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract
 import org.mtransit.android.commons.provider.status.StatusProviderContract
@@ -29,7 +32,12 @@ import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.JPaths
+import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.ServiceUpdateProviderProperties
+import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.android.data.VehicleLocationProviderProperties
+import org.mtransit.android.data.shortUUID
 import org.mtransit.android.util.KeysManager
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
@@ -63,23 +71,21 @@ class DataSourceRequestManager(
     private val providersAuthorityRunningNotCacheOnly = ConcurrentHashMap<String, Mutex>()
 
     private suspend fun <T> CoroutineScope.gateNotCacheOnly(authority: String, filter: ProviderContract.Filter, doWork: suspend () -> T): T {
-        if (!filter.isCacheOnlyOrDefault) {
-            providersAuthorityRunningNotCacheOnly.getOrPut(authority) { Mutex() }.withLock {
-                ensureActive()
-                return doWork()
-            }
-        } else {
+        if (filter.isCacheOnlyOrDefault || (filter as? POIProviderContract.Filter)?.avoidLoadingOrDefault == true) {
+            return doWork()
+        }
+        providersAuthorityRunningNotCacheOnly.getOrPut(authority) { Mutex() }.withLock {
+            ensureActive()
             return doWork()
         }
     }
 
     private fun <T> gateNotCacheOnlySync(authority: String, filter: ProviderContract.Filter, isCancelled: () -> Boolean, doWork: () -> T): T? {
-        if (!filter.isCacheOnlyOrDefault) {
-            synchronized(providersAuthorityRunningNotCacheOnly.getOrPut(authority) { Mutex() }) {
-                if (isCancelled()) return null
-                return doWork()
-            }
-        } else {
+        if (filter.isCacheOnlyOrDefault || (filter as? POIProviderContract.Filter)?.avoidLoadingOrDefault == true) {
+            return doWork()
+        }
+        synchronized(providersAuthorityRunningNotCacheOnly.getOrPut(authority) { Mutex() }) {
+            if (isCancelled()) return null
             return doWork()
         }
     }
@@ -139,12 +145,16 @@ class DataSourceRequestManager(
     }
 
     suspend fun findRDSVehicleLocations(
-        authority: String,
+        vehicleLocationProviderProperties: VehicleLocationProviderProperties,
         filter: VehicleLocationProviderContract.Filter
     ): List<VehicleLocation>? = withContext(ioDispatcher) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@withContext null
-        gateNotCacheOnly(authority, filter) {
-            DataSourceManager.findVehicleLocations(appContext, authority, filter.appendProvidedKeys(keysManager.getKeysMap(authority)))
+        gateNotCacheOnly(vehicleLocationProviderProperties.authority, filter) {
+            DataSourceManager.findVehicleLocations(
+                appContext,
+                vehicleLocationProviderProperties.authority,
+                filter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))),
+            )
         }
     }
 
@@ -173,39 +183,60 @@ class DataSourceRequestManager(
 
     @Suppress("unused")
     suspend fun findServiceUpdates(
-        authority: String,
+        serviceUpdateProvider: ServiceUpdateProviderProperties,
         serviceUpdateFilter: ServiceUpdateProviderContract.Filter
-    ): List<ServiceUpdate>? = withContext(ioDispatcher) {
-        gateNotCacheOnly(authority, serviceUpdateFilter) {
-            DataSourceManager.findServiceUpdates(appContext, authority, serviceUpdateFilter)
+    ): ServiceUpdates? = withContext(ioDispatcher) {
+        gateNotCacheOnly(serviceUpdateProvider.authority, serviceUpdateFilter) {
+            DataSourceManager.findServiceUpdates(
+                appContext,
+                serviceUpdateProvider.authority,
+                serviceUpdateFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority))),
+            )
         }
     }
 
     @Discouraged("use suspend function instead")
     @WorkerThread
-    fun findServiceUpdatesSync(authority: String, serviceUpdateFilter: ServiceUpdateProviderContract.Filter, isCancelled: () -> Boolean): List<ServiceUpdate>? =
-        gateNotCacheOnlySync(authority, serviceUpdateFilter, isCancelled) {
-            DataSourceManager.findServiceUpdates(appContext, authority, serviceUpdateFilter)
+    fun findServiceUpdatesSync(serviceUpdateProvider: ServiceUpdateProviderProperties, serviceUpdateFilter: ServiceUpdateProviderContract.Filter, isCancelled: () -> Boolean): ServiceUpdates? {
+        return gateNotCacheOnlySync(serviceUpdateProvider.authority, serviceUpdateFilter, isCancelled) {
+            DataSourceManager.findServiceUpdates(
+                appContext,
+                serviceUpdateProvider.authority,
+                serviceUpdateFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority))),
+            )
         }
+    }
 
-    suspend fun findStatus(authority: String, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
-        gateNotCacheOnly(authority, statusFilter) {
-            DataSourceManager.findStatus(appContext, authority, statusFilter)
+    suspend fun findStatus(statusProvider: StatusProviderProperties, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
+        gateNotCacheOnly(statusProvider.authority, statusFilter) {
+            DataSourceManager.findStatus(
+                appContext,
+                statusProvider.authority,
+                statusFilter.copyWithProvidedEncryptKeysMap(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
+            )
         }
     }
 
     @Discouraged("use suspend function instead")
     @WorkerThread
-    fun findStatusSync(authority: String, statusFilter: StatusProviderContract.Filter, isCancelled: () -> Boolean) =
-        gateNotCacheOnlySync(authority, statusFilter, isCancelled) {
-            DataSourceManager.findStatus(appContext, authority, statusFilter)
+    fun findStatusSync(statusProvider: StatusProviderProperties, statusFilter: StatusProviderContract.Filter, isCancelled: () -> Boolean): POIStatus? {
+        return gateNotCacheOnlySync(statusProvider.authority, statusFilter, isCancelled) {
+            DataSourceManager.findStatus(
+                appContext,
+                statusProvider.authority,
+                statusFilter.copyWithProvidedEncryptKeysMap(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
+            )
         }
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
         DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter) // no WWW = no cache only needed
     }
 
-    suspend fun findNews(authority: String, newsFilter: NewsProviderContract.Filter) = withContext(ioDispatcher) {
-        DataSourceManager.findNews(appContext, authority, newsFilter.appendProvidedKeys(keysManager.getKeysMap(authority)))
+    suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter) = withContext(ioDispatcher) {
+        DataSourceManager.findNews(
+            appContext,
+            newsProvider.authority,
+            newsFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(newsProvider.authority))),
+        )
     }
 }

@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.pick
 
+import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.liveData
@@ -89,11 +90,12 @@ class PickPOIViewModel @Inject constructor(
         }
         val poiList = mutableListOf<POIManager>()
         agencyToUUIDs.forEach { (agency, uuids) ->
-            val poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(uuids)
-                .apply {
-                    addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
-                    cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
-                }
+            val poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(uuids).copy(
+                extras = SimpleArrayMap<String, Any>().apply {
+                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                },
+                cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
+            )
             poiRepository.findPOIMs(agency, poiFilter).let {
                 poiList.addAll(it)
             }

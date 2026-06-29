@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.ServiceUpdates;
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
@@ -49,18 +48,13 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	@NonNull
 	private final DataSourceRequestManager dataSourceRequestManager;
 
-	@NonNull
-	private final DataSourceRequestManager dataSourceRequestManager;
-
 	@Inject
 	public ServiceUpdateLoader(
 			@NonNull DataSourcesRepository dataSourcesRepository,
-			@NonNull DataSourceRequestManager dataSourceRequestManager,
-			@NonNull KeysManager keysManager
+			@NonNull DataSourceRequestManager dataSourceRequestManager
 	) {
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.dataSourceRequestManager = dataSourceRequestManager;
-		this.keysManager = keysManager;
 	}
 
 	@Nullable
@@ -171,7 +165,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	private boolean findServiceUpdate(
 			@NonNull String targetAuthority,
 			@NonNull String targetUUID,
-			@NonNull ServiceUpdateLoaderListener mainListener,
+			@NonNull MainServiceUpdateLoaderListener mainListener,
 			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 			@Nullable Collection<ServiceUpdateLoaderListener> listeners,
 			boolean skipIfBusy
@@ -195,7 +189,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	@SuppressLint("DeprecatedCall")
 	@SuppressWarnings("deprecation") // FIXME
-	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, ServiceUpdates, List<ServiceUpdate>> {
+	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, ServiceUpdates, ServiceUpdates> {
 
 		private static final String LOG_TAG = ServiceUpdateLoader.LOG_TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
 
@@ -212,7 +206,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		@NonNull
 		private final String targetUUID;
 		@NonNull
-		private final WeakReference<ServiceUpdateLoaderListener> mainListenerWR;
+		private final WeakReference<MainServiceUpdateLoaderListener> mainListenerWR;
 		@NonNull
 		private final WeakHashMap<ServiceUpdateLoaderListener, Object> listenerWR;
 		@NonNull
@@ -223,7 +217,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				@Nullable Collection<ServiceUpdateLoaderListener> listeners,
 				@NonNull ServiceUpdateProviderProperties serviceUpdateProvider,
 				@NonNull String targetUUID,
-				@Nullable ServiceUpdateLoaderListener mainListener,
+				@Nullable MainServiceUpdateLoaderListener mainListener,
 				@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter
 		) {
 			this.dataSourceRequestManager = dataSourceRequestManager;
@@ -247,21 +241,26 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected List<ServiceUpdate> doInBackgroundNotCancelledMT(Void... params) {
+		protected ServiceUpdates doInBackgroundNotCancelledMT(Void... params) {
 			try {
-				final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
+				final MainServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
 				if (mainListener == null) return null;
-				// 1 - cache only
-				this.serviceUpdateFilter.setCacheOnly(true);
-				//noinspection DiscouragedApi
-				final List<ServiceUpdate> cacheOnlyServiceUpdates =
-						dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter, this::isCancelledMT);
-				if (isCancelledMT()) return cacheOnlyServiceUpdates;
-				publishProgress(new ServiceUpdates(cacheOnlyServiceUpdates));
+				if (mainListener.getServiceUpdatesOrNull() == null) { // already one in-memory cached
+					// 1 - cache only
+					final ServiceUpdateProviderContract.Filter cacheOnlyServiceUpdateFilter = this.serviceUpdateFilter.copyWithCacheOnly(true);
+					//noinspection DiscouragedApi
+					final ServiceUpdates cacheOnlyServiceUpdates =
+							dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider, cacheOnlyServiceUpdateFilter, this::isCancelledMT);
+					if (isCancelledMT()) return cacheOnlyServiceUpdates;
+					if (cacheOnlyServiceUpdates != null && cacheOnlyServiceUpdates.areUseful()) {
+						return cacheOnlyServiceUpdates;
+					}
+					publishProgress(cacheOnlyServiceUpdates);
+				}
 				// 2 - not cache only
-				this.serviceUpdateFilter.setCacheOnly(false);
+				final ServiceUpdateProviderContract.Filter cacheOnlyServiceUpdateFilter = this.serviceUpdateFilter.copyWithCacheOnly(false);
 				//noinspection DiscouragedApi
-				return dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter, this::isCancelledMT);
+				return dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider, cacheOnlyServiceUpdateFilter, this::isCancelledMT);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while running task!");
 				return null;
@@ -273,18 +272,18 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			if (results == null) return;
 			for (ServiceUpdates result : results) {
 				if (result == null) continue;
-				onServiceUpdatesLoaded(result.getServiceUpdates());
+				onServiceUpdatesLoaded(result);
 			}
 		}
 
 		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable List<ServiceUpdate> result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable ServiceUpdates result) {
 			onServiceUpdatesLoaded(result);
 		}
 
-		private void onServiceUpdatesLoaded(@Nullable List<ServiceUpdate> result) {
+		private void onServiceUpdatesLoaded(@Nullable ServiceUpdates result) {
 			if (result == null) return;
-			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
+			final MainServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
 			if (mainListener == null) return;
 			mainListener.onServiceUpdatesLoaded(targetUUID, result);
 			for (ServiceUpdateLoaderListener listener : this.listenerWR.keySet()) {
@@ -325,6 +324,11 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		public void put(E e) throws InterruptedException {
 			super.putFirst(e);
 		}
+	}
+
+	public interface MainServiceUpdateLoaderListener extends ServiceUpdateLoaderListener {
+		@Nullable
+		ServiceUpdates getServiceUpdatesOrNull();
 	}
 
 	public interface ServiceUpdateLoaderListener {

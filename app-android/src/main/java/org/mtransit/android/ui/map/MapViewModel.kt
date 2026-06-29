@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.collection.ArrayMap
+import androidx.collection.SimpleArrayMap
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -321,10 +322,12 @@ class MapViewModel @Inject constructor(
             loadedArea?.let { max(it.northeast.latitude, it.southwest.latitude) },
             loadedArea?.let { min(it.northeast.longitude, it.southwest.longitude) },
             loadedArea?.let { max(it.northeast.longitude, it.southwest.longitude) },
-        ).apply {
-            addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+        ).copy(
+            extras = SimpleArrayMap<String, Any>().apply {
+                put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+            },
             cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
-        }
+        )
         coroutineScope.ensureActive()
         val agencyPOIs = poiRepository.findPOIMs(agency, poiFilter)
         val agencyShortName = agency.shortName

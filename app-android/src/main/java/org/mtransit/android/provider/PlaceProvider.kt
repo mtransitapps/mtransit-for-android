@@ -71,7 +71,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     override val poiValidityInMs = POI_VALIDITY_IN_MS
 
     override fun getPOI(poiFilter: POIProviderContract.Filter?): Cursor? {
-        if (poiFilter == null) return null
+        poiFilter ?: return null
         if (POIProviderContract.Filter.isAreaFilter(poiFilter)) {
             return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
         } else if (POIProviderContract.Filter.isSearchKeywords(poiFilter)) {

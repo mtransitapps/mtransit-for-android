@@ -82,17 +82,17 @@ class POIRepository(
             return@liveData // SKIP
         }
         // 0 - in memory cache
-        val cachePOIM = read(agency.authority, uuid)
+        var cachePOIM = read(agency.authority, uuid)
             ?.also { emit(it) }
         val poiFilter = commonSetup(POIProviderContract.Filter.getNewUUIDFilter(uuid))
         // 1 & 2: [provider] disk cache only & NOT cache only
         listOf(true, false).forEach { cacheOnly ->
-            poiFilter.cacheOnly = cacheOnly // POI_FILTER_EXTRA_AVOID_LOADING is similar
+            val poiFilter = poiFilter.copy(cacheOnly = cacheOnly) // POI_FILTER_EXTRA_AVOID_LOADING is similar
             dataSourceRequestManager.findPOI(agency.authority, poiFilter)
                 ?.updateSupportedType(agency)
                 ?.let { newPOIFromModule -> // WITHOUT status OR service update
                     if (cachePOIM == null // no cache POI
-                        || newPOIFromModule != cachePOIM.poi // new POI != cache POI
+                        || newPOIFromModule != cachePOIM?.poi // new POI != cache POI
                     ) {
                         MTLog.d(this@POIRepository, "readingPOIM() > EMIT (new POI != cache POI)")
                         val newPOIM = newPOIFromModule.toPOIM(
@@ -101,6 +101,7 @@ class POIRepository(
                         )
                         emit(newPOIM)
                         push(newPOIM)
+                        cachePOIM = newPOIM
                     } else { // ELSE same POI, keep cache w/ extras (status, service update...)
                         MTLog.d(this@POIRepository, "readingPOIM() > SKIP (new POI == cache POI, keep status, service update...)")
                     }

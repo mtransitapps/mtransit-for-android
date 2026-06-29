@@ -342,9 +342,11 @@ public class POIViewController implements MTLog.Loggable {
 		POICommonStatusViewHolder.fetchAndUpdateView(holder.getStatusViewHolder(), poim, dataProvider);
 	}
 
-	public static void updateServiceUpdatesView(@Nullable View view,
-												@NonNull ServiceUpdates serviceUpdates,
-												@NonNull POIDataProvider dataProvider) {
+	public static void updateServiceUpdatesView(
+			@Nullable View view,
+			@NonNull ServiceUpdates serviceUpdates,
+			@NonNull POIDataProvider dataProvider
+	) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			MTLog.d(LOG_TAG, "updateServiceUpdatesView() > SKIP (no view or view holder)");
 			return;

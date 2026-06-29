@@ -47,18 +47,13 @@ public class StatusLoader implements MTLog.Loggable {
 	@NonNull
 	private final DataSourceRequestManager dataSourceRequestManager;
 
-	@NonNull
-	private final DataSourceRequestManager dataSourceRequestManager;
-
 	@Inject
 	public StatusLoader(
 			@NonNull DataSourcesRepository dataSourcesRepository,
-			@NonNull DataSourceRequestManager dataSourceRequestManager,
-			@NonNull KeysManager keysManager
+			@NonNull DataSourceRequestManager dataSourceRequestManager
 	) {
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.dataSourceRequestManager = dataSourceRequestManager;
-		this.keysManager = keysManager;
 	}
 
 	@NonNull
@@ -170,9 +165,8 @@ public class StatusLoader implements MTLog.Loggable {
 		@WorkerThread
 		@Override
 		public boolean isCancelledMT() {
-			if (super.isCancelledMT()) return true;
-			if (this.poiWR.get() == null && this.listenerWR.get() == null) return true;
-			return false;
+			return super.isCancelledMT()
+					|| (this.poiWR.get() == null && this.listenerWR.get() == null);
 		}
 
 		@Override
@@ -180,16 +174,23 @@ public class StatusLoader implements MTLog.Loggable {
 			try {
 				final POIManager poim = this.poiWR.get();
 				if (poim == null) return null;
-				// 1 - cache only
-				this.statusFilter.setCacheOnly(true);
-				//noinspection DiscouragedApi
-				final POIStatus cacheOnlyStatus = dataSourceRequestManager.findStatusSync(this.statusProvider.getAuthority(), this.statusFilter, this::isCancelledMT);
-				if (isCancelledMT()) return cacheOnlyStatus;
-				publishProgress(cacheOnlyStatus);
+				if (poim.getStatusOrNull() == null) { // already one in-memory cached
+					// 1 - cache only
+					final StatusProviderContract.Filter cacheOnlyStatusFilter = this.statusFilter.copyWithCacheOnly(true);
+					//noinspection DiscouragedApi
+					final POIStatus cacheOnlyStatus = dataSourceRequestManager.findStatusSync(this.statusProvider, cacheOnlyStatusFilter, this::isCancelledMT);
+					if (isCancelledMT()) {
+						return cacheOnlyStatus;
+					}
+					if (cacheOnlyStatus != null && cacheOnlyStatus.isUseful() && !poim.isInFocus()) {
+						return cacheOnlyStatus;
+					}
+					publishProgress(cacheOnlyStatus);
+				}
 				// 2 - not cache only
-				this.statusFilter.setCacheOnly(false);
+				final StatusProviderContract.Filter notCacheOnlyStatusFilter = this.statusFilter.copyWithCacheOnly(false);
 				//noinspection DiscouragedApi
-				return dataSourceRequestManager.findStatusSync(this.statusProvider.getAuthority(), this.statusFilter, this::isCancelledMT);
+				return dataSourceRequestManager.findStatusSync(this.statusProvider, notCacheOnlyStatusFilter, this::isCancelledMT);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while running task!");
 				return null;

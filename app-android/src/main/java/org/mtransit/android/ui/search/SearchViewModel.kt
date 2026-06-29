@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.search
 
+import androidx.collection.SimpleArrayMap
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -154,15 +155,17 @@ class SearchViewModel @Inject constructor(
                         keepAll = typeToAgencies.keys.size == 1
                     },
                 filter = if (query.isNullOrBlank()) null else {
-                    POIProviderContract.Filter.getNewSearchFilter(query).apply {
-                        addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
-                        deviceLocation.value?.let {
-                            addExtra("lat", it.latitude)
-                            addExtra("lng", it.longitude)
-                        }
-                        addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                    POIProviderContract.Filter.getNewSearchFilter(query).copy(
+                        extras = SimpleArrayMap<String, Any>().apply {
+                            put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
+                            deviceLocation.value?.let {
+                                put("lat", it.latitude)
+                                put("lng", it.longitude)
+                            }
+                            put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                        },
                         cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
-                    }
+                    )
                 },
                 deviceLocation = deviceLocation.value,
                 typeComparator = POISearchComparator(this.favoriteUUIDs),

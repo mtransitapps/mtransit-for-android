@@ -1,6 +1,6 @@
 package org.mtransit.android.data;
 
-import static org.mtransit.android.data.UIScheduleExtKt.findServiceUpdate;
+import static org.mtransit.android.data.UIScheduleExtKt.findTripServiceUpdate;
 import static org.mtransit.commons.Constants.SPACE;
 
 import android.annotation.SuppressLint;
@@ -774,14 +774,16 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	public static SpannableStringBuilder decorateCancelled(@NonNull Timestamp t,
-														   @NonNull SpannableStringBuilder timeSSB,
-														   @Nullable ServiceUpdates serviceUpdates) {
+	public static SpannableStringBuilder decorateCancelled(
+			@NonNull Timestamp t,
+			@NonNull SpannableStringBuilder timeSSB,
+			@Nullable ServiceUpdates serviceUpdates
+	) {
 		if (t.isCancelled()) {
 			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
 			return timeSSB;
 		}
-		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
+		final ServiceUpdate tripServiceUpdate = findTripServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
 			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
 		}
@@ -790,13 +792,15 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	@SuppressWarnings("WeakerAccess")
 	@NonNull
-	public static CharSequence decorateCancelled(@NonNull Timestamp t,
-												 @NonNull CharSequence timeCS,
-												 @Nullable ServiceUpdates serviceUpdates) {
+	public static CharSequence decorateCancelled(
+			@NonNull Timestamp t,
+			@NonNull CharSequence timeCS,
+			@Nullable ServiceUpdates serviceUpdates
+	) {
 		if (t.isCancelled()) {
 			return SpanUtils.setAll(timeCS, CANCELLED_STYLE);
 		}
-		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
+		final ServiceUpdate tripServiceUpdate = findTripServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
 			timeCS = SpanUtils.setAll(timeCS, CANCELLED_STYLE);
 		}
