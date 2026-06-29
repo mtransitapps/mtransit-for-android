@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment
 
+import androidx.collection.SimpleArrayMap
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -194,12 +195,14 @@ class POIViewModel @Inject constructor(
                     SqlUtils.getWhereEquals(
                         GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
                     )
-                ).apply {
-                    addExtra(
-                        POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
-                        SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
-                    )
-                }
+                ).copy(
+                    extras = SimpleArrayMap<String, Any>().apply {
+                        put(
+                            POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
+                            SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
+                        )
+                    },
+                )
 
                 else -> POIProviderContract.Filter.getNewEmptyFilter()
             }
@@ -284,9 +287,11 @@ class POIViewModel @Inject constructor(
                 LocationUtils.incAroundDiff(ad)
             }
             val aroundDiff = ad.aroundDiff
-            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-                addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-            }
+            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+                extras = SimpleArrayMap<String, Any>().apply {
+                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+                },
+            )
             nearbyAgencies
                 .forEach { nearbyAgency ->
                     nearbyPOIs.addAllN(
@@ -364,9 +369,11 @@ class POIViewModel @Inject constructor(
             while (true) {
                 val aroundDiff = ad.aroundDiff
                 maxDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
-                val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-                    addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                }
+                val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+                    extras = SimpleArrayMap<String, Any>().apply {
+                        put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+                    },
+                )
                 nearbyPOIs.addAllN(
                     poiRepository.findPOIMs(agency, poiFilter)
                         .removeAllAnd {

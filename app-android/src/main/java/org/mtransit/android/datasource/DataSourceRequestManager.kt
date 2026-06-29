@@ -170,7 +170,7 @@ class DataSourceRequestManager(
         DataSourceManager.findStatus(
             appContext,
             statusProvider.authority,
-            statusFilter.copyWith(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
+            statusFilter.copyWithProvidedEncryptKeysMap(toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
         )
     }
 
@@ -180,7 +180,7 @@ class DataSourceRequestManager(
         DataSourceManager.findStatus(
             appContext,
             statusProvider.authority,
-            statusFilter.copyWith(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
+            statusFilter.copyWithProvidedEncryptKeysMap(toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
         )
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
