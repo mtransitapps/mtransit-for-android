@@ -1,6 +1,9 @@
 package org.mtransit.android.task;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.AnyThread;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -103,7 +106,9 @@ public class StatusLoader implements MTLog.Loggable {
 			@Nullable StatusLoader.StatusLoaderListener listener,
 			boolean skipIfBusy
 	) {
-		if (skipIfBusy && isBusy()) return false;
+		if (skipIfBusy && isBusy()) {
+			return false; // skipped
+		}
 		final Collection<StatusProviderProperties> providers = this.dataSourcesRepository.getStatusProviders(poim.poi.getAuthority());
 		if (!providers.isEmpty()) {
 			for (StatusProviderProperties provider : providers) {
@@ -117,11 +122,12 @@ public class StatusLoader implements MTLog.Loggable {
 				).executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
 			}
 		}
-		return true;
+		return true; // not skipped
 	}
 
+	@SuppressLint("DeprecatedCall")
 	@SuppressWarnings("deprecation")
-	private static class StatusFetcherCallable extends MTCancellableAsyncTask<Void, Void, POIStatus> {
+	private static class StatusFetcherCallable extends MTCancellableAsyncTask<Void, POIStatus, POIStatus> {
 
 		private static final String LGO_TAG = StatusLoader.class.getSimpleName() + '>' + StatusFetcherCallable.class.getSimpleName();
 
@@ -158,26 +164,62 @@ public class StatusLoader implements MTLog.Loggable {
 
 		@WorkerThread
 		@Override
+		public boolean isCancelledMT() {
+			return super.isCancelledMT()
+					|| (this.poiWR.get() == null && this.listenerWR.get() == null);
+		}
+
+		@Override
 		protected POIStatus doInBackgroundNotCancelledMT(Void... params) {
 			try {
 				final POIManager poim = this.poiWR.get();
 				if (poim == null) return null;
+				if (poim.getStatusOrNull() == null) { // already one in-memory cached
+					// 1 - cache only
+					final StatusProviderContract.Filter cacheOnlyStatusFilter = this.statusFilter.copyWithCacheOnly(true);
+					//noinspection DiscouragedApi
+					final POIStatus cacheOnlyStatus = dataSourceRequestManager.findStatusSync(this.statusProvider, cacheOnlyStatusFilter, this::isCancelledMT);
+					if (isCancelledMT()) {
+						return cacheOnlyStatus;
+					}
+					if (cacheOnlyStatus != null && cacheOnlyStatus.isUseful() && !poim.isInFocus()) {
+						return cacheOnlyStatus;
+					}
+					publishProgress(cacheOnlyStatus);
+				}
+				// 2 - not cache only
+				final StatusProviderContract.Filter notCacheOnlyStatusFilter = this.statusFilter.copyWithCacheOnly(false);
 				//noinspection DiscouragedApi
-				return dataSourceRequestManager.findStatusSync(this.statusProvider, this.statusFilter);
+				return dataSourceRequestManager.findStatusSync(this.statusProvider, notCacheOnlyStatusFilter, this::isCancelledMT);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while running task!");
 				return null;
 			}
 		}
 
+		@MainThread
+		@Override
+		protected void onProgressUpdateNotCancelledMT(@Nullable POIStatus... results) {
+			if (results == null) return;
+			for (POIStatus result : results) {
+				if (result == null) continue;
+				onStatusLoaded(result);
+			}
+		}
+
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable POIStatus result) {
+			onStatusLoaded(result);
+		}
+
+		private void onStatusLoaded(@Nullable POIStatus result) {
 			if (result == null) return;
 			final POIManager poim = this.poiWR.get();
 			if (poim == null) return;
 			final boolean statusChanged = poim.setStatus(result); // filter no data or not useful or older than current status
 			if (statusChanged) {
-				final StatusLoader.StatusLoaderListener listener = this.listenerWR.get();
+				final StatusLoaderListener listener = this.listenerWR.get();
 				if (listener == null) return;
 				listener.onStatusLoaded(result);
 			}

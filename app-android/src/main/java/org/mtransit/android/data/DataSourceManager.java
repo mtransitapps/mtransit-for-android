@@ -599,13 +599,13 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static POIManager findPOI(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
-		final List<POIManager> pois = findPOIs(context, authority, poiFilter);
+	public static POIManager findPOIM(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
+		final List<POIManager> pois = findPOIMs(context, authority, poiFilter);
 		return pois.isEmpty() ? null : pois.get(0);
 	}
 
 	@NonNull
-	public static List<POIManager> findPOIs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
+	public static List<POIManager> findPOIMs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {
 			final JSONObject filterJSON = POIProviderContract.Filter.toJSON(poiFilter);
@@ -616,7 +616,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final String filterJsonString = filterJSON.toString();
 			final Uri uri = getPOIUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
-			return getPOIs(cursor, authority);
+			return getPOIMs(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' POIs from '%s'!", poiFilter, authority);
 			return Collections.emptyList();
@@ -626,7 +626,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static List<POIManager> getPOIs(@Nullable Cursor cursor, @NonNull String authority) {
+	private static List<POIManager> getPOIMs(@Nullable Cursor cursor, @NonNull String authority) {
 		final ArrayList<POIManager> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -658,12 +658,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@NonNull
 	public static HashSet<String> getSearchSuggest(@Nullable Cursor cursor) {
-		HashSet<String> results = new HashSet<>();
+		final HashSet<String> results = new HashSet<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				int text1ColumnIdx = cursor.getColumnIndexOrThrow(SearchManager.SUGGEST_COLUMN_TEXT_1);
 				do {
-					String suggest = cursor.getString(text1ColumnIdx);
+					final String suggest = cursor.getString(text1ColumnIdx);
 					results.add(suggest);
 				} while (cursor.moveToNext());
 			}

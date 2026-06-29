@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment
 
+import androidx.collection.SimpleArrayMap
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -106,14 +107,12 @@ class POIViewModel @Inject constructor(
         DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
     ).distinctUntilChanged()
 
-    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
-        getPOIManager(agency, uuid)
-    }
-
-    private fun getPOIManager(agency: IAgencyProperties?, uuid: String?) =
-        poiRepository.readingPOIM(agency, uuid, poim.value, onDataSourceRemoved = {
-            dataSourceRemovedEvent.postValue(Event(true))
-        })
+    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid)
+        .switchMap { (agency, uuid) -> // #onModulesUpdated
+            poiRepository.readingPOIM(agency, uuid, currentValue = poim.value, onDataSourceRemoved = {
+                dataSourceRemovedEvent.postValue(Event(true))
+            })
+        }
 
     private val _poi = this.poim.map {
         it?.poi
@@ -162,9 +161,17 @@ class POIViewModel @Inject constructor(
                 vehicleLocationProviders ?: return@liveData
                 rds ?: return@liveData
                 trigger ?: return@liveData // skip when not visible
+                val filter = VehicleLocationProviderContract.Filter(rds).copy(inFocus = true)
+                // 1 - cache only
                 emit(
                     vehicleLocationProviders.mapNotNull {
-                        dataSourceRequestManager.findRDSVehicleLocations(it, VehicleLocationProviderContract.Filter(rds).copy(inFocus = true))
+                        dataSourceRequestManager.findRDSVehicleLocations(it, filter.copy(cacheOnly = true))
+                    }.flatten()
+                )
+                // 2 - not cache only
+                emit(
+                    vehicleLocationProviders.mapNotNull {
+                        dataSourceRequestManager.findRDSVehicleLocations(it, filter.copy(cacheOnly = false))
                     }.flatten()
                 )
             }
@@ -175,7 +182,7 @@ class POIViewModel @Inject constructor(
             agency ?: return@liveData
             poi ?: return@liveData
             emit(
-                getPOIList(agency, poi)
+                poiRepository.findPOIMs(agency, getFilter(poi))
                     .apply {
                         if (poi !is RouteDirectionStop) {
                             updateDistanceM(poi.lat, poi.lng)
@@ -186,24 +193,29 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getPOIList(agency: IAgencyProperties, poi: POI) =
-        this.poiRepository.findPOIMs(
-            agency,
-            when (poi) {
-                is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
-                    SqlUtils.getWhereEquals(
-                        GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
-                    )
-                ).apply {
-                    addExtra(
-                        POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
-                        SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
-                    )
-                }
-
-                else -> POIProviderContract.Filter.getNewEmptyFilter()
-            }
+    private fun getFilter(poi: POI): POIProviderContract.Filter = when (poi) {
+        is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
+            SqlUtils.getWhereEquals(
+                GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
+            )
+        ).copy(
+            extras = SimpleArrayMap<String, Any>().apply {
+                put(
+                    POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER,
+                    SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_STOPS_K_STOP_SEQUENCE)
+                )
+            },
+            cacheOnly = true, // RDS = local disk cache
         )
+
+        else -> POIProviderContract.Filter.getNewEmptyFilter()
+            .copy(
+                extras = SimpleArrayMap<String, Any>().apply {
+                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                },
+                cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
+            )
+    }
 
     private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)
@@ -284,9 +296,12 @@ class POIViewModel @Inject constructor(
                 LocationUtils.incAroundDiff(ad)
             }
             val aroundDiff = ad.aroundDiff
-            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-                addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-            }
+            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+                extras = SimpleArrayMap<String, Any>().apply {
+                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                },
+                cacheOnly = false, // POI_FILTER_EXTRA_AVOID_LOADING is similar
+            )
             nearbyAgencies
                 .forEach { nearbyAgency ->
                     nearbyPOIs.addAllN(
@@ -364,9 +379,12 @@ class POIViewModel @Inject constructor(
             while (true) {
                 val aroundDiff = ad.aroundDiff
                 maxDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
-                val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-                    addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                }
+                val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+                    extras = SimpleArrayMap<String, Any>().apply {
+                        put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true) // similar to cacheOnly but allows bike stations WWW
+                    },
+                    cacheOnly = false // POI_FILTER_EXTRA_AVOID_LOADING is similar
+                )
                 nearbyPOIs.addAllN(
                     poiRepository.findPOIMs(agency, poiFilter)
                         .removeAllAnd {

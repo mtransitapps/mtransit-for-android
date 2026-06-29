@@ -87,18 +87,22 @@ class FavoritesViewModel @Inject constructor(
         .switchMap { (favorites, allAgencies, homeScreenTypes) ->
             _hasFavoritesAgencyDisabled.value = false
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                favorites ?: run { emit(null); return@liveData } // loading
-                allAgencies ?: run { emit(null); return@liveData } // loading
-                homeScreenTypes ?: run { emit(null); return@liveData } // loading
-                emit(getFavorites(favorites, allAgencies, homeScreenTypes))
+                val favorites = favorites ?: run { emit(null); return@liveData } // loading
+                val allAgencies = allAgencies ?: run { emit(null); return@liveData } // loading
+                val homeScreenTypes = homeScreenTypes ?: run { emit(null); return@liveData } // loading
+                // 1 - cache only
+                emit(getFavorites(favorites, allAgencies, homeScreenTypes, cacheOnly = true))
+                // 3 - not cache only
+                emit(getFavorites(favorites, allAgencies, homeScreenTypes, cacheOnly = false))
             }
-        }
+        }.distinctUntilChanged()
 
     @WorkerThread
     private suspend fun getFavorites(
         favorites: Collection<Favorite>,
         allAgencies: List<AgencyBaseProperties>,
         homeScreenTypes: List<DataSourceType>,
+        cacheOnly: Boolean,
     ): List<POIManager> {
         if (favorites.isEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no favorites)")
@@ -114,7 +118,9 @@ class FavoritesViewModel @Inject constructor(
                 if (!agency.isEnabled(pm)) {
                     _hasFavoritesAgencyDisabled.postValue(true)
                 }
-                this.poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
+                val poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs)
+                    .copy(cacheOnly = cacheOnly) // POI_FILTER_EXTRA_AVOID_LOADING is similar
+                this.poiRepository.findPOIMs(agency, poiFilter)
                     .let { agencyPOIs ->
                         if (agencyPOIs.isNotEmpty()) {
                             pois.addAll(

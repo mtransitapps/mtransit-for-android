@@ -2,6 +2,7 @@ package org.mtransit.android.data
 
 import org.mtransit.android.commons.data.POI
 
+@Suppress("unused")
 @JvmName("updateSupportedTypePOI")
 fun <LIST : List<POI>> LIST.updateSupportedType(agencyProperties: IAgencyProperties?) =
     this.updateSupportedType(agencyProperties?.getSupportedType())
@@ -28,6 +29,7 @@ fun <LIST : List<POIManager>> LIST.updateSupportedType(supportedType: DataSource
     }
 }
 
+@Suppress("unused")
 fun POIManager.updateSupportedType(agencyProperties: IAgencyProperties?) =
     this.updateSupportedType(agencyProperties?.getSupportedType())
 

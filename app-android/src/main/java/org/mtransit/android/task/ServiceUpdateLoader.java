@@ -57,6 +57,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		this.dataSourceRequestManager = dataSourceRequestManager;
 	}
 
+	@Nullable
 	private ThreadPoolExecutor fetchServiceUpdateExecutor;
 
 	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
@@ -164,7 +165,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	private boolean findServiceUpdate(
 			@NonNull String targetAuthority,
 			@NonNull String targetUUID,
-			@NonNull ServiceUpdateLoaderListener mainListener,
+			@NonNull MainServiceUpdateLoaderListener mainListener,
 			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 			@Nullable Collection<ServiceUpdateLoaderListener> listeners,
 			boolean skipIfBusy
@@ -186,8 +187,9 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return true;
 	}
 
+	@SuppressLint("DeprecatedCall")
 	@SuppressWarnings("deprecation") // FIXME
-	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, ServiceUpdates> {
+	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, ServiceUpdates, ServiceUpdates> {
 
 		private static final String LOG_TAG = ServiceUpdateLoader.LOG_TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
 
@@ -204,7 +206,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		@NonNull
 		private final String targetUUID;
 		@NonNull
-		private final WeakReference<ServiceUpdateLoaderListener> mainListenerWR;
+		private final WeakReference<MainServiceUpdateLoaderListener> mainListenerWR;
 		@NonNull
 		private final WeakHashMap<ServiceUpdateLoaderListener, Object> listenerWR;
 		@NonNull
@@ -215,7 +217,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				@Nullable Collection<ServiceUpdateLoaderListener> listeners,
 				@NonNull ServiceUpdateProviderProperties serviceUpdateProvider,
 				@NonNull String targetUUID,
-				@Nullable ServiceUpdateLoaderListener mainListener,
+				@Nullable MainServiceUpdateLoaderListener mainListener,
 				@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter
 		) {
 			this.dataSourceRequestManager = dataSourceRequestManager;
@@ -232,12 +234,32 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
+		public boolean isCancelledMT() {
+			return super.isCancelledMT()
+					|| (this.mainListenerWR.get() == null && this.listenerWR.isEmpty());
+		}
+
+		@Override
 		protected ServiceUpdates doInBackgroundNotCancelledMT(Void... params) {
 			try {
-				final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
+				final MainServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
 				if (mainListener == null) return null;
+				if (mainListener.getServiceUpdatesOrNull() == null) { // already one in-memory cached
+					// 1 - cache only
+					final ServiceUpdateProviderContract.Filter cacheOnlyServiceUpdateFilter = this.serviceUpdateFilter.copyWithCacheOnly(true);
+					//noinspection DiscouragedApi
+					final ServiceUpdates cacheOnlyServiceUpdates =
+							dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider, cacheOnlyServiceUpdateFilter, this::isCancelledMT);
+					if (isCancelledMT()) return cacheOnlyServiceUpdates;
+					if (cacheOnlyServiceUpdates != null && cacheOnlyServiceUpdates.areUseful()) {
+						return cacheOnlyServiceUpdates;
+					}
+					publishProgress(cacheOnlyServiceUpdates);
+				}
+				// 2 - not cache only
+				final ServiceUpdateProviderContract.Filter cacheOnlyServiceUpdateFilter = this.serviceUpdateFilter.copyWithCacheOnly(false);
 				//noinspection DiscouragedApi
-				return dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider, this.serviceUpdateFilter);
+				return dataSourceRequestManager.findServiceUpdatesSync(this.serviceUpdateProvider, cacheOnlyServiceUpdateFilter, this::isCancelledMT);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while running task!");
 				return null;
@@ -245,9 +267,22 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
+		protected final void onProgressUpdateNotCancelledMT(@Nullable ServiceUpdates... results) {
+			if (results == null) return;
+			for (ServiceUpdates result : results) {
+				if (result == null) continue;
+				onServiceUpdatesLoaded(result);
+			}
+		}
+
+		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable ServiceUpdates result) {
+			onServiceUpdatesLoaded(result);
+		}
+
+		private void onServiceUpdatesLoaded(@Nullable ServiceUpdates result) {
 			if (result == null) return;
-			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
+			final MainServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
 			if (mainListener == null) return;
 			mainListener.onServiceUpdatesLoaded(targetUUID, result);
 			for (ServiceUpdateLoaderListener listener : this.listenerWR.keySet()) {
@@ -288,6 +323,11 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		public void put(E e) throws InterruptedException {
 			super.putFirst(e);
 		}
+	}
+
+	public interface MainServiceUpdateLoaderListener extends ServiceUpdateLoaderListener {
+		@Nullable
+		ServiceUpdates getServiceUpdatesOrNull();
 	}
 
 	public interface ServiceUpdateLoaderListener {
