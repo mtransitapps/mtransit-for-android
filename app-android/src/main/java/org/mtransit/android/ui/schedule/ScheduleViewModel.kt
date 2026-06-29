@@ -26,6 +26,7 @@ import org.mtransit.android.commons.provider.status.findClosestTripTimestamp
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
+import org.mtransit.android.data.getStatusFilter
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
