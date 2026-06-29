@@ -37,7 +37,6 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
-import org.mtransit.android.data.shortUUID
 import org.mtransit.android.util.KeysManager
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
@@ -227,6 +226,7 @@ class DataSourceRequestManager(
                 statusFilter.copyWithProvidedEncryptKeysMap(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
             )
         }
+    }
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
         DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter) // no WWW = no cache only needed
