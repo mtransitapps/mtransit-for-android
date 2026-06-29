@@ -14,12 +14,13 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.ServiceUpdates
+import org.mtransit.android.commons.provider.status.StatusProviderContract.Filter.Companion.from
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
 import org.mtransit.android.util.UIAccessibilityUtils
+import org.mtransit.android.util.UITimeUtils
 
 @Suppress("unused")
 fun Iterable<POIManager>.toStringUUID(): String {
