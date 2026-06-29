@@ -146,7 +146,6 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 addItemDecoration(StickyHeaderItemDecorator(listAdapter, this))
                 setUpListEdgeToEdge()
             }
-            setupScreenToolbar(screenToolbarLayout)
             if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
                 sourceLabel.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
                     updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -157,6 +156,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 }
             }
         }
+        setupScreenToolbar() // w/ binding
         viewModel.localTimeZone.observe(viewLifecycleOwner) { localTimeZone ->
             listAdapter.localTimeZone = localTimeZone
             bindLocaleTime(localTimeZone)
@@ -210,16 +210,16 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
         }
         viewModel.agency.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
-            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
+            updateScreenToolbarSubtitle()
         }
         viewModel.poim.observe(viewLifecycleOwner) { poim ->
             listAdapter.setPOIM(poim)
         }
         viewModel.rds.observe(viewLifecycleOwner) { _ ->
             abController?.setABTitle(this, getABTitle(context), false)
-            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
+            updateScreenToolbarTitle()
             abController?.setABSubtitle(this, getABSubtitle(context), false)
-            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
+            updateScreenToolbarSubtitle()
             abController?.setABReady(this, isABReady, true)
         }
     }
@@ -300,6 +300,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
     }
 
     override fun hasToolbar() = true
+    override fun getToolbar() = binding?.screenToolbarLayout?.screenToolbar
+    override fun getAppBarLayout() = binding?.screenToolbarLayout?.screenToolbarLayout
 
     override fun isABReady() = attachedViewModel?.rds?.value != null
 

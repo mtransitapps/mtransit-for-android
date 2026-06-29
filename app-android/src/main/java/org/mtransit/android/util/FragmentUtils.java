@@ -20,6 +20,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 
 	public static final String DIALOG_TAG = "dialog";
 
+	private static final String BACK_STACK_NAME = "main";
+
 	@NonNull
 	@Override
 	public String getLogTag() {
@@ -111,7 +113,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 			}
 			ft.replace(containerViewId, fragment);
 			if (addToStack) {
-				ft.addToBackStack(null);
+				ft.addToBackStack(BACK_STACK_NAME);
 			}
 			ft.commit();
 		} catch (IllegalStateException ise) {
@@ -147,7 +149,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 			FragmentTransaction ft = fm.beginTransaction();
 			ft.replace(containerViewId, fragment);
 			if (addToStack) {
-				ft.addToBackStack(null);
+				ft.addToBackStack(BACK_STACK_NAME);
 			}
 			ft.commit();
 		} catch (IllegalStateException ise) {
@@ -184,7 +186,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(LOG_TAG, "replaceDialogFragment() > remove old dialog %s", prev);
 				ft.remove(prev);
 			}
-			ft.addToBackStack(null);
+			ft.addToBackStack(BACK_STACK_NAME);
 			if (dialogFragment != null) {
 				MTLog.d(LOG_TAG, "replaceDialogFragment() > add new dialog %s", dialogFragment);
 				dialogFragment.show(ft, tag);

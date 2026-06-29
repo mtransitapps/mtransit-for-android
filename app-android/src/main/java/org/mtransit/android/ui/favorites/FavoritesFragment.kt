@@ -175,8 +175,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 listAdapter.setListView(this)
                 setUpListEdgeToEdge()
             }
-            setupScreenToolbar(screenToolbarLayout)
         }
+        setupScreenToolbar() // w/ binding
         listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.oneAgency.observe(viewLifecycleOwner) { oneAgency ->
             updateEmptyLayout(pkg = oneAgency?.pkg)
@@ -299,6 +299,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     }
 
     override fun hasToolbar() = true
+    override fun getToolbar() = binding?.screenToolbarLayout?.screenToolbar
+    override fun getAppBarLayout() = binding?.screenToolbarLayout?.screenToolbarLayout
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.favorites) ?: super.getABTitle(context)
 

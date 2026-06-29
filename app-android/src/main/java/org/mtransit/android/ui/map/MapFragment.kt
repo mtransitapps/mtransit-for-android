@@ -99,9 +99,9 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
-    override fun getContextView(): View? = this.binding?.contextView ?: this.view
+    override fun getContextView() = this.binding?.contextView ?: this.view
 
-    override fun getAnchorView(): View? = this.binding?.root?.findViewById(R.id.map_type_switch)
+    override fun getAnchorView() = this.binding?.mapTypeSwitch?.root
 
     private var binding: FragmentMapBinding? = null
 
@@ -180,8 +180,8 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
-            setupScreenToolbar(screenToolbarLayout)
         }
+        setupScreenToolbar() // w/ binding
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
             location?.let {
                 mapViewController.setInitialLocation(it)
@@ -329,6 +329,8 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     override fun isNavBarProtected() = false
 
     override fun hasToolbar() = true
+    override fun getToolbar() = binding?.screenToolbarLayout?.screenToolbar
+    override fun getAppBarLayout() = binding?.screenToolbarLayout?.screenToolbarLayout
 
     override fun isABStatusBarTransparent() = true
 

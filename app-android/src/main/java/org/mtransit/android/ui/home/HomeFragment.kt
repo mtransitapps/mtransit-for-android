@@ -236,8 +236,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                     }
                 }
             }
-            setupScreenToolbar(screenToolbarLayout)
         }
+        setupScreenToolbar() // w/ binding
         listAdapter.onCreateView(viewLifecycleOwner)
         DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository) {
             listAdapter.notifyDataSetChanged(false)
@@ -246,7 +246,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             listAdapter.setLocation(it)
         }
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
-            binding?.apply { updateScreenToolbarSubtitle(screenToolbarLayout.screenToolbar) }
+             updateScreenToolbarSubtitle()
             abController?.setABSubtitle(this, getABSubtitle(context), true)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -397,6 +397,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     }
 
     override fun hasToolbar() = true
+    override fun getToolbar() = binding?.screenToolbarLayout?.screenToolbar
+    override fun getAppBarLayout() = binding?.screenToolbarLayout?.screenToolbarLayout
 
     override fun getABTitle(context: Context?) =
         if (attachedViewModel?.isFullDemo() == true) "MonTransit"
