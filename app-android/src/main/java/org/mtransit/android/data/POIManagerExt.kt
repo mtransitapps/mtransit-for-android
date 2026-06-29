@@ -14,9 +14,8 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.ServiceUpdates
-import org.mtransit.android.commons.provider.status.StatusProviderContract.Filter.Companion.from
+import org.mtransit.android.commons.provider.status.StatusProviderContract
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
@@ -126,7 +125,8 @@ val POIManager.shortUUID: String get() = this.poi.shortUUID
 val POI.shortUUID: String get() = this.uuid.substring(this.authority.length + 1)
 
 fun POIManager.getStatusFilter(inFocus: Boolean? = null) =
-    this.poi.from(
+    StatusProviderContract.Filter.from(
+        poi = this.poi,
         inFocus = inFocus,
         scheduleBehindInMs = UITimeUtils.RECENT_IN_MILLIS,
         scheduleMaxDataRequests = this.scheduleMaxDataRequests,

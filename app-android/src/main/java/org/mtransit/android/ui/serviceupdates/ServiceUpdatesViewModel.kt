@@ -83,9 +83,9 @@ class ServiceUpdatesViewModel @Inject constructor(
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 agency ?: return@liveData
                 poiUuid ?: return@liveData
-                poiRepository.readingPOIM(agency, poiUuid, currentValue = _poim.value, onDataSourceRemoved = {
+                emitSource(poiRepository.readingPOIM(agency, poiUuid, currentValue = _poim.value, onDataSourceRemoved = {
                     // do nothing
-                })
+                }))
             }
         }
 

@@ -19,8 +19,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import org.mtransit.android.R;
 import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.ColorUtils;
@@ -307,7 +305,7 @@ public class POIManager implements LocationPOI,
 
 	private long lastFindServiceUpdateTimestampMs = -1L;
 
-	@CanIgnoreReturnValue
+	@SuppressWarnings("UnusedReturnValue")
 	private boolean findServiceUpdates(
 			@NonNull ServiceUpdateLoader serviceUpdateLoader,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
