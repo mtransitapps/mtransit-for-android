@@ -114,6 +114,11 @@ jobs:
       - name: MT push commits
         run: ./push_commits.sh
       - name: MT trigger submodule builds
+        if: >-
+          ${{
+            github.event_name != 'pull_request' &&
+            github.ref_name == github.event.repository.default_branch
+          }}
         run: |
           SUBMODULES_CHANGED=false
           while IFS= read -r SUBMODULE_PATH; do
