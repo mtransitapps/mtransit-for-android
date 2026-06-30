@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.toStringSimple
 
 abstract class MTViewModelWithLocation : ViewModel(), MTLog.Loggable {
 
@@ -24,12 +25,14 @@ abstract class MTViewModelWithLocation : ViewModel(), MTLog.Loggable {
 
     fun onDeviceLocationChanged(newDeviceLocation: Location?, force: Boolean = false) {
         if (force) {
+            MTLog.d(this, "onDeviceLocationChanged() > save new forced location '${newDeviceLocation?.toStringSimple()}'.")
             _deviceLocation.value = newDeviceLocation
             return
         }
         newDeviceLocation?.let {
             val currentDeviceLocation = _deviceLocation.value
             if (currentDeviceLocation == null || LocationUtils.isMoreRelevant(logTag, currentDeviceLocation, it)) {
+                MTLog.d(this, "onDeviceLocationChanged() > save new more relevant location '${newDeviceLocation.toStringSimple()}'.")
                 _deviceLocation.value = it
             }
         }

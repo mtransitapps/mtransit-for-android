@@ -1093,7 +1093,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	public void notifyDataSetChanged(boolean doNotIgnore) {
-		MTLog.d(this, "notifyDataSetChanged(%s)", doNotIgnore);
 		notifyDataSetChanged(doNotIgnore, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 	}
 
