@@ -35,6 +35,7 @@ import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
+import org.mtransit.android.commons.toStringSimple
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
@@ -128,11 +129,11 @@ class HomeViewModel @Inject constructor(
     private fun getNearbyLocation(lastDeviceLocation: Location?, forceReset: Boolean): Location? {
         if (!forceReset) {
             _nearbyLocation.value?.let {
-                MTLog.d(this, "getNearbyLocation() > keep same ($it)")
+                MTLog.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
                 return it
             }
         }
-        MTLog.d(this, "getNearbyLocation() > use last device location ($lastDeviceLocation)")
+        MTLog.d(this, "getNearbyLocation() > use last device location (${lastDeviceLocation?.toStringSimple()})")
         return lastDeviceLocation
     }
 

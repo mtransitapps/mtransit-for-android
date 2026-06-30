@@ -29,6 +29,7 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
+import org.mtransit.android.commons.toStringSimple
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.location.MTLocationProvider
@@ -132,15 +133,15 @@ class NearbyViewModel @Inject constructor(
     private fun getNearbyLocation(fixedOnLocation: Location?, lastDeviceLocation: Location?, forceReset: Boolean): Location? {
         if (!forceReset) {
             nearbyLocation.value?.let {
-                MTLog.d(this, "getNearbyLocation() > keep same ($it)")
+                MTLog.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
                 return it
             }
         }
-        if (fixedOnLocation != null) {
-            MTLog.d(this, "getNearbyLocation() > use fixed ON ($fixedOnLocation)")
-            return fixedOnLocation
+        fixedOnLocation?.let {
+            MTLog.d(this, "getNearbyLocation() > use fixed ON (${fixedOnLocation.toStringSimple()})")
+            return it
         }
-        MTLog.d(this, "getNearbyLocation() > use last device location ($lastDeviceLocation)")
+        MTLog.d(this, "getNearbyLocation() > use last device location (${lastDeviceLocation?.toStringSimple()})")
         return lastDeviceLocation
     }
 

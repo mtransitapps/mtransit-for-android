@@ -51,7 +51,10 @@ class NetworkLocationRepository @Inject constructor(
         liveData {
             lat ?: return@liveData
             lng ?: return@liveData
-            if (hasAgenciesAdded != false) return@liveData
+            if (hasAgenciesAdded != false) {
+                emit(null) // forget IP location if already loaded
+                return@liveData
+            }
             emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS, PROVIDER_NAME))
         }
     }

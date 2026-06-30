@@ -410,7 +410,7 @@ public abstract class ABFragment extends MTFragmentX implements
 	public void onDestroyView() {
 		super.onDestroyView();
 		this.inAppNotifications.clear();
-		this.inAppNotificationShown = false;
+		this.inAppNotificationIdShown = null;
 	}
 
 	@Nullable
@@ -424,7 +424,12 @@ public abstract class ABFragment extends MTFragmentX implements
 
 	// region In-App Notifications
 
-	private boolean inAppNotificationShown = false;
+	@Nullable
+	private String inAppNotificationIdShown = null;
+
+	private boolean isInAppNotificationShown() {
+		return inAppNotificationIdShown != null;
+	}
 
 	private final WeakHashMap<String, Pair<PopupWindow, Snackbar>> inAppNotifications = new WeakHashMap<>();
 
@@ -440,10 +445,12 @@ public abstract class ABFragment extends MTFragmentX implements
 			@Nullable CharSequence actionText,
 			@Nullable View.OnLongClickListener onActionClick // used instead of OnClickListener because returns boolean
 	) {
-		if (this.inAppNotificationShown) {
+		if (isInAppNotificationShown()) {
+			MTLog.d(this, "showInAppNotification(%s) > SKIP (in-app notif '%s' already shown)", notificationId, this.inAppNotificationIdShown);
 			return false; // SKIP
 		}
 		if (!isResumed()) {
+			MTLog.d(this, "showInAppNotification(%s) > SKIP (not resumed)", notificationId);
 			return false; // SKIP
 		}
 		Pair<PopupWindow, Snackbar> inAppNotification = inAppNotifications.get(notificationId);
@@ -455,32 +462,41 @@ public abstract class ABFragment extends MTFragmentX implements
 					anchorView,
 					labelText,
 					() -> { // on dismiss
-						this.inAppNotificationShown = false;
+						if (notificationId.equals(this.inAppNotificationIdShown)) {
+							this.inAppNotificationIdShown = null;
+						} else {
+							MTLog.d(this, "showInAppNotification(%s) > onDismiss() > SKIP (other in-app notif %s shown)", notificationId, this.inAppNotificationIdShown);
+						}
 						return true; // handled
 					},
-					actionText, onActionClick, () -> { // on action clicked
+					actionText,
+					onActionClick,
+					() -> { // on action clicked
 						return hideInAppNotification(notificationId);
 					}
 			);
 			inAppNotifications.put(notificationId, inAppNotification);
 		}
-		this.inAppNotificationShown = InAppNotificationUI.showInAppNotification(
+		if (InAppNotificationUI.showInAppNotification(
 				activity,
 				inAppNotification,
 				view,
 				contextView,
 				anchorView,
 				additionalBottomMarginInPx
-		);
-		return this.inAppNotificationShown;
+		)) {
+			this.inAppNotificationIdShown = notificationId;
+		}
+		return isInAppNotificationShown();
 	}
 
 	@SuppressWarnings("WeakerAccess")
 	public boolean hideInAppNotification(@NonNull String notificationId) {
-		Pair<PopupWindow, Snackbar> inAppNotification = this.inAppNotifications.get(notificationId);
+		final Pair<PopupWindow, Snackbar> inAppNotification = this.inAppNotifications.get(notificationId);
 		final boolean inAppNotificationHidden = InAppNotificationUI.hideInAppNotification(inAppNotification);
 		if (inAppNotificationHidden) {
-			this.inAppNotificationShown = false;
+			// keep in-app notification in this.inAppNotifications map to be re-used
+			this.inAppNotificationIdShown = null;
 		}
 		return inAppNotificationHidden;
 	}
