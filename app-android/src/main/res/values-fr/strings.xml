@@ -87,7 +87,7 @@
     <string name="manage_app">Gestion de l\'App</string>
     <string name="manage_apps">Gestion des Apps</string>
     <string name="uninstall">Désinstaller</string>
-    <string name="view_details">Voire Détails</string>
+    <string name="view_details">Voir Détails</string>
     <string name="news_shared_on_and_author_and_source">%1$s sur %2$s</string>
     <string name="no_news">Pas de nouvelles.</string>
     <string name="latest_news">Dernières Nouvelles</string>
@@ -119,7 +119,7 @@
     <string name="favorite_folder_pick_cancel">Annuler</string>
     <string name="favorite_folder_default">(défaut)</string>
     <string name="location_permission_in_app_notification_label">Permission de localisation désactivée.</string>
-    <string name="location_permission_in_app_notification_label_onboarding">Obteneir des recommendations plus précises.</string>
+    <string name="location_permission_in_app_notification_label_onboarding">Obtenir des recommendations plus précises.</string>
     <string name="location_permission_in_app_notification_action">ACTIVER</string>
     <string name="location_settings_in_app_notification_label">Paramètre de localisation de l\'appareil désactivé.</string>
     <string name="location_settings_in_app_notification_action">ACTIVER</string>
