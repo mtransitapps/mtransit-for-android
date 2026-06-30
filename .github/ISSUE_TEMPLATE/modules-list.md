@@ -89,6 +89,7 @@ labels: MT
 - [ ] ca-pierre-de-saurel-stc-bus
 - [ ] ca-port-alberni-transit-bus
 - [ ] ca-powell-river-regional-transit-system-bus
+- [ ] ca-prince-albert-transit-bus
 - [ ] ca-prince-george-transit-system-bus
 - [ ] ca-prince-rupert-transit-bus
 - [ ] ca-quebec-a-velo-bike
