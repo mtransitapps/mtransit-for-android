@@ -436,12 +436,7 @@ public class POIManager implements LocationPOI,
 		case 0: // Default
 			final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
 			if (agency != null) {
-				showAgencyTypeScreen(
-						(MainActivity) activity,
-						view,
-						poiRepository,
-						agency
-				);
+				showAgencyTypeScreen((MainActivity) activity, view, poiRepository, agency);
 			}
 			return true; // HANDLED
 		case 1: // Rate on Google Play
@@ -755,7 +750,7 @@ public class POIManager implements LocationPOI,
 					&& PackageManagerUtils.isAppEnabled(activity, pkg)) {
 				final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
 				if (agency != null) {
-					if (agency.isUpdateAvailable(activity.getPackageManager())) {
+					if (agency.isUpdateAvailableNow(activity.getPackageManager())) {
 						AppUpdateLauncher.launchAppUpdate(activity, pkg);
 					} else { // navigate to agency type screen
 						showAgencyTypeScreen((MainActivity) activity, view, poiRepository, agency);
@@ -824,7 +819,12 @@ public class POIManager implements LocationPOI,
 		}
 	}
 
-	private static void showAgencyTypeScreen(MainActivity activity, @NonNull View view, POIRepository poiRepository, AgencyProperties agency) {
+	private static void showAgencyTypeScreen(
+			@NonNull MainActivity activity,
+			@NonNull View view,
+			@NonNull POIRepository poiRepository,
+			@NonNull AgencyProperties agency
+	) {
 		poiRepository.updateSelectedAgencyTypeTab(agency);
 		if (FeatureFlags.F_NAVIGATION) {
 			final NavController navController = Navigation.findNavController(view);

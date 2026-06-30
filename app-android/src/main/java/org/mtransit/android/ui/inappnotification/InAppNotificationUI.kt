@@ -53,7 +53,6 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
                         anchorView.takeIf { it?.isVisible == true }?.let { setAnchorView(it) }
                         addCallback(object : Snackbar.Callback() {
                             override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                                MTLog.d(this, "onDismissed($event)")
                                 onDismiss()
                             }
                         })

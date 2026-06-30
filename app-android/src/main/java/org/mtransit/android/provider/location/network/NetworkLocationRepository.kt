@@ -51,7 +51,8 @@ class NetworkLocationRepository @Inject constructor(
         liveData {
             lat ?: return@liveData
             lng ?: return@liveData
-            if (hasAgenciesAdded != false) {
+            hasAgenciesAdded ?: return@liveData
+            if (hasAgenciesAdded) {
                 emit(null) // forget IP location if already loaded
                 return@liveData
             }
