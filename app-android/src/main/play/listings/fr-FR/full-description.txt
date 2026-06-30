@@ -16,7 +16,7 @@ Pas d'accès Internet ? GPS désactivé ? WiFi éteint ? Pas de problème, MonTr
 MonTransit vous permet d'installer les agences de transport que vous voulez : 
 - vous n'avez pas à passer d'une ville à une autre
 - vous pouvez accéder à toutes les informations n'importe quand, n'importe où
-Les informations des autobus, métros, trains, tramways et traversiers sont mises à jour via le Google Play Store sans utiliser votre batterie ou les données de votre forfait de données.
+Les informations des autobus, métros, trains, tramways et traversiers sont mises à jour via le Google Play Store sans utiliser votre batterie ou votre forfait de données.
 
 MonTransit est actuellement disponible au Canada :
 - <b>AB</b> : Calgary, ETS, Red Deer…
