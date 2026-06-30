@@ -33,6 +33,7 @@ import org.mtransit.android.ad.IAdScreenActivity;
 import org.mtransit.android.ad.IAdScreenFragment;
 import org.mtransit.android.analytics.AnalyticsScreen;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.databinding.LayoutScreenToolbarBinding;
 import org.mtransit.android.rate.AppRatingsManager;
