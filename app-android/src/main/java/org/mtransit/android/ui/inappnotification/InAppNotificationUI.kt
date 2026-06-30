@@ -99,9 +99,21 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
             inAppNotification: AndroidXPair<PopupWindow?, Snackbar?>?,
         ): Boolean {
             if (SNACKBAR_INSTEAD_OF_TOAST) {
-                return inAppNotification?.second?.let { it.dismiss(); true } ?: false
+                inAppNotification?.second?.let { snackbar ->
+                    if (snackbar.isShownOrQueued) {
+                        snackbar.dismiss()
+                        return true
+                    }
+                }
+                return false
             }
-            return inAppNotification?.first?.let { it.dismiss(); true } ?: false
+            inAppNotification?.first?.let { toast ->
+                if (toast.isShowing) {
+                    toast.dismiss()
+                    return true
+                }
+            }
+            return false
         }
     }
 

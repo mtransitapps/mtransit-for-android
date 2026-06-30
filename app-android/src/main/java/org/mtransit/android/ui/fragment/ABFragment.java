@@ -496,8 +496,11 @@ public abstract class ABFragment extends MTFragmentX implements
 		final Pair<PopupWindow, Snackbar> inAppNotification = this.inAppNotifications.get(notificationId);
 		final boolean inAppNotificationHidden = InAppNotificationUI.hideInAppNotification(inAppNotification);
 		if (inAppNotificationHidden) {
-			// keep in-app notification in this.inAppNotifications map to be re-used
-			this.inAppNotificationIdShown = null;
+			if (notificationId.equals(this.inAppNotificationIdShown)) {
+				this.inAppNotificationIdShown = null;
+			} else {
+				MTLog.d(this, "hideInAppNotification(%s) > SKIP (other in-app notif %s shown)", notificationId, this.inAppNotificationIdShown);
+			}
 		}
 		return inAppNotificationHidden;
 	}
