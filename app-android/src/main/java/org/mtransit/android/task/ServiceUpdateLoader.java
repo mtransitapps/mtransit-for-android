@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
@@ -57,6 +58,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		this.dataSourceRequestManager = dataSourceRequestManager;
 	}
 
+	@Nullable
 	private ThreadPoolExecutor fetchServiceUpdateExecutor;
 
 	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
@@ -186,6 +188,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return true;
 	}
 
+	@SuppressLint("DeprecatedCall")
 	@SuppressWarnings("deprecation") // FIXME
 	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, ServiceUpdates> {
 
@@ -232,6 +235,13 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
+		public boolean isCancelledMT() {
+			return super.isCancelledMT()
+					|| (this.mainListenerWR.get() == null && this.listenerWR.isEmpty());
+		}
+
+		@WorkerThread
+		@Override
 		protected ServiceUpdates doInBackgroundNotCancelledMT(Void... params) {
 			try {
 				final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
@@ -246,12 +256,16 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable ServiceUpdates result) {
-			if (result == null) return;
+			onServiceUpdatesLoaded(result);
+		}
+
+		private void onServiceUpdatesLoaded(@Nullable ServiceUpdates serviceUpdates) {
+			if (serviceUpdates == null) return;
 			final ServiceUpdateLoaderListener mainListener = this.mainListenerWR.get();
 			if (mainListener == null) return;
-			mainListener.onServiceUpdatesLoaded(targetUUID, result);
+			mainListener.onServiceUpdatesLoaded(targetUUID, serviceUpdates);
 			for (ServiceUpdateLoaderListener listener : this.listenerWR.keySet()) {
-				listener.onServiceUpdatesLoaded(targetUUID, result);
+				listener.onServiceUpdatesLoaded(targetUUID, serviceUpdates);
 			}
 		}
 	}

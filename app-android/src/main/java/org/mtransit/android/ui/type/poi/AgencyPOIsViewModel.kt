@@ -83,7 +83,8 @@ class AgencyPOIsViewModel @Inject constructor(
     val poiList: LiveData<List<POIManager>> = agency.switchMap { agency ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             val agency = agency ?: return@liveData
-            emit(poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewEmptyFilter()))
+            val poiFilter = POIProviderContract.Filter.getNewEmptyFilter()
+            emit(poiRepository.findPOIMs(agency, poiFilter))
         }
     }
 

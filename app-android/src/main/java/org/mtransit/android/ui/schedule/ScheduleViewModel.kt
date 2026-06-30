@@ -24,9 +24,9 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
 import org.mtransit.android.commons.provider.status.findClosestTripTimestamp
 import org.mtransit.android.data.AgencyBaseProperties
-import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
+import org.mtransit.android.data.getStatusFilter
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -89,14 +89,12 @@ class ScheduleViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
-        getPOIManager(agency, uuid)
-    }
-
-    private fun getPOIManager(agency: IAgencyProperties?, uuid: String?) =
-        poiRepository.readingPOIM(agency, uuid, currentValue = poim.value, onDataSourceRemoved = {
-            dataSourceRemovedEvent.postValue(Event(true))
-        })
+    val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid)
+        .switchMap { (agency, uuid) -> // #onModulesUpdated
+            poiRepository.readingPOIM(agency, uuid, currentValue = poim.value, onDataSourceRemoved = {
+                dataSourceRemovedEvent.postValue(Event(true))
+            })
+        }
 
     val rds: LiveData<RouteDirectionStop?> = this.poim.map { it?.poi as? RouteDirectionStop }
 
@@ -236,10 +234,9 @@ class ScheduleViewModel @Inject constructor(
         .switchMap { (poim, rtStatusProviders) ->
             liveData(viewModelScope.coroutineContext) {
                 rtStatusProviders ?: return@liveData
-                val statusFilter = poim?.getFilter(null) ?: return@liveData
+                val statusFilter = poim?.getStatusFilter() ?: return@liveData
                 rtStatusProviders.forEach { statusProvider ->
-                    val newStatus = dataSourceRequestManager.findStatus(statusProvider, statusFilter)
-                    val schedule = newStatus as? Schedule
+                    val schedule = dataSourceRequestManager.findStatus(statusProvider, statusFilter) as? Schedule
                     _readFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })
                     _rtSourceLabel.postValue(schedule?.sourceLabel?.takeIf { schedule.hasRealTime })
                     emit(schedule?.timestamps) // always emit to erase old real-time value

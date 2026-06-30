@@ -29,11 +29,15 @@ import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.commons.provider.news.NewsProviderContract.Filter.Companion.toTargetsUUIDs
 import org.mtransit.android.data.AuthorityAndUuid
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.authorityAndUuidT
+import org.mtransit.android.data.getNewOneLineDescriptionForNews
 import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.databinding.FragmentNewsListDetailsBinding
+import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
 import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
@@ -63,87 +67,62 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
         private const val BACK_STACK_NAME = "panel"
 
-        @JvmOverloads
+        @JvmStatic
+        fun newInstance() = NewsListDetailFragment().apply {
+            arguments = newInstanceArgs()
+        }
+
+        @JvmStatic
+        fun newInstanceArgs() = Bundle()
+
         @JvmStatic
         fun newInstance(
-            @ColorInt optColorInt: Int? = null,
-            subtitle: String? = null,
-            targetAuthorities: List<String>? = null,
-            filterTargets: List<String>? = null,
-            filterUUIDs: List<String>? = null, // always null
-            selectedArticleAuthority: String? = null,
-            selectedArticleUuid: String? = null,
-        ) = newInstance(
-            optColorInt?.let { ColorUtils.toRGBColor(it) },
-            subtitle,
-            targetAuthorities?.toTypedArray(),
-            filterTargets?.toTypedArray(),
-            filterUUIDs?.toTypedArray(),
-            selectedArticleAuthority,
-            selectedArticleUuid,
-        )
-
-        fun newInstance(
-            color: String? = null,
-            subtitle: String? = null,
-            targetAuthorities: Array<String>? = null,
-            filterTargets: Array<String>? = null,
-            filterUUIDs: Array<String>? = null, // always null
-            selectedArticleAuthority: String? = null,
-            selectedArticleUuid: String? = null,
-        ): NewsListDetailFragment {
-            return NewsListDetailFragment().apply {
-                arguments = newInstanceArgs(
-                    color,
-                    subtitle,
-                    targetAuthorities,
-                    filterTargets,
-                    filterUUIDs,
-                    selectedArticleAuthority,
-                    selectedArticleUuid,
-                )
-            }
+            poim: POIManager,
+            dataSourcesRepository: DataSourcesRepository,
+            selectedArticle: News? = null,
+        ) = NewsListDetailFragment().apply {
+            arguments = newInstanceArgs(
+                poim = poim,
+                dataSourcesRepository = dataSourcesRepository,
+                selectedArticle = selectedArticle
+            )
         }
 
         @JvmOverloads
         @JvmStatic
         fun newInstanceArgs(
-            @ColorInt optColorInt: Int? = null,
-            subtitle: String? = null,
-            targetAuthorities: List<String>? = null,
-            filterTargets: List<String>? = null,
-            filterUUIDs: List<String>? = null, // always null
-            selectedArticleAuthority: String? = null,
-            selectedArticleUuid: String? = null,
+            poim: POIManager,
+            dataSourcesRepository: DataSourcesRepository,
+            selectedArticle: News? = null,
         ) = newInstanceArgs(
-            optColorInt?.let { ColorUtils.toRGBColor(it) },
-            subtitle,
-            targetAuthorities?.toTypedArray(),
-            filterTargets?.toTypedArray(),
-            filterUUIDs?.toTypedArray(),
-            selectedArticleAuthority,
-            selectedArticleUuid,
+            optColorInt = poim.getColor(dataSourcesRepository),
+            subtitle = poim.poi.getNewOneLineDescriptionForNews(dataSourcesRepository),
+            targetAuthorities = listOf(poim.poi.authority),
+            filterTargetUUIDs = poim.poi.toTargetsUUIDs(),
+            filterArticleUUIDs = null,
+            selectedArticleAuthority = selectedArticle?.authority,
+            selectedArticleUuid = selectedArticle?.uuid,
         )
 
-        @JvmStatic
-        fun newInstanceArgs(
-            optColor: String? = null,
+        private fun newInstanceArgs(
+            @ColorInt optColorInt: Int? = null,
             subtitle: String? = null,
-            targetAuthorities: Array<String>? = null,
-            filterTargets: Array<String>? = null,
-            filterUUIDs: Array<String>? = null, // always null
+            targetAuthorities: List<String>?,
+            filterTargetUUIDs: List<String>?,
+            @Suppress("SameParameterValue") filterArticleUUIDs: List<String>?, // always null
             selectedArticleAuthority: String? = null,
             selectedArticleUuid: String? = null,
-        ): Bundle {
-            return Bundle().apply {
-                putString(NewsListViewModel.EXTRA_COLOR, optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT)
-                putString(NewsListViewModel.EXTRA_SUB_TITLE, subtitle)
-                putStringArray(NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES, targetAuthorities ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT)
-                putStringArray(NewsListViewModel.EXTRA_FILTER_TARGETS, filterTargets ?: NewsListViewModel.EXTRA_FILTER_TARGETS_DEFAULT)
-                putStringArray(NewsListViewModel.EXTRA_FILTER_UUIDS, filterUUIDs ?: NewsListViewModel.EXTRA_FILTER_UUIDS_DEFAULT)
-                putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_AUTHORITY, selectedArticleAuthority)
-                putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_UUID, selectedArticleUuid)
-            }
+        ) = Bundle().apply {
+            putString(NewsListViewModel.EXTRA_COLOR, optColorInt?.let { ColorUtils.toRGBColor(it) } ?: NewsListViewModel.EXTRA_COLOR_DEFAULT)
+            putString(NewsListViewModel.EXTRA_SUB_TITLE, subtitle)
+            putStringArray(
+                NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES,
+                targetAuthorities?.toTypedArray() ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT
+            )
+            putStringArray(NewsListViewModel.EXTRA_FILTER_TARGETS_UUIDS, filterTargetUUIDs?.toTypedArray() ?: NewsListViewModel.EXTRA_FILTER_TARGETS_UUIDS_DEFAULT)
+            putStringArray(NewsListViewModel.EXTRA_FILTER_ARTICLE_UUIDS, filterArticleUUIDs?.toTypedArray() ?: NewsListViewModel.EXTRA_FILTER_ARTICLE_UUIDS_DEFAULT)
+            putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_AUTHORITY, selectedArticleAuthority)
+            putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_UUID, selectedArticleUuid)
         }
     }
 

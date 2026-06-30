@@ -1,6 +1,7 @@
 package org.mtransit.android.data;
 
 import static org.mtransit.android.data.POIManagerExtKt.addRemoveFavorite;
+import static org.mtransit.android.data.POIManagerExtKt.getStatusFilter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -17,8 +18,6 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
-
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.AppUpdateLauncher;
@@ -99,7 +98,7 @@ public class POIManager implements LocationPOI,
 	@Nullable
 	private WeakReference<StatusLoader.StatusLoaderListener> statusLoaderListenerWR;
 
-	private int scheduleMaxDataRequests = ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT;
+	protected int scheduleMaxDataRequests = ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT;
 
 	public POIManager(@NonNull POI poi) {
 		this.poi = poi;
@@ -242,7 +241,7 @@ public class POIManager implements LocationPOI,
 		long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
-			StatusProviderContract.Filter filter = getFilter(this.inFocus);
+			StatusProviderContract.Filter filter = getStatusFilter(this, this.inFocus);
 			if (filter != null) {
 				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
 				isNotSkipped = statusLoader.findStatus(this, filter, listener, skipIfBusy);
@@ -256,23 +255,6 @@ public class POIManager implements LocationPOI,
 
 	public void setScheduleMaxDataRequests(int scheduleMaxDataRequests) {
 		this.scheduleMaxDataRequests = scheduleMaxDataRequests;
-	}
-
-	@Nullable
-	public StatusProviderContract.Filter getFilter(@Nullable Boolean inFocus) {
-		return StatusProviderContract.Filter.from(
-				this.poi,
-				inFocus,
-				UITimeUtils.RECENT_IN_MILLIS,
-				this.scheduleMaxDataRequests,
-				true,
-				() -> {
-					if (this.poi instanceof Module) {
-						return ((Module) this.poi).getPkg();
-					}
-					return null;
-				}
-		);
 	}
 
 	@NonNull
@@ -323,7 +305,7 @@ public class POIManager implements LocationPOI,
 
 	private long lastFindServiceUpdateTimestampMs = -1L;
 
-	@CanIgnoreReturnValue
+	@SuppressWarnings("UnusedReturnValue")
 	private boolean findServiceUpdates(
 			@NonNull ServiceUpdateLoader serviceUpdateLoader,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
