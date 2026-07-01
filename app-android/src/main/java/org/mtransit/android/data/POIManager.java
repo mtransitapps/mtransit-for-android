@@ -235,15 +235,13 @@ public class POIManager implements LocationPOI,
 			@NonNull StatusLoader statusLoader,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
 	) {
-		final long triggerStatusRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
-		if (this.lastTriggerStatusRefreshMinTimestampMs == triggerStatusRefreshMinTimestampMs) return false;
 		// IF not same minute as last findStatus() call DO
 		final StatusProviderContract.Filter filter = getStatusFilter(this, this.inFocus);
 		if (filter == null) return false;
 		final StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
 		final boolean isNotSkipped = statusLoader.triggerRefresh(this, filter, listener, skipIfBusy);
 		if (isNotSkipped) {
-			this.lastTriggerStatusRefreshMinTimestampMs = triggerStatusRefreshMinTimestampMs;
+			this.lastTriggerStatusRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		}
 		return isNotSkipped;
 	}
@@ -301,12 +299,11 @@ public class POIManager implements LocationPOI,
 			@NonNull ServiceUpdateLoader serviceUpdateLoader,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
 	) {
-		final long triggerServiceUpdateRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
-		if (this.lastTriggerServiceUpdateRefreshMinTimestampMs == triggerServiceUpdateRefreshMinTimestampMs) return false;
+		// IF not same minute as last triggerRefresh() call DO
 		final ServiceUpdateProviderContract.Filter filter = ServiceUpdateProviderContract.Filter.from(this.poi, this.inFocus);
 		final boolean isNotSkipped = serviceUpdateLoader.triggerRefresh(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
 		if (isNotSkipped) {
-			this.lastTriggerServiceUpdateRefreshMinTimestampMs = triggerServiceUpdateRefreshMinTimestampMs;
+			this.lastTriggerServiceUpdateRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES;
 		}
 		return isNotSkipped;
 	}

@@ -58,13 +58,11 @@ data class RouteManager(
         serviceUpdateLoader: ServiceUpdateLoader,
         @Suppress("SameParameterValue") skipIfBusy: Boolean
     ): Boolean {
-        val triggerServiceUpdateRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis()
-        if (this.lastTriggerServiceUpdateRefreshMinTimestampMs == triggerServiceUpdateRefreshMinTimestampMs) return false
         // IF not same minute as last triggerRefresh() call DO
         val filter = ServiceUpdateProviderContract.Filter(this.authority, this.route)
         val isNotSkipped = serviceUpdateLoader.triggerRefresh(this, filter, this.serviceUpdateLoaderListenersWR.keys, skipIfBusy)
         if (isNotSkipped) {
-            this.lastTriggerServiceUpdateRefreshMinTimestampMs = triggerServiceUpdateRefreshMinTimestampMs
+            this.lastTriggerServiceUpdateRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES
         }
         return isNotSkipped
     }
