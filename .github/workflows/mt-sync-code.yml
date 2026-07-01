@@ -8,6 +8,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 env:
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
   # git commit & push
   MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
   MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
@@ -108,3 +113,28 @@ jobs:
             app-android/build/outputs/bundle
       - name: MT push commits
         run: ./push_commits.sh
+      - name: MT trigger submodule builds
+        if: >-
+          ${{
+            github.event_name != 'pull_request' &&
+            github.ref_name == github.event.repository.default_branch
+          }}
+        run: |
+          SUBMODULES_CHANGED=false
+          while IFS= read -r SUBMODULE_PATH; do
+            if git diff --quiet "$MT_SHA" HEAD -- "$SUBMODULE_PATH"; then
+              continue
+            fi
+            SUBMODULES_CHANGED=true
+            SUBMODULE_NAME=$(basename "$SUBMODULE_PATH")
+            echo "Triggering mt-build.yml for '${SUBMODULE_NAME}' on branch '${MT_GIT_BRANCH}'..."
+            gh workflow run mt-build.yml \
+              --repo "mtransitapps/${SUBMODULE_NAME}" \
+              --ref "$MT_GIT_BRANCH"
+          done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
+
+          if [ "$SUBMODULES_CHANGED" = "false" ]; then
+            echo "No submodule changes detected between '$MT_SHA' and HEAD."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
