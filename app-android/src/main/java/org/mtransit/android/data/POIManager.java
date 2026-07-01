@@ -179,7 +179,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	public boolean setStatus(@NonNull POIStatus newStatus) {
-		if (!newStatus.isUseful() || newStatus.isNoData()) {
+		if (!newStatus.isUseful() || !newStatus.hasData()) {
 			return false; // no change
 		}
 		switch (getStatusType()) {
@@ -211,7 +211,7 @@ public class POIManager implements LocationPOI,
 			if (this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
 				return false; // no change
 			}
-			if (!this.status.isNoData() && newStatus.isNoData()) {
+			if (this.status.hasData() && !newStatus.hasData()) {
 				return false; // keep status w/ data
 			}
 		}
