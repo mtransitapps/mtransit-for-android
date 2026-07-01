@@ -111,11 +111,11 @@ class NewsListAdapter(
         }
     }
 
-    fun onResume(context: IContext) {
+    fun onVisible(context: IContext) {
         enableTimeChangedReceiver(context)
     }
 
-    fun onPause(context: IContext) {
+    fun onInvisible(context: IContext) {
         disableTimeChangedReceiver(context)
     }
 

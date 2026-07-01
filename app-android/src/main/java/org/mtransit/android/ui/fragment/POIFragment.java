@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.makePoiListFooterManager;
-import static org.mtransit.android.ui.fragment.POIFragmentExtKt.onResumeKt;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.refreshRewardedAdStatus;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.setupViewKt;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.startVehicleLocationCountdownRefresh;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.stopVehicleLocationCountdownRefresh;
@@ -75,7 +75,6 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.data.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdates;
-import org.mtransit.android.commons.provider.news.NewsProviderContract;
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceType;
@@ -84,7 +83,6 @@ import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIListFooterManager;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.data.POIManagerExtKt;
 import org.mtransit.android.databinding.FragmentPoiBinding;
 import org.mtransit.android.databinding.LayoutPoiAppUpdateBinding;
 import org.mtransit.android.databinding.LayoutPoiAppWasDisabledBinding;
@@ -335,7 +333,7 @@ public class POIFragment extends ABFragment implements
 		if (this.poim != null) {
 			this.poim.setInFocus(true);
 			this.poim.setScheduleMaxDataRequests(ScheduleStatusFilter.DATA_REQUEST_MONTHS);
-			this.poim.resetLastFindTimestamps();
+			this.poim.resetLastTriggerRefreshMinTimestamps();
 		}
 	}
 
@@ -1107,18 +1105,21 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
-	@MainThread
+	@Override
+	public void onStart() {
+		super.onStart();
+	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
 		enableTimeChangedReceiver();
 		this.showingAccessibilityInfo = null; // force user preference check
-		this.mapViewController.onResume();
 		if (this.nearbyListAdapter != null) {
-			this.nearbyListAdapter.onResume(this, this.deviceLocation);
+			this.nearbyListAdapter.onVisible(this, this.deviceLocation);
 		}
 		if (this.newsListAdapter != null) {
-			this.newsListAdapter.onResume(this);
+			this.newsListAdapter.onVisible(this);
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
@@ -1133,8 +1134,6 @@ public class POIFragment extends ABFragment implements
 			setupNearbyList();
 		}
 		onDeviceLocationChanged(((MTActivityWithLocation) requireActivity()).getDeviceLocation());
-		this.adManager.setRewardedAdListener(this);
-		onResumeKt(this);
 		refreshRewardedLayout();
 		refreshAppUpdateLayout();
 		if (this.viewModel != null) {
@@ -1143,6 +1142,9 @@ public class POIFragment extends ABFragment implements
 			this.viewModel.startVehicleLocationRefresh();
 			startVehicleLocationCountdownRefresh(this);
 		}
+		this.mapViewController.onResume();
+		this.adManager.setRewardedAdListener(this);
+		refreshRewardedAdStatus(this);
 		if (FeatureFlags.F_NAVIGATION) {
 			if (nextMainViewModel != null) {
 				nextMainViewModel.setABBgColor(getABBgColor(getContext()));
@@ -1244,23 +1246,28 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onPause() {
 		super.onPause();
+		this.mapViewController.onPause();
+		this.adManager.setRewardedAdListener(null);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
 		if (this.compassUpdatesEnabled) {
 			sensorManager.unregisterSensorListener(this);
 			this.compassUpdatesEnabled = false;
 		}
 		disableTimeChangedReceiver();
-		this.mapViewController.onPause();
 		if (this.viewModel != null) {
 			this.viewModel.stopVehicleLocationRefresh();
 			stopVehicleLocationCountdownRefresh(this);
 		}
 		if (this.nearbyListAdapter != null) {
-			this.nearbyListAdapter.onPause();
+			this.nearbyListAdapter.onInvisible();
 		}
 		if (this.newsListAdapter != null) {
-			this.newsListAdapter.onPause(this);
+			this.newsListAdapter.onInvisible(this);
 		}
-		this.adManager.setRewardedAdListener(null);
 	}
 
 	private long nowToTheMinute = -1L;
@@ -1382,6 +1389,11 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public DataSourcesRepository providesDataSourcesRepository() {
 		return this.dataSourcesRepository;
+	}
+
+	@Override
+	public @NonNull POIRepository providesPOIRepository() {
+		return this.poiRepository;
 	}
 
 	@NonNull

@@ -367,9 +367,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			long providerPrecisionInMs,
 			boolean noPickup,
 			@Nullable String sourceLabel,
-			boolean noData
+			boolean hasData
 	) {
-		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, noData);
+		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, hasData);
 	}
 
 	@Nullable
@@ -994,7 +994,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
-		if (isNoData()) { // NO DATA
+		if (!hasData()) { // NO DATA
 			generateStatusStringsNoService(context);
 			this.statusStringsTimestamp = after;
 			return;

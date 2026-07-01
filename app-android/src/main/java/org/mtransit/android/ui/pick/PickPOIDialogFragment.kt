@@ -195,9 +195,13 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+    }
+
     override fun onResume() {
         super.onResume()
-        this.adapter.onResume(this, viewModel.deviceLocation.value)
+        this.adapter.onVisible(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }
@@ -212,7 +216,11 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
 
     override fun onPause() {
         super.onPause()
-        this.adapter.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        this.adapter.onInvisible()
     }
 
     override fun onDestroyView() {

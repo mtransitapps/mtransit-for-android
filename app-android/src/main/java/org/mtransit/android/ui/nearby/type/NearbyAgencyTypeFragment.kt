@@ -194,7 +194,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             if (isResumed) {
                 listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             } else {
-                listAdapter.onPause()
+                listAdapter.onInvisible()
             }
             switchView()
         }
@@ -253,13 +253,13 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
 
     override fun onResume() {
         super.onResume()
-        this.listAdapter.onResume(this, parentViewModel.deviceLocation.value)
+        this.listAdapter.onVisible(this, parentViewModel.deviceLocation.value)
         switchView()
     }
 
     override fun onPause() {
         super.onPause()
-        this.listAdapter.onPause()
+        this.listAdapter.onInvisible()
     }
 
     override fun onDestroyView() {

@@ -217,7 +217,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
             }
             routeDirectionM.value?.apply {
                 if (this.routeDirection.uuid != targetUUID) {
-                    this.allowFindServiceUpdates() // allow to fetch following RDS update
+                    this.allowTriggerServiceUpdatesRefresh() // allow to fetch following RDS update
                 }
             }
             _serviceUpdateLoadedEvent.postValue(Event(targetUUID))

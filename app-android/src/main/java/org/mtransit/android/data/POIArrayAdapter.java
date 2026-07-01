@@ -1083,7 +1083,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			for (List<POIManager> poimList : this.poisByType.values()) {
 				for (POIManager poim : poimList) {
 					if (poim.poi.getType() == POI.ITEM_VIEW_TYPE_MODULE) {
-						poim.resetLastFindTimestamps(); // force get status from provider
+						poim.resetLastTriggerRefreshMinTimestamps(); // force get status from provider
 						didReset = true;
 					}
 				}
@@ -1238,7 +1238,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		}
 	}
 
-	public void onPause() {
+	/**
+	 * Should be called on onStop() if parent fragments & onPause() in child fragments
+	 */
+	public void onInvisible() {
 		if (this.fragmentWR != null) {
 			this.fragmentWR.clear();
 			this.fragmentWR = null;
@@ -1261,12 +1264,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return POIArrayAdapter.class.getSimpleName() + getLogTag();
 	}
 
-	public void onResume(@NonNull IFragment fragment, @Nullable Location deviceLocation) {
+	/**
+	 * Should be called on onStart() if parent fragments & onResume() in child fragments
+	 */
+	public void onVisible(@NonNull IFragment fragment, @Nullable Location deviceLocation) {
 		setFragment(fragment);
 		this.showingAccessibilityInfo = null; // force user preference check
 		this.location = null; // clear current location to force refresh
 		setLocation(deviceLocation);
 		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
+		notifyDataSetChanged(false); // trigger status/service update fetching if necessary before the minute time changed
 	}
 
 	private boolean isResumed() {
@@ -1801,6 +1808,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				() -> POIArrayAdapter.this.getActivity() instanceof MainActivity ? (MainActivity) POIArrayAdapter.this.getActivity() : null,
 				false,
 				false,
+				(rds, showListInsteadOfMap) -> {
+					this.poiRepository.updateRouteDirectionShowingListInsteadOfMap(rds, showListInsteadOfMap);
+					return kotlin.Unit.INSTANCE;
+				},
 				(view) -> {
 					analyticsManager.trackButtonClick("rds_extra", getAnalyticsScreen(this));
 					leaving();

@@ -48,4 +48,7 @@ object UIFeatureFlags {
 
     const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = false
     // const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = true // no need for now, better show horizontal pager like news
+
+    // const val F_CLEAR_ALL_TASK_ON_LEAVING_SCREEN = true
+    const val F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN = false
 }

@@ -91,9 +91,9 @@ internal fun POIFragment.makePoiListFooterManager() =
         },
     )
 
-fun POIFragment.onResumeKt() {
+fun POIFragment.refreshRewardedAdStatus() {
     viewLifecycleOwner.lifecycleScope.launch {
-        adManager.refreshRewardedAdStatus(this@onResumeKt.requireActivity() as IActivity)
+        adManager.refreshRewardedAdStatus(requireActivity() as IActivity)
     }
 }
 
@@ -102,8 +102,8 @@ fun POIFragment.startVehicleLocationCountdownRefresh(
     vehicleLocations: Collection<VehicleLocation>? = viewModel?.vehicleLocations?.value,
 ) {
     if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
-    if (vehicleLocations.isNullOrEmpty()) return
     _vehicleLocationCountdownRefreshJob?.cancel()
+    if (vehicleLocations.isNullOrEmpty()) return
     _vehicleLocationCountdownRefreshJob = viewModel?.viewModelScope?.launch {
         while (true) {
             delay(1.seconds)
@@ -302,12 +302,7 @@ fun POIFragment.onMapClick(): Boolean {
         val mainActivity = activity as? MainActivity ?: return false
         when (poim.poi) {
             is RouteDirectionStop -> {
-                this.lclPrefRepository.pref.edit {
-                    putBoolean(
-                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(poim.poi.toRouteDirection()),
-                        false, // show map
-                    )
-                }
+                this.poiRepository.updateRouteDirectionShowingListInsteadOfMap(poim.poi, showListInsteadOfMap = false)
                 mainActivity.addFragmentToStack(
                     RDSRouteFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),
                     this,

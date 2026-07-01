@@ -91,9 +91,9 @@ public class POIManager implements LocationPOI,
 	private POIStatus status = null;
 	@Nullable
 	private ServiceUpdates serviceUpdates = null; // null == not loaded | empty == loaded w/o service updates
-	private boolean inFocus = false;
+	private boolean inFocus = false; // TODO removed once all providers updated & deployed for some time
 
-	private long lastFindStatusTimestampMs = -1L;
+	private long lastTriggerStatusRefreshMinTimestampMs = -1L;
 
 	@Nullable
 	private WeakReference<StatusLoader.StatusLoaderListener> statusLoaderListenerWR;
@@ -123,18 +123,13 @@ public class POIManager implements LocationPOI,
 				']';
 	}
 
-	public void resetLastFindTimestamps() {
-		this.lastFindServiceUpdateTimestampMs = -1L;
-		this.lastFindStatusTimestampMs = -1L;
+	public void resetLastTriggerRefreshMinTimestamps() {
+		this.lastTriggerServiceUpdateRefreshMinTimestampMs = -1L;
+		this.lastTriggerStatusRefreshMinTimestampMs = -1L;
 	}
 
 	public void setInFocus(boolean inFocus) {
 		this.inFocus = inFocus;
-	}
-
-	@SuppressWarnings("unused")
-	public boolean isInFocus() {
-		return this.inFocus;
 	}
 
 	@Override
@@ -179,7 +174,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	public boolean setStatus(@NonNull POIStatus newStatus) {
-		if (!newStatus.isUseful() || newStatus.isNoData()) {
+		if (!newStatus.isUseful() || !newStatus.hasData()) {
 			return false; // no change
 		}
 		switch (getStatusType()) {
@@ -211,7 +206,7 @@ public class POIManager implements LocationPOI,
 			if (this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
 				return false; // no change
 			}
-			if (!this.status.isNoData() && newStatus.isNoData()) {
+			if (this.status.hasData() && !newStatus.hasData()) {
 				return false; // keep status w/ data
 			}
 		}
@@ -226,8 +221,10 @@ public class POIManager implements LocationPOI,
 
 	@Nullable
 	public POIStatus getStatus(@NonNull StatusLoader statusLoader) {
-		if (this.status == null || !this.status.isUseful()
-				|| this.lastFindStatusTimestampMs < 0L || this.inFocus) {
+		if (this.status == null
+				|| this.lastTriggerStatusRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()
+				|| this.inFocus
+		) {
 			findStatus(statusLoader, false);
 		}
 		return this.status;
@@ -238,17 +235,13 @@ public class POIManager implements LocationPOI,
 			@NonNull StatusLoader statusLoader,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
 	) {
-		long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
-		boolean isNotSkipped = false;
-		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
-			StatusProviderContract.Filter filter = getStatusFilter(this, this.inFocus);
-			if (filter != null) {
-				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
-				isNotSkipped = statusLoader.findStatus(this, filter, listener, skipIfBusy);
-				if (isNotSkipped) {
-					this.lastFindStatusTimestampMs = findStatusTimestampMs;
-				}
-			}
+		// IF not same minute as last findStatus() call DO
+		final StatusProviderContract.Filter filter = getStatusFilter(this, this.inFocus);
+		if (filter == null) return false;
+		final StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
+		final boolean isNotSkipped = statusLoader.triggerRefresh(this, filter, listener, skipIfBusy);
+		if (isNotSkipped) {
+			this.lastTriggerStatusRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		}
 		return isNotSkipped;
 	}
@@ -290,7 +283,7 @@ public class POIManager implements LocationPOI,
 	@NonNull
 	@Override
 	public ServiceUpdates getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
-		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
+		if (this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()) {
 			findServiceUpdates(serviceUpdateLoader, false);
 		}
 		if (ignoredUUIDsOrUnknown == null) return ServiceUpdates.newEmpty(); // IF filter not ready DO wait for filter
@@ -299,25 +292,18 @@ public class POIManager implements LocationPOI,
 		return filtered != null ? filtered : ServiceUpdates.newEmpty();
 	}
 
-	private boolean areServiceUpdatesUseful() {
-		return this.serviceUpdates != null && this.serviceUpdates.areUseful();
-	}
-
-	private long lastFindServiceUpdateTimestampMs = -1L;
+	private long lastTriggerServiceUpdateRefreshMinTimestampMs = -1L;
 
 	@SuppressWarnings("UnusedReturnValue")
 	private boolean findServiceUpdates(
 			@NonNull ServiceUpdateLoader serviceUpdateLoader,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
 	) {
-		final long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
-		boolean isNotSkipped = false;
-		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
-			final ServiceUpdateProviderContract.Filter filter = ServiceUpdateProviderContract.Filter.from(this.poi, this.inFocus);
-			isNotSkipped = serviceUpdateLoader.findServiceUpdate(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
-			if (isNotSkipped) {
-				this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
-			}
+		// IF not same minute as last triggerRefresh() call DO
+		final ServiceUpdateProviderContract.Filter filter = ServiceUpdateProviderContract.Filter.from(this.poi, this.inFocus);
+		final boolean isNotSkipped = serviceUpdateLoader.triggerRefresh(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
+		if (isNotSkipped) {
+			this.lastTriggerServiceUpdateRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis(); // rounded to MINUTES;
 		}
 		return isNotSkipped;
 	}
@@ -411,7 +397,7 @@ public class POIManager implements LocationPOI,
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return onActionsItemClickFavoritable(activity, viewLifecycleOwner, favoriteRepository, itemClicked);
 		case POI.ITEM_ACTION_TYPE_ROUTE_DIRECTION_STOP:
-			return onActionsItemClickRDS(activity, view, viewLifecycleOwner, favoriteRepository, itemClicked, onClickHandledListener);
+			return onActionsItemClickRDS(activity, view, viewLifecycleOwner, favoriteRepository, poiRepository, itemClicked, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_APP:
 			return onActionsItemClickApp(activity, view, dataSourcesRepository, poiRepository, itemClicked, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
@@ -657,6 +643,7 @@ public class POIManager implements LocationPOI,
 			@NonNull View view,
 			@NonNull LifecycleOwner viewLifecycleOwner,
 			@NonNull FavoriteRepository favoriteRepository,
+			@NonNull POIRepository poiRepository,
 			int itemClicked,
 			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
@@ -666,6 +653,7 @@ public class POIManager implements LocationPOI,
 				onClickHandledListener.onLeaving();
 			}
 			final RouteDirectionStop rds = (RouteDirectionStop) poi;
+			poiRepository.updateRouteDirectionShowingListInsteadOfMap(rds, true);
 			if (FeatureFlags.F_NAVIGATION) {
 				final NavController navController = Navigation.findNavController(view);
 				FragmentNavigator.Extras extras = null;
@@ -814,7 +802,7 @@ public class POIManager implements LocationPOI,
 				);
 			}
 			// reset to defaults, so the POI is updated when coming back in the current screen
-			resetLastFindTimestamps();
+			resetLastTriggerRefreshMinTimestamps();
 			return true; // HANDLED
 		}
 	}
@@ -990,9 +978,9 @@ public class POIManager implements LocationPOI,
 
 		if (Float.compare(that.distance, distance) != 0) return false;
 		if (inFocus != that.inFocus) return false;
-		if (lastFindStatusTimestampMs != that.lastFindStatusTimestampMs) return false;
+		if (lastTriggerStatusRefreshMinTimestampMs != that.lastTriggerStatusRefreshMinTimestampMs) return false;
 		if (scheduleMaxDataRequests != that.scheduleMaxDataRequests) return false;
-		if (lastFindServiceUpdateTimestampMs != that.lastFindServiceUpdateTimestampMs) return false;
+		if (lastTriggerServiceUpdateRefreshMinTimestampMs != that.lastTriggerServiceUpdateRefreshMinTimestampMs) return false;
 		if (!poi.equals(that.poi)) return false;
 		if (!Objects.equals(distanceString, that.distanceString)) return false;
 		if (!Objects.equals(status, that.status)) return false;
@@ -1012,11 +1000,11 @@ public class POIManager implements LocationPOI,
 		result = 31 * result + (status != null ? status.hashCode() : 0);
 		result = 31 * result + (serviceUpdates != null ? serviceUpdates.hashCode() : 0);
 		result = 31 * result + (inFocus ? 1 : 0);
-		result = 31 * result + Long.hashCode(lastFindStatusTimestampMs);
+		result = 31 * result + Long.hashCode(lastTriggerStatusRefreshMinTimestampMs);
 		result = 31 * result + (statusLoaderListenerWR != null ? statusLoaderListenerWR.hashCode() : 0);
 		result = 31 * result + scheduleMaxDataRequests;
 		result = 31 * result + serviceUpdateLoaderListenersWR.hashCode();
-		result = 31 * result + Long.hashCode(lastFindServiceUpdateTimestampMs);
+		result = 31 * result + Long.hashCode(lastTriggerServiceUpdateRefreshMinTimestampMs);
 		result = 31 * result + (color != null ? color.hashCode() : 0);
 		return result;
 	}

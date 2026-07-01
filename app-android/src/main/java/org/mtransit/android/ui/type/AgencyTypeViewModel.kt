@@ -131,8 +131,12 @@ class AgencyTypeViewModel @Inject constructor(
     }
 
     fun onPageSelected(position: Int) {
-        this.statusLoader.clearAllTasks()
-        this.serviceUpdateLoader.clearAllTasks()
+        if (UIFeatureFlags.F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN) {
+            //noinspection DiscouragedApi
+            this.statusLoader.clearAllTasks()
+            //noinspection DiscouragedApi
+            this.serviceUpdateLoader.clearAllTasks()
+        }
         saveSelectedTypeAgency(position)
     }
 

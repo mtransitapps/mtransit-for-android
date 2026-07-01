@@ -272,7 +272,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             if (isResumed) {
                 listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             } else {
-                listAdapter.onPause()
+                listAdapter.onInvisible()
             }
             switchView()
         }
@@ -308,9 +308,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         listLayout.isVisible = true // list layout header w/ buttons always shown
     }
 
+    override fun onStart() {
+        super.onStart()
+    }
+
     override fun onResume() {
         super.onResume()
-        this.listAdapter.onResume(this, viewModel.deviceLocation.value)
+        this.listAdapter.onVisible(this, viewModel.deviceLocation.value)
         switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.checkLocationSettings()
@@ -355,7 +359,11 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onPause() {
         super.onPause()
-        this.listAdapter.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        this.listAdapter.onInvisible()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {

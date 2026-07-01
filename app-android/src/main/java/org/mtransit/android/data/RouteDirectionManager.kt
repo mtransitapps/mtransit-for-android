@@ -17,8 +17,7 @@ data class RouteDirectionManager(
     val authority: String,
     val routeDirection: RouteDirection,
     private val serviceUpdates: ServiceUpdates = ServiceUpdates(),
-    private var lastFindServiceUpdateTimestampMs: Long = -1L,
-    private var inFocus: Boolean = false, // TODO?
+    private var lastTriggerServiceUpdateRefreshMinTimestampMs: Long = -1L,
 ) : ServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLog.Loggable {
 
     companion object {
@@ -48,38 +47,27 @@ data class RouteDirectionManager(
     }
 
     override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): ServiceUpdates {
-        if (this.serviceUpdates.isEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful) {
-            findServiceUpdates(serviceUpdateLoader, skipIfBusy = false)
+        if (this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()) {
+            triggerServiceUpdatesRefresh(serviceUpdateLoader, skipIfBusy = false)
         }
         ignoredUUIDsOrUnknown ?: return ServiceUpdates.newEmpty() // IF filter not ready DO wait for filter
         return this.serviceUpdates
             .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
     }
 
-    private val areServiceUpdatesUseful: Boolean get() = this.serviceUpdates.any { it.isUseful }
-
-    fun allowFindServiceUpdates() {
-        this.lastFindServiceUpdateTimestampMs -= 1.minutes.inWholeMilliseconds
+    fun allowTriggerServiceUpdatesRefresh() {
+        this.lastTriggerServiceUpdateRefreshMinTimestampMs -= 1.minutes.inWholeMilliseconds
     }
 
-    private fun findServiceUpdates(
+    private fun triggerServiceUpdatesRefresh(
         serviceUpdateLoader: ServiceUpdateLoader,
         @Suppress("SameParameterValue") skipIfBusy: Boolean
     ): Boolean {
-        val findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES
-        var isNotSkipped = false
-        if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
-            isNotSkipped = serviceUpdateLoader.findServiceUpdate(
-                this,
-                ServiceUpdateProviderContract.Filter(this.authority, this.routeDirection).copy(
-                    inFocus = this.inFocus
-                ),
-                this.serviceUpdateLoaderListenersWR.keys,
-                skipIfBusy
-            )
-            if (isNotSkipped) {
-                this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs
-            }
+        // IF not same minute as last triggerRefresh() call DO
+        val filter = ServiceUpdateProviderContract.Filter(this.authority, this.routeDirection)
+        val isNotSkipped = serviceUpdateLoader.triggerRefresh(this, filter, this.serviceUpdateLoaderListenersWR.keys, skipIfBusy)
+        if (isNotSkipped) {
+            this.lastTriggerServiceUpdateRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES
         }
         return isNotSkipped
     }

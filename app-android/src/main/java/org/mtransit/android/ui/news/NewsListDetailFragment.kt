@@ -399,9 +399,13 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             ?: attachedViewModel?.colorInt?.value
             ?: super.getABBgColor(context)
 
+    override fun onStart() {
+        super.onStart()
+        listAdapter.onVisible(this)
+    }
+
     override fun onResume() {
         super.onResume()
-        listAdapter.onResume(this)
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABTitle(getABTitle(context))
             nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -418,7 +422,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onPause() {
         super.onPause()
-        listAdapter.onPause(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        listAdapter.onInvisible(this)
     }
 
     override fun onAttach(context: Context) {

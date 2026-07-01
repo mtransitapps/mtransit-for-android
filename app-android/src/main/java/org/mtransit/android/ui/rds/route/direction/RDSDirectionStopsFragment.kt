@@ -124,9 +124,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         private const val BOTTOM_PADDING_DP = 56
     }
 
-    private var theLogTag: String = LOG_TAG
+    private var theLogTag = LOG_TAG
 
-    override fun getLogTag(): String = this.theLogTag
+    override fun getLogTag() = this.theLogTag
 
     private val viewModel by viewModels<RDSDirectionStopsViewModel>()
     private val attachedViewModel get() = if (isAttached()) viewModel else null
@@ -598,7 +598,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             viewModel.stopVehicleLocationRefresh()
             stopVehicleLocationCountdownRefresh()
         }
-        listAdapter.onResume(this, parentViewModel.deviceLocation.value)
+        listAdapter.onVisible(this, parentViewModel.deviceLocation.value)
         updateFabListMapUI()
         switchView()
     }
@@ -609,8 +609,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         vehicleLocations: Collection<VehicleLocation>? = viewModel.vehicleLocations.value,
     ) {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
-        if (vehicleLocations.isNullOrEmpty()) return
         _vehicleLocationCountdownRefreshJob?.cancel()
+        if (vehicleLocations.isNullOrEmpty()) return
         _vehicleLocationCountdownRefreshJob = viewModel.viewModelScope.launch {
             while (true) {
                 delay(1.seconds)
@@ -630,7 +630,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         mapViewController.onPause()
         viewModel.stopVehicleLocationRefresh()
         stopVehicleLocationCountdownRefresh()
-        listAdapter.onPause()
+        listAdapter.onInvisible()
     }
 
     override fun onLowMemory() {
