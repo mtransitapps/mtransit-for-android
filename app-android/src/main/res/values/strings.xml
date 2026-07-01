@@ -71,7 +71,7 @@
         <item quantity="one">Agency disabled</item>
         <item quantity="other">Agencies disabled</item>
     </plurals>
-    <string name="email">E-mail</string>
+    <string name="email">Email</string>
     <string name="tel">Phone Number</string>
     <string name="file">File</string>
     <string name="video">Video</string>
@@ -188,7 +188,7 @@
     <string name="theme_pref_dark">Dark</string>
     <string name="theme_pref_system_default">System default</string>
     <string name="unit_pref_title">Units</string>
-    <string name="unit_pref_summary">Metric(km/m) or Imperial(mi/ft).</string>
+    <string name="unit_pref_summary">Metric (km/m) or Imperial (mi/ft).</string>
     <string name="unit_pref_dialog_title">Units</string>
     <string name="unit_pref_meter">Metric (km/m)</string>
     <string name="unit_pref_imperial">Imperial (mi/ft)</string>
@@ -212,17 +212,17 @@
     <string name="device_settings_location_pref_title">Location</string>
     <string name="device_settings_location_pref_summary">Improve the device location detection accuracy</string>
     <string name="device_settings_power_management_pref_title">Power Management</string>
-    <string name="device_settings_power_management_pref_summary">Solve issues with device manufacturers aggressive battery optimizations</string>
+    <string name="device_settings_power_management_pref_summary">Solve issues with device manufacturers\' aggressive battery optimizations</string>
     <string name="feedback_pref_cat_title">Feedback</string>
     <string name="feedback_email_pref_title">@string/customer_service</string>
     <string name="feedback_email_pref_summary">Report an issue or suggest a new feature.</string>
     <string name="feedback_store_pref_title">Review on Google Play</string>
     <string name="feedback_store_pref_summary">Leave a review on the Play Store</string>
     <string name="social_pref_cat_title">Social</string>
-    <string name="social_facebook_pref_title">Like MonTransit on Facebook</string>
+    <string name="social_facebook_pref_title">Follow MonTransit on Facebook</string>
     <string name="social_facebook_pref_summary">facebook.com/MonTransit</string>
-    <string name="social_twitter_pref_title">Follow MonTransit on Twitter</string>
-    <string name="social_twitter_pref_summary">twitter.com/MonTransit</string>
+    <string name="social_twitter_pref_title">Follow MonTransit on Twitter/X</string>
+    <string name="social_twitter_pref_summary">x.com/MonTransit</string>
     <string name="about_pref_cat_title">About</string>
     <string name="about_privacy_policy_pref_title">@string/privacy_policy</string>
     <string name="about_privacy_policy_pref_summary">Read the app\'s privacy policy</string>
