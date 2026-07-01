@@ -1238,7 +1238,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		}
 	}
 
-	public void onPause() {
+	/**
+	 * Should be called on onStop() if parent fragments & onPause() in child fragments
+	 */
+	public void onInvisible() {
 		if (this.fragmentWR != null) {
 			this.fragmentWR.clear();
 			this.fragmentWR = null;
@@ -1261,7 +1264,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return POIArrayAdapter.class.getSimpleName() + getLogTag();
 	}
 
-	public void onResume(@NonNull IFragment fragment, @Nullable Location deviceLocation) {
+	/**
+	 * Should be called on onStart() if parent fragments & onResume() in child fragments
+	 */
+	public void onVisible(@NonNull IFragment fragment, @Nullable Location deviceLocation) {
 		setFragment(fragment);
 		this.showingAccessibilityInfo = null; // force user preference check
 		this.location = null; // clear current location to force refresh

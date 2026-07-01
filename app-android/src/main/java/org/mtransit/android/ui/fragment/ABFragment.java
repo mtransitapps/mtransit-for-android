@@ -373,13 +373,9 @@ public abstract class ABFragment extends MTFragmentX implements
 			abController.updateAB();
 		}
 		sharedAppRatingsManager.getShouldShowAppRatingRequest(this).observe(this, shouldShow -> {
-			if (!shouldShow) {
-				return;
-			}
+			if (!shouldShow) return;
 			final MainActivity mainActivity = getMainActivity();
-			if (mainActivity == null) {
-				return;
-			}
+			if (mainActivity == null) return;
 			AppRatingsUIManager.showAppRatingsUI(mainActivity, sharedAnalyticsManager, appRatingDisplayed -> {
 				if (appRatingDisplayed) {
 					this.sharedAppRatingsManager.onAppRequestDisplayed(this, this);

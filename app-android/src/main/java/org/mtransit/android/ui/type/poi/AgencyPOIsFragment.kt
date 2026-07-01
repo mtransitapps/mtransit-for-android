@@ -439,7 +439,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         if (viewModel.mapVisible(context)) {
             mapViewController.onResume()
         }
-        listAdapter.onResume(this, parentViewModel.deviceLocation.value)
+        listAdapter.onVisible(this, parentViewModel.deviceLocation.value)
         updateFabListMapUI()
         switchView()
     }
@@ -447,7 +447,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     override fun onPause() {
         super.onPause()
         mapViewController.onPause()
-        listAdapter.onPause()
+        listAdapter.onInvisible()
     }
 
     override fun onLowMemory() {
