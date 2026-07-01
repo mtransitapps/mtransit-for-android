@@ -40,6 +40,7 @@ object POIViewHolderUtils {
         getMainActivity: () -> MainActivity?,
         directionSingleLine: Boolean = false,
         directionSelected: Boolean = false,
+        updateRouteDirectionShowingListInsteadOfMap: (RouteDirectionStop, Boolean) -> Unit,
         onClick: View.OnClickListener = {},
     ) {
         if (poim.poi !is RouteDirectionStop) return
@@ -68,6 +69,7 @@ object POIViewHolderUtils {
         POIViewUtils.setupPOIExtraLayoutBackground(rdsExtraV, poim.poi.type, poimColorInt)
         rdsExtraV.setOnClickListener { view ->
             onClick.onClick(view)
+            updateRouteDirectionShowingListInsteadOfMap(poim.poi, true)
             setTransitionName(view, "r_" + rds.authority + "_" + rds.route.id)
             if (FeatureFlags.F_NAVIGATION) {
                 val navController = findNavController(view)

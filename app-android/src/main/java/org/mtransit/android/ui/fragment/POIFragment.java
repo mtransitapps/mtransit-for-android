@@ -333,7 +333,7 @@ public class POIFragment extends ABFragment implements
 		if (this.poim != null) {
 			this.poim.setInFocus(true);
 			this.poim.setScheduleMaxDataRequests(ScheduleStatusFilter.DATA_REQUEST_MONTHS);
-			this.poim.resetLastFindTimestamps();
+			this.poim.resetLastTriggerRefreshMinTimestamps();
 		}
 	}
 
@@ -1389,6 +1389,11 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public DataSourcesRepository providesDataSourcesRepository() {
 		return this.dataSourcesRepository;
+	}
+
+	@Override
+	public @NonNull POIRepository providesPOIRepository() {
+		return this.poiRepository;
 	}
 
 	@NonNull

@@ -302,12 +302,7 @@ fun POIFragment.onMapClick(): Boolean {
         val mainActivity = activity as? MainActivity ?: return false
         when (poim.poi) {
             is RouteDirectionStop -> {
-                this.lclPrefRepository.pref.edit {
-                    putBoolean(
-                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(poim.poi.toRouteDirection()),
-                        false, // show map
-                    )
-                }
+                this.poiRepository.updateRouteDirectionShowingListInsteadOfMap(poim.poi, showListInsteadOfMap = false)
                 mainActivity.addFragmentToStack(
                     RDSRouteFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),
                     this,

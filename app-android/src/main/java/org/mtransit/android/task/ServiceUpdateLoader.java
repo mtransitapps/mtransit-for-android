@@ -95,14 +95,14 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findServiceUpdate(
+	public boolean triggerRefresh(
 			@NonNull POIManager poim,
 			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 			@Nullable Collection<ServiceUpdateLoaderListener> listeners,
 			boolean skipIfBusy
 	) {
 		// SUPPORTED BY ALL SERVICE UPDATE PROVIDERS
-		return findServiceUpdate(
+		return triggerRefresh(
 				poim.poi.getAuthority(),
 				poim.poi.getUUID(),
 				poim,
@@ -120,14 +120,14 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		ROUTE_DIRECTION_NOT_SUPPORTED = collection;
 	}
 
-	public boolean findServiceUpdate(
+	public boolean triggerRefresh(
 			@NonNull RouteDirectionManager routeDirectionM,
 			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 			@Nullable Collection<ServiceUpdateLoaderListener> listeners,
 			boolean skipIfBusy
 	) {
 		if (ROUTE_DIRECTION_NOT_SUPPORTED.contains(routeDirectionM.getAuthority())) return true; // not skipped // not supported
-		return findServiceUpdate(
+		return triggerRefresh(
 				routeDirectionM.getAuthority(),
 				routeDirectionM.getRouteDirection().getUUID(),
 				routeDirectionM,
@@ -147,14 +147,14 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		ROUTE_NOT_SUPPORTED = collection;
 	}
 
-	public boolean findServiceUpdate(
+	public boolean triggerRefresh(
 			@NonNull RouteManager routeM,
 			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 			@Nullable Collection<ServiceUpdateLoaderListener> listeners,
 			boolean skipIfBusy
 	) {
 		if (ROUTE_NOT_SUPPORTED.contains(routeM.getAuthority())) return true; // not skipped // not supported
-		return findServiceUpdate(
+		return triggerRefresh(
 				routeM.getAuthority(),
 				routeM.getRoute().getUUID(),
 				routeM,
@@ -165,7 +165,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	@AnyThread
-	private boolean findServiceUpdate(
+	private boolean triggerRefresh(
 			@NonNull String targetAuthority,
 			@NonNull String targetUUID,
 			@NonNull ServiceUpdateLoaderListener mainListener,

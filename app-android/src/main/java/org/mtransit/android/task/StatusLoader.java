@@ -101,7 +101,7 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	@AnyThread
-	public boolean findStatus(
+	public boolean triggerRefresh(
 			@NonNull POIManager poim,
 			@NonNull StatusProviderContract.Filter statusFilter,
 			@Nullable StatusLoader.StatusLoaderListener listener,

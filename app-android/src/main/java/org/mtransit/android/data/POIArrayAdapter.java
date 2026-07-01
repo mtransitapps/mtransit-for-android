@@ -1083,7 +1083,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			for (List<POIManager> poimList : this.poisByType.values()) {
 				for (POIManager poim : poimList) {
 					if (poim.poi.getType() == POI.ITEM_VIEW_TYPE_MODULE) {
-						poim.resetLastFindTimestamps(); // force get status from provider
+						poim.resetLastTriggerRefreshMinTimestamps(); // force get status from provider
 						didReset = true;
 					}
 				}
@@ -1808,6 +1808,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				() -> POIArrayAdapter.this.getActivity() instanceof MainActivity ? (MainActivity) POIArrayAdapter.this.getActivity() : null,
 				false,
 				false,
+				(rds, showListInsteadOfMap) -> {
+					this.poiRepository.updateRouteDirectionShowingListInsteadOfMap(rds, showListInsteadOfMap);
+					return kotlin.Unit.INSTANCE;
+				},
 				(view) -> {
 					analyticsManager.trackButtonClick("rds_extra", getAnalyticsScreen(this));
 					leaving();
