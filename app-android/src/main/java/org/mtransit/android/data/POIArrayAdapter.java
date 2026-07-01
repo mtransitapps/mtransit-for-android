@@ -1267,6 +1267,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.location = null; // clear current location to force refresh
 		setLocation(deviceLocation);
 		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
+		notifyDataSetChanged(false); // trigger status/service update fetching if necessary before the minute time changed
 	}
 
 	private boolean isResumed() {
