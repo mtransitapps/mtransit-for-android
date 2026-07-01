@@ -7,6 +7,14 @@ on:
       - master
     paths:
       - 'app-android/src/main/play/listings/**'
+      - 'config/agency_name'
+      - 'config/cities'
+      - 'config/lang/**'
+      - 'config/source_url'
+      - 'config/state'
+      - 'config/fr/agency_name'
+      - 'config/fr/source_url'
+      
   workflow_dispatch: # manual
     inputs:
       allowNonDefault:
