@@ -401,8 +401,12 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onPause() {
 		super.onPause();
-		this.sharedStatusLoader.clearAllTasks();
-		this.sharedServiceUpdateLoader.clearAllTasks();
+		if (UIFeatureFlags.F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN) {
+			//noinspection DiscouragedApi
+			this.sharedStatusLoader.clearAllTasks();
+			//noinspection DiscouragedApi
+			this.sharedServiceUpdateLoader.clearAllTasks();
+		}
 		hideAllInAppNotifications();
 	}
 

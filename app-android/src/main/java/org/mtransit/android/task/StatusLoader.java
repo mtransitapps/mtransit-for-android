@@ -3,6 +3,7 @@ package org.mtransit.android.task;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -87,6 +88,7 @@ public class StatusLoader implements MTLog.Loggable {
 		return false;
 	}
 
+	@Discouraged(message = "No guarantee we are only cancelling the right status fetches")
 	public void clearAllTasks() {
 		final Iterator<Map.Entry<String, ThreadPoolExecutor>> it = this.fetchStatusExecutors.entrySet().iterator();
 		while (it.hasNext()) {

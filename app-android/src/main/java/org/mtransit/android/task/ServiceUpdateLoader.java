@@ -3,6 +3,7 @@ package org.mtransit.android.task;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -86,6 +87,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return this.fetchServiceUpdateExecutor == null ? 0 : this.fetchServiceUpdateExecutor.getTaskCount();
 	}
 
+	@Discouraged(message = "No guarantee we are only cancelling the right service updates fetches")
 	public void clearAllTasks() {
 		if (this.fetchServiceUpdateExecutor != null) {
 			this.fetchServiceUpdateExecutor.shutdown();
