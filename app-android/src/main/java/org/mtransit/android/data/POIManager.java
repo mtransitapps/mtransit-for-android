@@ -303,7 +303,7 @@ public class POIManager implements LocationPOI,
 		final ServiceUpdateProviderContract.Filter filter = ServiceUpdateProviderContract.Filter.from(this.poi, this.inFocus);
 		final boolean isNotSkipped = serviceUpdateLoader.triggerRefresh(this, filter, this.serviceUpdateLoaderListenersWR.keySet(), skipIfBusy);
 		if (isNotSkipped) {
-			this.lastTriggerServiceUpdateRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES;
+			this.lastTriggerServiceUpdateRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis(); // rounded to MINUTES;
 		}
 		return isNotSkipped;
 	}
