@@ -354,6 +354,17 @@ public abstract class ABFragment extends MTFragmentX implements
 		if (this instanceof MenuProvider && !hasToolbar()) {
 			requireActivity().addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 		}
+		sharedAppRatingsManager.getShouldShowAppRatingRequest(this).observe(getViewLifecycleOwner(), shouldShow -> {
+			if (!shouldShow) return;
+			final MainActivity mainActivity = getMainActivity();
+			if (mainActivity == null) return;
+			AppRatingsUIManager.showAppRatingsUI(mainActivity, sharedAnalyticsManager, appRatingDisplayed -> {
+				if (appRatingDisplayed) {
+					this.sharedAppRatingsManager.onAppRequestDisplayed(this, this);
+				}
+				return kotlin.Unit.INSTANCE;
+			});
+		});
 	}
 
 	@Override
@@ -372,17 +383,6 @@ public abstract class ABFragment extends MTFragmentX implements
 			abController.setAB(this);
 			abController.updateAB();
 		}
-		sharedAppRatingsManager.getShouldShowAppRatingRequest(this).observe(this, shouldShow -> {
-			if (!shouldShow) return;
-			final MainActivity mainActivity = getMainActivity();
-			if (mainActivity == null) return;
-			AppRatingsUIManager.showAppRatingsUI(mainActivity, sharedAnalyticsManager, appRatingDisplayed -> {
-				if (appRatingDisplayed) {
-					this.sharedAppRatingsManager.onAppRequestDisplayed(this, this);
-				}
-				return kotlin.Unit.INSTANCE;
-			});
-		});
 	}
 
 	public boolean onBackPressed() {

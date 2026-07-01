@@ -197,11 +197,11 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
 
     override fun onStart() {
         super.onStart()
-        this.adapter.onVisible(this, viewModel.deviceLocation.value)
     }
 
     override fun onResume() {
         super.onResume()
+        this.adapter.onVisible(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }

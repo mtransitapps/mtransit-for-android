@@ -253,11 +253,11 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onStart() {
         super.onStart()
-        listAdapter.onVisible(this, viewModel.deviceLocation.value)
     }
 
     override fun onResume() {
         super.onResume()
+        listAdapter.onVisible(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         if (FeatureFlags.F_NAVIGATION) {

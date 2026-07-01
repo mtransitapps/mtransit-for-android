@@ -310,12 +310,12 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onStart() {
         super.onStart()
-        this.listAdapter.onVisible(this, viewModel.deviceLocation.value)
-        switchView()
     }
 
     override fun onResume() {
         super.onResume()
+        this.listAdapter.onVisible(this, viewModel.deviceLocation.value)
+        switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.checkLocationSettings()
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }

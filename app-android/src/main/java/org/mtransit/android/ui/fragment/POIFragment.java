@@ -1108,6 +1108,11 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
 		enableTimeChangedReceiver();
 		this.showingAccessibilityInfo = null; // force user preference check
 		if (this.nearbyListAdapter != null) {
@@ -1137,12 +1142,6 @@ public class POIFragment extends ABFragment implements
 			this.viewModel.startVehicleLocationRefresh();
 			startVehicleLocationCountdownRefresh(this);
 		}
-	}
-
-	@Override
-	public void onResume() {
-		MTLog.d(this, "onResume()");
-		super.onResume();
 		this.mapViewController.onResume();
 		this.adManager.setRewardedAdListener(this);
 		refreshRewardedAdStatus(this);
