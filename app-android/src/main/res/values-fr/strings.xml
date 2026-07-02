@@ -253,27 +253,27 @@
     <string name="dev_mode_pref_firebase_installation_token_pref_title">JETON INSTALL FIREBASE</string>
     <string name="support_pref_cat_title">Soutenir</string>
     <string name="support_subs_pref_title">Soutenir MonTransit</string>
-    <string name="support_subs_pref_summary">Cacher les pubs et soutenir le développement de MonTransit.</string>
+    <string name="support_subs_pref_summary">Masquer les publicités et soutenir le développement de MonTransit.</string>
     <string name="support_link_paid_tasks_incentive">Trop cher ? Cliquer ici pour gagner des crédits Play en répondant à des sondages rapides de Google.</string>
     <string name="support_link_paid_tasks_incentive_formatted">Trop cher ? Cliquer ici pour <b>gagner des crédits Play</b> en répondant à des sondages rapides de Google.</string>
     <string name="support_title">Soutenir MonTransit</string>
     <string name="support_about">MonTransit est l\'une des nombreuses applications construites avec les données ouvertes et librement accessibles publiées par les agences de transport.\nContrairement à d\'autres applications qui reçoivent de l\'argent des titres ou abonnements, des impôts ou encore d\'investisseurs privés, MonTransit est un projet indépendant, auto-financé, gratuit et ouvert (logiciel libre).\nVotre soutien permettra d\'améliorer l\'application plus rapidement pour tout le monde, dans les petites comme les grandes villes.</string>
-    <string name="support_about_short_w_more">Cacher les pubs et soutenir le développement de MonTransit. Plus&#8230;</string>
+    <string name="support_about_short_w_more">Masquer les publicités et soutenir le développement de MonTransit. Plus&#8230;</string>
     <string name="support_basic_title">Basique</string>
     <string name="support_basic_description">Moins de Pubs</string>
     <string name="support_pro_title">Pro</string>
     <string name="support_pro_description">Aucune Pub</string>
     <string name="support_start">Débuter</string>
     <string name="support_start_and_days_trial">Débuter l\'essai gratuit de %d jours</string>
-    <string name="support_cancel_anytime">Annuler en tout temps sur Play.</string>
+    <string name="support_cancel_anytime">Annulable en tout temps sur Play.</string>
     <string name="support_subs_cancel_pref_title">Merci de soutenir MonTransit !</string>
-    <string name="support_subs_cancel_pref_summary">Annuler en tout temps sur Play.</string>
+    <string name="support_subs_cancel_pref_summary">Annulable en tout temps sur Play.</string>
     <string name="support_subs_default_failure_message">:(</string>
     <string name="support_subs_user_canceled_message">Peut-être une autre fois.</string>
     <string name="support_subs_authenticity_check_fail_message" tools:ignore="UnusedResources">Impossible de vérifier l\'authenticité !</string>
     <string name="support_subs_purchase_successful_message" tools:ignore="UnusedResources">Merci :)</string>
     <string name="support_subs_pick_price">Choisissez votre prix ;)</string>
-    <string name="support_subs_try_cancel">(annuler en tout temps sur Play)</string>
+    <string name="support_subs_try_cancel">(annulable en tout temps sur Play)</string>
     <string name="support_subs_buy_with_play">S\'abonner avec Google Play</string>
     <string name="support_subs_start_trial">Débuter l\'essai gratuit</string>
     <plurals name="support_subs_start_trial_and_days">
