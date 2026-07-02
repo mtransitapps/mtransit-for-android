@@ -109,7 +109,7 @@
             android:key="pSocialFacebook"
             android:summary="@string/social_facebook_pref_summary"
             android:title="@string/social_facebook_pref_title" />
-        <!-- TWITTER -->
+        <!-- TWITTER/X -->
         <Preference
             android:enabled="true"
             android:key="pSocialTwitter"
