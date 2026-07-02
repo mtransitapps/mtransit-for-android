@@ -1520,9 +1520,9 @@
       "title": "Support MonTransit (monthly)"
     },
     {
-      "description": "Cacher pubs. Supporter dév. MonTransit. Annuler à tout moment",
+      "description": "Masquer les publicités. Soutenir MonTransit. Annuler à tout moment",
       "languageCode": "fr-FR",
-      "title": "Supporter MonTransit (mensuellement)"
+      "title": "Soutenir MonTransit (mensuellement)"
     }
   ],
   "packageName": "org.mtransit.android",
