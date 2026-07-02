@@ -1113,6 +1113,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if ((this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE // WARNING: scroll state can stay stuck in other state
 				&& (doNotIgnore || this.lastNotifyDataSetChanged + adapterThresholdMs < now))
 				|| (this.lastNotifyDataSetChanged + (adapterThresholdMs * 2L) < now)) {
+			MTLog.d(this, "notifyDataSetChanged() > NOTIFYING...");
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
 			this.lastNotifyDataSetChanged = now;
