@@ -64,7 +64,7 @@ class MainPreferencesViewModel @Inject constructor(
         internal const val DEV_MODE_REWARDED_RESET_PREF = "pDevModeRewardedReset"
         internal const val DEV_MODE_AD_INSPECTOR_PREF = "pDevModeAdInspector"
 
-        internal const val TWITTER_PAGE_URL = "https://twitter.com/montransit"
+        internal const val TWITTER_PAGE_URL = "https://x.com/montransit"
         internal const val FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit"
 
         internal const val PRIVACY_POLICY_PAGE_URL = "https://mtransitapps.github.io/privacy/"
