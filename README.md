@@ -36,7 +36,7 @@
 
 ## Social
 
-[Facebook](https://www.facebook.com/MonTransit) | [Twitter/X](https://twitter.com/montransit) | [Instagram](https://www.instagram.com/mtransit.apps) | [Threads](https://www.threads.com/@mtransit.apps)
+[Facebook](https://www.facebook.com/MonTransit) | [Twitter/X](https://x.com/montransit) | [Instagram](https://www.instagram.com/mtransit.apps) | [Threads](https://www.threads.com/@mtransit.apps)
 
 ## BETA program
 
