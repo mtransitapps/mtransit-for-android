@@ -86,11 +86,13 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	private static final long MODULE_MAX_VALIDITY_IN_MS = ProviderContract.getMAX_CACHE_VALIDITY_MS();
 	private static final long MODULE_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(1L);
 
-	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = TimeUnit.MINUTES.toMillis(10L);
-	private static final long MODULE_STATUS_VALIDITY_IN_MS = TimeUnit.SECONDS.toMillis(30L);
-	private static final long MODULE_STATUS_VALIDITY_IN_FOCUS_IN_MS = TimeUnit.SECONDS.toMillis(15L);
-	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = TimeUnit.SECONDS.toMillis(20L);
-	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS = TimeUnit.SECONDS.toMillis(10L);
+	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = StatusProviderContract.getDEFAULT_STATUS_MAX_VALIDITY_IN_MS() / 2L;
+
+	private static final long MODULE_STATUS_VALIDITY_IN_MS = StatusProviderContract.getDEFAULT_STATUS_VALIDITY_IN_MS() / 2L;
+	private static final long MODULE_STATUS_VALIDITY_IN_FOCUS_IN_MS = StatusProviderContract.getDEFAULT_STATUS_VALIDITY_IN_FOCUS_IN_MS() / 2L;
+
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = StatusProviderContract.getDEFAULT_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS() / 2L;
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS = StatusProviderContract.getDEFAULT_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS() / 2L;
 
 	@Nullable
 	private ModuleDbHelper dbHelper;
@@ -732,7 +734,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public long getMinDurationBetweenRefreshInMs(boolean inFocus) {
+	public long getMinDurationBetweenStatusRefreshInMs(boolean inFocus) {
 		if (inFocus) {
 			return MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS;
 		}
