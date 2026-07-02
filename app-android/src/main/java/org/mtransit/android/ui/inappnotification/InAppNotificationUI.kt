@@ -47,15 +47,21 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
                         if (!actionText.isNullOrBlank() && onActionClick != null) {
                             setAction(actionText) { v ->
                                 onActionClick.onLongClick(v)
+                                onActionClicked?.invoke()
                             }
                         }
                         anchorView.takeIf { it?.isVisible == true }?.let { setAnchorView(it) }
+                        addCallback(object : Snackbar.Callback() {
+                            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                                onDismiss()
+                            }
+                        })
                     }
                 }
                 )
             }
             return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {
-                onActionClick?.let {
+                if (!actionText.isNullOrBlank() && onActionClick != null) {
                     setTouchInterceptor { v, event ->
                         when (event.action) {
                             MotionEvent.ACTION_DOWN -> {
@@ -67,9 +73,9 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
                             else -> false // not handled
                         }
                     }
-                    setOnDismissListener {
-                        onDismiss()
-                    }
+                }
+                setOnDismissListener {
+                    onDismiss()
                 }
             }, null)
         }
@@ -84,14 +90,21 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
             additionalBottomMarginInPx: Int,
         ): Boolean {
             if (SNACKBAR_INSTEAD_OF_TOAST) {
-                return inAppNotification?.second?.let { it.show(); true } ?: false
+                inAppNotification?.second?.let { snackbar ->
+                    snackbar.show()
+                    return true
+                }
+                return false
             }
-            return ToastUtils.showTouchableToastPx(
-                activity,
-                inAppNotification?.first,
-                contextView,
-                additionalBottomMarginInPx
-            )
+            inAppNotification?.first?.let { toast ->
+                return ToastUtils.showTouchableToastPx(
+                    activity,
+                    toast,
+                    contextView,
+                    additionalBottomMarginInPx
+                )
+            }
+            return false
         }
 
         @JvmStatic
@@ -99,9 +112,21 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
             inAppNotification: AndroidXPair<PopupWindow?, Snackbar?>?,
         ): Boolean {
             if (SNACKBAR_INSTEAD_OF_TOAST) {
-                return inAppNotification?.second?.let { it.dismiss(); true } ?: false
+                inAppNotification?.second?.let { snackbar ->
+                    if (snackbar.isShownOrQueued) {
+                        snackbar.dismiss()
+                        return true
+                    }
+                }
+                return false
             }
-            return inAppNotification?.first?.let { it.dismiss(); true } ?: false
+            inAppNotification?.first?.let { toast ->
+                if (toast.isShowing) {
+                    toast.dismiss()
+                    return true
+                }
+            }
+            return false
         }
     }
 

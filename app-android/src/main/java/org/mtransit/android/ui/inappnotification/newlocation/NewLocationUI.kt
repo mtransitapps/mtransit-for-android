@@ -13,7 +13,7 @@ object NewLocationUI : InAppNotificationUI<NewLocationAwareFragment> {
 
     override fun onViewCreated(fragment: NewLocationAwareFragment) {
         fragment.viewModel.newLocationAvailable.observe(fragment.getViewLifecycleOwner()) { newLocationAvailable ->
-            showOrHideInAppNotification(fragment, newLocationAvailable == true)
+            showOrHideInAppNotification(fragment, show = newLocationAvailable == true)
         }
     }
 

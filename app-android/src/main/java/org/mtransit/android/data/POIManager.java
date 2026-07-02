@@ -362,6 +362,7 @@ public class POIManager implements LocationPOI,
 					final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(pkg);
 					if (agencyProperties != null && agencyProperties.hasContactUs()) {
 						return new CharSequence[]{
+								defaultAction,
 								context.getString(R.string.view_on_store),
 								context.getString(R.string.manage_app),
 								context.getString(R.string.uninstall),
@@ -369,6 +370,7 @@ public class POIManager implements LocationPOI,
 						};
 					} else {
 						return new CharSequence[]{
+								defaultAction,
 								context.getString(R.string.view_on_store),
 								context.getString(R.string.manage_app),
 								context.getString(R.string.uninstall),
@@ -399,6 +401,7 @@ public class POIManager implements LocationPOI,
 			@NonNull LifecycleOwner viewLifecycleOwner,
 			@NonNull FavoriteRepository favoriteRepository,
 			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull POIRepository poiRepository,
 			int itemClicked,
 			POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
@@ -410,7 +413,7 @@ public class POIManager implements LocationPOI,
 		case POI.ITEM_ACTION_TYPE_ROUTE_DIRECTION_STOP:
 			return onActionsItemClickRDS(activity, view, viewLifecycleOwner, favoriteRepository, itemClicked, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_APP:
-			return onActionsItemClickApp(activity, view, dataSourcesRepository, itemClicked, onClickHandledListener);
+			return onActionsItemClickApp(activity, view, dataSourcesRepository, poiRepository, itemClicked, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			return onActionsItemClickPlace(activity, view, dataSourcesRepository, itemClicked, onClickHandledListener);
 		default:
@@ -423,13 +426,20 @@ public class POIManager implements LocationPOI,
 			@NonNull FragmentActivity activity,
 			@NonNull View view,
 			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull POIRepository poiRepository,
 			int itemClicked,
 			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
 		final Module module = (Module) poi;
 		final String pkg = module.getPkg();
 		switch (itemClicked) {
-		case 0: // Rate on Google Play
+		case 0: // Default
+			final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
+			if (agency != null) {
+				showAgencyTypeScreen((MainActivity) activity, view, poiRepository, agency);
+			}
+			return true; // HANDLED
+		case 1: // Rate on Google Play
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
@@ -437,19 +447,19 @@ public class POIManager implements LocationPOI,
 					activity.getString(org.mtransit.android.commons.R.string.google_play),
 					activity.getPackageName(), "mt", null, null, null);
 			return true; // HANDLED
-		case 1: // Manage App
+		case 2: // Manage App
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
 			DeviceUtils.showAppDetailsSettings(activity, pkg);
 			return true; // HANDLED
-		case 2: // Uninstall
+		case 3: // Uninstall
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
 			PackageManagerUtils.uninstallApp(activity, pkg);
 			return true; // HANDLED
-		case 3: // Customer service
+		case 4: // Customer service
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
@@ -740,29 +750,10 @@ public class POIManager implements LocationPOI,
 					&& PackageManagerUtils.isAppEnabled(activity, pkg)) {
 				final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
 				if (agency != null) {
-					if (agency.isUpdateAvailable(activity.getPackageManager())) {
+					if (agency.isUpdateAvailableNow(activity.getPackageManager())) {
 						AppUpdateLauncher.launchAppUpdate(activity, pkg);
 					} else { // navigate to agency type screen
-						poiRepository.updateSelectedAgencyTypeTab(agency);
-						if (FeatureFlags.F_NAVIGATION) {
-							final NavController navController = Navigation.findNavController(view);
-							FragmentNavigator.Extras extras = null;
-							if (FeatureFlags.F_TRANSITION) {
-								extras = new FragmentNavigator.Extras.Builder()
-										.addSharedElement(view, view.getTransitionName())
-										.build();
-							}
-							NavControllerExtKt.navigateF(navController,
-									R.id.nav_to_type_screen,
-									AgencyTypeFragment.newInstanceArgs(agency.getSupportedType()),
-									null,
-									extras
-							);
-						} else {
-							((MainActivity) activity).addFragmentToStack(
-									AgencyTypeFragment.newInstance(agency.getSupportedType())
-							);
-						}
+						showAgencyTypeScreen((MainActivity) activity, view, poiRepository, agency);
 					}
 					return true; // handled
 				}
@@ -825,6 +816,34 @@ public class POIManager implements LocationPOI,
 			// reset to defaults, so the POI is updated when coming back in the current screen
 			resetLastFindTimestamps();
 			return true; // HANDLED
+		}
+	}
+
+	private static void showAgencyTypeScreen(
+			@NonNull MainActivity activity,
+			@NonNull View view,
+			@NonNull POIRepository poiRepository,
+			@NonNull AgencyProperties agency
+	) {
+		poiRepository.updateSelectedAgencyTypeTab(agency);
+		if (FeatureFlags.F_NAVIGATION) {
+			final NavController navController = Navigation.findNavController(view);
+			FragmentNavigator.Extras extras = null;
+			if (FeatureFlags.F_TRANSITION) {
+				extras = new FragmentNavigator.Extras.Builder()
+						.addSharedElement(view, view.getTransitionName())
+						.build();
+			}
+			NavControllerExtKt.navigateF(navController,
+					R.id.nav_to_type_screen,
+					AgencyTypeFragment.newInstanceArgs(agency.getSupportedType()),
+					null,
+					extras
+			);
+		} else {
+			activity.addFragmentToStack(
+					AgencyTypeFragment.newInstance(agency.getSupportedType())
+			);
 		}
 	}
 
@@ -897,6 +916,7 @@ public class POIManager implements LocationPOI,
 										viewLifecycleOwner,
 										favoriteRepository,
 										dataSourcesRepository,
+										poiRepository,
 										item,
 										onClickHandledListener
 								);

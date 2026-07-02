@@ -25,5 +25,6 @@ interface InAppNotificationFragment : IFragment {
 
     fun hideInAppNotification(notificationId: String): Boolean
 
+    @Suppress("unused")
     fun hideAllInAppNotifications(): Boolean
 }

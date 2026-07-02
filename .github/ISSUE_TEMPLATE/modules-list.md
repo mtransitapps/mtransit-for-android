@@ -145,6 +145,7 @@ labels: MT
 - [ ] ca-whitehorse-transit-bus
 - [ ] ca-windsor-transit-bus
 - [ ] ca-winnipeg-transit-bus
+- [ ] ca-yellowknife-transit-bus
 - [ ] ca-york-region-yrt-viva-bus
 - [ ] fr-perpignan-sankeo-bus
 - [ ] us-anchorage-people-mover-bus
