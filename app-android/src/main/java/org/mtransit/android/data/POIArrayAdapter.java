@@ -1265,7 +1265,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	/**
-	 * Should be called on onStart() if parent fragments & onResume() in child fragments
+	 * Should be called on onResume() (or onStart()) in parent fragments & onResume() in child fragments
 	 */
 	public void onVisible(@NonNull IFragment fragment, @Nullable Location deviceLocation) {
 		setFragment(fragment);
