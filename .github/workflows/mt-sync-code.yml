@@ -127,10 +127,10 @@ jobs:
             fi
             SUBMODULES_CHANGED=true
             SUBMODULE_NAME=$(basename "$SUBMODULE_PATH")
-echo "Triggering mt-build.yml for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
-gh workflow run mt-build.yml \
-  --repo "mtransitapps/${SUBMODULE_NAME}" \
-  --ref "$MT_BRANCH_NAME"
+            echo "Triggering mt-build.yml for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
+            gh workflow run mt-build.yml \
+              --repo "mtransitapps/${SUBMODULE_NAME}" \
+              --ref "$MT_BRANCH_NAME"
           done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
 
           if [ "$SUBMODULES_CHANGED" = "false" ]; then
