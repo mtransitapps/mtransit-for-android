@@ -83,17 +83,6 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	 */
 	private static final String PREF_KEY_LAST_UPDATE_MS = ModuleDbHelper.PREF_KEY_LAST_UPDATE_MS;
 
-	private static final long MODULE_MAX_VALIDITY_IN_MS = ProviderContract.getMAX_CACHE_VALIDITY_MS();
-	private static final long MODULE_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(1L);
-
-	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = StatusProviderContract.getDEFAULT_STATUS_MAX_VALIDITY_IN_MS() / 2L;
-
-	private static final long MODULE_STATUS_VALIDITY_IN_MS = StatusProviderContract.getDEFAULT_STATUS_VALIDITY_IN_MS() / 2L;
-	private static final long MODULE_STATUS_VALIDITY_IN_FOCUS_IN_MS = StatusProviderContract.getDEFAULT_STATUS_VALIDITY_IN_FOCUS_IN_MS() / 2L;
-
-	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = StatusProviderContract.getDEFAULT_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS() / 2L;
-	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS = StatusProviderContract.getDEFAULT_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS() / 2L;
-
 	@Nullable
 	private ModuleDbHelper dbHelper;
 
@@ -384,16 +373,6 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			MTLog.w(this, e, "Error while loading module POIs '%s'!", poiFilter);
 			return null;
 		}
-	}
-
-	@Override
-	public long getPoiMaxValidityInMs() {
-		return MODULE_MAX_VALIDITY_IN_MS;
-	}
-
-	@Override
-	public long getPoiValidityInMs() {
-		return MODULE_VALIDITY_IN_MS;
 	}
 
 	private SharedPreferences storage = null;
@@ -720,10 +699,15 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return new ModuleDbHelper(context.getApplicationContext(), getStorage(context));
 	}
 
+	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = StatusProviderContract.getDEFAULT_STATUS_MAX_VALIDITY_IN_MS() / 2L;
+
 	@Override
 	public long getStatusMaxValidityInMs() {
 		return MODULE_STATUS_MAX_VALIDITY_IN_MS;
 	}
+
+	private static final long MODULE_STATUS_VALIDITY_IN_MS = StatusProviderContract.getDEFAULT_STATUS_VALIDITY_IN_MS() / 2L;
+	private static final long MODULE_STATUS_VALIDITY_IN_FOCUS_IN_MS = StatusProviderContract.getDEFAULT_STATUS_VALIDITY_IN_FOCUS_IN_MS() / 2L;
 
 	@Override
 	public long getStatusValidityInMs(boolean inFocus) {
@@ -732,6 +716,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		}
 		return MODULE_STATUS_VALIDITY_IN_MS;
 	}
+
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = StatusProviderContract.getDEFAULT_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS() / 2L;
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS = StatusProviderContract.getDEFAULT_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS() / 2L;
 
 	@Override
 	public long getMinDurationBetweenStatusRefreshInMs(boolean inFocus) {

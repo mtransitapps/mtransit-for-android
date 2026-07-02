@@ -418,10 +418,24 @@ public class POIManager implements LocationPOI,
 		final String pkg = module.getPkg();
 		switch (itemClicked) {
 		case 0: // Default
-			final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
-			if (agency != null) {
-				showAgencyTypeScreen((MainActivity) activity, view, poiRepository, agency);
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
 			}
+			if (PackageManagerUtils.isAppInstalled(activity, pkg)
+					&& PackageManagerUtils.isAppEnabled(activity, pkg)) {
+				final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
+				if (agency != null) {
+					if (agency.isUpdateAvailableNow(activity.getPackageManager())) {
+						AppUpdateLauncher.launchAppUpdate(activity, pkg);
+					} else { // navigate to agency type screen
+						showAgencyTypeScreen((MainActivity) activity, view, poiRepository, agency);
+					}
+					return true; // handled
+				}
+			}
+			StoreUtils.viewAppPage(activity, module.getStorePkg(),
+					activity.getString(org.mtransit.android.commons.R.string.google_play),
+					activity.getPackageName(), "mt", null, null, null);
 			return true; // HANDLED
 		case 1: // Rate on Google Play
 			if (onClickHandledListener != null) {
