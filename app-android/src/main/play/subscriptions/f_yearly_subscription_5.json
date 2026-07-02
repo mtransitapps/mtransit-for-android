@@ -1520,9 +1520,9 @@
       "title": "Support MonTransit (yearly)"
     },
     {
-      "description": "Cacher pubs. Supporter dév. MonTransit. Annuler à tout moment",
+      "description": "Cacher pubs. Soutenir dév. MonTransit. Annuler à tout moment",
       "languageCode": "fr-FR",
-      "title": "Supporter MonTransit (annuellement)"
+      "title": "Soutenir MonTransit (annuellement)"
     }
   ],
   "packageName": "org.mtransit.android",
