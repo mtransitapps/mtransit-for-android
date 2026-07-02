@@ -49,8 +49,8 @@ class PickPOIViewModel @Inject constructor(
     val dataSourceRemovedEvent: LiveData<Event<Boolean>> = MediatorLiveData2(_poiAuthorities, _allAgencies)
         .switchMap { (authorities, allAgencies) ->
             liveData {
-                authorities?: return@liveData
-                allAgencies?: return@liveData
+                authorities ?: return@liveData
+                allAgencies ?: return@liveData
                 emit(Event(checkForDataSourceRemoved(authorities, allAgencies)))
             }
         }
@@ -89,7 +89,8 @@ class PickPOIViewModel @Inject constructor(
         }
         val poiList = mutableListOf<POIManager>()
         agencyToUUIDs.forEach { (agency, uuids) ->
-            poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(uuids)).let {
+            val poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(uuids)
+            poiRepository.findPOIMs(agency, poiFilter).let {
                 poiList.addAll(it)
             }
         }

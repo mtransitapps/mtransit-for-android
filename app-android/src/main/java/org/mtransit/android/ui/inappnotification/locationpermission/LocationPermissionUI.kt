@@ -17,7 +17,7 @@ object LocationPermissionUI : InAppNotificationUI<LocationPermissionAwareFragmen
             // DO NOTHING
         }
         fragment.viewModel.locationPermissionNeeded.observe(fragment.getViewLifecycleOwner()) { needed ->
-            showOrHideInAppNotification(fragment, needed == true)
+            showOrHideInAppNotification(fragment, show = needed == true)
         }
     }
 

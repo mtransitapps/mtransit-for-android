@@ -11,7 +11,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.DurationUnit
 
-fun ServiceUpdates?.findServiceUpdate(tripId: String?): ServiceUpdate? {
+fun ServiceUpdates?.findTripServiceUpdate(tripId: String?): ServiceUpdate? {
     tripId ?: return null
     this ?: return null
     return find { serviceUpdate -> serviceUpdate.targetTripId == tripId }

@@ -1,6 +1,6 @@
 package org.mtransit.android.data;
 
-import static org.mtransit.android.data.UIScheduleExtKt.findServiceUpdate;
+import static org.mtransit.android.data.UIScheduleExtKt.findTripServiceUpdate;
 import static org.mtransit.commons.Constants.SPACE;
 
 import android.annotation.SuppressLint;
@@ -358,8 +358,17 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		super(status, providerPrecisionInMs, noPickup);
 	}
 
-	UISchedule(@Nullable Integer id, @NonNull String targetUUID, long lastUpdateInMs, long maxValidityInMs, long readFromSourceAtInMs, long providerPrecisionInMs,
-			   boolean noPickup, @Nullable String sourceLabel, boolean noData) {
+	UISchedule(
+			@Nullable Integer id,
+			@NonNull String targetUUID,
+			long lastUpdateInMs,
+			long maxValidityInMs,
+			long readFromSourceAtInMs,
+			long providerPrecisionInMs,
+			boolean noPickup,
+			@Nullable String sourceLabel,
+			boolean noData
+	) {
 		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, noData);
 	}
 
@@ -409,8 +418,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	ArrayList<Timestamp> getNextTimestamps(long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
-										   @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
+	ArrayList<Timestamp> getNextTimestamps(
+			long after,
+			@Nullable Long optMinCoverageInMs,
+			@Nullable Long optMaxCoverageInMs,
+			@Nullable Integer optMinCount,
+			@Nullable Integer optMaxCount
+	) {
 		ArrayList<Timestamp> nextTimestamps = new ArrayList<>();
 		boolean isAfter = false;
 		int nbAfter = 0;
@@ -748,10 +762,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	public static SpannableStringBuilder decorateRealTime(@NonNull Context context,
-														  @NonNull Timestamp t,
-														  @NonNull String fTime,
-														  @NonNull SpannableStringBuilder timeSSB) {
+	public static SpannableStringBuilder decorateRealTime(
+			@NonNull Context context,
+			@NonNull Timestamp t,
+			@NonNull String fTime,
+			@NonNull SpannableStringBuilder timeSSB
+	) {
 		if (t.isRealTime()) {
 			int start = fTime.indexOf(UITimeUtils.REAL_TIME_CHAR);
 			int end = start + 1;
@@ -765,8 +781,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	public static SpannableStringBuilder decorateOldSchedule(@NonNull Timestamp t,
-															 @NonNull SpannableStringBuilder timeSSB) {
+	public static SpannableStringBuilder decorateOldSchedule(
+			@NonNull Timestamp t,
+			@NonNull SpannableStringBuilder timeSSB
+	) {
 		if (t.isOldSchedule()) {
 			SpanUtils.setAllNN(timeSSB, SCHEDULE_OLD_SCHEDULE_STYLE);
 		}
@@ -774,14 +792,16 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	public static SpannableStringBuilder decorateCancelled(@NonNull Timestamp t,
-														   @NonNull SpannableStringBuilder timeSSB,
-														   @Nullable ServiceUpdates serviceUpdates) {
+	public static SpannableStringBuilder decorateCancelled(
+			@NonNull Timestamp t,
+			@NonNull SpannableStringBuilder timeSSB,
+			@Nullable ServiceUpdates serviceUpdates
+	) {
 		if (t.isCancelled()) {
 			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
 			return timeSSB;
 		}
-		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
+		final ServiceUpdate tripServiceUpdate = findTripServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
 			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
 		}
@@ -790,13 +810,15 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	@SuppressWarnings("WeakerAccess")
 	@NonNull
-	public static CharSequence decorateCancelled(@NonNull Timestamp t,
-												 @NonNull CharSequence timeCS,
-												 @Nullable ServiceUpdates serviceUpdates) {
+	public static CharSequence decorateCancelled(
+			@NonNull Timestamp t,
+			@NonNull CharSequence timeCS,
+			@Nullable ServiceUpdates serviceUpdates
+	) {
 		if (t.isCancelled()) {
 			return SpanUtils.setAll(timeCS, CANCELLED_STYLE);
 		}
-		final ServiceUpdate tripServiceUpdate = findServiceUpdate(serviceUpdates, t.getTripId());
+		final ServiceUpdate tripServiceUpdate = findTripServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
 			timeCS = SpanUtils.setAll(timeCS, CANCELLED_STYLE);
 		}
@@ -809,8 +831,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	@SuppressWarnings({"unused", "deprecation"})
 	@SuppressLint("DeprecatedCall")
 	@Nullable
-	public CharSequence getSchedule(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
-									@Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
+	public CharSequence getSchedule(
+			@NonNull Context context,
+			long after,
+			@Nullable Long optMinCoverageInMs,
+			@Nullable Long optMaxCoverageInMs,
+			@Nullable Integer optMinCount,
+			@Nullable Integer optMaxCount
+	) {
 		if (this.scheduleString == null || this.scheduleStringTimestamp != after) {
 			generateSchedule(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		}
@@ -820,8 +848,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	@SuppressWarnings({"deprecation"})
 	@SuppressLint("DeprecatedCall")
 	@Deprecated // TBD
-	private void generateSchedule(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
-								  @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
+	private void generateSchedule(
+			@NonNull Context context,
+			long after,
+			@Nullable Long optMinCoverageInMs,
+			@Nullable Long optMaxCoverageInMs,
+			@Nullable Integer optMinCount,
+			@Nullable Integer optMaxCount
+	) {
 		ArrayList<Timestamp> nextTimestamps =
 				getNextTimestamps(after - getUIProviderPrecisionInMs(), optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (CollectionUtils.getSize(nextTimestamps) <= 0) { // NO SERVICE
@@ -1030,11 +1064,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	ArrayList<Timestamp> getStatusNextTimestamps(long after, // truncated to the minute
-												 @Nullable Long optMinCoverageInMs,
-												 @Nullable Long optMaxCoverageInMs,
-												 @Nullable Integer optMinCount,
-												 @Nullable Integer optMaxCount) {
+	ArrayList<Timestamp> getStatusNextTimestamps(
+			long after, // truncated to the minute
+			@Nullable Long optMinCoverageInMs,
+			@Nullable Long optMaxCoverageInMs,
+			@Nullable Integer optMinCount,
+			@Nullable Integer optMaxCount
+	) {
 		final long usefulPastInMs = Math.max(MAX_LAST_STATUS_DIFF_IN_MS, getUIProviderPrecisionInMs());
 		ArrayList<Timestamp> nextTimestampsT = getNextTimestamps(after - usefulPastInMs, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (!nextTimestampsT.isEmpty()) {
@@ -1194,9 +1230,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		generateStatusStrings(context, context.getString(R.string.drop_off_only_part_1), context.getString(R.string.drop_off_only_part_2));
 	}
 
-	private void generateStatusStrings(@NonNull Context context,
-									   CharSequence cs1,
-									   CharSequence cs2) {
+	private void generateStatusStrings(
+			@NonNull Context context,
+			CharSequence cs1,
+			CharSequence cs2
+	) {
 		this.statusStrings = new ArrayList<>();
 		this.statusStrings.add(new Pair<>(//
 				SpanUtils.setAll(cs1, //

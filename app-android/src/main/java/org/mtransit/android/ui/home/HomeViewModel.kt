@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Location
+import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -34,6 +35,7 @@ import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
+import org.mtransit.android.commons.toStringSimple
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
@@ -64,6 +66,7 @@ import org.mtransit.commons.addAllN
 import org.mtransit.commons.removeAllAnd
 import java.util.SortedMap
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -126,11 +129,11 @@ class HomeViewModel @Inject constructor(
     private fun getNearbyLocation(lastDeviceLocation: Location?, forceReset: Boolean): Location? {
         if (!forceReset) {
             _nearbyLocation.value?.let {
-                MTLog.d(this, "getNearbyLocation() > keep same ($it)")
+                MTLog.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
                 return it
             }
         }
-        MTLog.d(this, "getNearbyLocation() > use last device location ($lastDeviceLocation)")
+        MTLog.d(this, "getNearbyLocation() > use last device location (${lastDeviceLocation?.toStringSimple()})")
         return lastDeviceLocation
     }
 
@@ -247,7 +250,7 @@ class HomeViewModel @Inject constructor(
         _nearbyPOIsTrigger.postValue(Event(true))
         _loadingPOIs.postValue(true)
         if (!_nearbyPOIs.value.isNullOrEmpty()) {
-            delay(333L) // debounce / throttle (agencies being updated)
+            delay(333L.milliseconds) // debounce / throttle (agencies being updated)
         }
         val favoriteUUIDs = favoriteRepository.findFavoriteUUIDs()
         val nbMaxByType = when (typeToHomeAgencies.keys.size) {
@@ -389,10 +392,12 @@ class HomeViewModel @Inject constructor(
         val hideBookingRequired = lclPrefRepository.pref.getBoolean(
             LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
         )
-        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-            addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-            addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
-        }
+        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+                extras = SimpleArrayMap<String, Any>().apply {
+                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+                    put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
+                },
+            )
         typeAgencies
             .filter { Area.areOverlapping(it.area, area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
@@ -422,6 +427,7 @@ class HomeViewModel @Inject constructor(
     override fun initiateRefresh(): Boolean {
         val newDeviceLocation = this.deviceLocation.value ?: return false
         val currentNearbyLocation = this._nearbyLocation.value
+        @Suppress("SimplifyBooleanWithConstants")
         if (!IGNORE_SAME_LOCATION_CHECK
             && LocationUtils.areAlmostTheSame(currentNearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)
         ) {

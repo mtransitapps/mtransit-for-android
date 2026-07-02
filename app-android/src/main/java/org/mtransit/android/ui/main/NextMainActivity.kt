@@ -252,7 +252,7 @@ class NextMainActivity : MTActivityWithLocation(),
     }
 
     private fun processIntent(intent: Intent?): Boolean {
-        if (Intent.ACTION_SEARCH == intent?.action) {
+        if (intent?.action == Intent.ACTION_SEARCH) {
             onSearchQueryRequested(intent.getStringExtra(SearchManager.QUERY))
             return true // intent processed
         }

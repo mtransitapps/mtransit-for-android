@@ -13,7 +13,7 @@ interface IAgencyUpdatableProperties : IAgencyProperties {
 
     val shouldShowUpdateLayout: Boolean
 
-    fun isUpdateAvailable(pm: PackageManager): Boolean =
+    fun isUpdateAvailableNow(pm: PackageManager): Boolean =
         updateAvailable
                 && pm.getAppLongVersionCode(this.pkg, this.longVersionCode).toInt() < this.availableVersionCode
 }

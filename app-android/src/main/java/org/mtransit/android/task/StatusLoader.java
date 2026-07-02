@@ -1,5 +1,7 @@
 package org.mtransit.android.task;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -120,6 +122,7 @@ public class StatusLoader implements MTLog.Loggable {
 		return true;
 	}
 
+	@SuppressLint("DeprecatedCall")
 	@SuppressWarnings("deprecation")
 	private static class StatusFetcherCallable extends MTCancellableAsyncTask<Void, Void, POIStatus> {
 
@@ -156,6 +159,12 @@ public class StatusLoader implements MTLog.Loggable {
 			this.statusFilter = statusFilter;
 		}
 
+		@Override
+		public boolean isCancelledMT() {
+			return super.isCancelledMT()
+					|| (this.poiWR.get() == null && this.listenerWR.get() == null);
+		}
+
 		@WorkerThread
 		@Override
 		protected POIStatus doInBackgroundNotCancelledMT(Void... params) {
@@ -172,14 +181,18 @@ public class StatusLoader implements MTLog.Loggable {
 
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable POIStatus result) {
-			if (result == null) return;
+			onStatusLoaded(result);
+		}
+
+		private void onStatusLoaded(@Nullable POIStatus status) {
+			if (status == null) return;
 			final POIManager poim = this.poiWR.get();
 			if (poim == null) return;
-			final boolean statusChanged = poim.setStatus(result); // filter no data or not useful or older than current status
+			final boolean statusChanged = poim.setStatus(status); // filter no data or not useful or older than current status
 			if (statusChanged) {
-				final StatusLoader.StatusLoaderListener listener = this.listenerWR.get();
+				final StatusLoaderListener listener = this.listenerWR.get();
 				if (listener == null) return;
-				listener.onStatusLoaded(result);
+				listener.onStatusLoaded(status);
 			}
 		}
 	}

@@ -18,11 +18,13 @@ import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.commons.provider.poi.POIProviderContract
+import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.toRouteDirectionM
 import org.mtransit.android.data.toRouteM
 import org.mtransit.android.datasource.DataSourceRequestManager
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.ui.view.common.Event
@@ -36,6 +38,8 @@ class ServiceUpdatesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     defaultPrefRepository: DefaultPreferenceRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val poiRepository: POIRepository,
 ) : ViewModel(), MTLog.Loggable {
     companion object {
         private val LOG_TAG: String = ServiceUpdatesViewModel::class.java.simpleName
@@ -54,6 +58,10 @@ class ServiceUpdatesViewModel @Inject constructor(
 
     private val _directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
 
+    val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
+        this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE
+    }
+
     private val _route: LiveData<Route?> = MediatorLiveData2(_authority, _routeId).switchMap { (authority, routeId) ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             authority ?: return@liveData
@@ -70,13 +78,16 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    private val _poim: LiveData<POIManager?> = MediatorLiveData2(_authority, _poiUuid).switchMap { (authority, poiUuid) ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            authority ?: return@liveData
-            poiUuid ?: return@liveData
-            emit(dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(poiUuid)))
+    private val _poim: LiveData<POIManager?> = MediatorLiveData2(agency, _poiUuid)
+        .switchMap { (agency, poiUuid) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                agency ?: return@liveData
+                poiUuid ?: return@liveData
+                emitSource(poiRepository.readingPOIM(agency, poiUuid, currentValue = _poim.value, onDataSourceRemoved = {
+                    // do nothing
+                }))
+            }
         }
-    }
 
     val holder: LiveData<ServiceUpdatesHolder> = MediatorLiveData4(_authority, _route, _direction, _poim).switchMap { (authority, route, direction, poim) ->
         liveData(viewModelScope.coroutineContext) {

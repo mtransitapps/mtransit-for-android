@@ -289,7 +289,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
             R.id.menu_show_news -> {
                 (activity as? MainActivity)?.apply {
-                    addFragmentToStack(NewsListDetailFragment.newInstance(color = null))
+                    addFragmentToStack(NewsListDetailFragment.newInstance())
                 }
                 true // handled
             }

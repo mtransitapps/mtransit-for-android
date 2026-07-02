@@ -79,7 +79,7 @@ class FavoritesViewModel @Inject constructor(
 
     private val _homeScreenTypes = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { // #onModulesUpdated
         it.filter { dst -> dst.isHomeScreen && dst != DataSourceType.TYPE_MODULE }
-    }
+    }.distinctUntilChanged()
 
     val favorites = this.favoriteRepository.readingAllFavorites
 
@@ -87,9 +87,9 @@ class FavoritesViewModel @Inject constructor(
         .switchMap { (favorites, allAgencies, homeScreenTypes) ->
             _hasFavoritesAgencyDisabled.value = false
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                favorites ?: run { emit(null); return@liveData } // loading
-                allAgencies ?: run { emit(null); return@liveData } // loading
-                homeScreenTypes ?: run { emit(null); return@liveData } // loading
+                favorites ?: return@liveData
+                allAgencies ?: return@liveData
+                homeScreenTypes ?: return@liveData
                 emit(getFavorites(favorites, allAgencies, homeScreenTypes))
             }
         }
@@ -114,7 +114,8 @@ class FavoritesViewModel @Inject constructor(
                 if (!agency.isEnabled(pm)) {
                     _hasFavoritesAgencyDisabled.postValue(true)
                 }
-                this.poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
+                val poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs)
+                this.poiRepository.findPOIMs(agency, poiFilter)
                     .let { agencyPOIs ->
                         if (agencyPOIs.isNotEmpty()) {
                             pois.addAll(

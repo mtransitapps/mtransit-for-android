@@ -56,8 +56,7 @@ data class RouteDirectionManager(
             .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
     }
 
-    private val areServiceUpdatesUseful: Boolean
-        get() = this.serviceUpdates.any { it.isUseful }
+    private val areServiceUpdatesUseful: Boolean get() = this.serviceUpdates.any { it.isUseful }
 
     fun allowFindServiceUpdates() {
         this.lastFindServiceUpdateTimestampMs -= 1.minutes.inWholeMilliseconds

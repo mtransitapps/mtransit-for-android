@@ -68,6 +68,7 @@ class FavoriteRepository(
         }
 
     val readingAllFavorites: LiveData<Set<Favorite>> = makeFavoriteLiveData()
+        .distinctUntilChanged()
 
     val readingHasFavorites: LiveData<Boolean> = readingAllFavorites.map { it.isNotEmpty() }
 
@@ -75,7 +76,7 @@ class FavoriteRepository(
         it.map { favorite -> favorite.fkId }.toSet()
     }
 
-    val readingAllFavoritesChange: LiveData<Any> = readingAllFavorites.distinctUntilChanged().map { Any() }
+    val readingAllFavoritesChange: LiveData<Any> = readingAllFavorites.map { Any() }
 
     private fun makeFavoriteLiveData(
         uri: Uri = favoriteContentDirectoryUri,

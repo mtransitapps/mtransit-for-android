@@ -31,6 +31,7 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class RDSAgencyRoutesViewModel @Inject constructor(
@@ -93,7 +94,7 @@ class RDSAgencyRoutesViewModel @Inject constructor(
     private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
-            delay(333L) // wait for 0.333 secs BECAUSE many routes & will trigger RecyclerView.notifyDataSetChanged()
+            delay(333L.milliseconds) // wait for 0.333 secs BECAUSE many routes & will trigger RecyclerView.notifyDataSetChanged()
             _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
         }
     }

@@ -89,6 +89,7 @@ labels: MT
 - [ ] ca-pierre-de-saurel-stc-bus
 - [ ] ca-port-alberni-transit-bus
 - [ ] ca-powell-river-regional-transit-system-bus
+- [ ] ca-prince-albert-transit-bus
 - [ ] ca-prince-george-transit-system-bus
 - [ ] ca-prince-rupert-transit-bus
 - [ ] ca-quebec-a-velo-bike
@@ -144,6 +145,7 @@ labels: MT
 - [ ] ca-whitehorse-transit-bus
 - [ ] ca-windsor-transit-bus
 - [ ] ca-winnipeg-transit-bus
+- [ ] ca-yellowknife-transit-bus
 - [ ] ca-york-region-yrt-viva-bus
 - [ ] fr-perpignan-sankeo-bus
 - [ ] us-anchorage-people-mover-bus

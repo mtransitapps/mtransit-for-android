@@ -3,7 +3,6 @@ package org.mtransit.android.ui.nearby.type
 import android.location.Location
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
-import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.util.toLatLngS
 
@@ -35,15 +34,6 @@ data class NearbyParams(
                 null
             } else {
                 LocationUtils.getAroundCoveredDistanceInMeters(nearbyLocation.latitude, nearbyLocation.longitude, ad.aroundDiff)
-            }
-        }
-
-    val poiFilter: POIProviderContract.Filter?
-        get() {
-            return if (nearbyLocation == null || ad == null) {
-                null
-            } else {
-                POIProviderContract.Filter.getNewAroundFilter(nearbyLocation.latitude, nearbyLocation.longitude, ad.aroundDiff)
             }
         }
 

@@ -17,7 +17,7 @@ object LocationSettingsUI : InAppNotificationUI<LocationSettingsAwareFragment> {
             // DO NOTHING
         }
         fragment.viewModel.locationSettingsNeeded.observe(fragment.getViewLifecycleOwner()) { needed ->
-            showOrHideInAppNotification(fragment, needed == true)
+            showOrHideInAppNotification(fragment, show = needed == true)
         }
     }
 

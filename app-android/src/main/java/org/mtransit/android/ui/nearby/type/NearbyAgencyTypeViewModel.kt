@@ -2,6 +2,7 @@ package org.mtransit.android.ui.nearby.type
 
 import android.content.pm.PackageManager
 import android.location.Location
+import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -147,9 +148,11 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         val lng = nearbyLocation.longitude
         val aroundDiff = ad.aroundDiff
         val nearbyPOIs = mutableListOf<POIManager>()
-        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-            addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-        }
+        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+            extras = SimpleArrayMap<String, Any>().apply {
+                put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+            },
+        )
         typeAgencies
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->

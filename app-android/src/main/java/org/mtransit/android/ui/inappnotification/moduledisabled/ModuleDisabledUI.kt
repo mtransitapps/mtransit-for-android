@@ -26,7 +26,7 @@ object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
             // DO NOTHING
         }
         fragment.viewModel.hasDisabledModule.observe(fragment.getViewLifecycleOwner()) { hasDisabledModule ->
-            showOrHideInAppNotification(fragment, hasDisabledModule == true)
+            showOrHideInAppNotification(fragment, show = hasDisabledModule == true)
         }
     }
 
