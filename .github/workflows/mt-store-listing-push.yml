@@ -60,7 +60,7 @@ jobs:
 
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.2.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.3.0
 
       - name: MT push store listing
         run: ./app-android/listing_push.sh
