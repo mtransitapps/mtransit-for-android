@@ -16,8 +16,9 @@ import kotlin.time.Duration.Companion.minutes
 data class RouteDirectionManager(
     val authority: String,
     val routeDirection: RouteDirection,
-    private val serviceUpdates: ServiceUpdates = ServiceUpdates(),
+    private var serviceUpdates: ServiceUpdates? = null,
     private var lastTriggerServiceUpdateRefreshMinTimestampMs: Long = -1L,
+    private var inFocus: Boolean = false, // TODO?
 ) : ServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLog.Loggable {
 
     companion object {
@@ -37,22 +38,22 @@ data class RouteDirectionManager(
     }
 
     fun setServiceUpdates(newServiceUpdates: ServiceUpdates) {
-        if (this.serviceUpdates.isNotEmpty()) {
-            this.serviceUpdates.clear()
-        }
-        if (newServiceUpdates.isNotEmpty()) {
-            this.serviceUpdates.addAll(newServiceUpdates)
-            this.serviceUpdates.sortWith(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
+        this.serviceUpdates = newServiceUpdates.apply {
+            sortWith(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
         }
     }
 
     override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): ServiceUpdates {
-        if (this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()) {
+        if (this.serviceUpdates == null
+            || this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()
+            || this.inFocus
+        ) {
             triggerServiceUpdatesRefresh(serviceUpdateLoader, skipIfBusy = false)
         }
         ignoredUUIDsOrUnknown ?: return ServiceUpdates.newEmpty() // IF filter not ready DO wait for filter
         return this.serviceUpdates
-            .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
+            ?.filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
+            ?: ServiceUpdates.newEmpty()
     }
 
     fun allowTriggerServiceUpdatesRefresh() {

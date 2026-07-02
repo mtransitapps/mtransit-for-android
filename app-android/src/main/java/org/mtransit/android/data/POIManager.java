@@ -264,15 +264,10 @@ public class POIManager implements LocationPOI,
 	}
 
 	public void setServiceUpdates(@NonNull ServiceUpdates newServiceUpdates) {
-		if (this.serviceUpdates == null) {
-			this.serviceUpdates = new ServiceUpdates();
-		} else {
-			this.serviceUpdates.clear();
-		}
 		if (!newServiceUpdates.isEmpty()) {
-			this.serviceUpdates.addAll(newServiceUpdates);
-			this.serviceUpdates.sort(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
+			newServiceUpdates.sort(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
 		}
+		this.serviceUpdates = newServiceUpdates;
 	}
 
 	@Nullable
@@ -283,7 +278,10 @@ public class POIManager implements LocationPOI,
 	@NonNull
 	@Override
 	public ServiceUpdates getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
-		if (this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()) {
+		if (this.serviceUpdates == null
+				|| this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()
+				|| this.inFocus
+		) {
 			findServiceUpdates(serviceUpdateLoader, false);
 		}
 		if (ignoredUUIDsOrUnknown == null) return ServiceUpdates.newEmpty(); // IF filter not ready DO wait for filter

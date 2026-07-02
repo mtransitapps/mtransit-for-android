@@ -308,10 +308,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         listLayout.isVisible = true // list layout header w/ buttons always shown
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
-
     override fun onResume() {
         super.onResume()
         this.listAdapter.onVisible(this, viewModel.deviceLocation.value)
