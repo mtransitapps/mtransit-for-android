@@ -27,7 +27,6 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparato
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleLoadingBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
-import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
