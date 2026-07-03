@@ -316,7 +316,7 @@ class ScheduleAdapter :
                 }
                 nextHourOfTheDay = hour + 1
                 nextTimestampMs = null
-                if (nextHourOfTheDay < hourTimestamp.size) {
+                if (nextHourOfTheDay < HOUR_SEPARATORS_COUNT) {
                     dayCal.hourOfTheDay = nextHourOfTheDay
                     nextTimestampMs = dayCal.time.time
                 }
