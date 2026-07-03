@@ -205,12 +205,12 @@ public class POIManager implements LocationPOI,
 			MTLog.w(this, "setStatus() > Unexpected status '%s'!", newStatus);
 			return false; // no change
 		}
-		// 2 - validate new status is better than current status
+		// 2 - validate new status is useful & better than current status
+		if (!newStatus.isUseful()) {
+			return false; // no change
+		}
 		if (this.status != null && this.status.isUseful()) {
 			if (this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
-				return false; // no change
-			}
-			if (!newStatus.isUseful()) {
 				return false; // no change
 			}
 			if (!this.status.isNoData() && newStatus.isNoData()) {
