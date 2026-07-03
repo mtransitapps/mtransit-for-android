@@ -55,6 +55,8 @@ import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import kotlin.math.abs
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
@@ -297,7 +299,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                         ?.toIntArray()
                         ?: arrayOf(defaultColor).toIntArray())
                 )
-                updateABColorNow()
+                updateABColor(delay = 0.milliseconds) // NOW
             } else {
                 binding?.switchView()
             }
@@ -305,7 +307,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
         }
-        viewModel.title.observe(viewLifecycleOwner) {
+        viewModel.titleStringOrResId.observe(viewLifecycleOwner) {
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
@@ -384,7 +386,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             }
         }
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
-        updateABColorNow()
+        updateABColor(delay = 0.milliseconds) // NOW
         binding?.switchView()
     }
 
@@ -435,13 +437,11 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         }
     }
 
-    private fun updateABColorNow() = updateABColor(delayInMs = 0L)
-
-    fun updateABColor(delayInMs: Long = 50L) {
+    fun updateABColor(delay: Duration = 50.milliseconds) {
         if (updateABColorJob?.isActive == true) return // SKIP (already planned)
         updateABColorJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) { // UI
-            if (abBgColorInt != null && delayInMs > 0L) {
-                delay(delayInMs) // debounce
+            if (abBgColorInt != null) {
+                delay(delay) // debounce
             }
             abBgColorInt = withContext(Dispatchers.Default) { // CPU
                 getNewABBgColorInt()
@@ -453,10 +453,11 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     override fun hasToolbar() = true
 
     override fun isABReady() =
-        attachedViewModel?.title?.value != null
+        attachedViewModel?.titleStringOrResId?.value?.let { (string, resId) -> string != null || resId != null } == true
 
     override fun getABTitle(context: Context?) =
-        attachedViewModel?.title?.value
+        attachedViewModel?.titleStringOrResId?.value
+            ?.let { (string, resId) -> string ?: resId?.let { context?.getString(it) } }
             ?: context?.getString(commonsR.string.ellipsis)
             ?: super.getABTitle(context)
 

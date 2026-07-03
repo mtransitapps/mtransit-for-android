@@ -123,13 +123,15 @@ public enum DataSourceType {
 	private final boolean mapScreen;
 	private final boolean searchable;
 
-	DataSourceType(@DataSourceTypeId.DataSourceType int id,
-				   boolean extendedType,
-				   @NonNull DataSourceStopType stopType,
-				   @StringRes int shortNameResId, @StringRes int shortNamesResId,
-				   @DrawableRes int iconResId,
-				   @IdRes int navResId,
-				   boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
+	DataSourceType(
+			@DataSourceTypeId.DataSourceType int id,
+			boolean extendedType,
+			@NonNull DataSourceStopType stopType,
+			@StringRes int shortNameResId, @StringRes int shortNamesResId,
+			@DrawableRes int iconResId,
+			@IdRes int navResId,
+			boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable
+	) {
 		if (id >= MAX_ID) {
 			throw new UnsupportedOperationException(String.format("Data source type ID '%s' must be lower than '%s'!", id, MAX_ID));
 		}
@@ -316,8 +318,10 @@ public enum DataSourceType {
 		private final DataSourcesRepository dataSourcesRepository;
 
 		@Inject
-		POIManagerTypeShortNameComparator(@NonNull @ApplicationContext Context appContext,
-										  @NonNull DataSourcesRepository dataSourcesRepository) {
+		POIManagerTypeShortNameComparator(
+				@NonNull @ApplicationContext Context appContext,
+				@NonNull DataSourcesRepository dataSourcesRepository
+		) {
 			this.appContext = appContext;
 			this.dataSourcesRepository = dataSourcesRepository;
 		}
