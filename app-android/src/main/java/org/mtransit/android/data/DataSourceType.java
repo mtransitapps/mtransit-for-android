@@ -12,15 +12,9 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.DataSourceTypeId;
-import org.mtransit.android.datasource.DataSourcesRepository;
 
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @SuppressWarnings("WeakerAccess")
 public enum DataSourceType {
@@ -305,36 +299,6 @@ public enum DataSourceType {
 			}
 			final String lShortName = context.getString(lType.getShortNameResId());
 			final String rShortName = context.getString(rType.getShortNameResId());
-			return lShortName.compareTo(rShortName);
-		}
-	}
-
-	@Singleton
-	public static class POIManagerTypeShortNameComparator implements Comparator<POIManager> {
-
-		@NonNull
-		private final Context appContext;
-		@NonNull
-		private final DataSourcesRepository dataSourcesRepository;
-
-		@Inject
-		POIManagerTypeShortNameComparator(
-				@NonNull @ApplicationContext Context appContext,
-				@NonNull DataSourcesRepository dataSourcesRepository
-		) {
-			this.appContext = appContext;
-			this.dataSourcesRepository = dataSourcesRepository;
-		}
-
-		@Override
-		public int compare(@NonNull POIManager lPoim, @NonNull POIManager rPoim) {
-			final AgencyProperties lAgency = this.dataSourcesRepository.getAgency(lPoim.poi.getAuthority());
-			final AgencyProperties rAgency = this.dataSourcesRepository.getAgency(rPoim.poi.getAuthority());
-			if (lAgency == null || rAgency == null) return ComparatorUtils.SAME;
-			final int lShortNameResId = lAgency.getSupportedType().getShortNameResId();
-			final int rShortNameResId = rAgency.getSupportedType().getShortNameResId();
-			final String lShortName = this.appContext.getString(lShortNameResId);
-			final String rShortName = this.appContext.getString(rShortNameResId);
 			return lShortName.compareTo(rShortName);
 		}
 	}
