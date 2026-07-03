@@ -301,9 +301,9 @@ class ScheduleAdapter :
         this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimestamp) ->
             index++ // day separator
             val dayCal = dayBeginningMs.toCalendar(localTimeZone)
-            hourToTimestamp.forEach { hour, hourTimestamp ->
+            hourToTimestamp.forEach { hour, hourTimestamps ->
                 index++ // hour separator
-                if (!notAtTimestamp && hourTimestamp.isEmpty()) {
+                if (!notAtTimestamp && hourTimestamps.isEmpty()) {
                     return@forEach
                 }
                 dayCal.hourOfTheDay = hour
@@ -311,7 +311,7 @@ class ScheduleAdapter :
                     if (notAtTimestamp) {
                         return index - 1
                     }
-                    index += hourTimestamp.size // after
+                    index += hourTimestamps.size // after
                     return@forEach
                 }
                 nextHourOfTheDay = hour + 1
@@ -322,11 +322,11 @@ class ScheduleAdapter :
                 }
                 nextTimestampMs?.let {
                     if (it <= timestampMs) {
-                        index += hourTimestamp.size // after
+                        index += hourTimestamps.size // after
                         return@forEach
                     }
                 }
-                for (hourTimestamp in hourTimestamp) {
+                for (hourTimestamp in hourTimestamps) {
                     if (timestampMs == hourTimestamp.departureT) {
                         return index
                     }
