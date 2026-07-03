@@ -108,8 +108,8 @@ class FavoritesViewModel @Inject constructor(
         val poiTypeShortNameComparator = compareBy<POIManager> { poim ->
             authorityToTypeShortName[poim.poi.authority]
         }
-        val authorityToUUIDs = favorites.groupBy({ it.authority.orEmpty() }, { it.fkId })
-        authorityToUUIDs
+        val favAuthorityToUUIDs = favorites.groupBy({ it.authority.orEmpty() }, { it.fkId })
+        favAuthorityToUUIDs
             .filterKeys { authority -> authority.isNotEmpty() && allAgencies.any { it.authority == authority } }
             .filterValues { it.isNotEmpty() }
             .forEach { (authority, authorityUUIDs) ->
