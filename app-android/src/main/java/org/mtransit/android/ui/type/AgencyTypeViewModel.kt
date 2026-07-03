@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.type
 
-import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -12,7 +11,6 @@ import androidx.lifecycle.switchMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -33,7 +31,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AgencyTypeViewModel @Inject constructor(
-    @ApplicationContext appContext: Context,
     savedStateHandle: SavedStateHandle,
     private val adManager: IAdManager,
     private val dataSourcesRepository: DataSourcesRepository,
@@ -93,13 +90,13 @@ class AgencyTypeViewModel @Inject constructor(
         it?.filter { agency -> !agency.isEnabled } ?: emptyList()
     }.distinctUntilChanged()
 
-    val title: LiveData<String?> = MediatorLiveData2(type, typeAgencies).map { (dst, agencies) ->
+    val titleStringOrResId: LiveData<Pair<String?,Int?>> = MediatorLiveData2(type, typeAgencies).map { (dst, agencies) ->
         if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
             if (agencies?.size == 1) {
-                return@map agencies[0].shortName
+                return@map agencies[0].shortName to null
             }
         }
-        return@map dst?.shortNamesResId?.let { appContext.getString(it) }
+        return@map null to dst?.shortNamesResId
     }
 
     val tabsVisible: LiveData<Boolean> = MediatorLiveData2(type, typeAgencies).map { (dst, agencies) ->

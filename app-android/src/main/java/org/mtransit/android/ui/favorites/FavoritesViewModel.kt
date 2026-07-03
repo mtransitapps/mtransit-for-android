@@ -15,14 +15,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
-import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparator
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.FavoriteFolder
 import org.mtransit.android.data.POIAlphaComparator
@@ -31,8 +29,8 @@ import org.mtransit.android.data.toPOIM
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
-import org.mtransit.android.provider.favorite.FavoritesUI
 import org.mtransit.android.provider.favorite.FavoritesFolderDSTUtils
+import org.mtransit.android.provider.favorite.FavoritesUI
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -47,7 +45,6 @@ class FavoritesViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val favoriteRepository: FavoriteRepository,
-    private val poiTypeShortNameComparator: POIManagerTypeShortNameComparator,
     private val pm: PackageManager,
 ) : MTViewModelWithLocation(),
     ModuleDisabledAwareViewModel {
@@ -105,6 +102,12 @@ class FavoritesViewModel @Inject constructor(
             return emptyList() // empty (no favorites)
         }
         val pois = mutableListOf<POIManager>()
+        val authorityToTypeShortName = allAgencies.associate { agency ->
+            agency.authority to appContext.getString(agency.getSupportedType().shortNameResId) // app context NOT compat w/ demo mode lang override
+        }
+        val poiTypeShortNameComparator = compareBy<POIManager> { poim ->
+            authorityToTypeShortName[poim.poi.authority]
+        }
         val authorityToUUIDs = favorites.groupBy({ it.authority.orEmpty() }, { it.fkId })
         authorityToUUIDs
             .filterKeys { authority -> authority.isNotEmpty() && allAgencies.any { it.authority == authority } }
@@ -146,8 +149,13 @@ class FavoritesViewModel @Inject constructor(
                 val dataSourceTypeId = FavoritesFolderDSTUtils.generateFavoriteFolderDataSourceId(favoriteFolder.id)
                 pois.add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, dataSourceTypeId).toPOIM())
             }
+        val folderIdToName = favFolders.associate { it.id to it.name }
+        val favoriteFolderNameComparator = compareBy<POIManager, String?>(nullsLast()) { poim ->
+            val favFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(poim.poi.dataSourceTypeId)
+            folderIdToName[favFolderId]
+        }
         if (pois.isNotEmpty()) {
-            pois.sortWith(FavoriteFolderNameComparator(favFolders))
+            pois.sortWith(favoriteFolderNameComparator)
         }
         // ADD missing data source type with empty at the end of list
         val favFolderTypeIds = pois.map { it.poi.dataSourceTypeId }.toSet()
@@ -157,37 +165,6 @@ class FavoritesViewModel @Inject constructor(
                 pois.add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, it.id).toPOIM())
             }
         return pois
-    }
-
-    class FavoriteFolderNameComparator(
-        favFolders: Collection<FavoriteFolder>
-    ) : Comparator<POIManager?> {
-
-        private val folderIdToName = favFolders.associate { it.id to it.name }
-
-        override fun compare(lhs: POIManager?, rhs: POIManager?): Int {
-            val lhsPoi = lhs?.poi
-            val rhsPoi = rhs?.poi
-            if (lhsPoi == null && rhsPoi == null) {
-                return ComparatorUtils.SAME
-            } else if (lhsPoi == null) {
-                return ComparatorUtils.BEFORE
-            } else if (rhsPoi == null) {
-                return ComparatorUtils.AFTER
-            }
-            val lFavFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(lhsPoi.dataSourceTypeId)
-            val lFavFolderName = folderIdToName[lFavFolderId]
-            val rFavFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(rhsPoi.dataSourceTypeId)
-            val rFavFolderName = folderIdToName[rFavFolderId]
-            if (lFavFolderName == null && rFavFolderName == null) {
-                return ComparatorUtils.SAME
-            } else if (lFavFolderName == null) {
-                return ComparatorUtils.AFTER
-            } else if (rFavFolderName == null) {
-                return ComparatorUtils.BEFORE
-            }
-            return lFavFolderName.compareTo(rFavFolderName)
-        }
     }
 
     override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
