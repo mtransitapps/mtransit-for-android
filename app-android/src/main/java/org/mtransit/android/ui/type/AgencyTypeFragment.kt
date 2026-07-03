@@ -299,7 +299,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                         ?.toIntArray()
                         ?: arrayOf(defaultColor).toIntArray())
                 )
-                updateABColor(delay = 0.milliseconds) // NOW
+                updateABColor(delayDuration = 0.milliseconds) // NOW
             } else {
                 binding?.switchView()
             }
@@ -386,7 +386,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             }
         }
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
-        updateABColor(delay = 0.milliseconds) // NOW
+        updateABColor(delayDuration = 0.milliseconds) // NOW
         binding?.switchView()
     }
 
@@ -437,11 +437,11 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         }
     }
 
-    fun updateABColor(delay: Duration = 50.milliseconds) {
+    fun updateABColor(delayDuration: Duration = 50.milliseconds) {
         if (updateABColorJob?.isActive == true) return // SKIP (already planned)
         updateABColorJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) { // UI
             if (abBgColorInt != null) {
-                delay(delay) // debounce
+                delay(delayDuration) // debounce
             }
             abBgColorInt = withContext(Dispatchers.Default) { // CPU
                 getNewABBgColorInt()

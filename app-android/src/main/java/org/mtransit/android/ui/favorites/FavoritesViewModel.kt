@@ -103,7 +103,7 @@ class FavoritesViewModel @Inject constructor(
         }
         val pois = mutableListOf<POIManager>()
         val authorityToTypeShortName = allAgencies.associate { agency ->
-            agency.authority to appContext.getString(agency.getSupportedType().shortNamesResId) // app context NOT compat w/ demo mode lang override
+            agency.authority to appContext.getString(agency.getSupportedType().shortNameResId) // app context NOT compat w/ demo mode lang override
         }
         val poiTypeShortNameComparator = compareBy<POIManager> { poim ->
             authorityToTypeShortName[poim.poi.authority]
@@ -150,7 +150,7 @@ class FavoritesViewModel @Inject constructor(
                 pois.add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, dataSourceTypeId).toPOIM())
             }
         val folderIdToName = favFolders.associate { it.id to it.name }
-        val favoriteFolderNameComparator = compareBy<POIManager> { poim ->
+        val favoriteFolderNameComparator = compareBy<POIManager, String?>(nullsLast()) { poim ->
             val favFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(poim.poi.dataSourceTypeId)
             folderIdToName[favFolderId]
         }
