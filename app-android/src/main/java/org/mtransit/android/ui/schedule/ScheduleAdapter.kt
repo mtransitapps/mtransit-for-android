@@ -334,6 +334,9 @@ class ScheduleAdapter :
                 }
             }
         }
+        if (notAtTimestamp && index > 0) {
+            return index - 1
+        }
         return NO_POSITION
     }
 
