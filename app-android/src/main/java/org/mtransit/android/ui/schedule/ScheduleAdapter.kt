@@ -318,7 +318,7 @@ class ScheduleAdapter :
                 nextTimestampMs = null
                 if (nextHourOfTheDay < HOUR_SEPARATORS_COUNT) {
                     dayCal.hourOfTheDay = nextHourOfTheDay
-                    nextTimestampMs = dayCal.time.time
+                    nextTimestampMs = dayCal.timeInMillis
                 }
                 nextTimestampMs?.let {
                     if (it <= timestampMs) {
