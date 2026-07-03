@@ -440,7 +440,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     fun updateABColor(delayDuration: Duration = 50.milliseconds) {
         if (updateABColorJob?.isActive == true) return // SKIP (already planned)
         updateABColorJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) { // UI
-            if (abBgColorInt != null) {
+            if (abBgColorInt != null && delayDuration > Duration.ZERO) {
                 delay(delayDuration) // debounce
             }
             abBgColorInt = withContext(Dispatchers.Default) { // CPU
