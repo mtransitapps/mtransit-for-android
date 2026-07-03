@@ -307,7 +307,7 @@ class ScheduleAdapter :
                     return@forEach
                 }
                 dayCal.hourOfTheDay = hour
-                if (timestampMs < dayCal.time.time) {
+                if (timestampMs < dayCal.timeInMillis) {
                     if (notAtTimestamp) {
                         return index - 1
                     }
