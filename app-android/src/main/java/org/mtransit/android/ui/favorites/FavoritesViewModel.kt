@@ -102,10 +102,11 @@ class FavoritesViewModel @Inject constructor(
             return emptyList() // empty (no favorites)
         }
         val pois = mutableListOf<POIManager>()
+        val authorityToTypeShortName = allAgencies.associate { agency ->
+            agency.authority to appContext.getString(agency.getSupportedType().shortNamesResId) // app context NOT compat w/ demo mode lang override
+        }
         val poiTypeShortNameComparator = compareBy<POIManager> { poim ->
-            allAgencies.singleOrNull { agency -> agency.authority == poim.poi.authority }?.let { agency ->
-                agency.getSupportedType().shortNamesResId.let { appContext.getString(it) } // app context NOT compat w/ demo mode lang override
-            }
+            authorityToTypeShortName[poim.poi.authority]
         }
         val authorityToUUIDs = favorites.groupBy({ it.authority.orEmpty() }, { it.fkId })
         authorityToUUIDs
