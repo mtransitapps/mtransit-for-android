@@ -148,10 +148,10 @@ class FavoritesViewModel @Inject constructor(
                 val dataSourceTypeId = FavoritesFolderDSTUtils.generateFavoriteFolderDataSourceId(favoriteFolder.id)
                 pois.add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, dataSourceTypeId).toPOIM())
             }
+        val folderIdToName = favFolders.associate { it.id to it.name }
         val favoriteFolderNameComparator = compareBy<POIManager> { poim ->
             val favFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(poim.poi.dataSourceTypeId)
-            val favFolder = favFolders.firstOrNull { favFolder -> favFolder.id == favFolderId }
-            favFolder?.name
+            folderIdToName[favFolderId]
         }
         if (pois.isNotEmpty()) {
             pois.sortWith(favoriteFolderNameComparator)
