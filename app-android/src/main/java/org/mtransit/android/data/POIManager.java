@@ -210,7 +210,7 @@ public class POIManager implements LocationPOI,
 			if (this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
 				return false; // no change
 			}
-			if (!this.status.isUseful() && newStatus.isUseful()) {
+			if (!newStatus.isUseful()) {
 				return false; // no change
 			}
 			if (!this.status.isNoData() && newStatus.isNoData()) {
