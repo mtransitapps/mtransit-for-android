@@ -19,7 +19,6 @@ import org.mtransit.android.commons.data.Accessibility
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.arrivalDiff
-import org.mtransit.android.commons.equalOrAfter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.getAbsoluteDepartureDiffString
@@ -42,7 +41,6 @@ import org.mtransit.commons.isSameDay
 import org.mtransit.commons.toCalendar
 import java.text.DateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.time.Duration.Companion.minutes
@@ -280,55 +278,64 @@ class ScheduleAdapter :
 
     private fun getTodaySelectPosition(): Int {
         nextTimestamp?.let { nextTimestamp ->
-            val nextTimePosition: Int = getPosition(nextTimestamp)
-            if (nextTimePosition == NO_POSITION) {
-                return 0 // ELSE show 1st of the list
+            val nextTimePosition = getPosition(nextTimestamp.departureT)
+            if (nextTimePosition != NO_POSITION) {
+                return nextTimePosition
             }
-            return nextTimePosition
+        }
+        val nowPosition = getPosition(nowToTheMinute, notAtTimestamp = true) // when no next timestamp available
+        if (nowPosition != NO_POSITION) {
+            return nowPosition
         }
         return 0 // ELSE show 1st of the list
     }
 
-    private fun getPosition(item: Any): Int {
-        if (item !is Schedule.Timestamp) {
+    private fun getPosition(timestampMs: Long, notAtTimestamp: Boolean = false): Int {
+        if (timestampMs <= 0L) {
             return NO_POSITION
         }
         val localTimeZone = this.localTimeZone ?: return NO_POSITION
         var index = 0
-        val date = Date(item.departureT)
-        var thatDate: Date
-        var nextDate: Date?
+        var nextTimestampMs: Long?
         var nextHourOfTheDay: Int
-        this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
+        this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimestamp) ->
             index++ // day separator
             val dayCal = dayBeginningMs.toCalendar(localTimeZone)
-            hourToTimes.forEach { hour, hourTimes ->
+            hourToTimestamp.forEach { hour, hourTimestamps ->
                 index++ // hour separator
-                if (hourTimes.isNotEmpty()) {
-                    dayCal.hourOfTheDay = hour
-                    thatDate = dayCal.time
-                    if (date.equalOrAfter(thatDate)) {
-                        nextHourOfTheDay = hour + 1
-                        nextDate = null
-                        if (nextHourOfTheDay < hourTimes.size) {
-                            dayCal.hourOfTheDay = nextHourOfTheDay
-                            nextDate = dayCal.time
-                        }
-                        if (nextDate == null || date.before(nextDate)) {
-                            for (hourTime in hourTimes) {
-                                if (item.departureT == hourTime.departureT) {
-                                    return index
-                                }
-                                index++ // after
-                            }
-                        } else {
-                            index += hourTimes.size // after
-                        }
-                    } else {
-                        index += hourTimes.size // after
+                if (!notAtTimestamp && hourTimestamps.isEmpty()) {
+                    return@forEach
+                }
+                dayCal.hourOfTheDay = hour
+                if (timestampMs < dayCal.timeInMillis) {
+                    if (notAtTimestamp) {
+                        return index - 1
+                    }
+                    index += hourTimestamps.size // after
+                    return@forEach
+                }
+                nextHourOfTheDay = hour + 1
+                nextTimestampMs = null
+                if (nextHourOfTheDay < HOUR_SEPARATORS_COUNT) {
+                    dayCal.hourOfTheDay = nextHourOfTheDay
+                    nextTimestampMs = dayCal.timeInMillis
+                }
+                nextTimestampMs?.let {
+                    if (it <= timestampMs) {
+                        index += hourTimestamps.size // after
+                        return@forEach
                     }
                 }
+                for (hourTimestamp in hourTimestamps) {
+                    if (timestampMs == hourTimestamp.departureT) {
+                        return index
+                    }
+                    index++ // after
+                }
             }
+        }
+        if (notAtTimestamp && index > 0) {
+            return index - 1
         }
         return NO_POSITION
     }
