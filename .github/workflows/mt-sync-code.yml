@@ -127,7 +127,7 @@ jobs:
             echo "Triggering 'mt-build.yml' for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
             gh workflow run mt-build.yml \
               --repo "mtransitapps/${SUBMODULE_NAME}" \
-              --ref "$MT_BRANCH_NAME"
+              --ref "$MT_BRANCH_NAME" || echo "Failed to trigger mt-build.yml for '${SUBMODULE_NAME}' (continuing)..."
           done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
 
           if [ "$SUBMODULES_CHANGED" = "false" ]; then
