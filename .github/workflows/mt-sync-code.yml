@@ -124,9 +124,28 @@ jobs:
             fi
             SUBMODULES_CHANGED=true
             SUBMODULE_NAME=$(basename "$SUBMODULE_PATH")
-            echo "Triggering 'mt-build.yml' for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
+            SUBMODULE_REPO="mtransitapps/${SUBMODULE_NAME}"
+            echo "Checking latest 'mt-build.yml' run for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
+            LATEST_RUN_JSON=$(gh run list \
+              --repo "$SUBMODULE_REPO" \
+              --workflow mt-build.yml \
+              --branch "$MT_BRANCH_NAME" \
+              --limit 1 \
+              --json databaseId,status,conclusion 2>/dev/null || true)
+            LATEST_RUN_ID=$(echo "$LATEST_RUN_JSON" | jq -r '.[0].databaseId // empty')
+            LATEST_RUN_STATUS=$(echo "$LATEST_RUN_JSON" | jq -r '.[0].status // empty')
+            LATEST_RUN_CONCLUSION=$(echo "$LATEST_RUN_JSON" | jq -r '.[0].conclusion // empty')
+
+            if [ -n "$LATEST_RUN_ID" ] && [ "$LATEST_RUN_STATUS" = "completed" ] && [ "$LATEST_RUN_CONCLUSION" = "failure" ]; then
+              echo "Re-running failed run #${LATEST_RUN_ID} for '${SUBMODULE_NAME}'..."
+              gh run rerun "$LATEST_RUN_ID" --repo "$SUBMODULE_REPO" \
+                || echo "Failed to re-run mt-build.yml (#${LATEST_RUN_ID}) for '${SUBMODULE_NAME}' (continuing)..."
+              continue
+            fi
+
+            echo "Triggering new 'mt-build.yml' run for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
             gh workflow run mt-build.yml \
-              --repo "mtransitapps/${SUBMODULE_NAME}" \
+              --repo "$SUBMODULE_REPO" \
               --ref "$MT_BRANCH_NAME" || echo "Failed to trigger mt-build.yml for '${SUBMODULE_NAME}' (continuing)..."
           done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
 
