@@ -148,6 +148,7 @@ labels: MT
 - [ ] ca-yellowknife-transit-bus
 - [ ] ca-york-region-yrt-viva-bus
 - [ ] fr-perpignan-sankeo-bus
+- [ ] fr-pyrenees-orientales-lio-bus
 - [ ] us-anchorage-people-mover-bus
 - [ ] us-clark-county-c-tran-bus
 - [ ] us-everett-transit-bus
