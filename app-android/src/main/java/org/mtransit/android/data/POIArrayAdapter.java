@@ -1240,7 +1240,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	/**
-	 * Should be called on onStop() if parent fragments & onPause() in child fragments
+	 * Should be called in onPause() in fragments
 	 */
 	public void onInvisible() {
 		if (this.fragmentWR != null) {
@@ -1266,7 +1266,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	/**
-	 * Should be called on onResume() (or onStart()) in parent fragments & onResume() in child fragments
+	 * Should be called on onResume() in fragments
 	 */
 	public void onVisible(@NonNull IFragment fragment, @Nullable Location deviceLocation) {
 		setFragment(fragment);

@@ -212,10 +212,6 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
 
     override fun onPause() {
         super.onPause()
-    }
-
-    override fun onStop() {
-        super.onStop()
         this.adapter.onInvisible()
     }
 

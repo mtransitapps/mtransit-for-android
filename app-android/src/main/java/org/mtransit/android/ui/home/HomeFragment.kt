@@ -355,10 +355,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onPause() {
         super.onPause()
-    }
-
-    override fun onStop() {
-        super.onStop()
         this.listAdapter.onInvisible()
     }
 

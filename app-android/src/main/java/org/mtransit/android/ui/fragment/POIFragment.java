@@ -1243,11 +1243,6 @@ public class POIFragment extends ABFragment implements
 		super.onPause();
 		this.mapViewController.onPause();
 		this.adManager.setRewardedAdListener(null);
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
 		if (this.compassUpdatesEnabled) {
 			sensorManager.unregisterSensorListener(this);
 			this.compassUpdatesEnabled = false;

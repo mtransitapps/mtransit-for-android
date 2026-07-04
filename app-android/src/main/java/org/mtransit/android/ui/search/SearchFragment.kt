@@ -280,10 +280,6 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     override fun onPause() {
         super.onPause()
         binding?.screenToolbarLayout?.screenToolbar?.let { resetScreenToolbarCustomView(it) }
-    }
-
-    override fun onStop() {
-        super.onStop()
         listAdapter.onInvisible()
     }
 

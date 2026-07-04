@@ -267,11 +267,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onPause() {
         super.onPause()
-    }
-
-    override fun onStop() {
-        super.onStop();
-        listAdapter.onInvisible()
+         listAdapter.onInvisible()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
