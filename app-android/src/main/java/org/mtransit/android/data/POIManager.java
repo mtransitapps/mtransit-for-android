@@ -179,9 +179,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	public boolean setStatus(@NonNull POIStatus newStatus) {
-		if (!newStatus.isUseful() || newStatus.isNoData()) {
-			return false; // no change
-		}
+		// 1 - validate status type
 		switch (getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_NONE:
 			return false; // no change
@@ -207,6 +205,7 @@ public class POIManager implements LocationPOI,
 			MTLog.w(this, "setStatus() > Unexpected status '%s'!", newStatus);
 			return false; // no change
 		}
+		// 2 - validate new status more useful & better than current status
 		if (this.status != null && this.status.isUseful()) {
 			if (this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
 				return false; // no change
@@ -215,6 +214,7 @@ public class POIManager implements LocationPOI,
 				return false; // keep status w/ data
 			}
 		}
+		// 3 - use status
 		this.status = newStatus;
 		return true; // change
 	}
