@@ -426,7 +426,7 @@ public class POIManager implements LocationPOI,
 					if (agency.isUpdateAvailableNow(activity.getPackageManager())) {
 						AppUpdateLauncher.launchAppUpdate(activity, pkg);
 					} else { // navigate to agency type screen
-						showAgencyTypeScreen((MainActivity) activity, view, poiRepository, agency);
+						showAgencyTypeScreen(activity, view, poiRepository, agency);
 					}
 					return true; // handled
 				}
@@ -751,7 +751,7 @@ public class POIManager implements LocationPOI,
 					if (agency.isUpdateAvailableNow(activity.getPackageManager())) {
 						AppUpdateLauncher.launchAppUpdate(activity, pkg);
 					} else { // navigate to agency type screen
-						showAgencyTypeScreen((MainActivity) activity, view, poiRepository, agency);
+						showAgencyTypeScreen(activity, view, poiRepository, agency);
 					}
 					return true; // handled
 				}
@@ -818,7 +818,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	private static void showAgencyTypeScreen(
-			@NonNull MainActivity activity,
+			@NonNull FragmentActivity activity,
 			@NonNull View view,
 			@NonNull POIRepository poiRepository,
 			@NonNull AgencyProperties agency
@@ -839,9 +839,11 @@ public class POIManager implements LocationPOI,
 					extras
 			);
 		} else {
-			activity.addFragmentToStack(
-					AgencyTypeFragment.newInstance(agency.getSupportedType())
-			);
+			if (activity instanceof MainActivity) {
+				((MainActivity) activity).addFragmentToStack(
+						AgencyTypeFragment.newInstance(agency.getSupportedType())
+				);
+			}
 		}
 	}
 
