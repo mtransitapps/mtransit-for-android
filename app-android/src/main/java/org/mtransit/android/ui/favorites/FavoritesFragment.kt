@@ -251,10 +251,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
-
     override fun onResume() {
         super.onResume()
         listAdapter.onVisible(this, viewModel.deviceLocation.value)
@@ -267,7 +263,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onPause() {
         super.onPause()
-         listAdapter.onInvisible()
+        listAdapter.onInvisible()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
