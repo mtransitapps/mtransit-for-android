@@ -104,11 +104,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static ServiceUpdates findServiceUpdates(
 			@NonNull Context context,
 			@NonNull String authority,
-			@Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter
+			@NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter
 	) {
 		Cursor cursor = null;
 		try {
-			final String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
+			final String serviceUpdateFilterJSONString = serviceUpdateFilter.toJSONString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProviderContract.SERVICE_UPDATE_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
 			return getServiceUpdates(cursor);

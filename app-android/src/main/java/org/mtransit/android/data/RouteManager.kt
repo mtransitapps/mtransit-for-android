@@ -45,7 +45,6 @@ data class RouteManager(
     override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): ServiceUpdates {
         if (this.serviceUpdates == null
             || this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()
-            || this.inFocus
         ) {
             triggerServiceUpdatesRefresh(serviceUpdateLoader, skipIfBusy = false)
         }

@@ -223,15 +223,14 @@ public class POIManager implements LocationPOI,
 	public POIStatus getStatus(@NonNull StatusLoader statusLoader) {
 		if (this.status == null
 				|| this.lastTriggerStatusRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()
-				|| this.inFocus
 		) {
-			findStatus(statusLoader, false);
+			triggerStatusRefresh(statusLoader, false);
 		}
 		return this.status;
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
-	private boolean findStatus(
+	private boolean triggerStatusRefresh(
 			@NonNull StatusLoader statusLoader,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
 	) {
@@ -280,9 +279,8 @@ public class POIManager implements LocationPOI,
 	public ServiceUpdates getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
 		if (this.serviceUpdates == null
 				|| this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()
-				|| this.inFocus
 		) {
-			findServiceUpdates(serviceUpdateLoader, false);
+			triggerServiceUpdatesRefresh(serviceUpdateLoader, false);
 		}
 		if (ignoredUUIDsOrUnknown == null) return ServiceUpdates.newEmpty(); // IF filter not ready DO wait for filter
 		final ServiceUpdates filtered = this.serviceUpdates == null ? null
@@ -293,7 +291,7 @@ public class POIManager implements LocationPOI,
 	private long lastTriggerServiceUpdateRefreshMinTimestampMs = -1L;
 
 	@SuppressWarnings("UnusedReturnValue")
-	private boolean findServiceUpdates(
+	private boolean triggerServiceUpdatesRefresh(
 			@NonNull ServiceUpdateLoader serviceUpdateLoader,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
 	) {
