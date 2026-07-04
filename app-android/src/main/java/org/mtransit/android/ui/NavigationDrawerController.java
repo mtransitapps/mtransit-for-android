@@ -541,7 +541,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				setCurrentSelectedItemChecked(true);
 			}
 			mainActivity.showContentFrameAsLoaded();
-			return;
+			return; // same screen
 		}
 		if (!isRootScreen(navItemId, isUsingFirebaseTestLab)) {
 			startNewScreen(mainActivity, navItemId);
@@ -553,8 +553,12 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.currentSelectedScreenItemNavId = navItemId;
 		this.currentSelectedScreenItemId = getScreenItemId(navItemId, isUsingFirebaseTestLab);
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
-		this.statusLoader.clearAllTasks();
-		this.serviceUpdateLoader.clearAllTasks();
+		if (UIFeatureFlags.F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN) {
+			//noinspection DiscouragedApi
+			this.statusLoader.clearAllTasks();
+			//noinspection DiscouragedApi
+			this.serviceUpdateLoader.clearAllTasks();
+		}
 		mainActivity.showNewFragment(newFragment, false, null);
 		if (demoModeManager.isFullDemo()) return; // SKIP (demo mode ON)
 		TaskUtils.THREAD_POOL_EXECUTOR.execute(() ->

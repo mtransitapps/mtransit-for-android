@@ -66,10 +66,6 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     override val poiProjection get() = PROJECTION_PLACE_POI
 
-    override val poiMaxValidityInMs = POI_MAX_VALIDITY_IN_MS
-
-    override val poiValidityInMs = POI_VALIDITY_IN_MS
-
     override fun getPOI(poiFilter: POIProviderContract.Filter?): Cursor? {
         poiFilter ?: return null
         if (POIProviderContract.Filter.isAreaFilter(poiFilter)) {
@@ -459,10 +455,6 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         }
 
         private const val TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT = 50_000 // max = 50_000 // 50 km
-
-        private const val POI_MAX_VALIDITY_IN_MS = Long.MAX_VALUE
-
-        private const val POI_VALIDITY_IN_MS = Long.MAX_VALUE
 
         private fun getNewPoiProjectionMap(authority: String) = ProjectionMapBuilder.getNew()
             .appendValue(

@@ -37,14 +37,14 @@ class AnalyticsManager @Inject internal constructor(
         private val LOG_TAG: String = AnalyticsManager::class.java.getSimpleName()
 
         private const val ANALYTICS_ENABLED = true
+        // private const val ANALYTICS_ENABLED = false // DEBUG
 
-        // private static final boolean ANALYTICS_ENABLED = false // DEBUG
         private const val DEBUG = false
+        // private const val DEBUG = true // DEBUG
     }
 
     override fun getLogTag() = LOG_TAG
 
-    // private static final boolean DEBUG = true; // DEBUG
     private val firebaseAnalytics: FirebaseAnalytics?
 
     init {

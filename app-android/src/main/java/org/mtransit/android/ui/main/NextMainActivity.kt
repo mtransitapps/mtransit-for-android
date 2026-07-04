@@ -319,6 +319,10 @@ class NextMainActivity : MTActivityWithLocation(),
         unregisterReceiver(this.modulesReceiver)
         adManager.destroyAd(this)
         adManager.unlinkRewardedAd(this)
+        //noinspection DiscouragedApi
+        statusLoader.clearAllTasks()
+        //noinspection DiscouragedApi
+        serviceUpdateLoader.clearAllTasks()
     }
 
     fun showContentFrameAsLoading() {

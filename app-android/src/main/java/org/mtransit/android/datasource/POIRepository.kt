@@ -14,7 +14,10 @@ import kotlinx.coroutines.withContext
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.data.RouteDirection
+import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.set
+import org.mtransit.android.commons.data.toRouteDirection
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
@@ -225,6 +228,18 @@ class POIRepository(
     fun updateSelectedAgencyTypeTab(agency: IAgencyProperties) {
         lclPrefRepository.pref.edit {
             putString(LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getSupportedType().id), agency.authority)
+        }
+    }
+
+    fun updateRouteDirectionShowingListInsteadOfMap(rds: RouteDirectionStop, showListInsteadOfMap: Boolean) =
+        updateRouteDirectionShowingListInsteadOfMap(rds.toRouteDirection(), showListInsteadOfMap)
+
+    fun updateRouteDirectionShowingListInsteadOfMap(routeDirection: RouteDirection, showListInsteadOfMap: Boolean) {
+        lclPrefRepository.pref.edit {
+            putBoolean(
+                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
+                showListInsteadOfMap
+            )
         }
     }
 }

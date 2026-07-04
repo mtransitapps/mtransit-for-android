@@ -5,6 +5,7 @@ import android.location.Location
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
 import org.mtransit.android.ui.view.poi.status.POIStatusDataProvider
@@ -24,6 +25,7 @@ interface POIDataProvider : POIStatusDataProvider, ServiceUpdateLoaderProvider, 
     fun hasLastCompassInDegree(): Boolean
     fun hasLocation(): Boolean
     fun providesDataSourcesRepository(): DataSourcesRepository
+    fun providesPOIRepository(): POIRepository
     fun providesDemoModeManager(): DemoModeManager
     val isShowingAccessibilityInfo: Boolean
 }

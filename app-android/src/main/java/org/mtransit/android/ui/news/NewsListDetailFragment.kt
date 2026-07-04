@@ -119,8 +119,14 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES,
                 targetAuthorities?.toTypedArray() ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT
             )
-            putStringArray(NewsListViewModel.EXTRA_FILTER_TARGETS_UUIDS, filterTargetUUIDs?.toTypedArray() ?: NewsListViewModel.EXTRA_FILTER_TARGETS_UUIDS_DEFAULT)
-            putStringArray(NewsListViewModel.EXTRA_FILTER_ARTICLE_UUIDS, filterArticleUUIDs?.toTypedArray() ?: NewsListViewModel.EXTRA_FILTER_ARTICLE_UUIDS_DEFAULT)
+            putStringArray(
+                NewsListViewModel.EXTRA_FILTER_TARGETS_UUIDS,
+                filterTargetUUIDs?.toTypedArray() ?: NewsListViewModel.EXTRA_FILTER_TARGETS_UUIDS_DEFAULT
+            )
+            putStringArray(
+                NewsListViewModel.EXTRA_FILTER_ARTICLE_UUIDS,
+                filterArticleUUIDs?.toTypedArray() ?: NewsListViewModel.EXTRA_FILTER_ARTICLE_UUIDS_DEFAULT
+            )
             putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_AUTHORITY, selectedArticleAuthority)
             putString(NewsListViewModel.EXTRA_SELECTED_ARTICLE_UUID, selectedArticleUuid)
         }
@@ -401,7 +407,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onResume() {
         super.onResume()
-        listAdapter.onResume(this)
+        listAdapter.onVisible(this)
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABTitle(getABTitle(context))
             nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -418,7 +424,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onPause() {
         super.onPause()
-        listAdapter.onPause(this)
+        listAdapter.onInvisible(this)
     }
 
     override fun onAttach(context: Context) {

@@ -32,6 +32,7 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
 @HiltViewModel
@@ -158,8 +159,12 @@ class RDSRouteViewModel @Inject constructor(
     }
 
     fun onPageSelected(position: Int) {
-        this.statusLoader.clearAllTasks()
-        this.serviceUpdateLoader.clearAllTasks()
+        if (UIFeatureFlags.F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN) {
+            //noinspection DiscouragedApi
+            this.statusLoader.clearAllTasks()
+            //noinspection DiscouragedApi
+            this.serviceUpdateLoader.clearAllTasks()
+        }
         saveSelectedRouteDirectionIdPosition(position)
     }
 

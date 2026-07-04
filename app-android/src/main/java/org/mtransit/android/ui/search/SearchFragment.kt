@@ -270,17 +270,17 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun onResume() {
         super.onResume()
-        listAdapter.onResume(this, viewModel.deviceLocation.value)
+        listAdapter.onVisible(this, viewModel.deviceLocation.value)
+        viewModel.onScreenVisible()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
-        viewModel.onScreenVisible()
         binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
     }
 
     override fun onPause() {
         super.onPause()
-        listAdapter.onPause()
         binding?.screenToolbarLayout?.screenToolbar?.let { resetScreenToolbarCustomView(it) }
+        listAdapter.onInvisible()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {

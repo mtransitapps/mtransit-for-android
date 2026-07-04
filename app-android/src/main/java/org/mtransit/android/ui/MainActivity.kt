@@ -316,6 +316,10 @@ class MainActivity : MTActivityWithLocation(),
         this.abController = null
         this.navigationDrawerController?.destroy()
         this.navigationDrawerController = null
+        //noinspection DiscouragedApi
+        this.statusLoader.clearAllTasks()
+        //noinspection DiscouragedApi
+        this.serviceUpdateLoader.clearAllTasks()
         this.fragmentsToPopWR.clear()
         this.adManager.destroyAd(this)
         this.adManager.unlinkRewardedAd(this)
