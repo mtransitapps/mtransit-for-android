@@ -6,6 +6,7 @@
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeightLarge"
     android:paddingEnd="@dimen/baseline_8"
+    tools:background="#4D00FFFF"
     tools:ignore="RtlSymmetry">
 
     <TextView
@@ -30,6 +31,7 @@
         android:paddingEnd="@dimen/baseline_8"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorSecondary"
+        tools:background="#4DFFFF00"
         tools:ignore="RelativeOverlap"
         tools:text="12:34 am" />
 
@@ -53,6 +55,7 @@
         android:textColor="?android:attr/textColorTertiary"
         android:textSize="@dimen/head_sign_text_size_short"
         android:visibility="invisible"
+        tools:background="#4DFFFF00"
         tools:text="&#10132;&#x200A;Head sign"
         tools:visibility="visible" />
 
@@ -68,6 +71,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorTertiary"
         android:visibility="gone"
+        tools:background="#4DFFFF00"
         tools:text="Tue, June 2nd"
         tools:visibility="visible" />
 

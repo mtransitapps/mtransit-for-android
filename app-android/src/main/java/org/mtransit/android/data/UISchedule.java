@@ -660,7 +660,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			if (headSignSSB != null && headSignSSB.length() > 0) {
 				headSignSSB = SpanUtils.setAll(headSignSSB, SCHEDULE_LIST_TIMES_STYLE);
 			}
-			list.add(new DetailsNextDepartures(timeSSB, headSignSSB, dateSSB));
+			list.add(new DetailsNextDepartures(t.getDepartureT(), timeSSB, headSignSSB, dateSSB));
 			lastTimestamp = departureT;
 		}
 		this.scheduleList = list;
@@ -1269,30 +1269,6 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					", afterNextTimesStartIdx=" + afterNextTimesStartIdx +
 					", afterNextTimesEndIdx=" + afterNextTimesEndIdx +
 					'}';
-		}
-	}
-
-	public static class DetailsNextDepartures {
-
-		@NonNull
-		public CharSequence time;
-		@Nullable
-		public CharSequence headSign;
-		@Nullable
-		public CharSequence date;
-
-		DetailsNextDepartures(@NonNull CharSequence time) {
-			this(time, null);
-		}
-
-		DetailsNextDepartures(@NonNull CharSequence time, @Nullable CharSequence headSign) {
-			this(time, headSign, null);
-		}
-
-		DetailsNextDepartures(@NonNull CharSequence time, @Nullable CharSequence headSign, @Nullable CharSequence date) {
-			this.time = time;
-			this.headSign = headSign;
-			this.date = date;
 		}
 	}
 }

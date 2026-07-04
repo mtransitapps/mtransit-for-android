@@ -23,10 +23,10 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.getAbsoluteDepartureDiffString
 import org.mtransit.android.data.makeHeading
-import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
-import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
-import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleLoadingBinding
-import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
+import org.mtransit.android.databinding.LayoutScheduleInfiniteListDaySeparatorBinding
+import org.mtransit.android.databinding.LayoutScheduleInfiniteListHourSeparatorBinding
+import org.mtransit.android.databinding.LayoutScheduleInfiniteListLoadingBinding
+import org.mtransit.android.databinding.LayoutScheduleInfiniteListTimeBinding
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
@@ -508,11 +508,11 @@ class ScheduleAdapter :
     }
 
     private class DaySeparatorViewHolder private constructor(
-        private val binding: LayoutPoiDetailStatusScheduleDaySeparatorBinding
+        private val binding: LayoutScheduleInfiniteListDaySeparatorBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): DaySeparatorViewHolder {
-                val binding = LayoutPoiDetailStatusScheduleDaySeparatorBinding.inflate(
+                val binding = LayoutScheduleInfiniteListDaySeparatorBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -559,11 +559,11 @@ class ScheduleAdapter :
     }
 
     private class HourSeparatorViewHolder private constructor(
-        private val binding: LayoutPoiDetailStatusScheduleHourSeparatorBinding
+        private val binding: LayoutScheduleInfiniteListHourSeparatorBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): HourSeparatorViewHolder {
-                val binding = LayoutPoiDetailStatusScheduleHourSeparatorBinding.inflate(
+                val binding = LayoutScheduleInfiniteListHourSeparatorBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -589,11 +589,11 @@ class ScheduleAdapter :
     }
 
     private class TimeViewHolder private constructor(
-        private val binding: LayoutPoiDetailStatusScheduleTimeBinding
+        private val binding: LayoutScheduleInfiniteListTimeBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): TimeViewHolder {
-                val binding = LayoutPoiDetailStatusScheduleTimeBinding.inflate(
+                val binding = LayoutScheduleInfiniteListTimeBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -681,11 +681,11 @@ class ScheduleAdapter :
     }
 
     class LoadingViewHolder private constructor(
-        private val binding: LayoutPoiDetailStatusScheduleLoadingBinding
+        private val binding: LayoutScheduleInfiniteListLoadingBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): LoadingViewHolder {
-                val binding = LayoutPoiDetailStatusScheduleLoadingBinding.inflate(
+                val binding = LayoutScheduleInfiniteListLoadingBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false

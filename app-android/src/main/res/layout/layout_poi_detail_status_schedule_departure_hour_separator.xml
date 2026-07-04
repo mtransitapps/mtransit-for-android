@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/baseline_88"
+    android:clipChildren="false"
+    android:minHeight="?android:attr/listPreferredItemHeightLarge"
+    tools:background="#4D00FFFF"
+    tools:ignore="RtlSymmetry">
+
+    <TextView
+        android:id="@+id/next_departure_hour_baseline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:gravity="center_vertical"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        tools:ignore="RelativeOverlap" />
+
+    <TextView
+        android:id="@+id/next_departure_hour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/next_departure_hour_baseline"
+        android:layout_alignParentEnd="true"
+        android:alpha=".50"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:text="...."
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:attr/textColorSecondary"
+        tools:background="#4DFFFF00"
+        tools:ignore="HardcodedText,RelativeOverlap" />
+
+</RelativeLayout>

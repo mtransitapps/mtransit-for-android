@@ -30,7 +30,7 @@
             android:orientation="vertical"
             android:visibility="visible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/layout_poi_detail_status_schedule_time"
+            tools:listitem="@layout/layout_schedule_infinite_list_time"
             tools:visibility="visible" />
 
         <!-- ON TOP -->

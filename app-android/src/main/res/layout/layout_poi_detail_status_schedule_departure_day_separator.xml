@@ -11,5 +11,5 @@
     android:paddingBottom="@dimen/baseline_16"
     android:scaleType="fitXY"
     android:src="?android:attr/listDivider"
-    tools:background="#00FF00"
+    tools:background="#4D00FF00"
     tools:ignore="ContentDescription,RtlSymmetry" />
