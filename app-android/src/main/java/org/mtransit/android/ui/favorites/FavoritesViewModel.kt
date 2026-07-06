@@ -84,9 +84,9 @@ class FavoritesViewModel @Inject constructor(
         .switchMap { (favorites, allAgencies, homeScreenTypes) ->
             _hasFavoritesAgencyDisabled.value = false
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                favorites ?: return@liveData
-                allAgencies ?: return@liveData
-                homeScreenTypes ?: return@liveData
+                favorites ?: run { emit(null); return@liveData } // show loading
+                allAgencies ?: run { emit(null); return@liveData } // show loading
+                homeScreenTypes ?: run { emit(null); return@liveData } // show loading
                 emit(getFavorites(favorites, allAgencies, homeScreenTypes))
             }
         }

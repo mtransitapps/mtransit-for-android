@@ -22,6 +22,7 @@ import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -188,27 +189,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             listAdapter.setPois(favoritePOIS)
             listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             updateEmptyLayout(empty = favoritePOIS.isNullOrEmpty())
-            binding?.apply {
-                when {
-                    favoritePOIS == null -> { // LOADING
-                        listLayout.isVisible = false
-                        emptyLayout.isVisible = false
-                        loadingLayout.isVisible = true
-                    }
-
-                    favoritePOIS.isEmpty() -> { // EMPTY
-                        loadingLayout.isVisible = false
-                        listLayout.isVisible = false
-                        emptyLayout.isVisible = true
-                    }
-
-                    else -> { // LIST
-                        loadingLayout.isVisible = false
-                        emptyLayout.isVisible = false
-                        listLayout.isVisible = true
-                    }
-                }
-            }
+            setupView(favoritePOIS)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             listAdapter.setLocation(deviceLocation)
@@ -222,6 +203,31 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 if (scroll) {
                     binding?.listLayout?.list?.setSelection(0)
                 }
+            }
+        }
+    }
+
+    private fun setupView(favoritePOIS: List<POIManager>? = attachedViewModel?.favoritePOIs?.value) = binding?.apply {
+        when {
+            favoritePOIS == null -> { // LOADING
+                listLayout.isVisible = false
+                emptyLayout.isVisible = false
+
+                loadingLayout.isVisible = true
+            }
+
+            favoritePOIS.isEmpty() -> { // EMPTY
+                loadingLayout.isVisible = false
+                listLayout.isVisible = false
+
+                emptyLayout.isVisible = true
+            }
+
+            else -> { // LIST
+                loadingLayout.isVisible = false
+                emptyLayout.isVisible = false
+
+                listLayout.isVisible = true
             }
         }
     }
