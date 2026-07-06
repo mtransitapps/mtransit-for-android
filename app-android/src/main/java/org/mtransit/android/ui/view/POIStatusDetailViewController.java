@@ -544,7 +544,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		TextView textTv;
 	}
 
-	public static class ScheduleStatusViewHolder extends CommonStatusViewHolder {
+	static class ScheduleStatusViewHolder extends CommonStatusViewHolder {
 		TextView localTimeTv;
 		TextView sourceLabelTv;
 		LinearLayout nextDeparturesLL;

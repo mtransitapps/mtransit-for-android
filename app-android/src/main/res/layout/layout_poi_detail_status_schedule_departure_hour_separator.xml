@@ -27,6 +27,7 @@
         android:layout_alignBaseline="@id/next_departure_hour_baseline"
         android:layout_alignParentEnd="true"
         android:alpha=".50"
+        android:importantForAccessibility="no"
         android:includeFontPadding="false"
         android:maxLines="1"
         android:paddingEnd="@dimen/baseline_8"
