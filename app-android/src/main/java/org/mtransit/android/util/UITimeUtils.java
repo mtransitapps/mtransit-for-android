@@ -817,9 +817,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return isSameDay(timeZone, date1.getTime(), date2.getTime());
 	}
 
-	public static boolean isSameDay(@NonNull TimeZone timeZone, @NonNull Long timeInMillis1, @NonNull Long timeInMillis2) {
-		Objects.requireNonNull(timeInMillis1, "The date must not be null");
-		Objects.requireNonNull(timeInMillis2, "The date must not be null");
+	public static boolean isSameDay(@NonNull TimeZone timeZone, long timeInMillis1, long timeInMillis2) {
 		return isSameDay(
 				TimeUtils.getNewCalendar(timeZone, timeInMillis1),
 				TimeUtils.getNewCalendar(timeZone, timeInMillis2)

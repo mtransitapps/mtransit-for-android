@@ -38,9 +38,14 @@ fun Schedule.Timestamp.getAbsoluteDepartureDiffString(
     }
 }
 
-data class DetailsNextDepartures @JvmOverloads constructor(
+data class DetailsNextDepartures(
     val timestampMs: Long = -1L,
     val timeText: CharSequence,
     val headSignText: CharSequence? = null,
     val dateText: CharSequence? = null,
-)
+) {
+    companion object {
+        @JvmStatic
+        fun makeTextOnly(timeText: CharSequence) = DetailsNextDepartures(timeText = timeText)
+    }
+}

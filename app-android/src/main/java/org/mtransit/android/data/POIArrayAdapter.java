@@ -158,7 +158,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	private final LayoutInflater layoutInflater;
 
-	protected LinkedHashMap<Integer, List<POIManager>> poisByType;
+	@Nullable
+	LinkedHashMap<Integer, List<POIManager>> poisByType;
 
 	@Nullable
 	private HashSet<String> favUUIDs;

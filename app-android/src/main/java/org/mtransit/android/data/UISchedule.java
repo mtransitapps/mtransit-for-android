@@ -522,7 +522,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		ssb = SpanUtils.setAll(ssb, //
 				getNoServiceTextAppearance(context), getNoServiceTextColor(context), NO_SERVICE_SIZE);
 		this.scheduleList = new ArrayList<>();
-		this.scheduleList.add(new DetailsNextDepartures(ssb));
+		this.scheduleList.add(DetailsNextDepartures.makeTextOnly(ssb));
 	}
 
 	private void addLastTimestamps(long after, ArrayList<Timestamp> timestamps) {
