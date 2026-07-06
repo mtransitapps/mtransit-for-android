@@ -428,7 +428,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 						scheduleStatusViewHolder.nextDeparturesLL.addView(
 								LayoutPoiDetailStatusScheduleDepartureDaySeparatorBinding.inflate(layoutInflater, scheduleStatusViewHolder.nextDeparturesLL, false).getRoot()
 						);
-						if (SHOW_HOUR_SEPARATOR_AROUND_DAY_SEPARATOR && SHOW_HOUR_SEPARATOR_BEFORE_DAY_SEPARATOR && lastDeparturesInMs > 0L) {
+						if (SHOW_HOUR_SEPARATOR_AROUND_DAY_SEPARATOR && !SHOW_HOUR_SEPARATOR_BEFORE_DAY_SEPARATOR && lastDeparturesInMs > 0L) {
 							cal.setTimeInMillis(lastDeparturesInMs);
 							UITimeUtilsExtKt.setToMidnightTonight(cal);
 							final long lastDepartureMidnightTs = cal.getTimeInMillis();
