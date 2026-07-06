@@ -10,7 +10,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 
 @JvmOverloads
-fun addHourSeparator(diffMs: Long, layoutInflater: LayoutInflater, scheduleStatusViewHolder: ScheduleStatusViewHolder, dateString: CharSequence? = null) {
+internal fun addHourSeparator(diffMs: Long, layoutInflater: LayoutInflater, scheduleStatusViewHolder: ScheduleStatusViewHolder, dateString: CharSequence? = null) {
     val diff = diffMs.milliseconds
     if (diff <= 1.hours) return
     var hoursCount = (diff / 1.hours).roundToInt()
