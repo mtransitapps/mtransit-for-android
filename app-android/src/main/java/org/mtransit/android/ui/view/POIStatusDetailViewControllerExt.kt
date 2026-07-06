@@ -10,7 +10,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 
 @JvmOverloads
-fun addHourSeparator(diffMs: Long, layoutInflater: LayoutInflater, scheduleStatusViewHolder: ScheduleStatusViewHolder, dataString: CharSequence? = null) {
+fun addHourSeparator(diffMs: Long, layoutInflater: LayoutInflater, scheduleStatusViewHolder: ScheduleStatusViewHolder, dateString: CharSequence? = null) {
     val diff = diffMs.milliseconds
     if (diff <= 1.hours) return
     var hoursCount = (diff / 1.hours).roundToInt()
@@ -21,7 +21,7 @@ fun addHourSeparator(diffMs: Long, layoutInflater: LayoutInflater, scheduleStatu
         false,
     ).apply {
         nextDepartureHour.text = ".".repeat(hoursCount)
-        nextDepartureHourDate.textAndVisibility = dataString
+        nextDepartureHourDate.textAndVisibility = dateString
     }
     scheduleStatusViewHolder.nextDeparturesLL.addView(
         binding.root

@@ -554,6 +554,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final int nbSpaceAfter = 0;
 		final ArrayList<DetailsNextDepartures> list = new ArrayList<>();
 		long lastTimestamp = -1L;
+		TimeZone timeZone = null;
+		String lastLocalTimeZoneId = null;
 		for (Timestamp t : timestamps) {
 			idx++;
 			SpannableStringBuilder headSignSSB = null;
@@ -588,7 +590,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			}
 			final long departureT = t.getDepartureT();
 			final String localTimeZoneId = t.getLocalTimeZoneId();
-			final TimeZone timeZone = localTimeZoneId == null ? TimeZone.getDefault() : TimeZone.getTimeZone(localTimeZoneId);
+			if (timeZone == null || !TextUtils.equals(localTimeZoneId, lastLocalTimeZoneId)) {
+				timeZone = localTimeZoneId == null ? TimeZone.getDefault() : TimeZone.getTimeZone(localTimeZoneId);
+				lastLocalTimeZoneId = localTimeZoneId;
+			}
 			if (lastTimestamp > 0L) {
 				if (!UITimeUtils.isSameDay(timeZone, lastTimestamp, departureT)) {
 					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT));

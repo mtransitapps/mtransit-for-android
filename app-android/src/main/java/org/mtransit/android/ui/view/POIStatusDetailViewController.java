@@ -83,14 +83,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		return null;
 	}
 
-	@SuppressWarnings("unused")
 	@Nullable
-	public static Integer getLayoutResId(@NonNull POIManager poim) {
-		return getLayoutResId(poim.getStatusType());
-	}
-
-	@Nullable
-	public static Integer getLayoutResId(int poiStatusType) {
+	private static Integer getLayoutResId(int poiStatusType) {
 		switch (poiStatusType) {
 		case POI.ITEM_STATUS_TYPE_NONE:
 			return null;
@@ -129,7 +123,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void initAppStatusViewHolder(@NonNull View view) {
-		AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
+		final AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
 		initCommonStatusViewHolderHolder(appStatusViewHolder, view);
 		appStatusViewHolder.textTv = view.findViewById(R.id.textTv);
 		view.setTag(appStatusViewHolder);
