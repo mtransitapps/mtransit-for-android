@@ -412,6 +412,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 					departureBinding.nextDepartureDate.setText(null);
 					departureBinding.nextDepartureDate.setVisibility(View.INVISIBLE);
 				} else { // different day as previous departure
+					boolean dateDisplayed = false;
 					if (scheduleStatusViewHolder.nextDeparturesLL.getChildCount() > 1) { // not initial next departure day
 						if ((SHOW_HOUR_SEPARATOR_AROUND_DAY_SEPARATOR || SHOW_HOUR_SEPARATOR_BEFORE_DAY_SEPARATOR) && lastDeparturesInMs > 0L) {
 							final long lastDepartureMidnightTs;
@@ -433,11 +434,17 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 							UITimeUtilsExtKt.setToMidnightTonight(cal);
 							final long lastDepartureMidnightTs = cal.getTimeInMillis();
 							final long diff = nextDeparture.getTimestampMs() - lastDepartureMidnightTs - DAY_SEPARATOR_IN_MS;
-							addHourSeparator(diff, layoutInflater, scheduleStatusViewHolder);
+							addHourSeparator(diff, layoutInflater, scheduleStatusViewHolder, nextDeparture.getDateText());
+							dateDisplayed = true;
 						}
 					}
-					departureBinding.nextDepartureDate.setText(nextDeparture.getDateText(), TextView.BufferType.SPANNABLE);
-					departureBinding.nextDepartureDate.setVisibility(View.VISIBLE);
+					if (dateDisplayed) {
+						departureBinding.nextDepartureDate.setText(null);
+						departureBinding.nextDepartureDate.setVisibility(View.INVISIBLE);
+					} else {
+						departureBinding.nextDepartureDate.setText(nextDeparture.getDateText(), TextView.BufferType.SPANNABLE);
+						departureBinding.nextDepartureDate.setVisibility(View.VISIBLE);
+					}
 				}
 				if (TextUtils.isEmpty(nextDeparture.getDateText()) && lastDeparturesInMs > 0L) {
 					final long diff = nextDeparture.getTimestampMs() - lastDeparturesInMs;
@@ -471,7 +478,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 
 	private static final long DAY_SEPARATOR_IN_MS = TimeUnit.MINUTES.toMillis(90L);
 
-	private static final boolean SHOW_HOUR_SEPARATOR_AROUND_DAY_SEPARATOR = true;
+	private static final boolean SHOW_HOUR_SEPARATOR_AROUND_DAY_SEPARATOR = false;
 	private static final boolean SHOW_HOUR_SEPARATOR_BEFORE_DAY_SEPARATOR = false;
 
 	private static final RelativeSizeSpan SCHEDULE_SPACE_SIZE = SpanUtils.getNew200PercentSizeSpan();
