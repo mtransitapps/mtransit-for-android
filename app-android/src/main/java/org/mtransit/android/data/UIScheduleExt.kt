@@ -37,3 +37,15 @@ fun Schedule.Timestamp.getAbsoluteDepartureDiffString(
         context.getString(if (short) R.string.minutes_early_short else R.string.minutes_early, absDiffMin)
     }
 }
+
+data class DetailsNextDepartures(
+    val timestampMs: Long = -1L,
+    val timeText: CharSequence,
+    val headSignText: CharSequence? = null,
+    val dateText: CharSequence? = null,
+) {
+    companion object {
+        @JvmStatic
+        fun makeTextOnly(timeText: CharSequence) = DetailsNextDepartures(timeText = timeText)
+    }
+}

@@ -325,6 +325,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
 
     override fun onResume() {
         super.onResume()
+        viewModel.routesM.value?.forEach { it.allowTriggerServiceUpdatesRefresh() } // get changes loaded from other screens (while paused)
         switchView()
     }
 

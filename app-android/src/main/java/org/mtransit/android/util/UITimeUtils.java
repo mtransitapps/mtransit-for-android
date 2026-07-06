@@ -21,6 +21,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Schedule.Timestamp;
 import org.mtransit.android.data.UISchedule;
@@ -435,7 +436,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@NonNull
 	public static Calendar getNewCalendarInstance(@NonNull TimeZone timeZone, long timeInMs) {
-		Calendar cal = Calendar.getInstance(timeZone);
+		final Calendar cal = Calendar.getInstance(timeZone);
 		cal.setTimeInMillis(timeInMs);
 		return cal;
 	}
@@ -524,10 +525,12 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@SuppressLint("KotlinPairNotCreated")
 	@NonNull
-	public static Pair<CharSequence, CharSequence> getShortTimeSpan(@NonNull Context context,
-																	long diffInMs,
-																	@NonNull Timestamp targetedTimestamp,
-																	long precisionInMs) {
+	public static Pair<CharSequence, CharSequence> getShortTimeSpan(
+			@NonNull Context context,
+			long diffInMs,
+			@NonNull Timestamp targetedTimestamp,
+			long precisionInMs
+	) {
 		if (diffInMs < MAX_DURATION_DISPLAYED_IN_MS) {
 			return getShortTimeSpanNumber(context, diffInMs, precisionInMs, targetedTimestamp.isRealTime(), targetedTimestamp.isOldSchedule());
 		} else {
@@ -539,9 +542,13 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	private static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(@NonNull Context context,
-																		   long diffInMs, long precisionInMs,
-																		   boolean isRealTime, boolean isOldSchedule) {
+	private static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(
+			@NonNull Context context,
+			long diffInMs,
+			long precisionInMs,
+			boolean isRealTime,
+			boolean isOldSchedule
+	) {
 		SpannableStringBuilder shortTimeSpan1SSB = new SpannableStringBuilder();
 		SpannableStringBuilder shortTimeSpan2SSB = new SpannableStringBuilder();
 		return getShortTimeSpanNumber(context,
@@ -552,10 +559,15 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@SuppressLint("KotlinPairNotCreated")
 	@NonNull
-	static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(@NonNull Context context, long diffInMs, long precisionInMs,
-																   boolean isRealTime, boolean isOldSchedule,
-																   @NonNull SpannableStringBuilder shortTimeSpan1SSB,
-																   @NonNull SpannableStringBuilder shortTimeSpan2SSB) {
+	static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(
+			@NonNull Context context,
+			long diffInMs,
+			long precisionInMs,
+			boolean isRealTime,
+			boolean isOldSchedule,
+			@NonNull SpannableStringBuilder shortTimeSpan1SSB,
+			@NonNull SpannableStringBuilder shortTimeSpan2SSB
+	) {
 		int diffInSec = (int) Math.floor(TimeUnit.MILLISECONDS.toSeconds(diffInMs));
 		if (diffInMs - (diffInSec * MILLIS_IN_SEC) > (MILLIS_IN_SEC / 2)) {
 			diffInSec++;
@@ -800,14 +812,16 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				SpanUtils.getNewTypefaceSpan(POIStatus.getStatusTextFont())); // can be concatenated
 	}
 
-	public static boolean isSameDay(@NonNull Long timeInMillis1, @NonNull Long timeInMillis2) {
-		Objects.requireNonNull(timeInMillis1, "The date must not be null");
-		Objects.requireNonNull(timeInMillis2, "The date must not be null");
-		Calendar cal1 = Calendar.getInstance();
-		cal1.setTimeInMillis(timeInMillis1);
-		Calendar cal2 = Calendar.getInstance();
-		cal2.setTimeInMillis(timeInMillis2);
-		return isSameDay(cal1, cal2);
+	@SuppressWarnings("unused")
+	public static boolean isSameDay(@NonNull TimeZone timeZone, @NonNull Date date1, @NonNull Date date2) {
+		return isSameDay(timeZone, date1.getTime(), date2.getTime());
+	}
+
+	public static boolean isSameDay(@NonNull TimeZone timeZone, long timeInMillis1, long timeInMillis2) {
+		return isSameDay(
+				TimeUtils.getNewCalendar(timeZone, timeInMillis1),
+				TimeUtils.getNewCalendar(timeZone, timeInMillis2)
+		);
 	}
 
 	private static boolean isSameDay(@NonNull Calendar cal1, @NonNull Calendar cal2) {
@@ -816,17 +830,6 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) //
 				&& cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) //
 				&& cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
-	}
-
-	@SuppressWarnings("unused")
-	public static boolean isSameDay(@NonNull Date date1, @NonNull Date date2) {
-		Objects.requireNonNull(date1, "The date must not be null");
-		Objects.requireNonNull(date2, "The date must not be null");
-		Calendar cal1 = Calendar.getInstance();
-		cal1.setTime(date1);
-		Calendar cal2 = Calendar.getInstance();
-		cal2.setTime(date2);
-		return isSameDay(cal1, cal2);
 	}
 
 	public static class TimeChangedReceiver extends BroadcastReceiver {

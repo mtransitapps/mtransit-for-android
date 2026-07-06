@@ -341,6 +341,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
     override fun onResume() {
         super.onResume()
+        viewModel.routeM.value?.allowTriggerServiceUpdatesRefresh() // get changes loaded from other screens (while paused)
         switchView()
         showSelectedTab()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
