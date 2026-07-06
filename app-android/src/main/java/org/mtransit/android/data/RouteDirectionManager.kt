@@ -11,7 +11,6 @@ import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.util.UITimeUtils
 import java.util.WeakHashMap
-import kotlin.time.Duration.Companion.minutes
 
 data class RouteDirectionManager(
     val authority: String,
@@ -56,7 +55,7 @@ data class RouteDirectionManager(
     }
 
     fun allowTriggerServiceUpdatesRefresh() {
-        this.lastTriggerServiceUpdateRefreshMinTimestampMs -= 1.minutes.inWholeMilliseconds
+        this.lastTriggerServiceUpdateRefreshMinTimestampMs = -1L
     }
 
     private fun triggerServiceUpdatesRefresh(

@@ -590,6 +590,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     override fun onResume() {
         super.onResume()
+        viewModel.routeDirectionM.value?.allowTriggerServiceUpdatesRefresh() // get changes loaded from other screens (while paused)
         if (viewModel.mapVisible(context)) {
             mapViewController.onResume()
             viewModel.startVehicleLocationRefresh()

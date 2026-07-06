@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.view;
 
+import static org.mtransit.android.ui.view.POIStatusDetailViewControllerExtKt.addHourSeparator;
+
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.text.SpannableStringBuilder;
@@ -34,11 +36,15 @@ import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusAppBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusAvailabilityPercentBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
+import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDepartureBinding;
+import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDepartureDaySeparatorBinding;
+import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleSpaceBinding;
 import org.mtransit.android.ui.common.UISourceLabelUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.android.util.UITimeUtilsExtKt;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -374,64 +380,70 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			);
 			localTimeZone = schedule.getTimeZone();
 		}
+		final Calendar cal = Calendar.getInstance(localTimeZone == null ? TimeZone.getDefault() : localTimeZone);
 		final ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		final LayoutInflater layoutInflater = LayoutInflater.from(context);
 		scheduleStatusViewHolder.nextDeparturesLL.removeAllViews();
 		scheduleStatusViewHolder.nextDeparturesLL.addView(
-				layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_space, scheduleStatusViewHolder.nextDeparturesLL, false)
+				LayoutPoiDetailStatusScheduleSpaceBinding.inflate(layoutInflater, scheduleStatusViewHolder.nextDeparturesLL, false).getRoot()
 		);
 		final SpannableStringBuilder baselineSSB = getScheduleSpace(context);
 		if (nextDeparturesList != null) {
 			long lastDeparturesInMs = -1L;
 			for (DetailsNextDepartures nextDeparture : nextDeparturesList) {
-				final View view = layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_departure, scheduleStatusViewHolder.nextDeparturesLL, false);
-				((TextView) view.findViewById(R.id.next_departure_time_baseline)).setText(baselineSSB, TextView.BufferType.SPANNABLE);
-				((TextView) view.findViewById(R.id.next_departure_time)).setText(nextDeparture.getTimeText());
-				final TextView headSignTv = view.findViewById(R.id.next_departures_head_sign);
-				final TextView dateTv = view.findViewById(R.id.next_departure_date);
+				final LayoutPoiDetailStatusScheduleDepartureBinding departureBinding = LayoutPoiDetailStatusScheduleDepartureBinding.inflate(layoutInflater, scheduleStatusViewHolder.nextDeparturesLL, false);
+				departureBinding.nextDepartureTimeBaseline.setText(baselineSSB, TextView.BufferType.SPANNABLE);
+				departureBinding.nextDepartureTime.setText(nextDeparture.getTimeText());
 				if (TextUtils.isEmpty(nextDeparture.getHeadSignText())) {
-					headSignTv.setText(null);
-					headSignTv.setOnClickListener(null);
-					headSignTv.setVisibility(View.INVISIBLE);
+					departureBinding.nextDeparturesHeadSign.setText(null);
+					departureBinding.nextDeparturesHeadSign.setOnClickListener(null);
+					departureBinding.nextDeparturesHeadSign.setVisibility(View.INVISIBLE);
 				} else {
-					headSignTv.setText(nextDeparture.getHeadSignText(), TextView.BufferType.SPANNABLE);
-					headSignTv.setVisibility(View.VISIBLE);
-					headSignTv.setOnClickListener(v -> {
-						if (headSignTv.isSelected()) {
-							headSignTv.setSelected(false);
+					departureBinding.nextDeparturesHeadSign.setText(nextDeparture.getHeadSignText(), TextView.BufferType.SPANNABLE);
+					departureBinding.nextDeparturesHeadSign.setVisibility(View.VISIBLE);
+					departureBinding.nextDeparturesHeadSign.setOnClickListener(v -> {
+						if (departureBinding.nextDeparturesHeadSign.isSelected()) {
+							departureBinding.nextDeparturesHeadSign.setSelected(false);
 						}
-						headSignTv.setSelected(true); // marquee forever
+						departureBinding.nextDeparturesHeadSign.setSelected(true); // marquee forever
 					});
 				}
-				if (TextUtils.isEmpty(nextDeparture.getDateText())) {
-					dateTv.setText(null);
-					dateTv.setVisibility(View.INVISIBLE);
-				} else {
-					if (scheduleStatusViewHolder.nextDeparturesLL.getChildCount() > 1) {
+				if (TextUtils.isEmpty(nextDeparture.getDateText())) { // same day as previous departure
+					departureBinding.nextDepartureDate.setText(null);
+					departureBinding.nextDepartureDate.setVisibility(View.INVISIBLE);
+				} else { // different day as previous departure
+					if (scheduleStatusViewHolder.nextDeparturesLL.getChildCount() > 1) { // not initial next departure day
+						if ((SHOW_HOUR_SEPARATOR_AROUND_DAY_SEPARATOR || SHOW_HOUR_SEPARATOR_BEFORE_DAY_SEPARATOR) && lastDeparturesInMs > 0L) {
+							final long lastDepartureMidnightTs;
+							if (SHOW_HOUR_SEPARATOR_BEFORE_DAY_SEPARATOR) {
+								lastDepartureMidnightTs = nextDeparture.getTimestampMs();
+							} else {
+								cal.setTimeInMillis(lastDeparturesInMs);
+								UITimeUtilsExtKt.setToMidnightTonight(cal);
+								lastDepartureMidnightTs = cal.getTimeInMillis();
+							}
+							final long diff = lastDepartureMidnightTs - lastDeparturesInMs - DAY_SEPARATOR_IN_MS;
+							addHourSeparator(diff, layoutInflater, scheduleStatusViewHolder);
+						}
 						scheduleStatusViewHolder.nextDeparturesLL.addView(
-								layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_departure_day_separator, scheduleStatusViewHolder.nextDeparturesLL, false)
+								LayoutPoiDetailStatusScheduleDepartureDaySeparatorBinding.inflate(layoutInflater, scheduleStatusViewHolder.nextDeparturesLL, false).getRoot()
 						);
+						if (SHOW_HOUR_SEPARATOR_AROUND_DAY_SEPARATOR && SHOW_HOUR_SEPARATOR_BEFORE_DAY_SEPARATOR && lastDeparturesInMs > 0L) {
+							cal.setTimeInMillis(lastDeparturesInMs);
+							UITimeUtilsExtKt.setToMidnightTonight(cal);
+							final long lastDepartureMidnightTs = cal.getTimeInMillis();
+							final long diff = nextDeparture.getTimestampMs() - lastDepartureMidnightTs - DAY_SEPARATOR_IN_MS;
+							addHourSeparator(diff, layoutInflater, scheduleStatusViewHolder);
+						}
 					}
-					dateTv.setText(nextDeparture.getDateText(), TextView.BufferType.SPANNABLE);
-					dateTv.setVisibility(View.VISIBLE);
+					departureBinding.nextDepartureDate.setText(nextDeparture.getDateText(), TextView.BufferType.SPANNABLE);
+					departureBinding.nextDepartureDate.setVisibility(View.VISIBLE);
 				}
 				if (TextUtils.isEmpty(nextDeparture.getDateText()) && lastDeparturesInMs > 0L) {
-					long diff = nextDeparture.getTimestampMs() - lastDeparturesInMs;
-					if (diff > TimeUnit.HOURS.toMillis(1L)) {
-						long hoursCount = diff / TimeUnit.HOURS.toMillis(1L);
-						hoursCount = Math.min(6L, hoursCount); // max 6 hours shown
-						final StringBuilder sb = new StringBuilder();
-						for (long h = 0L; h < hoursCount; h++) {
-							sb.append(".");
-						}
-						final View hourSeperatorView = layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_departure_hour_separator, scheduleStatusViewHolder.nextDeparturesLL, false);
-						((TextView) hourSeperatorView.findViewById(R.id.next_departure_hour)).setText(
-								sb.toString()
-						);
-						scheduleStatusViewHolder.nextDeparturesLL.addView(hourSeperatorView);
-					}
+					final long diff = nextDeparture.getTimestampMs() - lastDeparturesInMs;
+					addHourSeparator(diff, layoutInflater, scheduleStatusViewHolder);
 				}
-				scheduleStatusViewHolder.nextDeparturesLL.addView(view);
+				scheduleStatusViewHolder.nextDeparturesLL.addView(departureBinding.getRoot());
 				lastDeparturesInMs = nextDeparture.getTimestampMs();
 			}
 		}
@@ -456,6 +468,11 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 		setStatusView(statusViewHolder, nextDeparturesList != null && !nextDeparturesList.isEmpty());
 	}
+
+	private static final long DAY_SEPARATOR_IN_MS = TimeUnit.MINUTES.toMillis(90L);
+
+	private static final boolean SHOW_HOUR_SEPARATOR_AROUND_DAY_SEPARATOR = true;
+	private static final boolean SHOW_HOUR_SEPARATOR_BEFORE_DAY_SEPARATOR = false;
 
 	private static final RelativeSizeSpan SCHEDULE_SPACE_SIZE = SpanUtils.getNew200PercentSizeSpan();
 	private static final StyleSpan SCHEDULE_SPACE_STYLE = SpanUtils.getNewBoldStyleSpan();
@@ -526,7 +543,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		TextView textTv;
 	}
 
-	private static class ScheduleStatusViewHolder extends CommonStatusViewHolder {
+	public static class ScheduleStatusViewHolder extends CommonStatusViewHolder {
 		TextView localTimeTv;
 		TextView sourceLabelTv;
 		LinearLayout nextDeparturesLL;

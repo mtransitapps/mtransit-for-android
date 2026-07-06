@@ -165,6 +165,11 @@ public class POIManager implements LocationPOI,
 		return null;
 	}
 
+	public void allowTriggerStatusAndServiceUpdatesRefresh() {
+		this.lastTriggerStatusRefreshMinTimestampMs = -1L;
+		this.lastTriggerServiceUpdateRefreshMinTimestampMs = -1L;
+	}
+
 	public void setStatusLoaderListener(@NonNull StatusLoader.StatusLoaderListener statusLoaderListener) {
 		this.statusLoaderListenerWR = new WeakReference<>(statusLoaderListener);
 	}

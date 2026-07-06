@@ -1118,6 +1118,7 @@ public class POIFragment extends ABFragment implements
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
+			poim.allowTriggerStatusAndServiceUpdatesRefresh(); // get changes loaded from other screens (while paused)
 			POIViewController.updateView(getPOIView(), poim, this);
 			POIStatusDetailViewController.updateView(getPOIStatusView(), poim, this);
 			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(), poim, this);

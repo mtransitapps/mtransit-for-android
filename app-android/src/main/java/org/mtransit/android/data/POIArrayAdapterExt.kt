@@ -105,3 +105,11 @@ internal fun POIArrayAdapter.trackTypeHeaderButtonClick(buttonId: Int) {
         }
     }
 }
+
+fun POIArrayAdapter.allowTriggerStatusServiceUpdateRefresh() {
+    this.poisByType?.values?.forEach { typePOIMs ->
+        typePOIMs?.forEach { poim ->
+            poim.allowTriggerStatusAndServiceUpdatesRefresh()
+        }
+    }
+}

@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class UISchedule extends org.mtransit.android.commons.data.Schedule implements MTLog.Loggable {
@@ -586,13 +587,15 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				}
 			}
 			final long departureT = t.getDepartureT();
+			final String localTimeZoneId = t.getLocalTimeZoneId();
+			final TimeZone timeZone = localTimeZoneId == null ? TimeZone.getDefault() : TimeZone.getTimeZone(localTimeZoneId);
 			if (lastTimestamp > 0L) {
-				if (!UITimeUtils.isSameDay(lastTimestamp, departureT)) {
+				if (!UITimeUtils.isSameDay(timeZone, lastTimestamp, departureT)) {
 					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT));
 				}
 			} else { // 1st timestamp
-				long diffInMs = departureT - after;
-				if (UITimeUtils.isSameDay(after, departureT)) {
+				final long diffInMs = departureT - after;
+				if (UITimeUtils.isSameDay(timeZone, after, departureT)) {
 					dateSSB = new SpannableStringBuilder(context.getString(R.string.today));
 				} else if (diffInMs < TimeUnit.HOURS.toMillis(24L)) {
 					Pair<CharSequence, CharSequence> shortTimeSpam;

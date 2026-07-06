@@ -54,6 +54,10 @@ data class RouteManager(
             ?: ServiceUpdates.newEmpty()
     }
 
+    fun allowTriggerServiceUpdatesRefresh() {
+        this.lastTriggerServiceUpdateRefreshMinTimestampMs = -1L
+    }
+
     private fun triggerServiceUpdatesRefresh(
         serviceUpdateLoader: ServiceUpdateLoader,
         @Suppress("SameParameterValue") skipIfBusy: Boolean

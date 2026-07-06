@@ -29,6 +29,7 @@
         android:alpha=".50"
         android:includeFontPadding="false"
         android:maxLines="1"
+        android:paddingEnd="@dimen/baseline_8"
         android:text="...."
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorSecondary"

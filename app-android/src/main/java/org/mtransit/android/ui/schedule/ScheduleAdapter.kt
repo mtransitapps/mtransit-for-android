@@ -535,7 +535,7 @@ class ScheduleAdapter :
                 binding.day.text = null
                 return
             }
-            val cal = localTimeZone?.let { timestampInMs.toCalendar(localTimeZone) } ?: timestampInMs.toCalendar()
+            val cal = timestampInMs.toCalendar(localTimeZone ?: TimeZone.getDefault())
             val timeSb = SpannableStringBuilder(
                 UITimeUtils.getNearRelativeDay(
                     context,
@@ -579,7 +579,7 @@ class ScheduleAdapter :
             if (hourInMs == null) {
                 binding.hour.text = null
             } else {
-                val cal = localTimeZone?.let { hourInMs.toCalendar(localTimeZone) } ?: hourInMs.toCalendar()
+                val cal = hourInMs.toCalendar(localTimeZone ?: TimeZone.getDefault())
                 binding.hour.text = UITimeUtils.cleanNoRealTime(
                     false,
                     hourFormatter.formatThreadSafe(cal)

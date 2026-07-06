@@ -1,5 +1,6 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.data.POIArrayAdapterExtKt.allowTriggerStatusServiceUpdateRefresh;
 import static org.mtransit.android.data.POIArrayAdapterExtKt.getAnalyticsScreen;
 import static org.mtransit.android.data.POIArrayAdapterExtKt.onCreateViewKt;
 import static org.mtransit.android.data.POIArrayAdapterExtKt.trackTypeHeaderButtonClick;
@@ -157,7 +158,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	private final LayoutInflater layoutInflater;
 
-	private LinkedHashMap<Integer, List<POIManager>> poisByType;
+	protected LinkedHashMap<Integer, List<POIManager>> poisByType;
 
 	@Nullable
 	private HashSet<String> favUUIDs;
@@ -1274,6 +1275,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.location = null; // clear current location to force refresh
 		setLocation(deviceLocation);
 		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
+		allowTriggerStatusServiceUpdateRefresh(this); // get changes loaded from other screens (while paused)
 		notifyDataSetChanged(false); // trigger status/service update fetching if necessary before the minute time changed
 	}
 
