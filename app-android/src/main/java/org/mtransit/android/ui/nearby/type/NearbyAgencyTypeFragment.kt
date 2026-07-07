@@ -10,7 +10,6 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
@@ -30,6 +29,7 @@ import org.mtransit.android.ui.nearby.NearbyViewModel
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -79,7 +79,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
@@ -118,7 +118,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
+            this.userPrefManager,
             this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,

@@ -52,7 +52,6 @@ import com.google.common.primitives.Ints;
 import org.jetbrains.annotations.NotNull;
 import org.mtransit.android.R;
 import org.mtransit.android.analytics.IAnalyticsManager;
-import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.Constants;
@@ -101,6 +100,7 @@ import org.mtransit.android.ui.view.poi.TextMessageViewHolder;
 import org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder;
 import org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder;
 import org.mtransit.android.ui.view.poi.status.POIStatusDataProvider;
+import org.mtransit.android.user.UserPrefManager;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UIFeatureFlags;
@@ -226,7 +226,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@NonNull
 	protected final DataSourcesRepository dataSourcesRepository;
 	@NonNull
-	protected final DefaultPreferenceRepository defaultPrefRepository;
+	protected final UserPrefManager userPrefManager;
 	@NonNull
 	protected final LocalPreferenceRepository lclPrefRepository;
 	@NonNull
@@ -244,7 +244,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			@NonNull IFragment fragment,
 			@NonNull MTSensorManager sensorManager,
 			@NonNull DataSourcesRepository dataSourcesRepository,
-			@NonNull DefaultPreferenceRepository defaultPrefRepository,
+			@NonNull UserPrefManager userPrefManager,
 			@NonNull LocalPreferenceRepository lclPrefRepository,
 			@NonNull POIRepository poiRepository,
 			@NonNull FavoriteRepository favoriteRepository,
@@ -257,7 +257,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = sensorManager;
 		this.dataSourcesRepository = dataSourcesRepository;
-		this.defaultPrefRepository = defaultPrefRepository;
+		this.userPrefManager = userPrefManager;
 		this.lclPrefRepository = lclPrefRepository;
 		this.poiRepository = poiRepository;
 		this.favoriteRepository = favoriteRepository;
@@ -1916,10 +1916,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	public boolean isShowingAccessibilityInfo() {
 		if (this.showingAccessibilityInfo == null) {
-			this.showingAccessibilityInfo = this.defaultPrefRepository.getPref().getBoolean(
-					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY,
-					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
-			);
+			//noinspection DiscouragedApi
+			this.showingAccessibilityInfo = this.userPrefManager.getShowAccessibilityNow();
 		}
 		return this.showingAccessibilityInfo;
 	}

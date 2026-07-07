@@ -2,7 +2,6 @@ package org.mtransit.android.rate
 
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
-import androidx.core.content.edit
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
@@ -16,10 +15,8 @@ import org.mtransit.android.analytics.AnalyticsEvents
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
@@ -28,6 +25,7 @@ import org.mtransit.android.ui.home.HomeFragment
 import org.mtransit.android.ui.news.NewsListDetailFragment
 import org.mtransit.android.ui.schedule.ScheduleFragment
 import org.mtransit.android.ui.view.common.MediatorLiveData4
+import org.mtransit.android.user.UserManager
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,8 +33,8 @@ import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class AppRatingsManager @Inject constructor(
-    private val defaultPrefRepository: DefaultPreferenceRepository,
-    dataSourcesRepository: DataSourcesRepository,
+    private val userManager: UserManager,
+    private val dataSourcesRepository: DataSourcesRepository,
     private val favoriteRepository: FavoriteRepository,
     private val analyticsManager: IAnalyticsManager,
     private val demoModeManager: DemoModeManager,
@@ -75,29 +73,6 @@ class AppRatingsManager @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    private val hasAgenciesEnabled = dataSourcesRepository.readingHasAgenciesEnabled()
-
-    private val dailyUser by lazy {
-        defaultPrefRepository.pref.liveData(
-            DefaultPreferenceRepository.PREF_USER_DAILY,
-            DefaultPreferenceRepository.PREF_USER_DAILY_DEFAULT
-        )
-    }
-
-    private val appOpenCounts by lazy {
-        defaultPrefRepository.pref.liveData(
-            DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS,
-            DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS_DEFAULT
-        )
-    }
-
-    private val lastRequestAppOpenCount by lazy {
-        defaultPrefRepository.pref.liveData(
-            DefaultPreferenceRepository.PREF_USER_RATING_REQUEST_OPEN_COUNTS,
-            DefaultPreferenceRepository.PREF_USER_RATING_REQUEST_OPEN_COUNTS_DEFAULT
-        )
-    }
-
     private suspend fun hasFavorites() = favoriteRepository.hasFavorites()
 
     @WorkerThread
@@ -110,26 +85,21 @@ class AppRatingsManager @Inject constructor(
 
     @Suppress("MemberVisibilityCanBePrivate")
     private suspend fun onAppRequestDisplayed(trackingScreen: AnalyticsScreen? = null) = withContext(Dispatchers.IO) {
-        val currentAppOpenCount = defaultPrefRepository.pref.getInt(
-            DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS,
-            DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS_DEFAULT
-        )
+        val currentAppOpenCount = userManager.getAppOpenCount()
         analyticsManager.logEvent(AnalyticsEvents.APP_RATINGS_REQUEST_DISPLAYED, AnalyticsEventsParamsProvider().apply {
             trackingScreen?.let { put(AnalyticsEvents.Params.SCREEN, it.screenName) }
             put(AnalyticsEvents.Params.COUNT, currentAppOpenCount)
         })
         // if (true) return@withContext // DEBUG do not persist for now
-        defaultPrefRepository.pref.edit {
-            putInt(DefaultPreferenceRepository.PREF_USER_RATING_REQUEST_OPEN_COUNTS, currentAppOpenCount)
-        }
+        userManager.setRatingRequestOpenCount(currentAppOpenCount)
     }
 
     @JvmOverloads
     fun getShouldShowAppRatingRequest(trackingScreen: AnalyticsScreen? = null): LiveData<Boolean> = MediatorLiveData4(
-        hasAgenciesEnabled,
-        lastRequestAppOpenCount,
-        appOpenCounts,
-        dailyUser,
+        dataSourcesRepository.readingHasAgenciesEnabled(),
+        userManager.lastRequestAppOpenCount,
+        userManager.appOpenCounts,
+        userManager.dailyUser,
     ).switchMap { (hasAgenciesEnabled, lastRequestAppOpenCount, appOpenCounts, dailyUser) ->
         liveData {
             if (demoModeManager.enabled) return@liveData emit(false)
@@ -166,35 +136,32 @@ class AppRatingsManager @Inject constructor(
         appOpenCounts: Int? = null,
         lastRequestAppOpenCount: Int? = null,
     ): Boolean {
+        @Suppress("SimplifyBooleanWithConstants")
         if (Constants.DEBUG && ALWAYS_SHOW_APP_RATING_REQUEST) return true
-        val theHasAgenciesEnabled = hasAgenciesEnabled ?: return false
-        var theAppOpenCounts = appOpenCounts ?: return false
-        val theLastRequestAppOpenCount = lastRequestAppOpenCount ?: return false
-        val theDailyUser = dailyUser ?: return false
-        if (!theHasAgenciesEnabled) {
-            return false
-        }
-        if (!theDailyUser) {
-            return false
-        }
+        hasAgenciesEnabled ?: return false
+        var appOpenCounts = appOpenCounts ?: return false
+        lastRequestAppOpenCount ?: return false
+        dailyUser ?: return false
+        if (!hasAgenciesEnabled) return false
+        if (!dailyUser) return false
         // Good
         if (PREFERRED_SCREENS_TRACKING_NAME.contains(trackingScreenName)) {
-            theAppOpenCounts += PREFERRED_SCREENS_REDUCED_APP_OPEN_COUNT
+            appOpenCounts += PREFERRED_SCREENS_REDUCED_APP_OPEN_COUNT
         } else if (hasFavorites == true) {
-            theAppOpenCounts += HAS_FAVORITES_REDUCED_APP_OPEN_COUNT
+            appOpenCounts += HAS_FAVORITES_REDUCED_APP_OPEN_COUNT
         }
         // Bad
         if (isSamsungDevice == true) {
-            theAppOpenCounts -= SAMSUNG_INCREASED_APP_OPEN_COUNT
+            appOpenCounts -= SAMSUNG_INCREASED_APP_OPEN_COUNT
         }
         if (AVOIDED_SCREENS_TRACKING_NAME.contains(trackingScreenName)) {
-            theAppOpenCounts -= AVOIDED_SCREENS_INCREASED_APP_OPEN_COUNT
+            appOpenCounts -= AVOIDED_SCREENS_INCREASED_APP_OPEN_COUNT
         }
-        if (theAppOpenCounts < FIRST_REQUEST_APP_OPEN_COUNT) {
+        if (appOpenCounts < FIRST_REQUEST_APP_OPEN_COUNT) {
             return false
         }
-        if (theLastRequestAppOpenCount != DefaultPreferenceRepository.PREF_USER_RATING_REQUEST_OPEN_COUNTS_DEFAULT
-            && theLastRequestAppOpenCount - FIRST_REQUEST_APP_OPEN_COUNT + NEXT_REQUEST_APP_OPEN_COUNT > appOpenCounts
+        if (lastRequestAppOpenCount != 0
+            && lastRequestAppOpenCount - FIRST_REQUEST_APP_OPEN_COUNT + NEXT_REQUEST_APP_OPEN_COUNT > appOpenCounts
         ) {
             return false
         }

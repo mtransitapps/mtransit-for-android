@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.type.rds
 
-import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -15,11 +14,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Route
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.RouteManager
@@ -30,6 +27,7 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -38,7 +36,7 @@ class RDSAgencyRoutesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
-    private val defaultPrefRepository: DefaultPreferenceRepository,
+    private val userPrefManager: UserPrefManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -126,24 +124,17 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         liveData(viewModelScope.coroutineContext) { // emit source Live Data = stay Main Thread
             routes ?: return@liveData
             authority ?: return@liveData
-            emitSource(
-                defaultPrefRepository.pref.liveData(
-                    DefaultPreferenceRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority),
-                    defaultPrefRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routes.size)
-                )
-            )
+            emitSource(userPrefManager.getRDSRoutesShowingListInsteadOfGrid(authority, routes.size))
         }
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfGrid(showingListInsteadOfGrid: Boolean) {
-        defaultPrefRepository.pref.edit {
-            _authority.value?.let { authority ->
-                putBoolean(DefaultPreferenceRepository.getPREFS_RDS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority), showingListInsteadOfGrid)
+        _authority.value?.let { authority ->
+            viewModelScope.launch {
+                userPrefManager.setRDSRoutesShowingListInsteadOfGrid(authority, showingListInsteadOfGrid)
             }
         }
     }
 
-    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-    ).distinctUntilChanged()
+    val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 }

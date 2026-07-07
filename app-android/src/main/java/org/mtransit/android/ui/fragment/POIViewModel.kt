@@ -16,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocationUtils
@@ -53,6 +52,7 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.addAllN
@@ -73,7 +73,7 @@ class POIViewModel @Inject constructor(
     private val lclPrefRepository: LocalPreferenceRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val favoriteRepository: FavoriteRepository,
-    defaultPrefRepository: DefaultPreferenceRepository,
+    userPrefManager: UserPrefManager,
     remoteConfigProvider: RemoteConfigProvider,
 ) : ViewModel(), MTLog.Loggable {
 
@@ -99,13 +99,9 @@ class POIViewModel @Inject constructor(
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
-    val distanceUnitsPref: LiveData<String> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
-    ).distinctUntilChanged()
+    val distanceUnitsPref: LiveData<String> = userPrefManager.distanceUnits.distinctUntilChanged()
 
-    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-    ).distinctUntilChanged()
+    val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 
     val poim: LiveData<POIManager?> = MediatorLiveData2(agency, uuid)
         .switchMap { (agency, uuid) -> // #onModulesUpdated

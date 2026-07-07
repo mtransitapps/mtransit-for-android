@@ -397,15 +397,20 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
             (findPreference(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY) as? Preference)?.apply {
-                setSummary(if (showAccessibility) R.string.show_accessibility_pref_summary_on else R.string.show_accessibility_pref_summary_off)
+                setSummary(
+                    when {
+                        showAccessibility -> R.string.show_accessibility_pref_summary_on
+                        else -> R.string.show_accessibility_pref_summary_off
+                    }
+                )
             }
         }
         viewModel.useInternalWebBrowser.observe(viewLifecycleOwner) { useInternalWebBrowser ->
             (findPreference(DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER) as? Preference)?.apply {
                 setSummary(
-                    when (useInternalWebBrowser) {
-                        true -> R.string.use_internal_web_browser_pref_summary_on
-                        false -> R.string.use_internal_web_browser_pref_summary_off
+                    when {
+                        useInternalWebBrowser -> R.string.use_internal_web_browser_pref_summary_on
+                        else -> R.string.use_internal_web_browser_pref_summary_off
                     }
                 )
             }

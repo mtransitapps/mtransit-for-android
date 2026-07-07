@@ -49,13 +49,13 @@ class InlineBannerAdManager @Inject constructor(
     @JvmOverloads
     fun refreshBannerAdStatus(fragment: IFragment, adScreenFragment: IAdScreenFragment?, force: Boolean = false) {
         @Suppress("SimplifyBooleanWithConstants")
-        if (this.globalAdManager.isShowingAds() // showing ads across the app
+        if (this.globalAdManager.adsAllowed() // ads allowed across the app
             && (UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS && adScreenFragment?.hasAds() == true) // this specific screen does include ads already
         ) {
             if (!isAdBannerLoaded(fragment) || force) { // IF ad was not loaded DO
                 setupBannerAd(fragment, force)
             }
-        } else { // ELSE IF not showing ads DO
+        } else { // ELSE IF ads NOT allowed DO
             if (isAdBannerLoaded(fragment)) { // IF ad was loaded DO
                 hideBannerAd(fragment)
                 onPause(fragment)
@@ -90,8 +90,8 @@ class InlineBannerAdManager @Inject constructor(
     private fun setupBannerAd(fragment: IFragment, force: Boolean) {
         if (!AdConstants.AD_ENABLED) return
         if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) return
-        if (!this.globalAdManager.isShowingAds()) {
-            logAdsD(this, "setupBannerAd() > SKIP (not showing ads)")
+        if (!this.globalAdManager.adsAllowed()) {
+            logAdsD(this, "setupBannerAd() > SKIP (ads not allowed)")
             return
         }
         if (force) {
@@ -133,7 +133,7 @@ class InlineBannerAdManager @Inject constructor(
     fun adaptToScreenSize(fragment: IFragment) {
         if (!AdConstants.AD_ENABLED) return
         if (!UIFeatureFlags.F_CUSTOM_ADS_IN_NEWS) return
-        if (!this.globalAdManager.isShowingAds()) return
+        if (!this.globalAdManager.adsAllowed()) return
         if (isAdBannerLoaded(fragment)) {
             showBannerAd(fragment)
         } else {

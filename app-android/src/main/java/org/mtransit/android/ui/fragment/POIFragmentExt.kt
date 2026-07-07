@@ -284,12 +284,8 @@ fun POIFragment.onMapClick(): Boolean {
                         poim.poi.authority,
                     )
                 }
-                this.defaultPrefRepository.pref.edit {
-                    putBoolean(
-                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
-                        false, // show map
-                    )
-                }
+                //noinspection DiscouragedApi
+                this.userPrefManager.setAgencyPOIsShowingMapNow(poim.poi.authority)
                 navController.navigateF(
                     R.id.nav_to_type_screen,
                     AgencyTypeFragment.newInstanceArgs(poim.poi, this.mapViewController.cameraPosition),
@@ -316,12 +312,8 @@ fun POIFragment.onMapClick(): Boolean {
                         poim.poi.authority,
                     )
                 }
-                this.defaultPrefRepository.pref.edit {
-                    putBoolean(
-                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
-                        false, // show map
-                    )
-                }
+                //noinspection DiscouragedApi
+                this.userPrefManager.setAgencyPOIsShowingMapNow(poim.poi.authority)
                 mainActivity.addFragmentToStack(
                     AgencyTypeFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),
                     this,

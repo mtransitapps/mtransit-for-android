@@ -51,6 +51,10 @@ class RemoteConfigProvider @Inject constructor(
         const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS = "mt_vehicle_location_refresh_min_ms"
         const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT = 30_000L // 30 seconds
         // const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT = 10_000L // DEBUG
+
+        const val PEACEFUL_FIRST_APP_EXP = "mt_peace_first_app_exp"
+        const val PEACEFUL_FIRST_APP_EXP_DEFAULT = false
+        // const val PEACEFUL_FIRST_APP_EXP_DEFAULT = true // DEBUG
     }
 
     override fun getLogTag() = LOG_TAG

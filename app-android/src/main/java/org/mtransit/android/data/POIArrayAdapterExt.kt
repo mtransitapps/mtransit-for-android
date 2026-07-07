@@ -81,9 +81,7 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     this.favoriteRepository.isUsingFolders.observe(viewLifecycleOwner) { usingFavoriteFolders ->
         this.isUsingFavoriteFolders = usingFavoriteFolders
     }
-    this.defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
-    ).distinctUntilChanged().observe(viewLifecycleOwner) {
+    this.userPrefManager.distanceUnits.distinctUntilChanged().observe(viewLifecycleOwner) {
         this.distanceUnitsPref = it
         updateDistanceNowAsync(this.location)
     }

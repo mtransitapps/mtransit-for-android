@@ -16,7 +16,6 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
@@ -38,6 +37,7 @@ import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.MTSearchView
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -80,7 +80,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
@@ -110,7 +110,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
+            this.userPrefManager,
             this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,

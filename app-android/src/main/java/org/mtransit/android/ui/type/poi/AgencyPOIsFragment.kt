@@ -14,7 +14,6 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
@@ -48,6 +47,7 @@ import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
 import org.mtransit.android.ui.view.map.MTPOIMarker
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
 
@@ -112,7 +112,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
@@ -230,7 +230,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
+            this.userPrefManager,
             this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,

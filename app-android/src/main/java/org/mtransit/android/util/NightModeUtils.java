@@ -29,6 +29,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = NightModeUtils.class.getSimpleName();
 
+	@SuppressWarnings("unused")
 	@NonNull
 	public static String logUiMode(int uiMode) {
 		return String.format(Locale.ENGLISH,
@@ -52,7 +53,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 	}
 
 	public static void setDefaultNightMode(@AppCompatDelegate.NightMode int mode) {
-		AppCompatDelegate.setDefaultNightMode(mode); // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+		AppCompatDelegate.setDefaultNightMode(mode); // does NOT recreate because uiMode in configChanges AndroidManifest.xml
 	}
 
 	public static void recreate(@NonNull Activity activity) {

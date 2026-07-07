@@ -44,7 +44,7 @@ class SetupInlineBannerAdTask(
     @WorkerThread
     override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean {
         if (!AdConstants.AD_ENABLED) return false
-        return !isCancelled && this.globalAdManager.isShowingAds() // TODO can be called from any thread
+        return !isCancelled && this.globalAdManager.adsAllowed() // TODO can be called from any thread
     }
 
     @MainThread

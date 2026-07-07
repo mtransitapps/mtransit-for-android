@@ -204,34 +204,34 @@ class GlobalAdManager(
         return this.hasSubscription?.not()
     }
 
-    fun isShowingAds(): Boolean {
+    fun adsAllowed(): Boolean {
         if (!AdConstants.AD_ENABLED) return false
         if (hasAgenciesEnabled == null) {
             hasAgenciesEnabled = this.dataSourcesRepository.hasAgenciesEnabled()
         }
         if (!this.initialized.get()) {
-            logAdsD(this, "isShowingAds() > Not showing ads (not initialized yet).")
-            return false // not showing ads
+            logAdsD(this, "adsAllowed() > Not showing ads (not initialized yet).")
+            return false // ads NOT allowed
         }
         // number of agency unknown
         if (hasAgenciesEnabled == false) { // no (real) agency installed
-            logAdsD(this, "isShowingAds() > Not showing ads (no agency added).")
-            return false // not showing ads
+            logAdsD(this, "adsAllowed() > Not showing ads (no agency added).")
+            return false // ads NOT allowed
         } else if (demoModeManager.enabled) {
-            logAdsD(this, "isShowingAds() > Not showing ads (demo mode).")
-            return false // not showing ads
+            logAdsD(this, "adsAllowed() > Not showing ads (demo mode).")
+            return false // ads NOT allowed
         }
         if (hasSubscription == null) { // subscriptions unknown
-            logAdsD(this, "isShowingAds() > Not showing ads (subscriptions unknown).")
-            return false // not showing ads
+            logAdsD(this, "adsAllowed() > Not showing ads (subscriptions unknown).")
+            return false // ads NOT allowed
         }
-        logAdsD(this, "isShowingAds() > has subscriptions: '$hasSubscription'.")
+        logAdsD(this, "adsAllowed() > has subscriptions: '$hasSubscription'.")
         if (AdConstants.IGNORE_REWARD_HIDING_BANNER) {
             return hasSubscription == false
         }
         if (this._rewardedNow != false) { // rewarded status
-            logAdsD(this, "isShowingAds() > Not showing banner ads (rewarded until: ${this._rewardedUntil?.toDateTimeLog()}).")
-            return false // not showing ads
+            logAdsD(this, "adsAllowed() > Not showing banner ads (rewarded until: ${this._rewardedUntil?.toDateTimeLog()}).")
+            return false // ads NOT allowed
         }
         return hasSubscription == false
     }
