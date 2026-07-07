@@ -27,6 +27,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.getSizeDimension
+import org.mtransit.android.user.UserManager
 import kotlin.random.Random
 
 class DefaultPOIListFooterManager(
@@ -35,6 +36,7 @@ class DefaultPOIListFooterManager(
     private val demoModeManager: DemoModeManager,
     private val billingManager: IBillingManager,
     private val dataSourcesRepository: DataSourcesRepository,
+    private val userManager: UserManager,
     private val getFragment: () -> ABFragment?,
     private val getShowLoading: () -> Boolean,
     private val getHideText: () -> Boolean, // additional condition do hide text
@@ -58,6 +60,7 @@ class DefaultPOIListFooterManager(
             mainListLivedata: LiveData<*>,
             billingManager: IBillingManager,
             dataSourcesRepository: DataSourcesRepository,
+            userManager: UserManager,
             onChanged: () -> Unit,
         ) {
             mainListLivedata.observe(lifecycleOwner) {
@@ -67,6 +70,9 @@ class DefaultPOIListFooterManager(
                 onChanged()
             }
             dataSourcesRepository.readingHasAgenciesEnabled().observe(lifecycleOwner) {
+                onChanged()
+            }
+            userManager.newUser.observe(lifecycleOwner) {
                 onChanged()
             }
         }
@@ -120,6 +126,7 @@ class DefaultPOIListFooterManager(
     override val isShowText: Boolean
         get() {
             return (dataSourcesRepository.hasAgenciesEnabled()
+                    && userManager.newUser.value != true
                     && billingManager.hasSubscription.value != true
                     && !demoModeManager.isFullDemo()
                     && !getHideText())

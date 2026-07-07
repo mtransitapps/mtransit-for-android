@@ -62,6 +62,7 @@ import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Compa
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
+import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIFeatureFlags
@@ -175,6 +176,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     @Inject
     lateinit var demoModeManager: DemoModeManager
 
+    @Inject
+    lateinit var userManager: UserManager
+
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
         override fun getPOMarkers(): Collection<MTPOIMarker>? = null
@@ -237,6 +241,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             demoModeManager = demoModeManager,
             billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
+            userManager = userManager,
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.poiList?.value == null },
             getHideText = {
@@ -450,7 +455,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             switchView()
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository, userManager) {
             this.listAdapter.notifyDataSetChanged(false)
         }
     }

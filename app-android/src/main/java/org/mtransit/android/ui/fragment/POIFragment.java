@@ -120,6 +120,7 @@ import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
+import org.mtransit.android.user.UserManager;
 import org.mtransit.android.user.UserPrefManager;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
@@ -228,6 +229,8 @@ public class POIFragment extends ABFragment implements
 	IAdManager adManager;
 	@Inject
 	DataSourcesRepository dataSourcesRepository;
+	@Inject
+	UserManager userManager;
 	@Inject
 	POIRepository poiRepository;
 	@Inject
@@ -574,7 +577,7 @@ public class POIFragment extends ABFragment implements
 		}
 		this.adManager.getRewardedUntilLive().observe(getViewLifecycleOwner(), rewardedUntil -> refreshRewardedLayout());
 		this.adManager.getRewardedNowLive().observe(getViewLifecycleOwner(), rewardedNow -> refreshRewardedLayout());
-		DefaultPOIListFooterManager.observe(getViewLifecycleOwner(), viewModel.getNearbyPOIs(), this.billingManager, this.dataSourcesRepository, () -> {
+		DefaultPOIListFooterManager.observe(getViewLifecycleOwner(), viewModel.getNearbyPOIs(), billingManager, dataSourcesRepository, userManager, () -> {
 			updateFooter(this);
 			return kotlin.Unit.INSTANCE;
 		});

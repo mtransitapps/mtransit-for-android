@@ -56,6 +56,7 @@ import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -128,6 +129,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     @Inject
     lateinit var billingManager: IBillingManager
 
+    @Inject
+    lateinit var userManager: UserManager
+
     private var mapMenuItem: MenuItem? = null
 
     private var binding: FragmentHomeBinding? = null
@@ -139,6 +143,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             demoModeManager = demoModeManager,
             billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
+            userManager = userManager,
             getFragment = { this },
             getShowLoading = { attachedViewModel?.loadingPOIs?.value == true },
             getHideText = {
@@ -239,7 +244,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             setupScreenToolbar(screenToolbarLayout)
         }
         listAdapter.onCreateView(viewLifecycleOwner)
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository, userManager) {
             listAdapter.notifyDataSetChanged(false)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {

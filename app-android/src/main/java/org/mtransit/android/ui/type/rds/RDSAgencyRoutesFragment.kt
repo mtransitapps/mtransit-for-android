@@ -39,6 +39,7 @@ import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
+import org.mtransit.android.user.UserManager
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -91,6 +92,9 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository
 
+    @Inject
+    lateinit var userManager: UserManager
+
     private var binding: FragmentRdsAgencyRoutesBinding? = null
 
     private val listItemDecoration: ItemDecoration by lazy {
@@ -108,6 +112,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             demoModeManager = demoModeManager,
             billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
+            userManager = userManager,
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.routesM?.value == null },
             getHideText = {
@@ -281,7 +286,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         viewModel.serviceUpdateLoadedEvent.observeEvent(viewLifecycleOwner) { _ ->
             listGridAdapter?.onServiceUpdatesLoaded()
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.routesM, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.routesM, billingManager, dataSourcesRepository, userManager) {
             updateFooter()
         }
     }

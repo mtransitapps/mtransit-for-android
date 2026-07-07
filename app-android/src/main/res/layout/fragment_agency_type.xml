@@ -48,7 +48,7 @@
             android:id="@+id/type_img"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="28dp"
             android:layout_weight="2"
             android:alpha="0.3"
             android:contentDescription="@null"

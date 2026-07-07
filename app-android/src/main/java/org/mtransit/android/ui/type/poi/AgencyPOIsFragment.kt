@@ -47,6 +47,7 @@ import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
 import org.mtransit.android.ui.view.map.MTPOIMarker
+import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
@@ -144,6 +145,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
+    @Inject
+    lateinit var userManager: UserManager
+
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
         override fun getPOMarkers(): Collection<MTPOIMarker>? = null
@@ -205,6 +209,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             demoModeManager = demoModeManager,
             billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
+            userManager = userManager,
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.poiList?.value == null },
             getHideText = {
@@ -338,7 +343,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository, userManager) {
             this.listAdapter.notifyDataSetChanged(false)
         }
         viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedMapCameraPosition ->

@@ -34,6 +34,9 @@ class DefaultPreferenceRepository @Inject constructor(
         const val PREF_USER_DAILY = "pDailyUser"
         const val PREF_USER_DAILY_DEFAULT = false
 
+        const val PREF_USER_NEW = "pNewUser"
+        const val PREF_USER_NEW_DEFAULT = false
+
         const val PREF_USER_REWARDED_UNTIL = "pRewardedUtil"
         const val PREF_USER_REWARDED_UNTIL_DEFAULT = 0L
 

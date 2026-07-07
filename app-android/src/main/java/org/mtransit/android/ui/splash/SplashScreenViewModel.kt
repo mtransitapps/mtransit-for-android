@@ -243,8 +243,8 @@ class SplashScreenViewModel @Inject constructor(
 
     private suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
         val appOpenCounts = userManager.getAppOpenCount()
-        val appOpenFirst = userManager.getAppOpenFirst().takeIf { it > 0L }?.millisToInstant()
-        val appOpenLast = userManager.getAppOpenLast().takeIf { it > 0L }?.millisToInstant()
+        val appOpenFirst = userManager.getAppOpenFirstOrNull()?.millisToInstant()
+        val appOpenLast = userManager.getAppOpenLastOrNull()?.millisToInstant()
         val dailyUser = appOpenLast?.let {
             val sevenDaysAgo = TimeUtilsK.currentInstant() - 7.days
             sevenDaysAgo < it && appOpenCounts > 10 // opened in the last 7 days
@@ -260,11 +260,31 @@ class SplashScreenViewModel @Inject constructor(
                 newAppOpenFirst = null // never reset app open first with so many app opens
             }
         }
+        val newUser = appOpenFirst?.let { firstAppOpen ->
+            if (appOpenCounts >= 10) { // frequent user
+                if (TimeUtilsK.currentInstant() <= firstAppOpen + 5.days) {
+                    return@let true // frequent user but less than 5 days
+                }
+            } else { // casual user
+                if (firstAppOpen < TimeUtilsK.currentInstant() - 10.days) {
+                    return@let true // casual user but less than 10 days
+                }
+            }
+            null
+        } ?: appOpenLast?.let {
+            if (it + 99.days < TimeUtilsK.currentInstant()) { // a long time ago
+                if (appOpenCounts < 33) {
+                    return@let true // old user coming back with "few" app opens
+                }
+            }
+            null
+        } ?: (appOpenCounts <= 7) // probably new-ish user
         userManager.set(
             appOpenCounts = appOpenCounts + 1,
             appOpenFirst = newAppOpenFirst?.toMillis(),
             appOpenLast = TimeUtils.currentTimeMillis(),
-            dailyUser = dailyUser
+            dailyUser = dailyUser,
+            newUser = newUser,
         )
         appOpenCounts
     }

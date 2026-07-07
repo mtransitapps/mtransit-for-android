@@ -76,9 +76,9 @@ class RewardedUserManager @Inject constructor(
         return getRewardedUntilInMs().millisToInstant()
     }
 
-    private val _rewardedUntilInMsLive: LiveData<Long> = userManager.rewardedUntil.distinctUntilChanged()
-
-    val rewardedUntilLive: LiveData<Instant> = _rewardedUntilInMsLive.map { it.millisToInstant() }
+    val rewardedUntilLive: LiveData<Instant> = userManager.rewardedUntil.distinctUntilChanged().map {
+        it.millisToInstant()
+    }
 
     private fun setRewardedUntil(newRewardedUntil: Instant) = setRewardedUntilInMs(newRewardedUntil.toMillis())
 

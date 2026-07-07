@@ -21,12 +21,14 @@ class UserManager @Inject constructor(
         appOpenFirst: Long? = null,
         appOpenLast: Long? = null,
         dailyUser: Boolean? = null,
+        newUser: Boolean? = null
     ) {
         defaultPrefRepository.pref.edit {
             appOpenCounts?.let { putInt(DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS, it) }
             appOpenFirst?.let { putLong(DefaultPreferenceRepository.PREF_USER_APP_OPEN_FIRST, it) }
             appOpenLast?.let { putLong(DefaultPreferenceRepository.PREF_USER_APP_OPEN_LAST, it) }
             dailyUser?.let { putBoolean(DefaultPreferenceRepository.PREF_USER_DAILY, it) }
+            newUser?.let { putBoolean(DefaultPreferenceRepository.PREF_USER_NEW, it) }
         }
     }
 
@@ -61,6 +63,14 @@ class UserManager @Inject constructor(
     fun setUserLearnedDrawerNow(learned: Boolean) = defaultPrefRepository.pref.edit {
         putBoolean(DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, learned)
     }
+
+    // endregion
+
+    // region new user
+
+    val newUser: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREF_USER_NEW, DefaultPreferenceRepository.PREF_USER_NEW_DEFAULT
+    )
 
     // endregion
 
@@ -118,6 +128,8 @@ class UserManager @Inject constructor(
 
     // region app open first
 
+    suspend fun getAppOpenFirstOrNull() = getAppOpenFirst().takeIf { it != DefaultPreferenceRepository.PREF_USER_APP_OPEN_FIRST_DEFAULT }
+
     suspend fun getAppOpenFirst() = withContext(Dispatchers.IO) {
         defaultPrefRepository.pref.getLong(
             DefaultPreferenceRepository.PREF_USER_APP_OPEN_FIRST, DefaultPreferenceRepository.PREF_USER_APP_OPEN_FIRST_DEFAULT
@@ -127,6 +139,8 @@ class UserManager @Inject constructor(
     // endregion
 
     // region app open last
+
+    suspend fun getAppOpenLastOrNull() = getAppOpenLast().takeIf { it != DefaultPreferenceRepository.PREF_USER_APP_OPEN_LAST_DEFAULT }
 
     suspend fun getAppOpenLast() = withContext(Dispatchers.IO) {
         defaultPrefRepository.pref.getLong(

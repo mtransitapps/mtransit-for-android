@@ -186,6 +186,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			setVisibleMenuItems();
 			onMenuUpdated();
 		});
+		this.userManager.getNewUser().observe(mainActivity, newUser -> {
+			this.newUser = newUser;
+		});
 	}
 
 	public void onCreate(@SuppressWarnings("unused") @Nullable Bundle savedInstanceState) {
@@ -321,6 +324,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	private List<DataSourceType> allAgencyTypes = null;
 
 	@Nullable
+	private Boolean newUser = null;
+
+	@Nullable
 	private List<DataSourceType> getAllAgencyTypes() {
 		if (this.allAgencyTypes == null) {
 			initAllAgencyTypes();
@@ -360,6 +366,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		final boolean hasAgencyWithFaresWeb = Boolean.TRUE.equals(this.hasAgencyWithFaresWeb);
 		final boolean hasAgenciesAdded = Boolean.TRUE.equals(this.hasAgenciesAdded);
 		final boolean hasSubscriptions = Boolean.TRUE.equals(this.billingManager.getHasSubscription().getValue());
+		final boolean newUser = Boolean.TRUE.equals(this.newUser);
 		this.navigationView.getMenu().findItem(R.id.root_nav_map).setVisible(hasAgenciesAdded);
 		// TODO favorites? (favorite manager requires IO
 		final boolean hasNewsProviderEnabled = Boolean.TRUE.equals(this.hasNewsProviderEnabled);
@@ -382,8 +389,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				dstMenuItem.setVisible(true);
 			}
 		}
-		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgenciesAdded);
-		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgenciesAdded && !hasSubscriptions);
+		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgenciesAdded && !newUser);
+		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgenciesAdded && !hasSubscriptions && !newUser);
 		this.navigationView.getMenu().findItem(R.id.nav_fares).setVisible(hasAgencyWithFaresWeb);
 		this.navigationView.getMenu().findItem(R.id.nav_privacy_setting).setVisible(this.consentManager.isPrivacyOptionsRequired());
 	}

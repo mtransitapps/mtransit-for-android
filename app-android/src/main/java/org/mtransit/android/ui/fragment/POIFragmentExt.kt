@@ -68,6 +68,7 @@ internal fun POIFragment.makePoiListFooterManager() =
         demoModeManager = demoModeManager,
         billingManager = billingManager,
         dataSourcesRepository = dataSourcesRepository,
+        userManager = userManager,
         getFragment = { this },
         getShowLoading = { attachedViewModel?.nearbyPOIs?.value == null },
         canShowRewardedAd = {

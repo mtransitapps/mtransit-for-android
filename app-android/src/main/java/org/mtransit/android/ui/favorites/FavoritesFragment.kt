@@ -46,6 +46,7 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -117,6 +118,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     @Inject
     lateinit var billingManager: IBillingManager
 
+    @Inject
+    lateinit var userManager: UserManager
+
     private var binding: FragmentFavoritesBinding? = null
 
     private val poiListFooterManager by lazy {
@@ -126,6 +130,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             demoModeManager = demoModeManager,
             billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
+            userManager = userManager,
             getFragment = { this },
             getShowLoading = { attachedViewModel?.favoritePOIs?.value == null },
             getHideText = {
@@ -194,7 +199,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             listAdapter.setLocation(deviceLocation)
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.favoritePOIs, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.favoritePOIs, billingManager, dataSourcesRepository, userManager) {
             listAdapter.notifyDataSetChanged(false)
         }
         ModuleDisabledUI.onViewCreated(this)
