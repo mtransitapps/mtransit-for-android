@@ -89,8 +89,7 @@ class RewardedAdManager @Inject constructor(
             ),
             RewardedAdLoadCallback(this@RewardedAdManager, crashReporter, activityHashCode)
         )
-        val loadCounts = userManager.getRewardedLoadCounts()
-        userManager.setRewardedLoadCounts(loadCounts + 1)
+        userManager.increateRewardedLoadCounts()
     }
 
     internal fun onRewardedAdLoadingComplete(rewardedAd: RewardedAd?, activityHashCode: Int) {
@@ -166,9 +165,7 @@ class RewardedAdManager @Inject constructor(
         this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
         //noinspection DiscouragedApi
-        val showCounts = this.userManager.getRewardedShowCountsNow()
-        //noinspection DiscouragedApi
-        this.userManager.setRewardedShowCountsNow(showCounts + 1)
+        this.userManager.increaseRewadedShowCountsNow()
         return true
     }
 }

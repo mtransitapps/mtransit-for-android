@@ -23,6 +23,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.user.UserManager
@@ -41,6 +42,7 @@ class GlobalAdManager(
     private val consentManager: AdsConsentManager,
     private val rewardedUserManager: RewardedUserManager,
     private val userManager: UserManager,
+    private val remoteConfigProvider: RemoteConfigProvider,
     private val billingManager: IBillingManager,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {
@@ -53,6 +55,7 @@ class GlobalAdManager(
         consentManager: AdsConsentManager,
         rewardedUserManager: RewardedUserManager,
         userManager: UserManager,
+        remoteConfigProvider: RemoteConfigProvider,
         billingManager: IBillingManager,
     ) : this(
         dataSourcesRepository = dataSourcesRepository,
@@ -61,6 +64,7 @@ class GlobalAdManager(
         consentManager = consentManager,
         rewardedUserManager = rewardedUserManager,
         userManager = userManager,
+        remoteConfigProvider = remoteConfigProvider,
         billingManager = billingManager,
         ioDispatcher = Dispatchers.IO,
     )
@@ -102,6 +106,11 @@ class GlobalAdManager(
             this._newUser = newUser
         }
     }
+
+    private val newUserAdsFreeAllowed
+        get() = remoteConfigProvider.get(
+            RemoteConfigProvider.NEW_USER_ADS_FREE, RemoteConfigProvider.NEW_USER_ADS_FREE_DEFAULT
+        )
 
     val rewardedUntil: LiveData<Instant> get() = this.rewardedUserManager.rewardedUntilLive
     val rewardedNow: LiveData<Boolean> get() = this.rewardedUserManager.rewardedNowLive
@@ -211,13 +220,14 @@ class GlobalAdManager(
     fun canShowAds(): Boolean? {
         if (!AdConstants.AD_ENABLED) return false
         if (demoModeManager.enabled) return false
+        if (_newUser == true && newUserAdsFreeAllowed) return false
         return this.hasSubscription?.not()
     }
 
     fun adsAllowed(): Boolean {
         if (!AdConstants.AD_ENABLED) return false
         if (!this.initialized.get()) {
-            logAdsD(this, "adsAllowed() > Not showing ads (not initialized yet).")
+            logAdsD(this, "adsAllowed() > ads NOT allowed (not initialized yet).")
             return false // ads NOT allowed
         }
         if (hasAgenciesEnabled == null) {
@@ -225,18 +235,18 @@ class GlobalAdManager(
         }
         // number of agency unknown
         if (hasAgenciesEnabled == false) { // no (real) agency installed
-            logAdsD(this, "adsAllowed() > Not showing ads (no agency added).")
+            logAdsD(this, "adsAllowed() > ads NOT allowed (no agency added).")
             return false // ads NOT allowed
         } else if (demoModeManager.enabled) {
-            logAdsD(this, "adsAllowed() > Not showing ads (demo mode).")
+            logAdsD(this, "adsAllowed() > ads NOT allowed (demo mode).")
             return false // ads NOT allowed
         }
         if (hasSubscription == null) { // subscriptions unknown
-            logAdsD(this, "adsAllowed() > Not showing ads (subscriptions unknown).")
+            logAdsD(this, "adsAllowed() > ads NOT allowed (subscriptions unknown).")
             return false // ads NOT allowed
         }
-        if (_newUser == true) {
-            logAdsD(this, "adsAllowed() > Not showing ads (new user).")
+        if (_newUser == true && newUserAdsFreeAllowed) {
+            logAdsD(this, "adsAllowed() > ads NOT allowed (new user|ads-free allowed).")
             return false // ads NOT allowed
         }
         logAdsD(this, "adsAllowed() > has subscriptions: '$hasSubscription'.")
@@ -244,7 +254,7 @@ class GlobalAdManager(
             return hasSubscription == false
         }
         if (this._rewardedNow != false) { // rewarded status
-            logAdsD(this, "adsAllowed() > Not showing banner ads (rewarded until: ${this._rewardedUntil?.toDateTimeLog()}).")
+            logAdsD(this, "adsAllowed() > banner ads NOT allowed (rewarded until: ${this._rewardedUntil?.toDateTimeLog()}).")
             return false // ads NOT allowed
         }
         return hasSubscription == false

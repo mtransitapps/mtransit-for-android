@@ -24,7 +24,6 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -140,9 +139,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var billingManager: IBillingManager
 
     @Inject
-    lateinit var demoModeManager: DemoModeManager
-
-    @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
     @Inject
@@ -206,10 +202,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
-            userManager = userManager,
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.poiList?.value == null },
             getHideText = {

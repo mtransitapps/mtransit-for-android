@@ -140,10 +140,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
-            userManager = userManager,
             getFragment = { this },
             getShowLoading = { attachedViewModel?.loadingPOIs?.value == true },
             getHideText = {

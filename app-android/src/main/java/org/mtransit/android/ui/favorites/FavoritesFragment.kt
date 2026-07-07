@@ -25,7 +25,6 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI.showAddFolderDialog
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -113,9 +112,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
-    lateinit var demoModeManager: DemoModeManager
-
-    @Inject
     lateinit var billingManager: IBillingManager
 
     @Inject
@@ -127,10 +123,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
-            userManager = userManager,
             getFragment = { this },
             getShowLoading = { attachedViewModel?.favoritePOIs?.value == null },
             getHideText = {

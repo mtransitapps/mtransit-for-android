@@ -260,9 +260,6 @@ class SplashScreenViewModel @Inject constructor(
                 newAppOpenFirst = null // never reset app open first with so many app opens
             }
         }
-        val newUserAppExp = remoteConfigProvider.get(
-            RemoteConfigProvider.NEW_USER_APP_EXP, RemoteConfigProvider.NEW_USER_APP_EXP_DEFAULT
-        )
         val newUser = appOpenFirst?.let { firstAppOpen ->
             if (appOpenCounts >= 10) { // frequent user
                 if (TimeUtilsK.currentInstant() <= firstAppOpen + 5.days) {
@@ -282,7 +279,6 @@ class SplashScreenViewModel @Inject constructor(
             }
             null
         } ?: (appOpenCounts <= 7) // probably new-ish user
-            .takeIf { newUserAppExp } ?: false
         userManager.set(
             appOpenCounts = appOpenCounts + 1,
             appOpenFirst = newAppOpenFirst?.toMillis(),

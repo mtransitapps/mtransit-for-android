@@ -9,7 +9,7 @@ import org.mockito.Mockito.mock
 class AppRatingsManagerTest {
 
     private val subject = AppRatingsManager(
-        defaultPrefRepository = mock(),
+        userManager = mock(),
         dataSourcesRepository = mock(),
         favoriteRepository = mock(),
         analyticsManager = mock(),

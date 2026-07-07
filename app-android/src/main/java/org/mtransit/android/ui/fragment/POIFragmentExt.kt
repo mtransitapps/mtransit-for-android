@@ -9,7 +9,6 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
@@ -65,10 +64,7 @@ internal fun POIFragment.makePoiListFooterManager() =
     DefaultPOIListFooterManager(
         adManager = adManager,
         analyticsManager = analyticsManager,
-        demoModeManager = demoModeManager,
-        billingManager = billingManager,
         dataSourcesRepository = dataSourcesRepository,
-        userManager = userManager,
         getFragment = { this },
         getShowLoading = { attachedViewModel?.nearbyPOIs?.value == null },
         canShowRewardedAd = {

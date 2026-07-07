@@ -24,7 +24,6 @@ import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.FragmentRdsAgencyRoutesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
@@ -87,9 +86,6 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
     lateinit var billingManager: IBillingManager
 
     @Inject
-    lateinit var demoModeManager: DemoModeManager
-
-    @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
@@ -109,10 +105,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
-            userManager = userManager,
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.routesM?.value == null },
             getHideText = {

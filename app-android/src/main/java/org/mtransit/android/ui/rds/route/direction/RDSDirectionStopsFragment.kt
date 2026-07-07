@@ -35,7 +35,6 @@ import org.mtransit.android.data.RouteDirectionManager
 import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -174,9 +173,6 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
     @Inject
-    lateinit var demoModeManager: DemoModeManager
-
-    @Inject
     lateinit var userManager: UserManager
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
@@ -238,10 +234,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
-            userManager = userManager,
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.poiList?.value == null },
             getHideText = {

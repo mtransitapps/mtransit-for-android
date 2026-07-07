@@ -24,7 +24,6 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.getQuantityText
 import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.getSizeDimension
 import org.mtransit.android.user.UserManager
@@ -33,10 +32,7 @@ import kotlin.random.Random
 class DefaultPOIListFooterManager(
     private val adManager: IAdManager,
     private val analyticsManager: IAnalyticsManager,
-    private val demoModeManager: DemoModeManager,
-    private val billingManager: IBillingManager,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val userManager: UserManager,
     private val getFragment: () -> ABFragment?,
     private val getShowLoading: () -> Boolean,
     private val getHideText: () -> Boolean, // additional condition do hide text
@@ -126,9 +122,7 @@ class DefaultPOIListFooterManager(
     override val isShowText: Boolean
         get() {
             return (dataSourcesRepository.hasAgenciesEnabled()
-                    && userManager.newUser.value != true
-                    && billingManager.hasSubscription.value != true
-                    && !demoModeManager.isFullDemo()
+                    && adManager.canShowAds() != false
                     && !getHideText())
         }
 

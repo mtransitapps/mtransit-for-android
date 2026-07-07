@@ -199,6 +199,11 @@ class UserManager @Inject constructor(
         DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT
     )
 
+    suspend fun increateRewardedLoadCounts() = withContext(Dispatchers.IO) {
+        val rewardedLoadCounts = getRewardedLoadCounts()
+        setRewardedLoadCounts(rewardedLoadCounts + 1)
+    }
+
     suspend fun setRewardedLoadCounts(rewardedLoadCounts: Int) = withContext(Dispatchers.IO) {
         defaultPrefRepository.pref.edit {
             putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, rewardedLoadCounts)
@@ -233,6 +238,18 @@ class UserManager @Inject constructor(
     @Discouraged("use suspend function")
     fun setRewardedShowCountsNow(rewardedShowCounts: Int) = defaultPrefRepository.pref.edit {
         putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, rewardedShowCounts)
+    }
+
+    @Suppress("unused")
+    suspend fun increaseRewadedShowCounts() = withContext(Dispatchers.IO) {
+        val rewardedShowCounts = getRewardedShowCounts()
+        setRewardedShowCounts(rewardedShowCounts + 1)
+    }
+
+    @Discouraged("use suspend function")
+    fun increaseRewadedShowCountsNow() {
+        //noinspection DiscouragedApi
+        setRewardedShowCountsNow(getRewardedShowCountsNow() + 1)
     }
 
     // endregion
