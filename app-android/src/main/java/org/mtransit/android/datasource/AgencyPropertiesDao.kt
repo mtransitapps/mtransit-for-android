@@ -5,9 +5,9 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import org.mtransit.android.common.repository.BaseDao
+import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
-import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.commons.sql.SQLUtils.BOOLEAN_FALSE
 import org.mtransit.commons.sql.SQLUtils.BOOLEAN_TRUE
 
@@ -69,4 +69,7 @@ interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
 
     @Query("SELECT color_int FROM agency_properties WHERE id = :authority")
     suspend fun getAgencyColorInt(authority: String): Int?
+
+    @Query("UPDATE agency_properties SET setup_required = :setupRequired WHERE id = :authority")
+    suspend fun updateAgencySetupRequired(authority: String, setupRequired: Boolean)
 }

@@ -23,6 +23,7 @@ import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocat
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.JPaths
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
@@ -39,6 +40,8 @@ import javax.inject.Singleton
 class DataSourceRequestManager(
     private val appContext: Context,
     private val keysManager: KeysManager,
+    private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
+    private val dataSourcesDatabase: DataSourcesDatabase,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {
 
@@ -46,9 +49,13 @@ class DataSourceRequestManager(
     constructor(
         @ApplicationContext appContext: Context,
         keysManager: KeysManager,
+        dataSourcesInMemoryCache: DataSourcesInMemoryCache,
+        dataSourcesDatabase: DataSourcesDatabase,
     ) : this(
         appContext,
         keysManager,
+        dataSourcesInMemoryCache,
+        dataSourcesDatabase,
         Dispatchers.IO,
     )
 
@@ -58,76 +65,20 @@ class DataSourceRequestManager(
 
     override fun getLogTag() = LOG_TAG
 
+    // region agency
+
+    suspend fun ping(agency: IAgencyProperties) = ping(agency.authority)
     suspend fun ping(agencyAuthority: String) = withContext(ioDispatcher) {
         DataSourceManager.ping(appContext, agencyAuthority)
     }
 
-    // region POI
-
-    suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = findPOIM(authority, poiFilter)?.poi
-
-    suspend fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? = withContext(ioDispatcher) {
-        DataSourceManager.findPOIM(appContext, authority, poiFilter)
-    }
-
-    @Suppress("unused")
-    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI> = findPOIMs(authority, poiFilter).map { it.poi }
-
-    suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager> = withContext(ioDispatcher) {
-        DataSourceManager.findPOIMs(appContext, authority, poiFilter)
-    }
-
-    // endregion POI
-
-    suspend fun findAgencyAvailableVersionCode(authority: String, forceAppUpdateRefresh: Boolean = false, inFocus: Boolean = false): Int? =
+    suspend fun findAgencyAvailableVersionCode(agency: IAgencyProperties, forceAppUpdateRefresh: Boolean = false, inFocus: Boolean = false): Int? =
         withContext(ioDispatcher) {
-            DataSourceManager.findAgencyAvailableVersionCode(appContext, authority, forceAppUpdateRefresh, inFocus)
+            DataSourceManager.findAgencyAvailableVersionCode(appContext, agency.authority, forceAppUpdateRefresh, inFocus)
         }
 
-    suspend fun findAgencyRDSRouteLogo(agencyAuthority: String): JPaths? = withContext(ioDispatcher) {
-        DataSourceManager.findAgencyRDSRouteLogo(appContext, agencyAuthority)
-    }
-
-    suspend fun findAllRDSAgencyRoutes(agencyAuthority: String): List<Route> = withContext(ioDispatcher) {
-        DataSourceManager.findAllRDSAgencyRoutes(appContext, agencyAuthority)
-    }
-
-    suspend fun findRDSRoute(agencyAuthority: String, routeId: Long): Route? = withContext(ioDispatcher) {
-        DataSourceManager.findRDSRoute(appContext, agencyAuthority, routeId)
-    }
-
-    suspend fun findRDSDirection(agencyAuthority: String, directionId: Long): Direction? = withContext(ioDispatcher) {
-        DataSourceManager.findRDSDirection(appContext, agencyAuthority, directionId)
-    }
-
-    @Suppress("unused")
-    @Discouraged(message = "providers read trip IDs directly")
-    suspend fun findRDSTrips(agencyAuthority: String, routeId: Long, directionId: Long? = null): List<Trip>? = withContext(ioDispatcher) {
-        if (!FeatureFlags.F_EXPORT_TRIP_ID) return@withContext null
-        //noinspection DiscouragedApi
-        DataSourceManager.findRDSTrips(appContext, agencyAuthority, routeId, directionId)
-    }
-
-    suspend fun findRDSVehicleLocations(
-        vehicleLocationProviderProperties: VehicleLocationProviderProperties,
-        filter: VehicleLocationProviderContract.Filter
-    ): List<VehicleLocation>? = withContext(ioDispatcher) {
-        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@withContext null
-        DataSourceManager.findVehicleLocations(
-            appContext,
-            vehicleLocationProviderProperties.authority,
-            filter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))),
-        )
-    }
-
-    suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {
-        DataSourceManager.findRDSRouteDirections(appContext, agencyAuthority, routeId)
-    }
-
-    suspend fun findAgencySetupRequired(
-        agencyAuthority: String
-    ): Boolean? = withContext(ioDispatcher) {
-        DataSourceManager.findAgencySetupRequired(appContext, agencyAuthority)
+    suspend fun findAgencySetupRequired(agencyProperties: IAgencyProperties): Boolean? = withContext(ioDispatcher) {
+        DataSourceManager.findAgencySetupRequired(appContext, agencyProperties.authority)
     }
 
     suspend fun findAgencyProperties(
@@ -142,6 +93,77 @@ class DataSourceRequestManager(
     ): AgencyProperties? = withContext(ioDispatcher) {
         DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, isRDS, logo, pkg, longVersionCode, enabled, trigger)
     }
+
+    /**
+     * ensure agency setup required is false after returning data to avoid useless "Preparing schedule for..." in next Splash screen
+     */
+    private suspend fun ensureAgencyNotSetupRequired(agencyAuthority: String) = withContext(Dispatchers.IO) {
+        dataSourcesInMemoryCache.getAgency(agencyAuthority)
+            ?.takeIf { it.setupRequired }
+            ?: return@withContext
+        dataSourcesDatabase.agencyPropertiesDao().updateAgencySetupRequired(authority = agencyAuthority, setupRequired = false)
+        MTLog.d(this@DataSourceRequestManager, "Agency '${agencyAuthority}' > new setup required: false.")
+    }
+
+    // end region
+
+    // region POI
+
+    suspend fun findPOI(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POI? = findPOIM(agency, poiFilter)?.poi
+
+    suspend fun findPOIM(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POIManager? = withContext(ioDispatcher) {
+        DataSourceManager.findPOIM(appContext, agency.authority, poiFilter)
+            .also { ensureAgencyNotSetupRequired(agency.authority) }
+    }
+
+    @Suppress("unused")
+    suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI> = findPOIMs(agency, poiFilter).map { it.poi }
+
+    suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager> = withContext(ioDispatcher) {
+        DataSourceManager.findPOIMs(appContext, agency.authority, poiFilter)
+            .also { ensureAgencyNotSetupRequired(agency.authority) }
+    }
+
+    // endregion POI
+
+    // region POI - RDS
+
+    suspend fun findAgencyRDSRouteLogo(agencyAuthority: String): JPaths? = withContext(ioDispatcher) {
+        DataSourceManager.findAgencyRDSRouteLogo(appContext, agencyAuthority)
+    }
+
+    suspend fun findAllRDSAgencyRoutes(agencyAuthority: String): List<Route> = withContext(ioDispatcher) {
+        DataSourceManager.findAllRDSAgencyRoutes(appContext, agencyAuthority)
+            .also { ensureAgencyNotSetupRequired(agencyAuthority) }
+    }
+
+    suspend fun findRDSRoute(agencyAuthority: String, routeId: Long): Route? = withContext(ioDispatcher) {
+        DataSourceManager.findRDSRoute(appContext, agencyAuthority, routeId)
+            .also { ensureAgencyNotSetupRequired(agencyAuthority) }
+    }
+
+    suspend fun findRDSDirection(agencyAuthority: String, directionId: Long): Direction? = withContext(ioDispatcher) {
+        DataSourceManager.findRDSDirection(appContext, agencyAuthority, directionId)
+            .also { ensureAgencyNotSetupRequired(agencyAuthority) }
+    }
+
+    @Suppress("unused")
+    @Discouraged(message = "providers read trip IDs directly")
+    suspend fun findRDSTrips(agencyAuthority: String, routeId: Long, directionId: Long? = null): List<Trip>? = withContext(ioDispatcher) {
+        if (!FeatureFlags.F_EXPORT_TRIP_ID) return@withContext null
+        //noinspection DiscouragedApi
+        DataSourceManager.findRDSTrips(appContext, agencyAuthority, routeId, directionId)
+            .also { ensureAgencyNotSetupRequired(agencyAuthority) }
+    }
+
+    suspend fun findRDSRouteDirections(agencyAuthority: String, routeId: Long): List<Direction>? = withContext(ioDispatcher) {
+        DataSourceManager.findRDSRouteDirections(appContext, agencyAuthority, routeId)
+            .also { ensureAgencyNotSetupRequired(agencyAuthority) }
+    }
+
+    // endregion
+
+    // region service update
 
     @Suppress("unused")
     suspend fun findServiceUpdates(
@@ -164,6 +186,10 @@ class DataSourceRequestManager(
             serviceUpdateFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(serviceUpdateProvider.authority))),
         )
 
+    // endregion
+
+    // region status
+
     suspend fun findStatus(statusProvider: StatusProviderProperties, statusFilter: StatusProviderContract.Filter) = withContext(ioDispatcher) {
         DataSourceManager.findStatus(
             appContext,
@@ -181,9 +207,33 @@ class DataSourceRequestManager(
             statusFilter.copyWithProvidedEncryptKeysMap(toProvidedKeys(keysManager.getKeysMap(statusProvider.authority))),
         )
 
+    // endregion
+
+    // region status - [full] schedule
+
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
         DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)
     }
+
+    // endregion
+
+    // region vehicle
+
+    suspend fun findRDSVehicleLocations(
+        vehicleLocationProviderProperties: VehicleLocationProviderProperties,
+        filter: VehicleLocationProviderContract.Filter
+    ): List<VehicleLocation>? = withContext(ioDispatcher) {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@withContext null
+        DataSourceManager.findVehicleLocations(
+            appContext,
+            vehicleLocationProviderProperties.authority,
+            filter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(vehicleLocationProviderProperties.authority))),
+        )
+    }
+
+    // endregion
+
+    // region news
 
     suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter) = withContext(ioDispatcher) {
         DataSourceManager.findNews(
@@ -192,4 +242,6 @@ class DataSourceRequestManager(
             newsFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(newsProvider.authority))),
         )
     }
+
+    // endregion
 }
