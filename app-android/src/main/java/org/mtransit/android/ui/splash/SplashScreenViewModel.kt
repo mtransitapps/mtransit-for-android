@@ -259,7 +259,7 @@ class SplashScreenViewModel @Inject constructor(
                 newAppOpenFirst = TimeUtilsK.currentInstant()
             }
             if (appOpenCounts > 33) {
-                newAppOpenFirst = null // never reset app open first with so many app opens
+                newAppOpenFirst = null // never set app open first with so many app opens
             }
         }
         val newUser = appOpenFirst?.let { firstAppOpen ->

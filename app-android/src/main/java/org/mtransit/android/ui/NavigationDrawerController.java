@@ -188,6 +188,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		});
 		this.userManager.getNewUser().observe(mainActivity, newUser -> {
 			this.newUser = newUser;
+			setVisibleMenuItems();
+			onMenuUpdated();
 		});
 	}
 

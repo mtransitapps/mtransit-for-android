@@ -122,7 +122,7 @@ class DefaultPOIListFooterManager(
     override val isShowText: Boolean
         get() {
             return (dataSourcesRepository.hasAgenciesEnabled()
-                    && adManager.canShowAds() != false
+                    && adManager.canShowAds() == true
                     && !getHideText())
         }
 
