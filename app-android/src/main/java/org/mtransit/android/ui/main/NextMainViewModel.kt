@@ -13,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
@@ -22,13 +21,14 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.user.UserManager
 import javax.inject.Inject
 
 @HiltViewModel
 class NextMainViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
-    private val defaultPrefRepository: DefaultPreferenceRepository,
+    private val userManager: UserManager,
     private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {
 
@@ -92,21 +92,18 @@ class NextMainViewModel @Inject constructor(
         }
     }
 
-    private val _hasAgenciesAdded: LiveData<Boolean> = this.dataSourcesRepository.readingHasAgenciesAdded()
-
-    private val _userLearnedDrawer: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT
-    ).distinctUntilChanged()
-
-    val showDrawerLearning: LiveData<Boolean> = MediatorLiveData2(_hasAgenciesAdded, _userLearnedDrawer).map { (hasAgenciesAdded, userLearnedDrawer) ->
+    val showDrawerLearning: LiveData<Boolean> = MediatorLiveData2(
+        this.dataSourcesRepository.readingHasAgenciesAdded(),
+        this.userManager.userLearnedDrawer.distinctUntilChanged(),
+    ).map { (hasAgenciesAdded, userLearnedDrawer) ->
         if (demoModeManager.isFullDemo()) return@map false
         hasAgenciesAdded == true && userLearnedDrawer == false
     }
 
     fun setUserLearnedDrawer(learned: Boolean) {
         if (demoModeManager.isFullDemo()) return
-        defaultPrefRepository.pref.edit {
-            putBoolean(DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, learned)
+        viewModelScope.launch {
+            userManager.setUserLearnedDrawer(learned)
         }
     }
 

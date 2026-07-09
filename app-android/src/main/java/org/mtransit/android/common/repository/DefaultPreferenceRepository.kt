@@ -25,11 +25,17 @@ class DefaultPreferenceRepository @Inject constructor(
         const val PREF_USER_APP_OPEN_COUNTS = "pAppOpenCounts"
         const val PREF_USER_APP_OPEN_COUNTS_DEFAULT = 0
 
+        const val PREF_USER_APP_OPEN_FIRST = "pAppOpenFirst"
+        const val PREF_USER_APP_OPEN_FIRST_DEFAULT = 0L
+
         const val PREF_USER_APP_OPEN_LAST = "pAppOpenLast"
         const val PREF_USER_APP_OPEN_LAST_DEFAULT = 0L
 
         const val PREF_USER_DAILY = "pDailyUser"
         const val PREF_USER_DAILY_DEFAULT = false
+
+        const val PREF_USER_NEW = "pNewUser"
+        const val PREF_USER_NEW_DEFAULT = false
 
         const val PREF_USER_REWARDED_UNTIL = "pRewardedUtil"
         const val PREF_USER_REWARDED_UNTIL_DEFAULT = 0L

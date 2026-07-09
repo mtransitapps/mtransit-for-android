@@ -3,7 +3,6 @@ package org.mtransit.android.ad.rewarded
 // import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd #gmaNextGen
 import android.content.Context
 import androidx.annotation.StringRes
-import androidx.core.content.edit
 import com.google.android.gms.ads.rewarded.RewardedAd
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -14,11 +13,11 @@ import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdManager.RewardedAdListener
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.user.UserManager
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -28,7 +27,7 @@ import javax.inject.Singleton
 class RewardedAdManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val globalAdManager: GlobalAdManager,
-    private val defaultPrefRepository: DefaultPreferenceRepository,
+    private val userManager: UserManager,
     private val demoModeManager: DemoModeManager,
     private val crashReporter: CrashReporter,
 ) : MTLog.Loggable {
@@ -90,12 +89,7 @@ class RewardedAdManager @Inject constructor(
             ),
             RewardedAdLoadCallback(this@RewardedAdManager, crashReporter, activityHashCode)
         )
-        withContext(Dispatchers.IO) {
-            val loadCounts = defaultPrefRepository.pref.getInt(
-                DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT
-            )
-            defaultPrefRepository.pref.edit { putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, loadCounts + 1) }
-        }
+        userManager.increaseRewardedLoadCounts()
     }
 
     internal fun onRewardedAdLoadingComplete(rewardedAd: RewardedAd?, activityHashCode: Int) {
@@ -170,10 +164,8 @@ class RewardedAdManager @Inject constructor(
         // this.rewardedAd?.adEventCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity) #gmaNextGen
         this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
-        val showCounts = this.defaultPrefRepository.pref.getInt(
-            DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS_DEFAULT
-        )
-        this.defaultPrefRepository.pref.edit { putInt(DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, showCounts + 1) }
+        //noinspection DiscouragedApi
+        this.userManager.increaseRewardedShowCountsNow()
         return true
     }
 }

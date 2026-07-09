@@ -22,7 +22,6 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsEvents
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocationUtils
@@ -49,6 +48,7 @@ import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
@@ -63,7 +63,7 @@ class NearbyViewModel @Inject constructor(
     private val networkLocationRepository: NetworkLocationRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
-    private val defaultPrefRepository: DefaultPreferenceRepository,
+    private val userPrefManager: UserPrefManager,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
     private val pm: PackageManager,
@@ -170,13 +170,9 @@ class NearbyViewModel @Inject constructor(
         it != null
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-    ).distinctUntilChanged()
+    val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 
-    private val _distanceUnitsPref = this.defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
-    ).distinctUntilChanged()
+    private val _distanceUnitsPref = this.userPrefManager.distanceUnits.distinctUntilChanged()
 
     private val _locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {

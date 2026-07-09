@@ -23,14 +23,12 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
@@ -60,6 +58,7 @@ import org.mtransit.android.ui.location.UILocationUtils.getLocationString
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.GTFSCommons
 import org.mtransit.commons.addAllN
@@ -74,7 +73,7 @@ class HomeViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
-    private val defaultPrefRepository: DefaultPreferenceRepository,
+    userPrefManager: UserPrefManager,
     private val locationPermissionProvider: LocationPermissionProvider,
     private val locationProvider: MTLocationProvider,
     private val networkLocationRepository: NetworkLocationRepository,
@@ -161,9 +160,7 @@ class HomeViewModel @Inject constructor(
         it != null
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    private val _distanceUnitsPref = this.defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
-    ).distinctUntilChanged()
+    private val _distanceUnitsPref = userPrefManager.distanceUnits.distinctUntilChanged()
 
     private val _locationAddress: LiveData<Address> = _nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
@@ -393,11 +390,11 @@ class HomeViewModel @Inject constructor(
             LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
         )
         val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
-                extras = SimpleArrayMap<String, Any>().apply {
-                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                    put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
-                },
-            )
+            extras = SimpleArrayMap<String, Any>().apply {
+                put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+                put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
+            },
+        )
         typeAgencies
             .filter { Area.areOverlapping(it.area, area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->

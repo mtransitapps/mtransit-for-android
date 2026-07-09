@@ -45,14 +45,14 @@ class SetupBannerAdTask(
     @WorkerThread
     override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean {
         if (!AdConstants.AD_ENABLED) return false
-        return this.globalAdManager.isShowingAds() // TODO can be called from any thread
+        return this.globalAdManager.adsAllowed() // TODO can be called from any thread
     }
 
     @MainThread
     override fun onPostExecuteNotCancelledMT(result: Boolean?) {
         val activity = this.activityWR.get() ?: return
-        val isShowingAds = result == true
-        if (isShowingAds && !isCancelled) { // show ads
+        val adsAllowed = result == true
+        if (adsAllowed && !isCancelled) { // show ads
             this.bannerAdManager.getAdLayout(activity)?.let { adLayout ->
                 val adView = this.bannerAdManager.getAdView(adLayout)
                     ?: makeNewAdView(activity, adLayout)
@@ -66,7 +66,7 @@ class SetupBannerAdTask(
                     // adLoadCallback = BannerAdListener(bannerAdManager, crashReporter, activity) #gmaNextGen
                 )
             }
-        } else if (!isShowingAds) { // hide ads
+        } else if (!adsAllowed) { // hide ads
             this.bannerAdManager.hideBannerAd(activity)
         }
     }

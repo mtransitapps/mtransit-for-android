@@ -21,7 +21,6 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.Direction
@@ -36,7 +35,6 @@ import org.mtransit.android.data.RouteDirectionManager
 import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -63,6 +61,8 @@ import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Compa
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
+import org.mtransit.android.user.UserManager
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
@@ -143,7 +143,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
@@ -173,7 +173,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
     @Inject
-    lateinit var demoModeManager: DemoModeManager
+    lateinit var userManager: UserManager
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
@@ -234,8 +234,6 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.poiList?.value == null },
@@ -262,7 +260,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
+            this.userPrefManager,
             this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,
@@ -450,7 +448,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             switchView()
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository, userManager) {
             this.listAdapter.notifyDataSetChanged(false)
         }
     }

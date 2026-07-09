@@ -9,7 +9,6 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
@@ -65,8 +64,6 @@ internal fun POIFragment.makePoiListFooterManager() =
     DefaultPOIListFooterManager(
         adManager = adManager,
         analyticsManager = analyticsManager,
-        demoModeManager = demoModeManager,
-        billingManager = billingManager,
         dataSourcesRepository = dataSourcesRepository,
         getFragment = { this },
         getShowLoading = { attachedViewModel?.nearbyPOIs?.value == null },
@@ -284,12 +281,8 @@ fun POIFragment.onMapClick(): Boolean {
                         poim.poi.authority,
                     )
                 }
-                this.defaultPrefRepository.pref.edit {
-                    putBoolean(
-                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
-                        false, // show map
-                    )
-                }
+                //noinspection DiscouragedApi
+                this.userPrefManager.setAgencyPOIsShowingMapNow(poim.poi.authority)
                 navController.navigateF(
                     R.id.nav_to_type_screen,
                     AgencyTypeFragment.newInstanceArgs(poim.poi, this.mapViewController.cameraPosition),
@@ -316,12 +309,8 @@ fun POIFragment.onMapClick(): Boolean {
                         poim.poi.authority,
                     )
                 }
-                this.defaultPrefRepository.pref.edit {
-                    putBoolean(
-                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(poim.poi.authority),
-                        false, // show map
-                    )
-                }
+                //noinspection DiscouragedApi
+                this.userPrefManager.setAgencyPOIsShowingMapNow(poim.poi.authority)
                 mainActivity.addFragmentToStack(
                     AgencyTypeFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),
                     this,

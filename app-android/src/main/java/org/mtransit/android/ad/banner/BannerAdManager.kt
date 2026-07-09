@@ -87,13 +87,13 @@ class BannerAdManager @Inject constructor(
     @MainThread
     fun refreshBannerAdStatus(activity: IAdScreenActivity, force: Boolean = false) {
         logAdsD(this, "refreshBannerAdStatus($force)")
-        if (this.globalAdManager.isShowingAds() // showing ads across the app
+        if (this.globalAdManager.adsAllowed() // ads allowed across the app
             && activity.currentAdFragment?.hasAds() == false // this specific screen doesn't include ads already
         ) {
             if (this.adBannerLoaded != true || force) { // IF ad was not loaded DO
                 setupBannerAd(activity, force)
             }
-        } else { // ELSE IF not showing ads DO
+        } else { // ELSE IF ads NOT allowed DO
             if (this.adBannerLoaded == true) { // IF ad was loaded DO
                 hideBannerAd(activity)
                 pauseAd(activity)
@@ -104,7 +104,7 @@ class BannerAdManager @Inject constructor(
     @MainThread
     fun adaptToScreenSize(activity: IAdScreenActivity, configuration: Configuration? = activity.context?.resources?.configuration) {
         if (!AdConstants.AD_ENABLED) return
-        if (!this.globalAdManager.isShowingAds()) return
+        if (!this.globalAdManager.adsAllowed()) return
         if (activity.currentAdFragment?.hasAds() == true) return
         if (isEnoughSpaceForBanner(configuration)) {
             if (this.adBannerLoaded == true) {
@@ -133,8 +133,8 @@ class BannerAdManager @Inject constructor(
             logAdsD(this, "setupAd() > SKIP (AD not enabled) --------------------")
             return
         }
-        if (!this.globalAdManager.isShowingAds()) {
-            logAdsD(this, "setupAd() > SKIP (not showing ads) --------------------")
+        if (!this.globalAdManager.adsAllowed()) {
+            logAdsD(this, "setupAd() > SKIP (ads not allowed) --------------------")
             return
         }
         if (force
@@ -232,7 +232,7 @@ class BannerAdManager @Inject constructor(
     @MainThread
     fun getBannerHeightInPx(activity: IAdScreenActivity?): Int {
         if (this.adBannerLoaded != true) return 0 // ad not loaded
-        if (!this.globalAdManager.isShowingAds()) return 0 // not showing ads (0 agency installed, paying user...)
+        if (!this.globalAdManager.adsAllowed()) return 0 // ads not allowed (0 agency installed, paying user...)
         if (activity == null) return 0 // can't measure w/o context
         val adSize = getAdSize(activity)
         return adSize.getHeightInPixels(activity.requireContext())

@@ -12,12 +12,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.toRouteDirectionM
@@ -31,12 +29,13 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 
 @HiltViewModel
 class ServiceUpdatesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    defaultPrefRepository: DefaultPreferenceRepository,
+    userPrefManager: UserPrefManager,
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
@@ -121,7 +120,5 @@ class ServiceUpdatesViewModel @Inject constructor(
         }
     }
 
-    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-    ).distinctUntilChanged()
+    val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 }

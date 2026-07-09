@@ -14,7 +14,6 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
@@ -25,7 +24,6 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -48,6 +46,8 @@ import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
 import org.mtransit.android.ui.view.map.MTPOIMarker
+import org.mtransit.android.user.UserManager
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
 
@@ -112,7 +112,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
@@ -139,10 +139,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var billingManager: IBillingManager
 
     @Inject
-    lateinit var demoModeManager: DemoModeManager
+    lateinit var locationPermissionProvider: LocationPermissionProvider
 
     @Inject
-    lateinit var locationPermissionProvider: LocationPermissionProvider
+    lateinit var userManager: UserManager
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
@@ -202,8 +202,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.poiList?.value == null },
@@ -230,7 +228,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
+            this.userPrefManager,
             this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,
@@ -338,7 +336,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository, userManager) {
             this.listAdapter.notifyDataSetChanged(false)
         }
         viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedMapCameraPosition ->

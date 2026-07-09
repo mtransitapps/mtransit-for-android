@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.type.poi
 
-import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -13,9 +12,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
+import kotlinx.coroutines.launch
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.POIManager
@@ -24,6 +22,7 @@ import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +30,7 @@ class AgencyPOIsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
-    private val defaultPrefRepository: DefaultPreferenceRepository,
+    private val userPrefManager: UserPrefManager,
     private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {
 
@@ -56,8 +55,8 @@ class AgencyPOIsViewModel @Inject constructor(
     private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)
     private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct<Float?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)
 
-    val selectedMapCameraPosition =
-        MediatorLiveData3(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom).map { (lat, lng, zoom) ->
+    val selectedMapCameraPosition = MediatorLiveData3(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom)
+        .map { (lat, lng, zoom) ->
             lat ?: return@map null
             lng ?: return@map null
             zoom ?: return@map null
@@ -96,30 +95,17 @@ class AgencyPOIsViewModel @Inject constructor(
                 return@liveData
             }
             emitSource(
-                defaultPrefRepository.pref.liveData(
-                    DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority),
-                    defaultPrefRepository.pref.getBoolean(
-                        DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
-                        DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
-                    )
-                )
+                userPrefManager.getAgencyPOIsShowingListInsteadOfMap(authority)
             )
         }
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
-        if (demoModeManager.isFullDemo()) {
-            return // SKIP (demo mode ON)
-        }
-        defaultPrefRepository.pref.edit {
-            putBoolean(DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET, showingListInsteadOfMap)
-            _authority.value?.let { authority ->
-                putBoolean(DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority), showingListInsteadOfMap)
-            }
+        if (demoModeManager.isFullDemo()) return // SKIP (demo mode ON)
+        viewModelScope.launch {
+            userPrefManager.setAgencyPOIsShowingListInsteadOfMapAndLastSet(_authority.value, showingListInsteadOfMap)
         }
     }
 
-    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-    ).distinctUntilChanged()
+    val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 }

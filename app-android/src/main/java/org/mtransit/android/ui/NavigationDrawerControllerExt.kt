@@ -1,18 +1,9 @@
 package org.mtransit.android.ui
 
 import android.view.MenuItem
-import androidx.core.content.edit
 import org.mtransit.android.R
 import org.mtransit.android.analytics.AnalyticsScreen
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
-
-internal fun NavigationDrawerController.setUserLearnedDrawer() {
-    if (this.demoModeManager.isFullDemo()) return
-    this.defaultPrefRepository.pref.edit {
-        putBoolean(DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, true)
-    }
-}
 
 private val NavigationDrawerController.currentAnalyticsScreen: AnalyticsScreen? get() = mainActivityWR.get()?.currentAnalyticsScreen
 

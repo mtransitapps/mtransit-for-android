@@ -38,11 +38,9 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
@@ -57,6 +55,8 @@ import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
 import org.mtransit.android.ui.view.common.start
 import org.mtransit.android.ui.view.common.startMargin
+import org.mtransit.android.user.UserManager
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.MapUtils
@@ -128,7 +128,10 @@ class MainActivity : MTActivityWithLocation(),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userManager: UserManager
+
+    @Inject
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
@@ -169,7 +172,7 @@ class MainActivity : MTActivityWithLocation(),
             this.crashReporter,
             this.analyticsManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
+            this.userManager,
             this.lclPrefRepository,
             this.statusLoader,
             this.consentManager,
@@ -190,9 +193,7 @@ class MainActivity : MTActivityWithLocation(),
             }
             this.abController?.onHasAgenciesEnabledUpdated(hasAgenciesEnabled)
         }
-        this.defaultPrefRepository.pref.liveData(
-            DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-        ).distinctUntilChanged().observe(this) {
+        this.userPrefManager.useInternalWebBrowser.distinctUntilChanged().observe(this) {
             this.navigationDrawerController?.onUseInternalWebBrowserPrefChanged(it)
         }
         this.dataSourcesRepository.readingHasAgenciesAdded().observe(this) { hasAgenciesAdded: Boolean? ->

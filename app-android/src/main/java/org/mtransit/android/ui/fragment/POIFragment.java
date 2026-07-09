@@ -61,7 +61,6 @@ import org.mtransit.android.analytics.AnalyticsScreen;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.common.IContext;
-import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.Constants;
@@ -121,6 +120,8 @@ import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
+import org.mtransit.android.user.UserManager;
+import org.mtransit.android.user.UserPrefManager;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
@@ -229,6 +230,8 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	DataSourcesRepository dataSourcesRepository;
 	@Inject
+	UserManager userManager;
+	@Inject
 	POIRepository poiRepository;
 	@Inject
 	IAnalyticsManager analyticsManager;
@@ -239,7 +242,7 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	DemoModeManager demoModeManager;
 	@Inject
-	DefaultPreferenceRepository defaultPrefRepository;
+	UserPrefManager userPrefManager;
 	@Inject
 	LocalPreferenceRepository lclPrefRepository;
 	@Inject
@@ -574,7 +577,7 @@ public class POIFragment extends ABFragment implements
 		}
 		this.adManager.getRewardedUntilLive().observe(getViewLifecycleOwner(), rewardedUntil -> refreshRewardedLayout());
 		this.adManager.getRewardedNowLive().observe(getViewLifecycleOwner(), rewardedNow -> refreshRewardedLayout());
-		DefaultPOIListFooterManager.observe(getViewLifecycleOwner(), viewModel.getNearbyPOIs(), this.billingManager, this.dataSourcesRepository, () -> {
+		DefaultPOIListFooterManager.observe(getViewLifecycleOwner(), viewModel.getNearbyPOIs(), billingManager, dataSourcesRepository, userManager, () -> {
 			updateFooter(this);
 			return kotlin.Unit.INSTANCE;
 		});
@@ -712,7 +715,7 @@ public class POIFragment extends ABFragment implements
 				activity,
 				this.sensorManager,
 				this.dataSourcesRepository,
-				this.defaultPrefRepository,
+				this.userPrefManager,
 				this.lclPrefRepository,
 				this.poiRepository,
 				this.favoriteRepository,
@@ -1416,10 +1419,8 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public boolean isShowingAccessibilityInfo() {
 		if (this.showingAccessibilityInfo == null) {
-			this.showingAccessibilityInfo = this.defaultPrefRepository.getPref().getBoolean(
-					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY,
-					DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
-			);
+			//noinspection DiscouragedApi
+			this.showingAccessibilityInfo = this.userPrefManager.getShowAccessibilityNow();
 		}
 		return this.showingAccessibilityInfo;
 	}

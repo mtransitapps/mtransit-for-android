@@ -13,14 +13,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.hasRealTime
 import org.mtransit.android.commons.data.readFromSource
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
 import org.mtransit.android.commons.provider.status.findClosestTripTimestamp
 import org.mtransit.android.data.AgencyBaseProperties
@@ -35,6 +33,7 @@ import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.beginningOfDay
 import org.mtransit.commons.toCalendar
@@ -46,7 +45,7 @@ import kotlin.time.Instant
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    defaultPrefRepository: DefaultPreferenceRepository,
+    userPrefManager: UserPrefManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val poiRepository: POIRepository,
@@ -206,9 +205,7 @@ class ScheduleViewModel @Inject constructor(
         return emptyList() // loaded (not loading) == no service today
     }
 
-    val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
-    ).distinctUntilChanged()
+    val showAccessibility: LiveData<Boolean> = userPrefManager.showAccessibility.distinctUntilChanged()
 
     private val _statusProviders = this.authority
         .switchMap { authority ->

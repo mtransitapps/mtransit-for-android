@@ -21,7 +21,6 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.POIArrayAdapter
@@ -57,6 +56,8 @@ import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.user.UserManager
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
@@ -99,7 +100,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
@@ -128,6 +129,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     @Inject
     lateinit var billingManager: IBillingManager
 
+    @Inject
+    lateinit var userManager: UserManager
+
     private var mapMenuItem: MenuItem? = null
 
     private var binding: FragmentHomeBinding? = null
@@ -136,8 +140,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
             getFragment = { this },
             getShowLoading = { attachedViewModel?.loadingPOIs?.value == true },
@@ -185,7 +187,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
+            this.userPrefManager,
             this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,
@@ -239,7 +241,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             setupScreenToolbar(screenToolbarLayout)
         }
         listAdapter.onCreateView(viewLifecycleOwner)
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository, userManager) {
             listAdapter.notifyDataSetChanged(false)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {

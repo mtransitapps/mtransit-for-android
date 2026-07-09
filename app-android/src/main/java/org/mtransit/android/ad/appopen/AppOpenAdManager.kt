@@ -3,7 +3,6 @@ package org.mtransit.android.ad.appopen
 import android.content.Context
 import androidx.annotation.MainThread
 import androidx.annotation.StringRes
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -57,8 +56,8 @@ class AppOpenAdManager @Inject constructor(
     @MainThread
     fun loadAd(): Boolean {
         if (!AdConstants.AD_ENABLED) return false
-        if (!globalAdManager.isShowingAds()) {
-            logAdsD(LOG_TAG, "loadAd() > SKIP (not showing ads).")
+        if (!globalAdManager.adsAllowed()) {
+            logAdsD(LOG_TAG, "loadAd() > SKIP (ads not allowed).")
             return false
         }
         if (isLoadingAd.get()) {
@@ -117,7 +116,7 @@ class AppOpenAdManager @Inject constructor(
         if (!AdConstants.AD_ENABLED) return false
         return appOpenAd != null
                 && !isShowingAd
-                && globalAdManager.isShowingAds()
+                && globalAdManager.adsAllowed()
                 && (TimeUtilsK.currentInstant() < loadTimeK + 4.hours)
     }
 }

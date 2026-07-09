@@ -24,7 +24,6 @@ import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.FragmentRdsAgencyRoutesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
@@ -39,6 +38,7 @@ import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
+import org.mtransit.android.user.UserManager
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -86,10 +86,10 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
     lateinit var billingManager: IBillingManager
 
     @Inject
-    lateinit var demoModeManager: DemoModeManager
+    lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var dataSourcesRepository: DataSourcesRepository
+    lateinit var userManager: UserManager
 
     private var binding: FragmentRdsAgencyRoutesBinding? = null
 
@@ -105,8 +105,6 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
             getFragment = { parentFragment as? ABFragment },
             getShowLoading = { attachedViewModel?.routesM?.value == null },
@@ -281,7 +279,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         viewModel.serviceUpdateLoadedEvent.observeEvent(viewLifecycleOwner) { _ ->
             listGridAdapter?.onServiceUpdatesLoaded()
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.routesM, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.routesM, billingManager, dataSourcesRepository, userManager) {
             updateFooter()
         }
     }

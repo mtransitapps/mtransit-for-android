@@ -10,22 +10,21 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 
 @HiltViewModel
 class NewsDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    defaultPrefRepository: DefaultPreferenceRepository,
+    userPrefManager: UserPrefManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val newsRepository: NewsRepository,
 ) : ViewModel(), MTLog.Loggable {
@@ -75,7 +74,5 @@ class NewsDetailsViewModel @Inject constructor(
         )
     }
 
-    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-    ).distinctUntilChanged()
+    val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 }

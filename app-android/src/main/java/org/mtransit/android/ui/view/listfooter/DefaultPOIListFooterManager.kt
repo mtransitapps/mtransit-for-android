@@ -24,16 +24,14 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.getQuantityText
 import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.getSizeDimension
+import org.mtransit.android.user.UserManager
 import kotlin.random.Random
 
 class DefaultPOIListFooterManager(
     private val adManager: IAdManager,
     private val analyticsManager: IAnalyticsManager,
-    private val demoModeManager: DemoModeManager,
-    private val billingManager: IBillingManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val getFragment: () -> ABFragment?,
     private val getShowLoading: () -> Boolean,
@@ -58,6 +56,7 @@ class DefaultPOIListFooterManager(
             mainListLivedata: LiveData<*>,
             billingManager: IBillingManager,
             dataSourcesRepository: DataSourcesRepository,
+            userManager: UserManager,
             onChanged: () -> Unit,
         ) {
             mainListLivedata.observe(lifecycleOwner) {
@@ -67,6 +66,9 @@ class DefaultPOIListFooterManager(
                 onChanged()
             }
             dataSourcesRepository.readingHasAgenciesEnabled().observe(lifecycleOwner) {
+                onChanged()
+            }
+            userManager.newUser.observe(lifecycleOwner) {
                 onChanged()
             }
         }
@@ -120,8 +122,7 @@ class DefaultPOIListFooterManager(
     override val isShowText: Boolean
         get() {
             return (dataSourcesRepository.hasAgenciesEnabled()
-                    && billingManager.hasSubscription.value != true
-                    && !demoModeManager.isFullDemo()
+                    && adManager.canShowAds() == true
                     && !getHideText())
         }
 

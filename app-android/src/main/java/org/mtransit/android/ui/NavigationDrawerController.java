@@ -1,6 +1,5 @@
 package org.mtransit.android.ui;
 
-import static org.mtransit.android.ui.NavigationDrawerControllerExtKt.setUserLearnedDrawer;
 import static org.mtransit.android.ui.NavigationDrawerControllerExtKt.trackNavigationItemSelected;
 
 import android.annotation.SuppressLint;
@@ -39,7 +38,6 @@ import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.billing.BillingUtils;
 import org.mtransit.android.billing.IBillingManager;
-import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.Constants;
@@ -66,6 +64,7 @@ import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.pref.PreferencesActivity;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
+import org.mtransit.android.user.UserManager;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.SystemSettingManager;
@@ -109,7 +108,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 	@NonNull
-	protected final DefaultPreferenceRepository defaultPrefRepository;
+	protected final UserManager userManager;
 	@NonNull
 	private final LocalPreferenceRepository lclPrefRepository;
 	@NonNull
@@ -142,7 +141,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			@NonNull CrashReporter crashReporter,
 			@NonNull IAnalyticsManager analyticsManager,
 			@NonNull DataSourcesRepository dataSourcesRepository,
-			@NonNull DefaultPreferenceRepository defaultPrefRepository,
+			@NonNull UserManager userManager,
 			@NonNull LocalPreferenceRepository lclPrefRepository,
 			@NonNull StatusLoader statusLoader,
 			@NonNull AdsConsentManager consentManager,
@@ -154,7 +153,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 		this.crashReporter = crashReporter;
 		this.dataSourcesRepository = dataSourcesRepository;
-		this.defaultPrefRepository = defaultPrefRepository;
+		this.userManager = userManager;
 		this.lclPrefRepository = lclPrefRepository;
 		this.analyticsManager = analyticsManager;
 		this.statusLoader = statusLoader;
@@ -184,6 +183,11 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			ArrayList<NewsProviderProperties> newsProviderList = new ArrayList<>(newsProviderProperties);
 			CollectionUtils.removeIfNN(newsProviderList, dst -> !PackageManagerExtKt.isAppEnabled(this.packageManager, dst.getPkg()));
 			this.hasNewsProviderEnabled = !newsProviderList.isEmpty();
+			setVisibleMenuItems();
+			onMenuUpdated();
+		});
+		this.userManager.getNewUser().observe(mainActivity, newUser -> {
+			this.newUser = newUser;
 			setVisibleMenuItems();
 			onMenuUpdated();
 		});
@@ -262,10 +266,14 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				}
 			}
 			publishProgress(itemId);
+			//noinspection DiscouragedApi
 			final boolean hasUserLearnedDrawer = demoModeManager.isFullDemo() // never open drawer in demo mode
-					|| navigationDrawerController.defaultPrefRepository.getPref().getBoolean(
-					DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT);
+					|| navigationDrawerController.userManager.getUserLearnedDrawerNow();
 			final Boolean showDrawerLearning = navigationDrawerController.dataSourcesRepository.hasAgenciesEnabled() && !hasUserLearnedDrawer;
+			if (showDrawerLearning) {
+				//noinspection DiscouragedApi
+				navigationDrawerController.userManager.setUserLearnedDrawerNow(true);
+			}
 			return new Pair<>(itemId, showDrawerLearning);
 		}
 
@@ -281,7 +289,6 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			selectItemId(itemId);
 			if (Boolean.TRUE.equals(showDrawerLearning)) {
 				navigationDrawerController.openDrawer();
-				setUserLearnedDrawer(navigationDrawerController);
 			}
 		}
 
@@ -317,6 +324,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 
 	@Nullable
 	private List<DataSourceType> allAgencyTypes = null;
+
+	@Nullable
+	private Boolean newUser = null;
 
 	@Nullable
 	private List<DataSourceType> getAllAgencyTypes() {
@@ -358,6 +368,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		final boolean hasAgencyWithFaresWeb = Boolean.TRUE.equals(this.hasAgencyWithFaresWeb);
 		final boolean hasAgenciesAdded = Boolean.TRUE.equals(this.hasAgenciesAdded);
 		final boolean hasSubscriptions = Boolean.TRUE.equals(this.billingManager.getHasSubscription().getValue());
+		final boolean newUser = Boolean.TRUE.equals(this.newUser);
 		this.navigationView.getMenu().findItem(R.id.root_nav_map).setVisible(hasAgenciesAdded);
 		// TODO favorites? (favorite manager requires IO
 		final boolean hasNewsProviderEnabled = Boolean.TRUE.equals(this.hasNewsProviderEnabled);
@@ -380,8 +391,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				dstMenuItem.setVisible(true);
 			}
 		}
-		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgenciesAdded);
-		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgenciesAdded && !hasSubscriptions);
+		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgenciesAdded && !newUser);
+		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgenciesAdded && !hasSubscriptions && !newUser);
 		this.navigationView.getMenu().findItem(R.id.nav_fares).setVisible(hasAgencyWithFaresWeb);
 		this.navigationView.getMenu().findItem(R.id.nav_privacy_setting).setVisible(this.consentManager.isPrivacyOptionsRequired());
 	}

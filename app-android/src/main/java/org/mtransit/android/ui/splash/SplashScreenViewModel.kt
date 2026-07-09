@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.annotation.MainThread
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -24,13 +24,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_APP_OPEN_COUNTS
-import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_APP_OPEN_COUNTS_DEFAULT
-import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_APP_OPEN_LAST
-import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_APP_OPEN_LAST_DEFAULT
-import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_DAILY
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.millisToInstant
 import org.mtransit.android.commons.toMillis
@@ -44,12 +39,14 @@ import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.toEvent
+import org.mtransit.android.user.UserManager
 import org.mtransit.android.util.NightModeUtils
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 @SuppressLint("CustomSplashScreen")
 @HiltViewModel
@@ -58,7 +55,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 class SplashScreenViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
-    private val defaultPrefRepository: DefaultPreferenceRepository,
+    private val userManager: UserManager,
     private val analyticsManager: IAnalyticsManager,
     private val savedStateHandle: SavedStateHandle,
     private val demoModeManager: DemoModeManager,
@@ -245,18 +242,52 @@ class SplashScreenViewModel @Inject constructor(
         return false
     }
 
-    private suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
-        var appOpenCounts = defaultPrefRepository.pref.getInt(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
-        appOpenCounts++
-        var appOpenLast = defaultPrefRepository.pref.getLong(PREF_USER_APP_OPEN_LAST, PREF_USER_APP_OPEN_LAST_DEFAULT).millisToInstant()
-        val sevenDaysAgo = TimeUtilsK.currentInstant() - 7.days
-        val dailyUser = sevenDaysAgo < appOpenLast && appOpenCounts > 10 // opened in the last 7 days
-        appOpenLast = TimeUtilsK.currentInstant()
-        defaultPrefRepository.pref.edit {
-            putInt(PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
-            putLong(PREF_USER_APP_OPEN_LAST, appOpenLast.toMillis())
-            putBoolean(PREF_USER_DAILY, dailyUser)
+    @VisibleForTesting
+    internal suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
+        val appOpenCounts = userManager.getAppOpenCount()
+        val appOpenFirst = userManager.getAppOpenFirstOrNull()?.millisToInstant()
+        val appOpenLast = userManager.getAppOpenLastOrNull()?.millisToInstant()
+        val dailyUser = appOpenLast?.let {
+            val sevenDaysAgo = TimeUtilsK.currentInstant() - 7.days
+            sevenDaysAgo < it && appOpenCounts > 10 // opened in the last 7 days
+        } ?: false
+        var newAppOpenFirst: Instant? = null
+        if (appOpenFirst == null) {
+            if (appOpenCounts <= 0) {
+                newAppOpenFirst = TimeUtilsK.currentInstant()
+            } else if (appOpenLast == null) { // added a while ago, very likely first time
+                newAppOpenFirst = TimeUtilsK.currentInstant()
+            }
+            if (appOpenCounts > 33) {
+                newAppOpenFirst = null // never set app open first with so many app opens
+            }
         }
-        appOpenCounts
+        val newUser = appOpenFirst?.let { firstAppOpen ->
+            if (appOpenCounts >= 10) { // frequent user
+                if (TimeUtilsK.currentInstant() <= firstAppOpen + 5.days) {
+                    return@let true // frequent user but less than 5 days
+                }
+            } else { // casual user
+                if (TimeUtilsK.currentInstant() <= firstAppOpen + 10.days) {
+                    return@let true // casual user but less than 10 days
+                }
+            }
+            null
+        } ?: appOpenLast?.let {
+            if (it + 99.days < TimeUtilsK.currentInstant()  // a long time ago
+                && appOpenCounts < 33 // "few" app opens
+            ) {
+                return@let true // old user coming back with "few" app opens
+            }
+            null
+        } ?: (appOpenCounts <= 7) // probably new-ish user
+        userManager.set(
+            appOpenCounts = appOpenCounts + 1,
+            appOpenFirst = newAppOpenFirst?.toMillis(),
+            appOpenLast = TimeUtils.currentTimeMillis(),
+            dailyUser = dailyUser,
+            newUser = newUser,
+        )
+        appOpenCounts + 1
     }
 }

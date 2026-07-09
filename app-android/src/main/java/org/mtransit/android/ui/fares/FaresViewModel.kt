@@ -5,18 +5,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 
 @HiltViewModel
 class FaresViewModel @Inject constructor(
     dataSourcesRepository: DataSourcesRepository,
-    defaultPrefRepository: DefaultPreferenceRepository,
+    userPrefManager: UserPrefManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -27,9 +26,7 @@ class FaresViewModel @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    val useInternalWebBrowserPref: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-    ).distinctUntilChanged()
+    val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 
     private val _filteredAgencies = dataSourcesRepository.readingAllAgencies().map { agencies ->
         agencies

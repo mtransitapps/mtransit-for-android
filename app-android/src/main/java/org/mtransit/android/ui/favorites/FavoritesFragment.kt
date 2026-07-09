@@ -19,14 +19,12 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI.showAddFolderDialog
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -47,6 +45,8 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.user.UserManager
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -88,7 +88,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
@@ -112,10 +112,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
-    lateinit var demoModeManager: DemoModeManager
+    lateinit var billingManager: IBillingManager
 
     @Inject
-    lateinit var billingManager: IBillingManager
+    lateinit var userManager: UserManager
 
     private var binding: FragmentFavoritesBinding? = null
 
@@ -123,8 +123,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         DefaultPOIListFooterManager(
             adManager = adManager,
             analyticsManager = analyticsManager,
-            demoModeManager = demoModeManager,
-            billingManager = billingManager,
             dataSourcesRepository = dataSourcesRepository,
             getFragment = { this },
             getShowLoading = { attachedViewModel?.favoritePOIs?.value == null },
@@ -145,7 +143,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
+            this.userPrefManager,
             this.lclPrefRepository,
             this.poiRepository,
             this.favoriteRepository,
@@ -194,7 +192,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             listAdapter.setLocation(deviceLocation)
         }
-        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.favoritePOIs, billingManager, dataSourcesRepository) {
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.favoritePOIs, billingManager, dataSourcesRepository, userManager) {
             listAdapter.notifyDataSetChanged(false)
         }
         ModuleDisabledUI.onViewCreated(this)

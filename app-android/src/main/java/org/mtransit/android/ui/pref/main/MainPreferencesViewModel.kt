@@ -12,12 +12,12 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.ad.AdsConsentManager
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.LanguageManager
 import javax.inject.Inject
 
@@ -29,7 +29,7 @@ class MainPreferencesViewModel @Inject constructor(
     private val languageManager: LanguageManager,
     private val remoteConfigProvider: RemoteConfigProvider,
     lclPrefRepository: LocalPreferenceRepository,
-    defaultPrefRepository: DefaultPreferenceRepository,
+    userPrefManager: UserPrefManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -83,21 +83,13 @@ class MainPreferencesViewModel @Inject constructor(
 
     val lang = languageManager.langUserPref
 
-    val theme: LiveData<String> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_THEME, DefaultPreferenceRepository.PREFS_THEME_DEFAULT
-    ).distinctUntilChanged()
+    val theme: LiveData<String> = userPrefManager.theme.distinctUntilChanged()
 
-    val units: LiveData<String> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
-    ).distinctUntilChanged()
+    val units: LiveData<String> = userPrefManager.distanceUnits.distinctUntilChanged()
 
-    val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
-    ).distinctUntilChanged()
+    val showAccessibility: LiveData<Boolean> = userPrefManager.showAccessibility.distinctUntilChanged()
 
-    val useInternalWebBrowser: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
-    ).distinctUntilChanged()
+    val useInternalWebBrowser: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 
     val devModeEnabled: LiveData<Boolean> = lclPrefRepository.pref.liveData(
         LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT
@@ -128,6 +120,8 @@ class MainPreferencesViewModel @Inject constructor(
     fun refreshData() {
         fetchFirebaseInstallationToken()
         billingManager.refreshPurchases()
-        languageManager.updateUserPrefFromAppLocale()
+        viewModelScope.launch {
+            languageManager.updateUserPrefFromAppLocale()
+        }
     }
 }
