@@ -80,7 +80,10 @@ class GlobalAdManager(
     private val initialized = AtomicBoolean(false)
     private val initializing = AtomicBoolean(false)
 
+    @Volatile
     private var hasSubscription: Boolean? = null
+
+    @Volatile
     private var hasAgenciesEnabled: Boolean? = null
 
     @Volatile

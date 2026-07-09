@@ -33,7 +33,7 @@ class UserPrefManager @Inject constructor(
 
     // endregion
 
-    // region show a18y
+    // region show a11y
 
     val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
         DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT

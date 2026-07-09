@@ -89,7 +89,7 @@ class RewardedAdManager @Inject constructor(
             ),
             RewardedAdLoadCallback(this@RewardedAdManager, crashReporter, activityHashCode)
         )
-        userManager.increateRewardedLoadCounts()
+        userManager.increaseRewardedLoadCounts()
     }
 
     internal fun onRewardedAdLoadingComplete(rewardedAd: RewardedAd?, activityHashCode: Int) {
@@ -165,7 +165,7 @@ class RewardedAdManager @Inject constructor(
         this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
         //noinspection DiscouragedApi
-        this.userManager.increaseRewadedShowCountsNow()
+        this.userManager.increaseRewardedShowCountsNow()
         return true
     }
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.annotation.MainThread
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -241,7 +242,8 @@ class SplashScreenViewModel @Inject constructor(
         return false
     }
 
-    private suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
+    @VisibleForTesting
+    internal suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
         val appOpenCounts = userManager.getAppOpenCount()
         val appOpenFirst = userManager.getAppOpenFirstOrNull()?.millisToInstant()
         val appOpenLast = userManager.getAppOpenLastOrNull()?.millisToInstant()
@@ -266,16 +268,16 @@ class SplashScreenViewModel @Inject constructor(
                     return@let true // frequent user but less than 5 days
                 }
             } else { // casual user
-                if (firstAppOpen < TimeUtilsK.currentInstant() - 10.days) {
+                if (TimeUtilsK.currentInstant() <= firstAppOpen + 10.days) {
                     return@let true // casual user but less than 10 days
                 }
             }
             null
         } ?: appOpenLast?.let {
-            if (it + 99.days < TimeUtilsK.currentInstant()) { // a long time ago
-                if (appOpenCounts < 33) {
-                    return@let true // old user coming back with "few" app opens
-                }
+            if (it + 99.days < TimeUtilsK.currentInstant()  // a long time ago
+                && appOpenCounts < 33 // "few" app opens
+            ) {
+                return@let true // old user coming back with "few" app opens
             }
             null
         } ?: (appOpenCounts <= 7) // probably new-ish user
@@ -286,6 +288,6 @@ class SplashScreenViewModel @Inject constructor(
             dailyUser = dailyUser,
             newUser = newUser,
         )
-        appOpenCounts
+        appOpenCounts + 1
     }
 }
