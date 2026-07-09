@@ -322,16 +322,16 @@ class DataSourcesRepository @Inject constructor(
             MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg) > SKIP (was running - before sync)")
             return false
         }
-        this.updateLockMutex.withLock {
-            try {
-                runningUpdateMap[forcePkg ?: ALL_PKG] = true
+        try {
+            this.updateLockMutex.withLock {
                 val updated = update(forcePkg)
                 MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg) > updated: $updated")
                 return updated
-            } finally {
-                runningUpdateMap[forcePkg ?: ALL_PKG] = false
             }
+        } finally {
+            runningUpdateMap[forcePkg ?: ALL_PKG] = false
         }
+
     }
 
     private suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {
