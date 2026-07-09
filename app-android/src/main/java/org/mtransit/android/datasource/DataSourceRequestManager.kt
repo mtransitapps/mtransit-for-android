@@ -97,7 +97,7 @@ class DataSourceRequestManager(
     /**
      * ensure agency setup required is false after returning data to avoid useless "Preparing schedule for..." in next Splash screen
      */
-    private suspend fun ensureAgencyNotSetupRequired(agencyAuthority: String) = withContext(Dispatchers.IO) {
+    private suspend fun ensureAgencyNotSetupRequired(agencyAuthority: String) = withContext(ioDispatcher) {
         dataSourcesInMemoryCache.getAgency(agencyAuthority)
             ?.takeIf { it.setupRequired }
             ?: return@withContext

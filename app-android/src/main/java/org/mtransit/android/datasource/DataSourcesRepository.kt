@@ -318,7 +318,7 @@ class DataSourcesRepository @Inject constructor(
 
     suspend fun updateLock(forcePkg: String? = null): Boolean {
         MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg)")
-        if (runningUpdateMap.getOrPut(forcePkg ?: ALL_PKG) { false }) {
+        if (runningUpdateMap.put(forcePkg ?: ALL_PKG, true) == true) {
             MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg) > SKIP (was running - before sync)")
             return false
         }
