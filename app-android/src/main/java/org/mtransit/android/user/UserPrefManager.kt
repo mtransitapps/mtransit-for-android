@@ -2,7 +2,6 @@ package org.mtransit.android.user
 
 import android.annotation.SuppressLint
 import androidx.annotation.Discouraged
-import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +46,6 @@ class UserPrefManager @Inject constructor(
         )
     }
 
-    @WorkerThread
     @Discouraged("use suspend function or live data")
     fun getShowAccessibilityNow() = defaultPrefRepository.pref.getBoolean(
         DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
@@ -70,11 +68,9 @@ class UserPrefManager @Inject constructor(
     )
 
     @SuppressLint("DiscouragedApi")
-    @WorkerThread
     @Discouraged("use suspend function")
     fun setAgencyPOIsShowingMapNow(authority: String) = setAgencyPOIsShowingListInsteadOfMapNow(authority, listInsteadOfMap = false)
 
-    @WorkerThread
     @Discouraged("use suspend function")
     fun setAgencyPOIsShowingListInsteadOfMapNow(authority: String, listInsteadOfMap: Boolean) = defaultPrefRepository.pref.edit {
         putBoolean(

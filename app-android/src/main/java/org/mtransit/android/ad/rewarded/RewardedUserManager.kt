@@ -66,6 +66,7 @@ class RewardedUserManager @Inject constructor(
         if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever rewarded (no ads)
         return this._rewardedUntilInMs.updateAndGet { cached ->
             if (cached != REWARDED_UNTIL_NO_VALUE) cached
+            //noinspection DiscouragedApi
             else userManager.getRewardedUntilNow()
         }.coerceAtLeast(0L)
     }
