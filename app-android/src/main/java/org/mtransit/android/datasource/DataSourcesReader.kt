@@ -182,9 +182,9 @@ class DataSourcesReader @Inject constructor(
         MTLog.d(this@DataSourcesReader, "update($forcePkg) > lookForNewDataSources()... - updated: $updated")
         lookForNewDataSources(forcePkg) { updated = true }
         MTLog.d(this@DataSourcesReader, "update($forcePkg) > refreshAvailableVersions()... - updated: $updated")
-        refreshAvailableVersions(skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
+        refreshAvailableVersions(forcePkg, skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
         MTLog.d(this@DataSourcesReader, "update($forcePkg) > refreshSetupRequired()... - updated: $updated")
-        refreshSetupRequired(skipTimeCheck = false) { updated = true }
+        refreshSetupRequired(forcePkg, skipTimeCheck = false) { updated = true }
         if (updated) {
             MTLog.d(this@DataSourcesReader, "update($forcePkg) > analyticsManager.setUserProperty()... - updated: $updated")
             analyticsManager.setUserProperty(
