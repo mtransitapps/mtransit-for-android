@@ -204,7 +204,7 @@ class SplashScreenViewModel @Inject constructor(
                 var deployingForTime = TimeUtilsK.currentInstant()
                 _deployingDataFor.postValue(agency.toEvent())
                 val start = TimeUtilsK.currentInstant()
-                dataSourceRequestManager.ping(agency.authority) // ASYNC (uses WorkManager)
+                dataSourceRequestManager.ping(agency) // ASYNC (uses WorkManager)
                 if (checkState()) return@withTimeoutOrNull // BREAK
                 ensureActive()
                 var setupRequired = true

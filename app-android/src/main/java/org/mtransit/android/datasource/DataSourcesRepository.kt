@@ -32,7 +32,7 @@ import org.mtransit.android.dev.takeIfDemoModeTargeted
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.commons.addAllNNE
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,6 +52,8 @@ class DataSourcesRepository @Inject constructor(
 
     companion object {
         private val LOG_TAG: String = DataSourcesRepository::class.java.simpleName
+
+        private const val ALL_PKG = "all"
     }
 
     override fun getLogTag() = LOG_TAG
@@ -311,32 +313,32 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
-    private val runningUpdate = AtomicBoolean(false)
+    private val runningUpdateMap = ConcurrentHashMap<String, Boolean>()
     private val updateLockMutex = Mutex()
 
     suspend fun updateLock(forcePkg: String? = null): Boolean {
         MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg)")
-        if (runningUpdate.get()) {
-            MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - before sync)")
+        if (runningUpdateMap.put(forcePkg ?: ALL_PKG, true) == true) {
+            MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg) > SKIP (was running - before sync)")
             return false
         }
-        this.updateLockMutex.withLock {
-            try {
-                runningUpdate.set(true)
+        try {
+            this.updateLockMutex.withLock {
                 val updated = update(forcePkg)
-                MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
+                MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg) > updated: $updated")
                 return updated
-            } finally {
-                runningUpdate.set(false)
             }
+        } finally {
+            runningUpdateMap[forcePkg ?: ALL_PKG] = false
         }
+
     }
 
     private suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {
-        MTLog.i(this@DataSourcesRepository, "update() > Updating... ")
+        MTLog.i(this@DataSourcesRepository, "update($forcePkg) > Updating... ")
         val updated = dataSourcesReader.update(forcePkg)
-        MTLog.i(this@DataSourcesRepository, "update() > Updating...  DONE")
-        MTLog.d(this@DataSourcesRepository, "update() > $updated")
+        MTLog.i(this@DataSourcesRepository, "update($forcePkg) > Updating...  DONE")
+        MTLog.d(this@DataSourcesRepository, "update($forcePkg) > $updated")
         updated
     }
 

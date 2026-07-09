@@ -113,25 +113,25 @@ jobs:
             app-android/build/outputs/bundle
       - name: MT push commits
         run: ./push_commits.sh
-      - name: MT trigger submodule builds
-        if: ${{ github.event_name != 'pull_request' && github.ref_name == env.MT_DEFAULT_BRANCH_NAME }}
-        continue-on-error: true
-        run: |
-          SUBMODULES_CHANGED=false
-          while IFS= read -r SUBMODULE_PATH; do
-            if git diff --quiet "$MT_SHA" HEAD -- "$SUBMODULE_PATH"; then
-              continue
-            fi
-            SUBMODULES_CHANGED=true
-            SUBMODULE_NAME=$(basename "$SUBMODULE_PATH")
-            echo "Triggering 'mt-build.yml' for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
-            gh workflow run mt-build.yml \
-              --repo "mtransitapps/${SUBMODULE_NAME}" \
-              --ref "$MT_BRANCH_NAME" || echo "Failed to trigger mt-build.yml for '${SUBMODULE_NAME}' (continuing)..."
-          done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
+      # - name: MT trigger submodule builds
+      #   if: ${{ github.event_name != 'pull_request' && github.ref_name == env.MT_DEFAULT_BRANCH_NAME }}
+      #   continue-on-error: true
+      #   run: |
+      #     SUBMODULES_CHANGED=false
+      #     while IFS= read -r SUBMODULE_PATH; do
+      #       if git diff --quiet "$MT_SHA" HEAD -- "$SUBMODULE_PATH"; then
+      #         continue
+      #       fi
+      #       SUBMODULES_CHANGED=true
+      #       SUBMODULE_NAME=$(basename "$SUBMODULE_PATH")
+      #       echo "Triggering 'mt-build.yml' for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
+      #       gh workflow run mt-build.yml \
+      #         --repo "mtransitapps/${SUBMODULE_NAME}" \
+      #         --ref "$MT_BRANCH_NAME" || echo "Failed to trigger mt-build.yml for '${SUBMODULE_NAME}' (continuing)..."
+      #     done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
 
-          if [ "$SUBMODULES_CHANGED" = "false" ]; then
-            echo "No submodule changes detected between '$MT_SHA' and HEAD."
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.MT_PAT }}
+      #     if [ "$SUBMODULES_CHANGED" = "false" ]; then
+      #       echo "No submodule changes detected between '$MT_SHA' and HEAD."
+      #     fi
+      #   env:
+      #     GH_TOKEN: ${{ secrets.MT_PAT }}

@@ -26,6 +26,8 @@ jobs:
     outputs:
       mt_checkout_branch: ${{ steps.mt-select-branch.outputs.mt_checkout_branch }}
     steps:
+      - name: MT wait for main & submodule merge to target branch
+        run: sleep 10
       - name: MT select main repo checkout branch
         id: mt-select-branch
         env:

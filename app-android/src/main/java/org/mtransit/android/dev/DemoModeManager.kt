@@ -23,11 +23,11 @@ import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.ITargetedProviderProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesStorage
 import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.GTFSCommons
@@ -41,8 +41,7 @@ import kotlin.random.Random
 
 @Singleton
 class DemoModeManager @Inject constructor(
-    @ApplicationContext appContext: Context,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    @param:ApplicationContext private val appContext: Context,
     private val billingManager: IBillingManager,
 ) : MTLog.Loggable {
 
@@ -100,7 +99,7 @@ class DemoModeManager @Inject constructor(
         lat: Double,
         lng: Double,
         agency: AgencyProperties,
-    ): POIManager? {
+    ): POIManager? = withContext(Dispatchers.IO) {
         val ad = LocationUtils.getNewDefaultAroundDiff()
         var poim: POIManager?
         while (true) {
@@ -109,7 +108,7 @@ class DemoModeManager @Inject constructor(
                     put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
                 },
             )
-            poim = this.dataSourceRequestManager.findPOIMs(agency.authority, filter)
+            poim = DataSourceManager.findPOIMs(appContext, agency.authority, filter) // I/O // avoid DataSourceRequestManager dependency
                 .removeAllAnd {
                     if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
                         (it.poi as? RouteDirectionStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
@@ -126,7 +125,7 @@ class DemoModeManager @Inject constructor(
                 continue
             }
         }
-        return poim
+        return@withContext poim
     }
 
     val filterTypeId: Int?
