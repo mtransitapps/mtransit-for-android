@@ -69,13 +69,13 @@ class POIRepository(
 
     @Suppress("unused")
     suspend fun findPOI(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POI? {
-        return dataSourceRequestManager.findPOI(agency.authority, commonSetup(poiFilter))
+        return dataSourceRequestManager.findPOI(agency, commonSetup(poiFilter))
             ?.updateSupportedType(agency)
     }
 
     @Suppress("unused")
     suspend fun findPOIM(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POIManager? {
-        return dataSourceRequestManager.findPOIM(agency.authority, commonSetup(poiFilter))
+        return dataSourceRequestManager.findPOIM(agency, commonSetup(poiFilter))
             ?.updateSupportedType(agency)
     }
 
@@ -101,7 +101,7 @@ class POIRepository(
         val cachePOIM = read(agency.authority, uuid)
             ?.also { emit(it) }
         val poiFilter = commonSetup(POIProviderContract.Filter.getNewUUIDFilter(uuid))
-        dataSourceRequestManager.findPOI(agency.authority, poiFilter)
+        dataSourceRequestManager.findPOI(agency, poiFilter)
             ?.updateSupportedType(agency)
             ?.let { newPOIFromModule -> // WITHOUT status OR service update
                 if (cachePOIM == null // no cache POI
@@ -127,12 +127,12 @@ class POIRepository(
 
     @Suppress("unused")
     suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI> {
-        return dataSourceRequestManager.findPOIs(agency.authority, commonSetup(poiFilter))
+        return dataSourceRequestManager.findPOIs(agency, commonSetup(poiFilter))
             .updateSupportedType(agency)
     }
 
     suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager> {
-        return dataSourceRequestManager.findPOIMs(agency.authority, commonSetup(poiFilter))
+        return dataSourceRequestManager.findPOIMs(agency, commonSetup(poiFilter))
             .updateSupportedType(agency)
     }
 

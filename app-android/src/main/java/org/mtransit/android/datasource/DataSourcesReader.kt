@@ -33,6 +33,7 @@ import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
+import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.toDurationLog
 import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.TimeUnit
@@ -128,7 +129,7 @@ class DataSourcesReader @Inject constructor(
         private val MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS = TimeUnit.HOURS.toMillis(6L)
 
         private const val PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS = "pLclSetupRequiredLastCheck"
-        private val MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK_IN_MS = 12.hours
+        private val MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK = 12.hours
     }
 
     override fun getLogTag() = LOG_TAG
@@ -172,29 +173,27 @@ class DataSourcesReader @Inject constructor(
         return false
     }
 
-    internal suspend fun update(forcePkg: String? = null): Boolean {
+    internal suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {
         var updated = false
-        withContext(Dispatchers.IO) {
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            updateKnownActiveDataSources(forcePkg) { updated = true }
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            updateReInstalledReEnabledDataSources(forcePkg) { updated = true }
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            lookForNewDataSources(forcePkg) { updated = true }
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            refreshAvailableVersions(skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            refreshSetupRequired(skipTimeCheck = false) { updated = true }
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            if (updated) {
-                analyticsManager.setUserProperty(
-                    AnalyticsUserProperties.MODULES_COUNT,
-                    dataSourcesDatabase.agencyPropertiesDao().getAllAgenciesInclNotInstalled().size
-                )
-            }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > updateKnownActiveDataSources()... - updated: $updated")
+        updateKnownActiveDataSources(forcePkg) { updated = true }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > updateReInstalledReEnabledDataSources()... - updated: $updated")
+        updateReInstalledReEnabledDataSources(forcePkg) { updated = true }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > lookForNewDataSources()... - updated: $updated")
+        lookForNewDataSources(forcePkg) { updated = true }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > refreshAvailableVersions()... - updated: $updated")
+        refreshAvailableVersions(forcePkg, skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > refreshSetupRequired()... - updated: $updated")
+        refreshSetupRequired(forcePkg, skipTimeCheck = false) { updated = true }
+        if (updated) {
+            MTLog.d(this@DataSourcesReader, "update($forcePkg) > analyticsManager.setUserProperty()... - updated: $updated")
+            analyticsManager.setUserProperty(
+                AnalyticsUserProperties.MODULES_COUNT,
+                dataSourcesDatabase.agencyPropertiesDao().getAllAgenciesInclNotInstalled().size
+            )
         }
-        MTLog.d(this@DataSourcesReader, "update() > $updated")
-        return updated
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > DONE - updated: $updated")
+        return@withContext updated
     }
 
     internal suspend fun refreshAvailableVersions(
@@ -228,7 +227,7 @@ class DataSourcesReader @Inject constructor(
                 markUpdated()
                 updated = true
             }
-            this.dataSourceRequestManager.findAgencyAvailableVersionCode(authority, forceAppUpdateRefresh, forcePkg != null)?.let { newAvailableVersionCode ->
+            this.dataSourceRequestManager.findAgencyAvailableVersionCode(agencyProperties, forceAppUpdateRefresh, forcePkg != null)?.let { newAvailableVersionCode ->
                 if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
                     MTLog.d(this, "Agency '$authority' > new version available: r$newAvailableVersionCode.")
                     dataSourcesDatabase.agencyPropertiesDao().update(
@@ -252,9 +251,11 @@ class DataSourcesReader @Inject constructor(
         val now = TimeUtilsK.currentInstant()
         if (!skipTimeCheck) {
             val lastCheck = lclPrefRepository.pref.getLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, -1L).millisToInstant()
-            if (now < lastCheck + MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK_IN_MS) {
+            if (now < lastCheck + MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK) {
                 MTLog.d(this, "refreshSetupRequired() > SKIP (last successful refresh too recent: ${(now - lastCheck).toDurationLog()} ago)")
                 return false
+            } else {
+                MTLog.d(this, "refreshSetupRequired() > do not skip (last check too old: ${(now - lastCheck).toDurationLog()} ago)")
             }
         }
         var updated = false
@@ -263,14 +264,13 @@ class DataSourcesReader @Inject constructor(
             .forEach { agencyProperties ->
                 yield() // stop if canceled #SplashScreen
                 val pkg = agencyProperties.pkg
-                val authority = agencyProperties.authority
                 if (skipNotSupportedPkg(pkg)) {
                     MTLog.d(this, "refreshSetupRequired > SKIP not supported '$pkg .")
                     return@forEach // skip not supported
                 }
-                this.dataSourceRequestManager.findAgencySetupRequired(authority)?.let { newSetupRequired ->
+                this.dataSourceRequestManager.findAgencySetupRequired(agencyProperties)?.let { newSetupRequired ->
                     if (agencyProperties.setupRequired != newSetupRequired) {
-                        MTLog.d(this, "Agency '$authority' > new setup required: $newSetupRequired.")
+                        MTLog.d(this, "Agency '${agencyProperties.authority}' > new setup required: $newSetupRequired.")
                         dataSourcesDatabase.agencyPropertiesDao().update(
                             agencyProperties.copy(setupRequired = newSetupRequired)
                         )
@@ -280,6 +280,7 @@ class DataSourcesReader @Inject constructor(
                 }
             }
         if (!skipTimeCheck || updated) { // store last check (if time checked) OR if updated
+            MTLog.d(this, "refreshSetupRequired() > last updated now: ${now.toDateTimeLog()}")
             lclPrefRepository.pref.edit { putLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, now.toMillis()) }
         }
         return updated
