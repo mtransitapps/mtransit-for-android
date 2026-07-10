@@ -7,18 +7,18 @@ class DirectionExtTest {
 
     @Test
     fun test_removeStartFromHeadingStarts() {
-        ("North" to "North B").let { (direction, trip) ->
-            removeStartFromHeadingStarts(heading = trip, startsWith = direction)
+        ("North" to "North B").let { (startsWith, heading) ->
+            removeStartFromHeadingStarts(heading, startsWith)
         }.let { result ->
             assertEquals("B", result)
         }
-        ("South" to "South (Short)").let { (direction, trip) ->
-            removeStartFromHeadingStarts(heading = trip, startsWith = direction)
+        ("South" to "South (Short)").let { (startsWith, heading) ->
+            removeStartFromHeadingStarts(heading, startsWith)
         }.let { result ->
             assertEquals("(Short)", result)
         }
-        ("Toulouse" to "Toulouse: Gare Routière").let { (direction, trip) ->
-            removeStartFromHeadingStarts(heading = trip, startsWith = direction)
+        ("Toulouse" to "Toulouse: Gare Routière").let { (startsWith, heading) ->
+            removeStartFromHeadingStarts(heading, startsWith)
         }.let { result ->
             assertEquals("Gare Routière", result)
         }
