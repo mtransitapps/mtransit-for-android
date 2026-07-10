@@ -123,11 +123,6 @@ public class POIManager implements LocationPOI,
 				']';
 	}
 
-	public void resetLastTriggerRefreshMinTimestamps() {
-		this.lastTriggerServiceUpdateRefreshMinTimestampMs = -1L;
-		this.lastTriggerStatusRefreshMinTimestampMs = -1L;
-	}
-
 	public void setInFocus(boolean inFocus) {
 		this.inFocus = inFocus;
 	}
@@ -817,7 +812,7 @@ public class POIManager implements LocationPOI,
 				);
 			}
 			// reset to defaults, so the POI is updated when coming back in the current screen
-			resetLastTriggerRefreshMinTimestamps();
+			allowTriggerStatusAndServiceUpdatesRefresh();
 			return true; // HANDLED
 		}
 	}
@@ -854,7 +849,7 @@ public class POIManager implements LocationPOI,
 
 	boolean onActionItemLongClick(
 			@Nullable FragmentActivity activity,
-			View view,
+			@NonNull View view,
 			@NonNull LifecycleOwner viewLifecycleOwner,
 			FavoriteRepository favoriteRepository,
 			DataSourcesRepository dataSourcesRepository,
@@ -869,7 +864,7 @@ public class POIManager implements LocationPOI,
 
 	boolean onActionItemClick(
 			@Nullable FragmentActivity activity,
-			View view,
+			@NonNull View view,
 			@NonNull LifecycleOwner viewLifecycleOwner,
 			FavoriteRepository favoriteRepository,
 			DataSourcesRepository dataSourcesRepository,

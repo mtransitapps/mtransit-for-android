@@ -285,6 +285,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
+                analyticsManager.trackButtonClick("toolbar_add_fav_folder", this)
                 activity?.let {
                     favoriteRepository.showAddFolderDialog(it)
                 }
@@ -292,6 +293,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             }
 
             R.id.menu_show_news -> {
+                analyticsManager.trackButtonClick("toolbar_show_news", this)
                 (activity as? MainActivity)?.apply {
                     addFragmentToStack(NewsListDetailFragment.newInstance())
                 }

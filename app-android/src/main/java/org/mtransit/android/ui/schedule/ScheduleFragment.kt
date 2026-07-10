@@ -20,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
@@ -101,6 +102,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     @Inject
     lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private val viewModel by viewModels<ScheduleViewModel>()
     private val attachedViewModel
@@ -248,6 +252,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.menu_today -> {
+                analyticsManager.trackButtonClick("toolbar_show_today", this)
                 binding?.apply {
                     listAdapter.getScrollToNowPosition()?.let {
                         this.list.scrollToPositionWithOffset(it, 48.dpToPx)

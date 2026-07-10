@@ -336,7 +336,7 @@ public class POIFragment extends ABFragment implements
 		if (this.poim != null) {
 			this.poim.setInFocus(true);
 			this.poim.setScheduleMaxDataRequests(ScheduleStatusFilter.DATA_REQUEST_MONTHS);
-			this.poim.resetLastTriggerRefreshMinTimestamps();
+			this.poim.allowTriggerStatusAndServiceUpdatesRefresh();
 		}
 	}
 

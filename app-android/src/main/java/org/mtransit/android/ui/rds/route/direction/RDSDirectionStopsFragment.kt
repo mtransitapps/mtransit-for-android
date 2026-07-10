@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -287,6 +288,9 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         this.mapViewController.onCreate(savedInstanceState)
     }
 
+    private val analyticsScreen: AnalyticsScreen? get() = parentFragment as? AnalyticsScreen
+    private val analyticsButtonId: String? get() = attachedParentViewModel?.agency?.value?.authority
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
@@ -298,6 +302,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             fabListMap?.apply {
                 setOnClickListener {
+                    analyticsManager.trackButtonClick("fab_list_map", analyticsButtonId, analyticsScreen)
                     if (context.twoPane) return@setOnClickListener // LARGE SCREEN
                     viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
                 }
@@ -308,6 +313,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             }
             fabServiceUpdate.apply {
                 setOnClickListener {
+                    analyticsManager.trackButtonClick("fab_service_update", analyticsButtonId, analyticsScreen)
                     val routeM = attachedParentViewModel?.routeM?.value ?: return@setOnClickListener
                     val directionId = attachedViewModel?.directionId?.value ?: return@setOnClickListener
                     if (FeatureFlags.F_NAVIGATION) {

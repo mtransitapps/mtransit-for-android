@@ -132,6 +132,7 @@
         <item name="android:paddingBottom">0dp</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
+        <item name="android:alpha">0.70</item>
         <item name="iconTint">?attr/colorOnBackground</item>
     </style>
 
@@ -147,7 +148,7 @@
     <style name="Widget.MaterialComponents.BottomSheet.DragHandle" parent="Widget.Material3.BottomSheet.DragHandle">
         <item name="tint">?colorOnSurface</item>
         <!--Alpha can be added optionally to achieve nice color blend-->
-        <item name="android:alpha">0.3</item>
+        <item name="android:alpha">0.30</item>
     </style>
 
     <style name="MTTextPoiTitle">
@@ -242,7 +243,7 @@
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:gravity">end</item>
-        <item name="android:alpha">0.75</item>
+        <item name="android:alpha">0.70</item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
         <item name="android:includeFontPadding">false</item>
 
@@ -309,7 +310,7 @@
         <item name="android:layout_centerVertical">false</item>
         <item name="android:layout_marginStart">@dimen/map_type_switch_margin_start</item>
         <item name="android:layout_marginBottom">@dimen/map_type_switch_margin_bottom</item>
-        <item name="android:alpha">0.75</item>
+        <item name="android:alpha">0.70</item>
         <item name="android:scaleType">centerCrop</item>
     </style>
 
