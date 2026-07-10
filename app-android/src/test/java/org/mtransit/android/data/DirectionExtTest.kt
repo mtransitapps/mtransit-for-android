@@ -7,6 +7,11 @@ class DirectionExtTest {
 
     @Test
     fun test_removeStartFromHeadingStarts() {
+        ("East" to "East via A").let { (startsWith, heading) ->
+            removeStartFromHeadingStarts(heading, startsWith)
+        }.let { result ->
+            assertEquals("via A", result)
+        }
         ("North" to "North B").let { (startsWith, heading) ->
             removeStartFromHeadingStarts(heading, startsWith)
         }.let { result ->
