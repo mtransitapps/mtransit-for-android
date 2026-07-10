@@ -147,6 +147,7 @@ labels: MT
 - [ ] ca-winnipeg-transit-bus
 - [ ] ca-yellowknife-transit-bus
 - [ ] ca-york-region-yrt-viva-bus
+- [ ] fr-haute-garonne-lio-bus
 - [ ] fr-perpignan-sankeo-bus
 - [ ] fr-pyrenees-orientales-lio-bus
 - [ ] us-anchorage-people-mover-bus
