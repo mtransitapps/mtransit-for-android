@@ -7,10 +7,8 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.analytics.AnalyticsScreen
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.pref.preferenceChangeLiveData
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData4
