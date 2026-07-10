@@ -22,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.DataSourceTypeId
@@ -172,6 +173,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
 
     @Inject
     lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     override val viewModel by viewModels<NearbyViewModel>()
     override val attachedViewModel
@@ -359,6 +363,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.menu_show_directions -> {
+                analyticsManager.trackButtonClick("toolbar_show_directions", this)
                 val locationPick = viewModel.fixedOnLocation.value ?: viewModel.nearbyLocation.value ?: viewModel.deviceLocation.value
                 locationPick ?: return false // not handled
                 viewModel.onShowDirectionClick()
@@ -374,6 +379,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
 
             R.id.nav_map_custom -> {
+                analyticsManager.trackButtonClick("toolbar_show_map", this)
                 val locationPick = viewModel.fixedOnLocation.value ?: viewModel.nearbyLocation.value ?: viewModel.deviceLocation.value
                 locationPick ?: return false // not handled
                 (activity as? MainActivity)?.addFragmentToStack(

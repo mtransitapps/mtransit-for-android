@@ -23,6 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
@@ -168,6 +169,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
     @Inject
     lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private var binding: FragmentRdsRouteBinding? = null
 
@@ -321,8 +325,11 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         }
     }
 
+    private val analyticsButtonId: String? get() = attachedViewModel?.agency?.value?.authority
+
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.menu_service_update_img) {
+            analyticsManager.trackButtonClick("toolbar_service_update", analyticsButtonId, this)
             val routeManager = viewModel.routeM.value ?: return false
             if (FeatureFlags.F_NAVIGATION) {
                 // TODO navigate to dialog

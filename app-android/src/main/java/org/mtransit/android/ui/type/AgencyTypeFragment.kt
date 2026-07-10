@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.DataSourceTypeId
@@ -197,6 +198,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     @Inject
     lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     override val viewModel by viewModels<AgencyTypeViewModel>()
     override val attachedViewModel
@@ -402,6 +406,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.menu_nearby) {
+            analyticsManager.trackButtonClick("toolbar_show_nearby", this)
             viewModel.type.value?.let { type ->
                 (activity as? MainActivity)?.addFragmentToStack(
                     NearbyFragment.newNearbyInstance(type),

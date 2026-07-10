@@ -18,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.data.IAgencyUIProperties
@@ -141,7 +142,11 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
         submitList(attachedViewModel?.routesM?.value)
     }
 
+    private val analyticsScreen: AnalyticsScreen? get() = parentFragment as? AnalyticsScreen
+    private val analyticsButtonId: String? get() = attachedViewModel?.agency?.value?.authority
+
     private fun openRouteScreen(view: View, route: RouteManager) {
+        analyticsManager.trackButtonClick("list_rds_route", analyticsButtonId, analyticsScreen)
         if (FeatureFlags.F_NAVIGATION) {
             var extras: FragmentNavigator.Extras? = null
             if (FeatureFlags.F_TRANSITION) {
@@ -168,6 +173,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             listGrid.adapter = listGridAdapter ?: makeListGridAdapter().also { listGridAdapter = it } // must null in destroyView() to avoid memory leak
             fabListGrid.apply {
                 setOnClickListener {
+                    analyticsManager.trackButtonClick("fab_list_grid", analyticsButtonId, analyticsScreen)
                     viewModel.saveShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value == false) // switching
                 }
                 setUpFabEdgeToEdge(
@@ -208,6 +214,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                 agency?.faresWebForLang?.let { url ->
                     isVisible = true
                     setOnClickListener {
+                        analyticsManager.trackButtonClick("fab_fares", analyticsButtonId, analyticsScreen)
                         activity?.let { activity ->
                             LinkUtils.open(view, activity, url, getString(R.string.fares), true, viewModel.useInternalWebBrowserPref.value)
                         }

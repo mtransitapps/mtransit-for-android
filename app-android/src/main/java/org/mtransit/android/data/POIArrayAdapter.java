@@ -799,31 +799,25 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@SuppressWarnings("UnusedReturnValue")
 	public boolean showPoiViewerScreen(@NonNull View view, int position) {
-		boolean handled = false;
 		final POIManager poim = getItem(position);
-		if (poim != null) {
-			analyticsManager.trackButtonClick("list_poi", getAnalyticsScreen(this));
-			OnPOISelectedListener listener = this.onPoiSelectedListenerWR == null ? null : this.onPoiSelectedListenerWR.get();
-			handled = listener != null && listener.onPOISelected(poim);
-			if (!handled) {
-				handled = showPoiViewerScreen(view, poim);
-			}
+		if (poim == null) return false;
+		final OnPOISelectedListener listener = this.onPoiSelectedListenerWR == null ? null : this.onPoiSelectedListenerWR.get();
+		if (listener != null && listener.onPOISelected(poim)) {
+			return true;
 		}
-		return handled;
+		analyticsManager.trackButtonClick("list_poi", String.valueOf(poim.poi.getDataSourceTypeId()), getAnalyticsScreen(this));
+		return showPoiViewerScreen(view, poim);
 	}
 
-	private boolean showPoiMenu(View view, int position) {
-		boolean handled = false;
+	private boolean showPoiMenu(@NonNull View view, int position) {
 		final POIManager poim = getItem(position);
-		if (poim != null) {
-			analyticsManager.trackButtonClick("list_poi_menu", getAnalyticsScreen(this));
-			OnPOISelectedListener listener = this.onPoiSelectedListenerWR == null ? null : this.onPoiSelectedListenerWR.get();
-			handled = listener != null && listener.onPOILongSelected(poim);
-			if (!handled) {
-				handled = showPoiMenu(view, poim);
-			}
+		if (poim == null) return false;
+		final OnPOISelectedListener listener = this.onPoiSelectedListenerWR == null ? null : this.onPoiSelectedListenerWR.get();
+		if (listener != null && listener.onPOILongSelected(poim)) {
+			return true;
 		}
-		return handled;
+		analyticsManager.trackButtonClick("list_poi_menu", String.valueOf(poim.poi.getDataSourceTypeId()), getAnalyticsScreen(this));
+		return showPoiMenu(view, poim);
 	}
 
 	@Override
@@ -837,8 +831,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return getItemTypeHeader(position) == null; // is NOT separator
 	}
 
-	public boolean showPoiViewerScreen(@NonNull View view, @Nullable POIManager poim) {
-		if (poim == null) return false;
+	public boolean showPoiViewerScreen(@NonNull View view, @NonNull POIManager poim) {
 		final FragmentActivity activity = getActivity();
 		if (activity == null) return false;
 		if (this.viewLifecycleOwner == null) return false;
@@ -855,8 +848,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		);
 	}
 
-	private boolean showPoiMenu(View view, POIManager poim) {
-		if (poim == null) return false;
+	private boolean showPoiMenu(@NonNull View view, @NonNull POIManager poim) {
 		final FragmentActivity activity = getActivity();
 		if (activity == null) return false;
 		if (this.viewLifecycleOwner == null) return false;
@@ -1085,7 +1077,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			for (List<POIManager> poimList : this.poisByType.values()) {
 				for (POIManager poim : poimList) {
 					if (poim.poi.getType() == POI.ITEM_VIEW_TYPE_MODULE) {
-						poim.resetLastTriggerRefreshMinTimestamps(); // force get status from provider
+						poim.allowTriggerStatusAndServiceUpdatesRefresh(); // force get status from provider
 						didReset = true;
 					}
 				}

@@ -15,6 +15,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.data.DataSourceType
@@ -113,6 +114,9 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private val mapListener = object : MapViewController.MapListener {
 
@@ -273,6 +277,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return if (menuItem.itemId == R.id.menu_filter) {
+            analyticsManager.trackButtonClick("toolbar_filter", this)
             showMenuFilterDialog()
         } else false // not handled
     }

@@ -92,14 +92,17 @@ internal val POIArrayAdapter.analyticsScreen: AnalyticsScreen? get() = this.frag
 internal fun POIArrayAdapter.trackTypeHeaderButtonClick(buttonId: Int) {
     when (buttonId) {
         POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE ->
-            analyticsManager.trackButtonClick("header_more", analyticsScreen)
+            analyticsManager.trackButtonClick("header_more", buttonId.toString(), analyticsScreen)
+
         POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_NEARBY ->
-            analyticsManager.trackButtonClick("header_nearby", analyticsScreen)
+            analyticsManager.trackButtonClick("header_nearby", buttonId.toString(), analyticsScreen)
+
         POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_ALL ->
-            analyticsManager.trackButtonClick("header_all", analyticsScreen)
+            analyticsManager.trackButtonClick("header_all", buttonId.toString(), analyticsScreen)
+
         else -> {
             MTLog.w(this, "trackTypeHeaderButtonClick() > Unexpected button ID '$buttonId'!")
-            this.analyticsManager.trackButtonClick("header_unknown", analyticsScreen)
+            this.analyticsManager.trackButtonClick("header_unknown", buttonId.toString(), analyticsScreen)
         }
     }
 }

@@ -383,6 +383,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.nav_map -> {
+                analyticsManager.trackButtonClick("toolbar_map", this)
                 if (FeatureFlags.F_NAVIGATION) {
                     false // handled by navigation library
                 } else {

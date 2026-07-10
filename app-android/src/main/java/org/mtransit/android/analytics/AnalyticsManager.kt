@@ -74,6 +74,7 @@ class AnalyticsManager @Inject internal constructor(
         value: String
     ) {
         if (!ANALYTICS_ENABLED) return
+        if (DEBUG) MTLog.d(this, "setUserProperty($name, $value)")
         try {
             firebaseAnalytics?.setUserProperty(name, value)
         } catch (e: Exception) {
@@ -81,16 +82,12 @@ class AnalyticsManager @Inject internal constructor(
         }
     }
 
-    override fun logEvent(@Size(min = 1L, max = 40L) name: String) {
-        if (!ANALYTICS_ENABLED) return
-        logEvent(name, null)
-    }
-
     override fun logEvent(
         @Size(min = 1L, max = 40L) name: String,
         params: AnalyticsEventsParamsProvider?
     ) {
         if (!ANALYTICS_ENABLED) return
+        if (DEBUG) MTLog.d(this, "logEvent($name, $params)")
         val bundle = params?.let {
             Bundle().apply {
                 for ((key, value) in it.to()) {
@@ -112,6 +109,7 @@ class AnalyticsManager @Inject internal constructor(
     @MainThread
     override fun trackScreenView(page: AnalyticsScreen) {
         if (!ANALYTICS_ENABLED) return
+        if (DEBUG) MTLog.d(this, "trackScreenView($page)")
         try {
             firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, Bundle().apply {
                 putString(FirebaseAnalytics.Param.SCREEN_NAME, page.screenName)
@@ -123,11 +121,15 @@ class AnalyticsManager @Inject internal constructor(
     }
 
     @MainThread
-    override fun trackButtonClick(buttonName: String, page: AnalyticsScreen?) {
+    override fun trackButtonClick(buttonName: String, buttonId: String?, page: AnalyticsScreen?) {
         if (!ANALYTICS_ENABLED) return
+        if (DEBUG) MTLog.d(this, "trackButtonClick($buttonName, $buttonId, $page)")
         try {
             firebaseAnalytics?.logEvent(AnalyticsEvents.BUTTON_CLICK, Bundle().apply {
                 putString(AnalyticsEvents.Params.BUTTON_NAME, buttonName)
+                buttonId?.let {
+                    putString(AnalyticsEvents.Params.BUTTON_ID, it)
+                }
                 page?.let {
                     putString(FirebaseAnalytics.Param.SCREEN_NAME, it.screenName)
                     putString(FirebaseAnalytics.Param.SCREEN_CLASS, it.screenClass)

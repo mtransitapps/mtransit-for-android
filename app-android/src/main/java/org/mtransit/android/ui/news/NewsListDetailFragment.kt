@@ -467,6 +467,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override fun onMenuItemSelected(menuItem: MenuItem) =
         when (menuItem.itemId) {
             R.id.menu_fullscreen -> {
+                analyticsManager.trackButtonClick("toolbar_fullscreen", attachedViewModel?.fullscreenMode?.value?.toString(), this)
                 viewModel.setFullscreenMode(viewModel.fullscreenMode.value == false) // flip
                 true // handled
             }

@@ -38,6 +38,7 @@ interface AnalyticsEvents {
             const val SCREEN = "mt_screen"
             const val COUNT = "mt_count"
             const val BUTTON_NAME = "mt_button_name"
+            const val BUTTON_ID = "mt_button_id"
         }
     }
 }
