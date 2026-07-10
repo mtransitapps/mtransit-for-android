@@ -221,8 +221,8 @@ public class POIManager implements LocationPOI,
 
 	@Nullable
 	public POIStatus getStatus(@NonNull StatusLoader statusLoader) {
-		if (this.status == null
-				|| this.lastTriggerStatusRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()
+		if (this.status == null // status unknown
+				&& this.lastTriggerStatusRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis() // fetch NOT already triggered
 		) {
 			triggerStatusRefresh(statusLoader, false);
 		}
@@ -277,8 +277,8 @@ public class POIManager implements LocationPOI,
 	@NonNull
 	@Override
 	public ServiceUpdates getServiceUpdates(@NonNull ServiceUpdateLoader serviceUpdateLoader, @Nullable Collection<String> ignoredUUIDsOrUnknown) {
-		if (this.serviceUpdates == null
-				|| this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()
+		if (this.serviceUpdates == null // service updates unknown
+				&& this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis() // fetch NOT already triggered
 		) {
 			triggerServiceUpdatesRefresh(serviceUpdateLoader, false);
 		}

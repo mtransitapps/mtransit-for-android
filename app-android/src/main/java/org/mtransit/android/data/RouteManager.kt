@@ -43,9 +43,9 @@ data class RouteManager(
     }
 
     override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): ServiceUpdates {
-        if (this.serviceUpdates == null
-            || this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()
-        ) {
+        if (this.serviceUpdates == null // service updates unknown
+				&& this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis() // fetch NOT already triggered
+		) {
             triggerServiceUpdatesRefresh(serviceUpdateLoader, skipIfBusy = false)
         }
         ignoredUUIDsOrUnknown ?: return ServiceUpdates.newEmpty() // IF filter not ready DO wait for filter
