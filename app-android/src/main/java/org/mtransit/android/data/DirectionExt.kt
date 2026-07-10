@@ -1,6 +1,8 @@
 package org.mtransit.android.data
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
+import org.mtransit.android.commons.StringUtils.EMPTY
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.util.UIDirectionUtils
@@ -17,8 +19,17 @@ fun Schedule.Timestamp.makeHeading(context: Context, optDirectionHeading: String
     val directionHeading = optDirectionHeading.orEmpty()
     if (Direction.isSameHeadsign(timestampHeading, directionHeading)) return null
     return if (timestampHeading.startsWith(directionHeading)) {
-        timestampHeading.substring(directionHeading.length).trim()
+        removeStartFromHeadingStarts(timestampHeading, directionHeading)
     } else {
         decorateDirection(context, small = small)
     }
 }
+
+private val newHeadsignCleanup = """^[:-]\s+""".toRegex()
+
+@VisibleForTesting
+internal fun removeStartFromHeadingStarts(heading: String, startsWith: String) =
+    heading.substring(startsWith.length).trim()
+        .let {
+            newHeadsignCleanup.replace(it, EMPTY)
+        }
