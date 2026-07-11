@@ -45,25 +45,17 @@ data class POIScheduleViewHolder(
 
     override fun bind(status: Schedule?, dataProvider: POIStatusDataProvider, serviceUpdates: ServiceUpdates?) {
         super.bind(status, dataProvider, serviceUpdates)
-        status?.let { schedule ->
-            binding.apply {
-                var line1CS: CharSequence? = null
-                var line2CS: CharSequence? = null
-                if (schedule is UISchedule) {
-                    val lines = schedule.getStatus(
-                        context,
-                        dataProvider.nowToTheMinute,
-                        TimeUnit.MINUTES.toMillis(30L),
-                        null,
-                        10,
-                        null,
-                        serviceUpdates,
-                    )
-                    if (!lines.isNullOrEmpty()) {
-                        line1CS = lines[0].first
-                        line2CS = lines[0].second
-                    }
-                }
+        val schedule = status as? UISchedule ?: return
+        binding.apply {
+            schedule.getStatus(
+                context,
+                dataProvider.nowToTheMinute,
+                TimeUnit.MINUTES.toMillis(30L),
+                null,
+                10,
+                null,
+                serviceUpdates,
+            )?.firstOrNull()?.let { (line1CS, line2CS) ->
                 dataNextLine1.setText(line1CS, TextView.BufferType.SPANNABLE)
                 dataNextLine2.setText(line2CS, TextView.BufferType.SPANNABLE)
                 dataNextLine2.isVisible = !line2CS.isNullOrEmpty()

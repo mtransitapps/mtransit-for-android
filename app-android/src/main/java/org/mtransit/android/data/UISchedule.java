@@ -1003,7 +1003,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		if (!hasData()) { // NO DATA
-			generateStatusStringsNoService(context);
+			this.statusStrings = new ArrayList<>(); // nothing to show
 			this.statusStringsTimestamp = after;
 			return;
 		}
