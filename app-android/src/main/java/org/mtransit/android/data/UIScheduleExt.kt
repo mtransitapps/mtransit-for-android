@@ -49,3 +49,5 @@ data class DetailsNextDepartures(
         fun makeTextOnly(timeText: CharSequence) = DetailsNextDepartures(timeText = timeText)
     }
 }
+
+fun Schedule.toUI() = UISchedule(this)

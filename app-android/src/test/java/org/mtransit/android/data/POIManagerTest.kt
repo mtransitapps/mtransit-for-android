@@ -31,34 +31,62 @@ class POIManagerTest {
         TimeUtils.setOverrideCurrentTimeMillis(NOW_MS)
     }
 
+    private val rds get() =  makeRDS()
+
     @Test
-    fun test_setStatus() {
-        val rds = makeRDS()
-        // from no status -> status w/ no data
+    fun test_setStatus_fromNothing_toNoData() {
         rds.toPOIM(status = null).apply {
-            setStatus(rds.mkSchedule(hasData = false))
-        }.statusOrNull?.let { result ->
+            setStatus(rds.mkSchedule(noData = true))
+        }.statusOrNull.let { result ->
             assertNotNull(result)
             assertIs<Schedule>(result)
-            assertFalse(result.hasData())
+            assertFalse(!result.isNoData)
         }
-        // from staus no data -> status useful
-        rds.toPOIM(status = rds.mkSchedule(hasData = false)).apply {
-            setStatus(rds.mkSchedule(hasData = true, timestamps = mkTimestampsUseful()))
-        }.statusOrNull?.let { result ->
+    }
+
+    @Test
+    fun test_setStatus_fromNoData_toUseful() {
+        rds.toPOIM(status = rds.mkSchedule(noData = true)).apply {
+            setStatus(rds.mkSchedule(timestamps = mkTimestampsUseful()))
+        }.statusOrNull.let { result ->
             assertNotNull(result)
             assertIs<Schedule>(result)
-            assertTrue(result.hasData())
+            assertFalse(result.isNoData)
             assertTrue(result.isUseful)
         }
-        // from status useful -> ignore new no data
-        rds.toPOIM(status = rds.mkSchedule(hasData = true, timestamps = mkTimestampsUseful())).apply {
-            setStatus(rds.mkSchedule(hasData = false))
-        }.statusOrNull?.let { result ->
+    }
+
+    @Test
+    fun test_setStatus_fromUseful_toNoData() {
+        rds.toPOIM(status = rds.mkSchedule(timestamps = mkTimestampsUseful())).apply {
+            setStatus(rds.mkSchedule(noData = true))
+        }.statusOrNull.let { result ->
             assertNotNull(result)
             assertIs<Schedule>(result)
-            assertTrue(result.hasData())
+            assertFalse(result.isNoData)
             assertTrue(result.isUseful)
+        }
+    }
+
+    @Test
+    fun test_setStatus_fromNoService_toNoData() {
+        rds.toPOIM(status = rds.mkSchedule()).apply {
+            setStatus(rds.mkSchedule(noData = true))
+        }.statusOrNull.let { result ->
+            assertNotNull(result)
+            assertIs<Schedule>(result)
+            assertFalse(result.isNoData)
+        }
+    }
+
+    @Test
+    fun test_setStatus_fromNoData_toNoService() {
+        rds.toPOIM(status = rds.mkSchedule(noData = true)).apply {
+            setStatus(rds.mkSchedule())
+        }.statusOrNull.let { result ->
+            assertNotNull(result)
+            assertIs<Schedule>(result)
+            assertFalse(result.isNoData)
         }
     }
 
@@ -70,7 +98,7 @@ class POIManagerTest {
         readFromSourceAtInMs: Long = NOW_MS,
         providerPrecisionInMs: Long = 1.minutes.inWholeMilliseconds,
         sourceLabel: String = "test_source",
-        hasData: Boolean = true,
+        noData: Boolean = false,
         timestamps: List<Schedule.Timestamp>? = null,
     ) = makeSchedule(
         lastUpdateInMs = lastUpdateInMs,
@@ -78,10 +106,10 @@ class POIManagerTest {
         readFromSourceAtInMs = readFromSourceAtInMs,
         providerPrecisionInMs = providerPrecisionInMs,
         sourceLabel = sourceLabel,
-        hasData = hasData
+        noData = noData
     ).apply {
         timestamps?.let { setTimestampsAndSort(it) }
-    }
+    }.toUI()
 
     private fun mkTime(time: Instant, tripId: String? = null, stopSeq: Int? = null, arrival: Instant? = null) =
         time.toScheduleTimestamp(LOCAL_TZ_ID, arrival, tripId, stopSeq)

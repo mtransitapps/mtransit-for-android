@@ -345,7 +345,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	private long statusStringsTimestamp = -1L;
 
-	private UISchedule(@NonNull org.mtransit.android.commons.data.Schedule schedule) {
+	protected UISchedule(@NonNull org.mtransit.android.commons.data.Schedule schedule) {
 		this(
 				schedule,
 				schedule.getProviderPrecisionInMs(),
@@ -367,18 +367,29 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			long readFromSourceAtInMs,
 			long providerPrecisionInMs,
 			boolean noPickup,
-			@Nullable String sourceLabel,
-			boolean hasData
+			@Nullable String sourceLabel
 	) {
-		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, hasData);
+		this(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, false);
+	}
+
+	private UISchedule(
+			@Nullable Integer id,
+			@NonNull String targetUUID,
+			long lastUpdateInMs,
+			long maxValidityInMs,
+			long readFromSourceAtInMs,
+			long providerPrecisionInMs,
+			boolean noPickup,
+			@Nullable String sourceLabel,
+			boolean noData
+	) {
+		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, noData);
 	}
 
 	@Nullable
 	public static UISchedule fromCursorWithExtra(@NonNull Cursor cursor) {
 		org.mtransit.android.commons.data.Schedule schedule = org.mtransit.android.commons.data.Schedule.fromCursorWithExtra(cursor);
-		if (schedule == null) {
-			return null;
-		}
+		if (schedule == null) return null;
 		return new UISchedule(schedule);
 	}
 
@@ -1002,7 +1013,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
-		if (!hasData()) { // NO DATA
+		if (isNoData()) { // NO DATA
 			this.statusStrings = new ArrayList<>(); // nothing to show
 			this.statusStringsTimestamp = after;
 			return;
