@@ -331,21 +331,6 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		realTimeImage = null;
 	}
 
-	@Nullable
-	private ArrayList<DetailsNextDepartures> scheduleList = null;
-
-	private long scheduleListTimestamp = -1L;
-
-	@Nullable
-	private CharSequence scheduleString = null;
-
-	private long scheduleStringTimestamp = -1L;
-
-	@Nullable
-	private Pair<CharSequence, CharSequence> statusStrings = null;
-
-	private long statusStringsTimestamp = -1L;
-
 	protected UISchedule(@NonNull org.mtransit.android.commons.data.Schedule schedule) {
 		this(
 				schedule,
@@ -475,6 +460,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	// SCHEDULE LIST
+
+	@Nullable
+	private ArrayList<DetailsNextDepartures> scheduleList = null;
+
+	private long scheduleListTimestamp = -1L;
 
 	@Nullable
 	public ArrayList<DetailsNextDepartures> getScheduleList(
@@ -848,6 +838,15 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	// SCHEDULE
 
 	@Deprecated // TBD
+	@SuppressLint("DeprecatedCall")
+	@Nullable
+	private CharSequence scheduleString = null;
+
+	@Deprecated // TBD
+	@SuppressLint("DeprecatedCall")
+	private long scheduleStringTimestamp = -1L;
+
+	@Deprecated // TBD
 	@SuppressWarnings({"unused", "deprecation"})
 	@SuppressLint("DeprecatedCall")
 	@Nullable
@@ -990,6 +989,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	// STATUS
 
 	@Nullable
+	private Pair<CharSequence, CharSequence> statusStrings = null;
+
+	private long statusStringsTimestamp = -1L;
+
+	@Nullable
 	public Pair<CharSequence, CharSequence> getStatus(
 			@NonNull Context context,
 			long after,
@@ -1015,35 +1019,26 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		if (isNoData()) { // NO DATA
-			this.statusStrings = new Pair<>(null, null); // 'no data' status is never displayed
-			this.statusStringsTimestamp = after;
+			setStatusStrings(getStatusStringNoData(), after);
 			return;
 		}
-		if (isNoPickup()) { // NO PICKUP
-			if (this.statusStrings == null) {
-				generateStatusStringsNoPickup(context);
-			} // ELSE descent only already set
-			this.statusStringsTimestamp = after;
+		if (isNoPickup()) { // NO PICKUP schedule
+			setStatusStrings(getStatusStringsNoPickup(context), after);
 			return;
 		}
 		final Frequency frequency = getCurrentFrequency(after);
 		if (frequency != null && frequency.headwayInSec < MAX_FREQUENCY_DISPLAYED_IN_SEC) { // FREQUENCY
-			generateStatusStringsFrequency(context, frequency);
-			this.statusStringsTimestamp = after;
+			setStatusStrings(getStatusStringsFrequency(context, frequency), after);
 			return;
 		}
 		ArrayList<Timestamp> nextTimestamps = getStatusNextTimestamps(after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (nextTimestamps.isEmpty()) { // NO SERVICE IN COVERAGE
-			generateStatusStringsNoService(context);
-			this.statusStringsTimestamp = after;
+			setStatusStrings(getStatusStringsNoService(context), after);
 			return;
 		}
 		CollectionUtils.removeIfNN(nextTimestamps, Timestamp::isNoPickup);
-		if (nextTimestamps.isEmpty()) { // NO PICKUP SERVICE
-			if (this.statusStrings == null) {
-				generateStatusStringsNoPickup(context);
-			} // ELSE descent only already set
-			this.statusStringsTimestamp = after;
+		if (nextTimestamps.isEmpty()) { // NO PICKUP schedule timestamps
+			setStatusStrings(getStatusStringsNoPickup(context), after);
 			return;
 		}
 		final long diffInMs = nextTimestamps.get(0).getDepartureT() - after;
@@ -1053,12 +1048,15 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						&& diffInMs < UITimeUtils.FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT //
 						&& UITimeUtils.isFrequentService(nextTimestamps, -1, -1); // needs more than 3 services times!
 		if (isFrequentService) { // FREQUENT SERVICE
-			generateStatusStringsFrequentService(context);
-			this.statusStringsTimestamp = after;
+			setStatusStrings(getStatusStringsFrequentService(context), after);
 			return;
 		}
 		nextTimestamps = filterStatusNextTimestampsTimes(nextTimestamps);
-		generateStatusStringsTimes(context, after, diffInMs, nextTimestamps, serviceUpdates);
+		setStatusStrings(getStatusStringsTimes(context, after, diffInMs, nextTimestamps, serviceUpdates), after);
+	}
+
+	private void setStatusStrings(@Nullable Pair<CharSequence, CharSequence> statusStrings, long after) {
+		this.statusStrings = statusStrings;
 		this.statusStringsTimestamp = after;
 	}
 
@@ -1132,7 +1130,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return nextTimestampsT;
 	}
 
-	private void generateStatusStringsTimes(
+	private Pair<CharSequence, CharSequence> getStatusStringsTimes(
 			@NonNull Context context,
 			long recentEnoughToBeNow,
 			long diffInMs,
@@ -1192,7 +1190,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			line1CS = decorateCancelled(nextTimestamp, line1CS, serviceUpdates);
 			if (line2CS != null) line2CS = decorateCancelled(nextTimestamp, line2CS, serviceUpdates);
 		}
-		this.statusStrings = new Pair<>(line1CS, line2CS);
+		return new Pair<>(line1CS, line2CS);
 	}
 
 	@Nullable
@@ -1225,7 +1223,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				getStatusSpaceTextAppearance(context), STATUS_FONT);
 	}
 
-	private void generateStatusStringsFrequency(@NonNull Context context, @NonNull Frequency frequency) {
+	private Pair<CharSequence, CharSequence> getStatusStringNoData() {
+		return new Pair<>(null, null);
+	}
+
+	private Pair<CharSequence, CharSequence> getStatusStringsFrequency(@NonNull Context context, @NonNull Frequency frequency) {
 		int headwayInMin = frequency.headwayInSec / 60;
 		CharSequence headway = UITimeUtils.getNumberInLetter(context, headwayInMin);
 		final SpannableStringBuilder cs1 = new SpannableStringBuilder(context.getResources().getQuantityString(R.plurals.every_minutes_and_quantity_part_1, headwayInMin, headway));
@@ -1234,27 +1236,23 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			SpanUtils.setAll(cs1, SCHEDULE_OLD_SCHEDULE_STYLE);
 			SpanUtils.setAll(cs2, SCHEDULE_OLD_SCHEDULE_STYLE);
 		}
-		generateStatusStrings(context, cs1, cs2);
+		return getStatusStringsAndFormatting(context, cs1, cs2);
 	}
 
-	private void generateStatusStringsNoService(@NonNull Context context) {
-		generateStatusStrings(context, context.getString(R.string.no_service_part_1), context.getString(R.string.no_service_part_2));
+	private Pair<CharSequence, CharSequence> getStatusStringsNoService(@NonNull Context context) {
+		return getStatusStringsAndFormatting(context, context.getString(R.string.no_service_part_1), context.getString(R.string.no_service_part_2));
 	}
 
-	private void generateStatusStringsFrequentService(@NonNull Context context) {
-		generateStatusStrings(context, context.getString(R.string.frequent_service_part_1), context.getString(R.string.frequent_service_part_2));
+	private Pair<CharSequence, CharSequence> getStatusStringsFrequentService(@NonNull Context context) {
+		return getStatusStringsAndFormatting(context, context.getString(R.string.frequent_service_part_1), context.getString(R.string.frequent_service_part_2));
 	}
 
-	private void generateStatusStringsNoPickup(@NonNull Context context) {
-		generateStatusStrings(context, context.getString(R.string.drop_off_only_part_1), context.getString(R.string.drop_off_only_part_2));
+	private Pair<CharSequence, CharSequence> getStatusStringsNoPickup(@NonNull Context context) {
+		return getStatusStringsAndFormatting(context, context.getString(R.string.drop_off_only_part_1), context.getString(R.string.drop_off_only_part_2));
 	}
 
-	private void generateStatusStrings(
-			@NonNull Context context,
-			CharSequence cs1,
-			CharSequence cs2
-	) {
-		this.statusStrings = new Pair<>(
+	private Pair<CharSequence, CharSequence> getStatusStringsAndFormatting(@NonNull Context context, CharSequence cs1, CharSequence cs2) {
+		return new Pair<>(
 				SpanUtils.setAll(cs1,
 						getStatusStringTextAppearance(context),
 						STATUS_FONT,
