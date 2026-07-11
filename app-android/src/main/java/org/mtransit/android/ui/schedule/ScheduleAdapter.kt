@@ -124,9 +124,7 @@ class ScheduleAdapter :
 
     var timestamps: List<Schedule.Timestamp>? = null
         set(newValue) {
-            if (field == newValue) {
-                return
-            }
+            if (field == newValue) return
             field = newValue
             updateTimes()
         }
@@ -348,10 +346,10 @@ class ScheduleAdapter :
         this.nextTimestamp = null
     }
 
-    fun isReady() = this.timesCount != null
+    val isReady get() = this.timesCount != null
 
     override fun getItemCount(): Int {
-        return if (!isReady()) 0
+        return if (!isReady) 0
         else
             (this.timesCount ?: 0) + // times
                     dayToHourToTimestamps.size + // day separator

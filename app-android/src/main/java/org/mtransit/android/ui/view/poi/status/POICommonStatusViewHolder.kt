@@ -9,7 +9,6 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
-import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.data.POIManager
 
@@ -17,7 +16,7 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
 
     @CallSuper
     fun bind(status: STATUS?, dataProvider: POIStatusDataProvider, serviceUpdates: ServiceUpdates?) {
-        statusV.isVisible = status != null
+        setStatusVisible(status != null)
     }
 
     fun setStatusVisible(visible: Boolean) {
