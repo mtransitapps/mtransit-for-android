@@ -46,8 +46,9 @@ data class POIScheduleViewHolder(
     }
 
     override fun bind(status: Schedule?, dataProvider: POIStatusDataProvider, serviceUpdates: ServiceUpdates?) {
-        super.bind(status?.takeIf { !it.isNoData }, dataProvider, serviceUpdates)
-        val schedule = status as? UISchedule ?: return
+        val statusWithData = status?.takeIf { !it.isNoData } // 'no data' status is never displayed
+        super.bind(statusWithData, dataProvider, serviceUpdates)
+        val schedule = statusWithData as? UISchedule ?: return
         binding.apply {
             schedule.getStatus(
                 context,
