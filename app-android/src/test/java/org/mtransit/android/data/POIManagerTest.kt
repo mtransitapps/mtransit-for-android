@@ -40,7 +40,7 @@ class POIManagerTest {
         }.statusOrNull.let { result ->
             assertNotNull(result)
             assertIs<Schedule>(result)
-            assertFalse(!result.isNoData)
+            assertTrue(result.isNoData)
         }
     }
 

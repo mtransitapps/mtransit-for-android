@@ -11,9 +11,11 @@ import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
+import org.mtransit.android.data.getStatusK
 import org.mtransit.android.databinding.LayoutPoiStatusScheduleBinding
 import org.mtransit.android.ui.view.common.context
 import java.util.concurrent.TimeUnit
+import androidx.core.util.Pair as androidXPair
 
 data class POIScheduleViewHolder(
     override var uuid: String,
@@ -46,24 +48,23 @@ data class POIScheduleViewHolder(
     }
 
     override fun bind(status: Schedule?, dataProvider: POIStatusDataProvider, serviceUpdates: ServiceUpdates?) {
-        val statusWithData = status?.takeIf { !it.isNoData } // 'no data' status is never displayed
-        super.bind(statusWithData, dataProvider, serviceUpdates)
-        val schedule = statusWithData as? UISchedule ?: return
+        val scheduleWithData = (status as? UISchedule)?.takeIf { !it.isNoData } // 'no data' status is never displayed
+        super.bind(scheduleWithData, dataProvider, serviceUpdates)
+        scheduleWithData ?: return
         binding.apply {
-            schedule.getStatus(
-                context,
-                dataProvider.nowToTheMinute,
-                TimeUnit.MINUTES.toMillis(30L),
-                null,
-                10,
-                null,
-                serviceUpdates,
-            )?.firstOrNull()?.let { (line1CS, line2CS) ->
-                dataNextLine1.setText(line1CS, TextView.BufferType.SPANNABLE)
-                dataNextLine2.setText(line2CS, TextView.BufferType.SPANNABLE)
-                dataNextLine2.isVisible = !line2CS.isNullOrEmpty()
-                super.setStatusVisible(visible = !line1CS.isNullOrEmpty())
-            }
+            //noinspection KotlinPairNotCreated
+            val (line1CS, line2CS) = scheduleWithData.getStatusK(
+                context = context,
+                after = dataProvider.nowToTheMinute,
+                minCoverageInMs = TimeUnit.MINUTES.toMillis(30L),
+                minCount = 10,
+                serviceUpdates = serviceUpdates,
+            ) ?: androidXPair<CharSequence?, CharSequence?>(null, null)
+            //     MTLog.d(this, "bind() > '$line1CS', '$line2CS' - $uuid")
+            dataNextLine1.setText(line1CS, TextView.BufferType.SPANNABLE)
+            dataNextLine2.setText(line2CS, TextView.BufferType.SPANNABLE)
+            dataNextLine2.isVisible = !line2CS.isNullOrEmpty()
+            super.setStatusVisible(visible = !line1CS.isNullOrEmpty())
         }
     }
 

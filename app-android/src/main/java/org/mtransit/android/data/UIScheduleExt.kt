@@ -10,6 +10,19 @@ import kotlin.math.roundToLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.DurationUnit
+import androidx.core.util.Pair as androidXPair
+
+fun UISchedule.getStatusK(
+    context: Context,
+    after: Long,
+    minCoverageInMs: Long? = null,
+    maxCoverageInMs: Long? = null,
+    minCount: Int? = null,
+    maxCount: Int? = null,
+    serviceUpdates: ServiceUpdates? = null,
+): androidXPair<CharSequence?, CharSequence?>? = this.getStatus(
+    context, after, minCoverageInMs, maxCoverageInMs, minCount, maxCount, serviceUpdates
+)
 
 fun ServiceUpdates?.findTripServiceUpdate(tripId: String?): ServiceUpdate? {
     tripId ?: return null

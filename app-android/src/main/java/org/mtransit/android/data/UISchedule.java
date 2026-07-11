@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+@SuppressLint("KotlinPairNotCreated")
 public class UISchedule extends org.mtransit.android.commons.data.Schedule implements MTLog.Loggable {
 
 	private static final String LOG_TAG = UISchedule.class.getSimpleName();
@@ -341,7 +342,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	private long scheduleStringTimestamp = -1L;
 
 	@Nullable
-	private ArrayList<Pair<CharSequence, CharSequence>> statusStrings = null;
+	private Pair<CharSequence, CharSequence> statusStrings = null;
 
 	private long statusStringsTimestamp = -1L;
 
@@ -989,7 +990,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	// STATUS
 
 	@Nullable
-	public ArrayList<Pair<CharSequence, CharSequence>> getStatus(
+	public Pair<CharSequence, CharSequence> getStatus(
 			@NonNull Context context,
 			long after,
 			@Nullable Long optMinCoverageInMs,
@@ -1014,12 +1015,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		if (isNoData()) { // NO DATA
-			this.statusStrings = new ArrayList<>(); // 'no data' status is never displayed
+			this.statusStrings = new Pair<>(null, null); // 'no data' status is never displayed
 			this.statusStringsTimestamp = after;
 			return;
 		}
-		if (isNoPickup()) { // DESCENT ONLY
-			if (this.statusStrings == null || this.statusStrings.isEmpty()) {
+		if (isNoPickup()) { // NO PICKUP
+			if (this.statusStrings == null) {
 				generateStatusStringsNoPickup(context);
 			} // ELSE descent only already set
 			this.statusStringsTimestamp = after;
@@ -1038,8 +1039,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			return;
 		}
 		CollectionUtils.removeIfNN(nextTimestamps, Timestamp::isNoPickup);
-		if (nextTimestamps.isEmpty()) { // DESCENT ONLY SERVICE
-			if (this.statusStrings == null || this.statusStrings.isEmpty()) {
+		if (nextTimestamps.isEmpty()) { // NO PICKUP SERVICE
+			if (this.statusStrings == null) {
 				generateStatusStringsNoPickup(context);
 			} // ELSE descent only already set
 			this.statusStringsTimestamp = after;
@@ -1191,8 +1192,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			line1CS = decorateCancelled(nextTimestamp, line1CS, serviceUpdates);
 			if (line2CS != null) line2CS = decorateCancelled(nextTimestamp, line2CS, serviceUpdates);
 		}
-		this.statusStrings = new ArrayList<>();
-		this.statusStrings.add(new Pair<>(line1CS, line2CS));
+		this.statusStrings = new Pair<>(line1CS, line2CS);
 	}
 
 	@Nullable
@@ -1254,16 +1254,16 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			CharSequence cs1,
 			CharSequence cs2
 	) {
-		this.statusStrings = new ArrayList<>();
-		this.statusStrings.add(new Pair<>(//
-				SpanUtils.setAll(cs1, //
-						getStatusStringTextAppearance(context), //
-						STATUS_FONT, //
-						getStatusStringsTextColor1(context)), //
-				SpanUtils.setAll(cs2, //
-						getStatusStringTextAppearance(context), //
-						STATUS_FONT, //
-						getStatusStringsTextColor2(context))));
+		this.statusStrings = new Pair<>(
+				SpanUtils.setAll(cs1,
+						getStatusStringTextAppearance(context),
+						STATUS_FONT,
+						getStatusStringsTextColor1(context)),
+				SpanUtils.setAll(cs2,
+						getStatusStringTextAppearance(context),
+						STATUS_FONT,
+						getStatusStringsTextColor2(context))
+		);
 	}
 
 	static class TimeSections {
