@@ -188,7 +188,7 @@ class ScheduleViewModel @Inject constructor(
                 hasProviderTimestampsReturned = true
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _scheduleSourceLabel.postValue(scheduleTimestamps.sourceLabel)
-                    viewModelScope.launch(Dispatchers.Main) {
+                    withContext(Dispatchers.Main) {
                         savedStateHandle[LOCAL_TIME_ZONE_ID] =
                             scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZoneId }
                                 ?: TimeZone.getDefault().id // must set a timezone to display calendar
@@ -203,7 +203,7 @@ class ScheduleViewModel @Inject constructor(
             }
         }
         _scheduleSourceLabel.postValue(null)
-        viewModelScope.launch(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
             savedStateHandle[LOCAL_TIME_ZONE_ID] = TimeZone.getDefault().id // empty list must set a timezone to display calendar
         }
         return emptyList() // loaded (not loading) == no service today
