@@ -197,8 +197,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                         list.scrollToPosition(scrollPosition)
                     }
                 }
-                loadingLayout.isVisible = !listAdapter.isReady()
-                list.isVisible = listAdapter.isReady()
+                loadingLayout.isVisible = !listAdapter.isReady
+                list.isVisible = listAdapter.isReady
             }
         }
         viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->

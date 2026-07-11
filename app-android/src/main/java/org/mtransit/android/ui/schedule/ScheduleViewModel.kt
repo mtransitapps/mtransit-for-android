@@ -99,8 +99,7 @@ class ScheduleViewModel @Inject constructor(
 
     private val _startsAtDaysBefore = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_START_AT_DAYS_BEFORE)
     private val _endsAtDaysAfter = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_END_AT_DAYS_AFTER)
-    private val _localTimeZoneId = savedStateHandle.getLiveData<String?>(LOCAL_TIME_ZONE_ID)
-    private val localTimeZoneId: LiveData<String?> = _localTimeZoneId.distinctUntilChanged()
+    private val localTimeZoneId = savedStateHandle.getLiveDataDistinct<String?>(LOCAL_TIME_ZONE_ID)
 
     val localTimeZone: LiveData<TimeZone?> = localTimeZoneId.map { timeZoneId ->
         timeZoneId?.let { TimeZone.getTimeZone(it) }
@@ -189,8 +188,10 @@ class ScheduleViewModel @Inject constructor(
                 hasProviderTimestampsReturned = true
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _scheduleSourceLabel.postValue(scheduleTimestamps.sourceLabel)
-                    scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZoneId }?.let { localTimeZoneId ->
-                        this._localTimeZoneId.postValue(localTimeZoneId)
+                    viewModelScope.launch(Dispatchers.Main) {
+                        savedStateHandle[LOCAL_TIME_ZONE_ID] =
+                            scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZoneId }
+                                ?: TimeZone.getDefault().id // must set a timezone to display calendar
                     }
                     return scheduleTimestamps.timestamps
                 }
@@ -202,6 +203,9 @@ class ScheduleViewModel @Inject constructor(
             }
         }
         _scheduleSourceLabel.postValue(null)
+        viewModelScope.launch(Dispatchers.Main) {
+            savedStateHandle[LOCAL_TIME_ZONE_ID] = TimeZone.getDefault().id // empty list must set a timezone to display calendar
+        }
         return emptyList() // loaded (not loading) == no service today
     }
 
