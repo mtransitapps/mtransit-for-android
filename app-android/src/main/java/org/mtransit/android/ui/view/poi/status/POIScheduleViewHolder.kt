@@ -60,7 +60,6 @@ data class POIScheduleViewHolder(
                 minCount = 10,
                 serviceUpdates = serviceUpdates,
             ) ?: androidXPair<CharSequence?, CharSequence?>(null, null)
-            //     MTLog.d(this, "bind() > '$line1CS', '$line2CS' - $uuid")
             dataNextLine1.setText(line1CS, TextView.BufferType.SPANNABLE)
             dataNextLine2.setText(line2CS, TextView.BufferType.SPANNABLE)
             dataNextLine2.isVisible = !line2CS.isNullOrEmpty()
