@@ -2,6 +2,8 @@ package org.mtransit.android.ui.view.poi.status
 
 import android.view.View
 import android.widget.TextView
+import androidx.core.util.component1
+import androidx.core.util.component2
 import androidx.core.view.isVisible
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POIStatus
