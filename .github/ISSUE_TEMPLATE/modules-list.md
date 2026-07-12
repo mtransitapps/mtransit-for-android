@@ -149,6 +149,7 @@ labels: MT
 - [ ] ca-york-region-yrt-viva-bus
 - [ ] fr-ariege-lio-bus
 - [ ] fr-haute-garonne-lio-bus
+- [ ] fr-hautes-pyrenees-lio-bus
 - [ ] fr-perpignan-sankeo-bus
 - [ ] fr-pyrenees-orientales-lio-bus
 - [ ] us-anchorage-people-mover-bus
