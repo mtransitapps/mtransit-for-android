@@ -273,6 +273,7 @@ public class POIFragment extends ABFragment implements
 			);
 
 	private void setupMapViewController() {
+		this.mapViewController.setBuildingEnabled(false);
 		this.mapViewController.setHideMapMarkerSnippet(true);
 	}
 
