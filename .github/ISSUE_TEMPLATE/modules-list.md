@@ -127,6 +127,7 @@ labels: MT
 - [ ] ca-sud-ouest-citso-bus
 - [ ] ca-sunshine-coast-regional-transit-system-bus
 - [ ] ca-thunder-bay-transit-bus
+- [ ] ca-timmins-transit-bus
 - [ ] ca-toronto-share-bike
 - [ ] ca-toronto-ttc-bus
 - [ ] ca-toronto-ttc-light-rail
