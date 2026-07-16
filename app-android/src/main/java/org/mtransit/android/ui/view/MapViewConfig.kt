@@ -2,7 +2,7 @@ package org.mtransit.android.ui.view
 
 import java.lang.ref.WeakReference
 
-data class MapViewConfig(
+class MapViewConfig(
     val markerProviderWR: WeakReference<MapViewController.MapMarkerProvider> = WeakReference<MapViewController.MapMarkerProvider>(null),
     val mapListenerWR: WeakReference<MapViewController.MapListener> = WeakReference<MapViewController.MapListener>(null),
     val mapToolbarEnabled: Boolean = false,
