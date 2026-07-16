@@ -249,8 +249,8 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	ImageManager imageManager;
 
-	protected static final int TOP_PADDING_DP = 64 - 32;
-	protected static final int BOTTOM_PADDING_DP = 0;
+	static final int TOP_PADDING_DP = 64 - 32;
+	static final int BOTTOM_PADDING_DP = 0;
 
 	@NonNull
 	protected final MapViewController mapViewController = new MapViewController(
