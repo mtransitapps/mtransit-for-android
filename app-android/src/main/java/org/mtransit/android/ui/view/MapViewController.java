@@ -197,7 +197,7 @@ public class MapViewController implements
 
 	protected boolean hideMapMarkerSnippet = false;
 
-	private boolean buildingEnabled = true; // ON by default in Google Maps SDK
+	private boolean buildingsEnabled = true; // ON by default in Google Maps SDK
 
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
@@ -268,8 +268,8 @@ public class MapViewController implements
 		this.hideMapMarkerSnippet = hideMapMarkerSnippet;
 	}
 
-	public void setBuildingEnabled(boolean buildingEnabled) {
-		this.buildingEnabled = buildingEnabled;
+	public void setBuildingsEnabled(boolean buildingsEnabled) {
+		this.buildingsEnabled = buildingsEnabled;
 	}
 
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -397,7 +397,7 @@ public class MapViewController implements
 		setupGoogleMapMyLocation();
 		this.extendedGoogleMap.setTrafficEnabled(this.trafficEnabled);
 		this.extendedGoogleMap.setIndoorEnabled(this.indoorEnabled);
-		this.extendedGoogleMap.setBuildingsEnabled(this.buildingEnabled);
+		this.extendedGoogleMap.setBuildingsEnabled(this.buildingsEnabled);
 		this.extendedGoogleMap.getUiSettings().setIndoorLevelPickerEnabled(this.indoorLevelPickerEnabled);
 		this.extendedGoogleMap.getUiSettings().setMapToolbarEnabled(this.mapToolbarEnabled);
 		this.extendedGoogleMap.setOnMapLoadedCallback(this);
