@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.makeMapViewConfig;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.makePoiListFooterManager;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.refreshRewardedAdStatus;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.setupViewKt;
@@ -248,34 +249,14 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	ImageManager imageManager;
 
-	private static final int TOP_PADDING_DP = 64 - 32;
-	private static final int BOTTOM_PADDING_DP = 0;
+	protected static final int TOP_PADDING_DP = 64 - 32;
+	protected static final int BOTTOM_PADDING_DP = 0;
 
 	@NonNull
-	protected final MapViewController mapViewController =
-			new MapViewController(
-					LOG_TAG,
-					this,
-					this,
-					false,
-					true,
-					false,
-					false,
-					false,
-					false,
-					TOP_PADDING_DP,
-					BOTTOM_PADDING_DP,
-					false, // manually set
-					false,
-					false,
-					true,
-					false
-			);
-
-	private void setupMapViewController() {
-		this.mapViewController.setBuildingsEnabled(false);
-		this.mapViewController.setHideMapMarkerSnippet(true);
-	}
+	protected final MapViewController mapViewController = new MapViewController(
+			LOG_TAG,
+			makeMapViewConfig(this)
+	);
 
 	private void onAgencyLoaded(@Nullable AgencyProperties agency) {
 		applyNewAgency();
@@ -507,7 +488,6 @@ public class POIFragment extends ABFragment implements
 	public void onAttach(@NonNull Context context) {
 		super.onAttach(context);
 		initAdapters(this);
-		setupMapViewController();
 		this.mapViewController.setDI(this.dataSourcesRepository, this.lclPrefRepository);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));
 		this.mapViewController.onAttach(requireActivity());
@@ -604,7 +584,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void onPOIsLoaded(@Nullable List<POIManager> poiList) {
-		this.mapViewController.notifyMarkerChanged(this);
+		this.mapViewController.notifyMarkerChanged();
 		this.mapViewController.showMap(this.binding == null ? null : this.binding.getRoot());
 	}
 

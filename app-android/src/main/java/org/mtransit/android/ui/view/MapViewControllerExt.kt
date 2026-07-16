@@ -22,7 +22,7 @@ import org.mtransit.android.util.MapUtils
 fun MapViewController.updateVehicleLocationMarkers(
     context: Context,
     selectedUuid: String? = this.lastSelectedUUID,
-    markerProvider: MapViewController.MapMarkerProvider? = this.markerProviderWR?.get(),
+    markerProvider: MapViewController.MapMarkerProvider? = this.config.markerProvider,
     vehicleLocations: Collection<VehicleLocation>? = markerProvider?.vehicleLocations,
 ): Boolean {
     selectedUuid?.let { setInitialSelectedUUID(selectedUuid) }
@@ -54,11 +54,11 @@ fun MapViewController.updateVehicleLocationMarkers(
         var marker = this.vehicleLocationsMarkers[uuid]
         if (marker == null) { // ADD new
             marker = googleMap.addMarker(
-                vehicleLocation.toExtendedMarkerOptions(context, iconDef, vehicleColorInt, poiZoomGroup, hideMapMarkerSnippet)
+                vehicleLocation.toExtendedMarkerOptions(context, iconDef, vehicleColorInt, poiZoomGroup, config.hideMapMarkerSnippet)
             )
             this.vehicleLocationsMarkers[uuid] = marker
         } else { // UPDATE existing
-            vehicleLocation.updateMarker(marker, context, iconDef, vehicleColorInt, poiZoomGroup, hideMapMarkerSnippet)
+            vehicleLocation.updateMarker(marker, context, iconDef, vehicleColorInt, poiZoomGroup, config.hideMapMarkerSnippet)
         }
         if (selectedUuid == uuid) {
             marker.showInfoWindow()
@@ -90,7 +90,7 @@ fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
             updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
             if (!isInfoWindowShown) return@forEach
             updateTitle(vehicleLocation.getMapMarkerTitle(context))
-            updateSnippet(if (hideMapMarkerSnippet) null else vehicleLocation.getMapMarkerSnippet(context))
+            updateSnippet(if (config.hideMapMarkerSnippet) null else vehicleLocation.getMapMarkerSnippet(context))
         }
     }
 }
