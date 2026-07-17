@@ -55,7 +55,7 @@ jobs:
           token: ${{ secrets.MT_PAT }}
 
       - name: MT setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.3.0
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.0
 
       - name: MT read sdk-target from gradle/libs.versions.toml
         id: sdk-target

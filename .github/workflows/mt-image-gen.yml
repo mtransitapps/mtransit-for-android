@@ -58,7 +58,7 @@ jobs:
           token: ${{ secrets.MT_PAT }}
 
       - name: MT setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.3.0
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.0
         with:
           image-gen: true
 

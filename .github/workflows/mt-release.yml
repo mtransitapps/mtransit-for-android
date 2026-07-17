@@ -127,7 +127,7 @@ jobs:
 
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.3.0
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.0
 
       - name: MT enable app release
         run: |
