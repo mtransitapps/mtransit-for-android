@@ -1,14 +1,19 @@
 package org.mtransit.android.ui.view
 
 import android.content.Context
+import com.google.android.gms.maps.model.LatLng
+import org.mtransit.android.commons.LOG_TAG
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
+import org.mtransit.android.commons.pxToDp
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
 import org.mtransit.android.ui.view.map.countMarkersInside
 import org.mtransit.android.ui.view.map.getMapMarkerAlpha
 import org.mtransit.android.ui.view.map.getMapMarkerSnippet
 import org.mtransit.android.ui.view.map.getMapMarkerTitle
+import org.mtransit.android.ui.view.map.position
 import org.mtransit.android.ui.view.map.toArea
 import org.mtransit.android.ui.view.map.toExtendedMarkerOptions
 import org.mtransit.android.ui.view.map.updateAlpha
@@ -17,6 +22,7 @@ import org.mtransit.android.ui.view.map.updateSnippet
 import org.mtransit.android.ui.view.map.updateTitle
 import org.mtransit.android.ui.view.map.uuidOrGenerated
 import org.mtransit.android.util.MapUtils
+import kotlin.math.abs
 
 @JvmOverloads
 fun MapViewController.updateVehicleLocationMarkers(
@@ -24,6 +30,7 @@ fun MapViewController.updateVehicleLocationMarkers(
     selectedUuid: String? = this.lastSelectedUUID,
     markerProvider: MapViewController.MapMarkerProvider? = this.config.markerProvider,
     vehicleLocations: Collection<VehicleLocation>? = markerProvider?.vehicleLocations,
+    avoidCollapseLatLng: LatLng? = null,
 ): Boolean {
     selectedUuid?.let { setInitialSelectedUUID(selectedUuid) }
     val googleMap = this.extendedGoogleMap ?: run {
@@ -60,14 +67,32 @@ fun MapViewController.updateVehicleLocationMarkers(
         } else { // UPDATE existing
             vehicleLocation.updateMarker(marker, context, iconDef, vehicleColorInt, poiZoomGroup, config.hideMapMarkerSnippet)
         }
-        if (selectedUuid == uuid) {
+        if (selectedUuid == uuid
+            && avoidCollapseLatLng?.let { areMarkerCollapsing(it, vehicleLocation.position) } != true
+        ) {
             marker.showInfoWindow()
+        } else if (marker.isInfoWindowShown) {
+            marker.hideInfoWindow()
+            marker.setZIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE) // reset original Z-Index changed by showInfoWindow()
         }
         processedVehicleLocationsUUIDs.add(uuid)
         index++
     }
     removeMissingVehicleLocationMarkers(processedVehicleLocationsUUIDs)
     return true
+}
+
+fun MapViewController.areMarkerCollapsing(latLng1: LatLng, latLng2: LatLng): Boolean? {
+    val projection = this.extendedGoogleMap?.projection ?: run {
+        MTLog.d(this, "areMarkerCollapsing() > UNKNOWN (no map) #20260717")
+        return null
+    }
+    val point1 = projection.toScreenLocation(latLng1)
+    val point2 = projection.toScreenLocation(latLng2)
+    val collapseMinDistancePx = (48 / 2).dpToPx
+    val isCollapsed = abs(point1.x - point2.x) < collapseMinDistancePx
+            && abs(point1.y - point2.y) < collapseMinDistancePx
+    return isCollapsed
 }
 
 fun MapViewController.getPOIZoomGroup(currentZoomGroup: MTMapIconZoomGroup, isFocused: (String) -> Boolean) =

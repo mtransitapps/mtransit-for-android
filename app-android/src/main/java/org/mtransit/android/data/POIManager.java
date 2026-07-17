@@ -214,7 +214,7 @@ public class POIManager implements LocationPOI,
 			}
 		}
 		// 3 - use status
-		MTLog.d(this, "setStatus() > USE new status");
+		MTLog.d(this, "setStatus() > USE new status %s", newStatus.toString());
 		this.status = newStatus;
 		return true; // change
 	}

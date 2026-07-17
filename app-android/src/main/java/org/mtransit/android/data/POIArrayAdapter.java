@@ -1122,7 +1122,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			} else if (this.notifyDataSetChangedLater != null) {
 				MTLog.d(this, "notifyDataSetChanged() > already scheduled");
 			} else {
+				MTLog.d(this, "notifyDataSetChanged() > SCHEDULED");
 				this.notifyDataSetChangedLater = () -> {
+					MTLog.d(this, "notifyDataSetChanged() > HANDLER");
 					this.notifyDataSetChangedLater = null;
 					notifyDataSetChanged(true);
 				};

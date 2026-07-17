@@ -65,9 +65,9 @@ data class MTPOIMarker(
                 secondaryColor,
                 Color.BLACK
             )
-            .alpha(alpha ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
-            .rotation(rotation ?: MapUtils.MAP_MARKER_ROTATION_DEFAULT)
-            .zIndex(zIndex ?: MapUtils.MAP_MARKER_Z_INDEX_DEFAULT)
+            .alpha(alphaOrDefault)
+            .rotation(rotationOrDefault)
+            .zIndex(zIndexOrDefault)
             .data(uuidsAndAuthority)
     }
 
@@ -144,6 +144,12 @@ data class MTPOIMarker(
                 append(P2)
             }
         }
+
+    val alphaOrDefault get() = alpha ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT
+
+    val rotationOrDefault get() = rotation ?: MapUtils.MAP_MARKER_ROTATION_DEFAULT
+
+    val zIndexOrDefault get() = zIndex ?: MapUtils.MAP_MARKER_Z_INDEX_DEFAULT
 
     fun hasUUID(uuid: String?) = this.uuidsAndAuthority.hasUUID(uuid)
 

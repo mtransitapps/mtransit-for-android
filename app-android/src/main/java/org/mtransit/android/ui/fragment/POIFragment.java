@@ -1,7 +1,12 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.getClosestVehicleLocationUuid;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.getMapMarkerAlphaKt;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.getPOIKt;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.getVisibleMarkersLocationList;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.makeMapViewConfig;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.makePoiListFooterManager;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.onMapClickKt;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.refreshRewardedAdStatus;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.setupViewKt;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.startVehicleLocationCountdownRefresh;
@@ -412,7 +417,7 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	@Override
 	public POIManager getPOI(int position) {
-		return POIFragmentExtKt.getPOI(this, position);
+		return getPOIKt(this, position);
 	}
 
 	@Nullable
@@ -449,13 +454,13 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	@Override
 	public Collection<LatLng> getVisibleMarkersLocations() {
-		return POIFragmentExtKt.getVisibleMarkersLocationList(this);
+		return getVisibleMarkersLocationList(this);
 	}
 
 	@Nullable
 	@Override
 	public Float getMapMarkerAlpha(int position, @NonNull Area visibleArea) {
-		return POIFragmentExtKt.getMapMarkerAlpha(this, position, visibleArea);
+		return getMapMarkerAlphaKt(this, position, visibleArea);
 	}
 
 	@Override
@@ -476,12 +481,12 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
-		return POIFragmentExtKt.onMapClick(this);
+		return onMapClickKt(this);
 	}
 
 	@Override
 	public void onMapClick(@NonNull LatLng position) {
-		POIFragmentExtKt.onMapClick(this);
+		onMapClickKt(this);
 	}
 
 	@Override
@@ -572,8 +577,17 @@ public class POIFragment extends ABFragment implements
 		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return;
 		final Context context = getContext();
 		if (context != null) {
-			final String closestVehicleLocationUuid = POIFragmentExtKt.getClosestVehicleLocationUuid(this, vehicleLocations);
-			MapViewControllerExtKt.updateVehicleLocationMarkers(this.mapViewController, context, closestVehicleLocationUuid, this, vehicleLocations);
+			final String closestVehicleLocationUuid = getClosestVehicleLocationUuid(this, this.mapViewController, vehicleLocations);
+			final POIManager poim = getPoimOrNull();
+			final LatLng avoidCollapseLatLng = poim == null ? null : POIManagerExtKt.getLatLng(poim);
+			MapViewControllerExtKt.updateVehicleLocationMarkers(
+					this.mapViewController,
+					context,
+					closestVehicleLocationUuid,
+					this,
+					vehicleLocations,
+					avoidCollapseLatLng
+			);
 		}
 		this.mapViewController.showMarkers(true, false);
 		if (vehicleLocations == null || vehicleLocations.isEmpty()) {

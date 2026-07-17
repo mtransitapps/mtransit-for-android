@@ -27,6 +27,8 @@ import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
 import org.mtransit.android.ui.view.MapViewConfig
+import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.areMarkerCollapsing
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.navigateF
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
@@ -221,10 +223,14 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
     }
 
 fun POIFragment.getClosestVehicleLocationUuid(
+    mapViewController: MapViewController,
     vehicleLocations: Collection<VehicleLocation>? = viewModel?.vehicleLocations?.value
 ): String? {
     val poimLatLng = poim?.latLng ?: return null
-    return vehicleLocations?.minByOrNull { it.position.distanceToInMeters(poimLatLng) }?.uuid
+    return vehicleLocations
+        ?.minByOrNull { it.position.distanceToInMeters(poimLatLng) }
+        ?.takeIf { mapViewController.areMarkerCollapsing(poimLatLng, it.position) != true }
+        ?.uuid
 }
 
 private val MAP_MARKER_ALPHA_FOCUS_1: Float? = null // 1.00f // DEFAULT
@@ -232,7 +238,7 @@ private const val MAP_MARKER_ALPHA_FOCUS_2 = 0.75f
 private const val MAP_MARKER_ALPHA_FOCUS_3 = 0.50f
 private const val MAP_MARKER_ALPHA_FOCUS_4 = 0.25f
 
-fun POIFragment.getMapMarkerAlpha(position: Int, visibleArea: Area): Float? {
+fun POIFragment.getMapMarkerAlphaKt(position: Int, visibleArea: Area): Float? {
     val poi = this.poim?.poi ?: return null
     viewModel?.poiList?.value
         ?.map { it.poi }
@@ -262,7 +268,7 @@ fun POIFragment.getMapMarkerAlpha(position: Int, visibleArea: Area): Float? {
     return null
 }
 
-fun POIFragment.getPOI(position: Int): POIManager? {
+fun POIFragment.getPOIKt(position: Int): POIManager? {
     val poiList = viewModel?.poiList?.value ?: return null
     val distinct = poiList.mapNotNull { (it.poi as? RouteDirectionStop)?.direction?.id }.distinct()
     val count = distinct.count()
@@ -270,7 +276,7 @@ fun POIFragment.getPOI(position: Int): POIManager? {
     return poiList.getOrNull(position)
 }
 
-fun POIFragment.onMapClick(): Boolean {
+fun POIFragment.onMapClickKt(): Boolean {
     if (!FragmentUtils.isFragmentReady(this)) return false
     analyticsManager.trackButtonClick("map_click", this)
     val poim = getPoimOrNull() ?: return false
