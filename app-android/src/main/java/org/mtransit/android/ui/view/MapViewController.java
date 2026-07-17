@@ -1075,7 +1075,7 @@ public class MapViewController implements
 				);
 				if (poiMarker.hasUUID(mapViewController.lastSelectedUUID)) {
 					marker.showInfoWindow();
-				} else if (marker.isInfoWindowShown()) {
+				} else {
 					marker.hideInfoWindow();
 					marker.setZIndex(poiMarker.getZIndexOrDefault()); // reset original Z-Index changed by showInfoWindow()
 				}
@@ -1120,7 +1120,7 @@ public class MapViewController implements
 				);
 				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
 					marker.showInfoWindow();
-				} else if (marker.isInfoWindowShown()) {
+				} else {
 					marker.hideInfoWindow();
 					marker.setZIndex(poiMarker.getZIndexOrDefault()); // reset original Z-Index changed by showInfoWindow()
 				}

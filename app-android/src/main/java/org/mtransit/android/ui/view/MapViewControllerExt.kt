@@ -2,11 +2,9 @@ package org.mtransit.android.ui.view
 
 import android.content.Context
 import com.google.android.gms.maps.model.LatLng
-import org.mtransit.android.commons.LOG_TAG
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
-import org.mtransit.android.commons.pxToDp
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
 import org.mtransit.android.ui.view.map.countMarkersInside
@@ -71,7 +69,7 @@ fun MapViewController.updateVehicleLocationMarkers(
             && avoidCollapseLatLng?.let { areMarkerCollapsing(it, vehicleLocation.position) } != true
         ) {
             marker.showInfoWindow()
-        } else if (marker.isInfoWindowShown) {
+        } else {
             marker.hideInfoWindow()
             marker.setZIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE) // reset original Z-Index changed by showInfoWindow()
         }

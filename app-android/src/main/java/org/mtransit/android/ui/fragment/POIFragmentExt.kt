@@ -228,8 +228,8 @@ fun POIFragment.getClosestVehicleLocationUuid(
 ): String? {
     val poimLatLng = poim?.latLng ?: return null
     return vehicleLocations
+        ?.filter { mapViewController.areMarkerCollapsing(poimLatLng, it.position) != true }
         ?.minByOrNull { it.position.distanceToInMeters(poimLatLng) }
-        ?.takeIf { mapViewController.areMarkerCollapsing(poimLatLng, it.position) != true }
         ?.uuid
 }
 
