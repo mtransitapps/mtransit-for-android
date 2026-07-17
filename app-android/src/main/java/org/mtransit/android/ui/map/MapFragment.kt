@@ -32,6 +32,7 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.setUpMapEdgeToEdge
+import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.map.IMarker
@@ -143,23 +144,25 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,
-            null, // DO NOTHING (not linked with list adapter)
-            mapListener,
-            false,
-            true,
-            true,
-            false,
-            false,
-            false,
-            TOP_PADDING_DP,
-            BOTTOM_PADDING_DP,
-            false,
-            true,
-            true,
-            false,
-            true,
+            MapViewConfig(
+                markerProvider = null,
+                mapListener = mapListener,
+                mapToolbarEnabled = false,
+                myLocationEnabled = true,
+                myLocationButtonEnabled = true,
+                indoorLevelPickerEnabled = false,
+                trafficEnabled = false,
+                indoorEnabled = false,
+                paddingTopDp = TOP_PADDING_DP,
+                paddingBottomDp = BOTTOM_PADDING_DP,
+                followingDevice = false,
+                hasButtons = true,
+                clusteringEnabled = true,
+                showAllMarkersWhenReady = false,
+                markerLabelShowExtra = true,
+                autoClickInfoWindow = true,
+            )
         ).apply {
-            setAutoClickInfoWindow(true)
             logTag = this@MapFragment.logTag
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
         }

@@ -38,6 +38,7 @@ import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
+import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
@@ -177,23 +178,25 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,
-            mapMarkerProvider,
-            null, // DO NOTHING (map click, camera change)
-            false,
-            true,
-            true,
-            false,
-            false,
-            false,
-            TOP_PADDING_DP,
-            BOTTOM_PADDING_DP,
-            false,
-            true,
-            false,
-            true,
-            false,
+            MapViewConfig(
+                markerProvider = mapMarkerProvider,
+                mapListener = null, // DO NOTHING (map click, camera change)
+                mapToolbarEnabled = false,
+                myLocationEnabled = true,
+                myLocationButtonEnabled = true,
+                indoorLevelPickerEnabled = false,
+                trafficEnabled = false,
+                indoorEnabled = false,
+                paddingTopDp = TOP_PADDING_DP,
+                paddingBottomDp = BOTTOM_PADDING_DP,
+                followingDevice = false,
+                hasButtons = true,
+                clusteringEnabled = false,
+                showAllMarkersWhenReady = true,
+                markerLabelShowExtra = false,
+                autoClickInfoWindow = true,
+            )
         ).apply {
-            setAutoClickInfoWindow(true)
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
         }
     }
@@ -332,7 +335,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             listAdapter.setPois(poiList)
             listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
-            mapViewController.notifyMarkerChanged(mapMarkerProvider)
+            mapViewController.notifyMarkerChanged()
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
         }

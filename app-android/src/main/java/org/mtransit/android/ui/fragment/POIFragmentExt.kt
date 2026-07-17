@@ -21,9 +21,12 @@ import org.mtransit.android.data.latLng
 import org.mtransit.android.data.location
 import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
 import org.mtransit.android.ui.MainActivity
+import org.mtransit.android.ui.fragment.POIFragment.BOTTOM_PADDING_DP
+import org.mtransit.android.ui.fragment.POIFragment.TOP_PADDING_DP
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
+import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.navigateF
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
@@ -39,6 +42,26 @@ import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
+
+internal fun POIFragment.makeMapViewConfig() = MapViewConfig(
+    markerProvider = this,
+    mapListener = this,
+    mapToolbarEnabled = false,
+    myLocationEnabled = true,
+    myLocationButtonEnabled = false,
+    indoorLevelPickerEnabled = false,
+    trafficEnabled = false,
+    indoorEnabled = false,
+    paddingTopDp = TOP_PADDING_DP,
+    paddingBottomDp = BOTTOM_PADDING_DP,
+    followingDevice = false, // manually set
+    hasButtons = false,
+    clusteringEnabled = false,
+    showAllMarkersWhenReady = true,
+    markerLabelShowExtra = false,
+    hideMapMarkerSnippet = true,
+    buildingsEnabled = false, // non-interactive map (some Zoom levels hard to see)
+)
 
 fun POIFragment.setupViewKt() = this.binding?.apply {
     fabFavorite.apply {

@@ -161,29 +161,15 @@ public class MapViewController implements
 		}
 		this.initialMapCameraSetup = showLastCameraPosition();
 		if (!this.initialMapCameraSetup) {
-			this.initialMapCameraSetup = showMarkers(false, this.followingDevice);
+			this.initialMapCameraSetup = showMarkers(false, this.config.getFollowingDevice());
 		}
 		if (!this.initialMapCameraSetup) {
 			this.initialMapCameraSetup = showDeviceLocation(false);
 		}
 	}
 
-	@Nullable
-	protected WeakReference<MapMarkerProvider> markerProviderWR;
-	private WeakReference<MapListener> mapListenerWR;
-	private final boolean mapToolbarEnabled;
-	private final boolean myLocationEnabled;
-	private final boolean myLocationButtonEnabled;
-	private final boolean indoorLevelPickerEnabled;
-	private final boolean trafficEnabled;
-	private final boolean indoorEnabled;
-	private int paddingTopDp;
-	private int paddingBottomDp;
-	private final boolean followingDevice;
-	private final boolean hasButtons;
-	private final boolean clusteringEnabled;
-	private boolean showAllMarkersWhenReady;
-	private final boolean markerLabelShowExtra;
+	@NonNull
+	protected final MapViewConfig config;
 
 	private CameraPosition lastCameraPosition;
 
@@ -195,55 +181,14 @@ public class MapViewController implements
 
 	private boolean locationPermissionGranted = false;
 
-	protected boolean hideMapMarkerSnippet = false;
-
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
 	@Nullable
 	private LocalPreferenceRepository lclPrefRepository;
 
-	public MapViewController(
-			@NonNull String logTag,
-			@Nullable MapMarkerProvider markerProvider,
-			@Nullable MapListener mapListener,
-			boolean mapToolbarEnabled,
-			boolean myLocationEnabled,
-			boolean myLocationButtonEnabled,
-			boolean indoorLevelPickerEnabled,
-			boolean trafficEnabled,
-			boolean indoorEnabled,
-			int paddingTopDp,
-			int paddingBottomDp,
-			boolean followingDevice,
-			boolean hasButtons,
-			boolean clusteringEnabled,
-			boolean showAllMarkersWhenReady,
-			boolean markerLabelShowExtra
-	) {
+	public MapViewController(@NonNull String logTag, @NonNull MapViewConfig config) {
 		setLogTag(logTag);
-		setMarkerProvider(markerProvider);
-		setMapListener(mapListener);
-		this.mapToolbarEnabled = mapToolbarEnabled;
-		this.myLocationEnabled = myLocationEnabled;
-		this.myLocationButtonEnabled = myLocationButtonEnabled;
-		this.indoorLevelPickerEnabled = indoorLevelPickerEnabled;
-		this.trafficEnabled = trafficEnabled;
-		this.indoorEnabled = indoorEnabled;
-		this.paddingTopDp = paddingTopDp;
-		this.paddingBottomDp = paddingBottomDp;
-		this.followingDevice = followingDevice;
-		this.hasButtons = hasButtons;
-		this.clusteringEnabled = clusteringEnabled;
-		this.showAllMarkersWhenReady = showAllMarkersWhenReady;
-		this.markerLabelShowExtra = markerLabelShowExtra;
-	}
-
-	private void setMarkerProvider(@Nullable MapMarkerProvider markerProvider) {
-		this.markerProviderWR = new WeakReference<>(markerProvider);
-	}
-
-	private void setMapListener(@Nullable MapListener mapListener) {
-		this.mapListenerWR = new WeakReference<>(mapListener);
+		this.config = config;
 	}
 
 	public void setLogTag(@NonNull String tag) {
@@ -262,10 +207,6 @@ public class MapViewController implements
 		this.lclPrefRepository = lclPrefRepository;
 	}
 
-	public void setHideMapMarkerSnippet(boolean hideMapMarkerSnippet) {
-		this.hideMapMarkerSnippet = hideMapMarkerSnippet;
-	}
-
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		restoreInstanceState(savedInstanceState);
 		this.lastSavedInstanceState = savedInstanceState;
@@ -282,8 +223,7 @@ public class MapViewController implements
 		}
 	}
 
-	public void onViewCreated(@SuppressWarnings("unused") @NonNull View view,
-							  @Nullable Bundle savedInstanceState) {
+	public void onViewCreated(@SuppressWarnings("unused") @NonNull View view, @Nullable Bundle savedInstanceState) {
 		this.lastSavedInstanceState = savedInstanceState;
 		restoreInstanceState(savedInstanceState);
 	}
@@ -389,10 +329,11 @@ public class MapViewController implements
 		applyMapStyle();
 		applyMapType();
 		setupGoogleMapMyLocation();
-		this.extendedGoogleMap.setTrafficEnabled(this.trafficEnabled);
-		this.extendedGoogleMap.setIndoorEnabled(this.indoorEnabled);
-		this.extendedGoogleMap.getUiSettings().setIndoorLevelPickerEnabled(this.indoorLevelPickerEnabled);
-		this.extendedGoogleMap.getUiSettings().setMapToolbarEnabled(this.mapToolbarEnabled);
+		this.extendedGoogleMap.setTrafficEnabled(this.config.getTrafficEnabled());
+		this.extendedGoogleMap.setIndoorEnabled(this.config.getIndoorEnabled());
+		this.extendedGoogleMap.setBuildingsEnabled(this.config.getBuildingsEnabled());
+		this.extendedGoogleMap.getUiSettings().setIndoorLevelPickerEnabled(this.config.getIndoorLevelPickerEnabled());
+		this.extendedGoogleMap.getUiSettings().setMapToolbarEnabled(this.config.getMapToolbarEnabled());
 		this.extendedGoogleMap.setOnMapLoadedCallback(this);
 		this.extendedGoogleMap.setOnMyLocationButtonClickListener(this);
 		this.extendedGoogleMap.setOnInfoWindowClickListener(this);
@@ -402,7 +343,7 @@ public class MapViewController implements
 		this.extendedGoogleMap.setLocationSource(this);
 		this.extendedGoogleMap.setOnCameraIdleListener(this);
 		this.extendedGoogleMap.setClustering(new ClusteringSettings()
-				.enabled(this.clusteringEnabled)
+				.enabled(this.config.getClusteringEnabled())
 				.clusterOptionsProvider(new MTClusterOptionsProvider(activity))
 				.addMarkersDynamically(true)
 		);
@@ -417,15 +358,15 @@ public class MapViewController implements
 		MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
 		clearMarkers();
 		int paddingTopPx = 0;
-		if (this.paddingTopDp > 0) {
-			paddingTopPx = (int) ResourceUtils.convertDPtoPX(activity, this.paddingTopDp); // action bar
+		if (this.config.getPaddingTopDp() > 0) {
+			paddingTopPx = (int) ResourceUtils.convertDPtoPX(activity, this.config.getPaddingTopDp()); // action bar
 		}
 		int paddingBottomPx = 0;
-		if (this.paddingBottomDp > 0) {
-			paddingBottomPx = (int) ResourceUtils.convertDPtoPX(activity, this.paddingBottomDp); // fab
+		if (this.config.getPaddingBottomDp() > 0) {
+			paddingBottomPx = (int) ResourceUtils.convertDPtoPX(activity, this.config.getPaddingBottomDp()); // fab
 		}
 		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
-		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
+		final MapListener mapListener = this.config.getMapListener();
 		if (mapListener != null) {
 			mapListener.onMapReady();
 		}
@@ -433,24 +374,24 @@ public class MapViewController implements
 	}
 
 	public void setPaddingTopDp(int paddingTopDp) {
-		this.paddingTopDp = paddingTopDp;
+		this.config.setPaddingTopDp(paddingTopDp);
 	}
 
 	public void setPaddingBottomDp(int paddingBottomDp) {
-		this.paddingBottomDp = paddingBottomDp;
+		this.config.setPaddingBottomDp(paddingBottomDp);
 	}
 
 	public void applyPaddings() {
 		if (this.extendedGoogleMap == null) return; // SKIP (map not ready)
 		int paddingTopPx = 0;
-		if (this.paddingTopDp > 0) {
+		if (this.config.getPaddingTopDp() > 0) {
 			final Context context = getActivityOrNull();
-			paddingTopPx = (int) ResourceUtils.convertDPtoPX(context, this.paddingTopDp); // action bar
+			paddingTopPx = (int) ResourceUtils.convertDPtoPX(context, this.config.getPaddingTopDp()); // action bar
 		}
 		int paddingBottomPx = 0;
-		if (this.paddingBottomDp > 0) {
+		if (this.config.getPaddingBottomDp() > 0) {
 			final Context context = getActivityOrNull();
-			paddingBottomPx = (int) ResourceUtils.convertDPtoPX(context, this.paddingBottomDp); // fab
+			paddingBottomPx = (int) ResourceUtils.convertDPtoPX(context, this.config.getPaddingBottomDp()); // fab
 		}
 		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
 	}
@@ -465,8 +406,8 @@ public class MapViewController implements
 	private void setupGoogleMapMyLocation() {
 		if (this.extendedGoogleMap == null) return; // SKIP (map not ready)
 		if (this.locationPermissionGranted) {
-			this.extendedGoogleMap.setMyLocationEnabled(this.myLocationEnabled);
-			this.extendedGoogleMap.getUiSettings().setMyLocationButtonEnabled(this.myLocationButtonEnabled);
+			this.extendedGoogleMap.setMyLocationEnabled(this.config.getMyLocationEnabled());
+			this.extendedGoogleMap.getUiSettings().setMyLocationButtonEnabled(this.config.getMyLocationButtonEnabled());
 		} else {
 			this.extendedGoogleMap.setMyLocationEnabled(false);
 			this.extendedGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -622,7 +563,7 @@ public class MapViewController implements
 
 	@Override
 	public void onMapClick(@NonNull LatLng position) {
-		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
+		final MapListener mapListener = this.config.getMapListener();
 		if (mapListener != null) {
 			mapListener.onMapClick(position);
 		}
@@ -660,17 +601,11 @@ public class MapViewController implements
 		}
 	}
 
-	private boolean autoClickInfoWindow = false;
-
-	public void setAutoClickInfoWindow(boolean autoClickInfoWindow) {
-		this.autoClickInfoWindow = autoClickInfoWindow;
-	}
-
 	private static final float MARKER_ZOOM_INC = 2.0f;
 
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
-		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
+		final MapListener mapListener = this.config.getMapListener();
 		if (mapListener != null && mapListener.onMarkerClick(marker)) return true; // handled
 		final String selectedUUID = IMarkerExtKt.getUuid(marker);
 		final boolean isCluster = marker != null && marker.isCluster();
@@ -681,7 +616,7 @@ public class MapViewController implements
 			}
 		} else if (selectedUUID != null) {
 			this.lastSelectedUUID = selectedUUID;
-			if (this.autoClickInfoWindow) {
+			if (this.config.getAutoClickInfoWindow()) {
 				onInfoWindowClick(marker);
 			}
 		}
@@ -722,7 +657,7 @@ public class MapViewController implements
 	}
 
 	private void notifyNewCameraPosition() {
-		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
+		final MapListener mapListener = this.config.getMapListener();
 		if (mapListener == null) {
 			MTLog.d(this, "notifyNewCameraPosition() > SKIP (no listener)");
 			return;
@@ -746,7 +681,8 @@ public class MapViewController implements
 		if (activity == null) return null;
 		if (this.extendedGoogleMap == null) return null;
 		try {
-			Point size = new Point();
+			final Point size = new Point();
+			//noinspection deprecation
 			activity.getWindowManager().getDefaultDisplay().getSize(size);
 			int width = size.x;
 			int height = size.y;
@@ -779,7 +715,7 @@ public class MapViewController implements
 
 	private boolean showClosestPOI() {
 		if (this.deviceLocation == null) return false; // not handled
-		final MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
+		final MapMarkerProvider markerProvider = this.config.getMarkerProvider();
 		final POIManager poim = markerProvider == null ? null : markerProvider.getClosestPOI();
 		if (poim == null) return false; // not handled
 		final LatLngBounds.Builder llb = LatLngBounds.builder();
@@ -807,7 +743,7 @@ public class MapViewController implements
 		}
 		final Context context = getActivityOrNull();
 		final int paddingInPx;
-		if (this.hasButtons) {
+		if (this.config.getHasButtons()) {
 			paddingInPx = MapUtils.getMapWithButtonsCameraPaddingInPx(context);
 		} else {
 			paddingInPx = MapUtils.getMapWithoutButtonsCameraPaddingInPx(context);
@@ -835,7 +771,7 @@ public class MapViewController implements
 	}
 
 	private boolean includeMarkersInLatLngBounds(@NonNull LatLngBounds.Builder llb) {
-		final MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
+		final MapMarkerProvider markerProvider = this.config.getMarkerProvider();
 		if (markerProvider != null) {
 			final Collection<LatLng> visibleMarkersLocations = markerProvider.getVisibleMarkersLocations();
 			if (visibleMarkersLocations != null) {
@@ -1029,7 +965,7 @@ public class MapViewController implements
 		protected Collection<MTPOIMarker> doInBackgroundNotCancelledMT(Void... params) {
 			final MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) return null;
-			final MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
+			final MapMarkerProvider markerProvider = mapViewController.config.getMarkerProvider();
 			if (markerProvider == null) return null;
 			final Collection<MTPOIMarker> poiMarkers = markerProvider.getPOMarkers();
 			if (poiMarkers != null) return poiMarkers;
@@ -1070,10 +1006,10 @@ public class MapViewController implements
 				extra = null;
 				agency = dataSourcesRepository.getAgency(poim.poi.getAuthority());
 				if (agency == null) continue;
-				if (mapViewController.markerLabelShowExtra && poim.poi instanceof RouteDirectionStop) {
+				if (mapViewController.config.getMarkerLabelShowExtra() && poim.poi instanceof RouteDirectionStop) {
 					extra = ((RouteDirectionStop) poim.poi).getRoute().getShortestName();
 				}
-				agencyShortName = mapViewController.markerLabelShowExtra ? agency.getShortName() : null;
+				agencyShortName = mapViewController.config.getMarkerLabelShowExtra() ? agency.getShortName() : null;
 				uuid = poim.poi.getUUID();
 				authority = poim.poi.getAuthority();
 				color = poim.getColor(dataSourcesRepository);
@@ -1125,7 +1061,7 @@ public class MapViewController implements
 			final String lastSelectedUUID = mapViewController.lastSelectedUUID;
 			mapViewController.clearMarkers(); // triggers onInfoWindowClose()
 			mapViewController.lastSelectedUUID = lastSelectedUUID;
-			final MTMapIconZoomGroup currentZoomGroup = mapViewController.clusteringEnabled ? null : mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap,
+			final MTMapIconZoomGroup currentZoomGroup = mapViewController.config.getClusteringEnabled() ? null : mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap,
 					AreaExtKt.countPOIMarkersInside(
 							AreaExtKt.toArea(mapViewController.extendedGoogleMap.getProjection().getVisibleRegion()),
 							poiMarkers
@@ -1135,7 +1071,7 @@ public class MapViewController implements
 			for (MTPOIMarker poiMarker : poiMarkers) {
 				final MTMapIconZoomGroup poiZoomGroup = currentZoomGroup == null ? null : getPOIZoomGroup(mapViewController, currentZoomGroup, poiMarker::hasUUID);
 				final IMarker marker = mapViewController.extendedGoogleMap.addMarker(
-						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.markerLabelShowExtra, poiZoomGroup)
+						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.config.getMarkerLabelShowExtra(), poiZoomGroup)
 				);
 				if (poiMarker.hasUUID(mapViewController.lastSelectedUUID)) {
 					marker.showInfoWindow();
@@ -1144,8 +1080,8 @@ public class MapViewController implements
 			updateVehicleLocationMarkers(mapViewController, context);
 			mapViewController.clusterManagerItemsLoaded = true;
 			mapViewController.hideLoading();
-			if (!this.update && mapViewController.showAllMarkersWhenReady) {
-				mapViewController.showMarkers(false, mapViewController.followingDevice);
+			if (!this.update && mapViewController.config.getShowAllMarkersWhenReady()) {
+				mapViewController.showMarkers(false, mapViewController.config.getFollowingDevice());
 			}
 		}
 	}
@@ -1168,7 +1104,7 @@ public class MapViewController implements
 			return false;
 		}
 		if (poiMarkers != null) {
-			final MTMapIconZoomGroup currentZoomGroup = this.clusteringEnabled ? null : this.getCurrentMapIconZoomGroup(this.extendedGoogleMap,
+			final MTMapIconZoomGroup currentZoomGroup = this.config.getClusteringEnabled() ? null : this.getCurrentMapIconZoomGroup(this.extendedGoogleMap,
 					AreaExtKt.countPOIMarkersInside(
 							AreaExtKt.toArea(this.extendedGoogleMap.getProjection().getVisibleRegion()),
 							poiMarkers
@@ -1177,7 +1113,7 @@ public class MapViewController implements
 			for (MTPOIMarker poiMarker : poiMarkers) {
 				final MTMapIconZoomGroup poiZoomGroup = currentZoomGroup == null ? null : getPOIZoomGroup(this, currentZoomGroup, poiMarker::hasUUID);
 				final IMarker marker = this.extendedGoogleMap.addMarker(
-						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, this.markerLabelShowExtra, poiZoomGroup)
+						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, this.config.getMarkerLabelShowExtra(), poiZoomGroup)
 				);
 				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
 					marker.showInfoWindow();
@@ -1186,8 +1122,8 @@ public class MapViewController implements
 		}
 		this.clusterManagerItemsLoaded = true;
 		hideLoading();
-		if (this.showAllMarkersWhenReady) {
-			showMarkers(false, this.followingDevice);
+		if (this.config.getShowAllMarkersWhenReady()) {
+			showMarkers(false, this.config.getFollowingDevice());
 		}
 		return true;
 	}
@@ -1215,7 +1151,7 @@ public class MapViewController implements
 			if (this.locationChangedListener != null) {
 				this.locationChangedListener.onLocationChanged(newLocation);
 			}
-			if (this.followingDevice) {
+			if (this.config.getFollowingDevice()) {
 				showMarkers(true, true);
 			} else if (firstLocation) {
 				this.initialMapCameraSetup = false;
@@ -1322,7 +1258,7 @@ public class MapViewController implements
 	}
 
 	public void setShowAllMarkersWhenReady(boolean showAllMarkersWhenReady) {
-		this.showAllMarkersWhenReady = showAllMarkersWhenReady;
+		this.config.setShowAllMarkersWhenReady(showAllMarkersWhenReady);
 	}
 
 	public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -1338,9 +1274,7 @@ public class MapViewController implements
 		}
 	}
 
-	public void notifyMarkerChanged(@Nullable MapMarkerProvider markerProvider) {
-		if (markerProvider == null) return;
-		setMarkerProvider(markerProvider);
+	public void notifyMarkerChanged() {
 		clearMarkers();
 	}
 
@@ -1382,9 +1316,8 @@ public class MapViewController implements
 
 	public void onDestroy() {
 		clearActivity();
-		if (this.markerProviderWR != null) {
-			this.markerProviderWR.clear();
-		}
+		this.config.getMarkerProviderWR().clear();
+		this.config.getMapListenerWR().clear();
 	}
 
 	public interface MapMarkerProvider {
