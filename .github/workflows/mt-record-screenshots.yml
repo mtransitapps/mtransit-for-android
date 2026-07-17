@@ -80,6 +80,8 @@ jobs:
           fi
           echo "MAIN_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
           echo "Main app APK downloaded successfully."
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
 
       - name: MT download this app release APK
         id: download-module-apk
@@ -95,6 +97,8 @@ jobs:
           fi
           echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
           echo "Module app APK downloaded successfully."
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
 
       - name: MT build this app release APK (fallback)
         if: steps.download-module-apk.outcome == 'failure' || github.event.inputs.buildFromSource == 'true'
