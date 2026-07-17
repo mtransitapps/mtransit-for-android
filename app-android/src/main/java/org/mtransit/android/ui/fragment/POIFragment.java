@@ -88,6 +88,7 @@ import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIListFooterManager;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.POIManagerExtKt;
 import org.mtransit.android.databinding.FragmentPoiBinding;
 import org.mtransit.android.databinding.LayoutPoiAppUpdateBinding;
 import org.mtransit.android.databinding.LayoutPoiAppWasDisabledBinding;
