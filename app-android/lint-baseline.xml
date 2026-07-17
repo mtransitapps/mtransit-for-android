@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.2.0" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0)" variant="all" version="9.2.0">
+<issues format="6" by="lint 9.2.1" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.1)" variant="all" version="9.2.1">
 
     <issue
         id="DoNotMockPlatformTypes"
@@ -101,35 +101,13 @@
     </issue>
 
     <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="  this.statusStrings.add(new Pair&lt;>(line1CS, line2CS));"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="1139"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="KotlinPairNotCreated"
-        message="Use Kotlin&apos;s kotlin.Pair instead of other Pair types from other libraries like AndroidX and Slack commons"
-        errorLine1="  this.statusStrings.add(new Pair&lt;>(//"
-        errorLine2="                         ^">
-        <location
-            file="src/main/java/org/mtransit/android/data/UISchedule.java"
-            line="1200"
-            column="26"/>
-    </issue>
-
-    <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
         errorLine1="        super.onLowMemory()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="403"
+            line="455"
             column="9"/>
     </issue>
 
@@ -153,28 +131,6 @@
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
             line="158"
             column="33"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.ui.fragment.PurchaseDialogFragment.newInstance is deprecated; consider using an alternative."
-        errorLine1="        FragmentUtils.replaceDialogFragment(activity, FragmentUtils.DIALOG_TAG, PurchaseDialogFragment.newInstance(), null)"
-        errorLine2="                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/billing/BillingUtils.kt"
-            line="18"
-            column="81"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.FragmentUtils.replaceDialogFragment is deprecated; consider using an alternative."
-        errorLine1="        FragmentUtils.replaceDialogFragment(activity, FragmentUtils.DIALOG_TAG, PurchaseDialogFragment.newInstance(), null)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/billing/BillingUtils.kt"
-            line="18"
-            column="9"/>
     </issue>
 
     <issue
@@ -217,7 +173,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/datasource/DataSourcesReader.kt"
-            line="236"
+            line="300"
             column="9"/>
     </issue>
 
@@ -278,45 +234,12 @@
 
     <issue
         id="DeprecatedCall"
-        message="android.app.Fragment.isAdded is deprecated; consider using an alternative."
-        errorLine1="  return fragment != null &amp;&amp; fragment.isAdded() &amp;&amp; !fragment.isDetached() &amp;&amp; !fragment.isRemoving();"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="64"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.isDetached is deprecated; consider using an alternative."
-        errorLine1="  return fragment != null &amp;&amp; fragment.isAdded() &amp;&amp; !fragment.isDetached() &amp;&amp; !fragment.isRemoving();"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="64"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.app.Fragment.isRemoving is deprecated; consider using an alternative."
-        errorLine1="  return fragment != null &amp;&amp; fragment.isAdded() &amp;&amp; !fragment.isDetached() &amp;&amp; !fragment.isRemoving();"
-        errorLine2="                                                                              ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="64"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
         errorLine1="   CrashUtils.w(LOG_TAG, ise, &quot;Illegal State Exception while replacing fragment &apos;%s&apos; from &apos;%s&apos; in &apos;%s&apos;!&quot;, fragment, optSource, fa);"
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="124"
+            line="119"
             column="4"/>
     </issue>
 
@@ -327,7 +250,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="124"
+            line="119"
             column="17"/>
     </issue>
 
@@ -338,7 +261,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="124"
+            line="119"
             column="26"/>
     </issue>
 
@@ -349,7 +272,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="124"
+            line="119"
             column="31"/>
     </issue>
 
@@ -360,7 +283,7 @@
         errorLine2="                                                                                                          ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="124"
+            line="119"
             column="107"/>
     </issue>
 
@@ -371,7 +294,7 @@
         errorLine2="                                                                                                                    ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="124"
+            line="119"
             column="117"/>
     </issue>
 
@@ -382,7 +305,7 @@
         errorLine2="                                                                                                                               ~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="124"
+            line="119"
             column="128"/>
     </issue>
 
@@ -393,7 +316,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="127"
+            line="122"
             column="4"/>
     </issue>
 
@@ -404,7 +327,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="127"
+            line="122"
             column="17"/>
     </issue>
 
@@ -415,7 +338,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="127"
+            line="122"
             column="26"/>
     </issue>
 
@@ -426,7 +349,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="127"
+            line="122"
             column="29"/>
     </issue>
 
@@ -437,7 +360,7 @@
         errorLine2="                                                                                                 ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="127"
+            line="122"
             column="98"/>
     </issue>
 
@@ -448,7 +371,7 @@
         errorLine2="                                                                                                           ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="127"
+            line="122"
             column="108"/>
     </issue>
 
@@ -459,7 +382,7 @@
         errorLine2="                                                                                                                      ~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="127"
+            line="122"
             column="119"/>
     </issue>
 
@@ -470,7 +393,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="159"
+            line="155"
             column="4"/>
     </issue>
 
@@ -481,7 +404,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="159"
+            line="155"
             column="17"/>
     </issue>
 
@@ -492,7 +415,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="159"
+            line="155"
             column="26"/>
     </issue>
 
@@ -503,7 +426,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="159"
+            line="155"
             column="31"/>
     </issue>
 
@@ -514,7 +437,7 @@
         errorLine2="                                                                                        ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="159"
+            line="155"
             column="89"/>
     </issue>
 
@@ -525,7 +448,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="162"
+            line="158"
             column="4"/>
     </issue>
 
@@ -536,7 +459,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="162"
+            line="158"
             column="17"/>
     </issue>
 
@@ -547,7 +470,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="162"
+            line="158"
             column="26"/>
     </issue>
 
@@ -558,7 +481,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="162"
+            line="158"
             column="29"/>
     </issue>
 
@@ -569,7 +492,7 @@
         errorLine2="                                                                               ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="162"
+            line="158"
             column="80"/>
     </issue>
 
@@ -580,7 +503,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="198"
+            line="194"
             column="4"/>
     </issue>
 
@@ -591,7 +514,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="198"
+            line="194"
             column="17"/>
     </issue>
 
@@ -602,7 +525,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="198"
+            line="194"
             column="26"/>
     </issue>
 
@@ -613,7 +536,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="198"
+            line="194"
             column="31"/>
     </issue>
 
@@ -624,7 +547,7 @@
         errorLine2="                                                                                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="198"
+            line="194"
             column="104"/>
     </issue>
 
@@ -635,7 +558,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="201"
+            line="197"
             column="4"/>
     </issue>
 
@@ -646,7 +569,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="201"
+            line="197"
             column="17"/>
     </issue>
 
@@ -657,7 +580,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="201"
+            line="197"
             column="26"/>
     </issue>
 
@@ -668,7 +591,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="201"
+            line="197"
             column="29"/>
     </issue>
 
@@ -679,129 +602,8 @@
         errorLine2="                                                                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="201"
+            line="197"
             column="95"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.FragmentUtils.isFragmentReady is deprecated; consider using an alternative."
-        errorLine1="     &amp;&amp; !isFragmentReady(optSource)) {"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="217"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, ise, &quot;Illegal State Exception while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="234"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, ise, &quot;Illegal State Exception while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="234"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, ise, &quot;Illegal State Exception while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="                         ~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="234"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, ise, &quot;Illegal State Exception while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="234"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, ise, &quot;Illegal State Exception while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="                                                                                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="234"
-            column="96"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, e, &quot;Unexpected error while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="236"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, e, &quot;Unexpected error while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="236"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, e, &quot;Unexpected error while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="                         ~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="236"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, e, &quot;Unexpected error while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="236"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
-        errorLine1="   CrashUtils.w(LOG_TAG, e, &quot;Unexpected error while replacing dialog fragment &apos;%s&apos;!&quot;, dialogFragment);"
-        errorLine2="                                                                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="236"
-            column="87"/>
     </issue>
 
     <issue
@@ -811,7 +613,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="259"
+            line="220"
             column="4"/>
     </issue>
 
@@ -822,7 +624,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="259"
+            line="220"
             column="17"/>
     </issue>
 
@@ -833,7 +635,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="259"
+            line="220"
             column="26"/>
     </issue>
 
@@ -844,7 +646,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="259"
+            line="220"
             column="31"/>
     </issue>
 
@@ -855,7 +657,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="262"
+            line="223"
             column="4"/>
     </issue>
 
@@ -866,7 +668,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="262"
+            line="223"
             column="17"/>
     </issue>
 
@@ -877,7 +679,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="262"
+            line="223"
             column="26"/>
     </issue>
 
@@ -888,7 +690,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="262"
+            line="223"
             column="29"/>
     </issue>
 
@@ -899,7 +701,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="286"
+            line="247"
             column="4"/>
     </issue>
 
@@ -910,7 +712,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="286"
+            line="247"
             column="17"/>
     </issue>
 
@@ -921,7 +723,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="286"
+            line="247"
             column="26"/>
     </issue>
 
@@ -932,7 +734,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="286"
+            line="247"
             column="31"/>
     </issue>
 
@@ -943,7 +745,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="289"
+            line="250"
             column="4"/>
     </issue>
 
@@ -954,7 +756,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="289"
+            line="250"
             column="17"/>
     </issue>
 
@@ -965,7 +767,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="289"
+            line="250"
             column="26"/>
     </issue>
 
@@ -976,7 +778,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="289"
+            line="250"
             column="29"/>
     </issue>
 
@@ -987,7 +789,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="318"
+            line="279"
             column="4"/>
     </issue>
 
@@ -998,7 +800,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="318"
+            line="279"
             column="17"/>
     </issue>
 
@@ -1009,7 +811,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="318"
+            line="279"
             column="26"/>
     </issue>
 
@@ -1020,7 +822,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="318"
+            line="279"
             column="31"/>
     </issue>
 
@@ -1031,7 +833,7 @@
         errorLine2="                                                                                                 ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="318"
+            line="279"
             column="98"/>
     </issue>
 
@@ -1042,7 +844,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="321"
+            line="282"
             column="4"/>
     </issue>
 
@@ -1053,7 +855,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="321"
+            line="282"
             column="17"/>
     </issue>
 
@@ -1064,7 +866,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="321"
+            line="282"
             column="26"/>
     </issue>
 
@@ -1075,7 +877,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="321"
+            line="282"
             column="29"/>
     </issue>
 
@@ -1086,7 +888,7 @@
         errorLine2="                                                                                        ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="321"
+            line="282"
             column="89"/>
     </issue>
 
@@ -1097,7 +899,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="348"
+            line="309"
             column="4"/>
     </issue>
 
@@ -1108,7 +910,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="348"
+            line="309"
             column="17"/>
     </issue>
 
@@ -1119,7 +921,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="348"
+            line="309"
             column="26"/>
     </issue>
 
@@ -1130,7 +932,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="348"
+            line="309"
             column="31"/>
     </issue>
 
@@ -1141,7 +943,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="352"
+            line="313"
             column="4"/>
     </issue>
 
@@ -1152,7 +954,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="352"
+            line="313"
             column="17"/>
     </issue>
 
@@ -1163,7 +965,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="352"
+            line="313"
             column="26"/>
     </issue>
 
@@ -1174,7 +976,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="352"
+            line="313"
             column="29"/>
     </issue>
 
@@ -1185,7 +987,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="199"
+            line="225"
             column="17"/>
     </issue>
 
@@ -1196,7 +998,7 @@
         errorLine2="                                           ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="199"
+            line="225"
             column="44"/>
     </issue>
 
@@ -1207,7 +1009,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="387"
+            line="417"
             column="13"/>
     </issue>
 
@@ -1240,7 +1042,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="138"
+            line="151"
             column="7"/>
     </issue>
 
@@ -1251,7 +1053,7 @@
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="138"
+            line="151"
             column="23"/>
     </issue>
 
@@ -1262,7 +1064,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="210"
+            line="223"
             column="4"/>
     </issue>
 
@@ -1273,7 +1075,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="210"
+            line="223"
             column="17"/>
     </issue>
 
@@ -1284,7 +1086,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="210"
+            line="223"
             column="26"/>
     </issue>
 
@@ -1295,7 +1097,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="210"
+            line="223"
             column="29"/>
     </issue>
 
@@ -1955,7 +1757,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="423"
+            line="442"
             column="20"/>
     </issue>
 
@@ -1966,7 +1768,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="423"
+            line="442"
             column="20"/>
     </issue>
 
@@ -1977,7 +1779,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="432"
+            line="451"
             column="9"/>
     </issue>
 
@@ -1988,7 +1790,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="432"
+            line="451"
             column="9"/>
     </issue>
 
@@ -1999,7 +1801,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
-            line="263"
+            line="273"
             column="9"/>
     </issue>
 
@@ -2017,11 +1819,11 @@
     <issue
         id="DeprecatedCall"
         message="android.os.AsyncTask.getStatus is deprecated; consider using an alternative."
-        errorLine1="  if (this.finishSetupTask != null &amp;&amp; this.finishSetupTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) {"
+        errorLine1="  if (this.finishSetupTask != null &amp;&amp; this.finishSetupTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) return;"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="200"
+            line="226"
             column="39"/>
     </issue>
 
@@ -2032,7 +1834,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="203"
+            line="227"
             column="26"/>
     </issue>
 
@@ -2043,7 +1845,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="203"
+            line="227"
             column="26"/>
     </issue>
 
@@ -2054,18 +1856,18 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="249"
+            line="268"
             column="4"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
-        errorLine1="   if (isCancelled()) {"
+        errorLine1="   if (isCancelled()) return;"
         errorLine2="       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="261"
+            line="285"
             column="8"/>
     </issue>
 
@@ -2076,7 +1878,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="267"
+            line="289"
             column="4"/>
     </issue>
 
@@ -2087,7 +1889,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="267"
+            line="289"
             column="4"/>
     </issue>
 
@@ -2098,7 +1900,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="267"
+            line="289"
             column="17"/>
     </issue>
 
@@ -2109,7 +1911,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="267"
+            line="289"
             column="17"/>
     </issue>
 
@@ -2120,7 +1922,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="284"
+            line="305"
             column="4"/>
     </issue>
 
@@ -2131,7 +1933,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="284"
+            line="305"
             column="4"/>
     </issue>
 
@@ -2142,7 +1944,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="284"
+            line="305"
             column="17"/>
     </issue>
 
@@ -2153,7 +1955,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="284"
+            line="305"
             column="17"/>
     </issue>
 
@@ -2164,7 +1966,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="346"
+            line="347"
             column="53"/>
     </issue>
 
@@ -2175,7 +1977,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="135"
+            line="142"
             column="17"/>
     </issue>
 
@@ -2186,7 +1988,7 @@
         errorLine2="                                           ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="135"
+            line="142"
             column="44"/>
     </issue>
 
@@ -2197,7 +1999,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="144"
+            line="151"
             column="17"/>
     </issue>
 
@@ -2208,7 +2010,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="154"
+            line="161"
             column="13"/>
     </issue>
 
@@ -2219,7 +2021,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="224"
+            line="231"
             column="21"/>
     </issue>
 
@@ -2230,7 +2032,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="224"
+            line="231"
             column="51"/>
     </issue>
 
@@ -2241,7 +2043,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="234"
+            line="241"
             column="21"/>
     </issue>
 
@@ -2252,7 +2054,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="234"
+            line="241"
             column="49"/>
     </issue>
 
@@ -2263,7 +2065,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/nearby/type/NearbyAgencyTypeFragment.kt"
-            line="262"
+            line="269"
             column="13"/>
     </issue>
 
@@ -2274,7 +2076,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="370"
+            line="373"
             column="4"/>
     </issue>
 
@@ -2285,7 +2087,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="370"
+            line="373"
             column="17"/>
     </issue>
 
@@ -2296,7 +2098,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="370"
+            line="373"
             column="23"/>
     </issue>
 
@@ -2307,7 +2109,7 @@
         errorLine2="                                                                ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="370"
+            line="373"
             column="65"/>
     </issue>
 
@@ -2318,7 +2120,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="402"
+            line="405"
             column="4"/>
     </issue>
 
@@ -2329,7 +2131,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="402"
+            line="405"
             column="17"/>
     </issue>
 
@@ -2340,7 +2142,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="402"
+            line="405"
             column="23"/>
     </issue>
 
@@ -2351,7 +2153,7 @@
         errorLine2="                                                                    ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="402"
+            line="405"
             column="69"/>
     </issue>
 
@@ -2362,7 +2164,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="564"
+            line="567"
             column="4"/>
     </issue>
 
@@ -2373,7 +2175,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="564"
+            line="567"
             column="17"/>
     </issue>
 
@@ -2384,7 +2186,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="564"
+            line="567"
             column="23"/>
     </issue>
 
@@ -2395,7 +2197,7 @@
         errorLine2="                                                                                       ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="564"
+            line="567"
             column="88"/>
     </issue>
 
@@ -2406,7 +2208,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="579"
+            line="582"
             column="4"/>
     </issue>
 
@@ -2417,7 +2219,7 @@
         errorLine2="                ~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="579"
+            line="582"
             column="17"/>
     </issue>
 
@@ -2428,7 +2230,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="579"
+            line="582"
             column="23"/>
     </issue>
 
@@ -2439,7 +2241,7 @@
         errorLine2="                                                                       ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="579"
+            line="582"
             column="72"/>
     </issue>
 
@@ -2450,52 +2252,8 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="746"
+            line="733"
             column="4"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.UpdateDistanceWithStringTask.UpdateDistanceWithStringTask is deprecated; consider using an alternative."
-        errorLine1="   this.updateDistanceWithStringTask = new UpdateDistanceWithStringTask(this);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1050"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.data.POIArrayAdapter.UpdateDistanceWithStringTask.UpdateDistanceWithStringTask is deprecated; consider using an alternative."
-        errorLine1="   this.updateDistanceWithStringTask = new UpdateDistanceWithStringTask(this);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1050"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
-        errorLine1="      if (isCancelled()) {"
-        errorLine2="          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1081"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
-        errorLine1="   if (isCancelled()) {"
-        errorLine2="       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/data/POIArrayAdapter.java"
-            line="1099"
-            column="8"/>
     </issue>
 
     <issue
@@ -2549,7 +2307,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1575"
+            line="1535"
             column="3"/>
     </issue>
 
@@ -2560,7 +2318,7 @@
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/ui/view/POIStatusDetailViewController.java"
-            line="142"
+            line="145"
             column="4"/>
     </issue>
 
@@ -2571,7 +2329,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="591"
+            line="645"
             column="9"/>
     </issue>
 
@@ -2589,66 +2347,55 @@
     <issue
         id="DeprecatedCall"
         message="android.os.AsyncTask.executeOnExecutor is deprecated; consider using an alternative."
-        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine1="   new ServiceUpdateFetcherCallable("
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="179"
+            line="181"
             column="4"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine1="   new ServiceUpdateFetcherCallable("
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="179"
+            line="181"
             column="4"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
+        errorLine1="   new ServiceUpdateFetcherCallable("
         errorLine2="   ^">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="179"
+            line="181"
             column="4"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
-        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        errorLine1="     this.dataSourceRequestManager,"
+        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="179"
-            column="37"/>
+            line="182"
+            column="6"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="   new ServiceUpdateFetcherCallable(this.appContext,"
-        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        errorLine1="     this.dataSourceRequestManager,"
+        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="179"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="     listeners,"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="180"
+            line="182"
             column="6"/>
     </issue>
 
@@ -2659,7 +2406,18 @@
         errorLine2="     ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="180"
+            line="183"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="     listeners,"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="183"
             column="6"/>
     </issue>
 
@@ -2670,7 +2428,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="181"
+            line="184"
             column="6"/>
     </issue>
 
@@ -2681,7 +2439,7 @@
         errorLine2="     ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="181"
+            line="184"
             column="6"/>
     </issue>
 
@@ -2692,7 +2450,7 @@
         errorLine2="     ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="182"
+            line="185"
             column="6"/>
     </issue>
 
@@ -2703,7 +2461,7 @@
         errorLine2="     ~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="182"
+            line="185"
             column="6"/>
     </issue>
 
@@ -2714,7 +2472,7 @@
         errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="183"
+            line="186"
             column="6"/>
     </issue>
 
@@ -2725,52 +2483,30 @@
         errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="183"
+            line="186"
             column="6"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="     serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
-        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="     serviceUpdateFilter"
+        errorLine2="     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="184"
+            line="187"
             column="6"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.ServiceUpdateFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="     serviceUpdateFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
-        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="     serviceUpdateFilter"
+        errorLine2="     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="184"
+            line="187"
             column="6"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.call is deprecated; consider using an alternative."
-        errorLine1="    return call();"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="236"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateFetcherCallable.call is deprecated; consider using an alternative."
-        errorLine1="    return call();"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
-            line="236"
-            column="12"/>
     </issue>
 
     <issue
@@ -2820,12 +2556,12 @@
     <issue
         id="DeprecatedCall"
         message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
-        errorLine1="        if (isShowingAds &amp;&amp; !isCancelled) { // show ads"
-        errorLine2="                             ~~~~~~~~~~~">
+        errorLine1="        if (adsAllowed &amp;&amp; !isCancelled) { // show ads"
+        errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
             line="55"
-            column="30"/>
+            column="28"/>
     </issue>
 
     <issue
@@ -2897,7 +2633,7 @@
     <issue
         id="DeprecatedCall"
         message="android.os.AsyncTask.isCancelled is deprecated; consider using an alternative."
-        errorLine1="        return !isCancelled &amp;&amp; this.globalAdManager.isShowingAds() // TODO can be called from any thread"
+        errorLine1="        return !isCancelled &amp;&amp; this.globalAdManager.adsAllowed() // TODO can be called from any thread"
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
@@ -2941,66 +2677,55 @@
     <issue
         id="DeprecatedCall"
         message="android.os.AsyncTask.executeOnExecutor is deprecated; consider using an alternative."
-        errorLine1="    new StatusFetcherCallable(this.appContext,"
+        errorLine1="    new StatusFetcherCallable("
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="120"
+            line="115"
             column="5"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    new StatusFetcherCallable(this.appContext,"
+        errorLine1="    new StatusFetcherCallable("
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="120"
+            line="115"
             column="5"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    new StatusFetcherCallable(this.appContext,"
+        errorLine1="    new StatusFetcherCallable("
         errorLine2="    ^">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="120"
+            line="115"
             column="5"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    new StatusFetcherCallable(this.appContext,"
-        errorLine2="                              ~~~~~~~~~~~~~~~">
+        errorLine1="      this.dataSourceRequestManager,"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="120"
-            column="31"/>
+            line="116"
+            column="7"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="    new StatusFetcherCallable(this.appContext,"
-        errorLine2="                              ~~~~~~~~~~~~~~~">
+        errorLine1="      this.dataSourceRequestManager,"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="120"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      listener,"
-        errorLine2="      ~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="121"
+            line="116"
             column="7"/>
     </issue>
 
@@ -3011,7 +2736,18 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="121"
+            line="117"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
+        errorLine1="      listener,"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="117"
             column="7"/>
     </issue>
 
@@ -3022,7 +2758,7 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="122"
+            line="118"
             column="7"/>
     </issue>
 
@@ -3033,7 +2769,7 @@
         errorLine2="      ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="122"
+            line="118"
             column="7"/>
     </issue>
 
@@ -3044,7 +2780,7 @@
         errorLine2="      ~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="123"
+            line="119"
             column="7"/>
     </issue>
 
@@ -3055,52 +2791,30 @@
         errorLine2="      ~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="123"
+            line="119"
             column="7"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      statusFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="      statusFilter"
+        errorLine2="      ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="124"
+            line="120"
             column="7"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.StatusFetcherCallable is deprecated; consider using an alternative."
-        errorLine1="      statusFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="      statusFilter"
+        errorLine2="      ~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="124"
+            line="120"
             column="7"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.call is deprecated; consider using an alternative."
-        errorLine1="    return call();"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="168"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.task.StatusLoader.StatusFetcherCallable.call is deprecated; consider using an alternative."
-        errorLine1="    return call();"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
-            line="168"
-            column="12"/>
     </issue>
 
     <issue
@@ -4331,7 +4045,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="261"
+            line="262"
             column="13"/>
     </issue>
 
