@@ -13,6 +13,7 @@ labels: MT
 - [ ] ca-ashcroft-cache-creek-clinton-regional-transit-bus
 - [ ] ca-banff-roam-transit-bus
 - [ ] ca-barrie-transit-bus
+- [ ] ca-belleville-transit-bus
 - [ ] ca-brampton-transit-bus
 - [ ] ca-brandon-transit-bus
 - [ ] ca-burlington-transit-bus
