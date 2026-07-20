@@ -1,5 +1,6 @@
 package org.mtransit.android.ui
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.SearchManager
 import android.content.Context
@@ -435,6 +436,7 @@ class MainActivity : MTActivityWithLocation(),
         this.adManager.adaptToScreenSize(this, getResources().configuration)
     }
 
+    @SuppressLint("GestureBackNavigation") // android:enableOnBackInvokedCallback in AndroidManifest.xml
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {

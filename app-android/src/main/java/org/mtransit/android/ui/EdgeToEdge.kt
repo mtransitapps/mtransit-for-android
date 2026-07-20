@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.google.android.gms.maps.MapView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.commons.pxToDp
 import org.mtransit.android.ui.view.MapViewController
@@ -57,22 +56,9 @@ private const val LOG_TAG = "EdgeToEdge"
 
 fun ComponentActivity.enableEdgeToEdgeMT() {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        edgeToEdgeOptOut()
         return
     }
     enableEdgeToEdge()
-}
-
-private fun ComponentActivity.edgeToEdgeOptOut() {
-    if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-        return
-    }
-    @Suppress("SimplifyBooleanWithConstants")
-    if (BuildConfig.TARGET_SDK_VERSION < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        return
-    }
-    // Call before the DecorView is accessed in setContentView
-    theme.applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false)
 }
 
 fun ViewBinding.applyStatusBarsInsetsEdgeToEdge() {
