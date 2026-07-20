@@ -22,8 +22,8 @@ object UIFeatureFlags {
     // const val F_APP_BAR_SCROLL_BEHAVIOR = true // WIP
 
     // see R.boolean.f_predictive_back_gesture
-    const val F_PREDICTIVE_BACK_GESTURE = false
-    // const val F_PREDICTIVE_BACK_GESTURE = true // WIP (need to move Toolbar to ABFragment)
+    // const val F_PREDICTIVE_BACK_GESTURE = false
+    const val F_PREDICTIVE_BACK_GESTURE = true // WIP (need to move Toolbar to ABFragment)
 
     // const val F_POI_STATUS_AVAILABILITY_DOTS = false
     const val F_POI_STATUS_AVAILABILITY_DOTS = true // WIP

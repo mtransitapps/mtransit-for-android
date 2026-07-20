@@ -165,7 +165,40 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private fun makePagerAdapter() = NewsPagerAdapter(this)
 
-    private var onBackPressedCallback: TwoPaneOnBackPressedCallback? = null
+    private var fullscreenBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
+        override fun handleOnBackPressed() {
+            MTLog.d(this@NewsListDetailFragment, "fullscreenBackPressedCallback.handleOnBackPressed()")
+            handleExitFullscreen()
+        }
+    }
+
+    private var twoPaneOnBackPressedCallback = TwoPaneOnBackPressedCallback(
+        onPanelHandledBackPressedCallback = { // #onBackPressed()
+            attachedViewModel?.cleanSelectedNewsArticle()
+        },
+        onPanelOpenedCallback = {
+            activity?.apply {
+                if (supportFragmentManager.backStackEntryCount <= initialBackStackEntryCount) {
+                    if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
+                        supportFragmentManager.commit {
+                            addToBackStack(BACK_STACK_NAME)
+                            addToBackStackCalled = true
+                        }
+                    }
+                }
+            }
+        },
+        onPanelClosedCallback = {
+            activity?.apply {
+                if (supportFragmentManager.backStackEntryCount >= initialBackStackEntryCount) {
+                    if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
+                        supportFragmentManager.popBackStack(BACK_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                        addToBackStackCalled = null
+                    }
+                }
+            }
+        }
+    )
 
     private var initialBackStackEntryCount = 0
 
@@ -233,50 +266,23 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 onBackStackChangedListener ?: makeOnBackStackChangedListener().also { onBackStackChangedListener = it }
             )
             slidingPaneLayout.apply {
-                onBackPressedCallback = TwoPaneOnBackPressedCallback(
-                    this,
-                    onPanelHandledBackPressedCallback = { // #onBackPressed()
-                        viewModel.cleanSelectedNewsArticle()
-                    },
-                    onPanelOpenedCallback = {
-                        activity?.apply {
-                            if (supportFragmentManager.backStackEntryCount <= initialBackStackEntryCount) {
-                                if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
-                                    supportFragmentManager.commit {
-                                        addToBackStack(BACK_STACK_NAME)
-                                        addToBackStackCalled = true
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    onPanelClosedCallback = {
-                        activity?.apply {
-                            if (supportFragmentManager.backStackEntryCount >= initialBackStackEntryCount) {
-                                if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
-                                    supportFragmentManager.popBackStack(BACK_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                                    addToBackStackCalled = null
-                                }
-                            }
-                        }
-                    }
-                ).also { twoPaneOnBackPressedCallback ->
-                    requireActivity().onBackPressedDispatcher.addCallback(
-                        viewLifecycleOwner,
-                        twoPaneOnBackPressedCallback,
-                    )
-                    doOnLayout {
-                        twoPaneOnBackPressedCallback.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-                        onBackPressedCallback?.init() // at the end
-                    }
-                }
+                twoPaneOnBackPressedCallback.slidingPaneLayout = this
+                requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, twoPaneOnBackPressedCallback)
                 lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
+            }
+            if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+                requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, fullscreenBackPressedCallback) // last added = top priority
             }
             setupScreenToolbar(screenToolbarLayout)
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
                 viewPager.children.find { it is RecyclerView }?.let {
                     it.isNestedScrollingEnabled = false
                 }
+            }
+        }
+        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+            viewModel.fullscreenMode.observe(viewLifecycleOwner) { fullscreenMode ->
+                fullscreenBackPressedCallback.isEnabled = fullscreenMode
             }
         }
         viewModel.subTitle.observe(viewLifecycleOwner) {
@@ -408,6 +414,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override fun onResume() {
         super.onResume()
         listAdapter.onVisible(this)
+        twoPaneOnBackPressedCallback.setEnabledState()
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABTitle(getABTitle(context))
             nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -417,9 +424,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        binding?.apply {
-            onBackPressedCallback?.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-        }
     }
 
     override fun onPause() {
@@ -515,14 +519,13 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onDestroyView() {
         super.onDestroyView()
+        twoPaneOnBackPressedCallback.slidingPaneLayout = null
+        onBackStackChangedListener?.let { activity?.supportFragmentManager?.removeOnBackStackChangedListener(it) }
+        onBackStackChangedListener = null
+        pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding?.apply {
             viewPager.unregisterOnPageChangeCallback(onPageChangeCallback)
             viewPager.adapter = null // cannot re-use Adapter w/ ViewPager
-            onBackStackChangedListener?.let {
-                activity?.supportFragmentManager?.removeOnBackStackChangedListener(it)
-            }
-            onBackStackChangedListener = null
-            pagerAdapter = null // cannot re-use Adapter w/ ViewPager
             refreshLayout.setOnRefreshListener(null)
         }
         binding = null
