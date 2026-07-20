@@ -322,7 +322,8 @@ public class POIViewController implements MTLog.Loggable {
 				true, // marquee forever
 				!dataProvider.providesDemoModeManager().isFullDemo(), // marquee forever
 				(rds, showListInsteadOfMap) -> {
-					dataProvider.providesPOIRepository().updateRouteDirectionShowingListInsteadOfMap(rds, showListInsteadOfMap);
+					//noinspection DiscouragedApi
+					dataProvider.providesDevicePrefManager().updateRouteDirectionShowingListInsteadOfMapNow(rds, showListInsteadOfMap);
 					return kotlin.Unit.INSTANCE;
 				},
 				(view) -> dataProvider.getAnalyticsManager().trackButtonClick("rds_extra", dataProvider.getAnalyticsScreen())

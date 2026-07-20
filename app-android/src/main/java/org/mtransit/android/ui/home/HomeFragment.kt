@@ -21,13 +21,13 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentHomeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -51,11 +51,11 @@ import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
-import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
@@ -103,7 +103,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var userPrefManager: UserPrefManager
 
     @Inject
-    lateinit var lclPrefRepository: LocalPreferenceRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var poiRepository: POIRepository
@@ -188,7 +188,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this.sensorManager,
             this.dataSourcesRepository,
             this.userPrefManager,
-            this.lclPrefRepository,
+            this.devicePrefManager,
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,

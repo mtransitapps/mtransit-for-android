@@ -14,7 +14,6 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.DataSourceType
@@ -24,6 +23,7 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -116,7 +116,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var userPrefManager: UserPrefManager
 
     @Inject
-    lateinit var lclPrefRepository: LocalPreferenceRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var poiRepository: POIRepository
@@ -232,7 +232,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             this.sensorManager,
             this.dataSourcesRepository,
             this.userPrefManager,
-            this.lclPrefRepository,
+            this.devicePrefManager,
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
@@ -419,7 +419,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDI(dataSourcesRepository, lclPrefRepository)
+            setDI(dataSourcesRepository, devicePrefManager)
             onAttach(requireActivity())
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }

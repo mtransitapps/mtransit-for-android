@@ -19,12 +19,12 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI.showAddFolderDialog
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -91,10 +91,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var userPrefManager: UserPrefManager
 
     @Inject
-    lateinit var lclPrefRepository: LocalPreferenceRepository
+    lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var poiRepository: POIRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var favoriteRepository: FavoriteRepository
@@ -144,7 +144,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
             this.sensorManager,
             this.dataSourcesRepository,
             this.userPrefManager,
-            this.lclPrefRepository,
+            this.devicePrefManager,
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,

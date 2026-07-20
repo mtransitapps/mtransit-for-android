@@ -52,7 +52,6 @@ import com.google.common.primitives.Ints;
 import org.jetbrains.annotations.NotNull;
 import org.mtransit.android.R;
 import org.mtransit.android.analytics.IAnalyticsManager;
-import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
@@ -68,6 +67,7 @@ import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderBinding;
 import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderButtonBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
+import org.mtransit.android.device.DevicePrefManager;
 import org.mtransit.android.provider.FavoriteRepository;
 import org.mtransit.android.provider.favorite.FavoritesFolderDSTUtils;
 import org.mtransit.android.provider.favorite.FavoritesUI;
@@ -228,7 +228,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@NonNull
 	protected final UserPrefManager userPrefManager;
 	@NonNull
-	protected final LocalPreferenceRepository lclPrefRepository;
+	protected final DevicePrefManager devicePrefManager;
 	@NonNull
 	private final POIRepository poiRepository;
 	@NonNull
@@ -245,7 +245,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			@NonNull MTSensorManager sensorManager,
 			@NonNull DataSourcesRepository dataSourcesRepository,
 			@NonNull UserPrefManager userPrefManager,
-			@NonNull LocalPreferenceRepository lclPrefRepository,
+			@NonNull DevicePrefManager devicePrefManager,
 			@NonNull POIRepository poiRepository,
 			@NonNull FavoriteRepository favoriteRepository,
 			@NonNull StatusLoader statusLoader,
@@ -258,7 +258,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.sensorManager = sensorManager;
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.userPrefManager = userPrefManager;
-		this.lclPrefRepository = lclPrefRepository;
+		this.devicePrefManager = devicePrefManager;
 		this.poiRepository = poiRepository;
 		this.favoriteRepository = favoriteRepository;
 		this.statusLoader = statusLoader;
@@ -842,6 +842,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				this.favoriteRepository,
 				this.dataSourcesRepository,
 				this.poiRepository,
+				this.devicePrefManager,
 				this.allFavoritesFkIds == null ? null : this.allFavoritesFkIds.contains(poim.poi.getUUID()),
 				this.isUsingFavoriteFolders,
 				this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get()
@@ -859,6 +860,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				this.favoriteRepository,
 				this.dataSourcesRepository,
 				this.poiRepository,
+				this.devicePrefManager,
 				this.allFavoritesFkIds == null ? null : this.allFavoritesFkIds.contains(poim.poi.getUUID()),
 				this.isUsingFavoriteFolders,
 				this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get()
@@ -1807,7 +1809,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				false,
 				false,
 				(rds, showListInsteadOfMap) -> {
-					this.poiRepository.updateRouteDirectionShowingListInsteadOfMap(rds, showListInsteadOfMap);
+					//noinspection DiscouragedApi
+					this.devicePrefManager.updateRouteDirectionShowingListInsteadOfMapNow(rds, showListInsteadOfMap);
 					return kotlin.Unit.INSTANCE;
 				},
 				(view) -> {

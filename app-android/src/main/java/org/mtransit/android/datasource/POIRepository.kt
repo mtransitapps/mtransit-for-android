@@ -2,7 +2,6 @@ package org.mtransit.android.datasource
 
 import android.location.Location
 import androidx.collection.LruCache
-import androidx.core.content.edit
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -11,13 +10,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.data.RouteDirection
-import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.set
-import org.mtransit.android.commons.data.toRouteDirection
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
@@ -33,17 +28,14 @@ import kotlin.coroutines.EmptyCoroutineContext
 @Singleton
 class POIRepository(
     private val dataSourceRequestManager: DataSourceRequestManager,
-    private val lclPrefRepository: LocalPreferenceRepository,
     private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
 
     @Inject
     constructor(
         dataSourceRequestManager: DataSourceRequestManager,
-        lclPrefRepository: LocalPreferenceRepository,
     ) : this(
         dataSourceRequestManager = dataSourceRequestManager,
-        lclPrefRepository = lclPrefRepository,
         ioDispatcher = Dispatchers.IO,
     )
 
@@ -223,23 +215,5 @@ class POIRepository(
         context: CoroutineContext = ioDispatcher
     ) = withContext(context) {
         findPOIMs(agency, poiFilter)
-    }
-
-    fun updateSelectedAgencyTypeTab(agency: IAgencyProperties) {
-        lclPrefRepository.pref.edit {
-            putString(LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getSupportedType().id), agency.authority)
-        }
-    }
-
-    fun updateRouteDirectionShowingListInsteadOfMap(rds: RouteDirectionStop, showListInsteadOfMap: Boolean) =
-        updateRouteDirectionShowingListInsteadOfMap(rds.toRouteDirection(), showListInsteadOfMap)
-
-    fun updateRouteDirectionShowingListInsteadOfMap(routeDirection: RouteDirection, showListInsteadOfMap: Boolean) {
-        lclPrefRepository.pref.edit {
-            putBoolean(
-                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
-                showListInsteadOfMap
-            )
-        }
     }
 }

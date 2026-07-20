@@ -16,12 +16,12 @@ import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentMapBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
@@ -111,7 +111,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var lclPrefRepository: LocalPreferenceRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
@@ -171,7 +171,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDI(dataSourcesRepository, lclPrefRepository)
+            setDI(dataSourcesRepository, devicePrefManager)
             onAttach(requireActivity())
             setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }
