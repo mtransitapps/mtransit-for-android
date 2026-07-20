@@ -882,6 +882,7 @@ public class POIManager implements LocationPOI,
 			FavoriteRepository favoriteRepository,
 			DataSourcesRepository dataSourcesRepository,
 			POIRepository poiRepository,
+			DevicePrefManager devicePrefManager,
 			@Nullable Boolean isFavorite,
 			@Nullable Boolean isUsingFavoriteFolders,
 			POIArrayAdapter.OnClickHandledListener onClickHandledListener
