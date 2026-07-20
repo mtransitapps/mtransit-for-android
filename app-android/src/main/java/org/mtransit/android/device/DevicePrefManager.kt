@@ -120,7 +120,7 @@ class DevicePrefManager @Inject constructor(
     // region map type
 
     @Suppress("unused")
-    suspend fun getMayType() = withContext(Dispatchers.IO) {
+    suspend fun getMapType() = withContext(Dispatchers.IO) {
         lclPrefRepository.pref.getInt(
             MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT
         )

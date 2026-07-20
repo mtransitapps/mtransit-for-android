@@ -253,10 +253,14 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     val showingListInsteadOfMap: LiveData<Boolean> = _routeDirection
         .switchMap { routeDirection ->
-            if (demoModeManager.isFullDemo()) {
-                return@switchMap liveData { emit(false) } // show map (demo mode ON)
+            liveData {
+                if (demoModeManager.isFullDemo()) {
+                    emit(false) // show map (demo mode ON)
+                    return@liveData
+                }
+                routeDirection ?: return@liveData
+                emitSource(devicePrefManager.routeDirectionShowingListInsteadOfMap(routeDirection))
             }
-            routeDirection?.let { devicePrefManager.routeDirectionShowingListInsteadOfMap(it) }
         }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
