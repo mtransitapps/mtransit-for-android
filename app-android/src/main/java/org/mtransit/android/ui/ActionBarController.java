@@ -73,6 +73,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		init();
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public void setMainActivity(@Nullable MainActivity mainActivity) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 	}
@@ -125,19 +126,17 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private void init() {
 		final MainActivity mainActivity = getMainActivityOrNull();
-		if (mainActivity != null) {
-			final Toolbar toolbar = mainActivity.findViewById(R.id.ab_toolbar);
-			mainActivity.setSupportActionBar(toolbar);
-			final ActionBar ab = getABOrNull();
-			this.fragmentTitle = mainActivity.getTitle();
-			this.fragmentSubtitle = ab == null ? null : ab.getSubtitle();
-			if (ab != null) {
-				ab.hide();
-				ab.setDisplayHomeAsUpEnabled(this.fragmentDisplayHomeAsUpEnabled);
-				ab.setHomeButtonEnabled(true);
-				ab.setBackgroundDrawable(getBgDrawable());
-			}
-		}
+		if (mainActivity == null) return;
+		final Toolbar toolbar = mainActivity.findViewById(R.id.ab_toolbar);
+		mainActivity.setSupportActionBar(toolbar);
+		final ActionBar ab = getABOrNull();
+		this.fragmentTitle = mainActivity.getTitle();
+		this.fragmentSubtitle = ab == null ? null : ab.getSubtitle();
+		if (ab == null) return;
+		ab.hide();
+		ab.setDisplayHomeAsUpEnabled(this.fragmentDisplayHomeAsUpEnabled);
+		ab.setHomeButtonEnabled(true);
+		ab.setBackgroundDrawable(getBgDrawable());
 	}
 
 	public void setAB(@Nullable ABFragment abf) {
@@ -168,7 +167,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			View customView,
 			boolean customViewFocusable,
 			boolean customViewRequestFocus,
-			boolean themeDarkInsteadOfThemeLight,
+			@SuppressWarnings("unused") boolean themeDarkInsteadOfThemeLight,
 			boolean displayHomeAsUpEnabled,
 			boolean showSearchMenuItem,
 			boolean fragmentReady,
@@ -225,16 +224,16 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void setABOverrideGradient(@Nullable Fragment source, boolean overrideGradient, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
+		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentOverrideGradient = overrideGradient;
 		if (update) {
 			updateABDrawerClosed();
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void setABCustomView(@Nullable Fragment source, @Nullable View customView, boolean update) {
 		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentCustomView = customView;
@@ -243,6 +242,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void setABCustomViewFocusable(@Nullable Fragment source, boolean fragmentCustomViewFocusable, boolean update) {
 		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentCustomViewFocusable = fragmentCustomViewFocusable;
@@ -251,6 +251,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void setABCustomViewRequestFocus(@Nullable Fragment source, boolean fragmentCustomViewRequestFocus, boolean update) {
 		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentCustomViewRequestFocus = fragmentCustomViewRequestFocus;
@@ -259,6 +260,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void setABDisplayHomeAsUpEnabled(@Nullable Fragment source, boolean displayHomeAsUpEnabled, boolean update) {
 		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
@@ -267,6 +269,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void setABShowSearchMenuItem(@Nullable Fragment source, boolean showSearchMenuItem, boolean update) {
 		if (!isCurrentFragmentVisible(source)) return;
 		this.fragmentShowSearchMenuItem = showSearchMenuItem;
@@ -281,17 +284,13 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private void updateABDrawerClosed() {
 		final ActionBar ab = getABOrNull();
-		if (ab == null) {
-			return;
-		}
+		if (ab == null) return;
 		if (this.fragmentHasToolbar) {
 			setOverrideGradient(ab, true); // hide
 			ab.hide();
 			return;
 		}
-		if (!this.fragmentReady) {
-			return;
-		}
+		if (!this.fragmentReady) return;
 		if (this.fragmentCustomView != null) {
 			if (!this.fragmentCustomView.equals(ab.getCustomView())) {
 				ab.setCustomView(this.fragmentCustomView);
@@ -331,23 +330,21 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		ab.show();
 	}
 
+	@SuppressWarnings("unused")
 	public void updateABBgColor() {
-		if (!this.fragmentReady) {
-			return;
-		}
-		if (this.fragmentBgColor != null) {
-			setBgColor(getABOrNull(), this.fragmentBgColor);
-		}
+		if (!this.fragmentReady) return;
+		if (this.fragmentBgColor == null) return;
+		setBgColor(getABOrNull(), this.fragmentBgColor);
 	}
 
-	private void setBgColor(ActionBar ab, @ColorInt int colorInt) {
+	private void setBgColor(@SuppressWarnings("unused") ActionBar ab, @ColorInt int colorInt) {
 		getBgDrawable().setColor(colorInt);
 		final MainActivity mainActivity = getMainActivityOrNull();
-		if (mainActivity != null) {
-			EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(mainActivity, colorInt);
-		}
+		if (mainActivity == null) return;
+		EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(mainActivity, colorInt);
 	}
 
+	@SuppressWarnings("unused")
 	public void updateABOverrideGradient() {
 		if (!this.fragmentReady) {
 			return;
@@ -355,11 +352,10 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		setOverrideGradient(getABOrNull(), this.fragmentOverrideGradient);
 	}
 
-	private void setOverrideGradient(ActionBar ab, boolean overrideABGradient) {
+	private void setOverrideGradient(@SuppressWarnings("unused") ActionBar ab, boolean overrideABGradient) {
 		final View abdGradient = getABDGradientOrNull();
-		if (abdGradient != null) {
-			abdGradient.setVisibility(overrideABGradient ? View.GONE : View.VISIBLE);
-		}
+		if (abdGradient == null) return;
+		abdGradient.setVisibility(overrideABGradient ? View.GONE : View.VISIBLE);
 	}
 
 	@NonNull
@@ -383,11 +379,11 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return this.upOnClickListener;
 	}
 
-	public void onSaveState(@NonNull Bundle outState) {
+	public void onSaveState(@SuppressWarnings("unused") @NonNull Bundle outState) {
 		// DO NOTHING
 	}
 
-	public void onRestoreState(@NonNull Bundle savedInstanceState) {
+	public void onRestoreState(@SuppressWarnings("unused") @NonNull Bundle savedInstanceState) {
 		// DO NOTHING
 	}
 
@@ -419,13 +415,13 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	@Nullable
 	private MenuItem searchMenuItem = null;
 
+	@SuppressWarnings("WeakerAccess")
 	public void updateMenuItemsVisibility() {
-		if (this.searchMenuItem != null) {
-			this.searchMenuItem.setVisible(
-					Boolean.TRUE.equals(this.hasAgenciesEnabled)
-							&& this.fragmentShowSearchMenuItem
-			);
-		}
+		if (this.searchMenuItem == null) return;
+		this.searchMenuItem.setVisible(
+				Boolean.TRUE.equals(this.hasAgenciesEnabled)
+						&& this.fragmentShowSearchMenuItem
+		);
 	}
 
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {

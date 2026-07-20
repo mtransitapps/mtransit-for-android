@@ -312,6 +312,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout) }
         this.listAdapter.onVisible(this, viewModel.deviceLocation.value)
         switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }

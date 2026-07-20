@@ -374,7 +374,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private fun updateABColor() {
         abController?.setABBgColor(this, getABBgColor(context), true)
-        binding?.screenToolbarLayout?.let { updateScreenToolbarBgColor(it) }
+        updateScreenToolbarBgColor()
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABBgColor(getABBgColor(context))
         }
@@ -412,6 +412,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout) }
         listAdapter.onVisible(this)
         twoPaneOnBackPressedCallback.setEnabledState()
         if (FeatureFlags.F_NAVIGATION) {

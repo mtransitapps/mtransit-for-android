@@ -250,6 +250,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout) }
         mapViewController.onResume()
         mapViewController.showMap(view)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }

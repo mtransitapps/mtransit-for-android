@@ -107,22 +107,13 @@ public abstract class ABFragment extends MTFragmentX implements
 	}
 
 	@CallSuper
-	public void updateScreenToolbarBgColor(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
-		updateScreenToolbarBgColor(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
-	}
-
-	@CallSuper
-	public void updateScreenToolbarBgColor(
-			@SuppressWarnings("unused") @NonNull AppBarLayout appBarLayout,
-			@SuppressWarnings("unused") @NonNull Toolbar toolbar) {
+	public void updateScreenToolbarBgColor() {
+		if (!isResumed()) return; // too soon (might still be showing another fragment)
 		final Integer bgColorInt = getABBgColor(getContext());
-		if (bgColorInt != null) {
-			getBgDrawable().setFillColor(ColorStateList.valueOf(bgColorInt));
-			final MainActivity mainActivity = getMainActivity();
-			if (mainActivity != null) {
-				EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(getMainActivity(), bgColorInt);
-			}
-		}
+		if (bgColorInt == null) return; // no color
+		getBgDrawable().setFillColor(ColorStateList.valueOf(bgColorInt));
+		final MainActivity mainActivity = getMainActivity();
+		if (mainActivity != null) EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(mainActivity, bgColorInt);
 	}
 
 	@SuppressWarnings("unused")
@@ -130,17 +121,13 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarOverrideGradient(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
-	private void updateScreenToolbarOverrideGradient(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+	private void updateScreenToolbarOverrideGradient(@NonNull AppBarLayout appBarLayout, @SuppressWarnings("unused") @NonNull Toolbar toolbar) {
 		final boolean overrideGradient = isABOverrideGradient();
 		if (overrideGradient) {
 			appBarLayout.setBackground(AppCompatResources.getDrawable(appBarLayout.getContext(), R.drawable.ab_gradient));
-		} else {
-			setupScreenToolbarBgColor(appBarLayout, toolbar);
+		} else if (isResumed()) {
+			appBarLayout.setBackground(getBgDrawable());
 		}
-	}
-
-	private void setupScreenToolbarBgColor(@NonNull AppBarLayout appBarLayout, @SuppressWarnings("unused") @NonNull Toolbar toolbar) {
-		appBarLayout.setBackground(getBgDrawable());
 	}
 
 	@Nullable
@@ -171,10 +158,9 @@ public abstract class ABFragment extends MTFragmentX implements
 
 	public void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
 		// setup
-		setupScreenToolbarBgColor(appBarLayout, toolbar);
 		toolbar.setNavigationOnClickListener(this::onScreenToolbarNavigationClick);
 		if (this instanceof MenuProvider) {
-			toolbar.addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+			toolbar.addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.CREATED); // resumed glitch w/ predictive back
 		}
 		inflateMainMenu(toolbar);
 		toolbar.setOnMenuItemClickListener(this::onScreenToolbarMenuItemClick);
@@ -183,7 +169,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarTitle(toolbar);
 		updateScreenToolbarSubtitle(toolbar);
 		updateScreenToolbarOverrideGradient(appBarLayout, toolbar);
-		updateScreenToolbarBgColor(appBarLayout, toolbar);
+		updateScreenToolbarBgColor();
 		updateScreenToolbarCustomView(toolbar);
 	}
 
@@ -277,18 +263,15 @@ public abstract class ABFragment extends MTFragmentX implements
 	public void updateScreenToolbarCustomView(@NonNull Toolbar toolbar) {
 		final View customView = getABCustomView();
 		setScreenToolbarCustomView(toolbar, customView);
-		if (customView == null) {
-			return;
-		}
-		if (isABCustomViewFocusable()) {
-			customView.setFocusable(true);
-			customView.setFocusableInTouchMode(true);
-			if (isABCustomViewRequestFocus()) {
-				customView.requestFocus();
-				customView.requestFocusFromTouch();
-			} else {
-				customView.clearFocus();
-			}
+		if (customView == null) return;
+		if (!isABCustomViewFocusable()) return;
+		customView.setFocusable(true);
+		customView.setFocusableInTouchMode(true);
+		if (isABCustomViewRequestFocus()) {
+			customView.requestFocus();
+			customView.requestFocusFromTouch();
+		} else {
+			customView.clearFocus();
 		}
 	}
 
@@ -352,7 +335,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		EdgeToEdgeKt.setNavBarThemeEdgeToEdge(activity);
 		EdgeToEdgeKt.setNavBarProtectionEdgeToEdge(activity, isNavBarProtected());
 		if (this instanceof MenuProvider && !hasToolbar()) {
-			requireActivity().addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+			requireActivity().addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.CREATED); // resumed glitch w/ predictive back
 		}
 		sharedAppRatingsManager.getShouldShowAppRatingRequest(this).observe(getViewLifecycleOwner(), shouldShow -> {
 			if (!shouldShow) return;
@@ -370,6 +353,17 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public boolean hasAds() {
 		return false; // will show main activity ads
+	}
+
+	public void onResumeToolbar(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
+		onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
+	}
+
+	public void onResumeToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+		if (hasToolbar()) {
+			updateScreenToolbarOverrideGradient(appBarLayout, toolbar);
+			updateScreenToolbarBgColor();
+		}
 	}
 
 	@CallSuper

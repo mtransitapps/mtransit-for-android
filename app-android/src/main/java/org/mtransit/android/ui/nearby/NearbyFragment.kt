@@ -29,7 +29,6 @@ import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
-import org.mtransit.android.databinding.LayoutScreenToolbarBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
@@ -264,7 +263,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
         }
         viewModel.fixedOnColorInt.observe(viewLifecycleOwner) {
-            binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
+            updateScreenToolbarBgColor()
         }
         LocationSettingsUI.onViewCreated(this)
         LocationPermissionUI.onViewCreated(this)
@@ -284,8 +283,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         }
     }
 
-    override fun updateScreenToolbarBgColor(screenToolbarLayout: LayoutScreenToolbarBinding) {
-        super.updateScreenToolbarBgColor(screenToolbarLayout)
+    override fun updateScreenToolbarBgColor() {
+        super.updateScreenToolbarBgColor()
+        if (!isResumed) return
         getABBgColor(context)?.let {
             activity?.setStatusBarBgColorEdgeToEdge(it)
             binding?.tabs?.setBackgroundColor(it)
@@ -413,6 +413,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout) }
         binding?.switchView()
         viewModel.refreshLocationPermissionNeeded()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }

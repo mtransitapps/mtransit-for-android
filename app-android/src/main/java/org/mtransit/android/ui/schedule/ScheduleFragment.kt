@@ -273,6 +273,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout) }
         viewModel.initStartEndTimeIfNotSet()
         viewModel.poim.value?.allowTriggerStatusAndServiceUpdatesRefresh() // get changes loaded from other screens (while paused)
         enableTimeChangedReceiver()
