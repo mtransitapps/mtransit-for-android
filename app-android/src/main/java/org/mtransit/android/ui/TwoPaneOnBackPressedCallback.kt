@@ -2,30 +2,38 @@ package org.mtransit.android.ui
 
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.MainThread
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import org.mtransit.android.commons.MTLog
 
 class TwoPaneOnBackPressedCallback(
-    private val slidingPaneLayout: SlidingPaneLayout,
     private val onPanelHandledBackPressedCallback: () -> Unit,
     private val onPanelOpenedCallback: () -> Unit,
     private val onPanelClosedCallback: () -> Unit,
-) : OnBackPressedCallback(
-    slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-), SlidingPaneLayout.PanelSlideListener, MTLog.Loggable {
+) : OnBackPressedCallback(enabled = false),
+    SlidingPaneLayout.PanelSlideListener,
+    MTLog.Loggable {
 
     companion object {
         private val LOG_TAG: String = TwoPaneOnBackPressedCallback::class.java.simpleName
     }
 
-    fun init() {
-        slidingPaneLayout.addPanelSlideListener(this)
-    }
-
     override fun getLogTag() = LOG_TAG
 
+    var slidingPaneLayout: SlidingPaneLayout? = null
+        set(value) {
+            field?.removePanelSlideListener(this)
+            field = value
+            field?.addPanelSlideListener(this)
+        }
+
+    @MainThread
+    fun setEnabledState(enabled: Boolean = slidingPaneLayout?.isSlideable == true && slidingPaneLayout?.isOpen == true) {
+        isEnabled = enabled
+    }
+
     override fun handleOnBackPressed() {
-        slidingPaneLayout.closePane()
+        slidingPaneLayout?.closePane()
         onPanelHandledBackPressedCallback()
     }
 
