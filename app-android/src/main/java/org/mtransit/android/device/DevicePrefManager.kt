@@ -42,10 +42,26 @@ class DevicePrefManager @Inject constructor(
         )
     }
 
-    fun updateRouteDirectionShowingListInsteadOfMap(rds: RouteDirectionStop, showListInsteadOfMap: Boolean) =
+    @SuppressLint("DiscouragedApi")
+    @Discouraged("use suspend function")
+    fun updateRouteDirectionShowingListInsteadOfMapNow(rds: RouteDirectionStop, showListInsteadOfMap: Boolean) =
+        updateRouteDirectionShowingListInsteadOfMapNow(rds.toRouteDirection(), showListInsteadOfMap)
+
+    @Discouraged("use suspend function")
+    fun updateRouteDirectionShowingListInsteadOfMapNow(routeDirection: RouteDirection, showListInsteadOfMap: Boolean) {
+        lclPrefRepository.pref.edit {
+            putBoolean(
+                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
+                showListInsteadOfMap
+            )
+        }
+    }
+
+    @Suppress("unused")
+    suspend fun updateRouteDirectionShowingListInsteadOfMap(rds: RouteDirectionStop, showListInsteadOfMap: Boolean) =
         updateRouteDirectionShowingListInsteadOfMap(rds.toRouteDirection(), showListInsteadOfMap)
 
-    fun updateRouteDirectionShowingListInsteadOfMap(routeDirection: RouteDirection, showListInsteadOfMap: Boolean) {
+    suspend fun updateRouteDirectionShowingListInsteadOfMap(routeDirection: RouteDirection, showListInsteadOfMap: Boolean) = withContext(Dispatchers.IO) {
         lclPrefRepository.pref.edit {
             putBoolean(
                 LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
@@ -92,7 +108,6 @@ class DevicePrefManager @Inject constructor(
     @Discouraged("use suspend function")
     fun updateSelectedAgencyTypeTabNow(agency: IAgencyProperties) = updateSelectedAgencyTypeTabNow(agency.getSupportedType().id, agency.authority)
 
-    @SuppressLint("DiscouragedApi")
     @Discouraged("use suspend function")
     fun updateSelectedAgencyTypeTabNow(@DataSourceTypeId.DataSourceType dstId: Int, agencyAuthority: String) {
         lclPrefRepository.pref.edit {
