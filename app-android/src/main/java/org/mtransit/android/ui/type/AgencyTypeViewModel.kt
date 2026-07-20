@@ -99,7 +99,6 @@ class AgencyTypeViewModel @Inject constructor(
             }
             return@map null to dst?.shortNamesResId
         }
-    }
 
     val tabsVisible: LiveData<Boolean> = MediatorLiveData2(type, typeAgencies)
         .map { (dst, agencies) ->
