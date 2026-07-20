@@ -55,6 +55,9 @@ import org.mtransit.android.util.UIFeatureFlags
 private const val LOG_TAG = "EdgeToEdge"
 
 fun ComponentActivity.enableEdgeToEdgeMT() {
+    if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
+        return
+    }
     enableEdgeToEdge()
 }
 

@@ -2,17 +2,6 @@
 <issues format="6" by="lint 9.2.1" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.1)" variant="all" version="9.2.1">
 
     <issue
-        id="GestureBackNavigation"
-        message="`onBackPressed` is no longer called for back gestures; migrate to AndroidX&apos;s backward compatible `OnBackPressedDispatcher`"
-        errorLine1="    override fun onBackPressed() {"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="439"
-            column="18"/>
-    </issue>
-
-    <issue
         id="DoNotMockPlatformTypes"
         message="platform type &apos;android.text.SpannableStringBuilder&apos; should not be mocked"
         errorLine1="  output = mock(SpannableStringBuilder.class);"
