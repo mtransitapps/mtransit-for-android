@@ -19,6 +19,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
+import org.mtransit.android.MtLogExtKt;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.ColorUtils;
@@ -41,6 +42,7 @@ import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProvider
 import org.mtransit.android.commons.provider.status.StatusProviderContract;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
+import org.mtransit.android.device.DevicePrefManager;
 import org.mtransit.android.provider.FavoriteRepository;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -214,7 +216,13 @@ public class POIManager implements LocationPOI,
 			}
 		}
 		// 3 - use status
-		MTLog.d(this, "setStatus() > USE new status %s", newStatus.toString());
+		MTLog.d(this, "setStatus() > USE new status (useful:%s,noData:%s,read:%s,last:%s,valid:%s)",
+				newStatus.isUseful(),
+				newStatus.isNoData(),
+				MtLogExtKt.toDateTimeLog(newStatus.getReadFromSourceAtInMs()),
+				MtLogExtKt.toDateTimeLog(newStatus.getLastUpdateInMs()),
+				MtLogExtKt.toDurationLog(newStatus.getValidityInMs())
+		);
 		this.status = newStatus;
 		return true; // change
 	}
@@ -384,7 +392,7 @@ public class POIManager implements LocationPOI,
 			@NonNull LifecycleOwner viewLifecycleOwner,
 			@NonNull FavoriteRepository favoriteRepository,
 			@NonNull DataSourcesRepository dataSourcesRepository,
-			@NonNull POIRepository poiRepository,
+			@NonNull DevicePrefManager devicePrefManager,
 			int itemClicked,
 			POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
@@ -394,9 +402,9 @@ public class POIManager implements LocationPOI,
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return onActionsItemClickFavoritable(activity, viewLifecycleOwner, favoriteRepository, itemClicked);
 		case POI.ITEM_ACTION_TYPE_ROUTE_DIRECTION_STOP:
-			return onActionsItemClickRDS(activity, view, viewLifecycleOwner, favoriteRepository, poiRepository, itemClicked, onClickHandledListener);
+			return onActionsItemClickRDS(activity, view, viewLifecycleOwner, favoriteRepository, devicePrefManager, itemClicked, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_APP:
-			return onActionsItemClickApp(activity, view, dataSourcesRepository, poiRepository, itemClicked, onClickHandledListener);
+			return onActionsItemClickApp(activity, view, dataSourcesRepository, devicePrefManager, itemClicked, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			return onActionsItemClickPlace(activity, view, dataSourcesRepository, itemClicked, onClickHandledListener);
 		default:
@@ -409,7 +417,7 @@ public class POIManager implements LocationPOI,
 			@NonNull FragmentActivity activity,
 			@NonNull View view,
 			@NonNull DataSourcesRepository dataSourcesRepository,
-			@NonNull POIRepository poiRepository,
+			@NonNull DevicePrefManager devicePrefManager,
 			int itemClicked,
 			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
@@ -427,7 +435,7 @@ public class POIManager implements LocationPOI,
 					if (agency.isUpdateAvailableNow(activity.getPackageManager())) {
 						AppUpdateLauncher.launchAppUpdate(activity, pkg);
 					} else { // navigate to agency type screen
-						showAgencyTypeScreen(activity, view, poiRepository, agency);
+						showAgencyTypeScreen(activity, view, devicePrefManager, agency);
 					}
 					return true; // handled
 				}
@@ -654,7 +662,7 @@ public class POIManager implements LocationPOI,
 			@NonNull View view,
 			@NonNull LifecycleOwner viewLifecycleOwner,
 			@NonNull FavoriteRepository favoriteRepository,
-			@NonNull POIRepository poiRepository,
+			@NonNull DevicePrefManager devicePrefManager,
 			int itemClicked,
 			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
@@ -664,7 +672,8 @@ public class POIManager implements LocationPOI,
 				onClickHandledListener.onLeaving();
 			}
 			final RouteDirectionStop rds = (RouteDirectionStop) poi;
-			poiRepository.updateRouteDirectionShowingListInsteadOfMap(rds, true);
+			//noinspection DiscouragedApi
+			devicePrefManager.updateRouteDirectionShowingListInsteadOfMapNow(rds, true);
 			if (FeatureFlags.F_NAVIGATION) {
 				final NavController navController = Navigation.findNavController(view);
 				FragmentNavigator.Extras extras = null;
@@ -733,6 +742,7 @@ public class POIManager implements LocationPOI,
 			@NonNull View view,
 			DataSourcesRepository dataSourcesRepository,
 			POIRepository poiRepository,
+			DevicePrefManager devicePrefManager,
 			POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
 		if (activity == null) return false; // show long-click menu
@@ -752,7 +762,7 @@ public class POIManager implements LocationPOI,
 					if (agency.isUpdateAvailableNow(activity.getPackageManager())) {
 						AppUpdateLauncher.launchAppUpdate(activity, pkg);
 					} else { // navigate to agency type screen
-						showAgencyTypeScreen(activity, view, poiRepository, agency);
+						showAgencyTypeScreen(activity, view, devicePrefManager, agency);
 					}
 					return true; // handled
 				}
@@ -821,10 +831,11 @@ public class POIManager implements LocationPOI,
 	private static void showAgencyTypeScreen(
 			@NonNull FragmentActivity activity,
 			@NonNull View view,
-			@NonNull POIRepository poiRepository,
+			@NonNull DevicePrefManager devicePrefManager,
 			@NonNull AgencyProperties agency
 	) {
-		poiRepository.updateSelectedAgencyTypeTab(agency);
+		//noinspection DiscouragedApi
+		devicePrefManager.updateSelectedAgencyTypeTabNow(agency);
 		if (FeatureFlags.F_NAVIGATION) {
 			final NavController navController = Navigation.findNavController(view);
 			FragmentNavigator.Extras extras = null;
@@ -855,12 +866,13 @@ public class POIManager implements LocationPOI,
 			FavoriteRepository favoriteRepository,
 			DataSourcesRepository dataSourcesRepository,
 			POIRepository poiRepository,
+			DevicePrefManager devicePrefManager,
 			@Nullable Boolean isFavorite,
 			@Nullable Boolean isUsingFavoriteFolders,
 			POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
 		if (activity == null) return false;
-		return showPoiMenu(activity, view, viewLifecycleOwner, favoriteRepository, dataSourcesRepository, poiRepository, isFavorite, isUsingFavoriteFolders, onClickHandledListener);
+		return showPoiMenu(activity, view, viewLifecycleOwner, favoriteRepository, dataSourcesRepository, poiRepository, devicePrefManager, isFavorite, isUsingFavoriteFolders, onClickHandledListener);
 	}
 
 	boolean onActionItemClick(
@@ -875,9 +887,9 @@ public class POIManager implements LocationPOI,
 			POIArrayAdapter.OnClickHandledListener onClickHandledListener
 	) {
 		if (activity == null) return false;
-		boolean poiScreenShow = showPoiViewerScreen(activity, view, dataSourcesRepository, poiRepository, onClickHandledListener);
+		boolean poiScreenShow = showPoiViewerScreen(activity, view, dataSourcesRepository, poiRepository, devicePrefManager, onClickHandledListener);
 		if (!poiScreenShow) {
-			poiScreenShow = showPoiMenu(activity, view, viewLifecycleOwner, favoriteRepository, dataSourcesRepository, poiRepository, isFavorite, isUsingFavoriteFolders, onClickHandledListener);
+			poiScreenShow = showPoiMenu(activity, view, viewLifecycleOwner, favoriteRepository, dataSourcesRepository, poiRepository, devicePrefManager, isFavorite, isUsingFavoriteFolders, onClickHandledListener);
 		}
 		return poiScreenShow;
 	}
@@ -889,6 +901,7 @@ public class POIManager implements LocationPOI,
 			final @NonNull FavoriteRepository favoriteRepository,
 			final @NonNull DataSourcesRepository dataSourcesRepository,
 			final @NonNull POIRepository poiRepository,
+			final @NonNull DevicePrefManager devicePrefManager,
 			final @Nullable Boolean isFavorite,
 			final @Nullable Boolean isUsingFavoriteFolders,
 			final POIArrayAdapter.OnClickHandledListener onClickHandledListener
@@ -917,7 +930,7 @@ public class POIManager implements LocationPOI,
 										viewLifecycleOwner,
 										favoriteRepository,
 										dataSourcesRepository,
-										poiRepository,
+										devicePrefManager,
 										item,
 										onClickHandledListener
 								);
@@ -926,7 +939,7 @@ public class POIManager implements LocationPOI,
 								}
 								switch (item) {
 								case 0:
-									showPoiViewerScreen(activity, view, dataSourcesRepository, poiRepository, onClickHandledListener);
+									showPoiViewerScreen(activity, view, dataSourcesRepository, poiRepository, devicePrefManager, onClickHandledListener);
 									break;
 								default:
 									MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);

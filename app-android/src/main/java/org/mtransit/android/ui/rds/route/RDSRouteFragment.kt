@@ -73,25 +73,25 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         @JvmStatic
         fun newInstance(rds: RouteDirectionStop, optMapCameraPosition: CameraPosition? = null) =
             newInstance(
-                rds.authority,
-                rds.route.id,
-                rds.direction.id,
-                rds.stop.id,
-                optMapCameraPosition?.target?.latitude,
-                optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom,
+                authority = rds.authority,
+                routeId = rds.route.id,
+                optSelectedDirectionId = rds.direction.id,
+                optSelectedStopId = rds.stop.id,
+                optMapLat = optMapCameraPosition?.target?.latitude,
+                optMapLng = optMapCameraPosition?.target?.longitude,
+                optMapZoom = optMapCameraPosition?.zoom,
             )
 
         @JvmOverloads
         @JvmStatic
         fun newInstance(r: Route, optMapCameraPosition: CameraPosition? = null) = newInstance(
-            r.authority,
-            r.id,
+            authority = r.authority,
+            routeId = r.id,
             optSelectedDirectionId = null,
             optSelectedStopId = null,
-            optMapCameraPosition?.target?.latitude,
-            optMapCameraPosition?.target?.longitude,
-            optMapCameraPosition?.zoom,
+            optMapLat = optMapCameraPosition?.target?.latitude,
+            optMapLng = optMapCameraPosition?.target?.longitude,
+            optMapZoom = optMapCameraPosition?.zoom,
         )
 
         @JvmStatic
@@ -111,26 +111,26 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         @JvmStatic
         fun newInstanceArgs(rds: RouteDirectionStop, optMapCameraPosition: CameraPosition? = null) =
             newInstanceArgs(
-                rds.authority,
-                rds.route.id,
-                rds.direction.id,
-                rds.stop.id,
-                optMapCameraPosition?.target?.latitude,
-                optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom,
+                authority = rds.authority,
+                routeId = rds.route.id,
+                optSelectedDirectionId = rds.direction.id,
+                optSelectedStopId = rds.stop.id,
+                optMapLat = optMapCameraPosition?.target?.latitude,
+                optMapLng = optMapCameraPosition?.target?.longitude,
+                optMapZoom = optMapCameraPosition?.zoom,
             )
 
         @JvmOverloads
         @JvmStatic
         fun newInstanceArgs(r: Route, optMapCameraPosition: CameraPosition? = null) =
             newInstanceArgs(
-                r.authority,
-                r.id,
+                authority = r.authority,
+                routeId = r.id,
                 optSelectedDirectionId = null,
                 optSelectedStopId = null,
-                optMapCameraPosition?.target?.latitude,
-                optMapCameraPosition?.target?.longitude,
-                optMapCameraPosition?.zoom,
+                optMapLat = optMapCameraPosition?.target?.latitude,
+                optMapLng = optMapCameraPosition?.target?.longitude,
+                optMapZoom = optMapCameraPosition?.zoom,
             )
 
         @JvmStatic

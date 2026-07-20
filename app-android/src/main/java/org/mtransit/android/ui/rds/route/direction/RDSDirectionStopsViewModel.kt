@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.rds.route.direction
 
 import androidx.collection.SimpleArrayMap
-import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -18,13 +17,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract
@@ -38,6 +35,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.view.common.Event
@@ -52,9 +50,9 @@ import kotlin.time.Duration.Companion.milliseconds
 class RDSDirectionStopsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val poiRepository: POIRepository,
+    private val devicePrefManager: DevicePrefManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
-    private val lclPrefRepository: LocalPreferenceRepository,
     private val demoModeManager: DemoModeManager,
     remoteConfigProvider: RemoteConfigProvider,
 ) : ViewModel(), MTLog.Loggable {
@@ -255,29 +253,17 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     val showingListInsteadOfMap: LiveData<Boolean> = _routeDirection
         .switchMap { routeDirection ->
-            liveData {
-                if (demoModeManager.isFullDemo()) {
-                    emit(false) // show map (demo mode ON)
-                    return@liveData
-                }
-                routeDirection ?: return@liveData
-                emitSource(
-                    lclPrefRepository.pref.liveData(
-                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
-                        LocalPreferenceRepository.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
-                    )
-                )
+            if (demoModeManager.isFullDemo()) {
+                return@switchMap liveData { emit(false) } // show map (demo mode ON)
             }
+            routeDirection?.let { devicePrefManager.routeDirectionShowingListInsteadOfMap(it) }
         }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
         if (demoModeManager.isFullDemo()) return // SKIP (demo mode ON)
         val routeDirection = _routeDirection.value ?: return
-        lclPrefRepository.pref.edit {
-            putBoolean(
-                LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
-                showingListInsteadOfMap
-            )
+        viewModelScope.launch {
+            devicePrefManager.updateRouteDirectionShowingListInsteadOfMap(routeDirection, showingListInsteadOfMap)
         }
     }
 }

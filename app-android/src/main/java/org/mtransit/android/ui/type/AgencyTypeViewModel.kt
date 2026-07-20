@@ -1,24 +1,23 @@
 package org.mtransit.android.ui.type
 
 import android.content.pm.PackageManager
-import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.isAppEnabled
-import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
@@ -34,7 +33,7 @@ class AgencyTypeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val adManager: IAdManager,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val lclPrefRepository: LocalPreferenceRepository,
+    private val devicePrefManager: DevicePrefManager,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
     private val pm: PackageManager,
@@ -70,8 +69,8 @@ class AgencyTypeViewModel @Inject constructor(
     private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)
     private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct<Float?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)
 
-    val selectedMapCameraPosition =
-        MediatorLiveData3(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom).map { (lat, lng, zoom) ->
+    val selectedMapCameraPosition = MediatorLiveData3(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom)
+        .map { (lat, lng, zoom) ->
             lat ?: return@map null
             lng ?: return@map null
             zoom ?: return@map null
@@ -82,28 +81,32 @@ class AgencyTypeViewModel @Inject constructor(
 
     private val allAvailableAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
-    val typeAgencies = MediatorLiveData2(type, allAvailableAgencies).map { (dst, allAgencies) ->
-        allAgencies?.filter { it.getSupportedType() == dst }
-    }
+    val typeAgencies = MediatorLiveData2(type, allAvailableAgencies)
+        .map { (dst, allAgencies) ->
+            allAgencies?.filter { it.getSupportedType() == dst }
+        }
 
     override val moduleDisabled = typeAgencies.map {
         it?.filter { agency -> !agency.isEnabled } ?: emptyList()
     }.distinctUntilChanged()
 
-    val titleStringOrResId: LiveData<Pair<String?,Int?>> = MediatorLiveData2(type, typeAgencies).map { (dst, agencies) ->
-        if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
-            if (agencies?.size == 1) {
-                return@map agencies[0].shortName to null
+    val titleStringOrResId: LiveData<Pair<String?, Int?>> = MediatorLiveData2(type, typeAgencies)
+        .map { (dst, agencies) ->
+            if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
+                if (agencies?.size == 1) {
+                    return@map agencies[0].shortName to null
+                }
             }
+            return@map null to dst?.shortNamesResId
         }
-        return@map null to dst?.shortNamesResId
     }
 
-    val tabsVisible: LiveData<Boolean> = MediatorLiveData2(type, typeAgencies).map { (dst, agencies) ->
-        @Suppress("SimplifyBooleanWithConstants")
-        if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS && agencies?.size == 1) return@map false
-        dst != DataSourceType.TYPE_MODULE
-    }
+    val tabsVisible: LiveData<Boolean> = MediatorLiveData2(type, typeAgencies)
+        .map { (dst, agencies) ->
+            @Suppress("SimplifyBooleanWithConstants")
+            if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS && agencies?.size == 1) return@map false
+            dst != DataSourceType.TYPE_MODULE
+        }
 
     override val hasDisabledModule = moduleDisabled.map {
         it.any { agency -> !pm.isAppEnabled(agency.pkg) }
@@ -112,13 +115,7 @@ class AgencyTypeViewModel @Inject constructor(
     override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
 
     private val selectedTypeAgencyAuthority: LiveData<String> = _typeId.switchMap { typeId ->
-        liveData {
-            emitSource(
-                lclPrefRepository.pref.liveData(
-                    LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId), LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
-                )
-            )
-        }
+        devicePrefManager.selectedAgencyTypeTab(typeId)
     }.distinctUntilChanged()
 
     val selectedTypeAgencyPosition: LiveData<Int?> = MediatorLiveData2(selectedTypeAgencyAuthority, typeAgencies).map { (agencyAuthority, agencies) ->
@@ -144,9 +141,8 @@ class AgencyTypeViewModel @Inject constructor(
     }
 
     private fun saveSelectedTypeAgency(agency: IAgencyProperties) {
-        val typeId: Int = _typeId.value ?: return
-        lclPrefRepository.pref.edit {
-            putString(LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId), agency.authority)
+        viewModelScope.launch {
+            devicePrefManager.updateSelectedAgencyTypeTab(agency)
         }
     }
 }

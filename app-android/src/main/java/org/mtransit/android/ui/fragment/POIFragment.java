@@ -67,7 +67,6 @@ import org.mtransit.android.analytics.AnalyticsScreen;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.common.IContext;
-import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
@@ -96,6 +95,7 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.dev.DemoModeManager;
+import org.mtransit.android.device.DevicePrefManager;
 import org.mtransit.android.provider.FavoriteRepository;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
@@ -241,6 +241,8 @@ public class POIFragment extends ABFragment implements
 	@Inject
 	POIRepository poiRepository;
 	@Inject
+	DevicePrefManager devicePrefManager;
+	@Inject
 	IAnalyticsManager analyticsManager;
 	@Inject
 	FavoriteRepository favoriteRepository;
@@ -250,8 +252,6 @@ public class POIFragment extends ABFragment implements
 	DemoModeManager demoModeManager;
 	@Inject
 	UserPrefManager userPrefManager;
-	@Inject
-	LocalPreferenceRepository lclPrefRepository;
 	@Inject
 	ImageManager imageManager;
 
@@ -494,7 +494,7 @@ public class POIFragment extends ABFragment implements
 	public void onAttach(@NonNull Context context) {
 		super.onAttach(context);
 		initAdapters(this);
-		this.mapViewController.setDI(this.dataSourcesRepository, this.lclPrefRepository);
+		this.mapViewController.setDI(this.dataSourcesRepository, this.devicePrefManager);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));
 		this.mapViewController.onAttach(requireActivity());
 	}
@@ -712,7 +712,7 @@ public class POIFragment extends ABFragment implements
 				this.sensorManager,
 				this.dataSourcesRepository,
 				this.userPrefManager,
-				this.lclPrefRepository,
+				this.devicePrefManager,
 				this.poiRepository,
 				this.favoriteRepository,
 				this.sharedStatusLoader,
@@ -1382,8 +1382,8 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public @NonNull POIRepository providesPOIRepository() {
-		return this.poiRepository;
+	public @NonNull DevicePrefManager providesDevicePrefManager() {
+		return this.devicePrefManager;
 	}
 
 	@NonNull

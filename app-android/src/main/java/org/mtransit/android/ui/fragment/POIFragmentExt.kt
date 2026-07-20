@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment
 
-import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigator
@@ -9,11 +8,11 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.LOG_TAG
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.toRouteDirection
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.POIManager
@@ -289,12 +288,8 @@ fun POIFragment.onMapClickKt(): Boolean {
         }
         when (poim.poi) {
             is RouteDirectionStop -> {
-                this.lclPrefRepository.pref.edit {
-                    putBoolean(
-                        LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(poim.poi.toRouteDirection()),
-                        false, // show map
-                    )
-                }
+                //noinspection DiscouragedApi
+                this.devicePrefManager.updateRouteDirectionShowingListInsteadOfMapNow(poim.poi, showListInsteadOfMap = false)
                 navController.navigateF(
                     R.id.nav_to_rds_route_screen,
                     RDSRouteFragment.newInstanceArgs(poim.poi, this.mapViewController.cameraPosition),
@@ -304,12 +299,8 @@ fun POIFragment.onMapClickKt(): Boolean {
             }
 
             else -> {
-                this.lclPrefRepository.pref.edit {
-                    putString(
-                        LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
-                        poim.poi.authority,
-                    )
-                }
+                //noinspection DiscouragedApi
+                this.devicePrefManager.updateSelectedAgencyTypeTabNow(poim)
                 //noinspection DiscouragedApi
                 this.userPrefManager.setAgencyPOIsShowingMapNow(poim.poi.authority)
                 navController.navigateF(
@@ -324,7 +315,8 @@ fun POIFragment.onMapClickKt(): Boolean {
         val mainActivity = activity as? MainActivity ?: return false
         when (poim.poi) {
             is RouteDirectionStop -> {
-                this.poiRepository.updateRouteDirectionShowingListInsteadOfMap(poim.poi, showListInsteadOfMap = false)
+                //noinspection DiscouragedApi
+                this.devicePrefManager.updateRouteDirectionShowingListInsteadOfMapNow(poim.poi, showListInsteadOfMap = false)
                 mainActivity.addFragmentToStack(
                     RDSRouteFragment.newInstance(poim.poi, this.mapViewController.cameraPosition),
                     this,
@@ -332,12 +324,8 @@ fun POIFragment.onMapClickKt(): Boolean {
             }
 
             else -> {
-                this.lclPrefRepository.pref.edit {
-                    putString(
-                        LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(poim.poi.dataSourceTypeId),
-                        poim.poi.authority,
-                    )
-                }
+                //noinspection DiscouragedApi
+                this.devicePrefManager.updateSelectedAgencyTypeTabNow(poim)
                 //noinspection DiscouragedApi
                 this.userPrefManager.setAgencyPOIsShowingMapNow(poim.poi.authority)
                 mainActivity.addFragmentToStack(

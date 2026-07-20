@@ -37,7 +37,6 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import org.mtransit.android.R;
-import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.LocationUtils;
@@ -53,6 +52,7 @@ import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
 import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.device.DevicePrefManager;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.pick.PickPOIDialogFragment;
 import org.mtransit.android.ui.view.map.AreaExtKt;
@@ -184,7 +184,7 @@ public class MapViewController implements
 	@Nullable
 	private DataSourcesRepository dataSourcesRepository;
 	@Nullable
-	private LocalPreferenceRepository lclPrefRepository;
+	private DevicePrefManager devicePrefManager;
 
 	public MapViewController(@NonNull String logTag, @NonNull MapViewConfig config) {
 		setLogTag(logTag);
@@ -201,10 +201,10 @@ public class MapViewController implements
 
 	public void setDI(
 			@NonNull DataSourcesRepository dataSourcesRepository,
-			@NonNull LocalPreferenceRepository lclPrefRepository
+			@NonNull DevicePrefManager devicePrefManager
 	) {
 		this.dataSourcesRepository = dataSourcesRepository;
-		this.lclPrefRepository = lclPrefRepository;
+		this.devicePrefManager = devicePrefManager;
 	}
 
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -463,10 +463,9 @@ public class MapViewController implements
 
 	private int getMapType() {
 		if (this.mapType < 0) {
-			if (this.lclPrefRepository == null) {
-				return MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT;
-			}
-			this.mapType = this.lclPrefRepository.getPref().getInt(MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);
+			if (this.devicePrefManager == null) return MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT;
+			//noinspection DiscouragedApi
+			this.mapType = this.devicePrefManager.getMapTypeNow();
 		}
 		return this.mapType;
 	}
@@ -480,8 +479,9 @@ public class MapViewController implements
 		this.mapType = newMapType;
 		setTypeSwitchImg();
 		applyMapType();
-		if (this.lclPrefRepository != null) {
-			this.lclPrefRepository.getPref().edit().putInt(MapUtils.PREFS_LCL_MAP_TYPE, this.mapType).apply();
+		if (this.devicePrefManager != null) {
+			//noinspection DiscouragedApi
+			this.devicePrefManager.setMapTypeNow(this.mapType);
 		}
 	}
 

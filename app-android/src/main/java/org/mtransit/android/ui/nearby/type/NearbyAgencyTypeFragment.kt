@@ -10,7 +10,6 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
@@ -18,6 +17,7 @@ import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.databinding.FragmentNearbyAgencyTypeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -82,7 +82,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     lateinit var userPrefManager: UserPrefManager
 
     @Inject
-    lateinit var lclPrefRepository: LocalPreferenceRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var poiRepository: POIRepository
@@ -119,7 +119,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             this.sensorManager,
             this.dataSourcesRepository,
             this.userPrefManager,
-            this.lclPrefRepository,
+            this.devicePrefManager,
             this.poiRepository,
             this.favoriteRepository,
             this.statusLoader,
