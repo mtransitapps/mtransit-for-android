@@ -167,7 +167,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private var fullscreenBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
         override fun handleOnBackPressed() {
-            MTLog.d(this@NewsListDetailFragment, "fullscreenBackPressedCallback.handleOnBackPressed()")
             handleExitFullscreen()
         }
     }

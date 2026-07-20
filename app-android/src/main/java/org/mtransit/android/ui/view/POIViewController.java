@@ -370,7 +370,7 @@ public class POIViewController implements MTLog.Loggable {
 			@NonNull POIDataProvider dataProvider
 	) {
 		if (view == null) {
-			MTLog.d(LOG_TAG, "updatePOIServiceUpdate() > SKIP (no view");
+			MTLog.d(LOG_TAG, "updatePOIServiceUpdate() > SKIP (no view)");
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
