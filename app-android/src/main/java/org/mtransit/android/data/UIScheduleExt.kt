@@ -25,10 +25,14 @@ fun UISchedule.getStatusK(
 )
 
 fun ServiceUpdates?.findTripServiceUpdate(tripId: String?): ServiceUpdate? {
-    tripId ?: return null
-    this ?: return null
-    return find { serviceUpdate -> serviceUpdate.targetTripId == tripId }
+    tripId ?: return null // no trip ID provided == no service update targeted to this trip
+    return this?.find { serviceUpdate ->
+        serviceUpdate.targetTripId == tripId
+    }
 }
+
+fun ServiceUpdates?.allTripsNoService() =
+    this?.any { it.targetTripId == null && it.isNoService } == true
 
 fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffEarlyMs: Long, minDiffLateMs: Long, short: Boolean): String? =
     getAbsoluteDepartureDiffString(context, minDiffEarlyMs.milliseconds, minDiffLateMs.milliseconds, short)
@@ -62,5 +66,13 @@ data class DetailsNextDepartures(
         fun makeTextOnly(timeText: CharSequence) = DetailsNextDepartures(timeText = timeText)
     }
 }
+
+fun ArrayList<DetailsNextDepartures>.toCancelled() = this.mapTo(ArrayList()) {
+    it.toCancelled()
+}
+
+fun DetailsNextDepartures.toCancelled() = this.copy(
+    timeText = this.timeText.let { UISchedule.setCancelled(it) }
+)
 
 fun Schedule.toUI() = UISchedule(this)

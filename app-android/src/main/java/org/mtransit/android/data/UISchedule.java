@@ -1,6 +1,8 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.data.UIScheduleExtKt.allTripsNoService;
 import static org.mtransit.android.data.UIScheduleExtKt.findTripServiceUpdate;
+import static org.mtransit.android.data.UIScheduleExtKt.toCancelled;
 import static org.mtransit.commons.Constants.SPACE;
 
 import android.annotation.SuppressLint;
@@ -495,22 +497,29 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			boolean showingAccessibilityInfo,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
+		final boolean allTripsCancelled = allTripsNoService(serviceUpdates);
 		ArrayList<Timestamp> timestamps =
 				getNextTimestamps(after - getUIProviderPrecisionInMs(), optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (CollectionUtils.getSize(timestamps) <= 0) { // NO SERVICE IN COVERAGE
-			generateScheduleEmpty(context, after);
-			this.scheduleListTimestamp = after;
+			setScheduleList(generateScheduleEmpty(context, after), after, allTripsCancelled);
 			return;
 		}
 		addLastTimestamps(after, timestamps);
-		generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign, showingAccessibilityInfo, serviceUpdates);
+		setScheduleList(generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign, showingAccessibilityInfo, serviceUpdates), after, allTripsCancelled);
+	}
+
+	private void setScheduleList(@Nullable ArrayList<DetailsNextDepartures> scheduleList, long after, boolean cancelled) {
+		if (scheduleList != null && cancelled) {
+			scheduleList = toCancelled(scheduleList);
+		}
+		this.scheduleList = scheduleList;
 		this.scheduleListTimestamp = after;
 	}
 
-	private void generateScheduleEmpty(@NonNull Context context, long after) {
+	private @NonNull ArrayList<DetailsNextDepartures> generateScheduleEmpty(@NonNull Context context, long after) {
 		SpannableStringBuilder ssb = null;
 		try {
-			Timestamp timestamp = getNextTimestamp(after);
+			final Timestamp timestamp = getNextTimestamp(after);
 			if (timestamp != null && timestamp.getDepartureT() >= 0L) {
 				ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.getDepartureT())));
 				decorateOldSchedule(timestamp, ssb);
@@ -523,8 +532,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		}
 		ssb = SpanUtils.setAll(ssb, //
 				getNoServiceTextAppearance(context), getNoServiceTextColor(context), NO_SERVICE_SIZE);
-		this.scheduleList = new ArrayList<>();
-		this.scheduleList.add(DetailsNextDepartures.makeTextOnly(ssb));
+		final ArrayList<DetailsNextDepartures> scheduleList = new ArrayList<>();
+		scheduleList.add(DetailsNextDepartures.makeTextOnly(ssb));
+		return scheduleList;
 	}
 
 	private void addLastTimestamps(long after, ArrayList<Timestamp> timestamps) {
@@ -540,7 +550,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	private static final long EARLY_MIN_DIFF_MS = TimeUnit.MINUTES.toMillis(1L);
 	private static final long LATE_MIN_DIFF_MS = TimeUnit.MINUTES.toMillis(5L);
 
-	private void generateScheduleListTimes(
+	private @NonNull ArrayList<DetailsNextDepartures> generateScheduleListTimes(
 			@NonNull Context context,
 			long after,
 			@NonNull List<Timestamp> timestamps,
@@ -673,7 +683,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			list.add(new DetailsNextDepartures(t.getDepartureT(), timeSSB, headSignSSB, dateSSB));
 			lastTimestamp = departureT;
 		}
-		this.scheduleList = list;
+		return list;
 	}
 
 	@NonNull
@@ -802,20 +812,30 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
+	public static SpannableStringBuilder setCancelled(@NonNull SpannableStringBuilder timeSSB) {
+		SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
+		return timeSSB;
+	}
+
+	@NonNull
 	public static SpannableStringBuilder decorateCancelled(
 			@NonNull Timestamp t,
 			@NonNull SpannableStringBuilder timeSSB,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		if (t.isCancelled()) {
-			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
-			return timeSSB;
+			return setCancelled(timeSSB);
 		}
 		final ServiceUpdate tripServiceUpdate = findTripServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
-			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
+			return setCancelled(timeSSB);
 		}
 		return timeSSB;
+	}
+
+	@NonNull
+	public static CharSequence setCancelled(@NonNull CharSequence timeCS) {
+		return SpanUtils.setAll(timeCS, CANCELLED_STYLE);
 	}
 
 	@SuppressWarnings("WeakerAccess")
@@ -826,11 +846,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		if (t.isCancelled()) {
-			return SpanUtils.setAll(timeCS, CANCELLED_STYLE);
+			return setCancelled(timeCS);
 		}
 		final ServiceUpdate tripServiceUpdate = findTripServiceUpdate(serviceUpdates, t.getTripId());
 		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
-			timeCS = SpanUtils.setAll(timeCS, CANCELLED_STYLE);
+			return setCancelled(timeCS);
 		}
 		return timeCS;
 	}
@@ -1018,27 +1038,28 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
+		final boolean allTripsCancelled = allTripsNoService(serviceUpdates);
 		if (isNoData()) { // NO DATA
-			setStatusStrings(getStatusStringNoData(), after);
+			setStatusStrings(getStatusStringNoData(), after, allTripsCancelled);
 			return;
 		}
 		if (isNoPickup()) { // NO PICKUP schedule
-			setStatusStrings(getStatusStringsNoPickup(context), after);
+			setStatusStrings(getStatusStringsNoPickup(context), after, allTripsCancelled);
 			return;
 		}
 		final Frequency frequency = getCurrentFrequency(after);
 		if (frequency != null && frequency.headwayInSec < MAX_FREQUENCY_DISPLAYED_IN_SEC) { // FREQUENCY
-			setStatusStrings(getStatusStringsFrequency(context, frequency), after);
+			setStatusStrings(getStatusStringsFrequency(context, frequency), after, allTripsCancelled);
 			return;
 		}
 		ArrayList<Timestamp> nextTimestamps = getStatusNextTimestamps(after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (nextTimestamps.isEmpty()) { // NO SERVICE IN COVERAGE
-			setStatusStrings(getStatusStringsNoService(context), after);
+			setStatusStrings(getStatusStringsNoService(context), after, allTripsCancelled);
 			return;
 		}
 		CollectionUtils.removeIfNN(nextTimestamps, Timestamp::isNoPickup);
 		if (nextTimestamps.isEmpty()) { // NO PICKUP schedule timestamps
-			setStatusStrings(getStatusStringsNoPickup(context), after);
+			setStatusStrings(getStatusStringsNoPickup(context), after, allTripsCancelled);
 			return;
 		}
 		final long diffInMs = nextTimestamps.get(0).getDepartureT() - after;
@@ -1048,14 +1069,20 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						&& diffInMs < UITimeUtils.FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT //
 						&& UITimeUtils.isFrequentService(nextTimestamps, -1, -1); // needs more than 3 services times!
 		if (isFrequentService) { // FREQUENT SERVICE
-			setStatusStrings(getStatusStringsFrequentService(context), after);
+			setStatusStrings(getStatusStringsFrequentService(context), after, allTripsCancelled);
 			return;
 		}
 		nextTimestamps = filterStatusNextTimestampsTimes(nextTimestamps);
-		setStatusStrings(getStatusStringsTimes(context, after, diffInMs, nextTimestamps, serviceUpdates), after);
+		setStatusStrings(getStatusStringsTimes(context, after, diffInMs, nextTimestamps, serviceUpdates), after, allTripsCancelled);
 	}
 
-	private void setStatusStrings(@Nullable Pair<CharSequence, CharSequence> statusStrings, long after) {
+	private void setStatusStrings(@Nullable Pair<CharSequence, CharSequence> statusStrings, long after, boolean cancelled) {
+		if (statusStrings != null && cancelled) {
+			statusStrings = new Pair<>(
+					statusStrings.first == null ? null : setCancelled(statusStrings.first),
+					statusStrings.second == null ? null : setCancelled(statusStrings.second)
+			);
+		}
 		this.statusStrings = statusStrings;
 		this.statusStringsTimestamp = after;
 	}
@@ -1092,6 +1119,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final long usefulPastInMs = Math.max(MAX_LAST_STATUS_DIFF_IN_MS, getUIProviderPrecisionInMs());
 		ArrayList<Timestamp> nextTimestampsT = getNextTimestamps(after - usefulPastInMs, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (!nextTimestampsT.isEmpty()) {
+			//noinspection ExtractMethodRecommender
 			Long theNextTimestamp = null;
 			Long thePreviousTimestamp = null;
 			for (Timestamp timestamp : nextTimestampsT) {
