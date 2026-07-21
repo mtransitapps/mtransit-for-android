@@ -656,12 +656,10 @@ class ScheduleAdapter :
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
-            optPOIM?.serviceUpdatesOrNull?.let { serviceUpdates ->
-                timeSb = if (serviceUpdates.allTripsNoService()) { // #allTripsCancelled
-                    UISchedule.setCancelled(timeSb)
-                } else {
-                    UISchedule.decorateCancelled(timestamp, timeSb, serviceUpdates)
-                }
+            timeSb = if (optPOIM?.serviceUpdatesOrNull?.allTripsNoService() == true) { // #allTripsCancelled
+                UISchedule.setCancelled(timeSb)
+            } else {
+                UISchedule.decorateCancelled(timestamp, timeSb, optPOIM?.serviceUpdatesOrNull)
             }
             val nextTimeInMsT = nextTimestamp?.departureT ?: -1L
             if (nowToTheMinuteInMs > 0L) {
