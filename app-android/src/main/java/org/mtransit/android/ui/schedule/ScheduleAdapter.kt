@@ -21,6 +21,7 @@ import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.arrivalDiff
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
+import org.mtransit.android.data.allTripsNoService
 import org.mtransit.android.data.getAbsoluteDepartureDiffString
 import org.mtransit.android.data.makeHeading
 import org.mtransit.android.databinding.LayoutScheduleInfiniteListDaySeparatorBinding
@@ -655,7 +656,11 @@ class ScheduleAdapter :
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
-            timeSb = UISchedule.decorateCancelled(timestamp, timeSb, optPOIM?.serviceUpdatesOrNull)
+            timeSb = if (optPOIM?.serviceUpdatesOrNull?.allTripsNoService() == true) { // #allTripsCancelled
+                UISchedule.setCancelled(timeSb)
+            } else {
+                UISchedule.decorateCancelled(timestamp, timeSb, optPOIM?.serviceUpdatesOrNull)
+            }
             val nextTimeInMsT = nextTimestamp?.departureT ?: -1L
             if (nowToTheMinuteInMs > 0L) {
                 val departureT = timestamp.departureT
