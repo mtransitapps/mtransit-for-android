@@ -1,6 +1,6 @@
 package org.mtransit.android.data;
 
-import static org.mtransit.android.data.UIScheduleExtKt.findTripServiceUpdate;
+import static org.mtransit.android.data.UIScheduleExtKt.findTripServiceUpdates;
 import static org.mtransit.commons.Constants.SPACE;
 
 import android.annotation.SuppressLint;
@@ -811,9 +811,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
 			return timeSSB;
 		}
-		final ServiceUpdate tripServiceUpdate = findTripServiceUpdate(serviceUpdates, t.getTripId());
-		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
-			SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
+		if (serviceUpdates != null && !serviceUpdates.isEmpty()) {
+			final ServiceUpdates tripServiceUpdates = findTripServiceUpdates(serviceUpdates, t.getTripId());
+			for (ServiceUpdate tripServiceUpdate : tripServiceUpdates) {
+				if (tripServiceUpdate.isNoService()) {
+					SpanUtils.setAllNN(timeSSB, CANCELLED_STYLE);
+					break;
+				}
+			}
 		}
 		return timeSSB;
 	}
@@ -828,9 +833,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		if (t.isCancelled()) {
 			return SpanUtils.setAll(timeCS, CANCELLED_STYLE);
 		}
-		final ServiceUpdate tripServiceUpdate = findTripServiceUpdate(serviceUpdates, t.getTripId());
-		if (tripServiceUpdate != null && tripServiceUpdate.isNoService()) {
-			timeCS = SpanUtils.setAll(timeCS, CANCELLED_STYLE);
+		if (serviceUpdates != null && !serviceUpdates.isEmpty()) {
+			final ServiceUpdates tripServiceUpdates = findTripServiceUpdates(serviceUpdates, t.getTripId());
+			for (ServiceUpdate tripServiceUpdate : tripServiceUpdates) {
+				if (tripServiceUpdate.isNoService()) {
+					timeCS = SpanUtils.setAll(timeCS, CANCELLED_STYLE);
+					break;
+				}
+			}
 		}
 		return timeCS;
 	}
@@ -1092,6 +1102,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final long usefulPastInMs = Math.max(MAX_LAST_STATUS_DIFF_IN_MS, getUIProviderPrecisionInMs());
 		ArrayList<Timestamp> nextTimestampsT = getNextTimestamps(after - usefulPastInMs, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (!nextTimestampsT.isEmpty()) {
+			//noinspection ExtractMethodRecommender
 			Long theNextTimestamp = null;
 			Long thePreviousTimestamp = null;
 			for (Timestamp timestamp : nextTimestampsT) {
