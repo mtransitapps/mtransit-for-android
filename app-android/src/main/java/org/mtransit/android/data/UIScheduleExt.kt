@@ -3,7 +3,6 @@ package org.mtransit.android.data
 import android.content.Context
 import org.mtransit.android.R
 import org.mtransit.android.commons.data.Schedule
-import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.commons.data.originalDepartureDelay
 import kotlin.math.roundToLong
@@ -24,11 +23,10 @@ fun UISchedule.getStatusK(
     context, after, minCoverageInMs, maxCoverageInMs, minCount, maxCount, serviceUpdates
 )
 
-fun ServiceUpdates?.findTripServiceUpdate(tripId: String?): ServiceUpdate? {
-    tripId ?: return null
-    this ?: return null
-    return find { serviceUpdate -> serviceUpdate.targetTripId == tripId }
-}
+fun ServiceUpdates.findTripServiceUpdates(tripId: String?) =
+    filter { serviceUpdate ->
+        serviceUpdate.targetTripId == null || serviceUpdate.targetTripId == tripId // same target trip ID or no target trip ID (== all trips)
+    }
 
 fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffEarlyMs: Long, minDiffLateMs: Long, short: Boolean): String? =
     getAbsoluteDepartureDiffString(context, minDiffEarlyMs.milliseconds, minDiffLateMs.milliseconds, short)
