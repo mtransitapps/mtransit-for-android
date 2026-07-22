@@ -414,7 +414,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         super.onResume()
         binding?.apply { onResumeToolbar(screenToolbarLayout) }
         listAdapter.onVisible(this)
-        twoPaneOnBackPressedCallback.setEnabledState()
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABTitle(getABTitle(context))
             nextMainViewModel.setABSubtitle(getABSubtitle(context))

@@ -25,10 +25,11 @@ class TwoPaneOnBackPressedCallback(
             field?.removePanelSlideListener(this)
             field = value
             field?.addPanelSlideListener(this)
+            setEnabledState()
         }
 
     @MainThread
-    fun setEnabledState(enabled: Boolean = slidingPaneLayout?.isSlideable == true && slidingPaneLayout?.isOpen == true) {
+    fun setEnabledState(enabled: Boolean = slidingPaneLayout?.let { it.isSlideable && it.isOpen } == true) {
         isEnabled = enabled
     }
 
