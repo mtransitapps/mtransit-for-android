@@ -179,7 +179,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (binding == null) return;
 		final View view = binding.getRoot();
 		EdgeToEdgeKt.applyStatusBarsInsetsEdgeToEdge(view);
-		setupScreenToolbar(binding.screenToolbarLayout);
+		setupScreenToolbar(binding.screenToolbarLayout.screenToolbarLayout, binding.screenToolbarLayout.screenToolbar);
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) binding.screenContent.getLayoutParams();
 			params.setBehavior(null);
@@ -223,7 +223,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (binding != null) onResumeToolbar(binding.screenToolbarLayout);
+		if (binding != null) onResumeToolbar(binding.screenToolbarLayout.screenToolbarLayout, binding.screenToolbarLayout.screenToolbar);
 		final WebView webView = binding == null ? null : binding.webView;
 		if (webView != null) {
 			if (TextUtils.isEmpty(this.currentUrl)) {

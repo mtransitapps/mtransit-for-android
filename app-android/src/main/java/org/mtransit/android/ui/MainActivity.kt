@@ -14,6 +14,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
@@ -213,6 +214,9 @@ class MainActivity : MTActivityWithLocation(),
         }
         MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
         ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED) // Android 13
+        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+            onBackPressedDispatcher.addCallback(this, mainOnBackPressedCallback)
+        }
     }
 
     private val modulesReceiver = ModulesReceiver()
@@ -434,6 +438,14 @@ class MainActivity : MTActivityWithLocation(),
         }
         this.navigationDrawerController?.onBackStackChanged(getBackStackEntryCount())
         this.adManager.adaptToScreenSize(this, getResources().configuration)
+    }
+
+    private val mainOnBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                supportFragmentManager.popBackStack()
+            }
+        }
     }
 
     @SuppressLint("GestureBackNavigation") // android:enableOnBackInvokedCallback in AndroidManifest.xml

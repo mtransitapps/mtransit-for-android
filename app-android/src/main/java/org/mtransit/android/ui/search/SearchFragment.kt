@@ -151,7 +151,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 onItemSelectedListener = this@SearchFragment
                 adapter = typeFilterAdapter
             }
-            setupScreenToolbar(screenToolbarLayout)
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
             requireActivity().onBackPressedDispatcher.addCallback(
                 viewLifecycleOwner,
                 onBackPressedCallback,
@@ -270,7 +270,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun onResume() {
         super.onResume()
-        binding?.apply { onResumeToolbar(screenToolbarLayout) }
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         listAdapter.onVisible(this, viewModel.deviceLocation.value)
         viewModel.onScreenVisible()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }

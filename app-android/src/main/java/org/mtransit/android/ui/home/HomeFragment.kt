@@ -238,7 +238,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                     }
                 }
             }
-            setupScreenToolbar(screenToolbarLayout)
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
         }
         listAdapter.onCreateView(viewLifecycleOwner)
         DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository, userManager) {
@@ -312,7 +312,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onResume() {
         super.onResume()
-        binding?.apply { onResumeToolbar(screenToolbarLayout) }
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         this.listAdapter.onVisible(this, viewModel.deviceLocation.value)
         switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }

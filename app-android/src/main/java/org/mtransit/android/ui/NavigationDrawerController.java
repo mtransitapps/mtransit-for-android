@@ -730,7 +730,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		return false; // not processed
 	}
 
-	private static class InnerOnBackPressedCallback extends OnBackPressedCallback implements DrawerLayout.DrawerListener {
+	private static class InnerOnBackPressedCallback
+			extends OnBackPressedCallback
+			implements DrawerLayout.DrawerListener {
 
 		@NonNull
 		private final WeakReference<DrawerLayout> drawerLayoutWR;
@@ -840,7 +842,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	void onBackStackChanged(int backStackEntryCount) {
-		setCurrentSelectedItemChecked(backStackEntryCount == 0);
+		setCurrentSelectedItemChecked(backStackEntryCount <= 0);
 	}
 
 	void onStart() {

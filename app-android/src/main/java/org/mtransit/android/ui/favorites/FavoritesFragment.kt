@@ -174,7 +174,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 listAdapter.setListView(this)
                 setUpListEdgeToEdge()
             }
-            setupScreenToolbar(screenToolbarLayout)
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
         }
         listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.oneAgency.observe(viewLifecycleOwner) { oneAgency ->
@@ -257,7 +257,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onResume() {
         super.onResume()
-        binding?.apply { onResumeToolbar(screenToolbarLayout) }
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         listAdapter.onVisible(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }

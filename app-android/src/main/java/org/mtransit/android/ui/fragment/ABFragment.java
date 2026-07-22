@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.ABFragmentKtxKt.destroyScreenToolbarK;
+import static org.mtransit.android.ui.fragment.ABFragmentKtxKt.setupScreenToolbarK;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -21,6 +24,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -87,7 +91,8 @@ public abstract class ABFragment extends MTFragmentX implements
 	public abstract boolean hasToolbar();
 
 	public void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar) {
-		updateScreenToolbarNavigationIcon(toolbar, getParentFragmentManager().getBackStackEntryCount());
+		final int backStackEntryCount = getActivity() == null ? -1 : getActivity().getSupportFragmentManager().getBackStackEntryCount();
+		updateScreenToolbarNavigationIcon(toolbar, backStackEntryCount);
 	}
 
 	private void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar, int backStackEntryCount) {
@@ -141,19 +146,17 @@ public abstract class ABFragment extends MTFragmentX implements
 		return this.bgDrawable;
 	}
 
-	public void setupScreenToolbar(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
-		setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
-	}
-
 	public void onScreenToolbarNavigationClick(@NonNull View v) {
-		if (getParentFragmentManager().getBackStackEntryCount() == 0) {
+		final FragmentActivity activity = getActivity();
+		if (activity == null) return;
+		if (activity.getSupportFragmentManager().getBackStackEntryCount() == 0) {
 			final MainActivity mainActivity = getMainActivity();
 			if (mainActivity != null) {
 				mainActivity.openDrawer();
 			}
 			return;
 		}
-		getParentFragmentManager().popBackStack();
+		activity.getSupportFragmentManager().popBackStack();
 	}
 
 	public void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
@@ -172,6 +175,9 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarBgColor();
 		updateScreenToolbarCustomView(toolbar);
 	}
+
+	@Nullable
+	protected FragmentManager.OnBackStackChangedListener abFragmentOnBackStackChangedListener;
 
 	// R.menu.menu_main
 	private void inflateMainMenu(@NonNull Toolbar toolbar) {
@@ -355,14 +361,11 @@ public abstract class ABFragment extends MTFragmentX implements
 		return false; // will show main activity ads
 	}
 
-	public void onResumeToolbar(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
-		onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
-	}
-
 	public void onResumeToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
 		if (hasToolbar()) {
 			updateScreenToolbarOverrideGradient(appBarLayout, toolbar);
 			updateScreenToolbarBgColor();
+			updateScreenToolbarNavigationIcon(toolbar);
 		}
 	}
 
@@ -404,6 +407,7 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
+		destroyScreenToolbarK(this);
 		this.inAppNotifications.clear();
 		this.inAppNotificationIdShown = null;
 	}

@@ -737,7 +737,7 @@ public class POIFragment extends ABFragment implements
 	@MainThread
 	private void setupView() {
 		if (this.binding == null) return;
-		setupScreenToolbar(this.binding.screenToolbarLayout);
+		setupScreenToolbar(this.binding.screenToolbarLayout.screenToolbarLayout, this.binding.screenToolbarLayout.screenToolbar);
 		final Resources resources = this.binding.getRoot().getContext().getResources();
 		final MapView map = this.binding.map;
 		EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP,
@@ -1108,7 +1108,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (this.binding != null) onResumeToolbar(this.binding.screenToolbarLayout);
+		if (this.binding != null) onResumeToolbar(this.binding.screenToolbarLayout.screenToolbarLayout, this.binding.screenToolbarLayout.screenToolbar);
 		enableTimeChangedReceiver();
 		this.showingAccessibilityInfo = null; // force user preference check
 		if (this.nearbyListAdapter != null) {

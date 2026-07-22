@@ -283,7 +283,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 }
             }
             showSelectedTab()
-            setupScreenToolbar(screenToolbarLayout)
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
             typeImg.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = false) { insets ->
                 updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin = insets.top
@@ -419,7 +419,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     override fun onResume() {
         super.onResume()
-        binding?.apply { onResumeToolbar(screenToolbarLayout) }
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         binding?.switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }

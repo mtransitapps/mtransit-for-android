@@ -256,7 +256,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
                 requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, fullscreenBackPressedCallback) // last added = top priority
             }
-            setupScreenToolbar(screenToolbarLayout)
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
                 viewPager.children.find { it is RecyclerView }?.let {
                     it.isNestedScrollingEnabled = false
@@ -391,7 +391,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onResume() {
         super.onResume()
-        binding?.apply { onResumeToolbar(screenToolbarLayout) }
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         listAdapter.onVisible(this)
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABTitle(getABTitle(context))
