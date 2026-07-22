@@ -221,7 +221,7 @@ public class POIManager implements LocationPOI,
 				newStatus.isNoData(),
 				MtLogExtKt.toDateTimeLog(newStatus.getReadFromSourceAtInMs()),
 				MtLogExtKt.toDateTimeLog(newStatus.getLastUpdateInMs()),
-				MtLogExtKt.toDurationLog(newStatus.getValidityInMs())
+				MtLogExtKt.toDurationLog(newStatus.getMaxValidityInMs())
 		);
 		this.status = newStatus;
 		return true; // change
