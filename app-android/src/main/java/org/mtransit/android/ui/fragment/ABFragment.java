@@ -174,6 +174,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarOverrideGradient(appBarLayout, toolbar);
 		updateScreenToolbarBgColor();
 		updateScreenToolbarCustomView(toolbar);
+		setupScreenToolbarK(this, toolbar);
 	}
 
 	@Nullable

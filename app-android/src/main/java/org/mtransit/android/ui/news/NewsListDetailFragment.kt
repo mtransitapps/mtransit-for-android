@@ -248,7 +248,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                     .also { listDetailOnBackPressedCallback ->
                         listDetailOnBackPressedCallback.panelSlideListener = panelSlideListener
                         doOnLayout {
-                            it.isEnabled = isSlideable && isOpen
+                            listDetailOnBackPressedCallback.isEnabled = isSlideable && isOpen
                         }
                         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, listDetailOnBackPressedCallback) // 1st added = less priority
                     }

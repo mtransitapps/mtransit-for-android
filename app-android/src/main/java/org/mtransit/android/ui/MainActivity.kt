@@ -83,6 +83,8 @@ class MainActivity : MTActivityWithLocation(),
         fun newInstance(context: Context): Intent {
             return Intent(context, MainActivity::class.java)
         }
+
+        private const val ALWAYS_USE_NATIVE_BACK_STACK_ENTRY_COUNT = true
     }
 
     override fun getLogTag() = LOG_TAG
@@ -365,7 +367,7 @@ class MainActivity : MTActivityWithLocation(),
         MTLog.d(this, "showNewFragment(%s, %s, %s, %s, %s)", newFragment, addToStack, optSource, optTransitionSharedElement, optTransitionName)
         FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, optSource, optTransitionSharedElement, optTransitionName)
         if (addToStack) {
-            incBackEntryCount()
+            this.backStackEntryCount++
         }
         showContentFrameAsLoaded()
         this.abController?.apply {
@@ -373,7 +375,7 @@ class MainActivity : MTActivityWithLocation(),
             setAB(newFragment)
             updateAB()
         }
-        this.navigationDrawerController?.setCurrentSelectedItemChecked(getBackStackEntryCount() == 0)
+        this.navigationDrawerController?.setCurrentSelectedItemChecked(this.backStackEntryCount == 0)
     }
 
     fun showContentFrameAsLoaded() {
@@ -431,16 +433,19 @@ class MainActivity : MTActivityWithLocation(),
     val currentAnalyticsScreen: AnalyticsScreen? get() = currentABFragment as? AnalyticsScreen
 
     override fun onBackStackChanged() {
-        resetBackStackEntryCount()
+        this.backStackEntryCount = supportFragmentManager.backStackEntryCount // force reset from fragment manager back stack entry count
         abController?.apply {
             setAB(currentFragment as ABFragment?)
             updateAB()
         }
-        this.navigationDrawerController?.onBackStackChanged(getBackStackEntryCount())
+        this.navigationDrawerController?.onBackStackChanged(this.backStackEntryCount)
         this.adManager.adaptToScreenSize(this, getResources().configuration)
+        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+            mainOnBackPressedCallback.isEnabled = this.backStackEntryCount > 0
+        }
     }
 
-    private val mainOnBackPressedCallback = object : OnBackPressedCallback(true) {
+    private val mainOnBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
         override fun handleOnBackPressed() {
             if (supportFragmentManager.backStackEntryCount > 0) {
                 supportFragmentManager.popBackStack()
@@ -466,7 +471,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     fun updateNavigationDrawerToggleIndicator() {
-        this.navigationDrawerController?.setDrawerToggleIndicatorEnabled(getBackStackEntryCount() < 1)
+        this.navigationDrawerController?.setDrawerToggleIndicatorEnabled(this.backStackEntryCount < 1)
     }
 
     @Suppress("unused")
@@ -483,20 +488,18 @@ class MainActivity : MTActivityWithLocation(),
         this.navigationDrawerController?.openDrawer()
     }
 
-    private var backStackEntryCount: Int? = null
+    private var _backStackEntryCount: Int? = null
 
-    fun getBackStackEntryCount(): Int {
-        return this.backStackEntryCount
-            ?: supportFragmentManager.backStackEntryCount.also { this.backStackEntryCount = it }
-    }
-
-    private fun resetBackStackEntryCount() {
-        this.backStackEntryCount = null
-    }
-
-    private fun incBackEntryCount() {
-        this.backStackEntryCount = getBackStackEntryCount() + 1
-    }
+    var backStackEntryCount: Int
+        get() {
+            if (ALWAYS_USE_NATIVE_BACK_STACK_ENTRY_COUNT) return supportFragmentManager.backStackEntryCount
+            return this._backStackEntryCount
+                ?: supportFragmentManager.backStackEntryCount.also { this._backStackEntryCount = it }
+        }
+        private set(value) {
+            if (ALWAYS_USE_NATIVE_BACK_STACK_ENTRY_COUNT) return
+            this._backStackEntryCount = value
+        }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
