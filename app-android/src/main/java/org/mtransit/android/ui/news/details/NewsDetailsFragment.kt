@@ -25,13 +25,12 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
 import org.mtransit.android.data.YOUTUBE_HTTP_HEADERS
-import org.mtransit.android.data.getAuthority
+import org.mtransit.android.data.authority
 import org.mtransit.android.data.getTwitterVideoId
-import org.mtransit.android.data.getUuid
+import org.mtransit.android.data.uuid
 import org.mtransit.android.data.getYouTubeVideoId
 import org.mtransit.android.data.hasImagesOrVideoThumbnail
 import org.mtransit.android.data.imageUrls
-import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.data.isTwitterVideo
 import org.mtransit.android.data.isYouTubeVideo
 import org.mtransit.android.data.makeTwitterEmbedVideoPlayerUrl
@@ -62,7 +61,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         fun newInstance(newsArticle: News): NewsDetailsFragment = newInstance(newsArticle.authority, newsArticle.uuid)
 
         @JvmStatic
-        fun newInstance(authorityAndUuid: AuthorityAndUuid) = newInstance(authorityAndUuid.getAuthority(), authorityAndUuid.getUuid())
+        fun newInstance(authorityAndUuid: AuthorityAndUuid) = newInstance(authorityAndUuid.authority, authorityAndUuid.uuid)
 
         @JvmStatic
         fun newInstance(
@@ -84,7 +83,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         }
 
         @JvmStatic
-        fun newInstanceArgs(authorityAndUuid: AuthorityAndUuid) = newInstanceArgs(authorityAndUuid.getAuthority(), authorityAndUuid.getUuid())
+        fun newInstanceArgs(authorityAndUuid: AuthorityAndUuid) = newInstanceArgs(authorityAndUuid.authority, authorityAndUuid.uuid)
 
         val SPLIT_ARTICLE_REGEX = Regex(HtmlUtils.BRS_REGEX, RegexOption.IGNORE_CASE)
     }
@@ -152,13 +151,10 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
-        parentViewModel.fullscreenMode.observe(viewLifecycleOwner) { fullscreenMode ->
-            updateNewsView(fullscreenMode = fullscreenMode)
+        parentViewModel.fullscreen.observe(viewLifecycleOwner) { fullscreen ->
+            updateNewsView(fullscreen = fullscreen)
         }
-        parentViewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { newAuthorityAndUuid ->
-            if (newAuthorityAndUuid?.isAuthorityAndUuidValid() == false) {
-                return@observe
-            }
+        parentViewModel.validSelectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { newAuthorityAndUuid ->
             if (newAuthorityAndUuid == null) { // navigate back to list on phone
                 //noinspection DeprecatedCall
                 binding?.thumbnailWebView?.onPause()
@@ -174,12 +170,12 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     @SuppressLint("DeprecatedCall")
     private fun updateNewsView(
         newsArticle: News? = attachedViewModel?.newsArticle?.value,
-        fullscreenMode: Boolean? = attachedParentViewModel?.fullscreenMode?.value
+        fullscreen: Boolean? = attachedParentViewModel?.fullscreen?.value
     ) = binding?.apply {
         _logTag = LOG_TAG + "-" + newsArticle?.uuid
         newsArticle ?: return@apply
         MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
-        updateThumbnails(newsArticle, fullscreenMode == true)
+        updateThumbnails(newsArticle, fullscreen == true)
         updateNewsArticleText(newsArticle)
         authorIcon.apply {
             isVisible = if (newsArticle.hasAuthorPictureURL()) {

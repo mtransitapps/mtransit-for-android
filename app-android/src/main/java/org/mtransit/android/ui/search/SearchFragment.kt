@@ -241,7 +241,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 return true // handled
             }
         }
-        return false
+        return false // not handled
     }
 
     private fun onTimeChanged() {

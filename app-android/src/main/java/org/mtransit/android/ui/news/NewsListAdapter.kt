@@ -211,12 +211,6 @@ class NewsListAdapter(
         return null
     }
 
-    @Suppress("unused")
-    fun getNewsItem(newAuthorityAndUuid: AuthorityAndUuid?) =
-        getNewsItemPosition(newAuthorityAndUuid)?.let { position ->
-            getNewsItem(position)
-        }
-
     private fun getNewsItem(position: Int): News? {
         var index = 0
         this.momentToNewsList.forEach { (_, newsList) ->
@@ -237,12 +231,8 @@ class NewsListAdapter(
         }
         val oldAuthorityAndUuid = this.selectedArticleAuthorityAndUuid
         this.selectedArticleAuthorityAndUuid = newAuthorityAndUuid
-        getNewsItemPosition(newAuthorityAndUuid)?.let {
-            notifyItemChanged(it)
-        }
-        getNewsItemPosition(oldAuthorityAndUuid)?.let {
-            notifyItemChanged(it)
-        }
+        newAuthorityAndUuid?.let { getNewsItemPosition(it) }?.let { notifyItemChanged(it) }
+        oldAuthorityAndUuid?.let { getNewsItemPosition(it) }?.let { notifyItemChanged(it) }
     }
 
     private fun isSelected(newsArticle: News?): Boolean {
@@ -253,20 +243,18 @@ class NewsListAdapter(
         return this.selectedArticleAuthorityAndUuid == authorityAndUuid
     }
 
-    fun getNewsItemPosition(authorityAndUuid: AuthorityAndUuid?): Int? {
-        authorityAndUuid?.let {
-            var index = 0
-            this.momentToNewsList.forEach { (_, newsList) ->
-                if (hasSeparator) {
-                    index++ // moment separator
-                }
-                newsList.indexOfFirst {
-                    it.authorityAndUuidT == authorityAndUuid
-                }.takeIf { it >= 0 }?.let {
-                    return index + it
-                }
-                index += newsList.size
+    fun getNewsItemPosition(authorityAndUuid: AuthorityAndUuid): Int? {
+        var index = 0
+        this.momentToNewsList.forEach { (_, newsList) ->
+            if (hasSeparator) {
+                index++ // moment separator
             }
+            newsList.indexOfFirst {
+                it.authorityAndUuidT == authorityAndUuid
+            }.takeIf { it >= 0 }?.let {
+                return index + it
+            }
+            index += newsList.size
         }
         MTLog.d(this, "getItemPosition() > No news article for '$authorityAndUuid'!")
         return null
