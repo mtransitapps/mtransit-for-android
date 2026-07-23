@@ -10,14 +10,12 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -282,11 +280,9 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         }
     }
 
-    private fun updateScreenToolbarBgColor() =
-        binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout, screenToolbar) }
-
-    override fun updateScreenToolbarBgColor(appBarLayout: AppBarLayout, toolbar: Toolbar) {
-        super.updateScreenToolbarBgColor(appBarLayout, toolbar)
+    override fun updateScreenToolbarBgColor() {
+        super.updateScreenToolbarBgColor()
+        if (!isResumed) return
         getToolbarAndTabsBgColor(context)?.let {
             activity?.setStatusBarBgColorEdgeToEdge(it)
             binding?.toolbarAndTabsBackground?.setBackgroundColor(it)
@@ -348,6 +344,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout, screenToolbar) }
         viewModel.routeM.value?.allowTriggerServiceUpdatesRefresh() // get changes loaded from other screens (while paused)
         switchView()
         showSelectedTab()

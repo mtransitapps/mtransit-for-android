@@ -187,7 +187,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
-            setupScreenToolbar(screenToolbarLayout)
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
             location?.let {
@@ -250,6 +250,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         mapViewController.onResume()
         mapViewController.showMap(view)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }

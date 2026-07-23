@@ -36,7 +36,6 @@ import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.FragmentAgencyTypeBinding
-import org.mtransit.android.databinding.LayoutScreenToolbarBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
@@ -284,7 +283,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 }
             }
             showSelectedTab()
-            setupScreenToolbar(screenToolbarLayout)
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
             typeImg.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = false) { insets ->
                 updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin = insets.top
@@ -420,6 +419,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         binding?.switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
@@ -433,8 +433,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
-    override fun updateScreenToolbarBgColor(screenToolbarLayout: LayoutScreenToolbarBinding) {
-        super.updateScreenToolbarBgColor(screenToolbarLayout)
+    override fun updateScreenToolbarBgColor() {
+        super.updateScreenToolbarBgColor()
+        if (!isResumed) return
         getABBgColor(context)?.let {
             activity?.setStatusBarBgColorEdgeToEdge(it)
             binding?.tabs?.setBackgroundColor(it)
@@ -451,7 +452,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             abBgColorInt = withContext(Dispatchers.Default) { // CPU
                 getNewABBgColorInt()
             }
-            binding?.apply { updateScreenToolbarBgColor(screenToolbarLayout) }
+            updateScreenToolbarBgColor()
         }
     }
 

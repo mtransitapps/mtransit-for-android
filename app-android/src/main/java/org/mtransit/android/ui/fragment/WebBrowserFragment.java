@@ -179,7 +179,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (binding == null) return;
 		final View view = binding.getRoot();
 		EdgeToEdgeKt.applyStatusBarsInsetsEdgeToEdge(view);
-		setupScreenToolbar(binding.screenToolbarLayout);
+		setupScreenToolbar(binding.screenToolbarLayout.screenToolbarLayout, binding.screenToolbarLayout.screenToolbar);
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) binding.screenContent.getLayoutParams();
 			params.setBehavior(null);
@@ -187,9 +187,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			binding.screenToolbarLayout.screenToolbarLayout.setLiftOnScroll(false);
 			binding.screenToolbarLayout.screenToolbarLayout.setOutlineProvider(null);
 			final MainActivity mainActivity = getMainActivity();
-			if (mainActivity != null) {
-				EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(getMainActivity(), getDefaultABBgColor(view.getContext()));
-			}
+			if (mainActivity != null) EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(mainActivity, getDefaultABBgColor(view.getContext()));
 		}
 		final WebView webView = binding.webView;
 		webView.getSettings().setJavaScriptEnabled(true);
@@ -225,6 +223,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (binding != null) onResumeToolbar(binding.screenToolbarLayout.screenToolbarLayout, binding.screenToolbarLayout.screenToolbar);
 		final WebView webView = binding == null ? null : binding.webView;
 		if (webView != null) {
 			if (TextUtils.isEmpty(this.currentUrl)) {
@@ -270,8 +269,10 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		}
 	}
 
-	private boolean shouldOverrideUrlLoading(WebView webView,
-											 @NonNull String url) {
+	private boolean shouldOverrideUrlLoading(
+			@NonNull WebView webView,
+			@NonNull String url
+	) {
 		if (LinkUtils.isIntentIntent(url)) {
 			if (LinkUtils.interceptIntent(webView, url)) {
 				return true; // INTERCEPTED

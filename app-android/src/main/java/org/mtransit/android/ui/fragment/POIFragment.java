@@ -284,6 +284,7 @@ public class POIFragment extends ABFragment implements
 		final Toolbar screenToolbar = binding == null ? null : binding.screenToolbarLayout.screenToolbar;
 		if (screenToolbar != null) {
 			updateScreenToolbarTitle(screenToolbar);
+			screenToolbar.invalidateMenu(); // update menu_show_fares menu item
 		}
 		if (FeatureFlags.F_NAVIGATION) {
 			if (nextMainViewModel != null) {
@@ -736,7 +737,7 @@ public class POIFragment extends ABFragment implements
 	@MainThread
 	private void setupView() {
 		if (this.binding == null) return;
-		setupScreenToolbar(this.binding.screenToolbarLayout);
+		setupScreenToolbar(this.binding.screenToolbarLayout.screenToolbarLayout, this.binding.screenToolbarLayout.screenToolbar);
 		final Resources resources = this.binding.getRoot().getContext().getResources();
 		final MapView map = this.binding.map;
 		EdgeToEdgeKt.setUpMapEdgeToEdge(map, this.mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP,
@@ -1107,6 +1108,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (this.binding != null) onResumeToolbar(this.binding.screenToolbarLayout.screenToolbarLayout, this.binding.screenToolbarLayout.screenToolbar);
 		enableTimeChangedReceiver();
 		this.showingAccessibilityInfo = null; // force user preference check
 		if (this.nearbyListAdapter != null) {
@@ -1471,9 +1473,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void updateFaresMenuItem() {
-		if (this.showFareMenuItem == null) {
-			return;
-		}
+		if (this.showFareMenuItem == null) return;
 		final AgencyProperties agency = getAgencyOrNull();
 		final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
 		this.showFareMenuItem.setVisible(!TextUtils.isEmpty(faresWebUrl));

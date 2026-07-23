@@ -20,11 +20,11 @@ import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.AUTHORITY_INVALID
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.UUID_INVALID
+import org.mtransit.android.data.authority
 import org.mtransit.android.data.authorityAndUuidT
-import org.mtransit.android.data.getAuthority
-import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.hasVideo
 import org.mtransit.android.data.isAuthorityAndUuidValid
+import org.mtransit.android.data.uuid
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
@@ -65,8 +65,7 @@ class NewsListViewModel @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    val colorInt = savedStateHandle.getLiveDataDistinct(EXTRA_COLOR, EXTRA_COLOR_DEFAULT)
-        .map { it?.let { ColorUtils.parseColor(it) } }
+    val colorString = savedStateHandle.getLiveDataDistinct(EXTRA_COLOR, EXTRA_COLOR_DEFAULT)
 
     val subTitle = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SUB_TITLE)
 
@@ -89,13 +88,14 @@ class NewsListViewModel @Inject constructor(
 
     private val _selectedNewsArticleUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_ARTICLE_UUID)
 
-    val selectedNewsArticleAuthorityAndUUID = MediatorLiveData2(_selectedNewsArticleAgencyAuthority, _selectedNewsArticleUUID).map { (authority, uuid) ->
-        authority?.let {
-            uuid?.let {
-                AuthorityAndUuid(authority, uuid)
+    val validSelectedNewsArticleAuthorityAndUUID = MediatorLiveData2(_selectedNewsArticleAgencyAuthority, _selectedNewsArticleUUID)
+        .map { (authority, uuid) ->
+            authority?.let {
+                uuid?.let {
+                    AuthorityAndUuid(authority, uuid).takeIf { it.isAuthorityAndUuidValid }
+                }
             }
-        }
-    }.distinctUntilChanged()
+        }.distinctUntilChanged()
 
     private var _lastReadArticleAuthorityAndUUID = MutableLiveData<AuthorityAndUuid?>(null)
 
@@ -132,8 +132,8 @@ class NewsListViewModel @Inject constructor(
 
     fun onNewsArticleSelected(newAuthorityAndUuid: AuthorityAndUuid?) {
         // 1st: make sure it's null to avoid INVALID authority+uuid pair
-        val newAuthority = newAuthorityAndUuid?.getAuthority()
-        val newUuid = newAuthorityAndUuid?.getUuid()
+        val newAuthority = newAuthorityAndUuid?.authority
+        val newUuid = newAuthorityAndUuid?.uuid
         if (newAuthority != null && newAuthority != savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY]) {
             savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY] = AUTHORITY_INVALID
         }
@@ -148,15 +148,26 @@ class NewsListViewModel @Inject constructor(
         }
     }
 
-    val fullscreenModeAvailable: LiveData<Boolean?> =
-        MediatorLiveData2(newsArticles, selectedNewsArticleAuthorityAndUUID).map { (newsArticles, selectedNewsArticleAuthorityAndUUID) ->
+    val fullscreenAvailable: LiveData<Boolean?> = MediatorLiveData2(newsArticles, validSelectedNewsArticleAuthorityAndUUID)
+        .map { (newsArticles, validSelectedNewsArticleAuthorityAndUUID) ->
             newsArticles ?: return@map null
-            selectedNewsArticleAuthorityAndUUID ?: return@map null
-            if (!selectedNewsArticleAuthorityAndUUID.isAuthorityAndUuidValid()) return@map null
-            newsArticles.singleOrNull { it.authorityAndUuidT == selectedNewsArticleAuthorityAndUUID }?.hasVideo == true
+            validSelectedNewsArticleAuthorityAndUUID ?: return@map null
+            newsArticles.singleOrNull { it.authorityAndUuidT == validSelectedNewsArticleAuthorityAndUUID }?.hasVideo == true
         }
 
-    val fullscreenMode = savedStateHandle.getLiveDataDistinct(EXTRA_FULL_SCREEN_MODE, EXTRA_FULL_SCREEN_MODE_DEFAULT)
+    val fullscreen = savedStateHandle.getLiveDataDistinct(EXTRA_FULL_SCREEN_MODE, EXTRA_FULL_SCREEN_MODE_DEFAULT)
+
+    val fullscreenAndAvailable = MediatorLiveData2(fullscreenAvailable, fullscreen)
+        .map { (available, isFullscreen) ->
+            available == true && isFullscreen == true
+        }
+
+    val abColorString = MediatorLiveData2(colorString, fullscreenAndAvailable)
+        .map { (colorString, fullscreenAndAvailable) ->
+            fullscreenAndAvailable ?: return@map null
+            if (fullscreenAndAvailable) return@map ColorUtils.BLACK
+            return@map colorString
+    }
 
     fun setFullscreenMode(newFullscreenMode: Boolean) {
         savedStateHandle[EXTRA_FULL_SCREEN_MODE] = newFullscreenMode

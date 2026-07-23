@@ -2,12 +2,12 @@ package org.mtransit.android.ui.news
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorInt
 import androidx.core.view.MenuProvider
 import androidx.core.view.children
@@ -15,7 +15,6 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +26,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.provider.news.NewsProviderContract.Filter.Companion.toTargetsUUIDs
@@ -34,11 +34,10 @@ import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.getNewOneLineDescriptionForNews
-import org.mtransit.android.data.getUuid
-import org.mtransit.android.data.isAuthorityAndUuidValid
+import org.mtransit.android.data.uuid
 import org.mtransit.android.databinding.FragmentNewsListDetailsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
+import org.mtransit.android.ui.ListDetailOnBackPressedCallback
 import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
@@ -50,7 +49,6 @@ import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.observeEvent
-import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -64,8 +62,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         private val LOG_TAG: String = NewsListDetailFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "News"
-
-        private const val BACK_STACK_NAME = "panel"
 
         @JvmStatic
         fun newInstance() = NewsListDetailFragment().apply {
@@ -135,7 +131,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override fun getLogTag() = LOG_TAG
 
     override val screenName: String
-        get() = attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.let { "$TRACKING_SCREEN_NAME/$it" }
+        get() = attachedViewModel?.validSelectedNewsArticleAuthorityAndUUID?.value?.uuid?.let { "$TRACKING_SCREEN_NAME/$it" }
             ?: TRACKING_SCREEN_NAME
 
     override val screenClass = "NewsFragment" // ANALYTICS // do not change
@@ -159,25 +155,54 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private var binding: FragmentNewsListDetailsBinding? = null
 
-    private val listAdapter: NewsListAdapter by lazy { NewsListAdapter(this.imageManager, this::openNewsArticleSelected, null, false) }
+    private val listAdapter: NewsListAdapter by lazy {
+        NewsListAdapter(
+            imageManager = this.imageManager,
+            onClick = { _: View, newsArticle: News ->
+                attachedViewModel?.onNewsArticleSelected(newsArticle.authorityAndUuidT)
+            },
+            minLines = null,
+            horizontal = false
+        )
+    }
 
     private var pagerAdapter: NewsPagerAdapter? = null
 
     private fun makePagerAdapter() = NewsPagerAdapter(this)
 
-    private var onBackPressedCallback: TwoPaneOnBackPressedCallback? = null
+    private val fullscreenBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
+        override fun handleOnBackPressed() {
+            handleExitFullscreen()
+        }
+    }
 
-    private var initialBackStackEntryCount = 0
+    /** like [androidx.navigation.fragment.AbstractListDetailFragment] **/
+    private var listDetailOnBackPressedCallback: ListDetailOnBackPressedCallback? = null
 
-    private var addToBackStackCalled: Boolean? = null
+    private val panelSlideListener = object : SlidingPaneLayout.PanelSlideListener {
+        override fun onPanelSlide(panel: View, slideOffset: Float) {
+            // DO NOTHING
+        }
+
+        override fun onPanelOpened(panel: View) {
+            MTLog.d(this@NewsListDetailFragment, "onPanelOpened()")
+        }
+
+        override fun onPanelClosed(panel: View) {
+            MTLog.d(this@NewsListDetailFragment, "onPanelClosed()")
+            attachedViewModel?.cleanSelectedNewsArticle()
+        }
+    }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             val pagerAdapter = pagerAdapter ?: return
-            if (binding?.slidingPaneLayout?.isOpen == true) {
-                attachedViewModel?.onNewsArticleSelected(
-                    pagerAdapter.getItem(position)?.authorityAndUuidT
-                )
+            binding?.apply {
+                if (slidingPaneLayout.isOpen) {
+                    attachedViewModel?.onNewsArticleSelected(
+                        pagerAdapter.getItem(position)?.authorityAndUuidT
+                    )
+                }
             }
         }
     }
@@ -186,24 +211,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private fun makeOnBackStackChangedListener() = FragmentManager.OnBackStackChangedListener {
         binding?.apply {
-            activity?.apply {
-                if (addToBackStackCalled == true
-                    && supportFragmentManager.backStackEntryCount == initialBackStackEntryCount
-                ) {
-                    if (slidingPaneLayout.isOpen) {
-                        slidingPaneLayout.closePane()
-                        viewModel.cleanSelectedNewsArticle()
-                    }
-                }
-            }
-            screenToolbarLayout.apply {
-                updateScreenToolbarNavigationIcon(screenToolbar)
-            }
+            screenToolbarLayout.apply { updateScreenToolbarNavigationIcon(screenToolbar) }
         }
-    }
-
-    private fun openNewsArticleSelected(@Suppress("unused") view: View, newsArticle: News) {
-        viewModel.onNewsArticleSelected(newsArticle.authorityAndUuidT)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -233,46 +242,21 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 onBackStackChangedListener ?: makeOnBackStackChangedListener().also { onBackStackChangedListener = it }
             )
             slidingPaneLayout.apply {
-                onBackPressedCallback = TwoPaneOnBackPressedCallback(
-                    this,
-                    onPanelHandledBackPressedCallback = { // #onBackPressed()
-                        viewModel.cleanSelectedNewsArticle()
-                    },
-                    onPanelOpenedCallback = {
-                        activity?.apply {
-                            if (supportFragmentManager.backStackEntryCount <= initialBackStackEntryCount) {
-                                if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
-                                    supportFragmentManager.commit {
-                                        addToBackStack(BACK_STACK_NAME)
-                                        addToBackStackCalled = true
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    onPanelClosedCallback = {
-                        activity?.apply {
-                            if (supportFragmentManager.backStackEntryCount >= initialBackStackEntryCount) {
-                                if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
-                                    supportFragmentManager.popBackStack(BACK_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                                    addToBackStackCalled = null
-                                }
-                            }
-                        }
-                    }
-                ).also { twoPaneOnBackPressedCallback ->
-                    requireActivity().onBackPressedDispatcher.addCallback(
-                        viewLifecycleOwner,
-                        twoPaneOnBackPressedCallback,
-                    )
-                    doOnLayout {
-                        twoPaneOnBackPressedCallback.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-                        onBackPressedCallback?.init() // at the end
-                    }
-                }
                 lockMode = SlidingPaneLayout.LOCK_MODE_LOCKED // interference with view pager horizontal swipe
+                /** like [androidx.navigation.fragment.AbstractListDetailFragment.onCreateView] */
+                listDetailOnBackPressedCallback = ListDetailOnBackPressedCallback(slidingPaneLayout = this)
+                    .also { listDetailOnBackPressedCallback ->
+                        listDetailOnBackPressedCallback.panelSlideListener = panelSlideListener
+                        doOnLayout {
+                            listDetailOnBackPressedCallback.isEnabled = isSlideable && isOpen
+                        }
+                        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, listDetailOnBackPressedCallback) // 1st added = less priority
+                    }
             }
-            setupScreenToolbar(screenToolbarLayout)
+            if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+                requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, fullscreenBackPressedCallback) // last added = top priority
+            }
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
                 viewPager.children.find { it is RecyclerView }?.let {
                     it.isNestedScrollingEnabled = false
@@ -286,7 +270,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
             }
         }
-        viewModel.colorInt.observe(viewLifecycleOwner) {
+        viewModel.abColorString.observe(viewLifecycleOwner) {
             updateABColor()
         }
         viewModel.loading.observe(viewLifecycleOwner) { loading ->
@@ -298,18 +282,19 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 val oldSize = newsPagerAdapter.size
                 newsPagerAdapter.submitList(newsArticles)
                 if (oldSize == 0) {
-                    viewModel.selectedNewsArticleAuthorityAndUUID.value?.let { authorityAndUuid ->
+                    viewModel.validSelectedNewsArticleAuthorityAndUUID.value?.let { authorityAndUuid ->
                         selectPagerNewsArticle(authorityAndUuid)
                         viewModel.onNewsArticleSelected(authorityAndUuid) // was selected before list had data
                     }
-                    viewModel.lastReadArticleAuthorityAndUUID.value?.let {
-                        val newsArticlePosition = listAdapter.getNewsItemPosition(it)
-                        newsArticlePosition?.let {
-                            binding?.newsContainerLayout?.newsList?.scrollToPosition(
-                                (newsArticlePosition - 1) // show 1 more stop on top of the list
-                                    .coerceAtLeast(0)
-                                    .coerceAtMost(listAdapter.itemCount - 1)
-                            )
+                    viewModel.lastReadArticleAuthorityAndUUID.value?.let { lastReadArticleAuthorityAndUUID ->
+                        binding?.apply {
+                            listAdapter.getNewsItemPosition(lastReadArticleAuthorityAndUUID)?.let { newsArticlePosition ->
+                                newsContainerLayout.newsList.scrollToPosition(
+                                    (newsArticlePosition - 1) // show 1 more stop on top of the list
+                                        .coerceAtLeast(0)
+                                        .coerceAtMost(listAdapter.itemCount - 1)
+                                )
+                            }
                         }
                     }
                 }
@@ -320,42 +305,44 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             }
         }
         viewModel.lastReadArticleAuthorityAndUUID.observe(viewLifecycleOwner) { authorityAndUuid ->
-            authorityAndUuid?.let {
-                binding?.newsContainerLayout?.newsList?.let { recyclerView ->
-                    val newsArticlePosition = listAdapter.getNewsItemPosition(it)
-                    newsArticlePosition?.let {
-                        recyclerView.scrollToPosition(
-                            newsArticlePosition
-                                .coerceAtLeast(0)
-                                .coerceAtMost(listAdapter.itemCount - 1)
-                        )
-                    }
+            authorityAndUuid ?: return@observe
+            binding?.apply {
+                listAdapter.getNewsItemPosition(authorityAndUuid)?.let { newsArticlePosition ->
+                    newsContainerLayout.newsList.scrollToPosition(
+                        newsArticlePosition
+                            .coerceAtLeast(0)
+                            .coerceAtMost(listAdapter.itemCount - 1)
+                    )
                 }
             }
         }
-        viewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { newAuthorityAndUuid ->
-            if (newAuthorityAndUuid?.isAuthorityAndUuidValid() == false) {
-                return@observe
-            }
-            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
+        viewModel.validSelectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { newAuthorityAndUuid ->
             listAdapter.setSelectedArticle(newAuthorityAndUuid)
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
                 if (newAuthorityAndUuid != null) {
                     binding?.screenToolbarLayout?.screenToolbarLayout?.setExpanded(true, false)
                 }
             }
-            analyticsManager.trackScreenView(this@NewsListDetailFragment)
-            newAuthorityAndUuid?.let {
-                selectPagerNewsArticle(it)
+            if (binding?.slidingPaneLayout?.isSlideable == true) {
+                (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
+                analyticsManager.trackScreenView(this@NewsListDetailFragment)
             }
+            newAuthorityAndUuid?.let { selectPagerNewsArticle(it) }
         }
-        viewModel.fullscreenModeAvailable.observe(viewLifecycleOwner) {
-            updateMenuItemsVisibility(fullscreenModeAvailable = it)
-            updateABColor()
+        viewModel.fullscreenAvailable.observe(viewLifecycleOwner) {
+            if (it == false) {
+                viewModel.setFullscreenMode(false)
+            }
+            updateMenuItemsVisibility(fullscreenAvailable = it)
         }
-        viewModel.fullscreenMode.observe(viewLifecycleOwner) { fullscreenMode ->
-            updateMenuItemsVisibility(fullscreenMode = fullscreenMode)
-            updateABColor()
+        viewModel.fullscreen.observe(viewLifecycleOwner) { fullscreen ->
+            updateMenuItemsVisibility(fullscreen = fullscreen)
+        }
+        viewModel.fullscreenAndAvailable.observe(viewLifecycleOwner) { fullscreenAndAvailable ->
+            updateMenuItemsVisibility(fullscreenAndAvailable = fullscreenAndAvailable)
+            if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+                fullscreenBackPressedCallback.isEnabled = fullscreenAndAvailable
+            }
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
@@ -369,7 +356,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     private fun updateABColor() {
         abController?.setABBgColor(this, getABBgColor(context), true)
-        binding?.screenToolbarLayout?.let { updateScreenToolbarBgColor(it) }
+        updateScreenToolbarBgColor()
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABBgColor(getABBgColor(context))
         }
@@ -384,10 +371,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                 val smoothScroll = false // always set from code (not the user)
                 viewPager.setCurrentItem(newPosition, smoothScroll)
             }
-            slidingPaneLayout.apply {
-                if (!isOpen) {
-                    openPane()
-                }
+            if (!slidingPaneLayout.isOpen) {
+                slidingPaneLayout.openPane()
             }
         }
     }
@@ -401,12 +386,12 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override fun getABSubtitle(context: Context?) = attachedViewModel?.subTitle?.value ?: super.getABSubtitle(context)
 
     override fun getABBgColor(context: Context?) =
-        Color.BLACK.takeIf { attachedViewModel?.isFullscreen == true }
-            ?: attachedViewModel?.colorInt?.value
+        attachedViewModel?.abColorString?.value?.let { ColorUtils.parseColor(it) }
             ?: super.getABBgColor(context)
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         listAdapter.onVisible(this)
         if (FeatureFlags.F_NAVIGATION) {
             nextMainViewModel.setABTitle(getABTitle(context))
@@ -417,21 +402,13 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        binding?.apply {
-            onBackPressedCallback?.isEnabled = slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
-        }
+        /** like [androidx.navigation.fragment.AbstractListDetailFragment.onViewStateRestored] */
+        listDetailOnBackPressedCallback?.isEnabled = binding?.let { it.slidingPaneLayout.isSlideable && it.slidingPaneLayout.isOpen } == true
     }
 
     override fun onPause() {
         super.onPause()
         listAdapter.onInvisible(this)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        activity?.apply {
-            initialBackStackEntryCount = supportFragmentManager.backStackEntryCount
-        }
     }
 
     private var fullscreenMenuItem: MenuItem? = null
@@ -445,30 +422,31 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     }
 
     private fun updateMenuItemsVisibility(
-        fullscreenMode: Boolean? = attachedViewModel?.fullscreenMode?.value,
-        fullscreenModeAvailable: Boolean? = attachedViewModel?.fullscreenModeAvailable?.value,
+        fullscreen: Boolean? = attachedViewModel?.fullscreen?.value,
+        fullscreenAvailable: Boolean? = attachedViewModel?.fullscreenAvailable?.value,
+        fullscreenAndAvailable: Boolean? = attachedViewModel?.fullscreenAndAvailable?.value,
     ) {
-        val isFullscreen = fullscreenMode == true && fullscreenModeAvailable == true
+        val fullscreenAndAvailable = fullscreenAndAvailable == true
         fullscreenMenuItem?.apply {
-            setIcon(if (isFullscreen) R.drawable.ic_baseline_fullscreen_exit_black_24dp else R.drawable.ic_baseline_fullscreen_black_24dp)
-            setTitle(if (isFullscreen) R.string.menu_action_fullscreen_exit else R.string.menu_action_fullscreen)
-            isVisible = fullscreenModeAvailable == true && fullscreenMode != null
+            setIcon(if (fullscreenAndAvailable) R.drawable.ic_baseline_fullscreen_exit_black_24dp else R.drawable.ic_baseline_fullscreen_black_24dp)
+            setTitle(if (fullscreenAndAvailable) R.string.menu_action_fullscreen_exit else R.string.menu_action_fullscreen)
+            isVisible = fullscreenAvailable == true && fullscreen != null
         }
-        mainMenuSearchMenuItem?.isVisible = !isFullscreen
+        mainMenuSearchMenuItem?.isVisible = !fullscreenAndAvailable
         binding?.apply {
-            screenToolbarLayout.screenToolbar.alpha = if (isFullscreen) 0.3f else 1f
-            refreshLayout.isVisible = !isFullscreen
+            screenToolbarLayout.screenToolbar.alpha = if (fullscreenAndAvailable) 0.3f else 1f
+            refreshLayout.isVisible = !fullscreenAndAvailable
         }
         @SuppressLint("DeprecatedCall")
         @Suppress("DEPRECATION") // deprecated in API Level 30 (Android R) // no [easy] alternative found
-        activity?.window?.decorView?.systemUiVisibility = if (isFullscreen) View.SYSTEM_UI_FLAG_LOW_PROFILE else 0
+        activity?.window?.decorView?.systemUiVisibility = if (fullscreenAndAvailable) View.SYSTEM_UI_FLAG_LOW_PROFILE else 0
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem) =
         when (menuItem.itemId) {
             R.id.menu_fullscreen -> {
-                analyticsManager.trackButtonClick("toolbar_fullscreen", attachedViewModel?.fullscreenMode?.value?.toString(), this)
-                viewModel.setFullscreenMode(viewModel.fullscreenMode.value == false) // flip
+                analyticsManager.trackButtonClick("toolbar_fullscreen", attachedViewModel?.fullscreen?.value?.toString(), this)
+                viewModel.setFullscreenMode(viewModel.fullscreen.value == false) // flip
                 true // handled
             }
 
@@ -476,18 +454,19 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
 
     private fun handleExitFullscreen(): Boolean {
-        if (viewModel.fullscreenMode.value == true) {
-            viewModel.setFullscreenMode(false)
-            // Handled if fullscreen was actually available/visible // ELSE handle back/up navigation as usual
-            return viewModel.fullscreenModeAvailable.value == true
-        }
-        return false // Not in fullscreen mode
+        if (viewModel.fullscreen.value != true) return false // not in fullscreen mode
+        viewModel.setFullscreenMode(false)
+        // return handled if fullscreen was actually available/visible // ELSE handle back/up navigation as usual
+        return viewModel.fullscreenAvailable.value == true
     }
 
     override fun onScreenToolbarNavigationClick(v: View) {
         analyticsManager.trackButtonClick("up_icon", this)
-        if (handleExitFullscreen()) {
-            return // handled
+        activity?.apply {
+            if (onBackPressedDispatcher.hasEnabledCallbacks()) {
+                onBackPressedDispatcher.onBackPressed()
+                return // handled
+            }
         }
         super.onScreenToolbarNavigationClick(v)
     }
@@ -496,18 +475,10 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
             return super.onBackPressed()
         }
-        if (handleExitFullscreen()) {
-            return true // handled
-        }
-        binding?.apply {
-            activity?.apply {
-                if (supportFragmentManager.backStackEntryCount == (initialBackStackEntryCount + 1)) {
-                    if (slidingPaneLayout.isOpen) {
-                        slidingPaneLayout.closePane()
-                        viewModel.cleanSelectedNewsArticle()
-                        return true // handled
-                    }
-                }
+        activity?.apply {
+            if (onBackPressedDispatcher.hasEnabledCallbacks()) {
+                onBackPressedDispatcher.onBackPressed()
+                return true // handled
             }
         }
         return super.onBackPressed()
@@ -515,14 +486,12 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
 
     override fun onDestroyView() {
         super.onDestroyView()
+        onBackStackChangedListener?.let { activity?.supportFragmentManager?.removeOnBackStackChangedListener(it) }
+        onBackStackChangedListener = null
+        pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding?.apply {
             viewPager.unregisterOnPageChangeCallback(onPageChangeCallback)
             viewPager.adapter = null // cannot re-use Adapter w/ ViewPager
-            onBackStackChangedListener?.let {
-                activity?.supportFragmentManager?.removeOnBackStackChangedListener(it)
-            }
-            onBackStackChangedListener = null
-            pagerAdapter = null // cannot re-use Adapter w/ ViewPager
             refreshLayout.setOnRefreshListener(null)
         }
         binding = null
@@ -532,6 +501,4 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         super.onDestroy()
         listAdapter.onDestroy(this)
     }
-
-    private val NewsListViewModel.isFullscreen: Boolean get() = fullscreenMode.value == true && fullscreenModeAvailable.value == true
 }

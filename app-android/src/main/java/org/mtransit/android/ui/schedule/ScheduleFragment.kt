@@ -150,7 +150,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 addItemDecoration(StickyHeaderItemDecorator(listAdapter, this))
                 setUpListEdgeToEdge()
             }
-            setupScreenToolbar(screenToolbarLayout)
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
             if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
                 sourceLabel.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
                     updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -273,6 +273,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         viewModel.initStartEndTimeIfNotSet()
         viewModel.poim.value?.allowTriggerStatusAndServiceUpdatesRefresh() // get changes loaded from other screens (while paused)
         enableTimeChangedReceiver()
