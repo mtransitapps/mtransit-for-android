@@ -94,7 +94,7 @@ class POIManagerTest {
 
     private fun RouteDirectionStop.mkSchedule(
         lastUpdateInMs: Long = NOW_MS,
-        validityInMs: Long = 1.hours.inWholeMilliseconds,
+        maxValidityInMs: Long = 1.hours.inWholeMilliseconds,
         readFromSourceAtInMs: Long = NOW_MS,
         providerPrecisionInMs: Long = 1.minutes.inWholeMilliseconds,
         sourceLabel: String = "test_source",
@@ -102,7 +102,7 @@ class POIManagerTest {
         timestamps: List<Schedule.Timestamp>? = null,
     ) = makeSchedule(
         lastUpdateInMs = lastUpdateInMs,
-        validityInMs = validityInMs,
+        maxValidityInMs = maxValidityInMs,
         readFromSourceAtInMs = readFromSourceAtInMs,
         providerPrecisionInMs = providerPrecisionInMs,
         sourceLabel = sourceLabel,
