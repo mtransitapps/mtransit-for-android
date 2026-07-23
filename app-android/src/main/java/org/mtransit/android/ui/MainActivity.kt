@@ -449,6 +449,13 @@ class MainActivity : MTActivityWithLocation(),
         override fun handleOnBackPressed() {
             if (supportFragmentManager.backStackEntryCount > 0) {
                 supportFragmentManager.popBackStack()
+                return
+            }
+            isEnabled = false
+            try {
+                this@MainActivity.onBackPressedDispatcher.onBackPressed()
+            } finally {
+                isEnabled = true
             }
         }
     }

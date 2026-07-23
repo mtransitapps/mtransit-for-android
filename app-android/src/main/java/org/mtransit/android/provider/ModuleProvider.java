@@ -40,7 +40,6 @@ import org.mtransit.android.commons.data.POI.POIUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.provider.agency.AgencyProvider;
 import org.mtransit.android.commons.provider.common.ContentProviderConstants;
-import org.mtransit.android.commons.provider.common.ProviderContract;
 import org.mtransit.android.commons.provider.poi.POIProvider;
 import org.mtransit.android.commons.provider.poi.POIProviderContract;
 import org.mtransit.android.commons.provider.status.StatusProvider;
@@ -54,7 +53,6 @@ import org.mtransit.commons.Constants;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.EntryPoint;
 import dagger.hilt.InstallIn;
