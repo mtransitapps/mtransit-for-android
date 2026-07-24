@@ -112,6 +112,7 @@ labels: MT
 - [ ] ca-salt-spring-island-transit-bus
 - [ ] ca-sarnia-transit-bus
 - [ ] ca-saskatoon-transit-bus
+- [ ] ca-sault-ste-marie-transit-bus
 - [ ] ca-shawinigan-rtcs-bus
 - [ ] ca-sherbrooke-sts-bus
 - [ ] ca-smithers-district-transit-bus
