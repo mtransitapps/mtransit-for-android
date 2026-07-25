@@ -29,7 +29,7 @@ object MapsInitializerUtil : MTLog.Loggable {
                     MapsInitializer.Renderer.LATEST -> {
                         MTLog.d(this, "The latest version of the renderer is used.")
                     }
-                    //noinspection deprecation
+                    @Suppress("DEPRECATION")
                     MapsInitializer.Renderer.LEGACY -> {
                         MTLog.d(this, "The legacy version of the renderer is used.")
                     }

@@ -22,6 +22,7 @@ import android.text.style.TypefaceSpan;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Pair;
 
 import org.mtransit.android.R;
@@ -1108,6 +1109,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return nextTimestampsT;
 	}
 
+	@VisibleForTesting
 	@NonNull
 	ArrayList<Timestamp> getStatusNextTimestamps(
 			long after, // truncated to the minute

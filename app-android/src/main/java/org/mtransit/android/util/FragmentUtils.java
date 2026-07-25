@@ -26,9 +26,11 @@ public final class FragmentUtils implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
-	public static boolean isCurrentFragmentVisible(@Nullable FragmentActivity fa,
-												   @IdRes int currentFragmentId,
-												   @Nullable Fragment fragment) {
+	public static boolean isCurrentFragmentVisible(
+			@Nullable FragmentActivity fa,
+			@IdRes int currentFragmentId,
+			@Nullable Fragment fragment
+	) {
 		if (fragment == null) {
 			MTLog.d(LOG_TAG, "isCurrentFragmentVisible() > SKIP (fragment null = invisible)");
 			return false;
@@ -45,30 +47,28 @@ public final class FragmentUtils implements MTLog.Loggable {
 	}
 
 	@SuppressWarnings("WeakerAccess")
-	public static boolean isFragmentReady(@Nullable FragmentActivity fa,
-										  @NonNull @IdRes Integer fragmentResId) {
+	public static boolean isFragmentReady(@Nullable FragmentActivity fa, @IdRes int fragmentResId) {
 		final Fragment fragment = getFragment(fa, fragmentResId);
 		return isFragmentReady(fragment);
 	}
 
 	@Nullable
-	public static Fragment getFragment(@Nullable FragmentActivity fa,
-									   @NonNull @IdRes Integer fragmentResId) {
+	public static Fragment getFragment(@Nullable FragmentActivity fa, @IdRes int fragmentResId) {
 		final FragmentManager fm = fa == null ? null : fa.getSupportFragmentManager();
 		return fm == null ? null : fm.findFragmentById(fragmentResId);
 	}
 
 	@SuppressWarnings("unused")
 	public static void replaceFragment(@Nullable FragmentActivity fa,
-									   @IdRes int containerViewId,
-									   @NonNull Fragment fragment,
-									   boolean addToStack,
-									   @Nullable Fragment optSource) {
+	                                   @IdRes int containerViewId,
+	                                   @NonNull Fragment fragment,
+	                                   boolean addToStack,
+	                                   @Nullable Fragment optSource) {
 		replaceFragment(fa, containerViewId, fragment, addToStack, optSource, null, null);
 	}
 
 	public static boolean isReady(@Nullable FragmentActivity fa,
-								  @Nullable Fragment fragmentSource) {
+	                              @Nullable Fragment fragmentSource) {
 		if (fa == null || fa.isFinishing()) {
 			MTLog.d(LOG_TAG, "isReady() > SKIP (activity is null/finishing)");
 			return false;
@@ -80,13 +80,15 @@ public final class FragmentUtils implements MTLog.Loggable {
 		return true;
 	}
 
-	public static void replaceFragment(@Nullable FragmentActivity fa,
-									   @IdRes int containerViewId,
-									   @NonNull Fragment fragment,
-									   boolean addToStack,
-									   @Nullable Fragment optSource,
-									   @Nullable View optTransitionSharedElement,
-									   @Nullable String optTransitionName) {
+	public static void replaceFragment(
+			@Nullable FragmentActivity fa,
+			@IdRes int containerViewId,
+			@NonNull Fragment fragment,
+			boolean addToStack,
+			@Nullable Fragment optSource,
+			@Nullable View optTransitionSharedElement,
+			@Nullable String optTransitionName
+	) {
 		try {
 			if (fa == null || fa.isFinishing()) {
 				MTLog.d(LOG_TAG, "replaceFragment() > SKIP (activity is null/finishing)");
@@ -124,11 +126,13 @@ public final class FragmentUtils implements MTLog.Loggable {
 	}
 
 	@SuppressWarnings("unused")
-	public static void replaceFragment(@Nullable FragmentActivity fa,
-									   @IdRes int containerViewId,
-									   @NonNull Fragment fragment,
-									   boolean addToStack,
-									   @Nullable @IdRes Integer optSourceResId) {
+	public static void replaceFragment(
+			@Nullable FragmentActivity fa,
+			@IdRes int containerViewId,
+			@NonNull Fragment fragment,
+			boolean addToStack,
+			@Nullable @IdRes Integer optSourceResId
+	) {
 		try {
 			if (fa == null || fa.isFinishing()) {
 				MTLog.d(LOG_TAG, "replaceFragment() > SKIP (activity is null/finishing)");
@@ -159,10 +163,12 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void replaceDialogFragment(@Nullable FragmentActivity fa,
-											 @Nullable String tag,
-											 @Nullable DialogFragment dialogFragment,
-											 @Nullable Fragment optSource) {
+	public static void replaceDialogFragment(
+			@Nullable FragmentActivity fa,
+			@Nullable String tag,
+			@Nullable DialogFragment dialogFragment,
+			@Nullable Fragment optSource
+	) {
 		try {
 			if (fa == null || fa.isFinishing()) {
 				MTLog.d(LOG_TAG, "replaceDialogFragment() > SKIP (activity is null/finishing)");
@@ -224,8 +230,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void clearFragmentBackStackImmediate(@Nullable FragmentActivity fa,
-													   @Nullable Fragment optSource) {
+	public static void clearFragmentBackStackImmediate(@Nullable FragmentActivity fa, @Nullable Fragment optSource) {
 		try {
 			if (fa == null || fa.isFinishing()) {
 				MTLog.d(LOG_TAG, "clearFragmentBackStackImmediate() > SKIP (activity is null/finishing)");
@@ -251,9 +256,11 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void popFragmentFromStack(@Nullable FragmentActivity fa,
-											@Nullable Fragment fragment,
-											@Nullable Fragment optSource) {
+	public static void popFragmentFromStack(
+			@Nullable FragmentActivity fa,
+			@Nullable Fragment fragment,
+			@Nullable Fragment optSource
+	) {
 		try {
 			if (fa == null || fa.isFinishing()) {
 				MTLog.d(LOG_TAG, "popFragmentFromStack() > SKIP (activity is null/finishing)");
