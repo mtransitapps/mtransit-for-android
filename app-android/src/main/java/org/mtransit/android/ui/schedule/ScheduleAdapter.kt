@@ -18,6 +18,7 @@ import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.Accessibility
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.commons.data.arrivalDiff
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
@@ -28,6 +29,7 @@ import org.mtransit.android.databinding.LayoutScheduleInfiniteListDaySeparatorBi
 import org.mtransit.android.databinding.LayoutScheduleInfiniteListHourSeparatorBinding
 import org.mtransit.android.databinding.LayoutScheduleInfiniteListLoadingBinding
 import org.mtransit.android.databinding.LayoutScheduleInfiniteListTimeBinding
+import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
@@ -47,9 +49,11 @@ import java.util.TimeZone
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-class ScheduleAdapter :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+class ScheduleAdapter(
+    private val serviceUpdateLoader: ServiceUpdateLoader,
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
+    ServiceUpdateLoader.ServiceUpdateLoaderListener,
     MTLog.Loggable {
 
     companion object {
@@ -121,7 +125,20 @@ class ScheduleAdapter :
 
     private var nowToTheMinute: Long = UITimeUtils.currentTimeToTheMinuteMillis()
 
-    private var optPOIM: POIManager? = null
+    @SuppressLint("NotifyDataSetChanged")
+    var optPOIM: POIManager? = null
+        set(value) {
+            field = value
+            field?.addServiceUpdateLoaderListener(this@ScheduleAdapter)
+            notifyDataSetChanged() // all times can show POI service updates cancellations...
+        }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
+        if (targetUUID != this.optPOIM?.poi?.uuid) return // wrong POI
+        this.optPOIM?.setServiceUpdates(serviceUpdates)
+        notifyDataSetChanged() // all times can show POI service updates cancellations...
+    }
 
     var timestamps: List<Schedule.Timestamp>? = null
         set(newValue) {
@@ -172,10 +189,6 @@ class ScheduleAdapter :
             hourFormatter?.setTimeZone(localTimeZone)
             dayDateFormat.setTimeZone(localTimeZone)
         }
-    }
-
-    fun setPOIM(poim: POIManager?) {
-        this.optPOIM = poim
     }
 
     var showingAccessibility: Boolean? = null
@@ -493,6 +506,7 @@ class ScheduleAdapter :
             )
 
             is TimeViewHolder -> holder.bind(
+                serviceUpdateLoader,
                 getTimestampItem(position),
                 nowToTheMinute,
                 nextTimestamp,
@@ -610,6 +624,7 @@ class ScheduleAdapter :
             get() = binding.context
 
         fun bind(
+            serviceUpdateLoader: ServiceUpdateLoader,
             timestamp: Schedule.Timestamp? = null,
             nowToTheMinuteInMs: Long = -1L,
             nextTimestamp: Schedule.Timestamp? = null,
@@ -656,10 +671,11 @@ class ScheduleAdapter :
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
-            timeSb = if (optPOIM?.serviceUpdatesOrNull?.allTripsNoService() == true) { // #allTripsCancelled
+            val poiServiceUpdates = optPOIM?.getServiceUpdates(serviceUpdateLoader, emptySet())
+            timeSb = if (poiServiceUpdates?.allTripsNoService() == true) { // #allTripsCancelled
                 UISchedule.setCancelled(timeSb)
             } else {
-                UISchedule.decorateCancelled(timestamp, timeSb, optPOIM?.serviceUpdatesOrNull)
+                UISchedule.decorateCancelled(timestamp, timeSb, poiServiceUpdates)
             }
             val nextTimeInMsT = nextTimestamp?.departureT ?: -1L
             if (nowToTheMinuteInMs > 0L) {

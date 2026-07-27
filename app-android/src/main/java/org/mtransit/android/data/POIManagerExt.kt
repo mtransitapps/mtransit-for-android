@@ -124,7 +124,7 @@ val POIManager.shortUUIDAndDistance: String
 val POIManager.shortUUID: String get() = this.poi.shortUUID
 val POI.shortUUID: String get() = this.uuid.substring(this.authority.length + 1)
 
-fun POIManager.getStatusFilter(inFocus: Boolean? = null) =
+fun POIManager.makeStatusFilter(inFocus: Boolean? = null) =
     StatusProviderContract.Filter.from(
         poi = this.poi,
         inFocus = inFocus,

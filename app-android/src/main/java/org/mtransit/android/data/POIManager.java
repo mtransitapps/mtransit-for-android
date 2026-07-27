@@ -1,7 +1,7 @@
 package org.mtransit.android.data;
 
 import static org.mtransit.android.data.POIManagerExtKt.addRemoveFavorite;
-import static org.mtransit.android.data.POIManagerExtKt.getStatusFilter;
+import static org.mtransit.android.data.POIManagerExtKt.makeStatusFilter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -246,7 +246,7 @@ public class POIManager implements LocationPOI,
 			@SuppressWarnings("SameParameterValue") boolean skipIfBusy
 	) {
 		// IF not same minute as last findStatus() call DO
-		final StatusProviderContract.Filter filter = getStatusFilter(this, this.inFocus);
+		final StatusProviderContract.Filter filter = makeStatusFilter(this, this.inFocus);
 		if (filter == null) return false;
 		final StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
 		final boolean isNotSkipped = statusLoader.triggerRefresh(this, filter, listener, skipIfBusy);
