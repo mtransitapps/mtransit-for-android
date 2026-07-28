@@ -6,7 +6,7 @@
     <string name="frequent_service_part_1">Frequent</string>
     <string name="frequent_service_part_2">service</string>
     <plurals name="every_minutes_and_quantity">
-        <item quantity="one">Every minutes</item>
+        <item quantity="one">Every minute</item>
         <item quantity="other">Every %s minutes</item>
     </plurals>
     <plurals name="every_minutes_and_quantity_part_1">
@@ -14,7 +14,7 @@
         <item quantity="other">Every</item>
     </plurals>
     <plurals name="every_minutes_and_quantity_part_2">
-        <item quantity="one">minutes</item>
+        <item quantity="one">minute</item>
         <item quantity="other">%s minutes</item>
     </plurals>
     <string name="no_service">No service</string>

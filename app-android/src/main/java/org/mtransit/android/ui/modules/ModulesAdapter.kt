@@ -23,6 +23,7 @@ import org.mtransit.android.ui.modules.ModulesAdapter.ModuleViewHolder
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.textAndVisibility
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 class ModulesAdapter :
     ListAdapter<AgencyProperties, ModuleViewHolder>(ModulesDiffCallback) {
@@ -142,7 +143,7 @@ class ModulesAdapter :
                             }
                         }
                         statusLine1.apply {
-                            text = context.resources.getQuantityString(R.plurals.number_of_days, diffInDays, diffInDays)
+                            text = context.resources.getQuantityString(R.plurals.number_of_days, abs(diffInDays), diffInDays)
                             setTextColor(colorInt)
                             typeface = tf
                         }
