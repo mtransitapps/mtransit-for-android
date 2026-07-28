@@ -269,6 +269,11 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Override
+	public void removeServiceUpdateLoaderListener(@NonNull ServiceUpdateLoader.ServiceUpdateLoaderListener serviceUpdateLoaderListener) {
+		this.serviceUpdateLoaderListenersWR.remove(serviceUpdateLoaderListener);
+	}
+
+	@Override
 	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates) {
 		setServiceUpdates(serviceUpdates);
 	}

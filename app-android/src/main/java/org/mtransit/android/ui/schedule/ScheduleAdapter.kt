@@ -129,6 +129,7 @@ class ScheduleAdapter(
     var optPOIM: POIManager? = null
         set(value) {
             if (field == value) return
+            field?.removeServiceUpdateLoaderListener(this@ScheduleAdapter)
             field = value
             field?.addServiceUpdateLoaderListener(this@ScheduleAdapter)
             notifyDataSetChanged() // all times can show POI service updates cancellations...

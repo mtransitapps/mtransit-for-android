@@ -32,6 +32,10 @@ data class RouteDirectionManager(
         this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null
     }
 
+    override fun removeServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
+        this.serviceUpdateLoaderListenersWR.remove(serviceUpdateLoaderListener)
+    }
+
     override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
         setServiceUpdates(serviceUpdates)
     }
