@@ -6,4 +6,5 @@ import org.mtransit.android.task.ServiceUpdateLoader
 interface ServiceUpdatesHolder {
     fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): ServiceUpdates
     fun addServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoader.ServiceUpdateLoaderListener)
+    fun removeServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoader.ServiceUpdateLoaderListener)
 }

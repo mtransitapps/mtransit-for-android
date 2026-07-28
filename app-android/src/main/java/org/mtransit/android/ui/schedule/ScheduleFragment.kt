@@ -30,6 +30,7 @@ import org.mtransit.android.data.getNewOneLineSubtitleForSchedule
 import org.mtransit.android.data.getNewOneLineTitleForSchedule
 import org.mtransit.android.databinding.FragmentScheduleInfiniteBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
@@ -101,6 +102,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
     override val screenName = TRACKING_SCREEN_NAME
 
     @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
     lateinit var adManager: IAdManager
 
     @Inject
@@ -113,7 +117,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
     private var binding: FragmentScheduleInfiniteBinding? = null
 
     private val listAdapter: ScheduleAdapter by lazy {
-        ScheduleAdapter()
+        ScheduleAdapter(serviceUpdateLoader)
     }
 
     private var timeChangedReceiverEnabled = false
@@ -217,7 +221,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
         }
         viewModel.poim.observe(viewLifecycleOwner) { poim ->
-            listAdapter.setPOIM(poim)
+            listAdapter.optPOIM = poim
         }
         viewModel.rds.observe(viewLifecycleOwner) { _ ->
             abController?.setABTitle(this, getABTitle(context), false)

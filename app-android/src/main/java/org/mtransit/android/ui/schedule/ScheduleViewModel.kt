@@ -25,7 +25,7 @@ import org.mtransit.android.commons.provider.status.findClosestTripTimestamp
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
-import org.mtransit.android.data.getStatusFilter
+import org.mtransit.android.data.makeStatusFilter
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -152,9 +152,9 @@ class ScheduleViewModel @Inject constructor(
         }
 
     private val _scheduleTimestamps: LiveData<List<Schedule.Timestamp>?> = MediatorLiveData4(rds, _startsAtInMs, _endsAtInMs, _scheduleProviders)
-        .switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
+        .switchMap { (rds, startsAtInMs, endsAtInMs, scheduleProviders) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                emit(getTimestamps(rts, startsAtInMs, endsAtInMs, scheduleProviders))
+                emit(getTimestamps(rds, startsAtInMs, endsAtInMs, scheduleProviders))
             }
         }
 
@@ -236,7 +236,7 @@ class ScheduleViewModel @Inject constructor(
         .switchMap { (poim, rtStatusProviders) ->
             liveData(viewModelScope.coroutineContext) {
                 rtStatusProviders ?: return@liveData
-                val statusFilter = poim?.getStatusFilter() ?: return@liveData
+                val statusFilter = poim?.makeStatusFilter() ?: return@liveData
                 rtStatusProviders.forEach { statusProvider ->
                     val schedule = dataSourceRequestManager.findStatus(statusProvider, statusFilter) as? Schedule
                     _readFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })

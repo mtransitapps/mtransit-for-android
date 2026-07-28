@@ -32,11 +32,16 @@ data class RouteDirectionManager(
         this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null
     }
 
+    override fun removeServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
+        this.serviceUpdateLoaderListenersWR.remove(serviceUpdateLoaderListener)
+    }
+
     override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
         setServiceUpdates(serviceUpdates)
     }
 
     fun setServiceUpdates(newServiceUpdates: ServiceUpdates) {
+        if (newServiceUpdates == this.serviceUpdates) return
         this.serviceUpdates = newServiceUpdates.apply {
             sortWith(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
         }
