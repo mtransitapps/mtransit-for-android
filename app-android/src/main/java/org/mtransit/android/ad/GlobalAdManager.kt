@@ -194,6 +194,7 @@ class GlobalAdManager(
         //     } #gmaNextGen
         // } #gmaNextGen
         // .build() #gmaNextGen
+        MobileAds.setAppMuted(true) // not a media app -> sound off by default
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
             // initConfig, #gmaNextGen
