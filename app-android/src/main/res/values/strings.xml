@@ -126,7 +126,7 @@
     <string name="samsung_device_care">Device Care (Samsung)</string>
     <string name="new_location_in_app_notification_label">New location.</string>
     <string name="new_location_in_app_notification_action">REFRESH</string>
-    <string name="no_results">No Results</string>
+    <string name="no_results">No results</string>
     <string name="world_explored">Planetary exploration completed</string>
     <string name="module_label">Agencies</string>
     <string name="module_short_name">Agencies</string>
@@ -138,7 +138,7 @@
     <string name="add_fav">Add to favorites</string>
     <string name="remove_fav">Remove from favorites</string>
     <string name="edit_fav">Move/Remove favorite</string>
-    <string name="menu_action_show_service_updates">Service Updates</string>
+    <string name="menu_action_show_service_updates">Service updates</string>
     <string name="menu_action_list">List</string>
     <string name="menu_action_grid">Grid</string>
     <string name="menu_action_map">Map</string>
@@ -211,7 +211,7 @@
     <string name="device_settings_date_and_time_pref_summary">Select 12/24-hour format and make sure the device date, time and timezone are set correctly</string>
     <string name="device_settings_location_pref_title">Location</string>
     <string name="device_settings_location_pref_summary">Improve the device location detection accuracy</string>
-    <string name="device_settings_power_management_pref_title">Power Management</string>
+    <string name="device_settings_power_management_pref_title">Power management</string>
     <string name="device_settings_power_management_pref_summary">Solve issues with device manufacturers\' aggressive battery optimizations</string>
     <string name="feedback_pref_cat_title">Feedback</string>
     <string name="feedback_email_pref_title">@string/customer_service</string>
