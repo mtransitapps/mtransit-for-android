@@ -37,6 +37,7 @@ data class RouteDirectionManager(
     }
 
     fun setServiceUpdates(newServiceUpdates: ServiceUpdates) {
+        if (newServiceUpdates == this.serviceUpdates) return
         this.serviceUpdates = newServiceUpdates.apply {
             sortWith(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
         }

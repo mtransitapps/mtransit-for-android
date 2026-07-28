@@ -274,6 +274,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	public void setServiceUpdates(@NonNull ServiceUpdates newServiceUpdates) {
+		if (newServiceUpdates.equals(this.serviceUpdates)) return;
 		if (!newServiceUpdates.isEmpty()) {
 			newServiceUpdates.sort(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
 		}
