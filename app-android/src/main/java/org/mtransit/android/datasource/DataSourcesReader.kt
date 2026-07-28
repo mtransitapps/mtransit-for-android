@@ -60,6 +60,10 @@ class DataSourcesReader @Inject constructor(
                     || NOT_SUPPORTED_APPS_PKG.contains(pkg)
 
         private val SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) listOf(
+            // "INSERT_PKG_HERE",
+            // "org.mtransit.android.debug.favorite",
+            // "org.mtransit.android.debug.provider.module",
+            // "org.mtransit.android.debug.provider.place",
         ) else emptyList()
 
         @Suppress("SpellCheckingInspection")
@@ -83,6 +87,7 @@ class DataSourcesReader @Inject constructor(
             // DEBUG
             // "org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_gatineau_sto_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_edmonton_ets_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_l_assomption_mrclasso_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_la_presqu_ile_citpi_bus.debug", // FIXME DEBUG
@@ -227,16 +232,17 @@ class DataSourcesReader @Inject constructor(
                 markUpdated()
                 updated = true
             }
-            this.dataSourceRequestManager.findAgencyAvailableVersionCode(agencyProperties, forceAppUpdateRefresh, forcePkg != null)?.let { newAvailableVersionCode ->
-                if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
-                    MTLog.d(this, "Agency '$authority' > new version available: r$newAvailableVersionCode.")
-                    dataSourcesDatabase.agencyPropertiesDao().update(
-                        agencyProperties.copy(availableVersionCode = newAvailableVersionCode)
-                    )
-                    markUpdated()
-                    updated = true
+            this.dataSourceRequestManager.findAgencyAvailableVersionCode(agencyProperties, forceAppUpdateRefresh, forcePkg != null)
+                ?.let { newAvailableVersionCode ->
+                    if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
+                        MTLog.d(this, "Agency '$authority' > new version available: r$newAvailableVersionCode.")
+                        dataSourcesDatabase.agencyPropertiesDao().update(
+                            agencyProperties.copy(availableVersionCode = newAvailableVersionCode)
+                        )
+                        markUpdated()
+                        updated = true
+                    }
                 }
-            }
         }
         if (!skipTimeCheck || updated) {
             lclPrefRepository.pref.edit { putLong(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis()) }

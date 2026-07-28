@@ -83,6 +83,7 @@ labels: MT
 - [ ] ca-niagara-region-transit-bus
 - [ ] ca-north-bay-transit-bus
 - [ ] ca-oakville-transit-bus
+- [ ] ca-orangeville-transit-bus
 - [ ] ca-orillia-transit-bus
 - [ ] ca-ottawa-oc-transpo-bus
 - [ ] ca-ottawa-oc-transpo-train
