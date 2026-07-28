@@ -11,7 +11,7 @@ fun DataSourceType.getPoiShortNameK(context: Context): CharSequence {
     }
     return context.getString(
         R.string.agency_type_stops_short_name,
-        context.getString(shortNamesResId).lowercase(),
+        context.getString(this.shortNamesResId).lowercase(),
         context.getString(this.stopType.stopsStringResId).lowercase()
     ).capitalize()
 }

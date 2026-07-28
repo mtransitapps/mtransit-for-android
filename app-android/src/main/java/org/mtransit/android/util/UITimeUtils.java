@@ -755,7 +755,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		nextWeekStarts.add(Calendar.DATE, +7);
 		if (targetedTimestamp >= afterTomorrow.getTimeInMillis() && targetedTimestamp < nextWeekStarts.getTimeInMillis()) {
 			return new Pair<>( //
-					STANDALONE_DAY_OF_THE_WEEK_LONG.formatThreadSafe(targetedTimestamp), null); // THIS WEEK (Monday-Sunday)
+					STANDALONE_DAY_OF_THE_WEEK_LONG.formatThreadSafe(targetedTimestamp).toUpperCase(Locale.getDefault()), null); // THIS WEEK (Monday-Sunday)
 		}
 		Calendar nextWeekEnds = (Calendar) today.clone();
 		nextWeekEnds.add(Calendar.DATE, +14);
