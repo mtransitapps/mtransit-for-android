@@ -56,7 +56,7 @@ class ModulesAdapter :
         @SuppressLint("SetTextI18n")
         fun bind(item: AgencyProperties?) = with(binding) {
             nameTv.apply {
-                text = item?.let { it ->
+                text = item?.let {
                     "${
                         if (it.updateAvailable) "(UPDATE: r${it.availableVersionCode}) " else ""
                     }${it.getShortNameAndType(context)}${
@@ -142,7 +142,7 @@ class ModulesAdapter :
                             }
                         }
                         statusLine1.apply {
-                            text = "$diffInDays ${context.resources.getQuantityText(R.plurals.days_capitalized, diffInDays)}"
+                            text = context.resources.getQuantityString(R.plurals.number_of_days, diffInDays, diffInDays)
                             setTextColor(colorInt)
                             typeface = tf
                         }

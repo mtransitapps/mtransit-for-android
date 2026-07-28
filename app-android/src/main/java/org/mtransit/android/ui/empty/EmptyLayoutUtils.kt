@@ -46,10 +46,10 @@ object EmptyLayoutUtils {
             }
             emptyButton2.apply {
                 pkg?.let { pkg ->
-                    text = context.getString(commonsR.string.google_play)
+                    text = context.getString(commonsR.string.google_play_store)
                     setIconResource(R.drawable.ic_baseline_shop_24)
                     setOnClickListener { v ->
-                        StoreUtils.viewAppPage(v.context, pkg, context.getString(commonsR.string.google_play))
+                        StoreUtils.viewAppPage(v.context, pkg, context.getString(commonsR.string.google_play_store))
                     }
                     isVisible = true
                 } ?: run {

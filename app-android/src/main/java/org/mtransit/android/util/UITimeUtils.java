@@ -597,18 +597,18 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		if (diffInDay > 0 && diffInHour > MAX_HOURS_SHOWED) {
 			shortTimeSpan1SSB.append(getNumberInLetter(context, diffInDay));
 			isShortTimeSpanString = true;
-			shortTimeSpan2SSB.append(resources.getQuantityText(R.plurals.days_capitalized, diffInDay));
+			shortTimeSpan2SSB.append(resources.getQuantityText(R.plurals.number_of_days_part_2, diffInDay));
 		} else if (diffInHour > 0 && diffInMin > MAX_MINUTES_SHOWED) {
 			shortTimeSpan1SSB.append(getNumberInLetter(context, diffInHour));
 			isShortTimeSpanString = true;
-			shortTimeSpan2SSB.append(resources.getQuantityText(R.plurals.hours_capitalized, diffInHour));
+			shortTimeSpan2SSB.append(resources.getQuantityText(R.plurals.number_of_hours_part_2, diffInHour));
 		} else if (-precisionInMs <= diffInMs && diffInMs <= precisionInMs) {
 			urgentTime1Start = shortTimeSpan1SSB.length();
 			shortTimeSpan1SSB.append(String.valueOf(diffInMin));
 			urgentTime1End = shortTimeSpan1SSB.length();
 			urgentTime2Start = shortTimeSpan2SSB.length();
 			timeUnit2Start = shortTimeSpan2SSB.length();
-			shortTimeSpan2SSB.append(resources.getQuantityString(R.plurals.minutes_capitalized, Math.abs(diffInMin)));
+			shortTimeSpan2SSB.append(resources.getQuantityString(R.plurals.number_of_minutes_part_2, Math.abs(diffInMin)));
 			timeUnit2End = shortTimeSpan2SSB.length();
 			urgentTime2End = shortTimeSpan2SSB.length();
 		} else {
@@ -624,7 +624,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				urgentTime2Start = shortTimeSpan2SSB.length();
 			}
 			timeUnit2Start = shortTimeSpan2SSB.length();
-			shortTimeSpan2SSB.append(resources.getQuantityString(R.plurals.minutes_capitalized, diffInMin));
+			shortTimeSpan2SSB.append(resources.getQuantityString(R.plurals.number_of_minutes_part_2, diffInMin));
 			timeUnit2End = shortTimeSpan2SSB.length();
 			if (isUrgent) {
 				urgentTime2End = shortTimeSpan2SSB.length();

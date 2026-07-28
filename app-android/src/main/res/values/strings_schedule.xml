@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources" tools:locale="en">
-    <string name="drop_off_only_part_1">Drop Off</string>
-    <string name="drop_off_only_part_2">Only</string>
-    <string name="frequent_service">Frequent Service</string>
+    <string name="drop_off_only_part_1">Drop off</string>
+    <string name="drop_off_only_part_2">only</string>
+    <string name="frequent_service">Frequent service</string>
     <string name="frequent_service_part_1">Frequent</string>
-    <string name="frequent_service_part_2">Service</string>
+    <string name="frequent_service_part_2">service</string>
     <plurals name="every_minutes_and_quantity">
-        <item quantity="one">Every Minutes</item>
-        <item quantity="other">Every %s Minutes</item>
+        <item quantity="one">Every minutes</item>
+        <item quantity="other">Every %s minutes</item>
     </plurals>
     <plurals name="every_minutes_and_quantity_part_1">
         <item quantity="one">Every</item>
         <item quantity="other">Every</item>
     </plurals>
     <plurals name="every_minutes_and_quantity_part_2">
-        <item quantity="one">Minutes</item>
-        <item quantity="other">%s Minutes</item>
+        <item quantity="one">minutes</item>
+        <item quantity="other">%s minutes</item>
     </plurals>
-    <string name="no_service">No Service</string>
+    <string name="no_service">No service</string>
     <string name="no_service_part_1">No</string>
-    <string name="no_service_part_2">Service</string>
+    <string name="no_service_part_2">service</string>
     <string name="no_upcoming_departures">No upcoming departures.</string>
-    <string name="this_morning">This Morning</string>
+    <string name="this_morning">This morning</string>
     <string name="this_morning_part_1">This</string>
-    <string name="this_morning_part_2">Morning</string>
-    <string name="this_afternoon">This Afternoon</string>
+    <string name="this_morning_part_2">morning</string>
+    <string name="this_afternoon">This afternoon</string>
     <string name="this_afternoon_part_1">This</string>
-    <string name="this_afternoon_part_2">Afternoon</string>
-    <string name="this_evening">This Evening</string>
+    <string name="this_afternoon_part_2">afternoon</string>
+    <string name="this_evening">This evening</string>
     <string name="this_evening_part_1">This</string>
-    <string name="this_evening_part_2">Evening</string>
+    <string name="this_evening_part_2">evening</string>
     <string name="tonight">Tonight</string>
     <string name="tonight_part_1">Tonight</string>
     <string name="tonight_part_2" />
@@ -41,18 +41,18 @@
     <string name="tomorrow_and">Tomorrow %s</string>
     <string name="tomorrow_part_1">Tomorrow</string>
     <string name="tomorrow_part_2" />
-    <string name="next_week">Next Week</string>
+    <string name="next_week">Next week</string>
     <string name="next_week_part_1">Next</string>
-    <string name="next_week_part_2">Week</string>
-    <string name="next_month">Next Month</string>
+    <string name="next_week_part_2">week</string>
+    <string name="next_month">Next month</string>
     <string name="next_month_part_1">Next</string>
-    <string name="next_month_part_2">Month</string>
-    <string name="next_year">Next Year</string>
+    <string name="next_month_part_2">month</string>
+    <string name="next_year">Next year</string>
     <string name="next_year_part_1">Next</string>
-    <string name="next_year_part_2">Year</string>
-    <string name="this_month">This Month</string>
+    <string name="next_year_part_2">year</string>
+    <string name="this_month">This month</string>
     <string name="this_month_part_1">This</string>
-    <string name="this_month_part_2">Month</string>
+    <string name="this_month_part_2">month</string>
     <string name="now_short_and_loud">NOW</string>
     <string name="zero_capitalized">Zero</string>
     <string name="one_capitalized">One</string>
@@ -74,17 +74,29 @@
     <string name="seventeen_capitalized">Seventeen</string>
     <string name="eighteen_capitalized">Eighteen</string>
     <string name="nineteen_capitalized">Nineteen</string>
-    <plurals name="days_capitalized">
-        <item quantity="one">Day</item>
-        <item quantity="other">Days</item>
+    <plurals name="number_of_days">
+        <item quantity="one">%s day</item>
+        <item quantity="other">%s days</item>
     </plurals>
-    <plurals name="hours_capitalized">
-        <item quantity="one">Hour</item>
-        <item quantity="other">Hours</item>
+    <plurals name="number_of_hours">
+        <item quantity="one">%s hour</item>
+        <item quantity="other">%s hours</item>
     </plurals>
-    <plurals name="minutes_capitalized">
-        <item quantity="one">Minute</item>
-        <item quantity="other">Minutes</item>
+    <plurals name="number_of_minutes">
+        <item quantity="one">%s minute</item>
+        <item quantity="other">%s minutes</item>
+    </plurals>
+    <plurals name="number_of_days_part_2">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+    <plurals name="number_of_hours_part_2">
+        <item quantity="one">hour</item>
+        <item quantity="other">hours</item>
+    </plurals>
+    <plurals name="number_of_minutes_part_2">
+        <item quantity="one">minute</item>
+        <item quantity="other">minutes</item>
     </plurals>
     <string name="short_minutes_plus_count">%dm</string>
     <string name="short_seconds_count">%ds</string>

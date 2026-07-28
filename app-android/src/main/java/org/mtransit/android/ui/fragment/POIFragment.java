@@ -950,7 +950,7 @@ public class POIFragment extends ABFragment implements
 				AppUpdateLauncher.launchAppUpdate(activity, pkg);
 				return; // handled
 			}
-			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play));
+			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play_store));
 		});
 	}
 
