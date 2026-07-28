@@ -783,7 +783,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		next12MonthsEnd.add(Calendar.MONTH, +6);
 		if (targetedTimestamp >= next12MonthsStart.getTimeInMillis() && targetedTimestamp < next12MonthsEnd.getTimeInMillis()) {
 			return new Pair<>( //
-					STANDALONE_MONTH_LONG.formatThreadSafe(targetedTimestamp), null); // LESS THAN 12 MONTHS (January-December)
+					STANDALONE_MONTH_LONG.formatThreadSafe(targetedTimestamp).toUpperCase(Locale.getDefault()), null); // LESS THAN 12 MONTHS (January-December)
 		}
 		Calendar thisYearStarts = (Calendar) thisMonthStarts.clone();
 		thisYearStarts.set(Calendar.MONTH, Calendar.JANUARY);
