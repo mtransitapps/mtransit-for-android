@@ -303,8 +303,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	@SuppressWarnings("unused")
-	public void setShowStatus(boolean showData) {
-		this.showStatus = showData;
+	public void setShowStatus(boolean showStatus) {
+		this.showStatus = showStatus;
 	}
 
 	@SuppressWarnings("unused")
@@ -1048,28 +1048,37 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@Override
 	public void onStatusLoaded(@NonNull POIStatus status) {
-		if (this.showStatus) {
-			final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
-			if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.getUuid())) {
-				final POIManager poim = getItemByUUID(status.getTargetUUID());
-				final ServiceUpdates poiServiceUpdates = poim == null ? null : poim.getServiceUpdatesOrNull();
-				POICommonStatusViewHolder.updateView(statusViewHolder, status, this, poiServiceUpdates);
-			} else if (isResumed()) {
-				notifyDataSetChanged(false);
-			}
+		if (!this.showStatus) return;
+		final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
+		if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.getUuid())) {
+			final POIManager poim = getItemByUUID(status.getTargetUUID());
+			final ServiceUpdates poiServiceUpdates = poim == null ? null : poim.getServiceUpdatesOrNull();
+			POICommonStatusViewHolder.updateView(statusViewHolder, status, this, poiServiceUpdates);
+		} else if (isResumed()) {
+			notifyDataSetChanged(false);
 		}
 	}
 
 	@Override
 	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates) {
-		if (this.showServiceUpdate) {
-			final POIServiceUpdateViewHolder serviceUpdateViewHolder = this.poiServiceUpdateViewHoldersWR.get(targetUUID);
-			if (serviceUpdateViewHolder != null && targetUUID.equals(serviceUpdateViewHolder.getUuid())) {
-				POIServiceUpdateViewHolder.updateView(serviceUpdateViewHolder, serviceUpdates, this);
-			} else if (isResumed()) {
-				notifyDataSetChanged(false);
-			}
+		if (!this.showServiceUpdate) return;
+		final POIServiceUpdateViewHolder serviceUpdateViewHolder = this.poiServiceUpdateViewHoldersWR.get(targetUUID);
+		if (serviceUpdateViewHolder != null && targetUUID.equals(serviceUpdateViewHolder.getUuid())) {
+			POIServiceUpdateViewHolder.updateView(serviceUpdateViewHolder, serviceUpdates, this);
+			updateStatusWithServiceUpdatesLoaded(targetUUID, serviceUpdates);
+		} else if (isResumed()) {
+			notifyDataSetChanged(false);
 		}
+	}
+
+	private void updateStatusWithServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates) {
+		if (!this.showStatus) return;
+		final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(targetUUID);
+		if (statusViewHolder == null || !targetUUID.equals(statusViewHolder.getUuid())) return;
+		final POIManager poim = getItemByUUID(targetUUID);
+		final POIStatus status = poim == null ? null : poim.getStatusOrNull();
+		if (status == null) return;
+		POICommonStatusViewHolder.updateView(statusViewHolder, status, this, serviceUpdates);
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
