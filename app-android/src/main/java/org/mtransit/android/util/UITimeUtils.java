@@ -20,6 +20,7 @@ import androidx.core.util.Pair;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
+import org.mtransit.android.commons.StringExtKt;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.POIStatus;
@@ -755,7 +756,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		nextWeekStarts.add(Calendar.DATE, +7);
 		if (targetedTimestamp >= afterTomorrow.getTimeInMillis() && targetedTimestamp < nextWeekStarts.getTimeInMillis()) {
 			return new Pair<>( //
-					STANDALONE_DAY_OF_THE_WEEK_LONG.formatThreadSafe(targetedTimestamp).toUpperCase(Locale.getDefault()), null); // THIS WEEK (Monday-Sunday)
+					StringExtKt.capitalize(STANDALONE_DAY_OF_THE_WEEK_LONG.formatThreadSafe(targetedTimestamp)), null); // THIS WEEK (Monday-Sunday)
 		}
 		Calendar nextWeekEnds = (Calendar) today.clone();
 		nextWeekEnds.add(Calendar.DATE, +14);
@@ -783,7 +784,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		next12MonthsEnd.add(Calendar.MONTH, +6);
 		if (targetedTimestamp >= next12MonthsStart.getTimeInMillis() && targetedTimestamp < next12MonthsEnd.getTimeInMillis()) {
 			return new Pair<>( //
-					STANDALONE_MONTH_LONG.formatThreadSafe(targetedTimestamp).toUpperCase(Locale.getDefault()), null); // LESS THAN 12 MONTHS (January-December)
+					StringExtKt.capitalize(STANDALONE_MONTH_LONG.formatThreadSafe(targetedTimestamp)), null); // LESS THAN 12 MONTHS (January-December)
 		}
 		Calendar thisYearStarts = (Calendar) thisMonthStarts.clone();
 		thisYearStarts.set(Calendar.MONTH, Calendar.JANUARY);
