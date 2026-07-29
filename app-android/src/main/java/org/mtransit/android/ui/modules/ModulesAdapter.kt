@@ -23,6 +23,7 @@ import org.mtransit.android.ui.modules.ModulesAdapter.ModuleViewHolder
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.textAndVisibility
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 class ModulesAdapter :
     ListAdapter<AgencyProperties, ModuleViewHolder>(ModulesDiffCallback) {
@@ -56,7 +57,7 @@ class ModulesAdapter :
         @SuppressLint("SetTextI18n")
         fun bind(item: AgencyProperties?) = with(binding) {
             nameTv.apply {
-                text = item?.let { it ->
+                text = item?.let {
                     "${
                         if (it.updateAvailable) "(UPDATE: r${it.availableVersionCode}) " else ""
                     }${it.getShortNameAndType(context)}${
@@ -142,7 +143,7 @@ class ModulesAdapter :
                             }
                         }
                         statusLine1.apply {
-                            text = "$diffInDays ${context.resources.getQuantityText(R.plurals.days_capitalized, diffInDays)}"
+                            text = context.resources.getQuantityString(R.plurals.number_of_days, abs(diffInDays), diffInDays)
                             setTextColor(colorInt)
                             typeface = tf
                         }

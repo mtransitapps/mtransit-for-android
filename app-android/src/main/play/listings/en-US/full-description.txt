@@ -14,7 +14,7 @@ No Internet? GPS turned off? Wi-Fi disabled? No problem, MonTransit offers multi
 - all buses, ferries, subways, streetcars & trains schedule are available offline
 
 MonTransit lets you install the transit agencies that you want (you don't have to switch between cities & you can access all the information any time, anywhere).
-The buses, ferries, subways, streetcars & trains information are kept up-to-date through Google Play Store auto-updates without using your device's battery or mobile Internet data plan (3G/4G/LTE).
+The buses, ferries, subways, streetcars & trains information are kept up-to-date through the Play Store auto-updates without using your device's battery or mobile Internet data plan (3G/4G/LTE).
 
 MonTransit is currently available in Canada:
 - <b>AB:</b> Calgary, ETS, Red Deer…

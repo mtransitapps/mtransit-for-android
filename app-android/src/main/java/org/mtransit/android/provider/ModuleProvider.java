@@ -518,7 +518,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				appInstalled,
 				appEnabled,
 				updateAvailable,
-				context.getString(org.mtransit.android.commons.R.string.google_play)
+				context.getString(org.mtransit.android.commons.R.string.google_play_store)
 		);
 	}
 

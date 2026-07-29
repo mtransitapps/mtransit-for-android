@@ -1,5 +1,8 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.data.DataSourceTypeExtKt.getNearbyNameK;
+import static org.mtransit.android.data.DataSourceTypeExtKt.getPoiShortNameK;
+
 import android.content.Context;
 
 import androidx.annotation.DrawableRes;
@@ -99,6 +102,7 @@ public enum DataSourceType {
 	private final int id;
 	private final boolean extendedType;
 
+	@NonNull
 	private final DataSourceStopType stopType;
 
 	@StringRes
@@ -163,21 +167,18 @@ public enum DataSourceType {
 	}
 
 	@NonNull
+	public DataSourceStopType getStopType() {
+		return stopType;
+	}
+
+	@NonNull
 	public CharSequence getPoiShortName(@NonNull Context context) {
-		if (this.stopType == DataSourceStopType.PLACE || this.stopType == DataSourceStopType.MODULE) {
-			return context.getString(this.stopType.getStopsStringResId());
-		}
-		return context.getString(R.string.agency_type_stops_short_name,
-				context.getString(getShortNamesResId()),
-				context.getString(this.stopType.getStopsStringResId())
-		);
+		return getPoiShortNameK(this, context);
 	}
 
 	@NonNull
 	public CharSequence getNearbyName(@NonNull Context context) {
-		return context.getString(R.string.agency_type_stops_nearby,
-				context.getString(this.stopType.getStopsStringResId())
-		);
+		return getNearbyNameK(this, context);
 	}
 
 	@DrawableRes

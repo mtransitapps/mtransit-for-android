@@ -55,7 +55,7 @@ object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
                     StoreUtils.viewAppPage(
                         activity,
                         firstDisabledPkg,
-                        activity.getString(commonsR.string.google_play)
+                        activity.getString(commonsR.string.google_play_store)
                     )
                 }
             }

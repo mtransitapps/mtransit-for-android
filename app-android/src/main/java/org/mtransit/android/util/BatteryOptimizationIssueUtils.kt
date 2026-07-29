@@ -202,7 +202,7 @@ object BatteryOptimizationIssueUtils {
 
     @JvmStatic
     fun installSamsungDeviceCare(context: Context) {
-        StoreUtils.viewAppPage(context, SAMSUNG_DEVICE_CARE_PKG, context.getString(commonsR.string.google_play))
+        StoreUtils.viewAppPage(context, SAMSUNG_DEVICE_CARE_PKG, context.getString(commonsR.string.google_play_store))
     }
 
     @JvmStatic

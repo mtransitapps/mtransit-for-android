@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
     <string name="drop_off_only_part_1">Descente</string>
-    <string name="drop_off_only_part_2">Seulement</string>
-    <string name="frequent_service">Service Régulier</string>
+    <string name="drop_off_only_part_2">seulement</string>
+    <string name="frequent_service">Service régulier</string>
     <string name="frequent_service_part_1">Service</string>
-    <string name="frequent_service_part_2">Régulier</string>
+    <string name="frequent_service_part_2">régulier</string>
     <plurals name="every_minutes_and_quantity">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Toutes Les Minutes</item>
-        <item quantity="other">Toutes Les %s Minutes</item>
-        <item quantity="many">Toutes Les %s Minutes</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">Toutes les minutes</item>
+        <item quantity="other">Toutes les %s minutes</item>
+        <item quantity="many">Toutes les %s minutes</item>
     </plurals>
     <plurals name="every_minutes_and_quantity_part_1">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Toutes Les</item>
-        <item quantity="other">Toutes Les</item>
-        <item quantity="many">Toutes Les</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">Toutes les</item>
+        <item quantity="other">Toutes les</item>
+        <item quantity="many">Toutes les</item>
     </plurals>
     <plurals name="every_minutes_and_quantity_part_2">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Minutes</item>
-        <item quantity="other">%s Minutes</item>
-        <item quantity="many">%s Minutes</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">minutes</item>
+        <item quantity="other">%s minutes</item>
+        <item quantity="many">%s minutes</item>
     </plurals>
-    <string name="no_service">Aucun Service</string>
+    <string name="no_service">Aucun service</string>
     <string name="no_service_part_1">Aucun</string>
-    <string name="no_service_part_2">Service</string>
+    <string name="no_service_part_2">service</string>
     <string name="no_upcoming_departures">Pas de départs à venir.</string>
-    <string name="this_morning">Ce Matin</string>
+    <string name="this_morning">Ce matin</string>
     <string name="this_morning_part_1">Ce</string>
-    <string name="this_morning_part_2">Matin</string>
-    <string name="this_afternoon">Cet Après-Midi</string>
+    <string name="this_morning_part_2">matin</string>
+    <string name="this_afternoon">Cet après-midi</string>
     <string name="this_afternoon_part_1">Cet</string>
-    <string name="this_afternoon_part_2">Après-Midi</string>
-    <string name="this_evening">Ce Soir</string>
-    <string name="this_evening_part_1">Ce Soir</string>
+    <string name="this_afternoon_part_2">après-midi</string>
+    <string name="this_evening">Ce soir</string>
+    <string name="this_evening_part_1">Ce soir</string>
     <string name="this_evening_part_2" />
-    <string name="tonight">Cette Nuit</string>
+    <string name="tonight">Cette nuit</string>
     <string name="tonight_part_1">Cette</string>
-    <string name="tonight_part_2">Nuit</string>
+    <string name="tonight_part_2">nuit</string>
     <string name="yesterday">Hier</string>
     <string name="yesterday_and">Hier %s</string>
     <string name="today">Aujourd\'hui</string>
@@ -44,18 +44,18 @@
     <string name="tomorrow_and">Demain %s</string>
     <string name="tomorrow_part_1">Demain</string>
     <string name="tomorrow_part_2" />
-    <string name="next_week">La Semaine Prochaine</string>
-    <string name="next_week_part_1">La Semaine</string>
-    <string name="next_week_part_2">Prochaine</string>
-    <string name="next_month">Le Mois Prochain</string>
-    <string name="next_month_part_1">Le Mois</string>
-    <string name="next_month_part_2">Prochain</string>
-    <string name="next_year">L\'Année Prochaine</string>
-    <string name="next_year_part_1">L\'Année</string>
-    <string name="next_year_part_2">Prochaine</string>
-    <string name="this_month">Ce Mois-ci</string>
+    <string name="next_week">La semaine prochaine</string>
+    <string name="next_week_part_1">La semaine</string>
+    <string name="next_week_part_2">prochaine</string>
+    <string name="next_month">Le mois prochain</string>
+    <string name="next_month_part_1">Le mois</string>
+    <string name="next_month_part_2">prochain</string>
+    <string name="next_year">L\'année prochaine</string>
+    <string name="next_year_part_1">L\'année</string>
+    <string name="next_year_part_2">prochaine</string>
+    <string name="this_month">Ce mois-ci</string>
     <string name="this_month_part_1">Ce</string>
-    <string name="this_month_part_2">Mois-ci</string>
+    <string name="this_month_part_2">mois-ci</string>
     <string name="now_short_and_loud">ICI</string>
     <string name="zero_capitalized">Zéro</string>
     <string name="one_capitalized">Un</string>
@@ -77,20 +77,35 @@
     <string name="seventeen_capitalized">Dix-sept</string>
     <string name="eighteen_capitalized">Dix-huit</string>
     <string name="nineteen_capitalized">Dix-neuf</string>
-    <plurals name="days_capitalized">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Jour</item>
-        <item quantity="other">Jours</item>
-        <item quantity="many">Jours</item>
+    <plurals name="number_of_days">
+        <item quantity="one" tools:ignore="ImpliedQuantity">%s jour</item>
+        <item quantity="other">%s jours</item>
+        <item quantity="many">%s jours</item>
     </plurals>
-    <plurals name="hours_capitalized">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Heure</item>
-        <item quantity="other">Heures</item>
-        <item quantity="many">Heures</item>
+    <plurals name="number_of_hours">
+        <item quantity="one" tools:ignore="ImpliedQuantity">%s heure</item>
+        <item quantity="other">%s heures</item>
+        <item quantity="many">%s heures</item>
     </plurals>
-    <plurals name="minutes_capitalized">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Minute</item>
-        <item quantity="other">Minutes</item>
-        <item quantity="many">Minutes</item>
+    <plurals name="number_of_minutes">
+        <item quantity="one" tools:ignore="ImpliedQuantity">%s minute</item>
+        <item quantity="other">%s minutes</item>
+        <item quantity="many">%s minutes</item>
+    </plurals>
+    <plurals name="number_of_days_part_2">
+        <item quantity="one" tools:ignore="ImpliedQuantity">jour</item>
+        <item quantity="other">jours</item>
+        <item quantity="many">jours</item>
+    </plurals>
+    <plurals name="number_of_hours_part_2">
+        <item quantity="one" tools:ignore="ImpliedQuantity">heure</item>
+        <item quantity="other">heures</item>
+        <item quantity="many">heures</item>
+    </plurals>
+    <plurals name="number_of_minutes_part_2">
+        <item quantity="one" tools:ignore="ImpliedQuantity">minute</item>
+        <item quantity="other">minutes</item>
+        <item quantity="many">minutes</item>
     </plurals>
     <string name="short_minutes_plus_count">%dm</string>
     <string name="short_seconds_count">%ds</string>

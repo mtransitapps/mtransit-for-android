@@ -447,15 +447,15 @@ public class POIManager implements LocationPOI,
 				}
 			}
 			StoreUtils.viewAppPage(activity, module.getStorePkg(),
-					activity.getString(org.mtransit.android.commons.R.string.google_play),
+					activity.getString(org.mtransit.android.commons.R.string.google_play_store),
 					activity.getPackageName(), "mt", null, null, null);
 			return true; // HANDLED
-		case 1: // Rate on Google Play
+		case 1: // Rate on Play Store
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
 			StoreUtils.viewAppPage(activity, module.getStorePkg(),
-					activity.getString(org.mtransit.android.commons.R.string.google_play),
+					activity.getString(org.mtransit.android.commons.R.string.google_play_store),
 					activity.getPackageName(), "mt", null, null, null);
 			return true; // HANDLED
 		case 2: // Manage App
@@ -774,7 +774,7 @@ public class POIManager implements LocationPOI,
 				}
 			}
 			StoreUtils.viewAppPage(activity, module.getStorePkg(),
-					activity.getString(org.mtransit.android.commons.R.string.google_play),
+					activity.getString(org.mtransit.android.commons.R.string.google_play_store),
 					activity.getPackageName(), "mt", null, null, null);
 			return true; // handled
 		case POI.ITEM_ACTION_TYPE_PLACE:

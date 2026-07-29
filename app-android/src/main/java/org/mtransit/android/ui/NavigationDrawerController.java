@@ -653,7 +653,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 				}
 			}
 		} else if (navItemId == R.id.nav_rate_review) {
-			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(org.mtransit.android.commons.R.string.google_play));
+			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(org.mtransit.android.commons.R.string.google_play_store));
 		} else if (navItemId == R.id.nav_support) {
 			if (activity instanceof FragmentActivity) {
 				BillingUtils.showPurchaseDialog((FragmentActivity) activity);

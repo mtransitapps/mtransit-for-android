@@ -258,7 +258,7 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 StoreUtils.viewAppPage(
                     context,
                     PAID_TASKS_PKG,
-                    context.getString(commonsR.string.google_play)
+                    context.getString(commonsR.string.google_play_store)
                 )
             }
             dialog?.dismiss()

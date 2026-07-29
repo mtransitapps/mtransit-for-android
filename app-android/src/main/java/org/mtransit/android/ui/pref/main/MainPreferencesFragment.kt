@@ -112,7 +112,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             true // handled
         }
         (findPreference(MainPreferencesViewModel.FEEDBACK_STORE_PREF) as? Preference)?.setOnPreferenceClickListener {
-            StoreUtils.viewAppPage(it.context, Constants.MAIN_APP_PACKAGE_NAME, it.context.getString(commonsR.string.google_play))
+            StoreUtils.viewAppPage(it.context, Constants.MAIN_APP_PACKAGE_NAME, it.context.getString(commonsR.string.google_play_store))
             true // handled
         }
         (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.setOnPreferenceClickListener {
