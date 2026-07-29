@@ -625,7 +625,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				urgentTime2Start = shortTimeSpan2SSB.length();
 			}
 			timeUnit2Start = shortTimeSpan2SSB.length();
-			shortTimeSpan2SSB.append(resources.getQuantityString(R.plurals.number_of_minutes_part_2, diffInMin));
+			shortTimeSpan2SSB.append(resources.getQuantityString(R.plurals.number_of_minutes_part_2, Math.abs(diffInMin)));
 			timeUnit2End = shortTimeSpan2SSB.length();
 			if (isUrgent) {
 				urgentTime2End = shortTimeSpan2SSB.length();

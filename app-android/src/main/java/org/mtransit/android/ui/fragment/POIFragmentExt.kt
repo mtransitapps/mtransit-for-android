@@ -8,9 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
-import org.mtransit.android.commons.LOG_TAG
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
