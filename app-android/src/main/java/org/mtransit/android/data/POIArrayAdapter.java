@@ -1074,7 +1074,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	private void updateStatusWithServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates) {
 		if (!this.showStatus) return;
 		final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(targetUUID);
-		if (statusViewHolder == null) return;
+		if (statusViewHolder == null || !targetUUID.equals(statusViewHolder.getUuid())) return;
 		final POIManager poim = getItemByUUID(targetUUID);
 		final POIStatus status = poim == null ? null : poim.getStatusOrNull();
 		if (status == null) return;
