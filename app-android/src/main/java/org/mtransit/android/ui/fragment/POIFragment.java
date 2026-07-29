@@ -999,6 +999,14 @@ public class POIFragment extends ABFragment implements
 		if (this.binding == null) return;
 		POIViewController.updateServiceUpdatesView(getPOIView(), serviceUpdates, this);
 		POIServiceUpdateViewController.updateServiceUpdate(getPOIServiceUpdateView(), serviceUpdates, this);
+		updateStatusWithServiceUpdatesLoaded();
+	}
+
+	private void updateStatusWithServiceUpdatesLoaded() {
+		final POIManager poim = getPoimOrNull();
+		final POIStatus status = poim == null ? null : poim.getStatusOrNull();
+		if (status == null) return;
+		onStatusLoaded(status);
 	}
 
 	@Nullable

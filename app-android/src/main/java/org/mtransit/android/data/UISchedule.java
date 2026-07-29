@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -1015,6 +1016,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	private long statusStringsTimestamp = -1L;
 
 	@Nullable
+	private Integer statusStringLastServiceUpdatesHash = null;
+
+	@Nullable
 	public Pair<CharSequence, CharSequence> getStatus(
 			@NonNull Context context,
 			long after,
@@ -1024,7 +1028,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
-		if (this.statusStrings == null || this.statusStringsTimestamp != after) {
+		if (this.statusStrings == null
+				|| this.statusStringsTimestamp != after
+				|| !Objects.equals(this.statusStringLastServiceUpdatesHash, serviceUpdates == null ? null : serviceUpdates.hashCode())) {
 			generateStatus(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, serviceUpdates);
 		}
 		return this.statusStrings;
@@ -1041,26 +1047,26 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	) {
 		final boolean allTripsCancelled = allTripsNoService(serviceUpdates);
 		if (isNoData()) { // NO DATA
-			setStatusStrings(getStatusStringNoData(), after, allTripsCancelled);
+			setStatusStrings(getStatusStringNoData(), after, allTripsCancelled, serviceUpdates);
 			return;
 		}
 		if (isNoPickup()) { // NO PICKUP schedule
-			setStatusStrings(getStatusStringsNoPickup(context), after, allTripsCancelled);
+			setStatusStrings(getStatusStringsNoPickup(context), after, allTripsCancelled, serviceUpdates);
 			return;
 		}
 		final Frequency frequency = getCurrentFrequency(after);
 		if (frequency != null && frequency.headwayInSec < MAX_FREQUENCY_DISPLAYED_IN_SEC) { // FREQUENCY
-			setStatusStrings(getStatusStringsFrequency(context, frequency), after, allTripsCancelled);
+			setStatusStrings(getStatusStringsFrequency(context, frequency), after, allTripsCancelled, serviceUpdates);
 			return;
 		}
 		ArrayList<Timestamp> nextTimestamps = getStatusNextTimestamps(after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (nextTimestamps.isEmpty()) { // NO SERVICE IN COVERAGE
-			setStatusStrings(getStatusStringsNoService(context), after, allTripsCancelled);
+			setStatusStrings(getStatusStringsNoService(context), after, allTripsCancelled, serviceUpdates);
 			return;
 		}
 		CollectionUtils.removeIfNN(nextTimestamps, Timestamp::isNoPickup);
 		if (nextTimestamps.isEmpty()) { // NO PICKUP schedule timestamps
-			setStatusStrings(getStatusStringsNoPickup(context), after, allTripsCancelled);
+			setStatusStrings(getStatusStringsNoPickup(context), after, allTripsCancelled, serviceUpdates);
 			return;
 		}
 		final long diffInMs = nextTimestamps.get(0).getDepartureT() - after;
@@ -1070,14 +1076,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						&& diffInMs < UITimeUtils.FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT //
 						&& UITimeUtils.isFrequentService(nextTimestamps, -1, -1); // needs more than 3 services times!
 		if (isFrequentService) { // FREQUENT SERVICE
-			setStatusStrings(getStatusStringsFrequentService(context), after, allTripsCancelled);
+			setStatusStrings(getStatusStringsFrequentService(context), after, allTripsCancelled, serviceUpdates);
 			return;
 		}
 		nextTimestamps = filterStatusNextTimestampsTimes(nextTimestamps);
-		setStatusStrings(getStatusStringsTimes(context, after, diffInMs, nextTimestamps, serviceUpdates), after, allTripsCancelled);
+		setStatusStrings(getStatusStringsTimes(context, after, diffInMs, nextTimestamps, serviceUpdates), after, allTripsCancelled, serviceUpdates);
 	}
 
-	private void setStatusStrings(@Nullable Pair<CharSequence, CharSequence> statusStrings, long after, boolean cancelled) {
+	private void setStatusStrings(@Nullable Pair<CharSequence, CharSequence> statusStrings, long after, boolean cancelled, @Nullable ServiceUpdates serviceUpdates) {
 		if (statusStrings != null && cancelled) {
 			statusStrings = new Pair<>(
 					statusStrings.first == null ? null : setCancelled(statusStrings.first),
@@ -1086,6 +1092,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		}
 		this.statusStrings = statusStrings;
 		this.statusStringsTimestamp = after;
+		this.statusStringLastServiceUpdatesHash = serviceUpdates == null ? null : serviceUpdates.hashCode();
 	}
 
 	@NonNull
