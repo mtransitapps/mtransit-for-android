@@ -156,6 +156,8 @@
     <string name="menu_action_remove_favorite">Remove from favorites</string>
     <string name="menu_action_edit_favorite">Edit favorite</string>
     <string name="menu_action_fares">Show fares</string>
+    <string name="fab_action_real_time_hide">Hide real-time information</string>
+    <string name="fab_action_real_time_show">Show real-time information</string>
     <string name="next_departures">Next departures</string>
     <string name="availability">Availability</string>
     <string name="full_schedule">Full schedule</string>

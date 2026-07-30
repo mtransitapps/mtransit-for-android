@@ -72,6 +72,8 @@ class ScheduleViewModel @Inject constructor(
         private const val EXTRA_START_AT_DAYS_BEFORE = "extra_start_at_days_before"
         private const val EXTRA_END_AT_DAYS_AFTER = "extra_end_at_days_after"
         private const val LOCAL_TIME_ZONE_ID = "local_time_zone_id"
+
+        private const val HIDE_REAL_TIME = "hide_real_time"
     }
 
     override fun getLogTag() = LOG_TAG
@@ -158,14 +160,22 @@ class ScheduleViewModel @Inject constructor(
             }
         }
 
+    val hideRealTime = savedStateHandle.getLiveDataDistinct(HIDE_REAL_TIME, false)
+
+    fun setHideRealTime(hideRealTime: Boolean) {
+        savedStateHandle[HIDE_REAL_TIME] = hideRealTime
+    }
+
     private val _scheduleSourceLabel = MutableLiveData<String?>(null)
     private val _rtSourceLabel = MutableLiveData<String?>(null)
 
-    private val _readFromSource = MutableLiveData<Instant?>(null)
-    val sourceLabelAndReadFromSource: LiveData<Pair<String?, Instant?>> = MediatorLiveData3(_scheduleSourceLabel, _rtSourceLabel, _readFromSource)
-        .map { (scheduleSourceLabel, rtSourceLabel, readFromSource) ->
-            Pair(rtSourceLabel ?: scheduleSourceLabel, readFromSource)
-        }
+    private val _rtReadFromSource = MutableLiveData<Instant?>(null)
+    val sourceLabelAndReadFromSource: LiveData<Pair<String?, Instant?>> =
+        MediatorLiveData4(_scheduleSourceLabel, _rtSourceLabel, _rtReadFromSource, hideRealTime)
+            .map { (scheduleSourceLabel, rtSourceLabel, rtReadFromSource, hideRealTime) ->
+                if (hideRealTime == true) return@map Pair(scheduleSourceLabel, null)
+                Pair(rtSourceLabel ?: scheduleSourceLabel, rtReadFromSource)
+            }
 
     @WorkerThread
     private suspend fun getTimestamps(
@@ -239,7 +249,7 @@ class ScheduleViewModel @Inject constructor(
                 val statusFilter = poim?.makeStatusFilter() ?: return@liveData
                 rtStatusProviders.forEach { statusProvider ->
                     val schedule = dataSourceRequestManager.findStatus(statusProvider, statusFilter) as? Schedule
-                    _readFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })
+                    _rtReadFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })
                     _rtSourceLabel.postValue(schedule?.sourceLabel?.takeIf { schedule.hasRealTime })
                     emit(schedule?.timestamps) // always emit to erase old real-time value
                 }
@@ -261,4 +271,8 @@ class ScheduleViewModel @Inject constructor(
             scheduleTimestamps.sortWith(Schedule.TIMESTAMPS_COMPARATOR)
             scheduleTimestamps
         }
+
+    val hasRealTime = _rtTimestamps.map { rtTimestamps ->
+        rtTimestamps?.any { it.isRealTimeOrCancelled } == true
+    }.distinctUntilChanged()
 }
