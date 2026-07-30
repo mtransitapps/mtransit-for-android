@@ -1,10 +1,13 @@
 package org.mtransit.android.ui.schedule
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -47,6 +50,7 @@ import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.common.scrollToPositionWithOffset
 import org.mtransit.android.ui.view.common.start
 import org.mtransit.android.ui.view.common.startMargin
+import org.mtransit.android.ui.view.common.textAndVisibility
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.formatTime
@@ -164,6 +168,22 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                     }
                 }
             }
+            @SuppressLint("ClickableViewAccessibility")
+            fabRealTime.setOnTouchListener { _, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        viewModel.setHideRealTime(true)
+                        true
+                    }
+
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        viewModel.setHideRealTime(false)
+                        true
+                    }
+
+                    else -> false
+                }
+            }
         }
         viewModel.localTimeZone.observe(viewLifecycleOwner) { localTimeZone ->
             listAdapter.localTimeZone = localTimeZone
@@ -205,6 +225,25 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 list.isVisible = listAdapter.isReady
             }
         }
+        viewModel.hasRealTime.observe(viewLifecycleOwner) { hasRealTime ->
+            binding?.apply {
+                fabRealTime.isVisible = hasRealTime
+            }
+        }
+        viewModel.hideRealTime.observe(viewLifecycleOwner) { hideRealTime ->
+            listAdapter.hideRealTime = hideRealTime
+            binding?.apply {
+                fabRealTime.apply {
+                    if (hideRealTime) {
+                        setImageResource(R.drawable.ic_baseline_wifi_24)
+                        contentDescription = getString(R.string.fab_action_real_time_show)
+                    } else {
+                        setImageResource(R.drawable.ic_baseline_wifi_off_24)
+                        contentDescription = getString(R.string.fab_action_real_time_hide)
+                    }
+                }
+            }
+        }
         viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
             listAdapter.showingAccessibility = showAccessibility
         }
@@ -213,8 +252,14 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         }
-        viewModel.colorInt.observe(viewLifecycleOwner) {
+        viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             abController?.setABBgColor(this, getABBgColor(context), false)
+            colorInt?.let {
+                binding?.fabRealTime?.apply {
+                    rippleColor = colorInt
+                    backgroundTintList = ColorStateList.valueOf(colorInt)
+                }
+            }
         }
         viewModel.agency.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
@@ -233,18 +278,15 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
     }
 
     private fun bindLocaleTime(localTimeZone: TimeZone?) = binding?.apply {
-        localTimeZone?.let {
+        localTimeZone?.let { tz ->
             val nowInMs = UITimeUtils.currentTimeToTheMinuteMillis()
-            formatTime(context, nowInMs, it)
-                .takeIf { timeLocalTimeZone ->
-                    timeLocalTimeZone != formatTime(context, nowInMs, TimeZone.getDefault())
-                }
+            formatTime(context, nowInMs, tz)
+                .takeIf { it != formatTime(context, nowInMs, TimeZone.getDefault()) }
         }.let { localTimeDifferent ->
             localTime.apply {
-                text = localTimeDifferent?.let {
+                textAndVisibility = localTimeDifferent?.let {
                     context.getString(R.string.local_time_and_time, UITimeUtils.cleanNoRealTime(false, it))
                 }
-                isVisible = localTimeDifferent != null
             }
         }
     }

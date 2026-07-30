@@ -12,6 +12,7 @@ import androidx.core.util.forEach
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
@@ -19,11 +20,13 @@ import org.mtransit.android.commons.data.Accessibility
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.ServiceUpdates
-import org.mtransit.android.commons.data.arrivalDiff
+import org.mtransit.android.commons.data.arrivalMs
+import org.mtransit.android.commons.data.departureMs
+import org.mtransit.android.commons.data.getArrivalDiff
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.allTripsNoService
-import org.mtransit.android.data.getAbsoluteDepartureDiffString
+import org.mtransit.android.data.getDepartureLateEarlyString
 import org.mtransit.android.data.makeHeading
 import org.mtransit.android.databinding.LayoutScheduleInfiniteListDaySeparatorBinding
 import org.mtransit.android.databinding.LayoutScheduleInfiniteListHourSeparatorBinding
@@ -193,7 +196,15 @@ class ScheduleAdapter(
         }
     }
 
-    var showingAccessibility: Boolean? = null
+    var hideRealTime: Boolean = false
+        @SuppressLint("NotifyDataSetChanged")
+        set(value) {
+            if (field == value) return
+            field = value
+            updateTimes()
+        }
+
+    var showingAccessibility: Boolean = DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
         @SuppressLint("NotifyDataSetChanged")
         set(value) {
             if (field != value) {
@@ -260,8 +271,8 @@ class ScheduleAdapter(
         var dayToHourToTimestamp: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
         val calendar = Calendar.getInstance(localTimeZone)
         timestamps.forEach { timestamp ->
-            val departureT = timestamp.departureT
-            calendar.timeInMillis = departureT
+            val departureMs = timestamp.departureMs(hideRealTime)
+            calendar.timeInMillis = departureMs
             if (dayBeginningCalendar == null || !dayBeginningCalendar.isSameDay(calendar)) {
                 dayBeginningCalendar = calendar.beginningOfDay
                 dayToHourToTimestamp = this.dayToHourToTimestamps.firstOrNull { it.first == dayBeginningCalendar.timeInMillis }
@@ -275,7 +286,7 @@ class ScheduleAdapter(
             }
             dayToHourToTimestamp?.second?.get(calendar.hourOfTheDay)?.add(timestamp)
             newTimesCount++
-            if (this.nextTimestamp == null && departureT >= this.nowToTheMinute) {
+            if (this.nextTimestamp == null && departureMs >= this.nowToTheMinute) {
                 this.nextTimestamp = timestamp
             }
         }
@@ -292,7 +303,7 @@ class ScheduleAdapter(
 
     private fun getTodaySelectPosition(): Int {
         nextTimestamp?.let { nextTimestamp ->
-            val nextTimePosition = getPosition(nextTimestamp.departureT)
+            val nextTimePosition = getPosition(nextTimestamp.departureMs(hideRealTime))
             if (nextTimePosition != NO_POSITION) {
                 return nextTimePosition
             }
@@ -341,7 +352,7 @@ class ScheduleAdapter(
                     }
                 }
                 for (hourTimestamp in hourTimestamps) {
-                    if (timestampMs == hourTimestamp.departureT) {
+                    if (timestampMs == hourTimestamp.departureMs(hideRealTime)) {
                         return index
                     }
                     index++ // after
@@ -514,6 +525,7 @@ class ScheduleAdapter(
                 nextTimestamp,
                 this.optPOIM,
                 this.showingAccessibility,
+                this.hideRealTime,
             )
 
             is LoadingViewHolder -> holder.bind()
@@ -627,30 +639,37 @@ class ScheduleAdapter(
 
         fun bind(
             serviceUpdateLoader: ServiceUpdateLoader,
-            timestamp: Schedule.Timestamp? = null,
-            nowToTheMinuteInMs: Long = -1L,
-            nextTimestamp: Schedule.Timestamp? = null,
-            optPOIM: POIManager? = null,
-            showingAccessibility: Boolean? = null,
+            timestamp: Schedule.Timestamp?,
+            nowToTheMinuteInMs: Long,
+            nextTimestamp: Schedule.Timestamp?,
+            optPOIM: POIManager?,
+            showingAccessibility: Boolean,
+            hideRealTime: Boolean,
         ) {
             if (timestamp == null) {
                 binding.time.text = null
                 return
             }
             val optRds = optPOIM?.poi as? RouteDirectionStop
-            val formattedTime = timestamp.formatTimestamp(context)
+            val formattedTime = timestamp.formatTimestamp(
+                context,
+                timestampInMs = timestamp.departureMs(hideRealTime),
+                realTime = if (hideRealTime) false else timestamp.isRealTime
+            )
             var timeSb = SpannableStringBuilder(formattedTime)
-            timestamp.getAbsoluteDepartureDiffString(context, LATE_EARLY_MIN_DIFF, LATE_EARLY_MIN_DIFF, short = false)?.let {
-                timeSb.append(P1).append(it).append(P2)
-            }
-            if (timestamp.arrivalDiff > 1.minutes) {
+            timestamp.takeUnless { hideRealTime } // hide late/early w/o real-time
+                ?.getDepartureLateEarlyString(context, LATE_EARLY_MIN_DIFF, LATE_EARLY_MIN_DIFF, short = false)
+                ?.let { lateOrEarly ->
+                    timeSb.append(P1).append(lateOrEarly).append(P2)
+                }
+            if (timestamp.getArrivalDiff(hideRealTime) > 1.minutes) {
                 timeSb.append(P1)
                     .append(
                         context.getString(
                             R.string.arrival_and,
                             timestamp.formatTimestamp(
                                 context = context,
-                                timestampInMs = timestamp.arrivalT,
+                                timestampInMs = timestamp.arrivalMs(hideRealTime),
                                 realTime = false // cannot have multiple real-time image in 1 Spannable
                             )
                         )
@@ -661,29 +680,31 @@ class ScheduleAdapter(
                 UIAccessibilityUtils.decorate(
                     context,
                     Accessibility.decorate(EMPTY, timestamp.accessibleOrDefault),
-                    showingAccessibility == true,
+                    showingAccessibility,
                     UIAccessibilityUtils.ImageSize.SMALL,
                     false
                 )
             )
             val timeOnly = timeSb.toString()
-            timestamp.makeHeading(context, optRds?.direction?.getHeading(context), small = false)?.let {
-                timeSb.append(SPACE).append(it)
+            timestamp.makeHeading(context, optRds?.direction?.getHeading(context), small = false)?.let { heading ->
+                timeSb.append(SPACE).append(heading)
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
-            timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
+            timeSb = if (hideRealTime) timeSb else UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
-            val poiServiceUpdates = optPOIM?.getServiceUpdates(serviceUpdateLoader, emptySet())
+            val poiServiceUpdates = optPOIM?.takeUnless { hideRealTime }?.getServiceUpdates(serviceUpdateLoader, emptySet())
             timeSb = if (poiServiceUpdates?.allTripsNoService() == true) { // #allTripsCancelled
                 UISchedule.setCancelled(timeSb)
-            } else {
+            } else if (!hideRealTime) {
                 UISchedule.decorateCancelled(timestamp, timeSb, poiServiceUpdates)
+            } else {
+                timeSb
             }
-            val nextTimeInMsT = nextTimestamp?.departureT ?: -1L
+            val nextTimeInMsT = nextTimestamp?.departureMs(hideRealTime) ?: -1L
             if (nowToTheMinuteInMs > 0L) {
-                val departureT = timestamp.departureT
-                val compareToNow = nowToTheMinuteInMs - departureT
-                val sameTimestamp = nextTimeInMsT == departureT
+                val departureMs = timestamp.departureMs(hideRealTime)
+                val compareToNow = nowToTheMinuteInMs - departureMs
+                val sameTimestamp = nextTimeInMsT == departureMs
                 if (sameTimestamp
                 ) { // now
                     SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE)

@@ -72,6 +72,8 @@ class ScheduleViewModel @Inject constructor(
         private const val EXTRA_START_AT_DAYS_BEFORE = "extra_start_at_days_before"
         private const val EXTRA_END_AT_DAYS_AFTER = "extra_end_at_days_after"
         private const val LOCAL_TIME_ZONE_ID = "local_time_zone_id"
+
+        private const val HIDE_REAL_TIME = "hide_real_time"
     }
 
     override fun getLogTag() = LOG_TAG
@@ -246,6 +248,12 @@ class ScheduleViewModel @Inject constructor(
             }
         }
 
+    val hideRealTime = savedStateHandle.getLiveDataDistinct(HIDE_REAL_TIME, false)
+
+    fun setHideRealTime(hideRealTime: Boolean) {
+        savedStateHandle[HIDE_REAL_TIME] = hideRealTime
+    }
+
     val timestamps = MediatorLiveData2(_scheduleTimestamps, _rtTimestamps)
         .map { (scheduleTimestamps, rtTimestamps) ->
             val scheduleTimestamps = scheduleTimestamps?.toMutableList() ?: return@map null
@@ -261,4 +269,8 @@ class ScheduleViewModel @Inject constructor(
             scheduleTimestamps.sortWith(Schedule.TIMESTAMPS_COMPARATOR)
             scheduleTimestamps
         }
+
+    val hasRealTime = _rtTimestamps.map { rtTimestamps ->
+        rtTimestamps?.any { it.isRealTimeOrCancelled } == true
+    }.distinctUntilChanged()
 }

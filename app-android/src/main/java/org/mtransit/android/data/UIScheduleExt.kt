@@ -34,10 +34,10 @@ fun ServiceUpdates?.findTripServiceUpdate(tripId: String?): ServiceUpdate? {
 fun ServiceUpdates?.allTripsNoService() =
     this?.any { it.targetTripId == null && it.isNoService } == true
 
-fun Schedule.Timestamp.getAbsoluteDepartureDiffString(context: Context, minDiffEarlyMs: Long, minDiffLateMs: Long, short: Boolean): String? =
-    getAbsoluteDepartureDiffString(context, minDiffEarlyMs.milliseconds, minDiffLateMs.milliseconds, short)
+fun Schedule.Timestamp.getDepartureLateEarlyString(context: Context, minDiffEarlyMs: Long, minDiffLateMs: Long, short: Boolean): String? =
+    getDepartureLateEarlyString(context, minDiffEarlyMs.milliseconds, minDiffLateMs.milliseconds, short)
 
-fun Schedule.Timestamp.getAbsoluteDepartureDiffString(
+fun Schedule.Timestamp.getDepartureLateEarlyString(
     context: Context,
     minDiffEarly: Duration,
     minDiffLate: Duration,
