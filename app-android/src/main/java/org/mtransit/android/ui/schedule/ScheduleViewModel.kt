@@ -160,14 +160,22 @@ class ScheduleViewModel @Inject constructor(
             }
         }
 
+    val hideRealTime = savedStateHandle.getLiveDataDistinct(HIDE_REAL_TIME, false)
+
+    fun setHideRealTime(hideRealTime: Boolean) {
+        savedStateHandle[HIDE_REAL_TIME] = hideRealTime
+    }
+
     private val _scheduleSourceLabel = MutableLiveData<String?>(null)
     private val _rtSourceLabel = MutableLiveData<String?>(null)
 
-    private val _readFromSource = MutableLiveData<Instant?>(null)
-    val sourceLabelAndReadFromSource: LiveData<Pair<String?, Instant?>> = MediatorLiveData3(_scheduleSourceLabel, _rtSourceLabel, _readFromSource)
-        .map { (scheduleSourceLabel, rtSourceLabel, readFromSource) ->
-            Pair(rtSourceLabel ?: scheduleSourceLabel, readFromSource)
-        }
+    private val _rtReadFromSource = MutableLiveData<Instant?>(null)
+    val sourceLabelAndReadFromSource: LiveData<Pair<String?, Instant?>> =
+        MediatorLiveData4(_scheduleSourceLabel, _rtSourceLabel, _rtReadFromSource, hideRealTime)
+            .map { (scheduleSourceLabel, rtSourceLabel, rtReadFromSource, hideRealTime) ->
+                if (hideRealTime == true) return@map Pair(scheduleSourceLabel, null)
+                Pair(rtSourceLabel ?: scheduleSourceLabel, rtReadFromSource)
+            }
 
     @WorkerThread
     private suspend fun getTimestamps(
@@ -241,18 +249,12 @@ class ScheduleViewModel @Inject constructor(
                 val statusFilter = poim?.makeStatusFilter() ?: return@liveData
                 rtStatusProviders.forEach { statusProvider ->
                     val schedule = dataSourceRequestManager.findStatus(statusProvider, statusFilter) as? Schedule
-                    _readFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })
+                    _rtReadFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })
                     _rtSourceLabel.postValue(schedule?.sourceLabel?.takeIf { schedule.hasRealTime })
                     emit(schedule?.timestamps) // always emit to erase old real-time value
                 }
             }
         }
-
-    val hideRealTime = savedStateHandle.getLiveDataDistinct(HIDE_REAL_TIME, false)
-
-    fun setHideRealTime(hideRealTime: Boolean) {
-        savedStateHandle[HIDE_REAL_TIME] = hideRealTime
-    }
 
     val timestamps = MediatorLiveData2(_scheduleTimestamps, _rtTimestamps)
         .map { (scheduleTimestamps, rtTimestamps) ->
