@@ -102,6 +102,7 @@ labels: MT
 - [ ] ca-quebec-rtc-bus
 - [ ] ca-quebec-traversiers-ferry
 - [ ] ca-quesnel-transit-bus
+- [ ] ca-quinte-transit-bus
 - [ ] ca-red-deer-transit-bus
 - [ ] ca-regina-transit-bus
 - [ ] ca-revelstoke-transit-bus
