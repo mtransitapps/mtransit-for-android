@@ -1,13 +1,11 @@
 package org.mtransit.android.ui.schedule
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -168,21 +166,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
                     }
                 }
             }
-            @SuppressLint("ClickableViewAccessibility")
-            fabRealTime.setOnTouchListener { _, event ->
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        viewModel.setHideRealTime(true)
-                        true
-                    }
-
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        viewModel.setHideRealTime(false)
-                        true
-                    }
-
-                    else -> false
-                }
+            fabRealTime.setOnClickListener {
+                viewModel.setHideRealTime(attachedViewModel?.hideRealTime?.value != true)
             }
         }
         viewModel.localTimeZone.observe(viewLifecycleOwner) { localTimeZone ->
