@@ -132,6 +132,7 @@ labels: MT
 - [ ] ca-sudbury-transit-bus
 - [ ] ca-sud-ouest-citso-bus
 - [ ] ca-sunshine-coast-regional-transit-system-bus
+- [ ] ca-temiskaming-transit-bus
 - [ ] ca-thunder-bay-transit-bus
 - [ ] ca-timmins-transit-bus
 - [ ] ca-toronto-share-bike
