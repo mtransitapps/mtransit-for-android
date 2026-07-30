@@ -22,7 +22,7 @@ import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.commons.data.arrivalMs
 import org.mtransit.android.commons.data.departureMs
-import org.mtransit.android.commons.data.getArrivalDiff
+import org.mtransit.android.commons.data.getDepartureArrivalDiff
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.allTripsNoService
@@ -662,7 +662,7 @@ class ScheduleAdapter(
                 ?.let { lateOrEarly ->
                     timeSb.append(P1).append(lateOrEarly).append(P2)
                 }
-            if (timestamp.getArrivalDiff(hideRealTime) > 1.minutes) {
+            if (timestamp.getDepartureArrivalDiff(hideRealTime) > 1.minutes) {
                 timeSb.append(P1)
                     .append(
                         context.getString(
