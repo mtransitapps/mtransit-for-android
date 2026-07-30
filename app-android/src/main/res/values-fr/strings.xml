@@ -159,8 +159,8 @@
     <string name="menu_action_remove_favorite">Supprimer des favoris</string>
     <string name="menu_action_edit_favorite">Modifier favori</string>
     <string name="menu_action_fares">Afficher tarifs</string>
-    <string name="fab_action_real_time_hide">Masquer les informations temps-réel</string>
-    <string name="fab_action_real_time_show">Afficher les informations temps-réel</string>
+    <string name="fab_action_real_time_hide">Masquer les informations en temps-réel</string>
+    <string name="fab_action_real_time_show">Afficher les informations en temps-réel</string>
     <string name="next_departures">Prochains départs</string>
     <string name="availability">Disponibilité</string>
     <string name="full_schedule">Horaire complet</string>
