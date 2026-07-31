@@ -7,7 +7,7 @@ import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.commons.FeatureFlags
 
-@Suppress("MaximumLineLength")
+@Suppress("MaxLineLength")
 object MTMapIconsProvider {
 
     //@formatter:off

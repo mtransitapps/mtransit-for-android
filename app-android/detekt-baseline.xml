@@ -138,11 +138,6 @@
     <ID>MagicNumber:UILocationUtils.kt:UILocationUtils$10</ID>
     <ID>MagicNumber:VehicleLocationExt.kt:100.0f</ID>
     <ID>MagicNumber:VehicleLocationExt.kt:100L</ID>
-    <ID>MaxLineLength:MTMapIconsProvider.kt:MTMapIconsProvider$MTMapIconDef( R.drawable.map_icon_stop_replace_flat_filled_boat_nodpi, size = 41.dpToPx, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)</ID>
-    <ID>MaxLineLength:MTMapIconsProvider.kt:MTMapIconsProvider$MTMapIconDef( R.drawable.map_icon_stop_replace_flat_filled_subway_nodpi, size = 41.dpToPx, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)</ID>
-    <ID>MaxLineLength:MTMapIconsProvider.kt:MTMapIconsProvider$MTMapIconDef(R.drawable.map_icon_cluster_blur_replace_nodpi, oneSize = true, size = 48.dpToPx, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)</ID>
-    <ID>MaxLineLength:MTMapIconsProvider.kt:MTMapIconsProvider$MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_railway_nodpi, size = 41.dpToPx, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)</ID>
-    <ID>MaxLineLength:MTMapIconsProvider.kt:MTMapIconsProvider$MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_tram_nodpi, size = 41.dpToPx, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)</ID>
     <ID>NestedBlockDepth:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
     <ID>NestedBlockDepth:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
     <ID>NestedBlockDepth:POIAvailabilityStatusViewHolder.kt:POIAvailabilityStatusViewHolder$@SuppressLint("KotlinPairNotCreated") // MTPieChartPercentView in Java override fun bind</ID>
