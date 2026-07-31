@@ -22,7 +22,7 @@ class ModulesViewModel @Inject constructor(
         private const val FAKE_AGENCIES_COUNT = 0
         // private const val FAKE_AGENCIES_COUNT = 10 // DEBUG
 
-        @Suppress("KotlinConstantConditions")
+        @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
         private const val ADD_FAKE_AGENCIES = FAKE_AGENCIES_COUNT > 0
 
         private val UNSUPPORTED_TYPE = listOf(DataSourceType.TYPE_PLACE, DataSourceType.TYPE_MODULE)
@@ -42,7 +42,7 @@ class ModulesViewModel @Inject constructor(
                 return@map newFilteredAgencies
                     ?.toMutableList()
                     ?.apply {
-                        (0..FAKE_AGENCIES_COUNT).forEach { idx ->
+                        for (idx in 0..FAKE_AGENCIES_COUNT) {
                             add(
                                 AgencyProperties(
                                     "fake$idx",

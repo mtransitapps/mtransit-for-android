@@ -49,7 +49,7 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
         update(statusViewHolder, status, dataProvider, poim.serviceUpdatesOrNull)
     }
 
-    var uuid: String
+    var targetUUID: String
 
     val statusV: View
 

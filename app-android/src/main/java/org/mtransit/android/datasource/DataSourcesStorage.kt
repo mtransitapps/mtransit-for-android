@@ -97,7 +97,8 @@ class DataSourcesStorage @Inject constructor(
     suspend fun getVehicleLocationProviders(targetAuthority: String) =
         vehicleLocationProviderPropertiesDao().getTargetAuthorityVehicleLocationProvider(targetAuthority)
 
-    fun readingVehicleLocationProviders(targetAuthority: String?) = vehicleLocationProviderPropertiesDao().readingTargetAuthorityVehicleLocationProviders(targetAuthority)
+    fun readingVehicleLocationProviders(targetAuthority: String?) =
+        vehicleLocationProviderPropertiesDao().readingTargetAuthorityVehicleLocationProviders(targetAuthority)
 
     suspend fun getVehicleLocationProvider(authority: String) = vehicleLocationProviderPropertiesDao().getVehicleLocationProvider(authority)
 

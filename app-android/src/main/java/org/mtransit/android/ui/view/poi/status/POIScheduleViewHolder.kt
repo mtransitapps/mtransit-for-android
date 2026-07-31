@@ -18,12 +18,12 @@ import java.util.concurrent.TimeUnit
 import androidx.core.util.Pair as androidXPair
 
 data class POIScheduleViewHolder(
-    override var uuid: String,
+    override var targetUUID: String,
     override val statusV: View,
     override val binding: LayoutPoiStatusScheduleBinding,
 ) : POICommonStatusViewHolder<LayoutPoiStatusScheduleBinding, Schedule>, MTLog.Loggable {
 
-    override fun getLogTag() = "$LOG_TAG-$uuid"
+    override fun getLogTag() = "$LOG_TAG-$targetUUID"
 
     override fun fetch(
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
@@ -71,8 +71,8 @@ data class POIScheduleViewHolder(
         private val LOG_TAG: String = POIScheduleViewHolder::class.java.simpleName
 
         @JvmStatic
-        fun fromStatusView(view: View, uuid: String) = POIScheduleViewHolder(
-            uuid = uuid,
+        fun fromStatusView(view: View, targetUUID: String) = POIScheduleViewHolder(
+            targetUUID = targetUUID,
             statusV = POICommonStatusViewHolder.bindStatusV(view),
             binding = LayoutPoiStatusScheduleBinding.bind(view),
         )

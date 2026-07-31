@@ -1,0 +1,404 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:IAgencyNearbyProperties.kt:IAgencyNearbyProperties.Companion$area1MinLat &gt;= area2.minLat &amp;&amp; area1MaxLat &lt;= area2.maxLat // &amp;&amp; area2.minLng &gt;= area1MinLng &amp;&amp; area2.maxLng &lt;= area1MaxLng</ID>
+    <ID>ComplexCondition:IAgencyNearbyProperties.kt:IAgencyNearbyProperties.Companion$area2.minLat &gt;= area1MinLat &amp;&amp; area2.maxLat &lt;= area1MaxLat // &amp;&amp; area1MinLng &gt;= area2.minLng &amp;&amp; area1MaxLng &lt;= area2.maxLng</ID>
+    <ID>ComplexCondition:MTBillingManager.kt:MTBillingManager$AVOID_REFRESH_PURCHASES &amp;&amp; this.billingClient.isReady &amp;&amp; this.billingClientConnected == true &amp;&amp; this.hasSubscription.value != null</ID>
+    <ID>ComplexCondition:ScheduleViewModel.kt:ScheduleViewModel$rds == null || startsAtInMs == null || endAtInMS == null || scheduleProviders == null</ID>
+    <ID>ComplexCondition:SensorManagerImpl.kt:SensorManagerImpl$accelerometerValues == null || accelerometerValues.size != 3 || magneticFieldValues == null || magneticFieldValues.size != 3</ID>
+    <ID>ComplexCondition:SensorManagerImpl.kt:SensorManagerImpl$accelerometerValues.size == 3 &amp;&amp; accelerometerValues[0] != 0.0f &amp;&amp; accelerometerValues[1] != 0.0f &amp;&amp; accelerometerValues[2] != 0.0f</ID>
+    <ID>ComplexCondition:SensorManagerImpl.kt:SensorManagerImpl$magneticFieldValues.size == 3 &amp;&amp; magneticFieldValues[0] != 0.0f &amp;&amp; magneticFieldValues[1] != 0.0f &amp;&amp; magneticFieldValues[2] != 0.0f</ID>
+    <ID>CyclomaticComplexMethod:AgencyPOIsFragment.kt:AgencyPOIsFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:AgencyTypeFragment.kt:AgencyTypeFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:AppRatingsManager.kt:AppRatingsManager$@Suppress("RedundantIf") @VisibleForTesting fun shouldShowAppRatingRequest: Boolean</ID>
+    <ID>CyclomaticComplexMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
+    <ID>CyclomaticComplexMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshAgencyProperties</ID>
+    <ID>CyclomaticComplexMethod:EmptyLayoutUtils.kt:EmptyLayoutUtils$fun LayoutEmptyBinding.updateEmptyLayout</ID>
+    <ID>CyclomaticComplexMethod:FavoritesUI.kt:FavoritesUI$@MainThread private fun FavoriteRepository.showPickFavoriteFolderDialog</ID>
+    <ID>CyclomaticComplexMethod:FavoritesViewModel.kt:FavoritesViewModel$@WorkerThread private suspend fun getFavorites: List&lt;POIManager&gt;</ID>
+    <ID>CyclomaticComplexMethod:HomeViewModel.kt:HomeViewModel$private fun filterTypePOIs</ID>
+    <ID>CyclomaticComplexMethod:KeysManager.kt:KeysManager.Companion$private fun getKeysMap: Map&lt;String, String&gt;?</ID>
+    <ID>CyclomaticComplexMethod:MTPOIMarker.kt:MTPOIMarker$fun merge</ID>
+    <ID>CyclomaticComplexMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onCreate</ID>
+    <ID>CyclomaticComplexMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:MapViewModel.kt:MapViewModel$private fun loadPOIMarkers</ID>
+    <ID>CyclomaticComplexMethod:MapViewModel.kt:MapViewModel$private fun makeFilterTypeId: Collection&lt;Int&gt;?</ID>
+    <ID>CyclomaticComplexMethod:ModulesAdapter.kt:ModulesAdapter.ModuleViewHolder$@SuppressLint("SetTextI18n") fun bind</ID>
+    <ID>CyclomaticComplexMethod:NavigationDrawerControllerExt.kt:internal fun NavigationDrawerController.trackNavigationItemSelected</ID>
+    <ID>CyclomaticComplexMethod:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$fun isLoadingMore: Boolean</ID>
+    <ID>CyclomaticComplexMethod:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
+    <ID>CyclomaticComplexMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
+    <ID>CyclomaticComplexMethod:NewsDetailsFragment.kt:NewsDetailsFragment$private fun FragmentNewsDetailsBinding.updateNewsArticleText</ID>
+    <ID>CyclomaticComplexMethod:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
+    <ID>CyclomaticComplexMethod:NewsListDetailFragment.kt:NewsListDetailFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:NextMainViewModel.kt:NextMainViewModel$private fun idPrefToIdRes</ID>
+    <ID>CyclomaticComplexMethod:NextMainViewModel.kt:NextMainViewModel$private fun idResToIdPref</ID>
+    <ID>CyclomaticComplexMethod:POIViewModel.kt:POIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
+    <ID>CyclomaticComplexMethod:PlaceProvider.kt:PlaceProvider$private fun getTextSearchResults: Cursor?</ID>
+    <ID>CyclomaticComplexMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onAvailableProductIdsLoaded</ID>
+    <ID>CyclomaticComplexMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onBuyBtnClick</ID>
+    <ID>CyclomaticComplexMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onPriceOrPeriodSelectionChanged</ID>
+    <ID>CyclomaticComplexMethod:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter.RouteViewHolder$fun bind</ID>
+    <ID>CyclomaticComplexMethod:RDSAgencyRoutesFragment.kt:RDSAgencyRoutesFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:RDSRouteFragment.kt:RDSRouteFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:ScheduleAdapter.kt:ScheduleAdapter$private fun getPosition: Int</ID>
+    <ID>CyclomaticComplexMethod:ScheduleAdapter.kt:ScheduleAdapter.TimeViewHolder$fun bind</ID>
+    <ID>CyclomaticComplexMethod:ScheduleFragment.kt:ScheduleFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:SearchFragment.kt:SearchFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:SearchViewModel.kt:SearchViewModel.POISearchComparator$override fun compare: Int</ID>
+    <ID>CyclomaticComplexMethod:SensorManagerImpl.kt:SensorManagerImpl$override fun checkForCompass</ID>
+    <ID>CyclomaticComplexMethod:SplashScreenViewModel.kt:SplashScreenViewModel$@VisibleForTesting internal suspend fun getAndUpdateAppOpenCounts: Int</ID>
+    <ID>CyclomaticComplexMethod:StrictModeImpl.kt:StrictModeImpl$override fun setup</ID>
+    <ID>ForbiddenComment:MTTransitions.kt:MTTransitions$* Android Dev: * https://developer.android.com/guide/fragments/animate#shared * https://developer.android.com/guide/navigation/navigation-animate-transitions#set-fragment * https://android-developers.googleblog.com/2018/02/continuous-shared-element-transitions.html * https://medium.com/androiddevelopers/fragment-transitions-ea2726c3f36f * Material: * https://material.io/develop/android/theming/motion#container-transform * https://material.io/develop/android/theming/motion#customization * Blog: * https://chris.banes.dev/fragmented-transitions/ * https://wykorijnsburger.nl/dev/2019/04/30/shared-element-transition/ * * TODO: * - look at visibility changing during transition (enter + exit) * - POI scree * - Home screen</ID>
+    <ID>FunctionOnlyReturningConstant:BatteryOptimizationIssueUtils.kt:BatteryOptimizationIssueUtils$private fun isInvisibleActivityEnabled</ID>
+    <ID>LargeClass:DataSourcesReader.kt:DataSourcesReader : Loggable</ID>
+    <ID>LongMethod:AgencyPOIsFragment.kt:AgencyPOIsFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:AgencyTypeFragment.kt:AgencyTypeFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
+    <ID>LongMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshAgencyProperties</ID>
+    <ID>LongMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun updateKnownActiveDataSources</ID>
+    <ID>LongMethod:EmptyLayoutUtils.kt:EmptyLayoutUtils$fun LayoutEmptyBinding.updateEmptyLayout</ID>
+    <ID>LongMethod:FavoritesUI.kt:FavoritesUI$@MainThread private fun FavoriteRepository.showPickFavoriteFolderDialog</ID>
+    <ID>LongMethod:FavoritesViewModel.kt:FavoritesViewModel$@WorkerThread private suspend fun getFavorites: List&lt;POIManager&gt;</ID>
+    <ID>LongMethod:HomeFragment.kt:HomeFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:KeysManager.kt:KeysManager.Companion$private fun getKeysMap: Map&lt;String, String&gt;?</ID>
+    <ID>LongMethod:MTBillingManager.kt:MTBillingManager$private fun queryAvailableProductDetails</ID>
+    <ID>LongMethod:MainActivity.kt:MainActivity$override fun onCreate</ID>
+    <ID>LongMethod:MainPreferencesFragment.kt:MainPreferencesFragment$@SuppressLint("InflateParams") private fun showPowerManagementDialog</ID>
+    <ID>LongMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onCreate</ID>
+    <ID>LongMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:ModulesAdapter.kt:ModulesAdapter.ModuleViewHolder$@SuppressLint("SetTextI18n") fun bind</ID>
+    <ID>LongMethod:NearbyAgencyTypeFragment.kt:NearbyAgencyTypeFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:NearbyFragment.kt:NearbyFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
+    <ID>LongMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun updateNewsView</ID>
+    <ID>LongMethod:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
+    <ID>LongMethod:NewsListDetailFragment.kt:NewsListDetailFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:NextMainActivity.kt:NextMainActivity$override fun onCreate</ID>
+    <ID>LongMethod:POIArrayAdapterExt.kt:fun POIArrayAdapter.onCreateViewKt</ID>
+    <ID>LongMethod:POIViewModel.kt:POIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
+    <ID>LongMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onAvailableProductIdsLoaded</ID>
+    <ID>LongMethod:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter.RouteViewHolder$fun bind</ID>
+    <ID>LongMethod:RDSAgencyRoutesFragment.kt:RDSAgencyRoutesFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:RDSRouteFragment.kt:RDSRouteFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:ScheduleAdapter.kt:ScheduleAdapter.TimeViewHolder$fun bind</ID>
+    <ID>LongMethod:ScheduleFragment.kt:ScheduleFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:SearchFragment.kt:SearchFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:StrictModeImpl.kt:StrictModeImpl$override fun setup</ID>
+    <ID>LoopWithTooManyJumpStatements:DemoModeManager.kt:DemoModeManager$while</ID>
+    <ID>LoopWithTooManyJumpStatements:HomeViewModel.kt:HomeViewModel$while</ID>
+    <ID>LoopWithTooManyJumpStatements:POIFragmentExt.kt:for</ID>
+    <ID>LoopWithTooManyJumpStatements:POIViewModel.kt:POIViewModel$for</ID>
+    <ID>LoopWithTooManyJumpStatements:POIViewModel.kt:POIViewModel$while</ID>
+    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.FAVORITE$777</ID>
+    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.MODULE$999</ID>
+    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.NEWS_ARTICLE$888</ID>
+    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.PLACE$666</ID>
+    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.PORT$5</ID>
+    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.TERMINAL$4</ID>
+    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.TRAIN_STATION$3</ID>
+    <ID>MagicNumber:DegreeUtils.kt:DegreeUtils$360</ID>
+    <ID>MagicNumber:DemoModeManager.kt:DemoModeManager$13f</ID>
+    <ID>MagicNumber:DemoModeManager.kt:DemoModeManager$77f</ID>
+    <ID>MagicNumber:LocationSettingsUI.kt:LocationSettingsUI$101</ID>
+    <ID>MagicNumber:MTDotsView.kt:MTDotsView$15</ID>
+    <ID>MagicNumber:MTDotsView.kt:MTDotsView$20</ID>
+    <ID>MagicNumber:MTDotsView.kt:MTDotsView$5</ID>
+    <ID>MagicNumber:ModulesAdapter.kt:ModulesAdapter.ModuleViewHolder$14</ID>
+    <ID>MagicNumber:ModulesAdapter.kt:ModulesAdapter.ModuleViewHolder$365</ID>
+    <ID>MagicNumber:ModulesAdapter.kt:ModulesAdapter.ModuleViewHolder$4</ID>
+    <ID>MagicNumber:ModulesAdapter.kt:ModulesAdapter.ModuleViewHolder$7</ID>
+    <ID>MagicNumber:NewsDetailsFragment.kt:NewsDetailsFragment$33</ID>
+    <ID>MagicNumber:NewsListDetailFragment.kt:NewsListDetailFragment$0.3f</ID>
+    <ID>MagicNumber:NewsRepository.kt:NewsRepository$100L</ID>
+    <ID>MagicNumber:NewsRepository.kt:NewsRepository$365L</ID>
+    <ID>MagicNumber:POIFragmentExt.kt:100</ID>
+    <ID>MagicNumber:POIFragmentExt.kt:33</ID>
+    <ID>MagicNumber:POIScheduleViewHolder.kt:POIScheduleViewHolder$30L</ID>
+    <ID>MagicNumber:POIStatusDetailViewControllerExt.kt:12</ID>
+    <ID>MagicNumber:POIViewHolderUtils.kt:POIViewHolderUtils$4f</ID>
+    <ID>MagicNumber:POIViewModel.kt:POIViewModel$1.5f</ID>
+    <ID>MagicNumber:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter.RouteViewHolder$4f</ID>
+    <ID>MagicNumber:RDSAgencyRoutesFragment.kt:RDSAgencyRoutesFragment$0.5f</ID>
+    <ID>MagicNumber:RDSAgencyRoutesFragment.kt:RDSAgencyRoutesFragment$64f</ID>
+    <ID>MagicNumber:ScheduleAdapter.kt:ScheduleAdapter.TimeViewHolder$0.55</ID>
+    <ID>MagicNumber:SensorManagerImpl.kt:SensorManagerImpl$170.0f</ID>
+    <ID>MagicNumber:SensorManagerImpl.kt:SensorManagerImpl$3</ID>
+    <ID>MagicNumber:SplashScreenViewModel.kt:SplashScreenViewModel$33</ID>
+    <ID>MagicNumber:UIColorUtils.kt:UIColorUtils$0.1f</ID>
+    <ID>MagicNumber:UILocationUtils.kt:UILocationUtils$10</ID>
+    <ID>MagicNumber:VehicleLocationExt.kt:100.0f</ID>
+    <ID>MagicNumber:VehicleLocationExt.kt:100L</ID>
+    <ID>NestedBlockDepth:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
+    <ID>NestedBlockDepth:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
+    <ID>NestedBlockDepth:POIAvailabilityStatusViewHolder.kt:POIAvailabilityStatusViewHolder$@SuppressLint("KotlinPairNotCreated") // MTPieChartPercentView in Java override fun bind</ID>
+    <ID>NewLineAtEndOfFile:HomeTypeAgencyComparator.kt:org.mtransit.android.ui.home.HomeTypeAgencyComparator.kt</ID>
+    <ID>NewLineAtEndOfFile:HomeViewModel.kt:org.mtransit.android.ui.home.HomeViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:IAdScreenActivity.kt:org.mtransit.android.ad.IAdScreenActivity.kt</ID>
+    <ID>NewLineAtEndOfFile:IAdScreenFragment.kt:org.mtransit.android.ad.IAdScreenFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:IAgencyNearbyProperties.kt:org.mtransit.android.data.IAgencyNearbyProperties.kt</ID>
+    <ID>NewLineAtEndOfFile:IAgencyNearbyUIProperties.kt:org.mtransit.android.data.IAgencyNearbyUIProperties.kt</ID>
+    <ID>NewLineAtEndOfFile:IAgencyProperties.kt:org.mtransit.android.data.IAgencyProperties.kt</ID>
+    <ID>NewLineAtEndOfFile:IAgencyUIProperties.kt:org.mtransit.android.data.IAgencyUIProperties.kt</ID>
+    <ID>NewLineAtEndOfFile:IAgencyUpdatableProperties.kt:org.mtransit.android.data.IAgencyUpdatableProperties.kt</ID>
+    <ID>NewLineAtEndOfFile:IFragment.kt:org.mtransit.android.ui.view.common.IFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:IPWhoIsApiService.kt:org.mtransit.android.provider.location.network.IPWhoIsApiService.kt</ID>
+    <ID>NewLineAtEndOfFile:ITargetedProviderProperties.kt:org.mtransit.android.data.ITargetedProviderProperties.kt</ID>
+    <ID>NewLineAtEndOfFile:ImageManager.kt:org.mtransit.android.ui.view.common.ImageManager.kt</ID>
+    <ID>NewLineAtEndOfFile:InAppNotificationFragment.kt:org.mtransit.android.ui.inappnotification.InAppNotificationFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:InAppNotificationUI.kt:org.mtransit.android.ui.inappnotification.InAppNotificationUI.kt</ID>
+    <ID>NewLineAtEndOfFile:InAppNotificationViewModel.kt:org.mtransit.android.ui.inappnotification.InAppNotificationViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:KeysManager.kt:org.mtransit.android.util.KeysManager.kt</ID>
+    <ID>NewLineAtEndOfFile:LocationPermissionAwareFragment.kt:org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:LocationPermissionAwareViewModel.kt:org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:LocationPermissionUI.kt:org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionUI.kt</ID>
+    <ID>NewLineAtEndOfFile:LocationSettingsAwareFragment.kt:org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:LocationSettingsAwareViewModel.kt:org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:LocationSettingsUI.kt:org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI.kt</ID>
+    <ID>NewLineAtEndOfFile:MTDotsView.kt:org.mtransit.android.ui.view.MTDotsView.kt</ID>
+    <ID>NewLineAtEndOfFile:MTSensorManager.kt:org.mtransit.android.provider.sensor.MTSensorManager.kt</ID>
+    <ID>NewLineAtEndOfFile:MTTabLayoutMediator.kt:org.mtransit.android.ui.view.common.MTTabLayoutMediator.kt</ID>
+    <ID>NewLineAtEndOfFile:MTTransitions.kt:org.mtransit.android.ui.view.common.MTTransitions.kt</ID>
+    <ID>NewLineAtEndOfFile:MTViewModelWithLocation.kt:org.mtransit.android.ui.MTViewModelWithLocation.kt</ID>
+    <ID>NewLineAtEndOfFile:MapExt.kt:org.mtransit.android.util.MapExt.kt</ID>
+    <ID>NewLineAtEndOfFile:MapViewInScroll.kt:org.mtransit.android.ui.view.common.MapViewInScroll.kt</ID>
+    <ID>NewLineAtEndOfFile:MapViewModel.kt:org.mtransit.android.ui.map.MapViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:MapViewModelTest.kt:org.mtransit.android.ui.map.MapViewModelTest.kt</ID>
+    <ID>NewLineAtEndOfFile:MediatorLiveData3.kt:org.mtransit.android.ui.view.common.MediatorLiveData3.kt</ID>
+    <ID>NewLineAtEndOfFile:MediatorLiveData4.kt:org.mtransit.android.ui.view.common.MediatorLiveData4.kt</ID>
+    <ID>NewLineAtEndOfFile:MediatorLiveData5.kt:org.mtransit.android.ui.view.common.MediatorLiveData5.kt</ID>
+    <ID>NewLineAtEndOfFile:ModuleDisabledAwareFragment.kt:org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:ModuleDisabledAwareViewModel.kt:org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:ModuleDisabledUI.kt:org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI.kt</ID>
+    <ID>NewLineAtEndOfFile:ModulesActivity.kt:org.mtransit.android.ui.modules.ModulesActivity.kt</ID>
+    <ID>NewLineAtEndOfFile:ModulesAdapter.kt:org.mtransit.android.ui.modules.ModulesAdapter.kt</ID>
+    <ID>NewLineAtEndOfFile:ModulesDiffCallback.kt:org.mtransit.android.ui.modules.ModulesDiffCallback.kt</ID>
+    <ID>NewLineAtEndOfFile:ModulesFragment.kt:org.mtransit.android.ui.modules.ModulesFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:ModulesViewModel.kt:org.mtransit.android.ui.modules.ModulesViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:NavControllerExt.kt:org.mtransit.android.ui.view.common.NavControllerExt.kt</ID>
+    <ID>NewLineAtEndOfFile:NearbyAgencyTypeFragment.kt:org.mtransit.android.ui.nearby.type.NearbyAgencyTypeFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:NearbyAgencyTypeViewModel.kt:org.mtransit.android.ui.nearby.type.NearbyAgencyTypeViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:NearbyFragment.kt:org.mtransit.android.ui.nearby.NearbyFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:NearbyPagerAdapter.kt:org.mtransit.android.ui.nearby.NearbyPagerAdapter.kt</ID>
+    <ID>NewLineAtEndOfFile:NearbyViewModel.kt:org.mtransit.android.ui.nearby.NearbyViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:NestedScrollableHost.kt:org.mtransit.android.ui.view.common.NestedScrollableHost.kt</ID>
+    <ID>NewLineAtEndOfFile:NetworkLocationModule.kt:org.mtransit.android.provider.location.network.NetworkLocationModule.kt</ID>
+    <ID>NewLineAtEndOfFile:NetworkLocationRepository.kt:org.mtransit.android.provider.location.network.NetworkLocationRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:NetworkModule.kt:org.mtransit.android.di.NetworkModule.kt</ID>
+    <ID>NewLineAtEndOfFile:NewLocationAwareFragment.kt:org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:NewLocationAwareViewModel.kt:org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:NewLocationUI.kt:org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI.kt</ID>
+    <ID>NewLineAtEndOfFile:NewsDetailsViewModel.kt:org.mtransit.android.ui.news.details.NewsDetailsViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:NewsExt.kt:org.mtransit.android.data.NewsExt.kt</ID>
+    <ID>NewLineAtEndOfFile:NewsImage.kt:org.mtransit.android.data.NewsImage.kt</ID>
+    <ID>NewLineAtEndOfFile:NewsImagesAdapter.kt:org.mtransit.android.ui.news.image.NewsImagesAdapter.kt</ID>
+    <ID>NewLineAtEndOfFile:NewsListAdapter.kt:org.mtransit.android.ui.news.NewsListAdapter.kt</ID>
+    <ID>NewLineAtEndOfFile:NewsListViewModel.kt:org.mtransit.android.ui.news.NewsListViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:NewsPagerAdapter.kt:org.mtransit.android.ui.news.pager.NewsPagerAdapter.kt</ID>
+    <ID>NewLineAtEndOfFile:NewsProviderPropertiesDao.kt:org.mtransit.android.datasource.NewsProviderPropertiesDao.kt</ID>
+    <ID>NewLineAtEndOfFile:NewsRepository.kt:org.mtransit.android.datasource.NewsRepository.kt</ID>
+    <ID>NewLineAtEndOfFile:NextMainActivity.kt:org.mtransit.android.ui.main.NextMainActivity.kt</ID>
+    <ID>NewLineAtEndOfFile:POIAlphaComparator.kt:org.mtransit.android.data.POIAlphaComparator.kt</ID>
+    <ID>NewLineAtEndOfFile:POIAppStatusViewHolder.kt:org.mtransit.android.ui.view.poi.status.POIAppStatusViewHolder.kt</ID>
+    <ID>NewLineAtEndOfFile:POIArrayAdapterTests.kt:org.mtransit.android.data.POIArrayAdapterTests.kt</ID>
+    <ID>NewLineAtEndOfFile:POIAvailabilityStatusViewHolder.kt:org.mtransit.android.ui.view.poi.status.POIAvailabilityStatusViewHolder.kt</ID>
+    <ID>NewLineAtEndOfFile:POICommonStatusViewHolder.kt:org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder.kt</ID>
+    <ID>NewLineAtEndOfFile:POIConnectionComparator.kt:org.mtransit.android.data.POIConnectionComparator.kt</ID>
+    <ID>NewLineAtEndOfFile:POIConnectionComparatorTests.kt:org.mtransit.android.data.POIConnectionComparatorTests.kt</ID>
+    <ID>NewLineAtEndOfFile:POIDataProvider.kt:org.mtransit.android.ui.view.POIDataProvider.kt</ID>
+    <ID>NewLineAtEndOfFile:POIFragment.kt:org.mtransit.android.ui.poi.POIFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:POIScheduleViewHolder.kt:org.mtransit.android.ui.view.poi.status.POIScheduleViewHolder.kt</ID>
+    <ID>NewLineAtEndOfFile:POIServiceUpdateViewHolder.kt:org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder.kt</ID>
+    <ID>NewLineAtEndOfFile:POIStatusDataProvider.kt:org.mtransit.android.ui.view.poi.status.POIStatusDataProvider.kt</ID>
+    <ID>NewLineAtEndOfFile:POIViewModel.kt:org.mtransit.android.ui.poi.POIViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:POIViewUtils.kt:org.mtransit.android.ui.view.POIViewUtils.kt</ID>
+    <ID>NewLineAtEndOfFile:PickPOIDialogFragment.kt:org.mtransit.android.ui.pick.PickPOIDialogFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:PickPOIViewModel.kt:org.mtransit.android.ui.pick.PickPOIViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:PreferencesActivity.kt:org.mtransit.android.ui.pref.PreferencesActivity.kt</ID>
+    <ID>NewLineAtEndOfFile:PreferencesViewModel.kt:org.mtransit.android.ui.pref.PreferencesViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:PurchaseActivity.kt:org.mtransit.android.ui.purchase.PurchaseActivity.kt</ID>
+    <ID>NewLineAtEndOfFile:PurchaseFragment.kt:org.mtransit.android.ui.purchase.PurchaseFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:PurchaseViewModel.kt:org.mtransit.android.ui.purchase.PurchaseViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:RDSAgencyRoutesFragment.kt:org.mtransit.android.ui.type.rds.RDSAgencyRoutesFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:RDSAgencyRoutesViewModel.kt:org.mtransit.android.ui.type.rds.RDSAgencyRoutesViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:RDSDirectionStopsViewModel.kt:org.mtransit.android.ui.rds.route.direction.RDSDirectionStopsViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:RDSRouteDirectionPagerAdapter.kt:org.mtransit.android.ui.rds.route.RDSRouteDirectionPagerAdapter.kt</ID>
+    <ID>NewLineAtEndOfFile:RDSRouteFragment.kt:org.mtransit.android.ui.rds.route.RDSRouteFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:RDSRouteViewModel.kt:org.mtransit.android.ui.rds.route.RDSRouteViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:RecyclerViewExt.kt:org.mtransit.android.ui.view.common.RecyclerViewExt.kt</ID>
+    <ID>NewLineAtEndOfFile:RewardedAdManager.kt:org.mtransit.android.ad.rewarded.RewardedAdManager.kt</ID>
+    <ID>NewLineAtEndOfFile:SVGDrawableTranscoder.kt:org.mtransit.android.ui.view.common.SVGDrawableTranscoder.kt</ID>
+    <ID>NewLineAtEndOfFile:SVGModule.kt:org.mtransit.android.ui.view.common.SVGModule.kt</ID>
+    <ID>NewLineAtEndOfFile:SavedStateHandleExt.kt:org.mtransit.android.ui.view.common.SavedStateHandleExt.kt</ID>
+    <ID>NewLineAtEndOfFile:ScheduleFragment.kt:org.mtransit.android.ui.schedule.ScheduleFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:ScheduleProviderProperties.kt:org.mtransit.android.data.ScheduleProviderProperties.kt</ID>
+    <ID>NewLineAtEndOfFile:ScheduleProviderPropertiesDao.kt:org.mtransit.android.datasource.ScheduleProviderPropertiesDao.kt</ID>
+    <ID>NewLineAtEndOfFile:SearchFragment.kt:org.mtransit.android.ui.search.SearchFragment.kt</ID>
+    <ID>NewLineAtEndOfFile:SearchTypeFilterAdapter.kt:org.mtransit.android.ui.search.SearchTypeFilterAdapter.kt</ID>
+    <ID>NewLineAtEndOfFile:SearchViewModel.kt:org.mtransit.android.ui.search.SearchViewModel.kt</ID>
+    <ID>NewLineAtEndOfFile:ServiceUpdateLoaderProvider.kt:org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider.kt</ID>
+    <ID>NewLineAtEndOfFile:ServiceUpdateProviderProperties.kt:org.mtransit.android.data.ServiceUpdateProviderProperties.kt</ID>
+    <ID>NewLineAtEndOfFile:ServiceUpdateProviderPropertiesDao.kt:org.mtransit.android.datasource.ServiceUpdateProviderPropertiesDao.kt</ID>
+    <ID>NewLineAtEndOfFile:SetupBannerAdTask.kt:org.mtransit.android.ad.banner.SetupBannerAdTask.kt</ID>
+    <ID>NewLineAtEndOfFile:SetupInlineBannerAdTask.kt:org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.kt</ID>
+    <ID>NewLineAtEndOfFile:SpacesItemDecoration.kt:org.mtransit.android.ui.view.common.SpacesItemDecoration.kt</ID>
+    <ID>NewLineAtEndOfFile:SplashScreenActivity.kt:org.mtransit.android.ui.splash.SplashScreenActivity.kt</ID>
+    <ID>NewLineAtEndOfFile:StatusProviderProperties.kt:org.mtransit.android.data.StatusProviderProperties.kt</ID>
+    <ID>NewLineAtEndOfFile:StatusProviderPropertiesDao.kt:org.mtransit.android.datasource.StatusProviderPropertiesDao.kt</ID>
+    <ID>NewLineAtEndOfFile:StickyHeaderItemDecorator.kt:org.mtransit.android.ui.view.common.StickyHeaderItemDecorator.kt</ID>
+    <ID>NewLineAtEndOfFile:StrictModeImpl.kt:org.mtransit.android.dev.StrictModeImpl.kt</ID>
+    <ID>NewLineAtEndOfFile:SystemSettingManager.kt:org.mtransit.android.util.SystemSettingManager.kt</ID>
+    <ID>NewLineAtEndOfFile:UIAccessibilityUtils.kt:org.mtransit.android.util.UIAccessibilityUtils.kt</ID>
+    <ID>NewLineAtEndOfFile:UIColorUtils.kt:org.mtransit.android.ui.common.UIColorUtils.kt</ID>
+    <ID>NewLineAtEndOfFile:UIRouteUtils.kt:org.mtransit.android.util.UIRouteUtils.kt</ID>
+    <ID>ReturnCount:AgencyTypeFragment.kt:AgencyTypeFragment$@ColorInt @WorkerThread private fun getNewABBgColorInt: Int?</ID>
+    <ID>ReturnCount:AppOpenAdManager.kt:AppOpenAdManager$@MainThread fun loadAd: Boolean</ID>
+    <ID>ReturnCount:AppOpenAdManager.kt:AppOpenAdManager$fun showAdIfAvailable</ID>
+    <ID>ReturnCount:AppRatingsManager.kt:AppRatingsManager$@Suppress("RedundantIf") @VisibleForTesting fun shouldShowAppRatingRequest: Boolean</ID>
+    <ID>ReturnCount:BannerAdManager.kt:BannerAdManager$@MainThread fun adaptToScreenSize</ID>
+    <ID>ReturnCount:BannerAdManager.kt:BannerAdManager$@MainThread fun getBannerHeightInPx: Int</ID>
+    <ID>ReturnCount:BannerAdManager.kt:BannerAdManager$fun isEnoughSpaceForBanner: Boolean</ID>
+    <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$fun isAProvider: Boolean</ID>
+    <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshAgencyProperties</ID>
+    <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshNewsProviderProperties</ID>
+    <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshScheduleProviderProperties</ID>
+    <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshServiceUpdateProviderProperties</ID>
+    <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshStatusProviderProperties</ID>
+    <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshVehicleLocationProviderProperties</ID>
+    <ID>ReturnCount:DemoModeManager.kt:DemoModeManager$fun isEnabledBrowseScreen: Boolean</ID>
+    <ID>ReturnCount:DemoModeManager.kt:DemoModeManager$fun isEnabledPOIScreen: Boolean</ID>
+    <ID>ReturnCount:DirectionExt.kt:fun Schedule.Timestamp.makeHeading: CharSequence?</ID>
+    <ID>ReturnCount:GlobalAdManager.kt:GlobalAdManager$fun adsAllowed: Boolean</ID>
+    <ID>ReturnCount:GlobalAdManager.kt:GlobalAdManager$fun canShowAds: Boolean?</ID>
+    <ID>ReturnCount:HomeTypeAgencyComparator.kt:HomeTypeAgencyComparator$override fun compare: Int</ID>
+    <ID>ReturnCount:HomeViewModel.kt:HomeViewModel$override fun initiateRefresh: Boolean</ID>
+    <ID>ReturnCount:IAgencyNearbyProperties.kt:IAgencyNearbyProperties.Companion$private fun areOverlapping: Boolean</ID>
+    <ID>ReturnCount:InAppNotificationUI.kt:InAppNotificationUI.Companion$@JvmStatic fun hideInAppNotification: Boolean</ID>
+    <ID>ReturnCount:InAppNotificationUI.kt:InAppNotificationUI.Companion$@JvmStatic fun showInAppNotification: Boolean</ID>
+    <ID>ReturnCount:InlineBannerAdManager.kt:InlineBannerAdManager$fun adaptToScreenSize</ID>
+    <ID>ReturnCount:InlineBannerAdManager.kt:InlineBannerAdManager$private fun setupBannerAd</ID>
+    <ID>ReturnCount:MTBillingManager.kt:MTBillingManager$private fun launchBillingFlow: Boolean</ID>
+    <ID>ReturnCount:MTMapIconZoomGroup.kt:MTMapIconZoomGroup.Companion$@JvmStatic fun from: MTMapIconZoomGroup</ID>
+    <ID>ReturnCount:MainActivity.kt:MainActivity$@SuppressLint("GestureBackNavigation") // android:enableOnBackInvokedCallback in AndroidManifest.xml @Suppress("OVERRIDE_DEPRECATION") override fun onBackPressed</ID>
+    <ID>ReturnCount:MainActivity.kt:MainActivity$override fun onOptionsItemSelected: Boolean</ID>
+    <ID>ReturnCount:MapUtils.kt:MapUtils$@JvmStatic fun getIcon: BitmapDescriptor?</ID>
+    <ID>ReturnCount:MapViewControllerExt.kt:@JvmOverloads fun MapViewController.updateVehicleLocationMarkers: Boolean</ID>
+    <ID>ReturnCount:ModulesReceiver.kt:ModulesReceiver$private fun shouldPing: Boolean</ID>
+    <ID>ReturnCount:ModulesReceiver.kt:ModulesReceiver$private suspend fun ping: Boolean</ID>
+    <ID>ReturnCount:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$fun isLoadingMore: Boolean</ID>
+    <ID>ReturnCount:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
+    <ID>ReturnCount:NearbyFragment.kt:NearbyFragment$override fun onMenuItemSelected: Boolean</ID>
+    <ID>ReturnCount:NearbyViewModel.kt:NearbyViewModel$override fun initiateRefresh: Boolean</ID>
+    <ID>ReturnCount:NearbyViewModel.kt:NearbyViewModel$private fun getNearbyLocation: Location?</ID>
+    <ID>ReturnCount:NetworkLocationRepository.kt:NetworkLocationRepository$suspend fun fetchIPLocationIfNecessary</ID>
+    <ID>ReturnCount:NewsListDetailFragment.kt:NewsListDetailFragment$override fun onBackPressed: Boolean</ID>
+    <ID>ReturnCount:POIAlphaComparator.kt:POIAlphaComparator$override fun compare: Int</ID>
+    <ID>ReturnCount:POIConnectionComparator.kt:POIConnectionComparator$override fun compare: Int</ID>
+    <ID>ReturnCount:POIFragmentExt.kt:fun POIFragment.getMapMarkerAlphaKt: Float?</ID>
+    <ID>ReturnCount:POIFragmentExt.kt:fun POIFragment.getPOIKt: POIManager?</ID>
+    <ID>ReturnCount:POIFragmentExt.kt:fun POIFragment.onMapClickKt: Boolean</ID>
+    <ID>ReturnCount:POIViewModel.kt:POIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
+    <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$override fun getPOI: Cursor?</ID>
+    <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$override fun isAgencySetupRequired: Boolean</ID>
+    <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$override fun queryMT: Cursor?</ID>
+    <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$private fun getTextSearchResults: Cursor?</ID>
+    <ID>ReturnCount:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onBuyBtnClick</ID>
+    <ID>ReturnCount:RDSRouteFragment.kt:RDSRouteFragment$override fun onMenuItemSelected: Boolean</ID>
+    <ID>ReturnCount:RDSRouteViewModel.kt:RDSRouteViewModel$private suspend fun getRoute: Route?</ID>
+    <ID>ReturnCount:RDSRouteViewModel.kt:RDSRouteViewModel$private suspend fun getRouteDirections: List&lt;Direction&gt;?</ID>
+    <ID>ReturnCount:RewardedAdManager.kt:RewardedAdManager$fun isRewardedAdAvailableToShow: Boolean</ID>
+    <ID>ReturnCount:RewardedAdManager.kt:RewardedAdManager$fun showRewardedAd: Boolean</ID>
+    <ID>ReturnCount:RewardedUserManager.kt:RewardedUserManager$fun shouldSkipLoadingRewardedAd: Boolean</ID>
+    <ID>ReturnCount:RewardedUserManager.kt:RewardedUserManager$private fun isRewardedNow: Boolean</ID>
+    <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$@ScheduleItemViewType override fun getItemViewType: Int</ID>
+    <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$@SuppressLint("NotifyDataSetChanged") fun updateTimes</ID>
+    <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$@SuppressLint("NotifyDataSetChanged") private fun updateStartEndTimes</ID>
+    <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$private fun getHourItemTimestamp: Long?</ID>
+    <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$private fun getPosition: Int</ID>
+    <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$private fun getTodaySelectPosition: Int</ID>
+    <ID>ReturnCount:ScheduleViewModel.kt:ScheduleViewModel$@WorkerThread private suspend fun getTimestamps: List&lt;Schedule.Timestamp&gt;?</ID>
+    <ID>ReturnCount:SearchViewModel.kt:SearchViewModel.POISearchComparator$override fun compare: Int</ID>
+    <ID>ReturnCount:SensorManagerImpl.kt:SensorManagerImpl$override fun updateCompass</ID>
+    <ID>ReturnCount:SensorManagerImpl.kt:SensorManagerImpl$private fun calculateOrientation: Float?</ID>
+    <ID>ReturnCount:SplashScreenViewModel.kt:SplashScreenViewModel$@MainThread private fun triggerLoadAd</ID>
+    <ID>ReturnCount:StickyHeaderItemDecorator.kt:StickyHeaderItemDecorator$override fun onDrawOver</ID>
+    <ID>ReturnCount:UIColorUtils.kt:UIColorUtils$@JvmStatic @ColorInt fun adaptBackgroundColorToLightText: Int</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:NestedScrollableHost.kt:NestedScrollableHost$IllegalArgumentException()</ID>
+    <ID>ThrowsCount:HomeFragment.kt:HomeFragment$override fun onResume</ID>
+    <ID>TooGenericExceptionCaught:AnalyticsManager.kt:AnalyticsManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:BannerAdManager.kt:BannerAdManager$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:BatteryOptimizationIssueUtils.kt:BatteryOptimizationIssueUtils$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:GlobalAdManager.kt:GlobalAdManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:InlineBannerAdManager.kt:InlineBannerAdManager$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:MTPOIMarkerIds.kt:MTPOIMarkerIds$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MainActivity.kt:MainActivity$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MapViewModel.kt:MapViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MapsInitializerUtil.kt:MapsInitializerUtil$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ModuleDataChangeReceiver.kt:ModuleDataChangeReceiver$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ModulesReceiver.kt:ModulesReceiver$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PlaceProvider.kt:PlaceProvider$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PurchaseDialogFragment.kt:PurchaseDialogFragment$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:AgencyTypePagerAdapter.kt:AgencyTypePagerAdapter$throw RuntimeException("Trying to create fragment at $position!")</ID>
+    <ID>TooGenericExceptionThrown:HomeFragment.kt:HomeFragment$throw RuntimeException("Demo mode: missing UUID!")</ID>
+    <ID>TooGenericExceptionThrown:HomeFragment.kt:HomeFragment$throw RuntimeException("Demo mode: missing authority!")</ID>
+    <ID>TooGenericExceptionThrown:HomeFragment.kt:HomeFragment$throw RuntimeException("Demo mode: missing type!")</ID>
+    <ID>TooGenericExceptionThrown:NearbyPagerAdapter.kt:NearbyPagerAdapter$throw RuntimeException("Trying to create fragment at $position!")</ID>
+    <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("Header ID NOT found at $itemPosition! (index:$index)")</ID>
+    <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("Header ID disabled in non vertical!")</ID>
+    <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("Unexpected view to bind $position!")</ID>
+    <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("Unexpected view type $viewType!")</ID>
+    <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("View type not found at $position! (index:$index)")</ID>
+    <ID>TooGenericExceptionThrown:NewsPagerAdapter.kt:NewsPagerAdapter$throw RuntimeException("No news article at position $position!")</ID>
+    <ID>TooGenericExceptionThrown:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter$throw RuntimeException("Unexpected view type $viewType!")</ID>
+    <ID>TooGenericExceptionThrown:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter$throw RuntimeException("Unexpected view type!")</ID>
+    <ID>TooGenericExceptionThrown:RDSRouteDirectionPagerAdapter.kt:RDSRouteDirectionPagerAdapter$throw RuntimeException("Trying to create fragment at $position!")</ID>
+    <ID>TooGenericExceptionThrown:ScheduleAdapter.kt:ScheduleAdapter$throw RuntimeException("Header ID NOT found at $itemPosition! (index:$index)")</ID>
+    <ID>TooGenericExceptionThrown:ScheduleAdapter.kt:ScheduleAdapter$throw RuntimeException("Unexpected view to bind $position!")</ID>
+    <ID>TooGenericExceptionThrown:ScheduleAdapter.kt:ScheduleAdapter$throw RuntimeException("Unexpected view type $viewType!")</ID>
+    <ID>TooGenericExceptionThrown:ScheduleAdapter.kt:ScheduleAdapter$throw RuntimeException("View type not found at $position! (index:$index)")</ID>
+    <ID>TooManyFunctions:AdManager.kt:AdManager : IAdManagerLoggable</ID>
+    <ID>TooManyFunctions:AgencyPOIsFragment.kt:AgencyPOIsFragment : MTFragmentX</ID>
+    <ID>TooManyFunctions:AgencyPropertiesDao.kt:AgencyPropertiesDao : BaseDao</ID>
+    <ID>TooManyFunctions:AgencyTypeFragment.kt:AgencyTypeFragment : ABFragmentDeviceLocationListenerModuleDisabledAwareFragmentMenuProvider</ID>
+    <ID>TooManyFunctions:BannerAdManager.kt:BannerAdManager : Loggable</ID>
+    <ID>TooManyFunctions:DataSourceRequestManager.kt:DataSourceRequestManager : Loggable</ID>
+    <ID>TooManyFunctions:DataSourcesInMemoryCache.kt:DataSourcesInMemoryCache : Loggable</ID>
+    <ID>TooManyFunctions:DataSourcesReader.kt:DataSourcesReader : Loggable</ID>
+    <ID>TooManyFunctions:DataSourcesRepository.kt:DataSourcesRepository : Loggable</ID>
+    <ID>TooManyFunctions:DataSourcesStorage.kt:DataSourcesStorage</ID>
+    <ID>TooManyFunctions:DemoModeManager.kt:DemoModeManager : Loggable</ID>
+    <ID>TooManyFunctions:DevicePrefManager.kt:DevicePrefManager</ID>
+    <ID>TooManyFunctions:EdgeToEdge.kt:org.mtransit.android.ui.EdgeToEdge.kt</ID>
+    <ID>TooManyFunctions:FavoriteRepository.kt:FavoriteRepository : Loggable</ID>
+    <ID>TooManyFunctions:FavoritesFragment.kt:FavoritesFragment : ABFragmentDeviceLocationListenerModuleDisabledAwareFragmentMenuProvider</ID>
+    <ID>TooManyFunctions:GlobalAdManager.kt:GlobalAdManager : Loggable</ID>
+    <ID>TooManyFunctions:HomeFragment.kt:HomeFragment : ABFragmentDeviceLocationListenerNewLocationAwareFragmentLocationSettingsAwareFragmentLocationPermissionAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>
+    <ID>TooManyFunctions:HomeViewModel.kt:HomeViewModel : MTViewModelWithLocationNewLocationAwareViewModelLocationSettingsAwareViewModelLocationPermissionAwareViewModelModuleDisabledAwareViewModel</ID>
+    <ID>TooManyFunctions:IAdManager.kt:IAdManager</ID>
+    <ID>TooManyFunctions:InlineBannerAdManager.kt:InlineBannerAdManager : Loggable</ID>
+    <ID>TooManyFunctions:MTBillingManager.kt:MTBillingManager : LoggableIBillingManagerPurchasesUpdatedListener</ID>
+    <ID>TooManyFunctions:MainActivity.kt:MainActivity : MTActivityWithLocationOnBackStackChangedListenerAnalyticsScreenIActivityIAdScreenActivityLoggableRewardedAdListener</ID>
+    <ID>TooManyFunctions:MapFragment.kt:MapFragment : ABFragmentDeviceLocationListenerLocationSettingsAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>
+    <ID>TooManyFunctions:NearbyFragment.kt:NearbyFragment : ABFragmentDeviceLocationListenerNewLocationAwareFragmentLocationSettingsAwareFragmentLocationPermissionAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>
+    <ID>TooManyFunctions:NewsDetailsFragment.kt:NewsDetailsFragment : MTFragmentX</ID>
+    <ID>TooManyFunctions:NewsListAdapter.kt:NewsListAdapter : AdapterStickyAdapterLoggable</ID>
+    <ID>TooManyFunctions:NewsListDetailFragment.kt:NewsListDetailFragment : ABFragmentMenuProviderModuleDisabledAwareFragment</ID>
+    <ID>TooManyFunctions:NextMainActivity.kt:NextMainActivity : MTActivityWithLocationOnBackStackChangedListenerAnalyticsScreenIActivityIAdScreenActivityRewardedAdListener</ID>
+    <ID>TooManyFunctions:NextMainViewModel.kt:NextMainViewModel : ViewModelLoggable</ID>
+    <ID>TooManyFunctions:POIManagerExt.kt:org.mtransit.android.data.POIManagerExt.kt</ID>
+    <ID>TooManyFunctions:POIRepository.kt:POIRepository : Loggable</ID>
+    <ID>TooManyFunctions:PickPOIDialogFragment.kt:PickPOIDialogFragment : MTBottomSheetDialogFragmentXDeviceLocationListenerIFragment</ID>
+    <ID>TooManyFunctions:PlaceProvider.kt:PlaceProvider : AgencyProviderPOIProviderContract</ID>
+    <ID>TooManyFunctions:PurchaseDialogFragment.kt:PurchaseDialogFragment : MTDialogFragmentXRewardedAdListenerLoggable</ID>
+    <ID>TooManyFunctions:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment : MTFragmentX</ID>
+    <ID>TooManyFunctions:RDSRouteFragment.kt:RDSRouteFragment : ABFragmentDeviceLocationListenerMenuProvider</ID>
+    <ID>TooManyFunctions:RewardedUserManager.kt:RewardedUserManager : Loggable</ID>
+    <ID>TooManyFunctions:ScheduleAdapter.kt:ScheduleAdapter : AdapterStickyAdapterServiceUpdateLoaderListenerLoggable</ID>
+    <ID>TooManyFunctions:ScheduleFragment.kt:ScheduleFragment : ABFragmentMenuProvider</ID>
+    <ID>TooManyFunctions:SearchFragment.kt:SearchFragment : ABFragmentDeviceLocationListenerTypeHeaderButtonsClickListenerOnItemSelectedListener</ID>
+    <ID>TooManyFunctions:UserManager.kt:UserManager</ID>
+  </CurrentIssues>
+</SmellBaseline>

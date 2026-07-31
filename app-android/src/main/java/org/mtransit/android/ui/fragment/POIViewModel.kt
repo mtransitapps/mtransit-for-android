@@ -207,7 +207,7 @@ class POIViewModel @Inject constructor(
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
-    private val _poiArea = _poi.map { it -> it?.let { Area.getArea(it.lat, it.lng, 0.01) } }
+    private val _poiArea = _poi.map { poi -> poi?.let { Area.getArea(it.lat, it.lng, 0.01) } }
 
     private val nearbyAgencies: LiveData<List<AgencyBaseProperties>?> = MediatorLiveData2(_poiArea, _allAgencies).map { (poiArea, allAgencies) ->
         allAgencies?.filter { agency ->

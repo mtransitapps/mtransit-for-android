@@ -204,7 +204,13 @@ class GlobalAdManager(
             initializationStatus.adapterStatusMap.forEach { (adapterClass, status) ->
                 logAdsD(
                     this@GlobalAdManager,
-                    "onAdapterInitializationComplete() > Adapter name: $adapterClass, Status: ${status.initializationState}, Description: ${status.description}, Latency: ${status.latency}"
+                    buildString {
+                        append("onAdapterInitializationComplete() > ")
+                        append("Adapter name: $adapterClass, ")
+                        append("Status: ${status.initializationState}, ")
+                        append("Description: ${status.description}, ")
+                        append("Latency: ${status.latency}")
+                    }
                 )
             }
             onInitCompleteListener()

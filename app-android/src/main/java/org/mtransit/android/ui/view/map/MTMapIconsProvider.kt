@@ -7,12 +7,14 @@ import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.commons.FeatureFlags
 
+@Suppress("MaxLineLength")
 object MTMapIconsProvider {
 
     //@formatter:off
 
     @JvmStatic
-    val selectedDefaultIconDef = MTMapIconDef(R.drawable.map_icon_place_replace_slim_original_nodpi, oneSize = true, size= 36.dpToPx, replaceColor = true)
+    val selectedDefaultIconDef =
+        MTMapIconDef(R.drawable.map_icon_place_replace_slim_original_nodpi, oneSize = true, size = 36.dpToPx, replaceColor = true)
 
     @JvmStatic
     val defaultIconDef =

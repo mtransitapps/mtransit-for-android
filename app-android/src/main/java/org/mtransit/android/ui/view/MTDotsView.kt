@@ -115,8 +115,8 @@ class MTDotsView @JvmOverloads constructor(
         val innerTopPadding = (bounds.height() - (linesCount * (dotHeight + margin))) / 2f
         val innerLeftPadding = (bounds.width() - (this.rowCount * (dotWidth + margin))) / 2f
 
-        (0 until linesCount).forEach { lineIndex ->
-            (0 until this.rowCount).forEach { columnIndex ->
+        for (lineIndex in 0..<linesCount) {
+            for (columnIndex in 0..<this.rowCount) {
                 val dotIndex = lineIndex * this.rowCount + columnIndex
                 val colorInt = this.colorIntDots.getOrNull(dotIndex) ?: NOTHING_COLOR // should not happen
                 val colorPaint = this.colorPaints.getOrPut(colorInt) { makePaint(colorInt) }

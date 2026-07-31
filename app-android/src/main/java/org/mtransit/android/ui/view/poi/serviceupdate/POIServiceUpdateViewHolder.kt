@@ -14,18 +14,30 @@ import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
 import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 
 data class POIServiceUpdateViewHolder @JvmOverloads constructor(
-    private var _uuid: String,
+    private val initialTargetUUID: String,
     val serviceUpdateImg: ImageView?,
     val otherServiceUpdateImg: ImageView? = null,
     var ignoredOtherTargetUUIDsOrUnknown: Collection<String>? = null,
 ) : MTLog.Loggable {
 
+    var targetUUID: String = initialTargetUUID
+        private set
+
+    constructor(
+        poi: POI,
+        serviceUpdateImg: ImageView?,
+        otherServiceUpdateImg: ImageView? = null,
+    ) : this(
+        initialTargetUUID = poi.uuid,
+        serviceUpdateImg = serviceUpdateImg,
+        otherServiceUpdateImg = otherServiceUpdateImg,
+        ignoredOtherTargetUUIDsOrUnknown = (poi as? RouteDirectionStop)?.routeDirectionAllUUIDs
+    )
+
     override fun getLogTag() = LOG_TAG
 
-    val uuid: String get() = _uuid
-
     fun setTarget(poi: POI) {
-        _uuid = poi.uuid
+        targetUUID = poi.uuid
         ignoredOtherTargetUUIDsOrUnknown = (poi as? RouteDirectionStop)?.routeDirectionAllUUIDs
     }
 
@@ -97,12 +109,10 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
         @JvmOverloads
         @JvmStatic
         fun init(poi: POI, view: View, otherView: ImageView? = null) = POIServiceUpdateViewHolder(
-            _uuid = poi.uuid,
+            poi = poi,
             serviceUpdateImg = view.findViewById(R.id.poi_status_service_update_img),
             otherServiceUpdateImg = otherView,
-        ).apply {
-            setTarget(poi)
-        }
+        )
 
         @JvmStatic
         fun updateView(
