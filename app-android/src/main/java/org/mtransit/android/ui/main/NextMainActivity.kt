@@ -268,6 +268,7 @@ class NextMainActivity : MTActivityWithLocation(),
         (currentFragment as? SearchFragment)?.apply {
             setSearchQuery(query, false)
         } ?: run {
+            // TODO start Search
         }
     }
 
