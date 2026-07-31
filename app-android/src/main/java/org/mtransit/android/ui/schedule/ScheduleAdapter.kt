@@ -388,7 +388,7 @@ class ScheduleAdapter(
         var index = 0
         this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
             index++ // day separator
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
                 index++ // hour separator
                 if (position >= index && position < index + hourToTimes.get(hourOfTheDay).size) {
                     return hourToTimes.get(hourOfTheDay)[position - index]
@@ -407,7 +407,7 @@ class ScheduleAdapter(
             val dayPosition = index
             val startIndex = index
             index++ // day separator
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
                 index++ // hour separator
                 index += hourToTimes.get(hourOfTheDay).size
             }
@@ -441,7 +441,7 @@ class ScheduleAdapter(
                 return dayBeginningMs
             }
             index++ // day separator
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
                 index++ // hour separator
                 index += hourToTimes.get(hourOfTheDay).size
             }
@@ -456,7 +456,7 @@ class ScheduleAdapter(
         this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
             index++ // day separator
             val cal: Calendar = dayBeginningMs.toCalendar(localTimeZone)
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
                 if (index == position) {
                     cal.hourOfTheDay = hourOfTheDay
                     return cal.timeInMillis
@@ -476,7 +476,7 @@ class ScheduleAdapter(
                 return ITEM_VIEW_TYPE_DAY_SEPARATORS
             }
             index++ // separator
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
                 if (index == position) {
                     return ITEM_VIEW_TYPE_HOUR_SEPARATORS
                 }

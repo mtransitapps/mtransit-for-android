@@ -51,10 +51,6 @@
     <ID>CyclomaticComplexMethod:SensorManagerImpl.kt:SensorManagerImpl$override fun checkForCompass</ID>
     <ID>CyclomaticComplexMethod:SplashScreenViewModel.kt:SplashScreenViewModel$@VisibleForTesting internal suspend fun getAndUpdateAppOpenCounts: Int</ID>
     <ID>CyclomaticComplexMethod:StrictModeImpl.kt:StrictModeImpl$override fun setup</ID>
-    <ID>ForEachOnRange:MTDotsView.kt:MTDotsView$0 until linesCount</ID>
-    <ID>ForEachOnRange:MTDotsView.kt:MTDotsView$0 until this.rowCount</ID>
-    <ID>ForEachOnRange:ModulesViewModel.kt:ModulesViewModel$0..FAKE_AGENCIES_COUNT</ID>
-    <ID>ForEachOnRange:ScheduleAdapter.kt:ScheduleAdapter$0 until HOUR_SEPARATORS_COUNT</ID>
     <ID>ForbiddenComment:MTTransitions.kt:MTTransitions$* Android Dev: * https://developer.android.com/guide/fragments/animate#shared * https://developer.android.com/guide/navigation/navigation-animate-transitions#set-fragment * https://android-developers.googleblog.com/2018/02/continuous-shared-element-transitions.html * https://medium.com/androiddevelopers/fragment-transitions-ea2726c3f36f * Material: * https://material.io/develop/android/theming/motion#container-transform * https://material.io/develop/android/theming/motion#customization * Blog: * https://chris.banes.dev/fragmented-transitions/ * https://wykorijnsburger.nl/dev/2019/04/30/shared-element-transition/ * * TODO: * - look at visibility changing during transition (enter + exit) * - POI scree * - Home screen</ID>
     <ID>FunctionOnlyReturningConstant:BatteryOptimizationIssueUtils.kt:BatteryOptimizationIssueUtils$private fun isInvisibleActivityEnabled</ID>
     <ID>LargeClass:DataSourcesReader.kt:DataSourcesReader : Loggable</ID>
