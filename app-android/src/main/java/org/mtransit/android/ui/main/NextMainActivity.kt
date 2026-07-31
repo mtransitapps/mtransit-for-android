@@ -327,9 +327,11 @@ class NextMainActivity : MTActivityWithLocation(),
     }
 
     fun showContentFrameAsLoading() {
+        // TODO show loading
     }
 
     fun showContentFrameAsLoaded() {
+        // TODO hide loading
     }
 
     override fun onLastLocationChanged(lastLocation: Location?) {
@@ -358,9 +360,11 @@ class NextMainActivity : MTActivityWithLocation(),
     }
 
     fun updateNavigationDrawerToggleIndicator() {
+        // TODO update indicator
     }
 
     fun enableNavigationDrawerToggleIndicator() {
+        // TODO enable indicator
     }
 
     private val _backStackEntryCount: AtomicInteger by lazy { AtomicInteger(supportFragmentManager.backStackEntryCount) }

@@ -51,7 +51,6 @@
     <ID>CyclomaticComplexMethod:SensorManagerImpl.kt:SensorManagerImpl$override fun checkForCompass</ID>
     <ID>CyclomaticComplexMethod:SplashScreenViewModel.kt:SplashScreenViewModel$@VisibleForTesting internal suspend fun getAndUpdateAppOpenCounts: Int</ID>
     <ID>CyclomaticComplexMethod:StrictModeImpl.kt:StrictModeImpl$override fun setup</ID>
-    <ID>EmptyFunctionBlock:NextMainActivity.kt:NextMainActivity${ }</ID>
     <ID>ExplicitItLambdaParameter:POIViewModel.kt:POIViewModel${ it -&gt; it?.let { Area.getArea(it.lat, it.lng, 0.01) } }</ID>
     <ID>ForEachOnRange:MTDotsView.kt:MTDotsView$0 until linesCount</ID>
     <ID>ForEachOnRange:MTDotsView.kt:MTDotsView$0 until this.rowCount</ID>
