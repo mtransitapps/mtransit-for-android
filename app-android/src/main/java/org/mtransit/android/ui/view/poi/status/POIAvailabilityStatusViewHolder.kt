@@ -14,7 +14,7 @@ import org.mtransit.android.util.UIFeatureFlags
 import androidx.core.util.Pair as androidXPair
 
 data class POIAvailabilityStatusViewHolder(
-    override var uuid: String,
+    override var targetUUID: String,
     override val statusV: View,
     override val binding: LayoutPoiStatusAvailabilityPercentBinding,
 ) : POICommonStatusViewHolder<LayoutPoiStatusAvailabilityPercentBinding, AvailabilityPercent> {
@@ -103,8 +103,8 @@ data class POIAvailabilityStatusViewHolder(
 
     companion object {
         @JvmStatic
-        fun fromStatusView(view: View, uuid: String) = POIAvailabilityStatusViewHolder(
-            uuid = uuid,
+        fun fromStatusView(view: View, targetUUID: String) = POIAvailabilityStatusViewHolder(
+            targetUUID = targetUUID,
             statusV = POICommonStatusViewHolder.bindStatusV(view),
             binding = LayoutPoiStatusAvailabilityPercentBinding.bind(view),
         )

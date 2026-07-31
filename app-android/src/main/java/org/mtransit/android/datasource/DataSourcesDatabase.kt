@@ -29,7 +29,8 @@ import org.mtransit.commons.sql.SQLUtils
     autoMigrations = [
         /**
          * ```sql
-         * CREATE TABLE IF NOT EXISTS `vehicle_location_provider_properties` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, `pkg` TEXT NOT NULL, PRIMARY KEY(`authority`))
+         * CREATE TABLE IF NOT EXISTS `vehicle_location_provider_properties`
+         * (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, `pkg` TEXT NOT NULL, PRIMARY KEY(`authority`))
          * ```
          */
         AutoMigration(from = 5, to = 6),

@@ -11,7 +11,7 @@ import org.mtransit.android.databinding.LayoutPoiStatusAppBinding
 import org.mtransit.android.ui.view.common.context
 
 data class POIAppStatusViewHolder(
-    override var uuid: String,
+    override var targetUUID: String,
     override val statusV: View,
     override val binding: LayoutPoiStatusAppBinding,
 ) : POICommonStatusViewHolder<LayoutPoiStatusAppBinding, AppStatus> {
@@ -50,8 +50,8 @@ data class POIAppStatusViewHolder(
 
     companion object {
         @JvmStatic
-        fun fromStatusView(view: View, uuid: String) = POIAppStatusViewHolder(
-            uuid = uuid,
+        fun fromStatusView(view: View, targetUUID: String) = POIAppStatusViewHolder(
+            targetUUID = targetUUID,
             statusV = POICommonStatusViewHolder.bindStatusV(view),
             binding = LayoutPoiStatusAppBinding.bind(view),
         )

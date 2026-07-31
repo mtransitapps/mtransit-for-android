@@ -41,7 +41,15 @@ data class NearbyParams(
         get() = typeAgencies != null && nearbyLocation != null && ad != null && minCoverageInMeters != null && maxSize != null
 
     @Suppress("unused")
-    fun toStringS(): String {
-        return "NearbyParams(type=$typeId, agencies=${allAgencies?.size}, ad=$ad, nearby=${nearbyLocation.toLatLngS()}, minCoverageMeter=$minCoverageInMeters, min=$minSize, max=$maxSize)"
+    fun toStringS() = buildString {
+        append("NearbyParams(")
+        append("type=$typeId, ")
+        append("agencies=${allAgencies?.size}, ")
+        append("ad=$ad, ")
+        append("nearby=${nearbyLocation.toLatLngS()}, ")
+        append("minCoverageMeter=$minCoverageInMeters, ")
+        append("min=$minSize, ")
+        append("max=$maxSize")
+        append(")")
     }
 }

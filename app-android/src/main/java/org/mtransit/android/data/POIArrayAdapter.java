@@ -1050,7 +1050,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	public void onStatusLoaded(@NonNull POIStatus status) {
 		if (!this.showStatus) return;
 		final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
-		if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.getUuid())) {
+		if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.getTargetUUID())) {
 			final POIManager poim = getItemByUUID(status.getTargetUUID());
 			final ServiceUpdates poiServiceUpdates = poim == null ? null : poim.getServiceUpdatesOrNull();
 			POICommonStatusViewHolder.updateView(statusViewHolder, status, this, poiServiceUpdates);
@@ -1063,7 +1063,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates) {
 		if (!this.showServiceUpdate) return;
 		final POIServiceUpdateViewHolder serviceUpdateViewHolder = this.poiServiceUpdateViewHoldersWR.get(targetUUID);
-		if (serviceUpdateViewHolder != null && targetUUID.equals(serviceUpdateViewHolder.getUuid())) {
+		if (serviceUpdateViewHolder != null && targetUUID.equals(serviceUpdateViewHolder.getTargetUUID())) {
 			POIServiceUpdateViewHolder.updateView(serviceUpdateViewHolder, serviceUpdates, this);
 			updateStatusWithServiceUpdatesLoaded(targetUUID, serviceUpdates);
 		} else if (isResumed()) {
@@ -1074,7 +1074,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	private void updateStatusWithServiceUpdatesLoaded(@NonNull String targetUUID, @NonNull ServiceUpdates serviceUpdates) {
 		if (!this.showStatus) return;
 		final POICommonStatusViewHolder<?, ?> statusViewHolder = this.poiStatusViewHoldersWR.get(targetUUID);
-		if (statusViewHolder == null || !targetUUID.equals(statusViewHolder.getUuid())) return;
+		if (statusViewHolder == null || !targetUUID.equals(statusViewHolder.getTargetUUID())) return;
 		final POIManager poim = getItemByUUID(targetUUID);
 		final POIStatus status = poim == null ? null : poim.getStatusOrNull();
 		if (status == null) return;
@@ -1934,7 +1934,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		holder.setUuid(poi.getUUID());
 		MTTransitions.setTransitionName(holder.getView(), "poi_" + poi.getUUID());
 		if (holder.getStatusViewHolder() != null) {
-			holder.getStatusViewHolder().setUuid(poi.getUUID());
+			holder.getStatusViewHolder().setTargetUUID(poi.getUUID());
 		}
 		this.poiStatusViewHoldersWR.put(holder.getUuid(), holder.getStatusViewHolder());
 		if (holder.getServiceUpdateViewHolder() != null) {
