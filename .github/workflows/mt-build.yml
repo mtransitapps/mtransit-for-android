@@ -77,6 +77,10 @@ jobs:
       - name: MT detekt
         run: |
           ./gradlew detekt
+      - name: MT detekt > print markdown reports (if failure)
+        if: ${{ failure() }}
+        run: |
+          cat */build/reports/detekt/detekt.md
       - name: MT detekt > artifact > XML results
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
