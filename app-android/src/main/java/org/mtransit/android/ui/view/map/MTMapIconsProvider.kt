@@ -14,7 +14,7 @@ object MTMapIconsProvider {
 
     @JvmStatic
     val selectedDefaultIconDef =
-        MTMapIconDef(R.drawable.map_icon_place_replace_slim_original_nodpi, oneSize = true, size= 36.dpToPx, replaceColor = true)
+        MTMapIconDef(R.drawable.map_icon_place_replace_slim_original_nodpi, oneSize = true, size = 36.dpToPx, replaceColor = true)
 
     @JvmStatic
     val defaultIconDef =
