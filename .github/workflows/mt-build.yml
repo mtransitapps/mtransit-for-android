@@ -74,9 +74,27 @@ jobs:
         id: mt-setup
         uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.0
 
-      - name: MT test
+      - name: MT detekt
+        run: |
+          ./gradlew detekt
+      - name: MT detekt > artifact > XML results
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }} # even if tests fails
+        with:
+          name: detekt-xml-results
+          path: |
+            */build/reports/detekt/detekt.xml
+      - name: MT detekt > artifact > HTML reports
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }} # even if tests fails
+        with:
+          name: detekt-html-reports
+          path: |
+            */build/reports/detekt/detekt.html
+
+      - name: MT tests
         run: ./test_only.sh
-      - name: MT artifact > tests XML results
+      - name: MT tests > artifact > XML results
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
@@ -85,7 +103,7 @@ jobs:
             */build/test-results/**/*.xml
             */build/test-results/*.xml
             */build/reports/*.xml
-      - name: MT artifact > HTML reports
+      - name: MT tests > artifact > HTML reports
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
