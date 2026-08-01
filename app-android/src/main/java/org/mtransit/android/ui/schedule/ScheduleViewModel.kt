@@ -18,7 +18,7 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
-import org.mtransit.android.commons.data.hasRealTime
+import org.mtransit.android.commons.data.hasRealTimeOrCancelled
 import org.mtransit.android.commons.data.readFromSource
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
 import org.mtransit.android.commons.provider.status.findClosestTripTimestamp
@@ -249,8 +249,8 @@ class ScheduleViewModel @Inject constructor(
                 val statusFilter = poim?.makeStatusFilter() ?: return@liveData
                 rtStatusProviders.forEach { statusProvider ->
                     val schedule = dataSourceRequestManager.findStatus(statusProvider, statusFilter) as? Schedule
-                    _rtReadFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTime })
-                    _rtSourceLabel.postValue(schedule?.sourceLabel?.takeIf { schedule.hasRealTime })
+                    _rtReadFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTimeOrCancelled })
+                    _rtSourceLabel.postValue(schedule?.sourceLabel?.takeIf { schedule.hasRealTimeOrCancelled })
                     emit(schedule?.timestamps) // always emit to erase old real-time value
                 }
             }
@@ -260,13 +260,14 @@ class ScheduleViewModel @Inject constructor(
         .map { (scheduleTimestamps, rtTimestamps) ->
             val scheduleTimestamps = scheduleTimestamps?.toMutableList() ?: return@map null
             rtTimestamps
-                ?.filter { it.isRealTime }
+                ?.filter { it.isRealTimeOrCancelled }
                 ?.forEach { rtTimestamp ->
                     val tripId = rtTimestamp.tripId ?: return@forEach
                     val stopSequence = rtTimestamp.stopSequenceOrNull ?: return@forEach
-                    val rdsTripTimestamp = scheduleTimestamps.findClosestTripTimestamp(tripId, stopSequence)
-                    scheduleTimestamps.remove(rdsTripTimestamp)
-                    scheduleTimestamps.add(rtTimestamp)
+                    scheduleTimestamps.findClosestTripTimestamp(tripId, stopSequence)?.let { rdsTripTimestamp ->
+                        scheduleTimestamps.remove(rdsTripTimestamp)
+                        scheduleTimestamps.add(rtTimestamp)
+                    }
                 }
             scheduleTimestamps.sortWith(Schedule.TIMESTAMPS_COMPARATOR)
             scheduleTimestamps
