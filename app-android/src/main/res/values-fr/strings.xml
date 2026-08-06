@@ -34,7 +34,7 @@
     <string name="agency_stop_type_port">Port</string>
     <string name="agency_stop_type_ports">Ports</string>
     <string name="agency_stop_type_terminal">Terminal</string>
-    <string name="agency_stop_type_terminals">Terminals</string>
+    <string name="agency_stop_type_terminals">Terminaux</string>
     <string name="agency_stop_type_place">Lieu</string>
     <string name="agency_stop_type_places">Lieux</string>
     <string name="agency_stop_type_module">Agence</string>
