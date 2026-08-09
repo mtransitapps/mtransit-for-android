@@ -654,6 +654,7 @@ class ScheduleAdapter(
             }
             val optRds = optPOIM?.poi as? RouteDirectionStop
 
+            @SuppressLint("DeprecatedCall")
             @Suppress("DEPRECATION") // migrating
             val localTZ = localTimeZone ?: timestamp.localTimeZoneId.let { TimeZone.getTimeZone(it) }
             val formattedTime = formatTime(

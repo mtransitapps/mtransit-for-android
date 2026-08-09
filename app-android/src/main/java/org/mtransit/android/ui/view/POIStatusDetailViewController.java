@@ -375,7 +375,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			localTimeZoneId = schedule.getLocalTimeZoneId();
 			if (localTimeZoneId == null) {
 				for (UISchedule.Timestamp timestamp : schedule.getTimestamps()) {
-					//noinspection deprecation
+					//noinspection deprecation, DeprecatedCall
 					localTimeZoneId = timestamp.getLocalTimeZoneId();
 					break;
 				}

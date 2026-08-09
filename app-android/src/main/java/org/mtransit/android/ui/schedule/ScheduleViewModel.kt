@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.schedule
 
+import android.annotation.SuppressLint
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -220,7 +221,11 @@ class ScheduleViewModel @Inject constructor(
 
     private suspend fun setLocalTimeZoneId(scheduleTimestamps: ScheduleTimestamps) = withContext(Dispatchers.Main) {
         savedStateHandle[LOCAL_TIME_ZONE_ID] = scheduleTimestamps.localTimeZoneId
-            ?: scheduleTimestamps.timestamps.firstOrNull()?.let { @Suppress("DEPRECATION") it.localTimeZoneId }
+            ?: scheduleTimestamps.timestamps.firstOrNull()?.let {
+                @SuppressLint("DeprecatedCall")
+                @Suppress("DEPRECATION")
+                it.localTimeZoneId
+            }
                     ?: run {
                 if (BuildConfig.DEBUG) {
                     throw IllegalStateException("No schedule timestamp timezone available!")

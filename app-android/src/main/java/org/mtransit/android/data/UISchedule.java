@@ -576,7 +576,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			idx++;
 			SpannableStringBuilder headSignSSB = null;
 			SpannableStringBuilder dateSSB = null;
-			//noinspection deprecation
+			//noinspection deprecation, DeprecatedCall
 			final TimeZone tTZ = localTimeZone != null ? localTimeZone : TimeZone.getTimeZone(t.getLocalTimeZoneId());
 			final String fTime = UITimeUtilsExtKt.formatTime(context, t.getDepartureT(), tTZ, t.isRealTime());
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
@@ -938,7 +938,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		int startAfterNextTimes = -1, endAfterNextTimes = -1;
 		TimeZone localTimeZone = getLocalTimeZoneId() == null ? null: TimeZone.getTimeZone(getLocalTimeZoneId());
 		for (Timestamp t : nextTimestamps) {
-			//noinspection deprecation
+			//noinspection deprecation, DeprecatedCall
 			final TimeZone tTZ = localTimeZone != null ? localTimeZone : TimeZone.getTimeZone(t.getLocalTimeZoneId());
 			if (ssb.length() > 0) {
 				ssb.append(StringUtils.SPACE_CAR).append(StringUtils.SPACE_CAR);
