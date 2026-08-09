@@ -375,13 +375,13 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			localTimeZoneId = schedule.getLocalTimeZoneId();
 			if (localTimeZoneId == null) {
 				for (UISchedule.Timestamp timestamp : schedule.getTimestamps()) {
-					//noinspection deprecation, DeprecatedCall
+					//noinspection DiscouragedApi
 					localTimeZoneId = timestamp.getLocalTimeZoneId();
-					break;
+					if (localTimeZoneId != null) break;
 				}
 			}
 		}
-		final Calendar cal = Calendar.getInstance(localTimeZoneId == null ? TimeZone.getDefault() : TimeZone.getTimeZone(localTimeZoneId));
+		final Calendar cal = Calendar.getInstance(localTimeZoneId != null ? TimeZone.getTimeZone(localTimeZoneId) : TimeZone.getDefault());
 		final ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		final LayoutInflater layoutInflater = LayoutInflater.from(context);
 		scheduleStatusViewHolder.nextDeparturesLL.removeAllViews();

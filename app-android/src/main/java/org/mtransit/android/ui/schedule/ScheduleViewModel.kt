@@ -221,11 +221,7 @@ class ScheduleViewModel @Inject constructor(
 
     private suspend fun setLocalTimeZoneId(scheduleTimestamps: ScheduleTimestamps) = withContext(Dispatchers.Main) {
         savedStateHandle[LOCAL_TIME_ZONE_ID] = scheduleTimestamps.localTimeZoneId
-            ?: scheduleTimestamps.timestamps.firstOrNull()?.let {
-                @SuppressLint("DeprecatedCall")
-                @Suppress("DEPRECATION")
-                it.localTimeZoneId
-            }
+            ?: scheduleTimestamps.timestamps.firstNotNullOfOrNull { @SuppressLint("DiscouragedApi") it.localTimeZoneId }
                     ?: run {
                 if (BuildConfig.DEBUG) {
                     throw IllegalStateException("No schedule timestamp timezone available!")

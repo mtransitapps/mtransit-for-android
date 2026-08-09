@@ -571,13 +571,15 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final int nbSpaceAfter = 0;
 		final ArrayList<DetailsNextDepartures> list = new ArrayList<>();
 		long lastTimestamp = -1L;
-		TimeZone localTimeZone = getLocalTimeZoneId() == null ? null: TimeZone.getTimeZone(getLocalTimeZoneId());
+		TimeZone localTimeZone = getLocalTimeZoneId() == null ? null : TimeZone.getTimeZone(getLocalTimeZoneId());
 		for (Timestamp t : timestamps) {
 			idx++;
 			SpannableStringBuilder headSignSSB = null;
 			SpannableStringBuilder dateSSB = null;
-			//noinspection deprecation, DeprecatedCall
-			final TimeZone tTZ = localTimeZone != null ? localTimeZone : TimeZone.getTimeZone(t.getLocalTimeZoneId());
+			//noinspection DiscouragedApi
+			final TimeZone tTZ = localTimeZone != null ? localTimeZone
+					: t.getLocalTimeZoneId() != null ? TimeZone.getTimeZone(t.getLocalTimeZoneId())
+					  : TimeZone.getDefault();
 			final String fTime = UITimeUtilsExtKt.formatTime(context, t.getDepartureT(), tTZ, t.isRealTime());
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			final CharSequence timestampHeading = DirectionExtKt.makeHeading(t, context, optDefaultHeadSign, true);
@@ -936,10 +938,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		int startNextTime = -1, endNextTime = -1;
 		int startNextNextTime = -1, endNextNextTime = -1;
 		int startAfterNextTimes = -1, endAfterNextTimes = -1;
-		TimeZone localTimeZone = getLocalTimeZoneId() == null ? null: TimeZone.getTimeZone(getLocalTimeZoneId());
+		TimeZone localTimeZone = getLocalTimeZoneId() == null ? null : TimeZone.getTimeZone(getLocalTimeZoneId());
 		for (Timestamp t : nextTimestamps) {
-			//noinspection deprecation, DeprecatedCall
-			final TimeZone tTZ = localTimeZone != null ? localTimeZone : TimeZone.getTimeZone(t.getLocalTimeZoneId());
+			//noinspection DiscouragedApi
+			final TimeZone tTZ = localTimeZone != null ? localTimeZone
+					: t.getLocalTimeZoneId() != null ? TimeZone.getTimeZone(t.getLocalTimeZoneId())
+					  : TimeZone.getDefault();
 			if (ssb.length() > 0) {
 				ssb.append(StringUtils.SPACE_CAR).append(StringUtils.SPACE_CAR);
 			}
