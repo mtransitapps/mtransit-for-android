@@ -19,6 +19,7 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
+import org.mtransit.android.commons.data.ScheduleTimestamps
 import org.mtransit.android.commons.data.hasRealTimeOrCancelled
 import org.mtransit.android.commons.data.readFromSource
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
@@ -200,18 +201,7 @@ class ScheduleViewModel @Inject constructor(
                 hasProviderTimestampsReturned = true
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _scheduleSourceLabel.postValue(scheduleTimestamps.sourceLabel)
-                    withContext(Dispatchers.Main) {
-                        savedStateHandle[LOCAL_TIME_ZONE_ID] = scheduleTimestamps.localTimeZoneId
-                            ?: scheduleTimestamps.timestamps.firstOrNull()?.let { @Suppress("DEPRECATION") it.localTimeZoneId }
-                                    ?: run {
-                                if (BuildConfig.DEBUG) {
-                                    throw IllegalStateException("No schedule timestamp timezone available!")
-                                }
-                                MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device TZ)!")
-                                TimeZone.getDefault().id // must set a timezone to display calendar
-                            }
-
-                    }
+                    setLocalTimeZoneId(scheduleTimestamps)
                     return scheduleTimestamps.timestamps // DONE (loaded)
                 }
             }
@@ -226,6 +216,18 @@ class ScheduleViewModel @Inject constructor(
             savedStateHandle[LOCAL_TIME_ZONE_ID] = TimeZone.getDefault().id // empty list must set a timezone to display calendar
         }
         return emptyList() // loaded (not loading) == no service today
+    }
+
+    private suspend fun setLocalTimeZoneId(scheduleTimestamps: ScheduleTimestamps) = withContext(Dispatchers.Main) {
+        savedStateHandle[LOCAL_TIME_ZONE_ID] = scheduleTimestamps.localTimeZoneId
+            ?: scheduleTimestamps.timestamps.firstOrNull()?.let { @Suppress("DEPRECATION") it.localTimeZoneId }
+                    ?: run {
+                if (BuildConfig.DEBUG) {
+                    throw IllegalStateException("No schedule timestamp timezone available!")
+                }
+                MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device TZ)!")
+                TimeZone.getDefault().id // must set a timezone to display calendar
+            }
     }
 
     val showAccessibility: LiveData<Boolean> = userPrefManager.showAccessibility.distinctUntilChanged()
