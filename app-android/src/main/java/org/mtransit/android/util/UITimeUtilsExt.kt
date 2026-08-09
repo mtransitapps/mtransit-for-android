@@ -2,22 +2,8 @@ package org.mtransit.android.util
 
 import android.content.Context
 import org.mtransit.android.commons.TimeUtils
-import org.mtransit.android.commons.data.Schedule
 import java.util.Calendar
 import java.util.TimeZone
-
-@JvmOverloads
-fun Schedule.Timestamp.formatTimestamp(
-    context: Context,
-    timestampInMs: Long = this.departureT,
-    realTime: Boolean = this.isRealTime,
-    localTimeZoneId: String? = this.localTimeZoneId,
-) = formatTime(
-    context = context,
-    timestampInMs = timestampInMs,
-    realTime = realTime,
-    localTimeZoneId = localTimeZoneId
-)
 
 @JvmOverloads
 fun formatTime(

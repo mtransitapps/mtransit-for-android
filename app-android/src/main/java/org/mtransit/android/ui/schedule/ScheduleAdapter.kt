@@ -37,7 +37,7 @@ import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.android.util.formatTimestamp
+import org.mtransit.android.util.formatTime
 import org.mtransit.commons.Constants.EMPTY
 import org.mtransit.commons.Constants.SPACE
 import org.mtransit.commons.beginningOfDay
@@ -526,6 +526,7 @@ class ScheduleAdapter(
                 this.optPOIM,
                 this.showingAccessibility,
                 this.hideRealTime,
+                this.localTimeZone,
             )
 
             is LoadingViewHolder -> holder.bind()
@@ -645,16 +646,21 @@ class ScheduleAdapter(
             optPOIM: POIManager?,
             showingAccessibility: Boolean,
             hideRealTime: Boolean,
+            localTimeZone: TimeZone?,
         ) {
             if (timestamp == null) {
                 binding.time.text = null
                 return
             }
             val optRds = optPOIM?.poi as? RouteDirectionStop
-            val formattedTime = timestamp.formatTimestamp(
+
+            @Suppress("DEPRECATION") // migrating
+            val localTZ = localTimeZone ?: timestamp.localTimeZoneId.let { TimeZone.getTimeZone(it) }
+            val formattedTime = formatTime(
                 context,
                 timestampInMs = timestamp.departureMs(hideRealTime),
-                realTime = if (hideRealTime) false else timestamp.isRealTime
+                realTime = if (hideRealTime) false else timestamp.isRealTime,
+                localTimeZone = localTZ,
             )
             var timeSb = SpannableStringBuilder(formattedTime)
             timestamp.takeUnless { hideRealTime } // hide late/early w/o real-time
@@ -667,10 +673,11 @@ class ScheduleAdapter(
                     .append(
                         context.getString(
                             R.string.arrival_and,
-                            timestamp.formatTimestamp(
+                            formatTime(
                                 context = context,
                                 timestampInMs = timestamp.arrivalMs(hideRealTime),
-                                realTime = false // cannot have multiple real-time image in 1 Spannable
+                                realTime = false, // cannot have multiple real-time image in 1 Spannable
+                                localTimeZone = localTZ,
                             )
                         )
                     )

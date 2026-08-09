@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.mtransit.android.commons.BuildConfig
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
@@ -200,11 +201,18 @@ class ScheduleViewModel @Inject constructor(
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _scheduleSourceLabel.postValue(scheduleTimestamps.sourceLabel)
                     withContext(Dispatchers.Main) {
-                        savedStateHandle[LOCAL_TIME_ZONE_ID] =
-                            scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZoneId }
-                                ?: TimeZone.getDefault().id // must set a timezone to display calendar
+                        savedStateHandle[LOCAL_TIME_ZONE_ID] = scheduleTimestamps.localTimeZoneId
+                            ?: scheduleTimestamps.timestamps.firstNotNullOfOrNull { @Suppress("DEPRECATION") it.localTimeZoneId }
+                                    ?: run {
+                                if (BuildConfig.DEBUG) {
+                                    throw RuntimeException("No schedule timestamp timezone available!")
+                                }
+                                MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device timezone)!")
+                                TimeZone.getDefault().id // must set a timezone to display calendar
+                            }
+
                     }
-                    return scheduleTimestamps.timestamps
+                    return scheduleTimestamps.timestamps // DONE (loaded)
                 }
             }
         }

@@ -358,7 +358,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		final POI optPOI = optPOIM == null ? null : optPOIM.poi;
 		final ServiceUpdates serviceUpdates = optPOIM == null ? null : optPOIM.getServiceUpdatesOrNull();
 		ArrayList<DetailsNextDepartures> nextDeparturesList = null;
-		TimeZone localTimeZone = null;
+		String localTimeZoneId = null;
 		if (status instanceof UISchedule) {
 			final UISchedule schedule = (UISchedule) status;
 			final String defaultHeadSign = optPOI instanceof RouteDirectionStop ? ((RouteDirectionStop) optPOI).getDirection().getHeading(context) : null;
@@ -372,9 +372,16 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 					dataProvider.isShowingAccessibilityInfo(),
 					serviceUpdates
 			);
-			localTimeZone = schedule.getTimeZone();
+			localTimeZoneId = schedule.getLocalTimeZoneId();
+			if (localTimeZoneId == null) {
+				for (UISchedule.Timestamp timestamp : schedule.getTimestamps()) {
+					//noinspection deprecation
+					localTimeZoneId = timestamp.getLocalTimeZoneId();
+					break;
+				}
+			}
 		}
-		final Calendar cal = Calendar.getInstance(localTimeZone == null ? TimeZone.getDefault() : localTimeZone);
+		final Calendar cal = Calendar.getInstance(localTimeZoneId == null ? TimeZone.getDefault() : TimeZone.getTimeZone(localTimeZoneId));
 		final ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		final LayoutInflater layoutInflater = LayoutInflater.from(context);
 		scheduleStatusViewHolder.nextDeparturesLL.removeAllViews();
@@ -450,9 +457,9 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 		scheduleStatusViewHolder.nextDeparturesLL.setVisibility(View.VISIBLE);
 		UISourceLabelUtils.setSourceLabelTextView(scheduleStatusViewHolder.sourceLabelTv, status);
-		if (localTimeZone != null) {
+		if (localTimeZoneId != null) {
 			final long nowInMs = UITimeUtils.currentTimeToTheMinuteMillis();
-			final String localTime = UITimeUtilsExtKt.formatTime(context, nowInMs, localTimeZone);
+			final String localTime = UITimeUtilsExtKt.formatTime(context, nowInMs, localTimeZoneId);
 			final String deviceTime = UITimeUtilsExtKt.formatTime(context, nowInMs, TimeZone.getDefault());
 			if (localTime.equals(deviceTime)) {
 				scheduleStatusViewHolder.localTimeTv.setText(null);
