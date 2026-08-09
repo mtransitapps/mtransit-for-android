@@ -611,7 +611,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			final long departureT = t.getDepartureT();
 			if (lastTimestamp > 0L) {
 				if (!UITimeUtils.isSameDay(tTZ, lastTimestamp, departureT)) {
-					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT));
+					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT, tTZ.getID()));
 				}
 			} else { // 1st timestamp
 				final long diffInMs = departureT - after;
@@ -629,7 +629,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						dateSSB.append(SPACE).append(shortTimeSpam.second);
 					}
 				} else {
-					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT));
+					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT, tTZ.getID()));
 				}
 			}
 			if (ts.previousTimesStartIdx < ts.previousTimesEndIdx // IF previous times list DO

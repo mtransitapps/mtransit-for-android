@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -153,9 +154,33 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		}
 	}
 
+	/**
+	 * @deprecated always with device timezone
+	 */
+	@Deprecated
+	@SuppressWarnings("unused")
 	@NonNull
 	public static CharSequence formatNearDate(@NonNull Context context, long dateInMs) {
-		return DateUtils.formatDateTime(context, dateInMs, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_ALL);
+		return DateUtils.formatDateTime(
+				context,
+				dateInMs,
+				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_ALL
+		);
+	}
+
+	/**
+	 * {@link DateUtils#formatDateTime(Context, long, int)}
+	 */
+	@NonNull
+	public static CharSequence formatNearDate(@NonNull Context context, long dateInMs, @NonNull String timeZoneId) {
+		return DateUtils.formatDateRange(
+				context,
+				new Formatter(new StringBuilder(50), Locale.getDefault()),
+				dateInMs,
+				dateInMs,
+				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_ALL,
+				timeZoneId
+		).toString();
 	}
 
 	@SuppressWarnings("unused")
