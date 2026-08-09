@@ -77,7 +77,7 @@ jobs:
       - name: MT detekt
         run: |
           ./gradlew detekt
-      - name: MT detekt > print markdown reports (if failure)
+      - name: MT detekt > print markdown report (if failure)
         if: ${{ failure() }}
         run: |
           cat */build/reports/detekt/detekt.md
@@ -88,7 +88,7 @@ jobs:
           name: detekt-xml-results
           path: |
             */build/reports/detekt/detekt.xml
-      - name: MT detekt > artifact > HTML reports
+      - name: MT detekt > artifact > HTML report
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
@@ -136,14 +136,18 @@ jobs:
 
       - name: MT lint
         run: ./lint_only.sh
-      - name: MT artifact > lint XML results
+      - name: MT lint > print text report (if failure)
+        if: ${{ failure() }}
+        run: |
+          cat app-android/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
+      - name: MT lint > artifact > XML reports
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
           name: lint-xml-results
           path: |
             */build/reports/*.xml
-      - name: MT artifact > lint HTML reports
+      - name: MT lint > artifact > HTML reports
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
