@@ -140,14 +140,14 @@ jobs:
         if: ${{ failure() }}
         run: |
           cat app-android/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
-      - name: MT artifact > lint XML reports
+      - name: MT lint > artifact > XML reports
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
           name: lint-xml-results
           path: |
             */build/reports/*.xml
-      - name: MT artifact > lint HTML reports
+      - name: MT lint > artifact > HTML reports
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
