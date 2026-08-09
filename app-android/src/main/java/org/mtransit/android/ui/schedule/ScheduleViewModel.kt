@@ -202,7 +202,7 @@ class ScheduleViewModel @Inject constructor(
                     _scheduleSourceLabel.postValue(scheduleTimestamps.sourceLabel)
                     withContext(Dispatchers.Main) {
                         savedStateHandle[LOCAL_TIME_ZONE_ID] = scheduleTimestamps.localTimeZoneId
-                            ?: scheduleTimestamps.timestamps.firstNotNullOfOrNull { @Suppress("DEPRECATION") it.localTimeZoneId }
+                            ?: scheduleTimestamps.timestamps.firstOrNull()?.let { @Suppress("DEPRECATION") it.localTimeZoneId }
                                     ?: run {
                                 if (BuildConfig.DEBUG) {
                                     throw RuntimeException("No schedule timestamp timezone available!")
