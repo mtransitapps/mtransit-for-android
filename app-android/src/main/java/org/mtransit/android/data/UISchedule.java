@@ -571,13 +571,14 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final int nbSpaceAfter = 0;
 		final ArrayList<DetailsNextDepartures> list = new ArrayList<>();
 		long lastTimestamp = -1L;
-		TimeZone timeZone = null;
-		String lastLocalTimeZoneId = null;
+		TimeZone localTimeZone = getLocalTimeZoneId() == null ? null: TimeZone.getTimeZone(getLocalTimeZoneId());
 		for (Timestamp t : timestamps) {
 			idx++;
 			SpannableStringBuilder headSignSSB = null;
 			SpannableStringBuilder dateSSB = null;
-			final String fTime = UITimeUtilsExtKt.formatTimestamp(t, context);
+			//noinspection deprecation
+			final TimeZone tTZ = localTimeZone != null ? localTimeZone : TimeZone.getTimeZone(t.getLocalTimeZoneId());
+			final String fTime = UITimeUtilsExtKt.formatTime(context, t.getDepartureT(), tTZ, t.isRealTime());
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			final CharSequence timestampHeading = DirectionExtKt.makeHeading(t, context, optDefaultHeadSign, true);
 			if (timestampHeading != null) {
@@ -606,18 +607,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				}
 			}
 			final long departureT = t.getDepartureT();
-			final String localTimeZoneId = t.getLocalTimeZoneId();
-			if (timeZone == null || !TextUtils.equals(localTimeZoneId, lastLocalTimeZoneId)) {
-				timeZone = TimeZone.getTimeZone(localTimeZoneId);
-				lastLocalTimeZoneId = localTimeZoneId;
-			}
 			if (lastTimestamp > 0L) {
-				if (!UITimeUtils.isSameDay(timeZone, lastTimestamp, departureT)) {
+				if (!UITimeUtils.isSameDay(tTZ, lastTimestamp, departureT)) {
 					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT));
 				}
 			} else { // 1st timestamp
 				final long diffInMs = departureT - after;
-				if (UITimeUtils.isSameDay(timeZone, after, departureT)) {
+				if (UITimeUtils.isSameDay(tTZ, after, departureT)) {
 					dateSSB = new SpannableStringBuilder(context.getString(R.string.today));
 				} else if (diffInMs < TimeUnit.HOURS.toMillis(24L)) {
 					Pair<CharSequence, CharSequence> shortTimeSpam;
@@ -940,7 +936,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		int startNextTime = -1, endNextTime = -1;
 		int startNextNextTime = -1, endNextNextTime = -1;
 		int startAfterNextTimes = -1, endAfterNextTimes = -1;
+		TimeZone localTimeZone = getLocalTimeZoneId() == null ? null: TimeZone.getTimeZone(getLocalTimeZoneId());
 		for (Timestamp t : nextTimestamps) {
+			//noinspection deprecation
+			final TimeZone tTZ = localTimeZone != null ? localTimeZone : TimeZone.getTimeZone(t.getLocalTimeZoneId());
 			if (ssb.length() > 0) {
 				ssb.append(StringUtils.SPACE_CAR).append(StringUtils.SPACE_CAR);
 			}
@@ -967,7 +966,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					startNextTime = ssb.length();
 				}
 			}
-			String fTime = UITimeUtilsExtKt.formatTimestamp(t, context);
+			String fTime = UITimeUtilsExtKt.formatTime(context, t.getDepartureT(), tTZ, t.isRealTime());
 			ssb.append(fTime);
 			if (departureT >= after) {
 				if (endNextTime == -1) {
