@@ -339,14 +339,15 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this(
 				schedule,
 				schedule.getProviderPrecisionInMs(),
-				schedule.isNoPickup()
+				schedule.isNoPickup(),
+				schedule.getLocalTimeZoneId()
 		);
 		setTimestampsAndSort(schedule.getTimestamps());
 		setFrequenciesAndSort(schedule.getFrequencies());
 	}
 
-	private UISchedule(@NonNull POIStatus status, long providerPrecisionInMs, boolean noPickup) {
-		super(status, providerPrecisionInMs, noPickup);
+	private UISchedule(@NonNull POIStatus status, long providerPrecisionInMs, boolean noPickup, @Nullable String localTimeZoneId) {
+		super(status, providerPrecisionInMs, noPickup, localTimeZoneId);
 	}
 
 	UISchedule(
@@ -357,9 +358,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			long readFromSourceAtInMs,
 			long providerPrecisionInMs,
 			boolean noPickup,
+			@Nullable String localTimeZoneId,
 			@Nullable String sourceLabel
 	) {
-		this(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, false);
+		this(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, localTimeZoneId, sourceLabel, false);
 	}
 
 	private UISchedule(
@@ -370,10 +372,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			long readFromSourceAtInMs,
 			long providerPrecisionInMs,
 			boolean noPickup,
+			@Nullable String localTimeZoneId,
 			@Nullable String sourceLabel,
 			boolean noData
 	) {
-		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, noData);
+		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, localTimeZoneId, sourceLabel, noData);
 	}
 
 	@Nullable
@@ -605,7 +608,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			final long departureT = t.getDepartureT();
 			final String localTimeZoneId = t.getLocalTimeZoneId();
 			if (timeZone == null || !TextUtils.equals(localTimeZoneId, lastLocalTimeZoneId)) {
-				timeZone = localTimeZoneId == null ? TimeZone.getDefault() : TimeZone.getTimeZone(localTimeZoneId);
+				timeZone = TimeZone.getTimeZone(localTimeZoneId);
 				lastLocalTimeZoneId = localTimeZoneId;
 			}
 			if (lastTimestamp > 0L) {
