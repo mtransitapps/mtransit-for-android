@@ -205,9 +205,9 @@ class ScheduleViewModel @Inject constructor(
                             ?: scheduleTimestamps.timestamps.firstOrNull()?.let { @Suppress("DEPRECATION") it.localTimeZoneId }
                                     ?: run {
                                 if (BuildConfig.DEBUG) {
-                                    throw RuntimeException("No schedule timestamp timezone available!")
+                                    throw IllegalStateException("No schedule timestamp timezone available!")
                                 }
-                                MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device timezone)!")
+                                MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device TZ)!")
                                 TimeZone.getDefault().id // must set a timezone to display calendar
                             }
 
