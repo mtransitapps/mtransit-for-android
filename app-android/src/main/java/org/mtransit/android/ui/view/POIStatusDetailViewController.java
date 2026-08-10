@@ -39,6 +39,7 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDepartureBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDepartureDaySeparatorBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleSpaceBinding;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.ui.common.UISourceLabelUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.android.util.UITimeUtilsExtKt;
@@ -362,17 +363,10 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		if (status instanceof UISchedule) {
 			final UISchedule schedule = (UISchedule) status;
 			final String defaultHeadSign = optPOI instanceof RouteDirectionStop ? ((RouteDirectionStop) optPOI).getDirection().getHeading(context) : null;
-			nextDeparturesList = schedule.getScheduleList(context,
-					dataProvider.getNowToTheMinute(),
-					MIN_COVERAGE_IN_MS,
-					MAX_COVERAGE_IN_MS,
-					15,
-					30,
-					defaultHeadSign,
-					dataProvider.isShowingAccessibilityInfo(),
-					serviceUpdates
+			final DataSourcesRepository dataSourcesRepository = dataProvider.providesDataSourcesRepository();
+			localTimeZoneId = schedule.getLocalTimeZoneId(
+					() -> optPOI == null ? null : dataSourcesRepository.getAgency(optPOI.getAuthority())
 			);
-			localTimeZoneId = schedule.getLocalTimeZoneId();
 			if (localTimeZoneId == null) {
 				for (UISchedule.Timestamp timestamp : schedule.getTimestamps()) {
 					//noinspection DiscouragedApi
@@ -380,6 +374,18 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 					if (localTimeZoneId != null) break;
 				}
 			}
+			nextDeparturesList = schedule.getScheduleList(
+					context,
+					dataProvider.getNowToTheMinute(),
+					MIN_COVERAGE_IN_MS,
+					MAX_COVERAGE_IN_MS,
+					15,
+					30,
+					defaultHeadSign,
+					dataProvider.isShowingAccessibilityInfo(),
+					localTimeZoneId,
+					serviceUpdates
+			);
 		}
 		final Calendar cal = Calendar.getInstance(localTimeZoneId != null ? TimeZone.getTimeZone(localTimeZoneId) : TimeZone.getDefault());
 		final ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;

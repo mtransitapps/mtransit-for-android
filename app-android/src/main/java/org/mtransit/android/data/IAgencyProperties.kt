@@ -42,6 +42,8 @@ interface IAgencyProperties {
     val type: DataSourceType
     val extendedType: DataSourceType?
 
+    val timeZoneId: String?
+
     fun getSupportedType(): DataSourceType = this.extendedType ?: this.type
 
     val pkg: String

@@ -29,7 +29,7 @@ data class AgencyProperties(
     @ColumnInfo(name = "color_int")
     override val colorInt: Int? = null,
     @ColumnInfo(name = "tz")
-    val timeZoneId: String? = null,
+    override val timeZoneId: String? = null,
     @Embedded(prefix = "area")
     override val area: Area,
     @ColumnInfo(name = "pkg")

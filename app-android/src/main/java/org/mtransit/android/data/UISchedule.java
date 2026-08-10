@@ -20,6 +20,7 @@ import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -34,6 +35,7 @@ import org.mtransit.android.commons.data.Accessibility;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.ServiceUpdates;
+import org.mtransit.android.data.POIManager.AgencyResolver;
 import org.mtransit.android.util.UIAccessibilityUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
@@ -379,6 +381,22 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, localTimeZoneId, sourceLabel, noData);
 	}
 
+	@Discouraged(message = "use getLocalTimeZoneId() w/ agency")
+	@Nullable
+	@Override
+	public String getLocalTimeZoneId() {
+		return super.getLocalTimeZoneId();
+	}
+
+	@Nullable
+	public String getLocalTimeZoneId(@NonNull AgencyResolver agencyResolver) {
+		final IAgencyUIProperties agency = agencyResolver.getAgency();
+		if (agency != null && agency.getTimeZoneId() != null) {
+			return agency.getTimeZoneId();
+		}
+		return super.getLocalTimeZoneId();
+	}
+
 	@Nullable
 	public static UISchedule fromCursorWithExtra(@NonNull Cursor cursor) {
 		org.mtransit.android.commons.data.Schedule schedule = org.mtransit.android.commons.data.Schedule.fromCursorWithExtra(cursor);
@@ -483,10 +501,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable String optDefaultHeadSign,
 			boolean showingAccessibilityInfo,
+			@Nullable String localTimeZoneId,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		if (this.scheduleList == null || this.scheduleListTimestamp != after) {
-			generateScheduleList(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, optDefaultHeadSign, showingAccessibilityInfo, serviceUpdates);
+			generateScheduleList(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, optDefaultHeadSign, showingAccessibilityInfo, localTimeZoneId, serviceUpdates);
 		}
 		return this.scheduleList;
 	}
@@ -500,6 +519,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable String optDefaultHeadSign,
 			boolean showingAccessibilityInfo,
+			@Nullable String localTimeZoneId,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		final boolean allTripsCancelled = allTripsNoService(serviceUpdates);
@@ -510,7 +530,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			return;
 		}
 		addLastTimestamps(after, timestamps);
-		setScheduleList(generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign, showingAccessibilityInfo, serviceUpdates), after, allTripsCancelled);
+		setScheduleList(generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign, showingAccessibilityInfo, localTimeZoneId, serviceUpdates), after, allTripsCancelled);
 	}
 
 	private void setScheduleList(@Nullable ArrayList<DetailsNextDepartures> scheduleList, long after, boolean cancelled) {
@@ -561,6 +581,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@NonNull List<Timestamp> timestamps,
 			@Nullable String optDefaultHeadSign,
 			boolean showingAccessibilityInfo,
+			@Nullable String localTimeZoneId,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		// 1 - Find the start/end time sections
@@ -571,7 +592,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final int nbSpaceAfter = 0;
 		final ArrayList<DetailsNextDepartures> list = new ArrayList<>();
 		long lastTimestamp = -1L;
-		TimeZone localTimeZone = getLocalTimeZoneId() == null ? null : TimeZone.getTimeZone(getLocalTimeZoneId());
+		TimeZone localTimeZone = localTimeZoneId == null ? null : TimeZone.getTimeZone(localTimeZoneId);
 		for (Timestamp t : timestamps) {
 			idx++;
 			SpannableStringBuilder headSignSSB = null;
@@ -879,10 +900,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Long optMinCoverageInMs,
 			@Nullable Long optMaxCoverageInMs,
 			@Nullable Integer optMinCount,
-			@Nullable Integer optMaxCount
+			@Nullable Integer optMaxCount,
+			@Nullable String localTimeZoneId
 	) {
 		if (this.scheduleString == null || this.scheduleStringTimestamp != after) {
-			generateSchedule(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
+			generateSchedule(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, localTimeZoneId);
 		}
 		return this.scheduleString;
 	}
@@ -896,7 +918,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Long optMinCoverageInMs,
 			@Nullable Long optMaxCoverageInMs,
 			@Nullable Integer optMinCount,
-			@Nullable Integer optMaxCount
+			@Nullable Integer optMaxCount,
+			@Nullable String localTimeZoneId
 	) {
 		ArrayList<Timestamp> nextTimestamps =
 				getNextTimestamps(after - getUIProviderPrecisionInMs(), optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
@@ -926,19 +949,24 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		if (lastTimestamp != null && !nextTimestamps.contains(lastTimestamp)) {
 			nextTimestamps.add(0, lastTimestamp);
 		}
-		generateScheduleStringsTimes(context, after, nextTimestamps);
+		generateScheduleStringsTimes(context, after, nextTimestamps, localTimeZoneId);
 		this.scheduleStringTimestamp = after;
 	}
 
 	@Deprecated // TBD
-	private void generateScheduleStringsTimes(Context context, long after, ArrayList<Timestamp> nextTimestamps) {
+	private void generateScheduleStringsTimes(
+			Context context,
+			long after,
+			ArrayList<Timestamp> nextTimestamps,
+			@Nullable String localTimeZoneId
+	) {
 		SpannableStringBuilder ssb = new SpannableStringBuilder();
 		int startPreviousTimes = -1, endPreviousTimes = -1;
 		int startPreviousTime = -1, endPreviousTime = -1;
 		int startNextTime = -1, endNextTime = -1;
 		int startNextNextTime = -1, endNextNextTime = -1;
 		int startAfterNextTimes = -1, endAfterNextTimes = -1;
-		TimeZone localTimeZone = getLocalTimeZoneId() == null ? null : TimeZone.getTimeZone(getLocalTimeZoneId());
+		TimeZone localTimeZone = localTimeZoneId == null ? null : TimeZone.getTimeZone(localTimeZoneId);
 		for (Timestamp t : nextTimestamps) {
 			//noinspection DiscouragedApi
 			final TimeZone tTZ = localTimeZone != null ? localTimeZone
