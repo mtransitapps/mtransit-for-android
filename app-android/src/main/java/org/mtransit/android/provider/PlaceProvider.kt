@@ -185,6 +185,8 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
      */
     override fun getAgencyColorString(context: Context): String? = null // default
 
+    override fun getAgencyTimeZoneId(context: Context): String? = null // default
+
     @StringRes
     override fun getAgencyLabelResId() = R.string.place_label
 

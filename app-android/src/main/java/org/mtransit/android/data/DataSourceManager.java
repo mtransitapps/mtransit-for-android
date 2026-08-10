@@ -351,6 +351,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 					final String shortName = CursorExtKt.getString(cursor, AgencyProviderContract.SHORT_NAME_PATH);
 					final String longName = CursorExtKt.getString(cursor, AgencyProviderContract.LABEL_PATH);
 					final String color = CursorExtKt.optString(cursor, AgencyProviderContract.COLOR_PATH, null);
+					final String timeZoneId = CursorExtKt.optString(cursor, AgencyProviderContract.TIMEZONE_ID_PATH, null);
 					final Area area = Area.fromCursorNN(cursor);
 					final int maxValidInSec = CursorExtKt.optIntNN(cursor, AgencyProviderContract.MAX_VALID_SEC, -1);
 					final int availableVersionCode = CursorExtKt.optIntNN(cursor, AgencyProviderContract.AVAILABLE_VERSION_CODE, -1);
@@ -381,6 +382,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 							shortName,
 							longName,
 							color,
+							timeZoneId,
 							area,
 							pkg,
 							longVersionCode,

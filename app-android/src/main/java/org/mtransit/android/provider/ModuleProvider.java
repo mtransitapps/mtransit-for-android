@@ -609,6 +609,12 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return null; // default
 	}
 
+	@Nullable
+	@Override
+	public String getAgencyTimeZoneId(@NonNull Context context) {
+		return null; // default
+	}
+
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
