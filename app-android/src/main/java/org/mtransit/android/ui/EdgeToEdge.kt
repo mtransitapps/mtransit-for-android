@@ -138,11 +138,11 @@ fun Activity.setStatusBarsThemeEdgeToEdge(isDark: Boolean = isDarkMode(resources
 }
 
 @JvmOverloads
-fun View.applyStatusBarsHeightEdgeToEdge(@Px initialHeightPx: Int = 0) {
+fun View?.applyStatusBarsHeightEdgeToEdge(@Px initialHeightPx: Int = 0) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = false) { insets ->
+    this?.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = false) { insets ->
         updateLayoutParams<ViewGroup.MarginLayoutParams> {
             height = initialHeightPx + insets.height
         }
