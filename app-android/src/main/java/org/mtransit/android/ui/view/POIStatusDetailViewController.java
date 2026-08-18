@@ -3,7 +3,6 @@ package org.mtransit.android.ui.view;
 import static org.mtransit.android.ui.view.POIStatusDetailViewControllerExtKt.addHourSeparator;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
@@ -18,6 +17,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.BlendModeColorFilterCompat;
+import androidx.core.graphics.BlendModeCompat;
 import androidx.viewbinding.ViewBinding;
 
 import org.mtransit.android.R;
@@ -143,8 +144,10 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		availabilityPercentStatusViewHolder.progressBar = view.findViewById(R.id.progress_bar);
 		if (poim != null) {
 			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter(
-					poim.getColor(dataProvider.providesDataSourcesRepository()),
-					PorterDuff.Mode.SRC_IN
+					BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+							poim.getColor(dataProvider.providesDataSourcesRepository()),
+							BlendModeCompat.SRC_IN
+					)
 			);
 		}
 		view.setTag(availabilityPercentStatusViewHolder);
