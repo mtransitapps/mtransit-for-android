@@ -111,7 +111,7 @@ class ScheduleViewModel @Inject constructor(
 
     private val localTimeZoneId = MediatorLiveData3(_stop, agency, scheduleLocalTimeZoneId)
         .map { (stop, agency, scheduleLocalTimeZoneId) ->
-            stop?.timeZoneId ?: agency?.timeZoneId ?: scheduleLocalTimeZoneId
+            stop?.timeZoneIdOrNull ?: agency?.timeZoneId ?: scheduleLocalTimeZoneId
         }
 
     val localTimeZone: LiveData<TimeZone?> = localTimeZoneId.map { timeZoneId ->

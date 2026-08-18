@@ -345,8 +345,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	@Nullable
 	public String getLocalTimeZoneId(@Nullable Stop stop, @NonNull AgencyResolver agencyResolver) {
-		if (stop != null && stop.getTimeZoneId() != null) {
-			return stop.getTimeZoneId();
+		if (stop != null && stop.getTimeZoneIdOrNull() != null) {
+			return stop.getTimeZoneIdOrNull();
 		}
 		final IAgencyUIProperties agency = agencyResolver.getAgency();
 		if (agency != null && agency.getTimeZoneId() != null) {
