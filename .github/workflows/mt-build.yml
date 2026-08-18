@@ -83,21 +83,21 @@ jobs:
           cat */build/reports/detekt/detekt.md
       - name: MT detekt > artifact > XML results
         uses: actions/upload-artifact@v7
-        if: ${{ always() }} # even if tests fails
+        if: ${{ always() }} # even if detekt fails
         with:
           name: detekt-xml-results
           path: |
             */build/reports/detekt/detekt.xml
       - name: MT detekt > artifact > HTML report
         uses: actions/upload-artifact@v7
-        if: ${{ always() }} # even if tests fails
+        if: ${{ always() }} # even if detekt fails
         with:
           name: detekt-html-reports
           path: |
             */build/reports/detekt/detekt.html
 
       - name: MT tests
-        if: ${{ failure() }} # even if detekt fails
+        if: ${{ !cancelled() }} # even if detekt fails
         run: ./test_only.sh
       - name: MT tests > artifact > XML results
         uses: actions/upload-artifact@v7
