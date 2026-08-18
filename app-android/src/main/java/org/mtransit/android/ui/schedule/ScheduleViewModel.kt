@@ -107,9 +107,9 @@ class ScheduleViewModel @Inject constructor(
 
     private val _startsAtDaysBefore = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_START_AT_DAYS_BEFORE)
     private val _endsAtDaysAfter = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_END_AT_DAYS_AFTER)
-    private val scheduleLocalTimeZoneId = savedStateHandle.getLiveDataDistinct<String?>(SCHEDULE_LOCAL_TIME_ZONE_ID)
+    private val _scheduleLocalTimeZoneId = savedStateHandle.getLiveDataDistinct<String?>(SCHEDULE_LOCAL_TIME_ZONE_ID)
 
-    private val localTimeZoneId = MediatorLiveData3(_stop, agency, scheduleLocalTimeZoneId)
+    private val localTimeZoneId = MediatorLiveData3(_stop, agency, _scheduleLocalTimeZoneId)
         .map { (stop, agency, scheduleLocalTimeZoneId) ->
             stop?.timeZoneIdOrNull ?: agency?.timeZoneId ?: scheduleLocalTimeZoneId
         }
@@ -228,7 +228,7 @@ class ScheduleViewModel @Inject constructor(
         savedStateHandle[SCHEDULE_LOCAL_TIME_ZONE_ID] = scheduleTimestamps?.localTimeZoneId
             ?: scheduleTimestamps?.timestamps?.firstNotNullOfOrNull { @SuppressLint("DiscouragedApi") it.localTimeZoneId }
                     ?: run {
-                if (BuildConfig.DEBUG) {
+                if (BuildConfig.DEBUG && scheduleTimestamps?.timestamps?.isNotEmpty() == true) {
                     throw IllegalStateException("No schedule timestamp timezone available!")
                 }
                 MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device TZ)!")
