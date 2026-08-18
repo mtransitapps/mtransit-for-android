@@ -97,7 +97,7 @@ jobs:
             */build/reports/detekt/detekt.html
 
       - name: MT tests
-        if: ${{ always() }} # even if detekt fails
+        if: ${{ !cancelled() }} # even if detekt fails
         run: ./test_only.sh
       - name: MT tests > artifact > XML results
         uses: actions/upload-artifact@v7
