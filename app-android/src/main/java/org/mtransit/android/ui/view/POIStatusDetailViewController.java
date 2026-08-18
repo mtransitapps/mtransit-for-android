@@ -365,6 +365,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			final String defaultHeadSign = optPOI instanceof RouteDirectionStop ? ((RouteDirectionStop) optPOI).getDirection().getHeading(context) : null;
 			final DataSourcesRepository dataSourcesRepository = dataProvider.providesDataSourcesRepository();
 			localTimeZoneId = schedule.getLocalTimeZoneId(
+					optPOI instanceof RouteDirectionStop ? ((RouteDirectionStop) optPOI).getStop() : null,
 					() -> optPOI == null ? null : dataSourcesRepository.getAgency(optPOI.getAuthority())
 			);
 			if (localTimeZoneId == null) {

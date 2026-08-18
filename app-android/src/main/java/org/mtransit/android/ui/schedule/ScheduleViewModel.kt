@@ -103,13 +103,15 @@ class ScheduleViewModel @Inject constructor(
 
     val rds: LiveData<RouteDirectionStop?> = this.poim.map { it?.poi as? RouteDirectionStop }
 
+    private val _stop = this.rds.map { it?.stop }
+
     private val _startsAtDaysBefore = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_START_AT_DAYS_BEFORE)
     private val _endsAtDaysAfter = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_END_AT_DAYS_AFTER)
     private val scheduleLocalTimeZoneId = savedStateHandle.getLiveDataDistinct<String?>(SCHEDULE_LOCAL_TIME_ZONE_ID)
 
-    private val localTimeZoneId = MediatorLiveData2(agency, scheduleLocalTimeZoneId)
-        .map { (agency, scheduleLocalTimeZoneId) ->
-            agency?.timeZoneId ?: scheduleLocalTimeZoneId
+    private val localTimeZoneId = MediatorLiveData3(_stop, agency, scheduleLocalTimeZoneId)
+        .map { (stop, agency, scheduleLocalTimeZoneId) ->
+            stop?.timeZoneId ?: agency?.timeZoneId ?: scheduleLocalTimeZoneId
         }
 
     val localTimeZone: LiveData<TimeZone?> = localTimeZoneId.map { timeZoneId ->
