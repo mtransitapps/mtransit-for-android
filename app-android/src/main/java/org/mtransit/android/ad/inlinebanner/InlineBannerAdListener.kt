@@ -1,13 +1,13 @@
 package org.mtransit.android.ad.inlinebanner
 
 import androidx.annotation.AnyThread
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
-// import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError #gmaNextGen
+// import com.google.android.gms.ads.AdListener // #gmaLegacy
+// import com.google.android.gms.ads.AdRequest // #gmaLegacy
+// import com.google.android.gms.ads.AdView // #gmaLegacy
+// import com.google.android.gms.ads.LoadAdError // #gmaLegacy
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError // #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
@@ -19,21 +19,21 @@ class InlineBannerAdListener(
     private val inlineBannerAdManager: InlineBannerAdManager,
     private val crashReporter: CrashReporter,
     private val fragmentWR: WeakReference<IFragment>,
-    private val adViewWR: WeakReference<AdView>,
-    // ) : AdLoadCallback<BannerAd>, #gmaNextGen
-) : AdListener(),
+    // private val adViewWR: WeakReference<AdView>, // #gmaLegacy
+) : AdLoadCallback<BannerAd>, // #gmaNextGen
+    // ) : AdListener(), // #gmaLegacy
     MTLog.Loggable {
 
     constructor(
         inlineBannerAdManager: InlineBannerAdManager,
         crashReporter: CrashReporter,
         fragment: IFragment,
-        adView: AdView,
+        // adView: AdView, // #gmaLegacy
     ) : this(
         inlineBannerAdManager = inlineBannerAdManager,
         crashReporter = crashReporter,
         fragmentWR = WeakReference(fragment),
-        adViewWR = WeakReference(adView)
+        // adViewWR = WeakReference(adView) // #gmaLegacy
     )
 
     companion object {
@@ -46,37 +46,37 @@ class InlineBannerAdListener(
     override fun onAdFailedToLoad(adError: LoadAdError) {
         super.onAdFailedToLoad(adError)
         when (adError.code) {
-            AdRequest.ERROR_CODE_APP_ID_MISSING ->
-                // LoadAdError.ErrorCode.APP_ID_MISSING -> #gmaNextGen
+            // AdRequest.ERROR_CODE_APP_ID_MISSING -> // #gmaLegacy
+            LoadAdError.ErrorCode.APP_ID_MISSING -> // #gmaNextGen
                 this.crashReporter.w(this, "Failed to receive ad! App ID missing: '${adError.code}' ($adError).")
 
-            AdRequest.ERROR_CODE_INTERNAL_ERROR ->
-                // LoadAdError.ErrorCode.INTERNAL_ERROR -> #gmaNextGen
+            // AdRequest.ERROR_CODE_INTERNAL_ERROR -> // #gmaLegacy
+            LoadAdError.ErrorCode.INTERNAL_ERROR -> // #gmaNextGen
                 this.crashReporter.w(this, "Failed to receive ad! Internal error code: '${adError.code}' ($adError).")
 
-            AdRequest.ERROR_CODE_INVALID_REQUEST ->
-                // LoadAdError.ErrorCode.INVALID_REQUEST -> #gmaNextGen
+            // AdRequest.ERROR_CODE_INVALID_REQUEST -> // #gmaLegacy
+            LoadAdError.ErrorCode.INVALID_REQUEST -> // #gmaNextGen
                 this.crashReporter.w(this, "Failed to receive ad! Invalid request error code: '${adError.code}' ($adError).")
 
-            AdRequest.ERROR_CODE_REQUEST_ID_MISMATCH ->
-                // LoadAdError.ErrorCode.REQUEST_ID_MISMATCH -> #gmaNextGen
+            // AdRequest.ERROR_CODE_REQUEST_ID_MISMATCH -> // #gmaLegacy
+            LoadAdError.ErrorCode.REQUEST_ID_MISMATCH -> // #gmaNextGen
                 this.crashReporter.w(this, "Failed to receive ad! Request ID mismatch error code: '${adError.code}' ($adError).")
 
-            AdRequest.ERROR_CODE_NETWORK_ERROR ->
-                // LoadAdError.ErrorCode.NETWORK_ERROR -> #gmaNextGen
+            // AdRequest.ERROR_CODE_NETWORK_ERROR -> // #gmaLegacy
+            LoadAdError.ErrorCode.NETWORK_ERROR -> // #gmaNextGen
                 MTLog.w(this, "Failed to receive ad! Network error code: '${adError.code}' ($adError).")
 
-            AdRequest.ERROR_CODE_MEDIATION_NO_FILL,
-            AdRequest.ERROR_CODE_NO_FILL ->
-                // LoadAdError.ErrorCode.NO_FILL -> #gmaNextGen
+            // AdRequest.ERROR_CODE_MEDIATION_NO_FILL, // #gmaLegacy
+            // AdRequest.ERROR_CODE_NO_FILL -> // #gmaLegacy
+            LoadAdError.ErrorCode.NO_FILL -> // #gmaNextGen
                 MTLog.w(this, "Failed to receive ad! No fill error code: '${adError.code}' ($adError).")
 
-            // LoadAdError.ErrorCode.TIMEOUT, #gmaNextGen
-            // LoadAdError.ErrorCode.CANCELLED, #gmaNextGen
-            // LoadAdError.ErrorCode.NOT_FOUND, #gmaNextGen
-            // LoadAdError.ErrorCode.INVALID_AD_RESPONSE, #gmaNextGen
-            // LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED,#gmaNextGen
-            else
+            LoadAdError.ErrorCode.TIMEOUT, // #gmaNextGen
+            LoadAdError.ErrorCode.CANCELLED, // #gmaNextGen
+            LoadAdError.ErrorCode.NOT_FOUND, // #gmaNextGen
+            LoadAdError.ErrorCode.INVALID_AD_RESPONSE, // #gmaNextGen
+            LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED, // #gmaNextGen
+                // else // #gmaLegacy
                 -> this.crashReporter.w(this, "Failed to receive ad! Error code: '${adError.code}' ($adError).")
         }
         this.fragmentWR.get()?.let { fragment ->
@@ -88,15 +88,14 @@ class InlineBannerAdListener(
     }
 
     @AnyThread
-    // override fun onAdLoaded(ad: BannerAd) { #gmaNextGen
-    // super.onAdLoaded(ad) #gmaNextGen
-    override fun onAdLoaded() {
-        super.onAdLoaded()
-        // val adapterClassName = ad.getResponseInfo().adapterClassName #gmaNextGen
-        // logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName") #gmaNextGen
+    override fun onAdLoaded(ad: BannerAd) { // #gmaNextGen
+        super.onAdLoaded(ad) // #gmaNextGen
+        // override fun onAdLoaded() { // #gmaLegacy
+        // super.onAdLoaded() // #gmaLegacy
         this.fragmentWR.get()?.let { fragment ->
             fragment.getActivity()?.runOnUiThread {
-                val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName
+                // val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName // #gmaLegacy
+                val adapterClassName = ad.getResponseInfo().adapterClassName // #gmaNextGen
                 logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName")
                 this.inlineBannerAdManager.setAdBannerLoaded(fragment, true)
                 this.inlineBannerAdManager.adaptToScreenSize(

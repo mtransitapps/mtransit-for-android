@@ -5,8 +5,8 @@ import androidx.annotation.MainThread
 import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import androidx.core.view.isVisible
-import com.google.android.gms.ads.AdView
-// import com.google.android.libraries.ads.mobile.sdk.banner.AdView #gmaNextGen
+// import com.google.android.gms.ads.AdView // #gmaLegacy
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView // #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
@@ -57,13 +57,13 @@ class SetupBannerAdTask(
                 val adView = this.bannerAdManager.getAdView(adLayout)
                     ?: makeNewAdView(activity, adLayout)
                 adView.loadAd(
-                    // adRequest =
-                    AdManager.getBannerAdRequest(
-                        adUnitId = activity.requireActivity().getString(adUnitStringResId),
-                        adSize = bannerAdManager.getAdSize(activity),
-                        collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE
-                    ),
-                    // adLoadCallback = BannerAdListener(bannerAdManager, crashReporter, activity) #gmaNextGen
+                    adRequest = // #gmaNextGen
+                        AdManager.getBannerAdRequest(
+                            adUnitId = activity.requireActivity().getString(adUnitStringResId),
+                            adSize = bannerAdManager.getAdSize(activity),
+                            collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE
+                        ),
+                    adLoadCallback = BannerAdListener(bannerAdManager, crashReporter, activity) // #gmaNextGen
                 )
             }
         } else if (!adsAllowed) { // hide ads
@@ -86,12 +86,12 @@ class SetupBannerAdTask(
             )
             isVisible = false
             id = R.id.ad
-            adUnitId = activity.requireContext().getString(adUnitStringResId)
+            // adUnitId = activity.requireContext().getString(adUnitStringResId) // #gmaLegacy
         }.also {
             adLayout.removeAllViews()
             adLayout.addView(it)
-        }.apply {
-            setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once
-            adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView = this)
+            // }.apply { // #gmaLegacy
+            // setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once // #gmaLegacy
+            // adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView = this) // #gmaLegacy
         }
 }
