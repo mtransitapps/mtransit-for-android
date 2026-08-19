@@ -6,6 +6,7 @@ package org.mtransit.android.ad.banner
 // import com.google.android.gms.ads.LoadAdError // #gmaLegacy
 import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRefreshCallback // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError // #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -21,7 +22,7 @@ class BannerAdListener(
     private val crashReporter: CrashReporter,
     private val activityWR: WeakReference<IAdScreenActivity>,
     // private val adViewWR: WeakReference<AdView>, // #gmaLegacy
-) : AdLoadCallback<BannerAd>, // #gmaNextGen
+) : AdLoadCallback<BannerAd>, BannerAdRefreshCallback, // #gmaNextGen
     // ) : AdListener(), // #gmaLegacy
     MTLog.Loggable {
 
@@ -94,6 +95,23 @@ class BannerAdListener(
         }
     }
 
+    override fun onAdFailedToRefresh(adError: LoadAdError) { // #gmaNextGen
+        super.onAdFailedToRefresh(adError) // #gmaNextGen
+        logAdsD(this, "onAdFailedToRefresh($adError)") // #gmaNextGen
+        onAdFailedToLoad(adError) // #gmaNextGen
+    } // #gmaNextGen
+
+    override fun onAdRefreshed() { // #gmaNextGen
+        super.onAdRefreshed() // #gmaNextGen
+        logAdsD(this, "onAdRefreshed()") // #gmaNextGen
+        this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success // #gmaNextGen
+        this.activityWR.get()?.let { activity -> // #gmaNextGen
+            this.bannerAdManager.adaptToScreenSize( // #gmaNextGen
+                activity, // #gmaNextGen
+            ) // showing ads if hidden because of no-fill/network error // #gmaNextGen
+        } // #gmaNextGen
+    } // #gmaNextGen
+
     @AnyThread
     override fun onAdLoaded(ad: BannerAd) { // #gmaNextGen
         super.onAdLoaded(ad) // #gmaNextGen
@@ -101,9 +119,13 @@ class BannerAdListener(
         // override fun onAdLoaded() { // #gmaLegacy
         // super.onAdLoaded() // #gmaLegacy
         // logAdsD(this, "onAdLoaded()") // #gmaLegacy
+        // // Called when an ad has loaded.
+        // ad.adEventCallback =
+        //     object : BannerAdEventCallback {}
+        ad.bannerAdRefreshCallback = this // #gmaNextGen
+        this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
         this.activityWR.get()?.let { activity ->
             activity.activity?.runOnUiThread {
-                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
                 // val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName // #gmaLegacy
                 val adapterClassName = ad.getResponseInfo().adapterClassName // #gmaNextGen
                 logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName ")

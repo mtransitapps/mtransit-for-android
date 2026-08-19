@@ -6,6 +6,7 @@ import androidx.annotation.AnyThread
 // import com.google.android.gms.ads.AdView // #gmaLegacy
 // import com.google.android.gms.ads.LoadAdError // #gmaLegacy
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRefreshCallback // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError // #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -20,7 +21,7 @@ class InlineBannerAdListener(
     private val crashReporter: CrashReporter,
     private val fragmentWR: WeakReference<IFragment>,
     // private val adViewWR: WeakReference<AdView>, // #gmaLegacy
-) : AdLoadCallback<BannerAd>, // #gmaNextGen
+) : AdLoadCallback<BannerAd>, BannerAdRefreshCallback, // #gmaNextGen
     // ) : AdListener(), // #gmaLegacy
     MTLog.Loggable {
 
@@ -86,6 +87,23 @@ class InlineBannerAdListener(
             }
         }
     }
+
+    override fun onAdFailedToRefresh(adError: LoadAdError) { // #gmaNextGen
+        super.onAdFailedToRefresh(adError) // #gmaNextGen
+        logAdsD(this, "onAdFailedToRefresh($adError)") // #gmaNextGen
+        onAdFailedToLoad(adError) // #gmaNextGen
+    } // #gmaNextGen
+
+    override fun onAdRefreshed() { // #gmaNextGen
+        super.onAdRefreshed() // #gmaNextGen
+        logAdsD(this, "onAdRefreshed()") // #gmaNextGen
+        this.fragmentWR.get()?.let { fragment -> // #gmaNextGen
+            this.inlineBannerAdManager.setAdBannerLoaded(fragment, true) // #gmaNextGen
+            this.inlineBannerAdManager.adaptToScreenSize( // #gmaNextGen
+                fragment, // #gmaNextGen
+            ) // showing ads if hidden because of no-fill/network error // #gmaNextGen
+        } // #gmaNextGen
+    } // #gmaNextGen
 
     @AnyThread
     override fun onAdLoaded(ad: BannerAd) { // #gmaNextGen
