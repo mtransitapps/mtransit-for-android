@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.widget.RelativeLayout
@@ -463,6 +464,10 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 viewModel.useInternalWebBrowserPref.value
             )
             return true // handled
+        }
+
+        override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+            return true
         }
     }
 
