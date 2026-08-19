@@ -273,12 +273,14 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentAgencyTypeBinding.bind(view).apply {
-            viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 2
-            viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-            tabLayoutMediator = MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
-                tab.text = viewModel.typeAgencies.value?.get(position)?.shortName
-            }.apply { attach() }
+            viewPager.apply {
+                offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 2
+                registerOnPageChangeCallback(onPageChangeCallback)
+                adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
+                tabLayoutMediator = MTTabLayoutMediator(tabs, this, autoRefresh = true, smoothScroll = true) { tab, position ->
+                    tab.text = viewModel.typeAgencies.value?.get(position)?.shortName
+                }.apply { attach() }
+            }
             if (FeatureFlags.F_NAVIGATION) {
                 (activity as? NextMainActivity?)?.supportActionBar?.elevation?.let {
                     tabs.elevation = it

@@ -221,12 +221,14 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentNearbyBinding.bind(view).apply {
-            viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 3
-            viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-            tabLayoutMediator = TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
-                tab.text = viewModel.availableTypes.value?.get(position)?.shortNamesResId?.let { viewPager.context.getString(it) }
-            }.apply { attach() }
+            viewPager.apply {
+                offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 3
+                registerOnPageChangeCallback(onPageChangeCallback)
+                adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
+                tabLayoutMediator = TabLayoutMediator(tabs, this, true, true) { tab, position ->
+                    tab.text = viewModel.availableTypes.value?.get(position)?.shortNamesResId?.let { tab.view.context.getString(it) }
+                }.apply { attach() }
+            }
             if (FeatureFlags.F_NAVIGATION) {
                 (activity as? org.mtransit.android.ui.main.NextMainActivity?)?.supportActionBar?.elevation?.let {
                     tabs.elevation = it
