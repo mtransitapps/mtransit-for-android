@@ -76,7 +76,8 @@ jobs:
 
       - name: MT detekt
         run: |
-          ./gradlew detekt
+          ./gradlew detekt \
+            --no-configure-on-demand --scan # works better with "gradle/actions/setup-gradle"
       - name: MT detekt > print markdown report (if failure)
         if: ${{ failure() }}
         run: |
@@ -97,7 +98,7 @@ jobs:
             */build/reports/detekt/detekt.html
 
       - name: MT tests
-        if: ${{ !cancelled() }} # even if detekt fails
+        if: ${{ success() }} # if detekt successful
         run: ./test_only.sh
       - name: MT tests > artifact > XML results
         uses: actions/upload-artifact@v7
