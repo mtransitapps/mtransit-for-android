@@ -232,6 +232,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         setAgencies(attachedViewModel?.typeAgencies?.value)
     }
 
+    private var tabLayoutMediator: MTTabLayoutMediator? = null
+
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
@@ -274,9 +276,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 2
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
             viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-            MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
+            tabLayoutMediator = MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
                 tab.text = viewModel.typeAgencies.value?.get(position)?.shortName
-            }.attach()
+            }.apply { attach() }
             if (FeatureFlags.F_NAVIGATION) {
                 (activity as? NextMainActivity?)?.supportActionBar?.elevation?.let {
                     tabs.elevation = it
@@ -493,6 +495,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         updateABColorJob?.cancel()
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
+        tabLayoutMediator?.detach()
+        tabLayoutMediator = null
         pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding = null
     }
