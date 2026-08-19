@@ -185,6 +185,8 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         setRouteDirections(attachedViewModel?.routeDirections?.value)
     }
 
+    private var tabLayoutMediator: TabLayoutMediator? = null
+
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
@@ -211,12 +213,12 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentRdsRouteBinding.bind(view).apply {
             viewPager.apply {
-                viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 1
+                offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 1
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-                TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
+                tabLayoutMediator = TabLayoutMediator(tabs, this, true, true) { tab, position ->
                     tab.text = viewModel.routeDirections.value?.get(position)?.decorateDirection(this.context, small = false, centered = false)
-                }.attach()
+                }.apply { attach() }
             }
             if (FeatureFlags.F_NAVIGATION) {
                 (activity as? NextMainActivity?)?.supportActionBar?.elevation?.let {
@@ -456,6 +458,8 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         super.onDestroyView()
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
+        tabLayoutMediator?.detach()
+        tabLayoutMediator = null
         pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding = null
     }

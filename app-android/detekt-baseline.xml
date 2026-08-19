@@ -28,6 +28,7 @@
     <ID>CyclomaticComplexMethod:NavigationDrawerControllerExt.kt:internal fun NavigationDrawerController.trackNavigationItemSelected</ID>
     <ID>CyclomaticComplexMethod:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$fun isLoadingMore: Boolean</ID>
     <ID>CyclomaticComplexMethod:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
+    <ID>CyclomaticComplexMethod:NearbyFragment.kt:NearbyFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
     <ID>CyclomaticComplexMethod:NewsDetailsFragment.kt:NewsDetailsFragment$private fun FragmentNewsDetailsBinding.updateNewsArticleText</ID>
     <ID>CyclomaticComplexMethod:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
@@ -160,7 +161,6 @@
     <ID>NewLineAtEndOfFile:LocationSettingsUI.kt:org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI.kt</ID>
     <ID>NewLineAtEndOfFile:MTDotsView.kt:org.mtransit.android.ui.view.MTDotsView.kt</ID>
     <ID>NewLineAtEndOfFile:MTSensorManager.kt:org.mtransit.android.provider.sensor.MTSensorManager.kt</ID>
-    <ID>NewLineAtEndOfFile:MTTabLayoutMediator.kt:org.mtransit.android.ui.view.common.MTTabLayoutMediator.kt</ID>
     <ID>NewLineAtEndOfFile:MTTransitions.kt:org.mtransit.android.ui.view.common.MTTransitions.kt</ID>
     <ID>NewLineAtEndOfFile:MTViewModelWithLocation.kt:org.mtransit.android.ui.MTViewModelWithLocation.kt</ID>
     <ID>NewLineAtEndOfFile:MapExt.kt:org.mtransit.android.util.MapExt.kt</ID>
@@ -181,7 +181,6 @@
     <ID>NewLineAtEndOfFile:NavControllerExt.kt:org.mtransit.android.ui.view.common.NavControllerExt.kt</ID>
     <ID>NewLineAtEndOfFile:NearbyAgencyTypeFragment.kt:org.mtransit.android.ui.nearby.type.NearbyAgencyTypeFragment.kt</ID>
     <ID>NewLineAtEndOfFile:NearbyAgencyTypeViewModel.kt:org.mtransit.android.ui.nearby.type.NearbyAgencyTypeViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:NearbyFragment.kt:org.mtransit.android.ui.nearby.NearbyFragment.kt</ID>
     <ID>NewLineAtEndOfFile:NearbyPagerAdapter.kt:org.mtransit.android.ui.nearby.NearbyPagerAdapter.kt</ID>
     <ID>NewLineAtEndOfFile:NearbyViewModel.kt:org.mtransit.android.ui.nearby.NearbyViewModel.kt</ID>
     <ID>NewLineAtEndOfFile:NestedScrollableHost.kt:org.mtransit.android.ui.view.common.NestedScrollableHost.kt</ID>
@@ -226,7 +225,6 @@
     <ID>NewLineAtEndOfFile:RDSAgencyRoutesViewModel.kt:org.mtransit.android.ui.type.rds.RDSAgencyRoutesViewModel.kt</ID>
     <ID>NewLineAtEndOfFile:RDSDirectionStopsViewModel.kt:org.mtransit.android.ui.rds.route.direction.RDSDirectionStopsViewModel.kt</ID>
     <ID>NewLineAtEndOfFile:RDSRouteDirectionPagerAdapter.kt:org.mtransit.android.ui.rds.route.RDSRouteDirectionPagerAdapter.kt</ID>
-    <ID>NewLineAtEndOfFile:RDSRouteFragment.kt:org.mtransit.android.ui.rds.route.RDSRouteFragment.kt</ID>
     <ID>NewLineAtEndOfFile:RDSRouteViewModel.kt:org.mtransit.android.ui.rds.route.RDSRouteViewModel.kt</ID>
     <ID>NewLineAtEndOfFile:RecyclerViewExt.kt:org.mtransit.android.ui.view.common.RecyclerViewExt.kt</ID>
     <ID>NewLineAtEndOfFile:RewardedAdManager.kt:org.mtransit.android.ad.rewarded.RewardedAdManager.kt</ID>

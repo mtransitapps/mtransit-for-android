@@ -193,6 +193,12 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
 
     private var pagerAdapter: NearbyPagerAdapter? = null
 
+    private fun makePagerAdapter() = NearbyPagerAdapter(this).apply {
+        setTypes(attachedViewModel?.availableTypes?.value)
+    }
+
+    private var tabLayoutMediator: TabLayoutMediator? = null
+
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
@@ -206,10 +212,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         }
     }
 
-    private fun makePagerAdapter() = NearbyPagerAdapter(this).apply {
-        setTypes(attachedViewModel?.availableTypes?.value)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MTTransitions.setContainerTransformTransition(this)
@@ -219,12 +221,14 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentNearbyBinding.bind(view).apply {
-            viewPager.offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 3
-            viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-            TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
-                tab.text = viewModel.availableTypes.value?.get(position)?.shortNamesResId?.let { viewPager.context.getString(it) }
-            }.attach()
+            viewPager.apply {
+                offscreenPageLimit = ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT // was 3
+                registerOnPageChangeCallback(onPageChangeCallback)
+                adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
+                tabLayoutMediator = TabLayoutMediator(tabs, this, true, true) { tab, position ->
+                    tab.text = viewModel.availableTypes.value?.get(position)?.shortNamesResId?.let { tab.view.context.getString(it) }
+                }.apply { attach() }
+            }
             if (FeatureFlags.F_NAVIGATION) {
                 (activity as? org.mtransit.android.ui.main.NextMainActivity?)?.supportActionBar?.elevation?.let {
                     tabs.elevation = it
@@ -430,6 +434,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         super.onDestroyView()
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
+        tabLayoutMediator?.detach()
+        tabLayoutMediator = null
         pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding = null
     }
