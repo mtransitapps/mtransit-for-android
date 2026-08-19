@@ -28,7 +28,6 @@ import org.mtransit.android.data.NewsImage
 import org.mtransit.android.data.YOUTUBE_HTTP_HEADERS
 import org.mtransit.android.data.authority
 import org.mtransit.android.data.getTwitterVideoId
-import org.mtransit.android.data.uuid
 import org.mtransit.android.data.getYouTubeVideoId
 import org.mtransit.android.data.hasImagesOrVideoThumbnail
 import org.mtransit.android.data.imageUrls
@@ -36,6 +35,7 @@ import org.mtransit.android.data.isTwitterVideo
 import org.mtransit.android.data.isYouTubeVideo
 import org.mtransit.android.data.makeTwitterEmbedVideoPlayerUrl
 import org.mtransit.android.data.makeYouTubeEmbedVideoPlayerUrl
+import org.mtransit.android.data.uuid
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
@@ -467,7 +467,11 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         }
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
-            return true
+            activity?.supportFragmentManager?.takeIf { it.backStackEntryCount > 0 }?.apply {
+                popBackStack()
+                return true
+            }
+            return false
         }
     }
 

@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.GeolocationPermissions;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -26,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.MenuProvider;
+import androidx.fragment.app.FragmentActivity;
 import androidx.webkit.WebViewClientCompat;
 
 import org.mtransit.android.R;
@@ -543,6 +545,15 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 				sslErrorHandler.cancel();
 				break;
 			}
+		}
+
+		@Override
+		public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+			final WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
+			final FragmentActivity activity = webBrowserFragment == null ? null : webBrowserFragment.getActivity();
+			if (activity == null || activity.getSupportFragmentManager().getBackStackEntryCount() == 0) return false;
+			activity.getSupportFragmentManager().popBackStack();
+			return true;
 		}
 	}
 }
