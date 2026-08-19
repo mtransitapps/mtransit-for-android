@@ -345,7 +345,7 @@
     <ID>TooGenericExceptionThrown:HomeFragment.kt:HomeFragment$throw RuntimeException("Demo mode: missing type!")</ID>
     <ID>TooGenericExceptionThrown:NearbyPagerAdapter.kt:NearbyPagerAdapter$throw RuntimeException("Trying to create fragment at $position!")</ID>
     <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("Header ID NOT found at $itemPosition! (index:$index)")</ID>
-    <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("Header ID disabled in non vertical!")</ID>
+    <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("Header ID disabled in non-vertical!")</ID>
     <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("Unexpected view to bind $position!")</ID>
     <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("Unexpected view type $viewType!")</ID>
     <ID>TooGenericExceptionThrown:NewsListAdapter.kt:NewsListAdapter$throw RuntimeException("View type not found at $position! (index:$index)")</ID>

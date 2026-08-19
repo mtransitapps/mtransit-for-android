@@ -437,9 +437,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			for (int i = 0; i < jsonArray.length(); i++) {
 				final JSONObject jModule = jsonArray.getJSONObject(i);
 				final Module module = Module.fromSimpleJSONStatic(jModule, getAUTHORITY(context), i);
-				if (module == null) {
-					continue; // error while converting JSON to Module
-				}
+				if (module == null) continue; // error while converting JSON to Module
 				modules.add(module);
 			}
 			deleteAllModuleData();
@@ -606,6 +604,12 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Nullable
 	@Override
 	public String getAgencyColorString(@NonNull Context context) {
+		return null; // default
+	}
+
+	@Nullable
+	@Override
+	public String getAgencyTimeZoneId(@NonNull Context context) {
 		return null; // default
 	}
 

@@ -123,6 +123,7 @@ class POIManagerTest {
         maxValidityInMs = maxValidityInMs,
         readFromSourceAtInMs = readFromSourceAtInMs,
         providerPrecisionInMs = providerPrecisionInMs,
+        localTimeZoneId = LOCAL_TZ_ID,
         sourceLabel = sourceLabel,
         noData = noData
     ).apply {

@@ -36,8 +36,8 @@ class ModulesViewModel @Inject constructor(
 
     private val sortByPkgOrMaxValid = MutableLiveData(true)
 
-    val agencies: LiveData<List<AgencyProperties>?> =
-        MediatorLiveData2(_filteredAgencies, sortByPkgOrMaxValid).map { (newFilteredAgencies, newSortByPkgOrMaxValid) ->
+    val agencies: LiveData<List<AgencyProperties>?> = MediatorLiveData2(_filteredAgencies, sortByPkgOrMaxValid)
+        .map { (newFilteredAgencies, newSortByPkgOrMaxValid) ->
             if (ADD_FAKE_AGENCIES) { // DEBUG
                 return@map newFilteredAgencies
                     ?.toMutableList()
@@ -50,6 +50,7 @@ class ModulesViewModel @Inject constructor(
                                     "$idx",
                                     "$idx name",
                                     "FFFFFF",
+                                    null,
                                     org.mtransit.android.commons.LocationUtils.THE_WORLD,
                                     org.mtransit.android.commons.Constants.MAIN_APP_PACKAGE_NAME,
                                     idx.toLong(),

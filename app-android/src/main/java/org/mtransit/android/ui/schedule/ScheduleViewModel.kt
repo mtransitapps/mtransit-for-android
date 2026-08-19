@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.schedule
 
+import android.annotation.SuppressLint
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,10 +15,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
+import org.mtransit.android.commons.data.ScheduleTimestamps
 import org.mtransit.android.commons.data.hasRealTimeOrCancelled
 import org.mtransit.android.commons.data.readFromSource
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract
@@ -71,7 +74,7 @@ class ScheduleViewModel @Inject constructor(
 
         private const val EXTRA_START_AT_DAYS_BEFORE = "extra_start_at_days_before"
         private const val EXTRA_END_AT_DAYS_AFTER = "extra_end_at_days_after"
-        private const val LOCAL_TIME_ZONE_ID = "local_time_zone_id"
+        private const val SCHEDULE_LOCAL_TIME_ZONE_ID = "local_time_zone_id"
 
         private const val HIDE_REAL_TIME = "hide_real_time"
     }
@@ -100,9 +103,16 @@ class ScheduleViewModel @Inject constructor(
 
     val rds: LiveData<RouteDirectionStop?> = this.poim.map { it?.poi as? RouteDirectionStop }
 
+    private val _stop = this.rds.map { it?.stop }
+
     private val _startsAtDaysBefore = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_START_AT_DAYS_BEFORE)
     private val _endsAtDaysAfter = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_END_AT_DAYS_AFTER)
-    private val localTimeZoneId = savedStateHandle.getLiveDataDistinct<String?>(LOCAL_TIME_ZONE_ID)
+    private val _scheduleLocalTimeZoneId = savedStateHandle.getLiveDataDistinct<String?>(SCHEDULE_LOCAL_TIME_ZONE_ID)
+
+    private val localTimeZoneId = MediatorLiveData3(_stop, agency, _scheduleLocalTimeZoneId)
+        .map { (stop, agency, scheduleLocalTimeZoneId) ->
+            stop?.timeZoneIdOrNull ?: agency?.timeZoneId ?: scheduleLocalTimeZoneId
+        }
 
     val localTimeZone: LiveData<TimeZone?> = localTimeZoneId.map { timeZoneId ->
         timeZoneId?.let { TimeZone.getTimeZone(it) }
@@ -199,12 +209,8 @@ class ScheduleViewModel @Inject constructor(
                 hasProviderTimestampsReturned = true
                 if (scheduleTimestamps.timestampsCount > 0) {
                     _scheduleSourceLabel.postValue(scheduleTimestamps.sourceLabel)
-                    withContext(Dispatchers.Main) {
-                        savedStateHandle[LOCAL_TIME_ZONE_ID] =
-                            scheduleTimestamps.timestamps.firstNotNullOfOrNull { it.localTimeZoneId }
-                                ?: TimeZone.getDefault().id // must set a timezone to display calendar
-                    }
-                    return scheduleTimestamps.timestamps
+                    setScheduleLocalTimeZoneId(scheduleTimestamps)
+                    return scheduleTimestamps.timestamps // DONE (loaded)
                 }
             }
         }
@@ -214,10 +220,20 @@ class ScheduleViewModel @Inject constructor(
             }
         }
         _scheduleSourceLabel.postValue(null)
-        withContext(Dispatchers.Main) {
-            savedStateHandle[LOCAL_TIME_ZONE_ID] = TimeZone.getDefault().id // empty list must set a timezone to display calendar
-        }
+        setScheduleLocalTimeZoneId() // empty list must set a timezone to display empty calendar
         return emptyList() // loaded (not loading) == no service today
+    }
+
+    private suspend fun setScheduleLocalTimeZoneId(scheduleTimestamps: ScheduleTimestamps? = null) = withContext(Dispatchers.Main) {
+        savedStateHandle[SCHEDULE_LOCAL_TIME_ZONE_ID] = scheduleTimestamps?.localTimeZoneId
+            ?: scheduleTimestamps?.timestamps?.firstNotNullOfOrNull { @SuppressLint("DiscouragedApi") it.localTimeZoneId }
+                    ?: run {
+                if (BuildConfig.DEBUG && scheduleTimestamps?.timestamps?.isNotEmpty() == true) {
+                    throw IllegalStateException("No schedule timestamp timezone available!")
+                }
+                MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device TZ)!")
+                TimeZone.getDefault().id // must set a timezone to display calendar
+            }
     }
 
     val showAccessibility: LiveData<Boolean> = userPrefManager.showAccessibility.distinctUntilChanged()

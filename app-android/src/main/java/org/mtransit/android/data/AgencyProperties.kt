@@ -28,6 +28,8 @@ data class AgencyProperties(
     val longName: String, // unused?
     @ColumnInfo(name = "color_int")
     override val colorInt: Int? = null,
+    @ColumnInfo(name = "tz")
+    override val timeZoneId: String? = null,
     @Embedded(prefix = "area")
     override val area: Area,
     @ColumnInfo(name = "pkg")
@@ -70,6 +72,7 @@ data class AgencyProperties(
         shortName: String,
         longName: String,
         color: String? = null,
+        timeZoneId: String? = null,
         area: Area,
         pkg: String,
         longVersionCode: Long,
@@ -92,6 +95,7 @@ data class AgencyProperties(
         shortName = shortName,
         longName = longName,
         colorInt = color?.let { ColorUtils.parseColor(it) },
+        timeZoneId = timeZoneId,
         area = area,
         pkg = pkg,
         longVersionCode = longVersionCode,

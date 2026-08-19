@@ -18,6 +18,8 @@ data class AgencyBaseProperties(
     override val shortName: String, // sort
     @ColumnInfo(name = "color_int")
     override val colorInt: Int? = null,
+    @ColumnInfo(name = "tz")
+    override val timeZoneId: String? = null,
     @Embedded(prefix = "area")
     override val area: Area, // nearby
     @ColumnInfo(name = "pkg")

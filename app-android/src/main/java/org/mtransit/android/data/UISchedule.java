@@ -20,6 +20,7 @@ import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -34,6 +35,8 @@ import org.mtransit.android.commons.data.Accessibility;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.ServiceUpdates;
+import org.mtransit.android.commons.data.Stop;
+import org.mtransit.android.data.POIManager.AgencyResolver;
 import org.mtransit.android.util.UIAccessibilityUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
@@ -124,50 +127,6 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			defaultFutureTypeface = Typeface.DEFAULT;
 		}
 		return defaultFutureTypeface;
-	}
-
-	@Nullable
-	private static ForegroundColorSpan scheduleListTimesFutureTextColor1 = null;
-
-	@NonNull
-	private static ForegroundColorSpan getScheduleListTimesFutureTextColor1(Context context) {
-		if (scheduleListTimesFutureTextColor1 == null) {
-			scheduleListTimesFutureTextColor1 = SpanUtils.getNewTextColor(getDefaultFutureTextColor(context));
-		}
-		return scheduleListTimesFutureTextColor1;
-	}
-
-	@Nullable
-	private static TextAppearanceSpan scheduleListTimesCloseTextAppearance1 = null;
-
-	@NonNull
-	private static TextAppearanceSpan getScheduleListTimesCloseTextAppearance1(Context context) {
-		if (scheduleListTimesCloseTextAppearance1 == null) {
-			scheduleListTimesCloseTextAppearance1 = SpanUtils.getNewMediumTextAppearance(context);
-		}
-		return scheduleListTimesCloseTextAppearance1;
-	}
-
-	@Nullable
-	private static TextAppearanceSpan scheduleListTimesFarTextAppearance1 = null;
-
-	@NonNull
-	private static TextAppearanceSpan getScheduleListTimesFarTextAppearance1(@NonNull Context context) {
-		if (scheduleListTimesFarTextAppearance1 == null) {
-			scheduleListTimesFarTextAppearance1 = SpanUtils.getNewSmallTextAppearance(context);
-		}
-		return scheduleListTimesFarTextAppearance1;
-	}
-
-	@Nullable
-	private static ForegroundColorSpan scheduleListTimesPastTextColor1 = null;
-
-	@NonNull
-	private static ForegroundColorSpan getScheduleListTimesPastTextColor1(@NonNull Context context) {
-		if (scheduleListTimesPastTextColor1 == null) {
-			scheduleListTimesPastTextColor1 = SpanUtils.getNewTextColor(getDefaultPastTextColor(context));
-		}
-		return scheduleListTimesPastTextColor1;
 	}
 
 	@Nullable
@@ -325,10 +284,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	public static void resetColorCache() {
 		noServiceTextColor = null;
 		scheduleListTimesPastTextColor = null;
-		scheduleListTimesPastTextColor1 = null;
 		scheduleListTimesNowTextColor = null;
 		scheduleListTimesFutureTextColor = null;
-		scheduleListTimesFutureTextColor1 = null;
 		statusStringsTextColor1 = null;
 		statusStringsTextColor2 = null;
 		statusStringsTextColor3 = null;
@@ -339,14 +296,15 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this(
 				schedule,
 				schedule.getProviderPrecisionInMs(),
-				schedule.isNoPickup()
+				schedule.isNoPickup(),
+				schedule.getLocalTimeZoneId()
 		);
 		setTimestampsAndSort(schedule.getTimestamps());
 		setFrequenciesAndSort(schedule.getFrequencies());
 	}
 
-	private UISchedule(@NonNull POIStatus status, long providerPrecisionInMs, boolean noPickup) {
-		super(status, providerPrecisionInMs, noPickup);
+	private UISchedule(@NonNull POIStatus status, long providerPrecisionInMs, boolean noPickup, @Nullable String localTimeZoneId) {
+		super(status, providerPrecisionInMs, noPickup, localTimeZoneId);
 	}
 
 	UISchedule(
@@ -357,9 +315,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			long readFromSourceAtInMs,
 			long providerPrecisionInMs,
 			boolean noPickup,
+			@Nullable String localTimeZoneId,
 			@Nullable String sourceLabel
 	) {
-		this(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, false);
+		this(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, localTimeZoneId, sourceLabel, false);
 	}
 
 	private UISchedule(
@@ -370,10 +329,30 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			long readFromSourceAtInMs,
 			long providerPrecisionInMs,
 			boolean noPickup,
+			@Nullable String localTimeZoneId,
 			@Nullable String sourceLabel,
 			boolean noData
 	) {
-		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, sourceLabel, noData);
+		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, localTimeZoneId, sourceLabel, noData);
+	}
+
+	@Discouraged(message = "use getLocalTimeZoneId() w/ agency")
+	@Nullable
+	@Override
+	public String getLocalTimeZoneId() {
+		return super.getLocalTimeZoneId();
+	}
+
+	@Nullable
+	public String getLocalTimeZoneId(@Nullable Stop stop, @NonNull AgencyResolver agencyResolver) {
+		if (stop != null && stop.getTimeZoneIdOrNull() != null) {
+			return stop.getTimeZoneIdOrNull();
+		}
+		final IAgencyUIProperties agency = agencyResolver.getAgency();
+		if (agency != null && agency.getTimeZoneId() != null) {
+			return agency.getTimeZoneId();
+		}
+		return super.getLocalTimeZoneId();
 	}
 
 	@Nullable
@@ -467,8 +446,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	@Nullable
 	private ArrayList<DetailsNextDepartures> scheduleList = null;
-
 	private long scheduleListTimestamp = -1L;
+	@Nullable
+	private String scheduleListTimeZoneId = null;
 
 	@Nullable
 	public ArrayList<DetailsNextDepartures> getScheduleList(
@@ -480,10 +460,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable String optDefaultHeadSign,
 			boolean showingAccessibilityInfo,
+			@Nullable String localTimeZoneId,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
-		if (this.scheduleList == null || this.scheduleListTimestamp != after) {
-			generateScheduleList(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, optDefaultHeadSign, showingAccessibilityInfo, serviceUpdates);
+		if (this.scheduleList == null || this.scheduleListTimestamp != after || !Objects.equals(this.scheduleListTimeZoneId, localTimeZoneId)) {
+			generateScheduleList(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, optDefaultHeadSign, showingAccessibilityInfo, localTimeZoneId, serviceUpdates);
 		}
 		return this.scheduleList;
 	}
@@ -497,25 +478,32 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@Nullable Integer optMaxCount,
 			@Nullable String optDefaultHeadSign,
 			boolean showingAccessibilityInfo,
+			@Nullable String localTimeZoneId,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		final boolean allTripsCancelled = allTripsNoService(serviceUpdates);
 		ArrayList<Timestamp> timestamps =
 				getNextTimestamps(after - getUIProviderPrecisionInMs(), optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (CollectionUtils.getSize(timestamps) <= 0) { // NO SERVICE IN COVERAGE
-			setScheduleList(generateScheduleEmpty(context, after), after, allTripsCancelled);
+			setScheduleList(generateScheduleEmpty(context, after), after, localTimeZoneId, allTripsCancelled);
 			return;
 		}
 		addLastTimestamps(after, timestamps);
-		setScheduleList(generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign, showingAccessibilityInfo, serviceUpdates), after, allTripsCancelled);
+		setScheduleList(
+				generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign, showingAccessibilityInfo, localTimeZoneId, serviceUpdates),
+				after,
+				localTimeZoneId,
+				allTripsCancelled
+		);
 	}
 
-	private void setScheduleList(@Nullable ArrayList<DetailsNextDepartures> scheduleList, long after, boolean cancelled) {
+	private void setScheduleList(@Nullable ArrayList<DetailsNextDepartures> scheduleList, long after, @Nullable String localTimeZoneId, boolean cancelled) {
 		if (scheduleList != null && cancelled) {
 			scheduleList = toCancelled(scheduleList);
 		}
 		this.scheduleList = scheduleList;
 		this.scheduleListTimestamp = after;
+		this.scheduleListTimeZoneId = localTimeZoneId;
 	}
 
 	private @NonNull ArrayList<DetailsNextDepartures> generateScheduleEmpty(@NonNull Context context, long after) {
@@ -558,6 +546,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			@NonNull List<Timestamp> timestamps,
 			@Nullable String optDefaultHeadSign,
 			boolean showingAccessibilityInfo,
+			@Nullable String localTimeZoneId,
 			@Nullable ServiceUpdates serviceUpdates
 	) {
 		// 1 - Find the start/end time sections
@@ -568,13 +557,16 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final int nbSpaceAfter = 0;
 		final ArrayList<DetailsNextDepartures> list = new ArrayList<>();
 		long lastTimestamp = -1L;
-		TimeZone timeZone = null;
-		String lastLocalTimeZoneId = null;
+		TimeZone localTimeZone = localTimeZoneId == null ? null : TimeZone.getTimeZone(localTimeZoneId);
 		for (Timestamp t : timestamps) {
 			idx++;
 			SpannableStringBuilder headSignSSB = null;
 			SpannableStringBuilder dateSSB = null;
-			final String fTime = UITimeUtilsExtKt.formatTimestamp(t, context);
+			//noinspection DiscouragedApi
+			final TimeZone tTZ = localTimeZone != null ? localTimeZone
+					: t.getLocalTimeZoneId() != null ? TimeZone.getTimeZone(t.getLocalTimeZoneId())
+					  : TimeZone.getDefault();
+			final String fTime = UITimeUtilsExtKt.formatTime(context, t.getDepartureT(), tTZ, t.isRealTime());
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			final CharSequence timestampHeading = DirectionExtKt.makeHeading(t, context, optDefaultHeadSign, true);
 			if (timestampHeading != null) {
@@ -603,18 +595,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				}
 			}
 			final long departureT = t.getDepartureT();
-			final String localTimeZoneId = t.getLocalTimeZoneId();
-			if (timeZone == null || !TextUtils.equals(localTimeZoneId, lastLocalTimeZoneId)) {
-				timeZone = localTimeZoneId == null ? TimeZone.getDefault() : TimeZone.getTimeZone(localTimeZoneId);
-				lastLocalTimeZoneId = localTimeZoneId;
-			}
 			if (lastTimestamp > 0L) {
-				if (!UITimeUtils.isSameDay(timeZone, lastTimestamp, departureT)) {
-					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT));
+				if (!UITimeUtils.isSameDay(tTZ, lastTimestamp, departureT)) {
+					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT, tTZ.getID()));
 				}
 			} else { // 1st timestamp
 				final long diffInMs = departureT - after;
-				if (UITimeUtils.isSameDay(timeZone, after, departureT)) {
+				if (UITimeUtils.isSameDay(tTZ, after, departureT)) {
 					dateSSB = new SpannableStringBuilder(context.getString(R.string.today));
 				} else if (diffInMs < TimeUnit.HOURS.toMillis(24L)) {
 					Pair<CharSequence, CharSequence> shortTimeSpam;
@@ -628,7 +615,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						dateSSB.append(SPACE).append(shortTimeSpam.second);
 					}
 				} else {
-					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT));
+					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, departureT, tTZ.getID()));
 				}
 			}
 			if (ts.previousTimesStartIdx < ts.previousTimesEndIdx // IF previous times list DO
@@ -857,164 +844,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return timeCS;
 	}
 
-	// SCHEDULE
-
-	@Deprecated // TBD
-	@SuppressLint("DeprecatedCall")
-	@Nullable
-	private CharSequence scheduleString = null;
-
-	@Deprecated // TBD
-	@SuppressLint("DeprecatedCall")
-	private long scheduleStringTimestamp = -1L;
-
-	@Deprecated // TBD
-	@SuppressWarnings({"unused", "deprecation"})
-	@SuppressLint("DeprecatedCall")
-	@Nullable
-	public CharSequence getSchedule(
-			@NonNull Context context,
-			long after,
-			@Nullable Long optMinCoverageInMs,
-			@Nullable Long optMaxCoverageInMs,
-			@Nullable Integer optMinCount,
-			@Nullable Integer optMaxCount
-	) {
-		if (this.scheduleString == null || this.scheduleStringTimestamp != after) {
-			generateSchedule(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
-		}
-		return this.scheduleString;
-	}
-
-	@SuppressWarnings({"deprecation"})
-	@SuppressLint("DeprecatedCall")
-	@Deprecated // TBD
-	private void generateSchedule(
-			@NonNull Context context,
-			long after,
-			@Nullable Long optMinCoverageInMs,
-			@Nullable Long optMaxCoverageInMs,
-			@Nullable Integer optMinCount,
-			@Nullable Integer optMaxCount
-	) {
-		ArrayList<Timestamp> nextTimestamps =
-				getNextTimestamps(after - getUIProviderPrecisionInMs(), optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
-		if (CollectionUtils.getSize(nextTimestamps) <= 0) { // NO SERVICE
-			SpannableStringBuilder ssb = null;
-			try {
-				Timestamp timestamp = getNextTimestamp(after);
-				if (timestamp != null && timestamp.getDepartureT() >= 0L) {
-					ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.getDepartureT())));
-					decorateOldSchedule(timestamp, ssb);
-				}
-			} catch (Exception e) {
-				MTLog.w(this, e, "Error while parsing next timestamp date time!");
-			}
-			if (ssb == null) {
-				ssb = new SpannableStringBuilder(context.getString(R.string.no_upcoming_departures));
-			}
-			ssb = SpanUtils.setAll(ssb, //
-					getNoServiceTextAppearance(context), //
-					getNoServiceTextColor(context), //
-					NO_SERVICE_SIZE);
-			this.scheduleString = ssb;
-			this.scheduleStringTimestamp = after;
-			return;
-		}
-		Timestamp lastTimestamp = getLastTimestamp(after, after - TimeUnit.HOURS.toMillis(1L));
-		if (lastTimestamp != null && !nextTimestamps.contains(lastTimestamp)) {
-			nextTimestamps.add(0, lastTimestamp);
-		}
-		generateScheduleStringsTimes(context, after, nextTimestamps);
-		this.scheduleStringTimestamp = after;
-	}
-
-	@Deprecated // TBD
-	private void generateScheduleStringsTimes(Context context, long after, ArrayList<Timestamp> nextTimestamps) {
-		SpannableStringBuilder ssb = new SpannableStringBuilder();
-		int startPreviousTimes = -1, endPreviousTimes = -1;
-		int startPreviousTime = -1, endPreviousTime = -1;
-		int startNextTime = -1, endNextTime = -1;
-		int startNextNextTime = -1, endNextNextTime = -1;
-		int startAfterNextTimes = -1, endAfterNextTimes = -1;
-		for (Timestamp t : nextTimestamps) {
-			if (ssb.length() > 0) {
-				ssb.append(StringUtils.SPACE_CAR).append(StringUtils.SPACE_CAR);
-			}
-			final long departureT = t.getDepartureT();
-			if (endPreviousTime == -1) {
-				if (departureT >= after) {
-					if (startPreviousTime != -1) {
-						endPreviousTime = ssb.length();
-					}
-				} else {
-					endPreviousTimes = ssb.length();
-					startPreviousTime = endPreviousTimes;
-				}
-			}
-			if (departureT < after) {
-				if (endPreviousTime == -1) {
-					if (startPreviousTimes == -1) {
-						startPreviousTimes = ssb.length();
-					}
-				}
-			}
-			if (departureT >= after) {
-				if (startNextTime == -1) {
-					startNextTime = ssb.length();
-				}
-			}
-			String fTime = UITimeUtilsExtKt.formatTimestamp(t, context);
-			ssb.append(fTime);
-			if (departureT >= after) {
-				if (endNextTime == -1) {
-					if (startNextTime != ssb.length()) {
-						endNextTime = ssb.length();
-						startNextNextTime = endNextTime;
-						endNextNextTime = startNextNextTime; // if was last, the same means empty
-					}
-				} else if (endNextNextTime != -1 && endNextNextTime == startNextNextTime) {
-					endNextNextTime = ssb.length();
-					startAfterNextTimes = endNextNextTime;
-					endAfterNextTimes = startAfterNextTimes; // if was last, the same means empty
-				} else //noinspection ConstantConditions
-					if (endAfterNextTimes != -1 && startAfterNextTimes != -1) {
-						endAfterNextTimes = ssb.length();
-					}
-			}
-		}
-		if (startPreviousTimes < endPreviousTimes) {
-			ssb = SpanUtils.set(ssb, startPreviousTimes, endPreviousTimes, //
-					getScheduleListTimesFarTextAppearance(context), getScheduleListTimesPastTextColor(context));
-		}
-		if (startPreviousTime < endPreviousTime) {
-			ssb = SpanUtils.set(ssb, startPreviousTime, endPreviousTime, //
-					getScheduleListTimesCloseTextAppearance(context), getScheduleListTimesPastTextColor1(context));
-		}
-		if (startNextTime < endNextTime) {
-			ssb = SpanUtils.set(ssb, startNextTime, endNextTime, //
-					getScheduleListTimesClosestTextAppearance(context), getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_STYLE);
-		}
-		if (startNextNextTime < endNextNextTime) {
-			ssb = SpanUtils.set(ssb, startNextNextTime, endNextNextTime, //
-					getScheduleListTimesCloseTextAppearance1(context), getScheduleListTimesFutureTextColor(context));
-		}
-		if (startAfterNextTimes < endAfterNextTimes) {
-			ssb = SpanUtils.set(ssb, startAfterNextTimes, endAfterNextTimes, //
-					getScheduleListTimesFarTextAppearance1(context), getScheduleListTimesFutureTextColor1(context));
-		}
-		UITimeUtils.cleanTimes(ssb);
-		ssb = SpanUtils.setAll(ssb, SpanUtils.getNew200PercentSizeSpan());
-		this.scheduleString = ssb;
-	}
-
 	// STATUS
 
 	@Nullable
 	private Pair<CharSequence, CharSequence> statusStrings = null;
-
 	private long statusStringsTimestamp = -1L;
-
 	@Nullable
 	private Integer statusStringLastServiceUpdatesHash = null;
 

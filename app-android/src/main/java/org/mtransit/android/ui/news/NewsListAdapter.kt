@@ -274,7 +274,7 @@ class NewsListAdapter(
 
     override fun getHeaderPositionForItem(itemPosition: Int): Int {
         if (!hasSeparator) {
-            throw RuntimeException("Header ID disabled in non vertical!")
+            throw RuntimeException("Header ID disabled in non-vertical!")
         }
         var index = 0
         this.momentToNewsList.forEach { (_, newsList) ->
