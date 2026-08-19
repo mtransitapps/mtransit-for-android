@@ -28,6 +28,7 @@
     <ID>CyclomaticComplexMethod:NavigationDrawerControllerExt.kt:internal fun NavigationDrawerController.trackNavigationItemSelected</ID>
     <ID>CyclomaticComplexMethod:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$fun isLoadingMore: Boolean</ID>
     <ID>CyclomaticComplexMethod:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
+    <ID>CyclomaticComplexMethod:NearbyFragment.kt:NearbyFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
     <ID>CyclomaticComplexMethod:NewsDetailsFragment.kt:NewsDetailsFragment$private fun FragmentNewsDetailsBinding.updateNewsArticleText</ID>
     <ID>CyclomaticComplexMethod:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
