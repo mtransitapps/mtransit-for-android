@@ -541,9 +541,11 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     }
 
     override fun onDestroyView() {
+        super.onDestroyView()
+        //noinspection DeprecatedCall
+        binding?.thumbnailWebView?.destroy()
         binding = null
         inlineBannerAdManager.destroyAd(this)
-        super.onDestroyView()
     }
 
     override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
