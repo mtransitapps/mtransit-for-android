@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.GeolocationPermissions;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.SslErrorHandler;
@@ -248,15 +249,19 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	@Override
 	public void onDestroyView() {
+		destroyWebView(binding == null ? null : binding.webView);
 		super.onDestroyView();
 		this.binding = null;
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		final WebView webView = binding == null ? null : binding.webView;
+	private void destroyWebView(@Nullable WebView webView) {
 		if (webView == null) return;
+		final ViewGroup webViewParent = webView.getParent() instanceof ViewGroup ? (ViewGroup) webView.getParent() : null;
+		if (webViewParent != null) {
+			webViewParent.removeView(webView);
+		}
+		webView.setWebViewClient(null);
+		webView.setWebChromeClient(null);
 		webView.destroy();
 	}
 
@@ -550,9 +555,13 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		@Override
 		public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
 			final WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
+			if (webBrowserFragment != null) {
+				webBrowserFragment.destroyWebView(view);
+			}
 			final FragmentActivity activity = webBrowserFragment == null ? null : webBrowserFragment.getActivity();
-			if (activity == null || activity.getSupportFragmentManager().getBackStackEntryCount() == 0) return false;
-			activity.getSupportFragmentManager().popBackStack();
+			if (activity != null && activity.getSupportFragmentManager().getBackStackEntryCount() > 0) {
+				activity.getSupportFragmentManager().popBackStack();
+			}
 			return true;
 		}
 	}
