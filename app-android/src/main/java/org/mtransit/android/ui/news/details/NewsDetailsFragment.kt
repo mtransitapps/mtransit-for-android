@@ -453,6 +453,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         }
     }
 
+    @SuppressLint("MissingOnRenderProcessGone") // issue with Lint check https://issuetracker.google.com/issues/548989591
     private val customWebViewClient = object : WebViewClientCompat() {
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             LinkUtils.open(
