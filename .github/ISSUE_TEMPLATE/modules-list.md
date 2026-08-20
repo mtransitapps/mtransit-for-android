@@ -49,6 +49,7 @@ labels: MT
 - [ ] ca-halifax-transit-ferry
 - [ ] ca-hamilton-hsr-bus
 - [ ] ca-kamloops-transit-system-bus
+- [ ] ca-kawartha-lindsay-transit-bus
 - [ ] ca-kelowna-regional-transit-system-bus
 - [ ] ca-kingston-transit-bus
 - [ ] ca-kitimat-stikine-region-transit-bus
