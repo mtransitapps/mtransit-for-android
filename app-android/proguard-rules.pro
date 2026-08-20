@@ -35,3 +35,11 @@
 
 -dontwarn android.media.LoudnessCodecController$OnLoudnessCodecUpdateListener
 -dontwarn android.media.LoudnessCodecController
+
+# ADS: NEXT GEN SDK - START
+# Workaround for androidx.webkit prefetch crash in GMA SDK WebView URL prefetch flow.
+# The issue seems related to R8 shrinking/obfuscation of androidx.webkit /
+# Chromium support-lib boundary classes that are accessed reflectively.
+-keep class androidx.webkit.** { *; }
+-keep class org.chromium.support_lib_boundary.** { *; }
+# ADS: NEXT GEN SDK - END
