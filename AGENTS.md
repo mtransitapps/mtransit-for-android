@@ -1,4 +1,4 @@
-<!-- ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite -->
+<!-- ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite-all-repositories -->
 
 This repository is part of an Android project with multiple Android apps and JVM data parsers.
 
