@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.widget.RelativeLayout
@@ -27,7 +28,6 @@ import org.mtransit.android.data.NewsImage
 import org.mtransit.android.data.YOUTUBE_HTTP_HEADERS
 import org.mtransit.android.data.authority
 import org.mtransit.android.data.getTwitterVideoId
-import org.mtransit.android.data.uuid
 import org.mtransit.android.data.getYouTubeVideoId
 import org.mtransit.android.data.hasImagesOrVideoThumbnail
 import org.mtransit.android.data.imageUrls
@@ -35,6 +35,7 @@ import org.mtransit.android.data.isTwitterVideo
 import org.mtransit.android.data.isYouTubeVideo
 import org.mtransit.android.data.makeTwitterEmbedVideoPlayerUrl
 import org.mtransit.android.data.makeYouTubeEmbedVideoPlayerUrl
+import org.mtransit.android.data.uuid
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
@@ -452,6 +453,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         }
     }
 
+    @SuppressLint("MissingOnRenderProcessGone") // issue with Lint check https://issuetracker.google.com/issues/548989591
     private val customWebViewClient = object : WebViewClientCompat() {
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             LinkUtils.open(
@@ -463,6 +465,20 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 viewModel.useInternalWebBrowserPref.value
             )
             return true // handled
+        }
+
+        override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+            activity?.supportFragmentManager?.takeIf { it.backStackEntryCount > 0 }?.apply {
+                // navigates back to previous fragment
+                view?.let { webView ->
+                    val parent = webView.parent as? ViewGroup
+                    parent?.removeView(webView)
+                    //noinspection DeprecatedCall
+                    webView.destroy()
+                }
+                popBackStack()
+            }
+            return true
         }
     }
 
