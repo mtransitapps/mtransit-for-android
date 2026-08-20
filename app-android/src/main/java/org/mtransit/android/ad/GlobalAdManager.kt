@@ -1,14 +1,14 @@
 package org.mtransit.android.ad
 
-// import com.google.android.libraries.ads.mobile.sdk.MobileAds #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig #gmaNextGen
+// import com.google.android.gms.ads.AdRequest // #gmaLegacy
+// import com.google.android.gms.ads.MobileAds // #gmaLegacy
+// import com.google.android.gms.ads.RequestConfiguration // #gmaLegacy
 import android.content.Context
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.libraries.ads.mobile.sdk.MobileAds // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig // #gmaNextGen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -166,16 +166,16 @@ class GlobalAdManager(
         RequestConfiguration.Builder()
             .setTestDeviceIds(
                 listOf(*context.resources.getStringArray(R.array.google_ads_test_devices_ids))
-                        + listOf(AdRequest.DEVICE_ID_EMULATOR)
-                // Android emulators are automatically configured as test devices. #gmaNextGen
+                // + listOf(AdRequest.DEVICE_ID_EMULATOR) // #gmaLegacy
+                // Android emulators are automatically configured as test devices. // #gmaNextGen
             )
             .build()
 
-    // private fun InitializationConfig.Builder.disableMediationAdapterInit(@Suppress("unused") context: Context, appId: String) { #gmaNextGen
-    private fun disableMediationAdapterInit(context: Context, appId: String) {
+    private fun InitializationConfig.Builder.disableMediationAdapterInit(@Suppress("unused") context: Context, appId: String) { // #gmaNextGen
+        // private fun disableMediationAdapterInit(context: Context, appId: String) { // #gmaLegacy
         if (appId.startsWith(GOOGLE_ADS_TEST_IDS_START_WITH)) {
-            // disableMediationAdapterInitialization() // all will fail/timeout #gmaNextGen
-            MobileAds.disableMediationAdapterInitialization(context) // all will fail/timeout
+            disableMediationAdapterInitialization() // all will fail/timeout  // #gmaNextGen
+            // MobileAds.disableMediationAdapterInitialization(context) // all will fail/timeout // #gmaLegacy
         }
     }
 
@@ -184,19 +184,18 @@ class GlobalAdManager(
         // https://developers.google.com/admob/android/next-gen/quick-start
         val context = activity.requireContext()
         val appId = context.getString(R.string.google_ads_app_id)
-        // val initConfig = InitializationConfig.Builder(applicationId = appId) #gmaNextGen
-        //     .apply { #gmaNextGen
-        if (Constants.DEBUG && Constants.IS_DEBUG_BUILD) {
-            // setRequestConfiguration(makeAdsRequestConfig(context)) #gmaNextGen
-            MobileAds.setRequestConfiguration(makeAdsRequestConfig(context))
-            disableMediationAdapterInit(context, appId)
-        }
-        //     } #gmaNextGen
-        // } #gmaNextGen
-        // .build() #gmaNextGen
+        val initConfig = InitializationConfig.Builder(applicationId = appId) // #gmaNextGen
+            .apply { // #gmaNextGen
+                if (Constants.DEBUG && Constants.IS_DEBUG_BUILD) {
+                    setRequestConfiguration(makeAdsRequestConfig(context)) // #gmaNextGen
+                    // MobileAds.setRequestConfiguration(makeAdsRequestConfig(context)) // #gmaLegacy
+                    disableMediationAdapterInit(context, appId)
+                }
+            } // #gmaNextGen
+            .build() //  #gmaNextGen
         MobileAds.initialize(
             activity.requireActivity(), // some adapters require activity
-            // initConfig, #gmaNextGen
+            initConfig, // #gmaNextGen
         ) { initializationStatus ->
             this.initialized.set(true)
             this.initializing.set(false)
@@ -212,7 +211,8 @@ class GlobalAdManager(
                     }
                 )
             }
-            MobileAds.setAppMuted(true) // not a media app -> sound off by default
+            MobileAds.setUserMutedApp(true) // not a media app -> sound off by default // #gmaNextGen
+            // MobileAds.setAppMuted(true) // not a media app -> sound off by default // #gmaLegacy
             onInitCompleteListener()
         }
     }

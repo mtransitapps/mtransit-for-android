@@ -1,13 +1,13 @@
 package org.mtransit.android.ad.rewarded
 
 
+// import com.google.android.gms.ads.AdError // #gmaLegacy
+// import com.google.android.gms.ads.FullScreenContentCallback // #gmaLegacy
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAdEventCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-// import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAdEventCallback #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
@@ -19,8 +19,8 @@ class RewardedAdFullScreenContentCallback(
     private val rewardedAdManager: RewardedAdManager,
     private val crashReporter: CrashReporter,
     private val activityWR: WeakReference<IActivity>,
-    // ) : RewardedAdEventCallback, #gmaNextGen
-) : FullScreenContentCallback(),
+) : RewardedAdEventCallback, // #gmaNextGen
+    // ) : FullScreenContentCallback(), // #gmaLegacy
     MTLog.Loggable {
 
     constructor(
@@ -50,15 +50,15 @@ class RewardedAdFullScreenContentCallback(
         }
     }
 
-    // override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) { #gmaNextGen
-    override fun onAdFailedToShowFullScreenContent(fullScreenContentError: AdError) {
+    override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) { // #gmaNextGen
+        // override fun onAdFailedToShowFullScreenContent(fullScreenContentError: AdError) { // #gmaLegacy
         super.onAdFailedToShowFullScreenContent(fullScreenContentError)
         this.crashReporter.w(
             this,
             "Failed to show rewarded ad! ${fullScreenContentError.code}: " +
                     "'${fullScreenContentError.message}' " +
-                    // "(${fullScreenContentError.mediationAdError})." #gmaNextGen
-                    "(${fullScreenContentError.domain})."
+                    "(${fullScreenContentError.mediationAdError})." // #gmaNextGen
+            // "(${fullScreenContentError.domain})." // #gmaLegacy
         )
     }
 

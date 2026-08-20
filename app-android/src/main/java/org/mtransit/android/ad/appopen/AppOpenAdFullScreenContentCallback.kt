@@ -1,9 +1,9 @@
 package org.mtransit.android.ad.appopen
 
-// import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAdEventCallback #gmaNextGen
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.FullScreenContentCallback
+// import com.google.android.gms.ads.AdError // #gmaLegacy
+// import com.google.android.gms.ads.FullScreenContentCallback // #gmaLegacy
+import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAdEventCallback // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError // #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
@@ -13,8 +13,8 @@ class AppOpenAdFullScreenContentCallback(
     private val appOpenAdManager: AppOpenAdManager,
     private val crashReporter: CrashReporter,
     private val onShowAdComplete: () -> Unit
-    // ) : AppOpenAdEventCallback, #gmaNextGen
-) : FullScreenContentCallback(),
+) : AppOpenAdEventCallback, // #gmaNextGen
+    // ) : FullScreenContentCallback(), // #gmaLegacy
     MTLog.Loggable {
 
     companion object {
@@ -31,8 +31,8 @@ class AppOpenAdFullScreenContentCallback(
         // TODO ? this.appOpenAdManager.loadAd()
     }
 
-    // override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) { #gmaNextGen
-    override fun onAdFailedToShowFullScreenContent(fullScreenContentError: AdError) {
+    override fun onAdFailedToShowFullScreenContent(fullScreenContentError: FullScreenContentError) { // #gmaNextGen
+        // override fun onAdFailedToShowFullScreenContent(fullScreenContentError: AdError) { // #gmaLegacy
         logAdsD(this, "onAdFailedToShowFullScreenContent() > App open ad failed to show fullscreen content.")
         this.appOpenAdManager.appOpenAd = null // clear dismissed ad
         this.appOpenAdManager.isShowingAd = false
@@ -42,8 +42,8 @@ class AppOpenAdFullScreenContentCallback(
             this,
             "Failed to show app open ad! ${fullScreenContentError.code}: " +
                     "'${fullScreenContentError.message}' " +
-                    // "(${fullScreenContentError.mediationAdError})." #gmaNextGen
-                    "(${fullScreenContentError.domain})."
+                    "(${fullScreenContentError.mediationAdError})." // #gmaNextGen
+            // "(${fullScreenContentError.domain})." // #gmaLegacy
         )
     }
 

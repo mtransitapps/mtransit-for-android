@@ -6,10 +6,10 @@ import android.os.Build
 import android.view.ViewGroup
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-// import com.google.android.libraries.ads.mobile.sdk.banner.AdSize #gmaNextGen
-// import com.google.android.libraries.ads.mobile.sdk.banner.AdView #gmaNextGen
+// import com.google.android.gms.ads.AdSize // #gmaLegacy
+// import com.google.android.gms.ads.AdView // #gmaLegacy
+import com.google.android.libraries.ads.mobile.sdk.banner.AdSize // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView // #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD
@@ -181,23 +181,23 @@ class BannerAdManager @Inject constructor(
     }
 
     @MainThread
-    // fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) { #gmaNextGen
-    // DO NOTHING #gmaNextGen
-    fun resumeAd(activity: IAdScreenActivity) {
-        if (!AdConstants.AD_ENABLED) return
-        getAdLayout(activity)?.let { adLayout ->
-            getAdView(adLayout)?.resume()
-        }
+    fun resumeAd(@Suppress("unused") activity: IAdScreenActivity) { // #gmaNextGen
+        // DO NOTHING // #gmaNextGen
+        // fun resumeAd(activity: IAdScreenActivity) { // #gmaLegacy
+        //     if (!AdConstants.AD_ENABLED) return // #gmaLegacy
+        //     getAdLayout(activity)?.let { adLayout -> // #gmaLegacy
+        //         getAdView(adLayout)?.resume() // #gmaLegacy
+        //     } // #gmaLegacy
     }
 
     @MainThread
-    // fun pauseAd(@Suppress("unused") activity: IAdScreenActivity) { #gmaNextGen
-    // DO NOTHING #gmaNextGen
-    fun pauseAd(activity: IAdScreenActivity) {
-        if (!AdConstants.AD_ENABLED) return
-        getAdLayout(activity)?.let { adLayout ->
-            getAdView(adLayout)?.pause()
-        }
+    fun pauseAd(@Suppress("unused") activity: IAdScreenActivity) { // #gmaNextGen
+        // DO NOTHING // #gmaNextGen
+        // fun pauseAd(activity: IAdScreenActivity) { // #gmaLegacy
+        //     if (!AdConstants.AD_ENABLED) return // #gmaLegacy
+        //     getAdLayout(activity)?.let { adLayout -> // #gmaLegacy
+        //         getAdView(adLayout)?.pause() // #gmaLegacy
+        //     } // #gmaLegacy
     }
 
     fun getAdLayout(activity: IAdScreenActivity): ViewGroup? =
