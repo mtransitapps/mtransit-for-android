@@ -253,6 +253,14 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		this.binding = null;
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		final WebView webView = binding == null ? null : binding.webView;
+		if (webView == null) return;
+		webView.destroy();
+	}
+
 	private void onProgressChanged(int newProgress) {
 		final ProgressBar progressBar = binding == null ? null : binding.progressBar;
 		if (progressBar == null) return;
