@@ -552,6 +552,12 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			final WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 			final FragmentActivity activity = webBrowserFragment == null ? null : webBrowserFragment.getActivity();
 			if (activity == null || activity.getSupportFragmentManager().getBackStackEntryCount() == 0) return false;
+			// navigates back to previous fragment
+			if (view != null) {
+				ViewGroup parent = (ViewGroup) view.getParent();
+				if (parent != null) parent.removeView(view);
+				view.destroy();
+			}
 			activity.getSupportFragmentManager().popBackStack();
 			return true;
 		}
