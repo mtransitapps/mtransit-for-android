@@ -1,9 +1,9 @@
 package org.mtransit.android.ad.rewarded
 
-// import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd #gmaNextGen
+// import com.google.android.gms.ads.rewarded.RewardedAd // #gmaLegacy
 import android.content.Context
 import androidx.annotation.StringRes
-import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd // #gmaNextGen
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -82,8 +82,8 @@ class RewardedAdManager @Inject constructor(
         rewardedAdLoadingActivityHashCode = activityHashCode
         logAdsD(this@RewardedAdManager, "loadRewardedAdForActivity() > Loading rewarded ad for ${activity::class.java.simpleName}...")
         RewardedAd.load( // Must be called on the main UI thread
-            appContext,
-            appContext.getString(adUnitStringResId),
+            // appContext, // #gmaLegacy
+            // appContext.getString(adUnitStringResId), // #gmaLegacy
             AdManager.getAdRequest(
                 adUnitId = appContext.getString(adUnitStringResId)
             ),
@@ -161,8 +161,9 @@ class RewardedAdManager @Inject constructor(
 
         val theActivity = activity.requireActivity()
         logAdsD(this, "showRewardedAd() > Showing rewarded ad for ${theActivity::class.java.simpleName}...")
-        // this.rewardedAd?.adEventCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity) #gmaNextGen
-        this.rewardedAd?.fullScreenContentCallback = RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
+        // this.rewardedAd?.fullScreenContentCallback = // #gmaLegacy
+        this.rewardedAd?.adEventCallback = // #gmaNextGen
+            RewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
         this.rewardedAd?.show(theActivity, RewardedAdOnUserEarnedRewardListener(this.globalAdManager, activity))
         //noinspection DiscouragedApi
         this.userManager.increaseRewardedShowCountsNow()

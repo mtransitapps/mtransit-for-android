@@ -468,6 +468,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         }
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+            destroyWebView(view)
             activity?.supportFragmentManager?.takeIf { it.backStackEntryCount > 0 }?.apply {
                 // navigates back to previous fragment
                 view?.let { webView ->
@@ -476,9 +477,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     webView.destroy()
                 }
                 popBackStack()
-                return true
             }
-            return false
+            return true
         }
     }
 
@@ -542,11 +542,19 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
-        //noinspection DeprecatedCall
-        binding?.thumbnailWebView?.destroy()
+        destroyWebView(binding?.thumbnailWebView)
         binding = null
         inlineBannerAdManager.destroyAd(this)
+        super.onDestroyView()
+    }
+
+    private fun destroyWebView(webView: WebView?) {
+        webView ?: return
+        (webView.parent as? ViewGroup)?.removeView(webView)
+        webView.webViewClient = null
+        webView.webChromeClient = null
+        //noinspection DeprecatedCall
+        webView.destroy()
     }
 
     override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)

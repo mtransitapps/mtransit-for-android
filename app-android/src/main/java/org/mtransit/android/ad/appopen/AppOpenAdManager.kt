@@ -3,8 +3,11 @@ package org.mtransit.android.ad.appopen
 import android.content.Context
 import androidx.annotation.MainThread
 import androidx.annotation.StringRes
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.appopen.AppOpenAd
+import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAd // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback // #gmaNextGen
+import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError // #gmaNextGen
+// import com.google.android.gms.ads.LoadAdError // #gmaLegacy
+// import com.google.android.gms.ads.appopen.AppOpenAd // #gmaLegacy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
@@ -69,21 +72,26 @@ class AppOpenAdManager @Inject constructor(
             return false
         }
         isLoadingAd.set(true)
-        AppOpenAd.load( // Must be called on the main UI thread
-            appContext,
-            appContext.getString(adUnitStringResId),
+        AppOpenAd.load(
+            // Must be called on the main UI thread
+            // appContext, // #gmaLegacy
+            // appContext.getString(adUnitStringResId), // #gmaLegacy
             AdManager.getAdRequest(
                 adUnitId = appContext.getString(adUnitStringResId)
             ),
-            object : AppOpenAd.AppOpenAdLoadCallback() {
+            object : AdLoadCallback<AppOpenAd> { // #gmaNextGen
+                // object : AppOpenAd.AppOpenAdLoadCallback() { // #gmaLegacy
                 override fun onAdLoaded(ad: AppOpenAd) {
                     appOpenAd = ad
                     isLoadingAd.set(false)
                     loadTimeK = TimeUtilsK.currentInstant()
                 }
 
-                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    logAdsD(LOG_TAG, "App open ad failed to load with error: ${loadAdError.message}")
+                // override fun onAdFailedToLoad(loadAdError: LoadAdError) { // #gmaLegacy
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    // val loadAdErrorMessage = loadAdError.message // #gmaLegacy
+                    val loadAdErrorMessage = adError.message // #gmaNextGen
+                    logAdsD(LOG_TAG, "App open ad failed to load with error: $loadAdErrorMessage")
                     isLoadingAd.set(false)
                 }
             },
@@ -103,7 +111,9 @@ class AppOpenAdManager @Inject constructor(
             return // Load an ad.
         }
         isShowingAd = true
-        appOpenAd?.fullScreenContentCallback = AppOpenAdFullScreenContentCallback(this, crashReporter, onShowAdComplete)
+        // appOpenAd?.fullScreenContentCallback = // #gmaLegacy
+        appOpenAd?.adEventCallback = // #gmaNextGen
+            AppOpenAdFullScreenContentCallback(this, crashReporter, onShowAdComplete)
         appOpenAd?.show(activity.requireActivity())
     }
 

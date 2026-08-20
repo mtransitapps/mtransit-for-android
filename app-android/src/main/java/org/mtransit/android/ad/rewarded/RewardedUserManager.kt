@@ -7,7 +7,6 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
-import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtilsK
