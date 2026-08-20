@@ -112,8 +112,8 @@ jobs:
           # Setup keys (can fail CI if fail)
           ./app-android/keys_setup.sh || exit
           # Assemble release APK (store result)
-          ./gradlew :app-android:assembleRelease --no-scan -PuseGooglePlayUploadKeysProperties=false
-          RESULT=$?
+          RESULT=0
+          ./gradlew :app-android:assembleRelease --no-scan -PuseGooglePlayUploadKeysProperties=false || RESULT=$?
           # Cleanup keys (can fail CI if fail)
           ./app-android/keys_cleanup.sh || exit
           # Check if build failed
