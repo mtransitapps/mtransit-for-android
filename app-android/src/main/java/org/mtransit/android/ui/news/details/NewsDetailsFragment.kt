@@ -473,6 +473,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 view?.let { webView ->
                     val parent = webView.parent as? ViewGroup
                     parent?.removeView(webView)
+                    //noinspection DeprecatedCall
                     webView.destroy()
                 }
                 popBackStack()
