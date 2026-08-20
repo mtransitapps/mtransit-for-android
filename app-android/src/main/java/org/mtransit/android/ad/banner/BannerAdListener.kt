@@ -104,11 +104,11 @@ class BannerAdListener(
     override fun onAdRefreshed() { // #gmaNextGen
         super.onAdRefreshed() // #gmaNextGen
         logAdsD(this, "onAdRefreshed()") // #gmaNextGen
-        this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success // #gmaNextGen
         this.activityWR.get()?.let { activity -> // #gmaNextGen
-            this.bannerAdManager.adaptToScreenSize( // #gmaNextGen
-                activity, // #gmaNextGen
-            ) // showing ads if hidden because of no-fill/network error // #gmaNextGen
+            activity.activity?.runOnUiThread {
+                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success // #gmaNextGen
+                this.bannerAdManager.adaptToScreenSize(activity) // showing ads if hidden because of no-fill/network error // #gmaNextGen
+            }
         } // #gmaNextGen
     } // #gmaNextGen
 
@@ -123,15 +123,13 @@ class BannerAdListener(
         // ad.adEventCallback =
         //     object : BannerAdEventCallback {}
         ad.bannerAdRefreshCallback = this // #gmaNextGen
-        this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
         this.activityWR.get()?.let { activity ->
             activity.activity?.runOnUiThread {
+                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
                 // val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName // #gmaLegacy
                 val adapterClassName = ad.getResponseInfo().adapterClassName // #gmaNextGen
                 logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName ")
-                this.bannerAdManager.adaptToScreenSize(
-                    activity,
-                ) // showing ads if hidden because of no-fill/network error
+                this.bannerAdManager.adaptToScreenSize(activity) // showing ads if hidden because of no-fill/network error // #gmaNextGen
             }
         }
     }
