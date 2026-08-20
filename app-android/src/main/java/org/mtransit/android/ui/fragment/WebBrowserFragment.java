@@ -249,20 +249,8 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	@Override
 	public void onDestroyView() {
-		destroyWebView(binding == null ? null : binding.webView);
 		super.onDestroyView();
 		this.binding = null;
-	}
-
-	private void destroyWebView(@Nullable WebView webView) {
-		if (webView == null) return;
-		final ViewGroup webViewParent = webView.getParent() instanceof ViewGroup ? (ViewGroup) webView.getParent() : null;
-		if (webViewParent != null) {
-			webViewParent.removeView(webView);
-		}
-		webView.setWebViewClient(null);
-		webView.setWebChromeClient(null);
-		webView.destroy();
 	}
 
 	private void onProgressChanged(int newProgress) {
@@ -555,9 +543,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		@Override
 		public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
 			final WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
-			if (webBrowserFragment != null) {
-				webBrowserFragment.destroyWebView(view);
-			}
 			final FragmentActivity activity = webBrowserFragment == null ? null : webBrowserFragment.getActivity();
 			if (activity == null || activity.getSupportFragmentManager().getBackStackEntryCount() == 0) return false;
 			// navigates back to previous fragment
