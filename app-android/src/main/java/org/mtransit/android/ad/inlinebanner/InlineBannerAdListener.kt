@@ -110,6 +110,7 @@ class InlineBannerAdListener(
         super.onAdLoaded(ad) // #gmaNextGen
         // override fun onAdLoaded() { // #gmaLegacy
         // super.onAdLoaded() // #gmaLegacy
+        ad.bannerAdRefreshCallback = this // #gmaNextGen
         this.fragmentWR.get()?.let { fragment ->
             fragment.getActivity()?.runOnUiThread {
                 // val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName // #gmaLegacy
