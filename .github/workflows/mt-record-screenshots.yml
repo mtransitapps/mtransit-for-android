@@ -14,18 +14,9 @@ on:
         required: false
         default: false
         type: boolean
-      modules:
-        description: 'JSON array of modules to install: [{"pkg":"...","repo":"..."}] (required for main repo)'
-        required: false
-        default: |
-          [
-            {"pkg":"org.mtransit.android.ca_montreal_amt_train", "repo":"https://github.com/mtransitapps/ca-montreal-amt-train-android" }
-          ]
-        type: string
 # gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD)
 # gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD) -f commitDirectly=true
 # gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD) -f buildFromSource=true
-# gh workflow run mt-record-screenshots.yml --ref $(git rev-parse --abbrev-ref HEAD) -f modules='[{"pkg":"org.mtransit.android.ca_foo_bar","repo":"mtransitapps/ca-foo-bar-android"}]'
 # gh run list --workflow=mt-record-screenshots.yml
 # gh run watch
 concurrency:
@@ -45,6 +36,9 @@ env:
   MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
   MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
   MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
+  # modules to install for screenshots (one per line: pkg:repo_url)
+  MT_MODULES: |
+    org.mtransit.android.ca_montreal_amt_train:https://github.com/mtransitapps/ca-montreal-amt-train-android
   # git commit & push
   MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
   MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
@@ -160,23 +154,27 @@ jobs:
             echo "Module app APK assembled successfully at: $APK_FILE"
           fi
 
-      - name: MT validate main repo requires modules input
-        if: ${{ env.MT_IS_MAIN_REPO == 'true' && github.event.inputs.modules == '' }}
+      - name: MT validate main repo requires modules env var
+        if: ${{ env.MT_IS_MAIN_REPO == 'true' && env.MT_MODULES == '' }}
         run: |
-          echo "ERROR: 'modules' input is required when running for the main repo!"
-          echo "Example: gh workflow run mt-record-screenshots.yml --ref \$(git rev-parse --abbrev-ref HEAD) -f modules='[{\"pkg\":\"org.mtransit.android.ca_foo_bar\",\"repo\":\"mtransitapps/ca-foo-bar-android\"}]'"
+          echo "ERROR: MT_MODULES env var is required when running for the main repo!"
+          echo "Expected format: one 'pkg:repo_url' per line."
           exit 1
 
       - name: MT download module APKs
         id: download-modules-apks
-        if: ${{ github.event.inputs.modules != '' }}
-        env:
-          MT_MODULES: ${{ github.event.inputs.modules }}
+        if: ${{ env.MT_MODULES != '' }}
         run: |
           MANIFEST_FILE="module_apks_manifest.txt"
           > "$MANIFEST_FILE"
-          echo "$MT_MODULES" | jq -r '.[] | [.pkg, .repo] | @tsv' > /tmp/modules_list.txt
-          while IFS=$'\t' read -r PKG REPO; do
+          while IFS= read -r MODULE_LINE; do
+            [ -z "$MODULE_LINE" ] && continue
+            PKG="${MODULE_LINE%%:*}"
+            REPO="${MODULE_LINE#*:}"
+            if [[ -z "$PKG" || -z "$REPO" || "$PKG" == "$REPO" ]]; then
+              echo "ERROR: invalid MT_MODULES line '$MODULE_LINE' (expected pkg:repo_url)."
+              exit 1
+            fi
             echo "Downloading APK for '$PKG' from '$REPO'..."
             source ./download_latest_apk.sh "$REPO"
             if [[ -z "$APK_FILE" ]]; then
@@ -185,8 +183,7 @@ jobs:
             fi
             echo "${PKG}:${APK_FILE}" >> "$MANIFEST_FILE"
             echo "  Module '$PKG' downloaded: $APK_FILE"
-          done < /tmp/modules_list.txt
-          rm -f /tmp/modules_list.txt
+          done <<< "$MT_MODULES"
           {
             echo "MODULE_APK_FILES<<EOF"
             cat "$MANIFEST_FILE"
