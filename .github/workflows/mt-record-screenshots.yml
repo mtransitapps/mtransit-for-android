@@ -190,6 +190,8 @@ jobs:
             echo "EOF"
           } >> $GITHUB_OUTPUT
           echo "All module APKs downloaded."
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
 
       - name: MT read timezone from XML resource value
         id: timezone
