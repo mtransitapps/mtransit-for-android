@@ -83,6 +83,7 @@ labels: MT
 - [ ] ca-niagara-falls-transit-bus
 - [ ] ca-niagara-falls-wego-bus
 - [ ] ca-niagara-region-transit-bus
+- [ ] ca-norfolk-ride-bus
 - [ ] ca-north-bay-transit-bus
 - [ ] ca-oakville-transit-bus
 - [ ] ca-ontario-northland-bus
