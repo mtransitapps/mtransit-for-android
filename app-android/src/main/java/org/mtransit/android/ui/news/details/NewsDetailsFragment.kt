@@ -468,16 +468,12 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         }
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
-            activity?.supportFragmentManager?.takeIf { it.backStackEntryCount > 0 }?.apply {
-                // navigates back to previous fragment
-                view?.let { webView ->
-                    val parent = webView.parent as? ViewGroup
-                    parent?.removeView(webView)
-                    //noinspection DeprecatedCall
-                    webView.destroy()
-                }
-                popBackStack()
-            }
+            (view.parent as? ViewGroup)?.removeView(view)
+            //noinspection DeprecatedCall
+            view.destroy()
+            activity?.takeIf { !it.isFinishing && !it.isDestroyed }
+                ?.supportFragmentManager?.takeIf { it.backStackEntryCount > 0 && !it.isStateSaved }
+                ?.popBackStack() // navigates back to previous fragment
             return true
         }
     }
