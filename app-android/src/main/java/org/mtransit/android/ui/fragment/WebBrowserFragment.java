@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.webkit.GeolocationPermissions;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.SslErrorHandler;
@@ -29,6 +30,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.webkit.WebViewClientCompat;
 
 import org.mtransit.android.R;
@@ -552,14 +554,17 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
 			final WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 			final FragmentActivity activity = webBrowserFragment == null ? null : webBrowserFragment.getActivity();
-			if (activity == null || activity.getSupportFragmentManager().getBackStackEntryCount() == 0) return false;
-			// navigates back to previous fragment
 			if (view != null) {
-				ViewGroup parent = (ViewGroup) view.getParent();
+				final ViewParent vp = view.getParent();
+				final ViewGroup parent = vp instanceof ViewGroup ? (ViewGroup) vp : null;
 				if (parent != null) parent.removeView(view);
 				view.destroy();
 			}
-			activity.getSupportFragmentManager().popBackStack();
+			if (activity == null || activity.isFinishing() || activity.isDestroyed()) return true;
+			final FragmentManager fragmentManager = activity.getSupportFragmentManager();
+			if (fragmentManager.getBackStackEntryCount() <= 0 || fragmentManager.isStateSaved()) return true;
+			// navigates back to previous fragment
+			fragmentManager.popBackStack();
 			return true;
 		}
 	}
