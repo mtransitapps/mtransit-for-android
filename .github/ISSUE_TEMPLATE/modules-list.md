@@ -131,6 +131,7 @@ labels: MT
 - [ ] ca-st-jean-sur-richelieu-transport-collectif-bus
 - [ ] ca-ste-julie-omitsju-bus
 - [ ] ca-st-john-s-metrobus-transit-bus
+- [ ] ca-st-thomas-railway-city-transit-bus
 - [ ] ca-stratford-transit-bus
 - [ ] ca-strathcona-county-transit-bus
 - [ ] ca-sudbury-transit-bus
