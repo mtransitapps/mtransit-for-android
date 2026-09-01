@@ -130,8 +130,8 @@ class RewardedAdManager @Inject constructor(
 
     suspend fun refreshRewardedAdStatus(activity: IActivity) = withContext(Dispatchers.IO) {
         if (!AdConstants.AD_ENABLED) return@withContext
-        if (!globalAdManager.adsAllowed()) {
-            logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > SKIP (ads not allowed)")
+        if (!globalAdManager.isSDKInitialized) {
+            logAdsD(this@RewardedAdManager, "refreshRewardedAdStatus() > SKIP (SDK not initialized)")
             return@withContext
         }
         val canShowAds = globalAdManager.canShowAds()
