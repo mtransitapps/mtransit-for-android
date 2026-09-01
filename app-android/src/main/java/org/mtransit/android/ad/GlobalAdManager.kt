@@ -80,6 +80,8 @@ class GlobalAdManager(
     private val initialized = AtomicBoolean(false)
     private val initializing = AtomicBoolean(false)
 
+    val isSDKInitialized: Boolean get() = this.initialized.get()
+
     @Volatile
     private var hasSubscription: Boolean? = null
 

@@ -227,7 +227,6 @@
     <ID>NewLineAtEndOfFile:RDSRouteDirectionPagerAdapter.kt:org.mtransit.android.ui.rds.route.RDSRouteDirectionPagerAdapter.kt</ID>
     <ID>NewLineAtEndOfFile:RDSRouteViewModel.kt:org.mtransit.android.ui.rds.route.RDSRouteViewModel.kt</ID>
     <ID>NewLineAtEndOfFile:RecyclerViewExt.kt:org.mtransit.android.ui.view.common.RecyclerViewExt.kt</ID>
-    <ID>NewLineAtEndOfFile:RewardedAdManager.kt:org.mtransit.android.ad.rewarded.RewardedAdManager.kt</ID>
     <ID>NewLineAtEndOfFile:SVGDrawableTranscoder.kt:org.mtransit.android.ui.view.common.SVGDrawableTranscoder.kt</ID>
     <ID>NewLineAtEndOfFile:SVGModule.kt:org.mtransit.android.ui.view.common.SVGModule.kt</ID>
     <ID>NewLineAtEndOfFile:SavedStateHandleExt.kt:org.mtransit.android.ui.view.common.SavedStateHandleExt.kt</ID>
