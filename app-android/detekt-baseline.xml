@@ -253,9 +253,7 @@
     <ID>NewLineAtEndOfFile:UIRouteUtils.kt:org.mtransit.android.util.UIRouteUtils.kt</ID>
     <ID>ReturnCount:AgencyTypeFragment.kt:AgencyTypeFragment$@ColorInt @WorkerThread private fun getNewABBgColorInt: Int?</ID>
     <ID>ReturnCount:AppOpenAdManager.kt:AppOpenAdManager$@MainThread fun loadAd: Boolean</ID>
-    <ID>ReturnCount:AppOpenAdManager.kt:AppOpenAdManager$fun showAdIfAvailable</ID>
     <ID>ReturnCount:AppRatingsManager.kt:AppRatingsManager$@Suppress("RedundantIf") @VisibleForTesting fun shouldShowAppRatingRequest: Boolean</ID>
-    <ID>ReturnCount:BannerAdManager.kt:BannerAdManager$@MainThread fun adaptToScreenSize</ID>
     <ID>ReturnCount:BannerAdManager.kt:BannerAdManager$@MainThread fun getBannerHeightInPx: Int</ID>
     <ID>ReturnCount:BannerAdManager.kt:BannerAdManager$fun isEnoughSpaceForBanner: Boolean</ID>
     <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$fun isAProvider: Boolean</ID>
@@ -267,60 +265,36 @@
     <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshVehicleLocationProviderProperties</ID>
     <ID>ReturnCount:DemoModeManager.kt:DemoModeManager$fun isEnabledBrowseScreen: Boolean</ID>
     <ID>ReturnCount:DemoModeManager.kt:DemoModeManager$fun isEnabledPOIScreen: Boolean</ID>
-    <ID>ReturnCount:DirectionExt.kt:fun Schedule.Timestamp.makeHeading: CharSequence?</ID>
     <ID>ReturnCount:GlobalAdManager.kt:GlobalAdManager$fun adsAllowed: Boolean</ID>
     <ID>ReturnCount:GlobalAdManager.kt:GlobalAdManager$fun canShowAds: Boolean?</ID>
     <ID>ReturnCount:HomeTypeAgencyComparator.kt:HomeTypeAgencyComparator$override fun compare: Int</ID>
-    <ID>ReturnCount:HomeViewModel.kt:HomeViewModel$override fun initiateRefresh: Boolean</ID>
     <ID>ReturnCount:IAgencyNearbyProperties.kt:IAgencyNearbyProperties.Companion$private fun areOverlapping: Boolean</ID>
     <ID>ReturnCount:InAppNotificationUI.kt:InAppNotificationUI.Companion$@JvmStatic fun hideInAppNotification: Boolean</ID>
     <ID>ReturnCount:InAppNotificationUI.kt:InAppNotificationUI.Companion$@JvmStatic fun showInAppNotification: Boolean</ID>
-    <ID>ReturnCount:InlineBannerAdManager.kt:InlineBannerAdManager$fun adaptToScreenSize</ID>
-    <ID>ReturnCount:InlineBannerAdManager.kt:InlineBannerAdManager$private fun setupBannerAd</ID>
-    <ID>ReturnCount:MTBillingManager.kt:MTBillingManager$private fun launchBillingFlow: Boolean</ID>
-    <ID>ReturnCount:MTMapIconZoomGroup.kt:MTMapIconZoomGroup.Companion$@JvmStatic fun from: MTMapIconZoomGroup</ID>
-    <ID>ReturnCount:MainActivity.kt:MainActivity$@SuppressLint("GestureBackNavigation") // android:enableOnBackInvokedCallback in AndroidManifest.xml @Suppress("OVERRIDE_DEPRECATION") override fun onBackPressed</ID>
-    <ID>ReturnCount:MainActivity.kt:MainActivity$override fun onOptionsItemSelected: Boolean</ID>
-    <ID>ReturnCount:MapUtils.kt:MapUtils$@JvmStatic fun getIcon: BitmapDescriptor?</ID>
     <ID>ReturnCount:MapViewControllerExt.kt:@JvmOverloads fun MapViewController.updateVehicleLocationMarkers: Boolean</ID>
     <ID>ReturnCount:ModulesReceiver.kt:ModulesReceiver$private fun shouldPing: Boolean</ID>
-    <ID>ReturnCount:ModulesReceiver.kt:ModulesReceiver$private suspend fun ping: Boolean</ID>
     <ID>ReturnCount:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$fun isLoadingMore: Boolean</ID>
     <ID>ReturnCount:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
-    <ID>ReturnCount:NearbyFragment.kt:NearbyFragment$override fun onMenuItemSelected: Boolean</ID>
     <ID>ReturnCount:NearbyViewModel.kt:NearbyViewModel$override fun initiateRefresh: Boolean</ID>
-    <ID>ReturnCount:NearbyViewModel.kt:NearbyViewModel$private fun getNearbyLocation: Location?</ID>
     <ID>ReturnCount:NetworkLocationRepository.kt:NetworkLocationRepository$suspend fun fetchIPLocationIfNecessary</ID>
-    <ID>ReturnCount:NewsListDetailFragment.kt:NewsListDetailFragment$override fun onBackPressed: Boolean</ID>
     <ID>ReturnCount:POIAlphaComparator.kt:POIAlphaComparator$override fun compare: Int</ID>
-    <ID>ReturnCount:POIConnectionComparator.kt:POIConnectionComparator$override fun compare: Int</ID>
     <ID>ReturnCount:POIFragmentExt.kt:fun POIFragment.getMapMarkerAlphaKt: Float?</ID>
-    <ID>ReturnCount:POIFragmentExt.kt:fun POIFragment.getPOIKt: POIManager?</ID>
     <ID>ReturnCount:POIFragmentExt.kt:fun POIFragment.onMapClickKt: Boolean</ID>
-    <ID>ReturnCount:POIViewModel.kt:POIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
     <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$override fun getPOI: Cursor?</ID>
     <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$override fun isAgencySetupRequired: Boolean</ID>
-    <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$override fun queryMT: Cursor?</ID>
     <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$private fun getTextSearchResults: Cursor?</ID>
     <ID>ReturnCount:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onBuyBtnClick</ID>
     <ID>ReturnCount:RDSRouteFragment.kt:RDSRouteFragment$override fun onMenuItemSelected: Boolean</ID>
-    <ID>ReturnCount:RDSRouteViewModel.kt:RDSRouteViewModel$private suspend fun getRoute: Route?</ID>
-    <ID>ReturnCount:RDSRouteViewModel.kt:RDSRouteViewModel$private suspend fun getRouteDirections: List&lt;Direction&gt;?</ID>
     <ID>ReturnCount:RewardedAdManager.kt:RewardedAdManager$fun isRewardedAdAvailableToShow: Boolean</ID>
-    <ID>ReturnCount:RewardedAdManager.kt:RewardedAdManager$fun showRewardedAd: Boolean</ID>
     <ID>ReturnCount:RewardedUserManager.kt:RewardedUserManager$fun shouldSkipLoadingRewardedAd: Boolean</ID>
-    <ID>ReturnCount:RewardedUserManager.kt:RewardedUserManager$private fun isRewardedNow: Boolean</ID>
     <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$@ScheduleItemViewType override fun getItemViewType: Int</ID>
-    <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$@SuppressLint("NotifyDataSetChanged") fun updateTimes</ID>
     <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$@SuppressLint("NotifyDataSetChanged") private fun updateStartEndTimes</ID>
     <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$private fun getHourItemTimestamp: Long?</ID>
     <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$private fun getPosition: Int</ID>
-    <ID>ReturnCount:ScheduleAdapter.kt:ScheduleAdapter$private fun getTodaySelectPosition: Int</ID>
     <ID>ReturnCount:ScheduleViewModel.kt:ScheduleViewModel$@WorkerThread private suspend fun getTimestamps: List&lt;Schedule.Timestamp&gt;?</ID>
     <ID>ReturnCount:SearchViewModel.kt:SearchViewModel.POISearchComparator$override fun compare: Int</ID>
     <ID>ReturnCount:SensorManagerImpl.kt:SensorManagerImpl$override fun updateCompass</ID>
     <ID>ReturnCount:SensorManagerImpl.kt:SensorManagerImpl$private fun calculateOrientation: Float?</ID>
-    <ID>ReturnCount:SplashScreenViewModel.kt:SplashScreenViewModel$@MainThread private fun triggerLoadAd</ID>
     <ID>ReturnCount:StickyHeaderItemDecorator.kt:StickyHeaderItemDecorator$override fun onDrawOver</ID>
     <ID>ReturnCount:UIColorUtils.kt:UIColorUtils$@JvmStatic @ColorInt fun adaptBackgroundColorToLightText: Int</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:NestedScrollableHost.kt:NestedScrollableHost$IllegalArgumentException()</ID>
