@@ -36,10 +36,6 @@ env:
   MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
   MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
   MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
-  # modules to install for screenshots (one per line: pkg:repo_url)
-  MT_MODULES: |
-    org.mtransit.android.ca_montreal_amt_train:https://github.com/mtransitapps/ca-montreal-amt-train-android
-    org.mtransit.android.ca_montreal_stm_subway:https://github.com/mtransitapps/ca-montreal-stm-subway-android
   # git commit & push
   MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
   MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
@@ -49,7 +45,7 @@ jobs:
   MT-RECORD-SCREENSHOTS-JOB:
     name: "MT record screenshots"
     # if: ${{ env.MT_IS_MAIN_REPO != 'true' }} # can NOT use env here:
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ ! endsWith(github.repository, '/mtransit-for-android') && github.event_name != 'pull_request' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -76,7 +72,6 @@ jobs:
 
       - name: MT download main app release APK
         id: download-main-apk
-        if: ${{ env.MT_IS_MAIN_REPO != 'true' }}
         run: |
           source ./download_latest_apk.sh "mtransitapps/mtransit-for-android"
           if [[ -z "$APK_FILE" ]]; then
@@ -89,7 +84,7 @@ jobs:
           GH_TOKEN: ${{ secrets.MT_PAT }}
 
       - name: MT download this app release APK
-        id: download-this-repo-apk
+        id: download-module-apk
         if: github.event.inputs.buildFromSource != 'true'
         continue-on-error: true
         run: |
@@ -100,24 +95,14 @@ jobs:
             echo "WARNING: no APK file!"
             exit 1 # triggers fallback step
           fi
-          if [[ "$MT_IS_MAIN_REPO" == "true" ]]; then
-            echo "MAIN_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
-            echo "Main app APK downloaded successfully."
-          else
-            MODULE_PACKAGE=$(cat "config/pkg")
-            if [[ -z "$MODULE_PACKAGE" ]]; then
-              echo "ERROR: package name not found in config/pkg"
-              exit 1
-            fi
-            echo "MODULE_APK_FILES=${MODULE_PACKAGE}:${APK_FILE}" >> $GITHUB_OUTPUT
-            echo "Module app APK downloaded successfully."
-          fi
+          echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "Module app APK downloaded successfully."
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
 
       - name: MT build this app release APK (fallback)
-        if: steps.download-this-repo-apk.outcome == 'failure' || github.event.inputs.buildFromSource == 'true'
-        id: build-this-repo-apk
+        if: steps.download-module-apk.outcome == 'failure' || github.event.inputs.buildFromSource == 'true'
+        id: build-module-apk
         env:
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
         run: |
@@ -142,67 +127,12 @@ jobs:
             echo "ERROR: APK file not found in ./app-android/build/outputs/apk/release/"
             exit 1
           fi
-          if [[ "$MT_IS_MAIN_REPO" == "true" ]]; then
-            echo "MAIN_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
-            echo "Main app APK assembled successfully at: $APK_FILE"
-          else
-            MODULE_PACKAGE=$(cat "config/pkg")
-            if [[ -z "$MODULE_PACKAGE" ]]; then
-              echo "ERROR: package name not found in config/pkg"
-              exit 1
-            fi
-            echo "MODULE_APK_FILES=${MODULE_PACKAGE}:${APK_FILE}" >> $GITHUB_OUTPUT
-            echo "Module app APK assembled successfully at: $APK_FILE"
-          fi
-
-      - name: MT validate main repo requires modules env var
-        if: ${{ env.MT_IS_MAIN_REPO == 'true' && env.MT_MODULES == '' }}
-        run: |
-          echo "ERROR: MT_MODULES env var is required when running for the main repo!"
-          echo "Expected format: one 'pkg:repo_url' per line."
-          exit 1
-
-      - name: MT download module APKs
-        id: download-modules-apks
-        if: ${{ env.MT_MODULES != '' }}
-        run: |
-          MANIFEST_FILE="module_apks_manifest.txt"
-          > "$MANIFEST_FILE"
-          while IFS= read -r MODULE_LINE; do
-            [ -z "$MODULE_LINE" ] && continue
-            PKG="${MODULE_LINE%%:*}"
-            REPO="${MODULE_LINE#*:}"
-            if [[ -z "$PKG" || -z "$REPO" || "$PKG" == "$REPO" ]]; then
-              echo "ERROR: invalid MT_MODULES line '$MODULE_LINE' (expected pkg:repo_url)."
-              exit 1
-            fi
-            echo "Downloading APK for '$PKG' from '$REPO'..."
-            source ./download_latest_apk.sh "$REPO"
-            if [[ -z "$APK_FILE" ]]; then
-              echo "ERROR: no APK file for '$PKG' from '$REPO'!"
-              exit 1
-            fi
-            echo "${PKG}:${APK_FILE}" >> "$MANIFEST_FILE"
-            echo "  Module '$PKG' downloaded: $APK_FILE"
-          done <<< "$MT_MODULES"
-          {
-            echo "MODULE_APK_FILES<<EOF"
-            cat "$MANIFEST_FILE"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
-          echo "All module APKs downloaded."
-        env:
-          GH_TOKEN: ${{ secrets.MT_PAT }}
+          echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "Module app APK assembled successfully at: $APK_FILE"
 
       - name: MT read timezone from XML resource value
         id: timezone
         run: |
-          if [[ "$MT_IS_MAIN_REPO" == "true" ]]; then
-            echo "Main repo detected: using America/Montreal timezone."
-            echo "TIMEZONE=America/Montreal" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
           command -v "xmllint" >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y "libxml2-utils")
           GTFS_TIMEZONE_XML_FILE="app-android/src/main/res/values/gtfs_rts_values_gen.xml"
           BIKE_TIMEZONE_XML_FILE="app-android/src/main/res/values/bike_station_values.xml"
@@ -233,8 +163,8 @@ jobs:
         timeout-minutes: 10
         env:
           TZ: ${{ steps.timezone.outputs.TIMEZONE || 'UTC' }}
-          MAIN_APK_FILE: ${{ steps.download-main-apk.outputs.MAIN_APK_FILE || steps.download-this-repo-apk.outputs.MAIN_APK_FILE || steps.build-this-repo-apk.outputs.MAIN_APK_FILE }}
-          MODULE_APK_FILES: ${{ steps.download-modules-apks.outputs.MODULE_APK_FILES || steps.download-this-repo-apk.outputs.MODULE_APK_FILES || steps.build-this-repo-apk.outputs.MODULE_APK_FILES }}
+          MAIN_APK_FILE: ${{ steps.download-main-apk.outputs.MAIN_APK_FILE }}
+          MODULE_APK_FILE: ${{ steps.download-module-apk.outputs.MODULE_APK_FILE || steps.build-module-apk.outputs.MODULE_APK_FILE }}
         with:
           api-level: ${{ steps.sdk-target.outputs.API_LEVEL }}
           target: google_apis
