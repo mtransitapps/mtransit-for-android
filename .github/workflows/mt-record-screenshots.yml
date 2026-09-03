@@ -39,6 +39,7 @@ env:
   # modules to install for screenshots (one per line: pkg:repo_url)
   MT_MODULES: |
     org.mtransit.android.ca_montreal_amt_train:https://github.com/mtransitapps/ca-montreal-amt-train-android
+    org.mtransit.android.ca_montreal_stm_subway:https://github.com/mtransitapps/ca-montreal-stm-subway-android
   # git commit & push
   MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
   MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
