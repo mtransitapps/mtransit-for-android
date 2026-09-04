@@ -910,7 +910,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			return;
 		}
 		MTLog.d(this, "appendPois() > data changed");
-		notifyDataSetChanged();
+		notifyDataSetChanged(true);
 		applyLastCompass();
 	}
 
