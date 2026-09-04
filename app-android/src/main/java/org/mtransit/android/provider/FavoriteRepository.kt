@@ -194,6 +194,7 @@ class FavoriteRepository(
 
     val isUsingFolders: LiveData<Boolean> =
         readingAllFolders.map { it.any { folder -> folder.id != FavoriteFolder.DEFAULT_FOLDER_ID } }
+            .distinctUntilChanged()
 
     suspend fun findFolder(id: Int) =
         findFolder(uri = Uri.withAppendedPath(folderContentDirectoryUri, id.toString()))

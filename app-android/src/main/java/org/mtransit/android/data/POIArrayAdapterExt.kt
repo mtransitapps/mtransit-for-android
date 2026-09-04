@@ -59,7 +59,7 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
             this.dstIdToSelectedAuthority = dstIdToSelectedAuthority
             if (this.showBrowseHeaderSection || this.showTypeSectionHeader == POIArrayAdapter.SECTION_TYPE_HEADER_ALL_NEARBY) {
                 this.nbDisplayedAgencyTypes = -1 // reset
-                notifyDataSetChanged()
+                notifyDataSetChanged(true)
             }
         }
     this.favoriteRepository.readingAllFavorites.observe(viewLifecycleOwner) { allFavorites ->
@@ -70,6 +70,7 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     }
     this.favoriteRepository.readingAllFolders.observe(viewLifecycleOwner) { allFavoriteFolders ->
         this.favoriteFoldersByIds = allFavoriteFolders?.associateBy { it.id }
+        notifyDataSetChanged(true) // folder added/updated/removed
     }
     this.favoriteRepository.isUsingFolders.observe(viewLifecycleOwner) { usingFavoriteFolders ->
         this.isUsingFavoriteFolders = usingFavoriteFolders
