@@ -6,7 +6,7 @@
 -keepattributes EnclosingMethod
 -keepattributes InnerClasses
 
-# Blocks all obfuscation (0%) > Play Store NOT happy:
+# '-dontobfuscate' blocks all obfuscation (0%) > Play Store NOT happy:
 # "Percentages under 25% in any category of your app may impact your visibility and publishing capabilities on Google Play.
 # To prevent this, optimize your app by the deadline." (Feb 2027)
 # # Do not obfuscate the class files since open source (DEBUG only)
