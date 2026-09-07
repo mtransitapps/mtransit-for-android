@@ -276,6 +276,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		if (status instanceof AppStatus) {
 			final AppStatus appStatus = (AppStatus) status;
 			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(context), TextView.BufferType.SPANNABLE);
+			appStatusViewHolder.textTv.setContentDescription(appStatus.getStatusMsgA11y(context));
 			appStatusViewHolder.textTv.setVisibility(View.VISIBLE);
 			setStatusView(statusViewHolder, true);
 		} else {
