@@ -1667,7 +1667,7 @@
         "pkg": "org.mtransit.android.ca_west_kootenay_transit_system_bus",
         "store": "production",
         "name": "West Kootenay Transit Systems (BC Transit)",
-        "location": "Trail, Casltegar, Nelson, BC, Canada",
+        "location": "Trail, Castlegar, Nelson, BC, Canada",
         "type_id": "3",
         "color": "00B140",
         "lat": "49.493221",
