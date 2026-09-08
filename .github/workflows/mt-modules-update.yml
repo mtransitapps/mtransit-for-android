@@ -1,0 +1,114 @@
+name: MT modules update
+on:
+  workflow_dispatch: # manual
+    inputs:
+      commitDirectly:
+        description: 'Commit directly to current branch (without PR)'
+        required: false
+        default: false
+        type: boolean
+  repository_dispatch: # triggered by another repository (mtransitapps/mtransitapps.github.io)
+    types:
+      - mt-modules-update
+# gh workflow run mt-modules-update.yml --ref $(git rev-parse --abbrev-ref HEAD)
+# gh workflow run mt-modules-update.yml --ref $(git rev-parse --abbrev-ref HEAD) -f commitDirectly=true
+# gh api repos/mtransitapps/mtransit-for-android/dispatches -f event_type=mt-modules-update
+# gh run list --workflow=mt-modules-update.yml
+permissions:
+  contents: read # write operations use MT_PAT
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  MT_BOT_USER_NAME: ${{ vars.MT_BOT_USER_NAME }}
+  MT_BOT_USER_EMAIL: ${{ vars.MT_BOT_USER_EMAIL }}
+  # git branches & sha
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # files
+  MT_MODULES_JSON_URL: 'https://mtransitapps.github.io/data/modules.json'
+  MT_MODULES_JSON_FILE: 'app-android/src/main/res/raw/modules.json'
+jobs:
+  MT-MODULES-UPDATE-JOB:
+    name: "MT modules update"
+    # only the main repository has the modules.json file
+    if: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.MT_PAT }}
+          fetch-depth: 1 # shallow clone - only latest commit needed
+
+      - name: MT fetch latest modules.json
+        run: |
+          echo ">> Downloading '${MT_MODULES_JSON_URL}'..."
+          curl --fail --silent --show-error --location --retry 3 --retry-delay 5 \
+            --output "${RUNNER_TEMP}/modules.json" "${MT_MODULES_JSON_URL}"
+          if [[ ! -s "${RUNNER_TEMP}/modules.json" ]]; then
+            echo "ERROR: downloaded file is empty!"
+            exit 1
+          fi
+          # make sure it's valid JSON before replacing the current file
+          jq empty "${RUNNER_TEMP}/modules.json"
+          mv -v "${RUNNER_TEMP}/modules.json" "${MT_MODULES_JSON_FILE}"
+
+      - name: MT commit modules.json
+        continue-on-error: true
+        id: mt-commit-modules
+        run: |
+          git add -v "${MT_MODULES_JSON_FILE}"
+          if git diff --staged --quiet; then
+            echo "No modules.json change to commit."
+            exit 1 # fail == no PR needed
+          fi
+          git config user.name "$MT_BOT_USER_NAME"
+          git config user.email "$MT_BOT_USER_EMAIL"
+          if [ "${{ github.event.inputs.commitDirectly }}" = "true" ]; then
+            echo "Committing directly to current branch: ${MT_BRANCH_NAME}"
+            git commit -m "Update modules.json in \`${MT_BRANCH_NAME}\`"
+            git push origin "${MT_BRANCH_NAME}"
+            exit 1 # fail == no PR needed
+          else
+            echo "Creating new branch and preparing for PR: ${MT_BRANCH_NAME}_update_modules"
+            git switch -C "${MT_BRANCH_NAME}_update_modules"
+            git commit -m "Update modules.json in \`${MT_BRANCH_NAME}\`"
+            git push -u origin "${MT_BRANCH_NAME}_update_modules" --force
+          fi
+          exit 0 # success == PR needed
+
+      - name: MT check if PR exists
+        id: mt-check-pr-exists
+        if: ${{ steps.mt-commit-modules.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          # Fetch the branch to ensure it exists in the remote tracking
+          git fetch origin "${MT_BRANCH_NAME}_update_modules" || true
+          PR_COUNT=$(gh pr list --state open --head "${MT_BRANCH_NAME}_update_modules" | wc -l)
+          echo "Pull requests found: $PR_COUNT."
+          if [[ $PR_COUNT -eq 0 ]]; then
+            exit 1 # fail == PR need to be created
+          else
+            exit 0 # success == PR need to be updated
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT create pull request (if necessary)
+        if: ${{ steps.mt-commit-modules.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'failure' }}
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          gh pr create --base "${MT_BRANCH_NAME}" --title "$COMMIT_MSG" --body "$COMMIT_MSG" --assignee montransit
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT update pull request (if necessary)
+        if: ${{ steps.mt-commit-modules.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
+        run: |
+          gh pr edit --add-assignee montransit --title "Update modules.json in \`${MT_BRANCH_NAME}\`"
+          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
