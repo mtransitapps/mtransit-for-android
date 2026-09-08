@@ -1,6 +1,5 @@
 name: MT modules update
 on:
-  pull_request: # DEBUG
   workflow_dispatch: # manual
     inputs:
       commitDirectly:
