@@ -295,7 +295,7 @@ public class POIViewController implements MTLog.Loggable {
 		if (poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
 			POIViewUtils.setupPOIExtraLayoutBackground(holder.getModuleExtraTypeImg(), poim, dataProvider.providesDataSourcesRepository());
-			final DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
+			final DataSourceType moduleType = DataSourceType.parseId(module.getDstId());
 			if (moduleType != null) {
 				holder.getModuleExtraTypeImg().setImageResource(moduleType.getIconResId());
 			} else {

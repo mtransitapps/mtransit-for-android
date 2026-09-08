@@ -745,34 +745,42 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	private static ArrayMap<String, String> getNewPoiProjectionMap(@NonNull String authority) {
 		// @formatter:off
 		final SqlUtils.ProjectionMapBuilder builder = SqlUtils.ProjectionMapBuilder.getNew()
-				.appendValue(SqlUtils.concatenate( //
-						SqlUtils.escapeString(POIUtils.UID_SEPARATOR), //
-						SqlUtils.escapeString(authority), //
-						SqlUtils.getTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_PKG) //
-						), POIProviderContract.Columns.T_POI_K_UUID_META) //
-				.appendValue(DataSourceTypeId.MODULE, POIProviderContract.Columns.T_POI_K_DST_ID_META) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ID, POIProviderContract.Columns.T_POI_K_ID) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_NAME, POIProviderContract.Columns.T_POI_K_NAME) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_LAT, POIProviderContract.Columns.T_POI_K_LAT) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_LNG, POIProviderContract.Columns.T_POI_K_LNG) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_TYPE, POIProviderContract.Columns.T_POI_K_TYPE) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_STATUS_TYPE, POIProviderContract.Columns.T_POI_K_STATUS_TYPE) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACTIONS_TYPE, POIProviderContract.Columns.T_POI_K_ACTIONS_TYPE) //
+				.appendValue(SqlUtils.concatenate(
+						SqlUtils.escapeString(POIUtils.UID_SEPARATOR),
+						SqlUtils.escapeString(authority),
+						SqlUtils.getTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_PKG)
+						), POIProviderContract.Columns.T_POI_K_UUID_META)
+				.appendValue(DataSourceTypeId.MODULE, POIProviderContract.Columns.T_POI_K_DST_ID_META)
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ID, POIProviderContract.Columns.T_POI_K_ID)
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_NAME, POIProviderContract.Columns.T_POI_K_NAME)
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_LAT, POIProviderContract.Columns.T_POI_K_LAT)
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_LNG, POIProviderContract.Columns.T_POI_K_LNG)
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_TYPE, POIProviderContract.Columns.T_POI_K_TYPE)
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_STATUS_TYPE, POIProviderContract.Columns.T_POI_K_STATUS_TYPE)
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACTIONS_TYPE, POIProviderContract.Columns.T_POI_K_ACTIONS_TYPE)
 				//
-				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_PKG) //
-				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_TARGET_TYPE_ID, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID) //
-				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_COLOR, ModuleColumns.T_MODULE_K_COLOR) //
-				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_LOCATION) //
-				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_NAME_FR, ModuleColumns.T_MODULE_K_NAME_FR) //
-				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE) //
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_PKG)
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_TARGET_TYPE_ID, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID)
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_COLOR, ModuleColumns.T_MODULE_K_COLOR)
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_LOCATION)
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_REPO, ModuleColumns.T_MODULE_K_REPO)
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_STORE, ModuleColumns.T_MODULE_K_STORE)
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_NAME_FR, ModuleColumns.T_MODULE_K_NAME_FR)
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE)
 				;
 		return builder.build();
 		// @formatter:on
 	}
 
-	private static final String[] PROJECTION_MODULE =
-			new String[]{ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, ModuleColumns.T_MODULE_K_COLOR,
-					ModuleColumns.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_NAME_FR};
+	private static final String[] PROJECTION_MODULE = new String[]{
+			ModuleColumns.T_MODULE_K_PKG,
+			ModuleColumns.T_MODULE_K_TARGET_TYPE_ID,
+			ModuleColumns.T_MODULE_K_COLOR,
+			ModuleColumns.T_MODULE_K_LOCATION,
+			ModuleColumns.T_MODULE_K_REPO,
+			ModuleColumns.T_MODULE_K_STORE,
+			ModuleColumns.T_MODULE_K_NAME_FR
+	};
 
 	private static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAllNonNull(POIProviderContract.getPROJECTION_POI(), PROJECTION_MODULE);
 
@@ -794,5 +802,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		public static final String T_MODULE_K_COLOR = POIProviderContract.Columns.getFkColumnName("color");
 		public static final String T_MODULE_K_LOCATION = POIProviderContract.Columns.getFkColumnName("location");
 		public static final String T_MODULE_K_NAME_FR = POIProviderContract.Columns.getFkColumnName("name_fr");
+		public static final String T_MODULE_K_REPO = POIProviderContract.Columns.getFkColumnName("repo");
+		public static final String T_MODULE_K_STORE = POIProviderContract.Columns.getFkColumnName("store");
 	}
 }

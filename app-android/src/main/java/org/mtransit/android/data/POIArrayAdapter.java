@@ -1752,9 +1752,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	private void updateModuleExtra(@NonNull POIManager poim, @NonNull ModuleViewHolder holder) {
 		if (this.showExtra && poim.poi instanceof Module) {
-			Module module = (Module) poim.poi;
+			final Module module = (Module) poim.poi;
 			POIViewUtils.setupPOIExtraLayoutBackground(holder.getModuleExtraTypeImg(), poim, dataSourcesRepository);
-			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
+			final DataSourceType moduleType = DataSourceType.parseId(module.getDstId());
 			if (moduleType != null) {
 				holder.getModuleExtraTypeImg().setImageResource(moduleType.getIconResId());
 			} else {
