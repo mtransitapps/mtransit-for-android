@@ -14,6 +14,8 @@ on:
 # gh workflow run mt-modules-update.yml --ref $(git rev-parse --abbrev-ref HEAD) -f commitDirectly=true
 # gh api repos/mtransitapps/mtransit-for-android/dispatches -f event_type=mt-modules-update
 # gh run list --workflow=mt-modules-update.yml
+permissions:
+  contents: read # write operations use MT_PAT
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
