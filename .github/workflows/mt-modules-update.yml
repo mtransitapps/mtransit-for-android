@@ -52,7 +52,7 @@ jobs:
             exit 1
           fi
           # make sure it's valid JSON before replacing the current file
-          python3 -c "import json,sys; json.load(open(sys.argv[1]))" "${RUNNER_TEMP}/modules.json"
+          jq empty "${RUNNER_TEMP}/modules.json"
           mv -v "${RUNNER_TEMP}/modules.json" "${MT_MODULES_JSON_FILE}"
 
       - name: MT commit modules.json
