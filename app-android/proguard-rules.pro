@@ -11,6 +11,7 @@
 # To prevent this, optimize your app by the deadline." (Feb 2027)
 # # Do not obfuscate the class files since open source (DEBUG only)
 # -dontobfuscate
+-keepnames class org.mtransit.android.** { *; }
 
 # CRASHLYTICS - START
 # https://firebase.google.com/docs/crashlytics/android/get-deobfuscated-reports#config-r8-proguard-dexguard
