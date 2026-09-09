@@ -1294,6 +1294,17 @@
     "lng": "-71.929420"
   },
   {
+    "repo": "ca-simcoe-county-linx-transit-bus-android",
+    "pkg": "org.mtransit.android.ca_simcoe_county_linx_transit_bus",
+    "store": "production",
+    "name": "LINX Transit (Simcoe County)",
+    "location": "Alliston, Barrie, Beeton, Bradford, Collingwood, Midhurst, Midland, Orillia, Penetanguishene, Wasaga Beach, ON, Canada",
+    "type_id": "3",
+    "color": "E7A614",
+    "lat": "44.475558",
+    "lng": "-79.859227"
+  },
+  {
     "repo": "ca-smithers-district-transit-bus-android",
     "pkg": "org.mtransit.android.ca_smithers_district_transit_bus",
     "store": "production",
