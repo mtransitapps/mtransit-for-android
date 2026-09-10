@@ -1,13 +1,14 @@
 # ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite-all-repositories
 reviews:
-  auto_review:
+  auto_review: # use "@coderabbitai review" or "@coderabbitai full review" to manually request review
     enabled: true
-    auto_incremental_review: true
-    auto_pause_after_reviewed_commits: 3 # use "@coderabbitai review" or "@coderabbitai full review" to request review
+    auto_incremental_review: false
+    auto_pause_after_reviewed_commits: 3
     drafts: false
     ignore_usernames:
       - "dependabot[bot]"
       - "github-actions[bot]"
+      - "montransit" #bot
   high_level_summary_in_walkthrough: true
   path_filters:
     - "!app-android/clr/**"
