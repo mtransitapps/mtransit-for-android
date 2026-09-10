@@ -4,6 +4,17 @@ updates:
   - package-ecosystem: "github-actions"
     # "/" == "/.github/workflows/"
     directory: "/"
+    exclude-paths: # managed in https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+      - ".github/workflows/mt-check-data-outdated.yml"
+      - ".github/workflows/mt-download-data.yml"
+      - ".github/workflows/mt-gh-repo-update-details.yml"
+      - ".github/workflows/mt-image-gen.yml"
+      - ".github/workflows/mt-record-screenshots.yml"
+      - ".github/workflows/mt-release.yml"
+      - ".github/workflows/mt-store-channels.yml"
+      - ".github/workflows/mt-store-listing-pull.yml"
+      - ".github/workflows/mt-store-listing-push.yml"
+      - ".github/workflows/mt-sync-code-data.yml"
     schedule:
       interval: "weekly"
       day: "wednesday"
