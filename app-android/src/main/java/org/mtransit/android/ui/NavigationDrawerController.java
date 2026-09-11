@@ -209,7 +209,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		this.drawerLayout = mainActivity.findViewById(R.id.drawer_layout);
 		if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-			this.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED); // drawer swipe gesture interfere with edge-to-edge gestures
+			this.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START); // drawer swipe gesture interfere with edge-to-edge gestures
 		}
 		try {
 			this.drawerLayout.setDrawerShadow(ContextCompat.getDrawable(mainActivity, R.drawable.drawer_shadow), GravityCompat.START);
@@ -759,7 +759,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			setEnabled(true);
 			final DrawerLayout drawerLayout = this.drawerLayoutWR.get();
 			if (drawerLayout != null && UIFeatureFlags.F_EDGE_TO_EDGE) {
-				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED); // drawer swipe gesture doest NOT interfere with edge-to-edge gestures
+				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START); // drawer swipe gesture doest NOT interfere with edge-to-edge gestures
 			}
 		}
 
@@ -768,7 +768,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			setEnabled(false);
 			final DrawerLayout drawerLayout = this.drawerLayoutWR.get();
 			if (drawerLayout != null && UIFeatureFlags.F_EDGE_TO_EDGE) {
-				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED); // drawer swipe gesture interfere with edge-to-edge gestures
+				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START); // drawer swipe gesture interfere with edge-to-edge gestures
 			}
 		}
 
