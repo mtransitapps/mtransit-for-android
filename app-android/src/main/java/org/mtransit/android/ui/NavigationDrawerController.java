@@ -759,7 +759,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			setEnabled(true);
 			final DrawerLayout drawerLayout = this.drawerLayoutWR.get();
 			if (drawerLayout != null && UIFeatureFlags.F_EDGE_TO_EDGE) {
-				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START); // drawer swipe gesture doest NOT interfere with edge-to-edge gestures
+				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START); // drawer swipe gesture does NOT interfere with edge-to-edge gestures
 			}
 		}
 
