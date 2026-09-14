@@ -56,7 +56,9 @@ class SetupBannerAdTask(
             this.bannerAdManager.getAdLayout(activity)?.let { adLayout ->
                 val adView = this.bannerAdManager.getAdView(adLayout)
                     ?: makeNewAdView(activity, adLayout)
-                adView.loadAd(
+                // there is no way to manually trigger loading a new ad from the same AdView
+                // so we have to call loadAd() on the same AdView every time
+                adView.loadAd( // triggers CANCELLED on previous callback: "Ad request cancelled by publisher action"
                     adRequest = // #gmaNextGen
                         AdManager.getBannerAdRequest(
                             adUnitId = activity.requireActivity().getString(adUnitStringResId),
@@ -79,19 +81,18 @@ class SetupBannerAdTask(
         }
 
     private fun makeNewAdView(activity: IAdScreenActivity, adLayout: ViewGroup) =
-        AdView(activity.requireActivity()).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            isVisible = false
-            id = R.id.ad
-            // adUnitId = activity.requireContext().getString(adUnitStringResId) // #gmaLegacy
-        }.also {
-            adLayout.removeAllViews()
-            adLayout.addView(it)
-            // }.apply { // #gmaLegacy
-            // setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once // #gmaLegacy
-            // adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView = this) // #gmaLegacy
-        }
+        AdView(activity.requireActivity())
+            .apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, // width
+                    ViewGroup.LayoutParams.WRAP_CONTENT, // height
+                )
+                isVisible = false
+                id = R.id.ad
+                // adUnitId = activity.requireContext().getString(adUnitStringResId) // #gmaLegacy
+            }.also {
+                // }.apply { // #gmaLegacy
+                // setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once // #gmaLegacy
+                // adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView = this) // #gmaLegacy
+            }
 }

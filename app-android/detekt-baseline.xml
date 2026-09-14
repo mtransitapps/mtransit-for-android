@@ -138,8 +138,6 @@
     <ID>NestedBlockDepth:POIAvailabilityStatusViewHolder.kt:POIAvailabilityStatusViewHolder$@SuppressLint("KotlinPairNotCreated") // MTPieChartPercentView in Java override fun bind</ID>
     <ID>NewLineAtEndOfFile:HomeTypeAgencyComparator.kt:org.mtransit.android.ui.home.HomeTypeAgencyComparator.kt</ID>
     <ID>NewLineAtEndOfFile:HomeViewModel.kt:org.mtransit.android.ui.home.HomeViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:IAdScreenActivity.kt:org.mtransit.android.ad.IAdScreenActivity.kt</ID>
-    <ID>NewLineAtEndOfFile:IAdScreenFragment.kt:org.mtransit.android.ad.IAdScreenFragment.kt</ID>
     <ID>NewLineAtEndOfFile:IAgencyNearbyProperties.kt:org.mtransit.android.data.IAgencyNearbyProperties.kt</ID>
     <ID>NewLineAtEndOfFile:IAgencyNearbyUIProperties.kt:org.mtransit.android.data.IAgencyNearbyUIProperties.kt</ID>
     <ID>NewLineAtEndOfFile:IAgencyProperties.kt:org.mtransit.android.data.IAgencyProperties.kt</ID>
@@ -239,8 +237,6 @@
     <ID>NewLineAtEndOfFile:ServiceUpdateLoaderProvider.kt:org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider.kt</ID>
     <ID>NewLineAtEndOfFile:ServiceUpdateProviderProperties.kt:org.mtransit.android.data.ServiceUpdateProviderProperties.kt</ID>
     <ID>NewLineAtEndOfFile:ServiceUpdateProviderPropertiesDao.kt:org.mtransit.android.datasource.ServiceUpdateProviderPropertiesDao.kt</ID>
-    <ID>NewLineAtEndOfFile:SetupBannerAdTask.kt:org.mtransit.android.ad.banner.SetupBannerAdTask.kt</ID>
-    <ID>NewLineAtEndOfFile:SetupInlineBannerAdTask.kt:org.mtransit.android.ad.inlinebanner.SetupInlineBannerAdTask.kt</ID>
     <ID>NewLineAtEndOfFile:SpacesItemDecoration.kt:org.mtransit.android.ui.view.common.SpacesItemDecoration.kt</ID>
     <ID>NewLineAtEndOfFile:SplashScreenActivity.kt:org.mtransit.android.ui.splash.SplashScreenActivity.kt</ID>
     <ID>NewLineAtEndOfFile:StatusProviderProperties.kt:org.mtransit.android.data.StatusProviderProperties.kt</ID>

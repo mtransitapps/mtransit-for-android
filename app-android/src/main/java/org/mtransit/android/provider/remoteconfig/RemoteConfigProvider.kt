@@ -25,6 +25,7 @@ class RemoteConfigProvider @Inject constructor(
         // const val AD_BANNER_LOAD_ON_SCREEN_RESUME = "mt_ad_banner_load_on_screen_resume" // -> true is outperforming Baseline by 95% after 2 weeks
         // const val AD_BANNER_LOAD_ON_SCREEN_RESUME_DEFAULT = false
 
+        // should be using different AD unit IDs with different custom Automatic refresh (30-150 secs) or Google Optimized (-1)
         const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC = "mt_ad_banner_load_on_screen_resume_min_duration_sec"
         const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT = 1L // -> 1 second is outperforming Baseline (-1=disabled) by 114% (& 2,3,5,7,10)
 
