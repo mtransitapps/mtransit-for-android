@@ -91,6 +91,8 @@ class SetupBannerAdTask(
                 id = R.id.ad
                 // adUnitId = activity.requireContext().getString(adUnitStringResId) // #gmaLegacy
             }.also {
+                adLayout.removeAllViews()
+                adLayout.addView(it)
                 // }.apply { // #gmaLegacy
                 // setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once // #gmaLegacy
                 // adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView = this) // #gmaLegacy
