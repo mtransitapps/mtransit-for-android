@@ -197,7 +197,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		// DO NOTHING
 	}
 
-	private void setup() {
+	@Nullable
+	private OnBackPressedCallback innerOnBackPressedCallback;
+
+	private void setup() { // called from onStart
 		final MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) return;
 		this.navigationView = mainActivity.findViewById(R.id.nav_view);
@@ -220,9 +223,18 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} catch (Resources.NotFoundException nfe) { // seen on Android 4, 5 & 7
 			this.crashReporter.w(this, "Error while setting drawer layout shadow!");
 		}
+		if (this.drawerToggle != null) {
+			this.drawerLayout.removeDrawerListener(this.drawerToggle);
+			this.drawerToggle = null;
+		}
 		this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
 		this.drawerLayout.addDrawerListener(this.drawerToggle);
-		mainActivity.getOnBackPressedDispatcher().addCallback(new InnerOnBackPressedCallback(this.drawerLayout));
+		if (this.innerOnBackPressedCallback != null) {
+			this.innerOnBackPressedCallback.remove();
+			this.innerOnBackPressedCallback = null;
+		}
+		this.innerOnBackPressedCallback = new InnerOnBackPressedCallback(this.drawerLayout);
+		mainActivity.getOnBackPressedDispatcher().addCallback(this.innerOnBackPressedCallback);
 		finishSetupAsync();
 	}
 
@@ -900,6 +912,9 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	void destroy() {
+		if (this.innerOnBackPressedCallback != null) {
+			this.innerOnBackPressedCallback.remove();
+		}
 		this.mainActivityWR.clear();
 		this.currentSelectedScreenItemNavId = null;
 		this.currentSelectedScreenItemId = null;
