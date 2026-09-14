@@ -198,7 +198,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	@Nullable
-	private OnBackPressedCallback innerOnBackPressedCallback;
+	private InnerOnBackPressedCallback innerOnBackPressedCallback;
 
 	private void setup() { // called from onStart
 		final MainActivity mainActivity = this.mainActivityWR.get();
@@ -223,6 +223,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
 		this.drawerLayout.addDrawerListener(this.drawerToggle);
 		if (this.innerOnBackPressedCallback != null) {
+			this.drawerLayout.removeDrawerListener(this.innerOnBackPressedCallback);
 			this.innerOnBackPressedCallback.remove();
 			this.innerOnBackPressedCallback = null;
 		}
@@ -912,18 +913,21 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	void destroy() {
-		if (this.innerOnBackPressedCallback != null) {
-			this.innerOnBackPressedCallback.remove();
-		}
 		this.mainActivityWR.clear();
 		this.currentSelectedScreenItemNavId = null;
 		this.currentSelectedScreenItemId = null;
 		this.navigationView = null;
 		if (this.drawerLayout != null) {
 			if (this.drawerToggle != null) {
+				if (this.innerOnBackPressedCallback != null) {
+					this.drawerLayout.removeDrawerListener(this.innerOnBackPressedCallback);
+				}
 				this.drawerLayout.removeDrawerListener(this.drawerToggle);
 			}
 			this.drawerLayout = null;
+		}
+		if (this.innerOnBackPressedCallback != null) {
+			this.innerOnBackPressedCallback.remove();
 		}
 		this.drawerToggle = null;
 	}
