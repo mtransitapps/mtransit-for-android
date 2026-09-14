@@ -222,9 +222,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
 		this.drawerLayout.addDrawerListener(this.drawerToggle);
-		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			mainActivity.getOnBackPressedDispatcher().addCallback(new InnerOnBackPressedCallback(this.drawerLayout));
-		}
+		mainActivity.getOnBackPressedDispatcher().addCallback(new InnerOnBackPressedCallback(this.drawerLayout));
 		finishSetupAsync();
 	}
 
