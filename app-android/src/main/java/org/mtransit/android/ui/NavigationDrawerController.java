@@ -756,7 +756,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		private final WeakReference<DrawerLayout> drawerLayoutWR;
 
 		InnerOnBackPressedCallback(@NonNull DrawerLayout drawerLayout) {
-			super(!drawerLayout.isDrawerOpen(GravityCompat.START));
+			super(drawerLayout.isDrawerOpen(GravityCompat.START));
 			this.drawerLayoutWR = new WeakReference<>(drawerLayout);
 			drawerLayout.addDrawerListener(this);
 		}
