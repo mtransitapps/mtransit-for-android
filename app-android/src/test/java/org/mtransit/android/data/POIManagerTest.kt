@@ -25,7 +25,7 @@ class POIManagerTest {
     companion object {
         private const val LOCAL_TZ_ID: String = "America/Montreal"
 
-        private const val NOW_MS = 123456789_000L
+        private const val NOW_MS = 1234567890_000L // Friday, February 13, 2009 at 11:31:30 p.m. UTC
         private val NOW = NOW_MS.millisToInstant()
     }
 

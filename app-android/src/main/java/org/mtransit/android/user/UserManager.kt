@@ -72,6 +72,13 @@ class UserManager @Inject constructor(
         DefaultPreferenceRepository.PREF_USER_NEW, DefaultPreferenceRepository.PREF_USER_NEW_DEFAULT
     )
 
+    @Suppress("unused")
+    suspend fun getNewUser() = withContext(Dispatchers.IO) {
+        defaultPrefRepository.pref.getBoolean(
+            DefaultPreferenceRepository.PREF_USER_NEW, DefaultPreferenceRepository.PREF_USER_NEW_DEFAULT
+        )
+    }
+
     // endregion
 
     // region daily user
