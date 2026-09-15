@@ -3,10 +3,10 @@ package org.mtransit.android.ui.splash
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import androidx.core.content.edit
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -25,8 +25,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.millisToInstant

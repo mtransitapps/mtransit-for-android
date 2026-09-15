@@ -1,20 +1,23 @@
 package org.mtransit.android.ui.splash
 
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
+import androidx.core.content.edit
 import kotlinx.coroutines.test.runTest
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.reset
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.FakeSharedPreferences
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.user.UserManager
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.time.Duration.Companion.days
 
 class SplashScreenViewModelTest {
@@ -26,14 +29,10 @@ class SplashScreenViewModelTest {
     private val userManager: UserManager = mock {
         on { getAppOpenCount() } doReturn 0
     }
-    private val prefEditor: SharedPreferences.Editor = mock<SharedPreferences.Editor>().apply {
-        whenever(remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)).thenReturn(this)
-    }
-    private val pref: SharedPreferences = mock {
-        on { edit() } doReturn prefEditor
-    }
+
+    private val lclPrefRepoSharedPref = FakeSharedPreferences()
     private val lclPrefRepository: LocalPreferenceRepository = mock {
-        on { pref } doReturn pref
+        on { pref } doReturn lclPrefRepoSharedPref
     }
 
     @SuppressLint("DoNotMockPlatformTypes")
@@ -59,7 +58,8 @@ class SplashScreenViewModelTest {
 
     @AfterTest
     fun tearDown() {
-        reset(userManager, lclPrefRepository, pref, prefEditor)
+        reset(userManager, lclPrefRepository)
+        lclPrefRepoSharedPref.reset()
     }
 
     @Test
@@ -106,16 +106,27 @@ class SplashScreenViewModelTest {
     @Test
     fun test_getAndUpdateAppOpenCounts_ResetUxAfterOneMonth() = runTest {
         whenever { userManager.getAppOpenLastOrNull() } doReturn NOW_MS - 30.days.inWholeMilliseconds
+        lclPrefRepoSharedPref.edit { putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, "static-2") }
 
         val result = subject.getAndUpdateAppOpenCounts()
 
         assertEquals(1, result)
-        org.mockito.kotlin.inOrder(prefEditor, userManager) {
-            verify(prefEditor).remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)
-            verify(prefEditor).apply()
-            verify(userManager).setUserLearnedDrawer(false)
-            verify(userManager).set(appOpenCounts = 1, appOpenFirst = NOW_MS, appOpenLast = NOW_MS, dailyUser = false, newUser = true)
-        }
+        assertFalse(lclPrefRepoSharedPref.contains(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID))
+        verify(userManager).setUserLearnedDrawer(false)
+        verify(userManager).set(appOpenCounts = 1, appOpenFirst = NOW_MS, appOpenLast = NOW_MS, dailyUser = false, newUser = true)
+    }
+
+    @Test
+    fun test_getAndUpdateAppOpenCounts_ResetUxBeforeOneMonth() = runTest {
+        whenever { userManager.getAppOpenLastOrNull() } doReturn NOW_MS - 29.days.inWholeMilliseconds
+        lclPrefRepoSharedPref.edit { putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, "static-2") }
+
+        val result = subject.getAndUpdateAppOpenCounts()
+
+        assertEquals(1, result)
+        assertEquals("static-2", lclPrefRepoSharedPref.getString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, null))
+        verify(userManager, times(0)).setUserLearnedDrawer(false)
+        verify(userManager).set(appOpenCounts = 1, appOpenFirst = NOW_MS, appOpenLast = NOW_MS, dailyUser = false, newUser = true)
     }
 
     @Test
