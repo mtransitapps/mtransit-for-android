@@ -20,6 +20,7 @@ import java.lang.ref.WeakReference
 class BannerAdListener(
     private val bannerAdManager: BannerAdManager,
     private val crashReporter: CrashReporter,
+    private val adRequestHashCode: Int,
     private val activityWR: WeakReference<IAdScreenActivity>,
     // private val adViewWR: WeakReference<AdView>, // #gmaLegacy
 ) : AdLoadCallback<BannerAd>, BannerAdRefreshCallback, // #gmaNextGen
@@ -29,11 +30,13 @@ class BannerAdListener(
     constructor(
         bannerAdManager: BannerAdManager,
         crashReporter: CrashReporter,
+        adRequestHashCode: Int,
         adScreenActivity: IAdScreenActivity,
         // adView: AdView, // #gmaLegacy
     ) : this(
         bannerAdManager = bannerAdManager,
         crashReporter = crashReporter,
+        adRequestHashCode = adRequestHashCode,
         activityWR = WeakReference(adScreenActivity),
         // adViewWR = WeakReference(adView) // #gmaLegacy
     )
@@ -85,7 +88,7 @@ class BannerAdListener(
         this.activityWR.get()?.let { activity ->
             activity.activity?.runOnUiThread {
                 val previouslyLoadedAdToShow = this.bannerAdManager.adBannerLoaded
-                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), previouslyLoadedAdToShow) // wait until next try, even if failed
+                this.bannerAdManager.setAdBannerLoaded(adRequestHashCode, TimeUtils.currentTimeMillis(), previouslyLoadedAdToShow) // wait until next try, even if failed
                 if (previouslyLoadedAdToShow) {
                     logAdsD(this@BannerAdListener, "onAdFailedToLoad() > keep old ad visible")
                     return@runOnUiThread // keep old ad visible
@@ -106,7 +109,7 @@ class BannerAdListener(
         logAdsD(this, "onAdRefreshed()") // #gmaNextGen
         this.activityWR.get()?.let { activity -> // #gmaNextGen
             activity.activity?.runOnUiThread {
-                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success // #gmaNextGen
+                this.bannerAdManager.setAdBannerLoaded(adRequestHashCode, TimeUtils.currentTimeMillis(), true) // success // #gmaNextGen
                 this.bannerAdManager.adaptToScreenSize(activity) // showing ads if hidden because of no-fill/network error // #gmaNextGen
             }
         } // #gmaNextGen
@@ -125,7 +128,7 @@ class BannerAdListener(
         ad.bannerAdRefreshCallback = this // #gmaNextGen
         this.activityWR.get()?.let { activity ->
             activity.activity?.runOnUiThread {
-                this.bannerAdManager.setAdBannerLoaded(TimeUtils.currentTimeMillis(), true) // success
+                this.bannerAdManager.setAdBannerLoaded(adRequestHashCode, TimeUtils.currentTimeMillis(), true) // success
                 // val adapterClassName = this.adViewWR.get()?.responseInfo?.mediationAdapterClassName // #gmaLegacy
                 val adapterClassName = ad.getResponseInfo().adapterClassName // #gmaNextGen
                 logAdsD(this, "onAdLoaded() > ad loaded from $adapterClassName ")

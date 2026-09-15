@@ -59,7 +59,7 @@ class SetupInlineBannerAdTask(
                 // so we have to call loadAd() on the same AdView every time
                 adView.loadAd( // triggers CANCELLED on previous callback: "Ad request cancelled by publisher action"
                     adRequest = // #gmaNextGen
-                        AdManager.getBannerAdRequest(
+                        AdManager.makeBannerAdRequest(
                             adUnitId = fragment.requireActivity().getString(adUnitStringResId),
                             adSize = inlineBannerAdManager.getAdSize(fragment),
                         ),
