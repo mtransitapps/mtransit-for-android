@@ -251,9 +251,10 @@ class SplashScreenViewModel @Inject constructor(
     internal suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
         val appOpenCounts = userManager.getAppOpenCount()
         val appOpenFirst = userManager.getAppOpenFirstOrNull()?.millisToInstant()
-        val appOpenLast = userManager.getAppOpenLastOrNull()?.millisToInstant()
-        val shouldResetUx = appOpenLast?.let { lastAppOpen ->
-            lastAppOpen + RESET_DEFAULT_ROOT_SCREEN_AFTER <= TimeUtilsK.currentInstant()
+        val appOpenLastInMs = userManager.getAppOpenLastOrNull()
+        val appOpenLast = appOpenLastInMs?.millisToInstant()
+        val shouldResetUx = appOpenLastInMs?.let { lastAppOpenInMs ->
+            lastAppOpenInMs <= TimeUtils.currentTimeMillis() - RESET_DEFAULT_ROOT_SCREEN_AFTER.inWholeMilliseconds
         } == true
         if (shouldResetUx) {
             lclPrefRepository.pref.edit {
