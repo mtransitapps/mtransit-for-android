@@ -1,6 +1,5 @@
 package org.mtransit.android.ui
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.SearchManager
 import android.content.Context
@@ -63,7 +62,6 @@ import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.NightModeUtils
-import org.mtransit.android.util.UIFeatureFlags
 import java.util.WeakHashMap
 import javax.inject.Inject
 

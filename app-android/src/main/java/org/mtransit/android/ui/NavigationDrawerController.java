@@ -908,10 +908,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.navigationView = null;
 		if (this.drawerLayout != null) {
 			if (this.drawerToggle != null) {
-				if (this.innerOnBackPressedCallback != null) {
-					this.drawerLayout.removeDrawerListener(this.innerOnBackPressedCallback);
-				}
 				this.drawerLayout.removeDrawerListener(this.drawerToggle);
+			}
+			if (this.innerOnBackPressedCallback != null) {
+				this.drawerLayout.removeDrawerListener(this.innerOnBackPressedCallback);
 			}
 			this.drawerLayout = null;
 		}

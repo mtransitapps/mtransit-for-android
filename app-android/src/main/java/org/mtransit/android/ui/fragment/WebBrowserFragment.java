@@ -44,7 +44,6 @@ import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LinkUtils;
-import org.mtransit.android.util.UIFeatureFlags;
 
 import java.lang.ref.WeakReference;
 
