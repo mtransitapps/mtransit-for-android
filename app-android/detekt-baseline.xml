@@ -261,8 +261,8 @@
     <ID>ReturnCount:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshVehicleLocationProviderProperties</ID>
     <ID>ReturnCount:DemoModeManager.kt:DemoModeManager$fun isEnabledBrowseScreen: Boolean</ID>
     <ID>ReturnCount:DemoModeManager.kt:DemoModeManager$fun isEnabledPOIScreen: Boolean</ID>
-    <ID>ReturnCount:GlobalAdManager.kt:GlobalAdManager$fun adsAllowed: Boolean</ID>
-    <ID>ReturnCount:GlobalAdManager.kt:GlobalAdManager$fun canShowAds: Boolean?</ID>
+    <ID>ReturnCount:GlobalAdManager.kt:@AnyThread GlobalAdManager$fun adsAllowed: Boolean</ID>
+    <ID>ReturnCount:GlobalAdManager.kt:@AnyThread GlobalAdManager$fun canShowAds: Boolean?</ID>
     <ID>ReturnCount:HomeTypeAgencyComparator.kt:HomeTypeAgencyComparator$override fun compare: Int</ID>
     <ID>ReturnCount:IAgencyNearbyProperties.kt:IAgencyNearbyProperties.Companion$private fun areOverlapping: Boolean</ID>
     <ID>ReturnCount:InAppNotificationUI.kt:InAppNotificationUI.Companion$@JvmStatic fun hideInAppNotification: Boolean</ID>

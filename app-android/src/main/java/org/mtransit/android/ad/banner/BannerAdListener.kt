@@ -88,7 +88,8 @@ class BannerAdListener(
         this.activityWR.get()?.let { activity ->
             activity.activity?.runOnUiThread {
                 val previouslyLoadedAdToShow = this.bannerAdManager.adBannerLoaded
-                this.bannerAdManager.setAdBannerLoaded(adRequestHashCode, TimeUtils.currentTimeMillis(), previouslyLoadedAdToShow) // wait until next try, even if failed
+                // wait until next try, even if failed
+                this.bannerAdManager.setAdBannerLoaded(adRequestHashCode, TimeUtils.currentTimeMillis(), previouslyLoadedAdToShow)
                 if (previouslyLoadedAdToShow) {
                     logAdsD(this@BannerAdListener, "onAdFailedToLoad() > keep old ad visible")
                     return@runOnUiThread // keep old ad visible
