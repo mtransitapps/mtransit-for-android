@@ -197,7 +197,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		// DO NOTHING
 	}
 
-	private void setup() {
+	@Nullable
+	private InnerOnBackPressedCallback innerOnBackPressedCallback;
+
+	private void setup() { // called from onStart
 		final MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) return;
 		this.navigationView = mainActivity.findViewById(R.id.nav_view);
@@ -213,10 +216,25 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} catch (Resources.NotFoundException nfe) { // seen on Android 4, 5 & 7
 			this.crashReporter.w(this, "Error while setting drawer layout shadow!");
 		}
+		if (this.drawerToggle != null) {
+			this.drawerLayout.removeDrawerListener(this.drawerToggle);
+			this.drawerToggle = null;
+		}
 		this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
 		this.drawerLayout.addDrawerListener(this.drawerToggle);
-		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			mainActivity.getOnBackPressedDispatcher().addCallback(new InnerOnBackPressedCallback(this.drawerLayout));
+		if (this.innerOnBackPressedCallback != null) {
+			this.drawerLayout.removeDrawerListener(this.innerOnBackPressedCallback);
+			this.innerOnBackPressedCallback.remove();
+			this.innerOnBackPressedCallback = null;
+		}
+		this.innerOnBackPressedCallback = new InnerOnBackPressedCallback(this.drawerLayout);
+		mainActivity.getOnBackPressedDispatcher().addCallback(this.innerOnBackPressedCallback);
+		if (UIFeatureFlags.F_EDGE_TO_EDGE) {
+			this.drawerLayout.setDrawerLockMode(
+					this.drawerLayout.isDrawerOpen(GravityCompat.START) ? DrawerLayout.LOCK_MODE_UNLOCKED
+							: DrawerLayout.LOCK_MODE_LOCKED_CLOSED, // drawer swipe gesture interferes with edge-to-edge gestures
+					GravityCompat.START
+			);
 		}
 		finishSetupAsync();
 	}
@@ -719,17 +737,6 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		return this.drawerLayout != null && this.navigationView != null && this.drawerLayout.isDrawerOpen(this.navigationView);
 	}
 
-	boolean onBackPressed() {
-		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			return false;
-		}
-		if (isDrawerOpen()) {
-			closeDrawer();
-			return true; // processed
-		}
-		return false; // not processed
-	}
-
 	private static class InnerOnBackPressedCallback
 			extends OnBackPressedCallback
 			implements DrawerLayout.DrawerListener {
@@ -738,7 +745,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		private final WeakReference<DrawerLayout> drawerLayoutWR;
 
 		InnerOnBackPressedCallback(@NonNull DrawerLayout drawerLayout) {
-			super(false);
+			super(drawerLayout.isDrawerOpen(GravityCompat.START));
 			this.drawerLayoutWR = new WeakReference<>(drawerLayout);
 			drawerLayout.addDrawerListener(this);
 		}
@@ -754,11 +761,19 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		@Override
 		public void onDrawerOpened(@NonNull View drawerView) {
 			setEnabled(true);
+			final DrawerLayout drawerLayout = this.drawerLayoutWR.get();
+			if (drawerLayout != null && UIFeatureFlags.F_EDGE_TO_EDGE) {
+				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START); // drawer swipe gesture does NOT interfere with edge-to-edge gestures
+			}
 		}
 
 		@Override
 		public void onDrawerClosed(@NonNull View drawerView) {
 			setEnabled(false);
+			final DrawerLayout drawerLayout = this.drawerLayoutWR.get();
+			if (drawerLayout != null && UIFeatureFlags.F_EDGE_TO_EDGE) {
+				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.START); // drawer swipe gesture interferes with edge-to-edge gestures
+			}
 		}
 
 		@Override
@@ -895,7 +910,13 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			if (this.drawerToggle != null) {
 				this.drawerLayout.removeDrawerListener(this.drawerToggle);
 			}
+			if (this.innerOnBackPressedCallback != null) {
+				this.drawerLayout.removeDrawerListener(this.innerOnBackPressedCallback);
+			}
 			this.drawerLayout = null;
+		}
+		if (this.innerOnBackPressedCallback != null) {
+			this.innerOnBackPressedCallback.remove();
 		}
 		this.drawerToggle = null;
 	}

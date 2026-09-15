@@ -1,6 +1,5 @@
 package org.mtransit.android.ui
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.SearchManager
 import android.content.Context
@@ -63,7 +62,6 @@ import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.NightModeUtils
-import org.mtransit.android.util.UIFeatureFlags
 import java.util.WeakHashMap
 import javax.inject.Inject
 
@@ -216,9 +214,7 @@ class MainActivity : MTActivityWithLocation(),
         }
         MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
         ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED) // Android 13
-        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-            onBackPressedDispatcher.addCallback(this, mainOnBackPressedCallback)
-        }
+        onBackPressedDispatcher.addCallback(this, mainOnBackPressedCallback)
     }
 
     private val modulesReceiver = ModulesReceiver()
@@ -440,9 +436,7 @@ class MainActivity : MTActivityWithLocation(),
         }
         this.navigationDrawerController?.onBackStackChanged(this.backStackEntryCount)
         this.adManager.adaptToScreenSize(this, getResources().configuration)
-        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-            mainOnBackPressedCallback.isEnabled = this.backStackEntryCount > 0
-        }
+        mainOnBackPressedCallback.isEnabled = this.backStackEntryCount > 0
     }
 
     private val mainOnBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
@@ -458,23 +452,6 @@ class MainActivity : MTActivityWithLocation(),
                 isEnabled = true
             }
         }
-    }
-
-    @SuppressLint("GestureBackNavigation") // android:enableOnBackInvokedCallback in AndroidManifest.xml
-    @Suppress("OVERRIDE_DEPRECATION")
-    override fun onBackPressed() {
-        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-            @Suppress("DEPRECATION")
-            return super.onBackPressed()
-        }
-        if (this.navigationDrawerController?.onBackPressed() == true) {
-            return
-        }
-        if (currentABFragment?.onBackPressed() == true) {
-            return
-        }
-        @Suppress("DEPRECATION")
-        super.onBackPressed()
     }
 
     fun updateNavigationDrawerToggleIndicator() {
