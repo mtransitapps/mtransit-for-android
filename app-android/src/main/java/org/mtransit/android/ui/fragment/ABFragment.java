@@ -383,14 +383,6 @@ public abstract class ABFragment extends MTFragmentX implements
 		}
 	}
 
-	public boolean onBackPressed() {
-		//noinspection IfStatementWithIdenticalBranches
-		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			return false; // processed
-		}
-		return false; // not processed
-	}
-
 	@CallSuper
 	@Override
 	public void onPause() {

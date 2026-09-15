@@ -164,19 +164,17 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		super.onViewCreated(view, savedInstanceState);
 		this.binding = FragmentWebBrowserBinding.bind(view);
 		setupView(binding);
-		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			final OnBackPressedCallback callback = new OnBackPressedCallback(false) {
-				@Override
-				public void handleOnBackPressed() {
-					final WebView webView = binding == null ? null : binding.webView;
-					if (webView != null && webView.canGoBack()) {
-						webView.goBack();
-					}
+		final OnBackPressedCallback callback = new OnBackPressedCallback(false) {
+			@Override
+			public void handleOnBackPressed() {
+				final WebView webView = binding == null ? null : binding.webView;
+				if (webView != null && webView.canGoBack()) {
+					webView.goBack();
 				}
-			};
-			onBackPressedCallback = callback;
-			requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
-		}
+			}
+		};
+		onBackPressedCallback = callback;
+		requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
@@ -211,19 +209,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	@Nullable
 	private OnBackPressedCallback onBackPressedCallback = null;
-
-	@Override
-	public boolean onBackPressed() {
-		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			return super.onBackPressed();
-		}
-		final WebView webView = binding == null ? null : binding.webView;
-		if (webView != null && webView.canGoBack()) {
-			webView.goBack();
-			return true; // handled
-		}
-		return super.onBackPressed();
-	}
 
 	@Override
 	public void onResume() {
@@ -479,9 +464,6 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 		@Override
 		public void doUpdateVisitedHistory(WebView webView, String url, boolean isReload) {
-			if (!UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-				return;
-			}
 			final WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 			final OnBackPressedCallback onBackPressedCallback = webBrowserFragment == null ? null : webBrowserFragment.onBackPressedCallback;
 			if (onBackPressedCallback != null) {

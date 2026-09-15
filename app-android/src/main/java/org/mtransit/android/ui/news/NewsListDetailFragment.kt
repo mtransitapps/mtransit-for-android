@@ -253,9 +253,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
                         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, listDetailOnBackPressedCallback) // 1st added = less priority
                     }
             }
-            if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-                requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, fullscreenBackPressedCallback) // last added = top priority
-            }
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, fullscreenBackPressedCallback) // last added = top priority
             setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
             if (UIFeatureFlags.F_APP_BAR_SCROLL_BEHAVIOR) {
                 viewPager.children.find { it is RecyclerView }?.let {
@@ -340,9 +338,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
         }
         viewModel.fullscreenAndAvailable.observe(viewLifecycleOwner) { fullscreenAndAvailable ->
             updateMenuItemsVisibility(fullscreenAndAvailable = fullscreenAndAvailable)
-            if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-                fullscreenBackPressedCallback.isEnabled = fullscreenAndAvailable
-            }
+            fullscreenBackPressedCallback.isEnabled = fullscreenAndAvailable
         }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
@@ -469,19 +465,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
             }
         }
         super.onScreenToolbarNavigationClick(v)
-    }
-
-    override fun onBackPressed(): Boolean {
-        if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-            return super.onBackPressed()
-        }
-        activity?.apply {
-            if (onBackPressedDispatcher.hasEnabledCallbacks()) {
-                onBackPressedDispatcher.onBackPressed()
-                return true // handled
-            }
-        }
-        return super.onBackPressed()
     }
 
     override fun onDestroyView() {
