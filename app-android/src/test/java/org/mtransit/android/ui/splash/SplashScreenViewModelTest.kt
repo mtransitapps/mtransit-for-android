@@ -26,7 +26,9 @@ class SplashScreenViewModelTest {
     private val userManager: UserManager = mock {
         on { getAppOpenCount() } doReturn 0
     }
-    private val prefEditor: SharedPreferences.Editor = mock {}
+    private val prefEditor: SharedPreferences.Editor = mock<SharedPreferences.Editor>().apply {
+        whenever(remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)).thenReturn(this)
+    }
     private val pref: SharedPreferences = mock {
         on { edit() } doReturn prefEditor
     }
