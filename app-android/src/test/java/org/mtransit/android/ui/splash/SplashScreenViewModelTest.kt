@@ -110,10 +110,12 @@ class SplashScreenViewModelTest {
         val result = subject.getAndUpdateAppOpenCounts()
 
         assertEquals(1, result)
-        verify(prefEditor).remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)
-        verify(prefEditor).apply()
-        verify(userManager).setUserLearnedDrawer(false)
-        verify(userManager).set(appOpenCounts = 1, appOpenFirst = NOW_MS, appOpenLast = NOW_MS, dailyUser = false, newUser = true)
+        org.mockito.kotlin.inOrder(prefEditor, userManager) {
+            verify(prefEditor).remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)
+            verify(prefEditor).apply()
+            verify(userManager).setUserLearnedDrawer(false)
+            verify(userManager).set(appOpenCounts = 1, appOpenFirst = NOW_MS, appOpenLast = NOW_MS, dailyUser = false, newUser = true)
+        }
     }
 
     @Test
