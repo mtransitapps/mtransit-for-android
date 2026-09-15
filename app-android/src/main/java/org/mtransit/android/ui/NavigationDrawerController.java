@@ -227,8 +227,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			this.innerOnBackPressedCallback.remove();
 			this.innerOnBackPressedCallback = null;
 		}
-		this.innerOnBackPressedCallback = new InnerOnBackPressedCallback(this.drawerLayout);
-		mainActivity.getOnBackPressedDispatcher().addCallback(this.innerOnBackPressedCallback);
+		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
+			this.innerOnBackPressedCallback = new InnerOnBackPressedCallback(this.drawerLayout);
+			mainActivity.getOnBackPressedDispatcher().addCallback(this.innerOnBackPressedCallback);
+		}
 		if (UIFeatureFlags.F_EDGE_TO_EDGE) {
 			this.drawerLayout.setDrawerLockMode(
 					this.drawerLayout.isDrawerOpen(GravityCompat.START) ? DrawerLayout.LOCK_MODE_UNLOCKED
