@@ -252,7 +252,10 @@ class SplashScreenViewModel @Inject constructor(
         val appOpenCounts = userManager.getAppOpenCount()
         val appOpenFirst = userManager.getAppOpenFirstOrNull()?.millisToInstant()
         val appOpenLast = userManager.getAppOpenLastOrNull()?.millisToInstant()
-        if ((appOpenLast?.plus(RESET_DEFAULT_ROOT_SCREEN_AFTER) ?: Instant.DISTANT_FUTURE) <= TimeUtilsK.currentInstant()) {
+        val shouldResetUx = appOpenLast?.let { lastAppOpen ->
+            lastAppOpen + RESET_DEFAULT_ROOT_SCREEN_AFTER <= TimeUtilsK.currentInstant()
+        } == true
+        if (shouldResetUx) {
             lclPrefRepository.pref.edit {
                 remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)
             }
