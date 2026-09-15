@@ -4,6 +4,7 @@ package org.mtransit.android.ad
 // import com.google.android.gms.ads.MobileAds // #gmaLegacy
 // import com.google.android.gms.ads.RequestConfiguration // #gmaLegacy
 import android.content.Context
+import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import com.google.android.libraries.ads.mobile.sdk.MobileAds // #gmaNextGen
@@ -229,6 +230,7 @@ class GlobalAdManager(
         this.hasSubscription = hasSubscription
     }
 
+    @AnyThread
     fun canShowAds(): Boolean? {
         if (!AdConstants.AD_ENABLED) return false
         if (demoModeManager.enabled) return false
@@ -236,6 +238,7 @@ class GlobalAdManager(
         return this.hasSubscription?.not()
     }
 
+    @AnyThread
     fun adsAllowed(): Boolean {
         if (!AdConstants.AD_ENABLED) return false
         if (!this.initialized.get()) {

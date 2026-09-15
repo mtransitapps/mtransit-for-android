@@ -84,7 +84,7 @@ class RewardedAdManager @Inject constructor(
         RewardedAd.load( // Must be called on the main UI thread
             // appContext, // #gmaLegacy
             // appContext.getString(adUnitStringResId), // #gmaLegacy
-            AdManager.getAdRequest(
+            AdManager.makeAdRequest(
                 adUnitId = appContext.getString(adUnitStringResId)
             ),
             RewardedAdLoadCallback(this@RewardedAdManager, crashReporter, activityHashCode)

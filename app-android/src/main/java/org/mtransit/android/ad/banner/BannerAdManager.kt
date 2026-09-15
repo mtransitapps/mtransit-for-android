@@ -23,6 +23,8 @@ import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.isVisibleOnce
 import org.mtransit.commons.FeatureFlags
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,15 +48,23 @@ class BannerAdManager @Inject constructor(
     override fun getLogTag() = LOG_TAG
 
     private val _adBannerLoadedLastInMs = AtomicLong(LOADED_UNKNOWN)
-
     private var adBannerLoadedLastInMs: Long
         get() = _adBannerLoadedLastInMs.get()
         set(value) = _adBannerLoadedLastInMs.set(value)
 
-    var adBannerLoaded: Boolean? = null
-        private set
+    private val _adBannerLoaded = AtomicBoolean(false)
+    var adBannerLoaded: Boolean
+        get() = _adBannerLoaded.get()
+        private set(value) = _adBannerLoaded.set(value)
 
-    private var setupBannerAdTask: SetupBannerAdTask? = null
+    private val _adRequestLoading = AtomicInteger(-1)
+    private var adRequestLoading: Int
+        get() = _adRequestLoading.get()
+        set(value) = _adRequestLoading.set(value)
+    private val adLoading: Boolean
+        get() = _adRequestLoading.get() != -1
+
+    private var setupTask: SetupBannerAdTask? = null
 
     private val loadOnScreenResumeMinDurationSec: Long by lazy {
         remoteConfigProvider.get(
@@ -67,9 +77,22 @@ class BannerAdManager @Inject constructor(
         loadOnScreenResumeMinDurationSec > 0L
     }
 
-    fun setAdBannerLoaded(lastInMs: Long, loaded: Boolean?) {
+    fun setAdBannerLoaded(adRequestHashCode: Int, lastInMs: Long, loaded: Boolean) {
         this.adBannerLoadedLastInMs = lastInMs
         this.adBannerLoaded = loaded
+        setAdBannerLoading(adRequestHashCode, false)
+    }
+
+    fun setAdBannerLoading(adRequestHashCode: Int, loading: Boolean) {
+        if (loading) {
+            this.adRequestLoading = adRequestHashCode
+        } else if (this.adRequestLoading == adRequestHashCode) { // IF app was loading this ad request THEN
+            this.adRequestLoading = -1 // mark loading as completed
+        } else if (this.adRequestLoading == -1) { // ELSE IF app was not loading this ad request
+            logAdsD(this, "setAdBannerLoading() > IGNORE (already marked as loaded)")
+        } else {
+            logAdsD(this, "setAdBannerLoading() > IGNORE (for old ad request: $adRequestHashCode VS current: ${this.adRequestLoading})")
+        }
     }
 
     @MainThread
@@ -90,11 +113,11 @@ class BannerAdManager @Inject constructor(
         if (this.globalAdManager.adsAllowed() // ads allowed across the app
             && activity.currentAdFragment?.hasAds() == false // this specific screen doesn't include ads already
         ) {
-            if (this.adBannerLoaded != true || force) { // IF ad was not loaded DO
-                setupBannerAd(activity, force)
+            if (!this.adBannerLoaded || force) { // IF ad was not loaded DO
+                setupAd(activity, force)
             }
-        } else { // ELSE IF ads NOT allowed DO
-            if (this.adBannerLoaded == true) { // IF ad was loaded DO
+        } else { // ELSE IF ads NOT allowed, DO
+            if (this.adBannerLoaded) { // IF ad was loaded DO
                 hideBannerAd(activity)
                 pauseAd(activity)
             }
@@ -107,7 +130,7 @@ class BannerAdManager @Inject constructor(
         if (!this.globalAdManager.adsAllowed()) return
         if (activity.currentAdFragment?.hasAds() == true) return
         if (isEnoughSpaceForBanner(configuration)) {
-            if (this.adBannerLoaded == true) {
+            if (this.adBannerLoaded) {
                 resumeAd(activity)
                 showBannerAd(activity)
             }
@@ -127,7 +150,7 @@ class BannerAdManager @Inject constructor(
     }
 
     @AnyThread
-    private fun setupBannerAd(activity: IAdScreenActivity, force: Boolean) {
+    private fun setupAd(activity: IAdScreenActivity, force: Boolean) {
         logAdsD(this, "setupAd($force) --------------------")
         if (!AdConstants.AD_ENABLED) {
             logAdsD(this, "setupAd() > SKIP (AD not enabled) --------------------")
@@ -138,26 +161,25 @@ class BannerAdManager @Inject constructor(
             return
         }
         if (force
-            && setupBannerAdTask != null // task to cancel or not cancel
-            && this.adBannerLoaded != null // state unknown/loading
+            && setupTask != null // in-progress -> to cancel or not cancel
+            && !this.adLoading // no ad request loading
         ) {
             logAdsD(this, "setupAd() > should we cancel?")
             val minDurationMs = loadOnScreenResumeMinDurationSec.seconds.inWholeMilliseconds
             if (this.adBannerLoadedLastInMs + minDurationMs < TimeUtils.currentTimeMillis()) { // force refresh if ad loaded only
                 logAdsD(this, "setupAd() > CANCELLING previous setup ad task...")
-                TaskUtils.cancelQuietly(setupBannerAdTask, true)
-                setupBannerAdTask = null
+                TaskUtils.cancelQuietly(setupTask, true)
+                setupTask = null
             } else {
                 logAdsD(this, "setupAd() > not cancelling previous setup ad task...")
             }
         } else {
-            logAdsD(this, "setupAd() > SKIP (force?$force|setupBannerAdTask?${setupBannerAdTask != null}|adBannerLoaded:$adBannerLoaded)")
+            logAdsD(this, "setupAd() > SKIP (force?$force|setupTask?${setupTask != null}|adLoading:$adLoading)")
         }
-        if (setupBannerAdTask == null) {
+        if (setupTask == null) {
             logAdsD(this, "setupAd() > STARTING setup ad task...")
-            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)
-            TaskUtils.execute(setupBannerAdTask)
-            this.adBannerLoaded = null // loading
+            setupTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)
+            TaskUtils.execute(setupTask)
         } else {
             logAdsD(this, "setupAd() > SKIP (task already running)")
         }
@@ -224,14 +246,15 @@ class BannerAdManager @Inject constructor(
                 }
             }
         }
-        setAdBannerLoaded(LOADED_UNKNOWN, false) // reset
-        TaskUtils.cancelQuietly(setupBannerAdTask, true)
-        setupBannerAdTask = null
+        setAdBannerLoaded(-1, LOADED_UNKNOWN, false) // reset
+        this.adRequestLoading = -1 // reset
+        TaskUtils.cancelQuietly(setupTask, true)
+        setupTask = null
     }
 
     @MainThread
     fun getBannerHeightInPx(activity: IAdScreenActivity?): Int {
-        if (this.adBannerLoaded != true) return 0 // ad not loaded
+        if (!this.adBannerLoaded) return 0 // ad not loaded
         if (!this.globalAdManager.adsAllowed()) return 0 // ads not allowed (0 agency installed, paying user...)
         if (activity == null) return 0 // can't measure w/o context
         val adSize = getAdSize(activity)

@@ -55,9 +55,11 @@ class SetupInlineBannerAdTask(
             this.inlineBannerAdManager.getAdLayout(fragment)?.let { adLayout ->
                 val adView = this.inlineBannerAdManager.getAdView(adLayout)
                     ?: makeNewAdView(fragment, adLayout)
-                adView.loadAd(
+                // there is no way to manually trigger loading a new ad from the same AdView
+                // so we have to call loadAd() on the same AdView every time
+                adView.loadAd( // triggers CANCELLED on previous callback: "Ad request cancelled by publisher action"
                     adRequest = // #gmaNextGen
-                        AdManager.getBannerAdRequest(
+                        AdManager.makeBannerAdRequest(
                             adUnitId = fragment.requireActivity().getString(adUnitStringResId),
                             adSize = inlineBannerAdManager.getAdSize(fragment),
                         ),
@@ -73,19 +75,20 @@ class SetupInlineBannerAdTask(
     private val adUnitStringResId: Int get() = R.string.google_ads_banner_inline_ad_unit_id
 
     private fun makeNewAdView(fragment: IFragment, adLayout: ViewGroup) =
-        AdView(fragment.requireContext()).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            isVisible = false
-            id = R.id.inline_banner_ad
-            // adUnitId = fragment.requireContext().getString(adUnitStringResId) // #gmaLegacy
-        }.also {
-            adLayout.removeAllViews()
-            adLayout.addView(it)
-            // }.apply { // #gmaLegacy
-            //     setAdSize(inlineBannerAdManager.getAdSize(fragment)) // ad size can only be set once // #gmaLegacy
-            //     adListener = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment, adView = this) // #gmaLegacy
-        }
+        AdView(fragment.requireContext())
+            .apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                isVisible = false
+                id = R.id.inline_banner_ad
+                // adUnitId = fragment.requireContext().getString(adUnitStringResId) // #gmaLegacy
+            }.also {
+                adLayout.removeAllViews()
+                adLayout.addView(it)
+                // }.apply { // #gmaLegacy
+                // setAdSize(inlineBannerAdManager.getAdSize(fragment)) // ad size can only be set once // #gmaLegacy
+                // adListener = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment, adView = this) // #gmaLegacy
+            }
 }
