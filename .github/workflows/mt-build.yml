@@ -76,26 +76,29 @@ jobs:
 
       - name: MT detekt
         run: |
-          ./gradlew detekt \
+          ./gradlew detektMain detektTest \
             --no-configure-on-demand --scan # works better with "gradle/actions/setup-gradle"
       - name: MT detekt > print markdown report (if failure)
         if: ${{ failure() }}
         run: |
-          cat */build/reports/detekt/detekt.md
+          mapfile -d '' reports < <(find . -path '*/build/reports/detekt/*.md' -print0)
+          if (( ${#reports[@]} > 0 )); then
+            cat -- "${reports[@]}"
+          fi
       - name: MT detekt > artifact > XML results
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if detekt fails
         with:
           name: detekt-xml-results
           path: |
-            */build/reports/detekt/detekt.xml
+            */build/reports/detekt/*.xml
       - name: MT detekt > artifact > HTML report
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if detekt fails
         with:
           name: detekt-html-reports
           path: |
-            */build/reports/detekt/detekt.html
+            */build/reports/detekt/*.html
 
       - name: MT tests
         if: ${{ success() }} # if detekt successful

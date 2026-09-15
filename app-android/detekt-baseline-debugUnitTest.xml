@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongParameterList:POIManagerTest.kt:POIManagerTest$private fun RouteDirectionStop.mkSchedule</ID>
+    <ID>LongParameterList:RouteDirectionStopTestFixtures.kt:fun makeRDS</ID>
+    <ID>LongParameterList:RouteDirectionStopTestFixtures.kt:fun makeStop</ID>
+    <ID>NewLineAtEndOfFile:MapViewModelTest.kt:org.mtransit.android.ui.map.MapViewModelTest.kt</ID>
+    <ID>NewLineAtEndOfFile:POIArrayAdapterTests.kt:org.mtransit.android.data.POIArrayAdapterTests.kt</ID>
+    <ID>NewLineAtEndOfFile:POIConnectionComparatorTests.kt:org.mtransit.android.data.POIConnectionComparatorTests.kt</ID>
+    <ID>UnusedImport:POIConnectionComparatorTests.kt:import org.mtransit.android.commons.data.Stop</ID>
+  </CurrentIssues>
+</SmellBaseline>
