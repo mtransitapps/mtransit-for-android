@@ -123,6 +123,7 @@ class SplashScreenViewModelTest {
     @Test
     fun test_getAndUpdateAppOpenCounts_ResetUxAfterOneMonth() = runTest {
         userManager.set(appOpenLast = NOW_MS - 30.days.inWholeMilliseconds)
+        userManager.setUserLearnedDrawer(true)
         lclPrefRepoSharedPref.edit { putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, "static-2") }
 
         val result = subject.getAndUpdateAppOpenCounts()
