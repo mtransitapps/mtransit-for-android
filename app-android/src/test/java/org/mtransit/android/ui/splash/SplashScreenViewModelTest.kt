@@ -1,12 +1,14 @@
 package org.mtransit.android.ui.splash
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import kotlinx.coroutines.test.runTest
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.user.UserManager
 import kotlin.test.AfterTest
@@ -24,10 +26,18 @@ class SplashScreenViewModelTest {
     private val userManager: UserManager = mock {
         on { getAppOpenCount() } doReturn 0
     }
+    private val prefEditor: SharedPreferences.Editor = mock {}
+    private val pref: SharedPreferences = mock {
+        on { edit() } doReturn prefEditor
+    }
+    private val lclPrefRepository: LocalPreferenceRepository = mock {
+        on { pref } doReturn pref
+    }
 
     @SuppressLint("DoNotMockPlatformTypes")
     private val subject = SplashScreenViewModel(
         appContext = mock {},
+        lclPrefRepository = lclPrefRepository,
         userManager = userManager,
         analyticsManager = mock {},
         savedStateHandle = mock {},
@@ -47,7 +57,7 @@ class SplashScreenViewModelTest {
 
     @AfterTest
     fun tearDown() {
-        reset(userManager)
+        reset(userManager, lclPrefRepository, pref, prefEditor)
     }
 
     @Test
@@ -89,6 +99,19 @@ class SplashScreenViewModelTest {
 
         assertEquals(12, result)
         verify(userManager).set(appOpenCounts = 12, appOpenFirst = null, appOpenLast = NOW_MS, dailyUser = true, newUser = false)
+    }
+
+    @Test
+    fun test_getAndUpdateAppOpenCounts_ResetUxAfterOneMonth() = runTest {
+        whenever { userManager.getAppOpenLastOrNull() } doReturn NOW_MS - 30.days.inWholeMilliseconds
+
+        val result = subject.getAndUpdateAppOpenCounts()
+
+        assertEquals(1, result)
+        verify(prefEditor).remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)
+        verify(prefEditor).apply()
+        verify(userManager).setUserLearnedDrawer(false)
+        verify(userManager).set(appOpenCounts = 1, appOpenFirst = NOW_MS, appOpenLast = NOW_MS, dailyUser = false, newUser = true)
     }
 
     @Test

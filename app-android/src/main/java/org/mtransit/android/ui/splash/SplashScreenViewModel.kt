@@ -3,6 +3,7 @@ package org.mtransit.android.ui.splash
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import androidx.core.content.edit
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatDelegate
@@ -25,6 +26,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.millisToInstant
@@ -55,6 +57,7 @@ import kotlin.time.Instant
  */
 class SplashScreenViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
+    private val lclPrefRepository: LocalPreferenceRepository,
     private val userManager: UserManager,
     private val analyticsManager: IAnalyticsManager,
     private val savedStateHandle: SavedStateHandle,
@@ -81,6 +84,8 @@ class SplashScreenViewModel @Inject constructor(
         private val DEPLOY_DATA_OVERALL_MAX_DURATION = 13.seconds
 
         private val FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT = 3.seconds
+
+        private val RESET_DEFAULT_ROOT_SCREEN_AFTER = 30.days
     }
 
     override fun getLogTag() = LOG_TAG
@@ -247,6 +252,12 @@ class SplashScreenViewModel @Inject constructor(
         val appOpenCounts = userManager.getAppOpenCount()
         val appOpenFirst = userManager.getAppOpenFirstOrNull()?.millisToInstant()
         val appOpenLast = userManager.getAppOpenLastOrNull()?.millisToInstant()
+        if ((appOpenLast?.plus(RESET_DEFAULT_ROOT_SCREEN_AFTER) ?: Instant.DISTANT_FUTURE) <= TimeUtilsK.currentInstant()) {
+            lclPrefRepository.pref.edit {
+                remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)
+            }
+            userManager.setUserLearnedDrawer(false)
+        }
         val dailyUser = appOpenLast?.let {
             val sevenDaysAgo = TimeUtilsK.currentInstant() - 7.days
             sevenDaysAgo < it && appOpenCounts > 10 // opened in the last 7 days
