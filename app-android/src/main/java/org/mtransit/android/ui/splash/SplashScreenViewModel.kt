@@ -27,7 +27,6 @@ import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.millisToInstant
 import org.mtransit.android.commons.toMillis
@@ -251,28 +250,27 @@ class SplashScreenViewModel @Inject constructor(
     internal suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
         val appOpenCounts = userManager.getAppOpenCount()
         val appOpenFirst = userManager.getAppOpenFirstOrNull()?.millisToInstant()
-        val appOpenLastInMs = userManager.getAppOpenLastOrNull()
-        val appOpenLast = appOpenLastInMs?.millisToInstant()
-        val nowInMs = TimeUtils.currentTimeMillis()
-        val shouldResetUx = appOpenLastInMs?.let { lastAppOpenInMs ->
-            nowInMs - lastAppOpenInMs >= RESET_DEFAULT_ROOT_SCREEN_AFTER.inWholeMilliseconds
+        val appOpenLast =  userManager.getAppOpenLastOrNull()?.millisToInstant()
+        val now = TimeUtilsK.currentInstant()
+        val shouldResetUx = appOpenLast?.let { lastAppOpen ->
+            now - lastAppOpen >= RESET_DEFAULT_ROOT_SCREEN_AFTER
         } == true
-        if (shouldResetUx) {
+        if (shouldResetUx) { // user might have forgotten app UX and be stuck in non-default root screen
             lclPrefRepository.pref.edit {
                 remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)
             }
             userManager.setUserLearnedDrawer(false)
         }
         val dailyUser = appOpenLast?.let {
-            val sevenDaysAgo = TimeUtilsK.currentInstant() - 7.days
+            val sevenDaysAgo = now - 7.days
             sevenDaysAgo < it && appOpenCounts > 10 // opened in the last 7 days
         } ?: false
         var newAppOpenFirst: Instant? = null
         if (appOpenFirst == null) {
             if (appOpenCounts <= 0) {
-                newAppOpenFirst = TimeUtilsK.currentInstant()
+                newAppOpenFirst = now
             } else if (appOpenLast == null) { // added a while ago, very likely first time
-                newAppOpenFirst = TimeUtilsK.currentInstant()
+                newAppOpenFirst = now
             }
             if (appOpenCounts > 33) {
                 newAppOpenFirst = null // never set app open first with so many app opens
@@ -280,17 +278,17 @@ class SplashScreenViewModel @Inject constructor(
         }
         val newUser = appOpenFirst?.let { firstAppOpen ->
             if (appOpenCounts >= 10) { // frequent user
-                if (TimeUtilsK.currentInstant() <= firstAppOpen + 5.days) {
+                if (now <= firstAppOpen + 5.days) {
                     return@let true // frequent user but less than 5 days
                 }
             } else { // casual user
-                if (TimeUtilsK.currentInstant() <= firstAppOpen + 10.days) {
+                if (now <= firstAppOpen + 10.days) {
                     return@let true // casual user but less than 10 days
                 }
             }
             null
         } ?: appOpenLast?.let {
-            if (it + 99.days < TimeUtilsK.currentInstant()  // a long time ago
+            if (it + 99.days < now  // a long time ago
                 && appOpenCounts < 33 // "few" app opens
             ) {
                 return@let true // old user coming back with "few" app opens
@@ -300,7 +298,7 @@ class SplashScreenViewModel @Inject constructor(
         userManager.set(
             appOpenCounts = appOpenCounts + 1,
             appOpenFirst = newAppOpenFirst?.toMillis(),
-            appOpenLast = nowInMs,
+            appOpenLast = now.toMillis(),
             dailyUser = dailyUser,
             newUser = newUser,
         )
