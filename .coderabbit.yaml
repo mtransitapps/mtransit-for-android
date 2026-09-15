@@ -15,4 +15,7 @@ reviews:
     - "!app-android/end/**"
     - "!app-android/src/main/res-current/raw/**"
     - "!app-android/src/main/res-next/raw/**"
+  pre_merge_checks:
+    docstrings:
+      mode: off
   review_status: false

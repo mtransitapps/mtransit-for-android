@@ -53,14 +53,14 @@ class AdManager @Inject internal constructor(
 
         val LOG_TAG: String = AdManager::class.java.simpleName
 
-        fun getAdRequest(
+        fun makeAdRequest(
             @Suppress("unused") adUnitId: String,
         ) = AdRequest.Builder(adUnitId).apply { // #gmaNextGen
             // ) = AdRequest.Builder().apply { // #gmaLegacy
             AdConstants.KEYWORDS.forEach { addKeyword(it) }
         }.build()
 
-        fun getBannerAdRequest(
+        fun makeBannerAdRequest(
             @Suppress("unused") adUnitId: String,
             @Suppress("unused") adSize: AdSize,
             collapsible: Boolean = false,
