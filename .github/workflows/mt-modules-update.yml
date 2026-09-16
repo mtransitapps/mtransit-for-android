@@ -26,7 +26,8 @@ env:
   MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
   # files
-  MT_MODULES_JSON_URL: 'https://mtransitapps.github.io/data/modules.json'
+  # MT_MODULES_JSON_URL: 'https://mtransitapps.github.io/data/modules.json'
+  MT_MODULES_JSON_URL: 'https://raw.githubusercontent.com/mtransitapps/mtransitapps.github.io/refs/heads/master/data/modules.json'
   MT_MODULES_JSON_FILE: 'app-android/src/main/res/raw/modules.json'
 jobs:
   MT-MODULES-UPDATE-JOB:
