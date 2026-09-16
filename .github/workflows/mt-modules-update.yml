@@ -109,7 +109,7 @@ jobs:
       - name: MT update pull request (if necessary)
         if: ${{ steps.mt-commit-modules.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
         run: |
-          gh pr edit --add-assignee montransit --title "Update modules.json in \`${MT_BRANCH_NAME}\`"
+          gh pr edit --add-assignee montransit --title "Update \`modules.json\` in \`${MT_BRANCH_NAME}\`"
           gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
