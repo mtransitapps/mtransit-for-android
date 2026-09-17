@@ -66,9 +66,7 @@ class SensorManagerImpl @Inject constructor(
     }
 
     override fun unregisterSensorListener(sensorEventListener: SensorEventListener) {
-        sensorManager?.apply {
-            unregisterListener(sensorEventListener)
-        }
+        sensorManager?.unregisterListener(sensorEventListener)
     }
 
     override fun checkForCompass(

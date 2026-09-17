@@ -45,8 +45,8 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareVie
 import org.mtransit.android.ui.location.UILocationUtils.getLocationString
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
-import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.MediatorLiveData3
+import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.UIFeatureFlags
@@ -66,7 +66,7 @@ class NearbyViewModel @Inject constructor(
     private val userPrefManager: UserPrefManager,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
-    private val pm: PackageManager,
+    pm: PackageManager,
 ) : MTViewModelWithLocation(),
     NewLocationAwareViewModel,
     LocationSettingsAwareViewModel,
@@ -200,9 +200,9 @@ class NearbyViewModel @Inject constructor(
     override val newLocationAvailable: LiveData<Boolean?> =
         MediatorLiveData3(isFixedOn, nearbyLocation, deviceLocation).map { (isFixedOn, nearbyLocation, deviceLocation) ->
             isFixedOn == false
-                    && nearbyLocation != null
-                    && deviceLocation != null
-                    && !LocationUtils.areAlmostTheSame(nearbyLocation, deviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
+                && nearbyLocation != null
+                && deviceLocation != null
+                && !LocationUtils.areAlmostTheSame(nearbyLocation, deviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
         }
 
     val fixedOnColorInt = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_COLOR, EXTRA_FIXED_ON_COLOR_DEFAULT)

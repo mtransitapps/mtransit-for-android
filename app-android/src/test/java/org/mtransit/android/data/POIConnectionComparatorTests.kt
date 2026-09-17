@@ -7,7 +7,6 @@ import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.Stop
 import org.mtransit.android.commons.data.makeStop
 import kotlin.math.abs
 
@@ -117,6 +116,5 @@ class POIConnectionComparatorTests {
         assertEquals("$authority-29-2901-4417", (result[i++].poi as? RouteDirectionStop)?.uuid)
         assertEquals("$authority-29-2900-4417", (result[i++].poi as? RouteDirectionStop)?.uuid)
         assertEquals(5, i)
-
     }
 }

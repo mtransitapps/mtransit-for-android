@@ -46,8 +46,7 @@ object BatteryOptimizationIssueUtils {
     @JvmStatic
     fun getDoNotKillMyAppUrlExtended() = try {
         URL(
-            DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER
-                .format(manufacturerDNTLC)
+            DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER.format(Locale.ROOT, manufacturerDNTLC)
         ).toString()
     } catch (e: Exception) {
         MTLog.w(LOG_TAG, e, "Error while creating custom URL with manufacturer")
@@ -57,8 +56,7 @@ object BatteryOptimizationIssueUtils {
     @JvmStatic
     fun getDoNotKillMyAppImageUrlExtended() = try {
         URL(
-            DO_NOT_KILL_MY_APP_IMAGE_URL_AND_MANUFACTURER
-                .format(manufacturerDNTLC)
+            DO_NOT_KILL_MY_APP_IMAGE_URL_AND_MANUFACTURER.format(Locale.ROOT, manufacturerDNTLC)
         ).toString()
     } catch (e: Exception) {
         MTLog.w(LOG_TAG, e, "Error while creating custom URL with manufacturer")
@@ -83,15 +81,13 @@ object BatteryOptimizationIssueUtils {
     private const val ANY = "any"
 
     private val INVISIBLE_ACTIVITY_ANY_MIN_OPEN_MS =
-        if (BuildConfig.DEBUG) TimeUnit.MINUTES.toMillis(1L) else
-            TimeUnit.HOURS.toMillis(1L)
+        TimeUnit.MINUTES.toMillis(if (BuildConfig.DEBUG) 1L else 60L)
 
     private val INVISIBLE_ACTIVITY_MIN_OPEN_MS =
-        if (BuildConfig.DEBUG) TimeUnit.HOURS.toMillis(1L) else
-            TimeUnit.DAYS.toMillis(7L)
+        TimeUnit.HOURS.toMillis(if (BuildConfig.DEBUG) 1L else 7L * 24L)
 
-    private fun isInvisibleActivityEnabled() = false // DISABLED (tried from Aug 2024 to May 2026 -> no improvements)
-    // private fun isInvisibleActivityEnabled() = BuildConfig.DEBUG
+    private val isInvisibleActivityEnabled get() = false // DISABLED (tried from Aug 2024 to May 2026 -> no improvements)
+    // private fun isInvisibleActivityEnabled get() = BuildConfig.DEBUG
     // || (isSamsungDevice() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU)
 
     @JvmStatic
@@ -101,7 +97,7 @@ object BatteryOptimizationIssueUtils {
         dataSourceRepository: DataSourcesRepository,
         lclPrefRepository: LocalPreferenceRepository
     ) {
-        if (!isInvisibleActivityEnabled()) {
+        if (!isInvisibleActivityEnabled) {
             return // SKIP not-debug && not-Samsung < Android 13 (ignore Android 14+ for now)
         }
         try {
@@ -216,8 +212,8 @@ object BatteryOptimizationIssueUtils {
                 setPackage(SAMSUNG_DEVICE_CARE_PKG)
                 activityType?.let { putExtra(SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE, it) }
                 this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or // make sure it does NOT open in the stack of your activity
-                        Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or // task re-parenting if needed
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP // make sure it opens on app page even if already open in search result
+                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or // task re-parenting if needed
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP // make sure it opens on app page even if already open in search result
             },
             activity.getString(R.string.samsung_device_care),
             false,

@@ -29,7 +29,7 @@ import javax.inject.Inject
 class AgencyPOIsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val poiRepository: POIRepository,
+    poiRepository: POIRepository,
     private val userPrefManager: UserPrefManager,
     private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {

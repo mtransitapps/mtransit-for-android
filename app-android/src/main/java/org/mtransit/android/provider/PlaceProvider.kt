@@ -87,7 +87,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         val lat = poiFilter.getExtraDouble("lat", null)
         val lng = poiFilter.getExtraDouble("lng", null)
         val searchKeywords = poiFilter.searchKeywords
-        val searchByTextRequest = getTextSearchRequest(lat, lng, null, searchKeywords)  // no search keyboard => no search
+        val searchByTextRequest = getTextSearchRequest(lat, lng, null, searchKeywords) // no search keyboard => no search
             ?: return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
         return getTextSearchResults(context, searchByTextRequest)
     }
@@ -227,7 +227,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             if (cursor != null) {
                 return cursor
             }
-            throw IllegalArgumentException(String.format("Unknown URI (query): '$uri'"))
+            throw IllegalArgumentException("Unknown URI (query): '$uri'")
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while resolving query '$uri'!")
             return null
@@ -278,7 +278,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private fun getDBHelper(context: Context): PlaceDbHelper {
         when (val currentDbHelper: PlaceDbHelper? = _dbHelper) {
-            null -> {  // initialize
+            null -> { // initialize
                 val newDbHelper = getNewDbHelper(context)
                 _dbHelper = newDbHelper
                 _currentDbVersion = getCurrentDbVersion()
@@ -464,7 +464,8 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                     SqlUtils.escapeString(POIUtils.UID_SEPARATOR),
                     SqlUtils.escapeString(authority),
                     SqlUtils.getTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_PROVIDER_ID)
-                ), POIProviderContract.Columns.T_POI_K_UUID_META
+                ),
+                POIProviderContract.Columns.T_POI_K_UUID_META
             )
             .appendValue(DataSourceTypeId.PLACE, POIProviderContract.Columns.T_POI_K_DST_ID_META)
             .appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ID, POIProviderContract.Columns.T_POI_K_ID)

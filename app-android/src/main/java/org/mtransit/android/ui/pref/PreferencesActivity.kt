@@ -18,10 +18,10 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
-import org.mtransit.android.ui.enableEdgeToEdgeMT
-import org.mtransit.android.ui.setUpStatusBarBgEdgeToEdge
 import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
+import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.ui.setStatusBarsThemeEdgeToEdge
+import org.mtransit.android.ui.setUpStatusBarBgEdgeToEdge
 import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
 

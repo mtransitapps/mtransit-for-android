@@ -52,7 +52,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val poiRepository: POIRepository,
     private val devicePrefManager: DevicePrefManager,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    dataSourceRequestManager: DataSourceRequestManager,
     private val demoModeManager: DemoModeManager,
     remoteConfigProvider: RemoteConfigProvider,
 ) : ViewModel(), MTLog.Loggable {
@@ -71,7 +71,6 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
         internal const val EXTRA_CLOSEST_POI_SHOWN = "extra_closest_poi_shown"
         internal const val EXTRA_CLOSEST_POI_SHOWN_DEFAULT: Boolean = false
-
     }
 
     override fun getLogTag(): String = directionId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG

@@ -32,7 +32,9 @@ data class POIScheduleViewHolder(
     ) = if (dataProvider.isShowingStatus && statusViewHolder is POIScheduleViewHolder) {
         poim.setStatusLoaderListener(dataProvider)
         poim.getStatus(dataProvider.providesStatusLoader()) as? Schedule
-    } else null
+    } else {
+        null
+    }
 
     override fun update(
         statusViewHolder: POICommonStatusViewHolder<*, *>?,

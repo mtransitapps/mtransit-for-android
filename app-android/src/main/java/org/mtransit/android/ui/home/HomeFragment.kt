@@ -63,7 +63,8 @@ import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class HomeFragment : ABFragment(R.layout.fragment_home),
+class HomeFragment :
+    ABFragment(R.layout.fragment_home),
     DeviceLocationListener,
     NewLocationAwareFragment,
     LocationSettingsAwareFragment,
@@ -149,7 +150,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
                     ?: return@DefaultPOIListFooterManager false
                 val listItemCount = 3 + // for browse header
-                        nearbyPOIs.size
+                    nearbyPOIs.size
                 listItemCount < minListItemToNotHide
             },
         )
@@ -402,9 +403,10 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun hasToolbar() = true
 
-    override fun getABTitle(context: Context?) =
-        if (attachedViewModel?.isFullDemo() == true) "MonTransit"
-        else context?.getString(R.string.app_name) ?: super.getABTitle(context)
+    override fun getABTitle(context: Context?): CharSequence? {
+        if (attachedViewModel?.isFullDemo() == true) return "MonTransit"
+        return context?.getString(R.string.app_name) ?: super.getABTitle(context)
+    }
 
     override fun getABSubtitle(context: Context?) =
         this.attachedViewModel?.nearbyLocationAddress?.value

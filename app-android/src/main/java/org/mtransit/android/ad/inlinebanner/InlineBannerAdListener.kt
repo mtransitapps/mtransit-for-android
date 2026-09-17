@@ -1,10 +1,10 @@
 package org.mtransit.android.ad.inlinebanner
 
-import androidx.annotation.AnyThread
 // import com.google.android.gms.ads.AdListener // #gmaLegacy
 // import com.google.android.gms.ads.AdRequest // #gmaLegacy
 // import com.google.android.gms.ads.AdView // #gmaLegacy
 // import com.google.android.gms.ads.LoadAdError // #gmaLegacy
+import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAd // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.banner.BannerAdRefreshCallback // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback // #gmaNextGen
@@ -21,7 +21,8 @@ class InlineBannerAdListener(
     private val crashReporter: CrashReporter,
     private val fragmentWR: WeakReference<IFragment>,
     // private val adViewWR: WeakReference<AdView>, // #gmaLegacy
-) : AdLoadCallback<BannerAd>, BannerAdRefreshCallback, // #gmaNextGen
+) : AdLoadCallback<BannerAd>, // #gmaNextGen
+    BannerAdRefreshCallback, // #gmaNextGen
     // ) : AdListener(), // #gmaLegacy
     MTLog.Loggable {
 
@@ -77,8 +78,8 @@ class InlineBannerAdListener(
             LoadAdError.ErrorCode.NOT_FOUND, // #gmaNextGen
             LoadAdError.ErrorCode.INVALID_AD_RESPONSE, // #gmaNextGen
             LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED, // #gmaNextGen
-                // else // #gmaLegacy
                 -> this.crashReporter.w(this, "Failed to receive ad! Error code: '${adError.code}' ($adError).")
+            // else // #gmaLegacy
         }
         this.fragmentWR.get()?.let { fragment ->
             fragment.getActivity()?.runOnUiThread {

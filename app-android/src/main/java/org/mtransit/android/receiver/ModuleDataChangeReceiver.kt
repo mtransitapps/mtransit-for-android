@@ -22,7 +22,8 @@ import javax.inject.Inject
  --es pkg "org.mtransit.android.ca_montreal_stm_subway.debug"
  */
 @AndroidEntryPoint
-class ModuleDataChangeReceiver : BroadcastReceiver(),
+class ModuleDataChangeReceiver :
+    BroadcastReceiver(),
     MTLog.Loggable {
 
     companion object {
@@ -57,7 +58,7 @@ class ModuleDataChangeReceiver : BroadcastReceiver(),
             try {
                 dataSourcesRepository.updateLock(pkg)
             } catch (e: Exception) {
-                MTLog.w(this, e, "Error while updating data-sources from repository!");
+                MTLog.w(this, e, "Error while updating data-sources from repository!")
             } finally {
                 pendingResult.finish()
             }

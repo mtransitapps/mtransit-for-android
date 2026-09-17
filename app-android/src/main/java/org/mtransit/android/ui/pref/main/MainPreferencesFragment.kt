@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.getSystemService
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -42,6 +41,8 @@ import org.mtransit.android.ui.pref.PreferencesViewModel
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.ImageManager
+import org.mtransit.android.ui.view.common.loadImageAndShow
+import org.mtransit.android.ui.view.common.setTextAndVisibility
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.LanguageManager
@@ -212,14 +213,14 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_REMOTE_CONFIG_PREF) as? Preference)?.apply {
             summary = remoteConfigProvider.getAll()?.entries?.let { all ->
-                "${all.size}: " + all.joinToString { (key, value) -> "[${key}: ${value}]" }
+                "${all.size}: " + all.joinToString { (key, value) -> "[$key: $value]" }
             } ?: "(empty)"
             setOnPreferenceClickListener {
                 ToastUtils.getNewTouchableToast(
                     context,
                     R.drawable.toast_frame_old,
                     remoteConfigProvider.getAll()?.entries?.let { all ->
-                        "${all.size}: " + all.joinToString { (key, value) -> "\n- [${key}: ${value}]" }
+                        "${all.size}: " + all.joinToString { (key, value) -> "\n- [$key: $value]" }
                     } ?: "(empty)",
                     null,
                 )?.apply {
@@ -256,29 +257,24 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             (activity as? IActivity)?.let { viewModel.openAdInspector(it) }
             true // handled
         }
-        (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_POWER_MANAGEMENT_PREF) as? Preference)?.apply {
-            isEnabled = true
-        }
-        (findPreference(MainPreferencesViewModel.ABOUT_APP_VERSION_PREF) as? Preference)?.apply {
-            context.let {
-                summary = "" +
-                        " v" + PackageManagerUtils.getAppVersionName(it) +
-                        " r" + PackageManagerUtils.getAppVersionCode(it) +
-                        " (" + BuildConfig.GIT_HASH + ")"
-            }
+        (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_POWER_MANAGEMENT_PREF) as? Preference)
+            ?.isEnabled = true
+        (findPreference(MainPreferencesViewModel.ABOUT_APP_VERSION_PREF) as? Preference)?.let {
+            it.summary = "" +
+                " v" + PackageManagerUtils.getAppVersionName(it.context) +
+                " r" + PackageManagerUtils.getAppVersionCode(it.context) +
+                " (" + BuildConfig.GIT_HASH + ")"
         }
     }
 
     @SuppressLint("InflateParams")
     private fun showPowerManagementDialog(activity: Activity) {
         val view = activity.layoutInflater.inflate(R.layout.layout_battery_optimization_issue, null, false).apply {
-            findViewById<TextView>(R.id.battery_optimization_issue_text_1).apply {
-                text = getString(R.string.battery_optimization_issue_message_1_and_manufacturer, BatteryOptimizationIssueUtils.manufacturer.capitalize())
-            }
+            findViewById<TextView>(R.id.battery_optimization_issue_text_1)
+                .text = getString(R.string.battery_optimization_issue_message_1_and_manufacturer, BatteryOptimizationIssueUtils.manufacturer.capitalize())
             findViewById<ImageView>(R.id.battery_optimization_issue_img).apply {
                 BatteryOptimizationIssueUtils.getDoNotKillMyAppImageUrlExtended()?.let { imageUrl ->
-                    imageManager.loadInto(activity, imageUrl, this)
-                    this.isVisible = true
+                    loadImageAndShow(imageManager, imageUrl)
                 }
                 setOnClickListener {
                     LinkUtils.open(
@@ -297,14 +293,14 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                     LinkUtils.open(view, activity, url, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowser.value)
                 }
             }
-            findViewById<TextView>(R.id.battery_optimization_issue_custom).apply {
-                isVisible = if (BatteryOptimizationIssueUtils.isSamsungDevice()) {
-                    setText(R.string.battery_optimization_samsung_use_device_care)
-                    true
-                } else {
-                    false
-                }
-            }
+            findViewById<TextView>(R.id.battery_optimization_issue_custom)
+                .setTextAndVisibility(
+                    if (BatteryOptimizationIssueUtils.isSamsungDevice()) {
+                        R.string.battery_optimization_samsung_use_device_care
+                    } else {
+                        null
+                    }
+                )
         }
         MTDialog.Builder(activity).apply {
             setTitle(R.string.battery_optimization_issue_title)
@@ -346,9 +342,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             )
         }
         viewModel.fbInstallationsToken.observe(viewLifecycleOwner) { token ->
-            (findPreference(MainPreferencesViewModel.DEV_MODE_FB_INSTALLATION_TOKEN_PREF) as? Preference)?.apply {
-                summary = token ?: "(none)"
-            }
+            (findPreference(MainPreferencesViewModel.DEV_MODE_FB_INSTALLATION_TOKEN_PREF) as? Preference)
+                ?.summary = token ?: "(none)"
         }
         viewModel.currentSubsProductId.observe(viewLifecycleOwner) {
             // do nothing
@@ -385,39 +380,36 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             }
         }
         viewModel.units.observe(viewLifecycleOwner) { units ->
-            (findPreference(DefaultPreferenceRepository.PREFS_DISTANCE_UNITS) as? Preference)?.apply {
-                setSummary(
+            (findPreference(DefaultPreferenceRepository.PREFS_DISTANCE_UNITS) as? Preference)
+                ?.setSummary(
                     when (units) {
                         DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_METRIC -> R.string.unit_pref_meter
                         DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL -> R.string.unit_pref_imperial
                         else -> R.string.unit_pref_summary
                     }
                 )
-            }
         }
         viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
-            (findPreference(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY) as? Preference)?.apply {
-                setSummary(
+            (findPreference(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY) as? Preference)
+                ?.setSummary(
                     when {
                         showAccessibility -> R.string.show_accessibility_pref_summary_on
                         else -> R.string.show_accessibility_pref_summary_off
                     }
                 )
-            }
         }
         viewModel.useInternalWebBrowser.observe(viewLifecycleOwner) { useInternalWebBrowser ->
-            (findPreference(DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER) as? Preference)?.apply {
-                setSummary(
+            (findPreference(DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER) as? Preference)
+                ?.setSummary(
                     when {
                         useInternalWebBrowser -> R.string.use_internal_web_browser_pref_summary_on
                         else -> R.string.use_internal_web_browser_pref_summary_off
                     }
                 )
-            }
         }
         viewModel.lang.observe(viewLifecycleOwner) { lang ->
-            (findPreference(DefaultPreferenceRepository.PREFS_LANG) as? Preference)?.apply {
-                setSummary(
+            (findPreference(DefaultPreferenceRepository.PREFS_LANG) as? Preference)
+                ?.setSummary(
                     when (lang) {
                         DefaultPreferenceRepository.PREFS_LANG_EN -> R.string.lang_pref_en
                         DefaultPreferenceRepository.PREFS_LANG_FR -> R.string.lang_pref_fr
@@ -425,12 +417,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         else -> R.string.lang_pref_system_default
                     }
                 )
-            }
             languageManager.updateAppLocaleFromUserPref()
         }
         viewModel.theme.observe(viewLifecycleOwner) { theme ->
-            (findPreference(DefaultPreferenceRepository.PREFS_THEME) as? Preference)?.apply {
-                setSummary(
+            (findPreference(DefaultPreferenceRepository.PREFS_THEME) as? Preference)
+                ?.setSummary(
                     when (theme) {
                         DefaultPreferenceRepository.PREFS_THEME_LIGHT -> R.string.theme_pref_light
                         DefaultPreferenceRepository.PREFS_THEME_DARK -> R.string.theme_pref_dark
@@ -438,7 +429,6 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         else -> R.string.theme_pref_system_default
                     }
                 )
-            }
             NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
         }
         viewModel.devModeEnabled.observe(viewLifecycleOwner) { devModeEnabled ->

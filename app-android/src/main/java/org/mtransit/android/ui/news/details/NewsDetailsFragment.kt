@@ -43,8 +43,10 @@ import org.mtransit.android.ui.news.NewsListViewModel
 import org.mtransit.android.ui.news.image.NewsImagesAdapter
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.clearImageAndHide
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.loadImageAndShow
 import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UIFeatureFlags
@@ -179,16 +181,13 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         updateThumbnails(newsArticle, fullscreen == true)
         updateNewsArticleText(newsArticle)
         authorIcon.apply {
-            isVisible = if (newsArticle.hasAuthorPictureURL()) {
-                noAuthorIconSpace.isVisible = false
-                imageManager.loadInto(context, newsArticle.authorPictureURL, this)
-                true
+            if (newsArticle.hasAuthorPictureURL()) {
+                loadImageAndShow(imageManager, newsArticle.authorPictureURL)
             } else {
-                noAuthorIconSpace.isVisible = true
-                imageManager.clear(context, this)
-                false
+                clearImageAndHide(imageManager)
             }
         }
+        noAuthorIconSpace.isVisible = !newsArticle.hasAuthorPictureURL()
         author.apply {
             text = newsArticle.authorName
             setTextColor(
@@ -305,18 +304,14 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         when {
             newsArticle.isTwitterVideo -> {
                 if (!UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
-                    thumbnail.apply {
-                        isVisible = false
-                        imageManager.clear(context, this)
-                    }
+                    thumbnail.clearImageAndHide(imageManager)
                 }
                 thumbnailsListContainer.isVisible = false
                 noThumbnailSpace.isVisible = false
 
                 if (UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
                     thumbnail.apply {
-                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                        isVisible = true
+                        loadImageAndShow(imageManager, newsArticle.firstValidImageUrl)
                         setOnClickListener {}
                     }
                     thumbnailPlay.apply {
@@ -355,18 +350,14 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
             newsArticle.isYouTubeVideo -> {
                 if (!UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
-                    thumbnail.apply {
-                        isVisible = false
-                        imageManager.clear(context, this)
-                    }
+                    thumbnail.clearImageAndHide(imageManager)
                 }
                 thumbnailsListContainer.isVisible = false
                 noThumbnailSpace.isVisible = false
 
                 if (UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
                     thumbnail.apply {
-                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                        isVisible = true
+                        loadImageAndShow(imageManager, newsArticle.firstValidImageUrl)
                         setOnClickListener {}
                     }
                     thumbnailPlay.apply {
@@ -405,10 +396,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
             }
 
             newsArticle.imageURLsCount == 0 -> {
-                thumbnail.apply {
-                    isVisible = false
-                    imageManager.clear(context, this)
-                }
+                thumbnail.clearImageAndHide(imageManager)
                 thumbnailsListContainer.isVisible = false
                 thumbnailWebView.isVisible = false
 
@@ -420,8 +408,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 thumbnailsListContainer.isVisible = false
                 thumbnailWebView.isVisible = false
                 thumbnail.apply {
-                    imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                    isVisible = true
+                    loadImageAndShow(imageManager, newsArticle.firstValidImageUrl)
                     setOnClickListener { view ->
                         LinkUtils.open(
                             view,
@@ -438,10 +425,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
             else -> { // newsArticle.imageURLsCount > 1
                 noThumbnailSpace.isVisible = false
-                thumbnail.apply {
-                    isVisible = false
-                    imageManager.clear(context, this)
-                }
+                thumbnail.clearImageAndHide(imageManager)
                 thumbnailWebView.isVisible = false
 
                 thumbnailsListAdapter.submitList(newsArticle.imageUrls)

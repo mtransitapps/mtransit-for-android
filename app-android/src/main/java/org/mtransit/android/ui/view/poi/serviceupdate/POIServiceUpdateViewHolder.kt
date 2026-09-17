@@ -58,7 +58,9 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
                 dataProvider.providesServiceUpdateLoader(),
                 emptyList() // filter later
             )
-        } else ServiceUpdates.newEmpty()
+        } else {
+            ServiceUpdates.newEmpty()
+        }
     }
 
     fun update(
@@ -81,8 +83,11 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
         val filteredServiceUpdates = allServiceUpdates
             .filter { !dataProvider.ignoredTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID) }
             .filter {
-                if (other) ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
-                else !ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
+                if (other) {
+                    ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
+                } else {
+                    !ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
+                }
             }
             .distinctByOriginalId()
         val (isWarning, isInfo) = filteredServiceUpdates.isSeverityWarningXorInfo()

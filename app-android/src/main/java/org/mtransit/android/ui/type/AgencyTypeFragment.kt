@@ -36,7 +36,6 @@ import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.FragmentAgencyTypeBinding
-import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
@@ -60,7 +59,8 @@ import kotlin.time.Duration.Companion.milliseconds
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
+class AgencyTypeFragment :
+    ABFragment(R.layout.fragment_agency_type),
     MTActivityWithLocation.DeviceLocationListener,
     ModuleDisabledAwareFragment,
     MenuProvider {
@@ -221,7 +221,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     private val defaultColor: Int by lazy { getDefaultABBgColor(requireContext()) }
 
-    private val abColorizer: SimpleActionBarColorizer by lazy { SimpleActionBarColorizer() }
+    private var abColors: IntArray = intArrayOf()
+    private fun IntArray.getBgColor(position: Int) = getOrNull(position % this.size)
 
     private var pagerAdapter: AgencyTypePagerAdapter? = null
 
@@ -298,14 +299,13 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             if (pagerAdapter?.setAgencies(agencies) == true) {
                 showSelectedTab()
                 abBgColorInt = null // reset
-                abColorizer.setBgColors(
-                    *(agencies
+                abColors =
+                    agencies
                         ?.filter { it.type != DataSourceType.TYPE_MODULE }
                         ?.takeIf { it.isNotEmpty() }
                         ?.map { UIColorUtils.adaptBackgroundColorToLightText(context, it.colorInt ?: defaultColor) }
                         ?.toIntArray()
-                        ?: arrayOf(defaultColor).toIntArray())
-                )
+                        ?: arrayOf(defaultColor).toIntArray()
                 updateABColor(delayDuration = 0.milliseconds) // NOW
             } else {
                 binding?.switchView()
@@ -480,10 +480,10 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     @WorkerThread
     private fun getNewABBgColorInt(): Int? {
         val selectedPosition = this.selectedPosition.takeIf { it >= 0 } ?: return null
-        val colorInt = this.abColorizer.getBgColor(selectedPosition) ?: return null
+        val colorInt = this.abColors.getBgColor(selectedPosition) ?: return null
         val count = this.pagerAdapter?.itemCount ?: 0
         if (this.selectionOffset > 0f && selectedPosition < (count - 1)) {
-            this.abColorizer.getBgColor(selectedPosition + 1)?.let { nextColorInt ->
+            this.abColors.getBgColor(selectedPosition + 1)?.let { nextColorInt ->
                 if (colorInt != nextColorInt) {
                     return ColorUtils.blendColors(nextColorInt, colorInt, selectionOffset)
                 }

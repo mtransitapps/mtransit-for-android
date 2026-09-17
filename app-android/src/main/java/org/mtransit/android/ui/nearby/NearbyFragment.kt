@@ -53,7 +53,8 @@ import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NearbyFragment : ABFragment(R.layout.fragment_nearby),
+class NearbyFragment :
+    ABFragment(R.layout.fragment_nearby),
     DeviceLocationListener,
     NewLocationAwareFragment,
     LocationSettingsAwareFragment,

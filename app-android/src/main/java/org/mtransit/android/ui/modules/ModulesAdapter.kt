@@ -66,10 +66,8 @@ class ModulesAdapter :
                 }
                 typeface = if (item?.updateAvailable == true) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             }
-            descriptionTv.apply {
-                textAndVisibility = item?.let {
-                    "${it.pkg.substringAfter(IAgencyProperties.PKG_COMMON)} r${it.versionCode} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}"
-                }
+            descriptionTv.textAndVisibility = item?.let {
+                "${it.pkg.substringAfter(IAgencyProperties.PKG_COMMON)} r${it.versionCode} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}"
             }
             item?.let {
                 when {

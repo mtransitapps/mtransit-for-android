@@ -41,8 +41,8 @@ class AppOpenAdFullScreenContentCallback(
         this.crashReporter.w(
             this,
             "Failed to show app open ad! ${fullScreenContentError.code}: " +
-                    "'${fullScreenContentError.message}' " +
-                    "(${fullScreenContentError.mediationAdError})." // #gmaNextGen
+                "'${fullScreenContentError.message}' " +
+                "(${fullScreenContentError.mediationAdError})." // #gmaNextGen
             // "(${fullScreenContentError.domain})." // #gmaLegacy
         )
     }

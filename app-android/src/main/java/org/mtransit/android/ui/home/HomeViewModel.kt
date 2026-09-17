@@ -80,7 +80,7 @@ class HomeViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val adManager: IAdManager,
     private val demoModeManager: DemoModeManager,
-    private val pm: PackageManager,
+    pm: PackageManager,
 ) : MTViewModelWithLocation(),
     NewLocationAwareViewModel,
     LocationSettingsAwareViewModel,
@@ -185,7 +185,7 @@ class HomeViewModel @Inject constructor(
                 null // not new if current unknown
             } else {
                 newDeviceLocation != null
-                        && !LocationUtils.areAlmostTheSame(nearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
+                    && !LocationUtils.areAlmostTheSame(nearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
             }
         }.distinctUntilChanged()
 
@@ -215,7 +215,7 @@ class HomeViewModel @Inject constructor(
     private val _nearbyPOIsTrigger = MutableLiveData<Event<Boolean>>()
     val nearbyPOIsTrigger: LiveData<Event<Boolean>> = _nearbyPOIsTrigger
 
-    val nearbyPOIsTriggerListener: LiveData<Void> =
+    val nearbyPOIsTriggerListener: LiveData<Any> =
         MediatorLiveData2(_typeToHomeAgencies, _nearbyLocation).switchMap { (typeToHomeAgencies, nearbyLocation) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 if (typeToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
@@ -364,11 +364,11 @@ class HomeViewModel @Inject constructor(
         LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff) -> false // world exploration completed
         this.demoModeManager.isFullDemo() && typePOIs.size < DemoModeManager.MIN_POI_HOME_SCREEN -> true // continue
         typePOIs.size > nbMaxByType
-                && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters -> {
-            false  // enough POIs / type & enough distance covered
+            && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters -> {
+            false // enough POIs / type & enough distance covered
         }
 
-        else -> true  // continue
+        else -> true // continue
     }
 
     private suspend fun getAreaTypeNearbyPOIs(
@@ -404,7 +404,9 @@ class HomeViewModel @Inject constructor(
                         .removeAllAnd {
                             if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
                                 hideBookingRequired && (it.poi as? RouteDirectionStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
-                            } else false
+                            } else {
+                                false
+                            }
                         }
                         .updateDistanceM(lat, lng)
                         .removeTooFar(maxDistance)

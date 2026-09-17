@@ -24,7 +24,6 @@ class FeedbackViewModel @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-
     private val _filteredAgencies = dataSourcesRepository.readingAllAgencies().map { agencies ->
         agencies
             .ifEmpty { null } // difference between loading & loaded

@@ -153,7 +153,6 @@ class ServiceUpdatesDialog : MTBottomSheetDialogFragmentX() {
             root.isVisible = hasServiceUpdatesToShow
             emptyLayout.isVisible = !hasServiceUpdatesToShow
         }
-
     }
 
     override fun onDestroyView() {

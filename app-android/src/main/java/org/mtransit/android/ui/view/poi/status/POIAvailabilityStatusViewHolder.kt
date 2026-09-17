@@ -26,7 +26,9 @@ data class POIAvailabilityStatusViewHolder(
     ) = if (dataProvider.isShowingStatus && statusViewHolder is POIAvailabilityStatusViewHolder) {
         poim.setStatusLoaderListener(dataProvider)
         poim.getStatus(dataProvider.providesStatusLoader()) as? AvailabilityPercent
-    } else null
+    } else {
+        null
+    }
 
     override fun update(
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
@@ -60,7 +62,7 @@ data class POIAvailabilityStatusViewHolder(
                         dots.setColorDots(
                             availabilityPercent.totalValue,
                             List(availabilityPercent.value1SubValueDefault) { availabilityPercent.value1SubValueDefaultColorBg } +
-                                    List(availabilityPercent.value1SubValue1 ?: 0) { availabilityPercent.value1SubValue1ColorBg }
+                                List(availabilityPercent.value1SubValue1 ?: 0) { availabilityPercent.value1SubValue1ColorBg }
                         )
                         dots.isVisible = true
                     } else {

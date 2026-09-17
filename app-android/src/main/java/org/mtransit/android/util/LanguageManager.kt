@@ -56,4 +56,3 @@ class LanguageManager @Inject constructor(
         AppCompatDelegate.setApplicationLocales(newLocaleList)
     }
 }
-

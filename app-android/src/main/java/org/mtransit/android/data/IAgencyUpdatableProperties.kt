@@ -15,5 +15,5 @@ interface IAgencyUpdatableProperties : IAgencyProperties {
 
     fun isUpdateAvailableNow(pm: PackageManager): Boolean =
         updateAvailable
-                && pm.getAppLongVersionCode(this.pkg, this.longVersionCode).toInt() < this.availableVersionCode
+            && pm.getAppLongVersionCode(this.pkg, this.longVersionCode).toInt() < this.availableVersionCode
 }

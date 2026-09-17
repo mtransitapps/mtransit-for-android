@@ -46,7 +46,7 @@ fun MapViewController.updateVehicleLocationMarkers(
     }
     val visibleArea = googleMap.getProjection().visibleRegion.toArea()
     val visibleMarkersCount = visibleArea.countMarkersInside(googleMap.getMarkers()) +
-            vehicleLocations.count { !this.vehicleLocationsMarkers.containsKey(it.uuid) }
+        vehicleLocations.count { !this.vehicleLocationsMarkers.containsKey(it.uuid) }
     val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)
     val vehicleColorInt = markerProvider.getVehicleColorInt()
     val vehicleDst = markerProvider.getVehicleType()
@@ -89,7 +89,7 @@ fun MapViewController.areMarkerCollapsing(latLng1: LatLng, latLng2: LatLng): Boo
     val point2 = projection.toScreenLocation(latLng2)
     val collapseMinDistancePx = (48 / 2).dpToPx
     val isCollapsed = abs(point1.x - point2.x) < collapseMinDistancePx
-            && abs(point1.y - point2.y) < collapseMinDistancePx
+        && abs(point1.y - point2.y) < collapseMinDistancePx
     return isCollapsed
 }
 

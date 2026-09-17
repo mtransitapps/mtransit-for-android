@@ -45,7 +45,8 @@ import kotlin.time.Duration.Companion.hours
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class PurchaseDialogFragment : MTDialogFragmentX(),
+class PurchaseDialogFragment :
+    MTDialogFragmentX(),
     IAdManager.RewardedAdListener,
     MTLog.Loggable {
 
@@ -166,7 +167,6 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     onPriceOrPeriodSelectionChanged()
                 }
-
             }
             periodRadioGroup.setOnCheckedChangeListener { _, _ ->
                 onPriceOrPeriodSelectionChanged()
@@ -359,12 +359,19 @@ class PurchaseDialogFragment : MTDialogFragmentX(),
         }
         val availableToShow = adManager.isRewardedAdAvailableToShow()
         val rewardedAmountInDays = adManager.rewardedAdAmountInDays
-        rewardedAdsText.textAndVisibility = if (!availableToShow) null else resources.getQuantityText(
-            if (rewardedNow) R.plurals.support_watch_rewarded_ad_btn_more_and_days_formatted
-            else R.plurals.support_watch_rewarded_ad_btn_and_days_formatted,
-            rewardedAmountInDays,
-            rewardedAmountInDays
-        )
+        rewardedAdsText.textAndVisibility = if (!availableToShow) {
+            null
+        } else {
+            resources.getQuantityText(
+                if (rewardedNow) {
+                    R.plurals.support_watch_rewarded_ad_btn_more_and_days_formatted
+                } else {
+                    R.plurals.support_watch_rewarded_ad_btn_and_days_formatted
+                },
+                rewardedAmountInDays,
+                rewardedAmountInDays
+            )
+        }
         paidTasksDivider2.isVisible = rewardedAdsText.isVisible
         rewardedAdsText.isEnabled = availableToShow
     }

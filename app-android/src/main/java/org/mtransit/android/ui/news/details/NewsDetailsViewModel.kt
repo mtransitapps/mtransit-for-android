@@ -26,7 +26,7 @@ class NewsDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     userPrefManager: UserPrefManager,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val newsRepository: NewsRepository,
+    newsRepository: NewsRepository,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {

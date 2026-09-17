@@ -27,6 +27,8 @@ import org.mtransit.android.databinding.LayoutNewListMomentSeparatorBinding
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
+import org.mtransit.android.ui.view.common.clearImageAndHide
+import org.mtransit.android.ui.view.common.loadImageAndShow
 import org.mtransit.android.util.UITimeUtils
 import java.util.Locale
 
@@ -374,25 +376,21 @@ class NewsListAdapter(
                     )
                 }
                 authorIcon.apply {
-                    isVisible = if (newsArticle.hasAuthorPictureURL()) {
-                        imageManager.loadInto(context, newsArticle.authorPictureURL, this)
-                        true
+                    if (newsArticle.hasAuthorPictureURL()) {
+                        loadImageAndShow(imageManager, newsArticle.authorPictureURL)
                     } else {
-                        imageManager.clear(context, this)
-                        false
+                        clearImageAndHide(imageManager)
                     }
                 }
                 thumbnail.apply {
-                    isVisible = if (newsArticle.hasValidImageUrls()) {
-                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                        true
+                    if (newsArticle.hasValidImageUrls()) {
+                        loadImageAndShow(imageManager, newsArticle.firstValidImageUrl)
                     } else {
-                        imageManager.clear(context, this)
-                        false
+                        clearImageAndHide(imageManager)
                     }
                 }
                 thumbnailGallery.isVisible = newsArticle.imageURLsCount > 1
-                        && !newsArticle.hasVideo // UI does NOT support video + images gallery
+                    && !newsArticle.hasVideo // UI does NOT support video + images gallery
                 thumbnailVideo.isVisible = newsArticle.hasVideo
                 date.apply {
                     text = if (horizontal || UITimeUtils.isToday(newsArticle.createdAtInMs)) {

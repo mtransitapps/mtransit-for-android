@@ -1,11 +1,11 @@
 package org.mtransit.android.ad.inlinebanner
 
+// import com.google.android.gms.ads.AdView // #gmaLegacy
 import android.view.ViewGroup
 import androidx.annotation.MainThread
 import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import androidx.core.view.isVisible
-// import com.google.android.gms.ads.AdView // #gmaLegacy
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView // #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
@@ -21,7 +21,7 @@ class SetupInlineBannerAdTask(
     private val inlineBannerAdManager: InlineBannerAdManager,
     private val crashReporter: CrashReporter,
     private val fragmentWR: WeakReference<IFragment>,
-) : org.mtransit.android.commons.task.MTCancellableAsyncTask<Void?, Void?, Boolean?>() {
+) : org.mtransit.android.commons.task.MTCancellableAsyncTask<Any?, Any?, Boolean?>() {
 
     constructor(
         globalAdManager: GlobalAdManager,
@@ -42,7 +42,7 @@ class SetupInlineBannerAdTask(
     override fun getLogTag() = LOG_TAG
 
     @WorkerThread
-    override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean {
+    override fun doInBackgroundNotCancelledMT(vararg params: Any?): Boolean {
         if (!AdConstants.AD_ENABLED) return false
         return !isCancelled && this.globalAdManager.adsAllowed() // TODO can be called from any thread
     }
@@ -59,10 +59,10 @@ class SetupInlineBannerAdTask(
                 // so we have to call loadAd() on the same AdView every time
                 adView.loadAd( // triggers CANCELLED on previous callback: "Ad request cancelled by publisher action"
                     adRequest = // #gmaNextGen
-                        AdManager.makeBannerAdRequest(
-                            adUnitId = fragment.requireActivity().getString(adUnitStringResId),
-                            adSize = inlineBannerAdManager.getAdSize(fragment),
-                        ),
+                    AdManager.makeBannerAdRequest(
+                        adUnitId = fragment.requireActivity().getString(adUnitStringResId),
+                        adSize = inlineBannerAdManager.getAdSize(fragment),
+                    ),
                     adLoadCallback = InlineBannerAdListener(inlineBannerAdManager, crashReporter, fragment) // #gmaNextGen
                 )
             }

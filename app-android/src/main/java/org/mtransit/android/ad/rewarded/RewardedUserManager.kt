@@ -64,9 +64,8 @@ class RewardedUserManager @Inject constructor(
     private fun getRewardedUntilInMs(): Long {
         if (!AdConstants.AD_ENABLED) return Long.MAX_VALUE // forever rewarded (no ads)
         return this._rewardedUntilInMs.updateAndGet { cached ->
-            if (cached != REWARDED_UNTIL_NO_VALUE) cached
             //noinspection DiscouragedApi
-            else userManager.getRewardedUntilNow()
+            if (cached != REWARDED_UNTIL_NO_VALUE) cached else userManager.getRewardedUntilNow()
         }.coerceAtLeast(0L)
     }
 
@@ -134,8 +133,8 @@ class RewardedUserManager @Inject constructor(
         if (hasLowLoadShowRatio) return true // too much loads for not enough shows
         if (!isRewardedNow(rewardedUntil)) return false // never skip for non-rewarded users
         val skipRewardedAdUntil = TimeUtilsK.currentInstant() -
-                1.hours + // accounts for "recent" rewards
-                _rewardedAdAmountInDays.days.times(2)
+            1.hours + // accounts for "recent" rewards
+            _rewardedAdAmountInDays.days.times(2)
         return rewardedUntil > skipRewardedAdUntil
     }
 

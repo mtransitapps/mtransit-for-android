@@ -40,7 +40,7 @@ fun makeRDS(
 fun makeStop(
     stopId: Int = 1,
     stopCode: String = "#$stopId",
-    stopName: String  = "Stop #$stopId",
+    stopName: String = "Stop #$stopId",
     stopLat: Double = 1.0,
     stopLng: Double = 2.0,
     stopAccessibility: Int = Accessibility.DEFAULT,

@@ -61,17 +61,19 @@ object AppRatingsUIManager : MTLog.Loggable {
 
     private var reviewManager: ReviewManager? = null
 
-    private fun getReviewManager(context: Context?) = reviewManager ?: makeReviewManager(context).also {
+    private fun getReviewManager(context: Context) = reviewManager ?: makeReviewManager(context).also {
         reviewManager = it
     }
 
-    private fun makeReviewManager(context: Context?) = context?.let {
-        if (TESTING_WITH_FAKE_REVIEW_MANAGER) FakeReviewManager(context) else
-            ReviewManagerFactory.create(context)
+    private fun makeReviewManager(context: Context): ReviewManager {
+        if (TESTING_WITH_FAKE_REVIEW_MANAGER) {
+            return FakeReviewManager(context)
+        }
+        return ReviewManagerFactory.create(context)
     }
 
     private fun showPlayInAppReviewUI(activity: Activity, analyticsManager: IAnalyticsManager, onAppRatingDisplayed: (Boolean) -> Unit) {
-        val manager = getReviewManager(activity) ?: return
+        val manager = getReviewManager(activity)
         manager.requestReviewFlow().addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 // We got the ReviewInfo object
@@ -86,13 +88,15 @@ object AppRatingsUIManager : MTLog.Loggable {
                 @ReviewErrorCode val reviewErrorCode = (task.exception as? ReviewException)?.errorCode
                     ?: -1 // Huawei crash (RemoteException)
                 MTLog.w(this, task.exception, "Error while requesting review flow (code: $reviewErrorCode)")
-                analyticsManager.logEvent(AnalyticsEvents.APP_RATINGS_REQUEST_PLAY_ERROR, AnalyticsEventsParamsProvider().apply {
-                    put(AnalyticsEvents.Params.CODE, reviewErrorCode)
-                })
+                analyticsManager.logEvent(
+                    AnalyticsEvents.APP_RATINGS_REQUEST_PLAY_ERROR,
+                    AnalyticsEventsParamsProvider().apply {
+                        put(AnalyticsEvents.Params.CODE, reviewErrorCode)
+                    }
+                )
             }
         }
     }
 
     // endregion
-
 }

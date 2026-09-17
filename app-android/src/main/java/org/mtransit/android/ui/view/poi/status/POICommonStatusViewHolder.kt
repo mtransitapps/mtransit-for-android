@@ -91,6 +91,5 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
                 }
             }
         }
-
     }
 }

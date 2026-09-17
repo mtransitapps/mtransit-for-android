@@ -35,7 +35,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class RDSAgencyRoutesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    dataSourceRequestManager: DataSourceRequestManager,
     private val userPrefManager: UserPrefManager,
 ) : ViewModel(), MTLog.Loggable {
 
@@ -75,12 +75,14 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         liveData(viewModelScope.coroutineContext) {
             agency ?: return@liveData
             routes ?: return@liveData
-            emit(routes.map { route ->
-                route.toRouteM(agency.authority)
-                    .apply {
-                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                    }
-            })
+            emit(
+                routes.map { route ->
+                    route.toRouteM(agency.authority)
+                        .apply {
+                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        }
+                }
+            )
         }
     }
 

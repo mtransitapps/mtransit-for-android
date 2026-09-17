@@ -16,8 +16,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RemoteConfigProvider @Inject constructor(
-) : MTLog.Loggable {
+class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
 
     companion object {
         private val LOG_TAG: String = RemoteConfigProvider::class.java.simpleName
@@ -67,12 +66,14 @@ class RemoteConfigProvider @Inject constructor(
     private val activated = AtomicBoolean(false)
 
     fun init() {
-        remoteConfig.setConfigSettingsAsync(remoteConfigSettings {
-            if (BuildConfig.DEBUG) {
-                fetchTimeoutInSeconds *= 2L
-                minimumFetchIntervalInSeconds /= 2L
+        remoteConfig.setConfigSettingsAsync(
+            remoteConfigSettings {
+                if (BuildConfig.DEBUG) {
+                    fetchTimeoutInSeconds *= 2L
+                    minimumFetchIntervalInSeconds /= 2L
+                }
             }
-        })
+        )
 
         remoteConfig
             .fetchAndActivate()

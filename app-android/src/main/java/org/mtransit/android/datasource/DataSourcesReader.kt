@@ -57,78 +57,86 @@ class DataSourcesReader @Inject constructor(
 
         private fun skipNotSupportedPkg(pkg: String) =
             (SUPPORTED_APPS_PKG.isNotEmpty() && !SUPPORTED_APPS_PKG.contains(pkg))
-                    || NOT_SUPPORTED_APPS_PKG.contains(pkg)
+                || NOT_SUPPORTED_APPS_PKG.contains(pkg)
 
-        private val SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) listOf(
-            // "INSERT_PKG_HERE",
-            // "org.mtransit.android.debug.favorite",
-            // "org.mtransit.android.debug.provider.module",
-            // "org.mtransit.android.debug.provider.place",
-        ) else emptyList()
+        private val SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) {
+            listOf(
+                // "INSERT_PKG_HERE",
+                // "org.mtransit.android.debug.favorite",
+                // "org.mtransit.android.debug.provider.module",
+                // "org.mtransit.android.debug.provider.place",
+            )
+        } else {
+            emptyList()
+        }
 
         @Suppress("SpellCheckingInspection")
-        private val NOT_SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) listOf(
-            "org.mtransit.android.ca_chilliwack_transit_system_bus.debug", // merged into ca_central_fraser_valley_transit_system_bus
-            "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_fort_erie_transit_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_fraser_valley_express_bus.debug", // merged into ca_central_fraser_valley_transit_system_bus
-            "org.mtransit.android.ca_haut_st_laurent_cithsl_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_joliette_ctjm_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_lanaudiere_crtl_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus.debug", // never published
-            "org.mtransit.android.ca_maritime_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
-            "org.mtransit.android.ca_roussillon_citrous_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_ottawa_oc_transpo_train.debug", // migrated to v2
-            "org.mtransit.android.ca_quebec_rtc_bus.debug", // migrated to v2
-            "org.mtransit.android.ca_vancouver_translink_ferry.debug", // migrated to v2
-            "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
-            "org.mtransit.android.us_washington_state_ferry.debug", // not supported anymore
-            // DEBUG
-            // "org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_gatineau_sto_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_edmonton_ets_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_l_assomption_mrclasso_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_la_presqu_ile_citpi_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_laurentides_citla_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_laval_stl_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_le_richelain_citlr_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_les_moulins_mrclm_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_longueuil_rtl_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_amt_train.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_bixi_bike.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_rem_light_rail.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_stm_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_stm_subway.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_quebec_a_velo_bike.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_quebec_orleans_express_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_quebec_rtc_bus2.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_sherbrooke_sts_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_sorel_varennes_citsv_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_ste_julie_omitsju_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_sud_ouest_citso_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_via_rail_train.debug", // FIXME DEBUG
-            // DEBUG
-        ) else listOf(
-            "org.mtransit.android.ca_chilliwack_transit_system_bus", // merged into ca_central_fraser_valley_transit_system_bus
-            "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
-            "org.mtransit.android.ca_fort_erie_transit_bus", // not supported anymore
-            "org.mtransit.android.ca_fraser_valley_express_bus", // merged into ca_central_fraser_valley_transit_system_bus
-            "org.mtransit.android.ca_haut_st_laurent_cithsl_bus", // not supported anymore
-            "org.mtransit.android.ca_joliette_ctjm_bus", // not supported anymore
-            "org.mtransit.android.ca_lanaudiere_crtl_bus", // not supported anymore
-            "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus", // never published
-            "org.mtransit.android.ca_maritime_bus", // not supported anymore
-            "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
-            "org.mtransit.android.ca_ottawa_oc_transpo_train", // migrated to v2
-            "org.mtransit.android.ca_roussillon_citrous_bus", // not supported anymore
-            "org.mtransit.android.ca_quebec_rtc_bus", // migrated to v2
-            "org.mtransit.android.ca_vancouver_translink_ferry", // migrated to v2
-            "org.mtransit.android.ca_west_coast_express_bus", // not supported anymore
-            "org.mtransit.android.us_washington_state_ferry", // not supported anymore
-        )
+        private val NOT_SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) {
+            listOf(
+                "org.mtransit.android.ca_chilliwack_transit_system_bus.debug", // merged into ca_central_fraser_valley_transit_system_bus
+                "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_fort_erie_transit_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_fraser_valley_express_bus.debug", // merged into ca_central_fraser_valley_transit_system_bus
+                "org.mtransit.android.ca_haut_st_laurent_cithsl_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_joliette_ctjm_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_lanaudiere_crtl_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus.debug", // never published
+                "org.mtransit.android.ca_maritime_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
+                "org.mtransit.android.ca_roussillon_citrous_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_ottawa_oc_transpo_train.debug", // migrated to v2
+                "org.mtransit.android.ca_quebec_rtc_bus.debug", // migrated to v2
+                "org.mtransit.android.ca_vancouver_translink_ferry.debug", // migrated to v2
+                "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
+                "org.mtransit.android.us_washington_state_ferry.debug", // not supported anymore
+                // DEBUG
+                // "org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_gatineau_sto_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_edmonton_ets_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_l_assomption_mrclasso_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_la_presqu_ile_citpi_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_laurentides_citla_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_laval_stl_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_le_richelain_citlr_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_les_moulins_mrclm_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_longueuil_rtl_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_amt_train.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_bixi_bike.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_rem_light_rail.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_stm_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_stm_subway.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_quebec_a_velo_bike.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_quebec_orleans_express_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_quebec_rtc_bus2.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_sherbrooke_sts_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_sorel_varennes_citsv_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_ste_julie_omitsju_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_sud_ouest_citso_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_via_rail_train.debug", // FIXME DEBUG
+                // DEBUG
+            )
+        } else {
+            listOf(
+                "org.mtransit.android.ca_chilliwack_transit_system_bus", // merged into ca_central_fraser_valley_transit_system_bus
+                "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
+                "org.mtransit.android.ca_fort_erie_transit_bus", // not supported anymore
+                "org.mtransit.android.ca_fraser_valley_express_bus", // merged into ca_central_fraser_valley_transit_system_bus
+                "org.mtransit.android.ca_haut_st_laurent_cithsl_bus", // not supported anymore
+                "org.mtransit.android.ca_joliette_ctjm_bus", // not supported anymore
+                "org.mtransit.android.ca_lanaudiere_crtl_bus", // not supported anymore
+                "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus", // never published
+                "org.mtransit.android.ca_maritime_bus", // not supported anymore
+                "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
+                "org.mtransit.android.ca_ottawa_oc_transpo_train", // migrated to v2
+                "org.mtransit.android.ca_roussillon_citrous_bus", // not supported anymore
+                "org.mtransit.android.ca_quebec_rtc_bus", // migrated to v2
+                "org.mtransit.android.ca_vancouver_translink_ferry", // migrated to v2
+                "org.mtransit.android.ca_west_coast_express_bus", // not supported anymore
+                "org.mtransit.android.us_washington_state_ferry", // not supported anymore
+            )
+        }
 
         private const val PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS = "pLclAvailableVersionLastCheck"
         private val MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS = TimeUnit.HOURS.toMillis(6L)
@@ -336,7 +344,7 @@ class DataSourcesReader @Inject constructor(
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                     .orEmpty() // will never be visible!
-                            MTLog.d(this, "Status provider '${providerAuthority}' added (target: '$validTargetAuthority').")
+                            MTLog.d(this, "Status provider '$providerAuthority' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.statusProviderPropertiesDao().insert(
                                 StatusProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
@@ -351,7 +359,7 @@ class DataSourcesReader @Inject constructor(
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                     .orEmpty() // will never be visible!
-                            MTLog.d(this, "Schedule provider '${providerAuthority}' added (target: '$validTargetAuthority').")
+                            MTLog.d(this, "Schedule provider '$providerAuthority' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.scheduleProviderPropertiesDao().insert(
                                 ScheduleProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
@@ -366,7 +374,7 @@ class DataSourcesReader @Inject constructor(
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                     .orEmpty() // will never be visible!
-                            MTLog.d(this, "Service Update provider '${providerAuthority}' added (target: '$validTargetAuthority').")
+                            MTLog.d(this, "Service Update provider '$providerAuthority' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().insert(
                                 ServiceUpdateProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
@@ -382,7 +390,7 @@ class DataSourcesReader @Inject constructor(
                                 val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                     ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                         .orEmpty()
-                                MTLog.d(this, "Vehicle Location provider '${providerAuthority}' added (target: '$validTargetAuthority').")
+                                MTLog.d(this, "Vehicle Location provider '$providerAuthority' added (target: '$validTargetAuthority').")
                                 dataSourcesDatabase.vehicleLocationProviderPropertiesDao().insert(
                                     VehicleLocationProviderProperties(providerAuthority, validTargetAuthority, pkg)
                                 )

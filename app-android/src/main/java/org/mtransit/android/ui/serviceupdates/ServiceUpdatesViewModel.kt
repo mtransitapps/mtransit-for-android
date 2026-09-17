@@ -36,9 +36,9 @@ import javax.inject.Inject
 class ServiceUpdatesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     userPrefManager: UserPrefManager,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    dataSourceRequestManager: DataSourceRequestManager,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val poiRepository: POIRepository,
+    poiRepository: POIRepository,
 ) : ViewModel(), MTLog.Loggable {
     companion object {
         private val LOG_TAG: String = ServiceUpdatesViewModel::class.java.simpleName
@@ -82,9 +82,11 @@ class ServiceUpdatesViewModel @Inject constructor(
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 agency ?: return@liveData
                 poiUuid ?: return@liveData
-                emitSource(poiRepository.readingPOIM(agency, poiUuid, currentValue = _poim.value, onDataSourceRemoved = {
-                    // do nothing
-                }))
+                emitSource(
+                    poiRepository.readingPOIM(agency, poiUuid, currentValue = _poim.value, onDataSourceRemoved = {
+                        // do nothing
+                    })
+                )
             }
         }
 

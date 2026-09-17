@@ -9,6 +9,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.NewsImage
 import org.mtransit.android.databinding.LayoutNewsImageItemBinding
 import org.mtransit.android.ui.view.common.ImageManager
+import org.mtransit.android.ui.view.common.loadImage
 
 class NewsImagesAdapter(
     private val imageManager: ImageManager,
@@ -53,18 +54,12 @@ class NewsImagesAdapter(
             @Suppress("unused") horizontal: Boolean,
             onClick: (View, NewsImage) -> Unit,
         ) {
-            val context = binding.root.context
             binding.apply {
-                root.apply {
-                    setOnClickListener { view ->
-                        onClick(view, newsImage)
-                    }
+                root.setOnClickListener { view ->
+                    onClick(view, newsImage)
                 }
-                thumbnail.apply {
-                    imageManager.loadInto(context, newsImage.imageUrl, this)
-                }
+                thumbnail.loadImage(imageManager, newsImage.imageUrl)
             }
         }
     }
-
 }

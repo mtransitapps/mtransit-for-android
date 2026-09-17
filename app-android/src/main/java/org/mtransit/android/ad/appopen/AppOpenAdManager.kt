@@ -1,13 +1,13 @@
 package org.mtransit.android.ad.appopen
 
+// import com.google.android.gms.ads.LoadAdError // #gmaLegacy
+// import com.google.android.gms.ads.appopen.AppOpenAd // #gmaLegacy
 import android.content.Context
 import androidx.annotation.MainThread
 import androidx.annotation.StringRes
 import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAd // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError // #gmaNextGen
-// import com.google.android.gms.ads.LoadAdError // #gmaLegacy
-// import com.google.android.gms.ads.appopen.AppOpenAd // #gmaLegacy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
@@ -125,8 +125,8 @@ class AppOpenAdManager @Inject constructor(
     fun isAdAvailable(): Boolean {
         if (!AdConstants.AD_ENABLED) return false
         return appOpenAd != null
-                && !isShowingAd
-                && globalAdManager.adsAllowed()
-                && (TimeUtilsK.currentInstant() < loadTimeK + 4.hours)
+            && !isShowingAd
+            && globalAdManager.adsAllowed()
+            && (TimeUtilsK.currentInstant() < loadTimeK + 4.hours)
     }
 }

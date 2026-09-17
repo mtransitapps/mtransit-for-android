@@ -86,10 +86,13 @@ class AppRatingsManager @Inject constructor(
     @Suppress("MemberVisibilityCanBePrivate")
     private suspend fun onAppRequestDisplayed(trackingScreen: AnalyticsScreen? = null) = withContext(Dispatchers.IO) {
         val currentAppOpenCount = userManager.getAppOpenCount()
-        analyticsManager.logEvent(AnalyticsEvents.APP_RATINGS_REQUEST_DISPLAYED, AnalyticsEventsParamsProvider().apply {
-            trackingScreen?.let { put(AnalyticsEvents.Params.SCREEN, it.screenName) }
-            put(AnalyticsEvents.Params.COUNT, currentAppOpenCount)
-        })
+        analyticsManager.logEvent(
+            AnalyticsEvents.APP_RATINGS_REQUEST_DISPLAYED,
+            AnalyticsEventsParamsProvider().apply {
+                trackingScreen?.let { put(AnalyticsEvents.Params.SCREEN, it.screenName) }
+                put(AnalyticsEvents.Params.COUNT, currentAppOpenCount)
+            }
+        )
         // if (true) return@withContext // DEBUG do not persist for now
         userManager.setRatingRequestOpenCount(currentAppOpenCount)
     }

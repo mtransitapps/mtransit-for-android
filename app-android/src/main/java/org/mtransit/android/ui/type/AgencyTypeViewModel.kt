@@ -36,7 +36,7 @@ class AgencyTypeViewModel @Inject constructor(
     private val devicePrefManager: DevicePrefManager,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
-    private val pm: PackageManager,
+    pm: PackageManager,
 ) : MTViewModelWithLocation(),
     ModuleDisabledAwareViewModel {
 

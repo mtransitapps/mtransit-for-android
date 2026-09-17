@@ -247,7 +247,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
                     ?: return@DefaultPOIListFooterManager false
                 val listItemCount = 1 + // for tabs
-                        poiList.size
+                    poiList.size
                 listItemCount < minListItemToNotHide
             },
             getTextHorizontalMargin = {

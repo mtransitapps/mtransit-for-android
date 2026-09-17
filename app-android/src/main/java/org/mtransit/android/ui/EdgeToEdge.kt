@@ -132,9 +132,8 @@ fun Activity.setStatusBarsThemeEdgeToEdge(isDark: Boolean = isDarkMode(resources
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
-        isAppearanceLightStatusBars = !isDark && false // top bar is always dark
-    }
+    WindowCompat.getInsetsController(window, findViewById(android.R.id.content))
+        .isAppearanceLightStatusBars = !isDark && false // top bar is always dark
 }
 
 @JvmOverloads
@@ -222,9 +221,8 @@ fun Activity.setNavBarThemeEdgeToEdge(isDark: Boolean = isDarkMode(resources)) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
         return // !!! CAN NOT DRAW BEHIND NAVIGATION BAR AS LONG AS ANCHORED BOTTOM BANNER ADS IN ACTIVITY !!!
     }
-    WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
-        isAppearanceLightNavigationBars = !isDark
-    }
+    WindowCompat.getInsetsController(window, findViewById(android.R.id.content))
+        .isAppearanceLightNavigationBars = !isDark
 }
 
 private const val ALWAYS_DISABLE_CONTRAST = false
@@ -244,5 +242,5 @@ fun Activity.setNavBarProtectionEdgeToEdge(contrastEnforced: Boolean = true) {
 
 private fun isDarkMode(resources: Resources): Boolean {
     return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-            Configuration.UI_MODE_NIGHT_YES
+        Configuration.UI_MODE_NIGHT_YES
 }

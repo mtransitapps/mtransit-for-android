@@ -39,7 +39,5 @@ class PurchaseFragment : MTFragmentX(R.layout.fragment_purchase) {
         binding = null
     }
 
-
     override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
-
 }

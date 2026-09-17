@@ -34,7 +34,10 @@ class DevicePrefManager @Inject constructor(
         LocalPreferenceRepository.PREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
     )
 
-    @Suppress("unused")
+    /**
+     * RedundantSuspendModifier: calling [android.content.SharedPreferences] with I/O dispatcher
+     */
+    @Suppress("unused", "RedundantSuspendModifier")
     suspend fun getRouteDirectionShowingListInsteadOfMap(routeDirection: RouteDirection) = withContext(Dispatchers.IO) {
         lclPrefRepository.pref.getBoolean(
             LocalPreferenceRepository.getPREFS_LCL_RDS_DIRECTION_SHOWING_LIST_INSTEAD_OF_MAP_KEY(routeDirection),
@@ -79,6 +82,10 @@ class DevicePrefManager @Inject constructor(
         LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
     )
 
+    /**
+     * RedundantSuspendModifier: calling [android.content.SharedPreferences] with I/O dispatcher
+     */
+    @Suppress("RedundantSuspendModifier")
     suspend fun getSelectedAgencyTypeTab(@DataSourceTypeId.DataSourceType dstId: Int) = withContext(Dispatchers.IO) {
         lclPrefRepository.pref.getString(
             LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dstId),
@@ -119,7 +126,10 @@ class DevicePrefManager @Inject constructor(
 
     // region map type
 
-    @Suppress("unused")
+    /**
+     * RedundantSuspendModifier: calling [android.content.SharedPreferences] with I/O dispatcher
+     */
+    @Suppress("unused", "RedundantSuspendModifier")
     suspend fun getMapType() = withContext(Dispatchers.IO) {
         lclPrefRepository.pref.getInt(
             MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT

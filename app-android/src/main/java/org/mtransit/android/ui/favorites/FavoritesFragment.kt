@@ -51,7 +51,8 @@ import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
+class FavoritesFragment :
+    ABFragment(R.layout.fragment_favorites),
     DeviceLocationListener,
     ModuleDisabledAwareFragment,
     MenuProvider {
@@ -295,9 +296,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
             R.id.menu_show_news -> {
                 analyticsManager.trackButtonClick("toolbar_show_news", this)
-                (activity as? MainActivity)?.apply {
-                    addFragmentToStack(NewsListDetailFragment.newInstance())
-                }
+                (activity as? MainActivity)?.addFragmentToStack(NewsListDetailFragment.newInstance())
                 true // handled
             }
 

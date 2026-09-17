@@ -36,6 +36,10 @@ import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * RedundantSuspendModifier: calling [DataSourceManager] on Worker thread with I/O dispatcher
+ */
+@Suppress("RedundantSuspendModifier")
 @Singleton
 class DataSourceRequestManager(
     private val appContext: Context,
@@ -102,7 +106,7 @@ class DataSourceRequestManager(
             ?.takeIf { it.setupRequired }
             ?: return@withContext
         dataSourcesDatabase.agencyPropertiesDao().updateAgencySetupRequired(authority = agencyAuthority, setupRequired = false)
-        MTLog.d(this@DataSourceRequestManager, "Agency '${agencyAuthority}' > new setup required: false.")
+        MTLog.d(this@DataSourceRequestManager, "Agency '$agencyAuthority' > new setup required: false.")
     }
 
     // end region

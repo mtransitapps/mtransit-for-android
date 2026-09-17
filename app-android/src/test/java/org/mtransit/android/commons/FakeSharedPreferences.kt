@@ -12,8 +12,9 @@ class FakeSharedPreferences : SharedPreferences {
     override fun getString(key: String, defValue: String?): String? =
         storage[key] as? String ?: defValue
 
+    @Suppress("UNCHECKED_CAST")
     override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? =
-        @Suppress("UNCHECKED_CAST") (storage[key] as? Set<String> ?: defValues)
+        (storage[key] as? Set<String> ?: defValues)
 
     override fun getInt(key: String, defValue: Int): Int =
         storage[key] as? Int ?: defValue

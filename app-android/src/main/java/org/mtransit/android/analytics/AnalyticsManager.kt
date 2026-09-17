@@ -98,7 +98,7 @@ class AnalyticsManager @Inject internal constructor(
                         is Long -> putLong(key, value)
                         is Double -> putDouble(key, value)
 
-                        else -> MTLog.w(this@AnalyticsManager, "Unexpected event parameter type for '${key}'>'${value}'!")
+                        else -> MTLog.w(this@AnalyticsManager, "Unexpected event parameter type for '$key'>'$value'!")
                     }
                 }
             }
@@ -111,10 +111,13 @@ class AnalyticsManager @Inject internal constructor(
         if (!ANALYTICS_ENABLED) return
         if (DEBUG) MTLog.d(this, "trackScreenView($page)")
         try {
-            firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, Bundle().apply {
-                putString(FirebaseAnalytics.Param.SCREEN_NAME, page.screenName)
-                putString(FirebaseAnalytics.Param.SCREEN_CLASS, page.screenClass)
-            })
+            firebaseAnalytics?.logEvent(
+                FirebaseAnalytics.Event.SCREEN_VIEW,
+                Bundle().apply {
+                    putString(FirebaseAnalytics.Param.SCREEN_NAME, page.screenName)
+                    putString(FirebaseAnalytics.Param.SCREEN_CLASS, page.screenClass)
+                }
+            )
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while tracking screen view! ($page)")
         }
@@ -125,16 +128,19 @@ class AnalyticsManager @Inject internal constructor(
         if (!ANALYTICS_ENABLED) return
         if (DEBUG) MTLog.d(this, "trackButtonClick($buttonName, $buttonId, $page)")
         try {
-            firebaseAnalytics?.logEvent(AnalyticsEvents.BUTTON_CLICK, Bundle().apply {
-                putString(AnalyticsEvents.Params.BUTTON_NAME, buttonName)
-                buttonId?.let {
-                    putString(AnalyticsEvents.Params.BUTTON_ID, it)
+            firebaseAnalytics?.logEvent(
+                AnalyticsEvents.BUTTON_CLICK,
+                Bundle().apply {
+                    putString(AnalyticsEvents.Params.BUTTON_NAME, buttonName)
+                    buttonId?.let {
+                        putString(AnalyticsEvents.Params.BUTTON_ID, it)
+                    }
+                    page?.let {
+                        putString(FirebaseAnalytics.Param.SCREEN_NAME, it.screenName)
+                        putString(FirebaseAnalytics.Param.SCREEN_CLASS, it.screenClass)
+                    }
                 }
-                page?.let {
-                    putString(FirebaseAnalytics.Param.SCREEN_NAME, it.screenName)
-                    putString(FirebaseAnalytics.Param.SCREEN_CLASS, it.screenClass)
-                }
-            })
+            )
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while tracking button $buttonName click! (page:$page)")
         }

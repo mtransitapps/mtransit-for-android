@@ -26,7 +26,7 @@ data class RouteManager(
 
     override fun getLogTag() = LOG_TAG + "-" + this.route.uuid.removePrefix(IAgencyProperties.PKG_COMMON)
 
-    private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Void?>()
+    private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Any?>()
 
     override fun addServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
         this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null

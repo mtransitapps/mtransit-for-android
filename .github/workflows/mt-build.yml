@@ -76,7 +76,7 @@ jobs:
 
       - name: MT detekt
         run: |
-          ./gradlew detektMain detektTest \
+          ./gradlew detektAll \
             --no-configure-on-demand --scan # works better with "gradle/actions/setup-gradle"
       - name: MT detekt > print markdown report (if failure)
         if: ${{ failure() }}

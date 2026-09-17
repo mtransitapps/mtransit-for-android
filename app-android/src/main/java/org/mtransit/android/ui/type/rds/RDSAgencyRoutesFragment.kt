@@ -118,7 +118,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                     routesCount = routesCount.plus(spanCount - 1).div(spanCount) // round up
                 }
                 val listItemCount = 1 + // for tabs
-                        routesCount
+                    routesCount
                 listItemCount < minListItemToNotHide
             },
             getTextHorizontalMargin = {
@@ -181,12 +181,10 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
-            fabFares.apply {
-                setUpFabEdgeToEdge(
-                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last,
-                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
-                )
-            }
+            fabFares.setUpFabEdgeToEdge(
+                originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last,
+                originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+            )
         }
         viewModel.colorIntDistinct.observe(viewLifecycleOwner) { colorIntDistinct ->
             colorIntDistinct?.let {

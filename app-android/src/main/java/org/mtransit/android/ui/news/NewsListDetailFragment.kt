@@ -54,7 +54,8 @@ import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
+class NewsListDetailFragment :
+    ABFragment(R.layout.fragment_news_list_details),
     MenuProvider,
     ModuleDisabledAwareFragment {
 

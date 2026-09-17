@@ -1,6 +1,5 @@
 package org.mtransit.android.ad.rewarded
 
-
 // import com.google.android.gms.ads.AdError // #gmaLegacy
 // import com.google.android.gms.ads.FullScreenContentCallback // #gmaLegacy
 import androidx.lifecycle.lifecycleScope
@@ -56,8 +55,8 @@ class RewardedAdFullScreenContentCallback(
         this.crashReporter.w(
             this,
             "Failed to show rewarded ad! ${fullScreenContentError.code}: " +
-                    "'${fullScreenContentError.message}' " +
-                    "(${fullScreenContentError.mediationAdError})." // #gmaNextGen
+                "'${fullScreenContentError.message}' " +
+                "(${fullScreenContentError.mediationAdError})." // #gmaNextGen
             // "(${fullScreenContentError.domain})." // #gmaLegacy
         )
     }

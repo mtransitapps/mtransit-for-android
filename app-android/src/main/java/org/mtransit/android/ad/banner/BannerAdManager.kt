@@ -1,13 +1,13 @@
 package org.mtransit.android.ad.banner
 
+// import com.google.android.gms.ads.AdSize // #gmaLegacy
+// import com.google.android.gms.ads.AdView // #gmaLegacy
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
-// import com.google.android.gms.ads.AdSize // #gmaLegacy
-// import com.google.android.gms.ads.AdView // #gmaLegacy
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView // #gmaNextGen
 import org.mtransit.android.R

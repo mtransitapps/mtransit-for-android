@@ -7,10 +7,10 @@ import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.commons.FeatureFlags
 
-@Suppress("MaxLineLength")
+@Suppress("ArgumentListWrapping", "MaxLineLength")
 object MTMapIconsProvider {
 
-    //@formatter:off
+    // @formatter:off
 
     @JvmStatic
     val selectedDefaultIconDef =
@@ -34,7 +34,7 @@ object MTMapIconsProvider {
 
     @JvmStatic
     val subwayVehicleIconDef =
-        MTMapIconDef( R.drawable.map_icon_stop_replace_flat_filled_subway_nodpi, size = 41.dpToPx, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)
+        MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_subway_nodpi, size = 41.dpToPx, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)
 
     @JvmStatic
     val railVehicleIconDef =
@@ -46,9 +46,9 @@ object MTMapIconsProvider {
 
     @JvmStatic
     val ferryVehicleIconDef =
-        MTMapIconDef( R.drawable.map_icon_stop_replace_flat_filled_boat_nodpi, size = 41.dpToPx, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)
+        MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_boat_nodpi, size = 41.dpToPx, flat = true, anchorU = 0.5f, anchorV = 0.5f, replaceColor = true)
 
-    //@formatter:on
+    // @formatter:on
 
     @JvmStatic
     fun getIconDefForRotation(rotation: Float?, poi: POI): MTMapIconDef {

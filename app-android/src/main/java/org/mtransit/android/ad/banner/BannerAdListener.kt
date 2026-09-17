@@ -23,7 +23,8 @@ class BannerAdListener(
     private val adRequestHashCode: Int,
     private val activityWR: WeakReference<IAdScreenActivity>,
     // private val adViewWR: WeakReference<AdView>, // #gmaLegacy
-) : AdLoadCallback<BannerAd>, BannerAdRefreshCallback, // #gmaNextGen
+) : AdLoadCallback<BannerAd>, // #gmaNextGen
+    BannerAdRefreshCallback, // #gmaNextGen
     // ) : AdListener(), // #gmaLegacy
     MTLog.Loggable {
 
@@ -82,8 +83,8 @@ class BannerAdListener(
             LoadAdError.ErrorCode.NOT_FOUND, // #gmaNextGen
             LoadAdError.ErrorCode.INVALID_AD_RESPONSE, // #gmaNextGen
             LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED, // #gmaNextGen
-                // else // #gmaLegacy
                 -> this.crashReporter.w(this, "Failed to receive ad! Error code: '${adError.code}' ($adError).")
+            // else // #gmaLegacy
         }
         this.activityWR.get()?.let { activity ->
             activity.activity?.runOnUiThread {
