@@ -188,6 +188,17 @@
     "lng": "-63.1246248"
   },
   {
+    "repo": "ca-chatham-kent-ride-ck-bus-android",
+    "pkg": "org.mtransit.android.ca_chatham_kent_ride_ck_bus",
+    "store": "production",
+    "name": "Ride CK (Chatham-Kent)",
+    "location": "Blenheim, Buxton, Cedar Springs, Charing Cross, Chatham, Dealtown, Dresden, Merlin, Ridgetown, Tilbury, Wallaceburg, ON, Canada",
+    "type_id": "3",
+    "color": "005D85",
+    "lat": "42.403828",
+    "lng": "-82.184074"
+  },
+  {
     "repo": "ca-clearwater-regional-transit-bus-android",
     "pkg": "org.mtransit.android.ca_clearwater_region_transit_bus",
     "store": "production",
@@ -659,6 +670,17 @@
     "color": "289949",
     "lat": "42.914086",
     "lng": "-81.365967"
+  },
+  {
+    "repo": "ca-midland-mid-pen-transit-bus-android",
+    "pkg": "org.mtransit.android.ca_midland_mid_pen_transit_bus",
+    "store": "production",
+    "name": "Mid-Pen Transit",
+    "location": "Midland, Penetanguishene, ON, Canada",
+    "type_id": "3",
+    "color": "196DBE",
+    "lat": "44.749194",
+    "lng": "-79.926858"
   },
   {
     "repo": "ca-milton-transit-bus-android",

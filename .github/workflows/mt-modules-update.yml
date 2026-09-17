@@ -26,7 +26,8 @@ env:
   MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
   # files
-  MT_MODULES_JSON_URL: 'https://mtransitapps.github.io/data/modules.json'
+  # MT_MODULES_JSON_URL: 'https://mtransitapps.github.io/data/modules.json'
+  MT_MODULES_JSON_URL: 'https://raw.githubusercontent.com/mtransitapps/mtransitapps.github.io/refs/heads/master/data/modules.json'
   MT_MODULES_JSON_FILE: 'app-android/src/main/res/raw/modules.json'
 jobs:
   MT-MODULES-UPDATE-JOB:
@@ -108,7 +109,7 @@ jobs:
       - name: MT update pull request (if necessary)
         if: ${{ steps.mt-commit-modules.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
         run: |
-          gh pr edit --add-assignee montransit --title "Update modules.json in \`${MT_BRANCH_NAME}\`"
+          gh pr edit --add-assignee montransit --title "Update \`modules.json\` in \`${MT_BRANCH_NAME}\`"
           gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
