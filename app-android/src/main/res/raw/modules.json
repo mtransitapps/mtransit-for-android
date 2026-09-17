@@ -672,6 +672,17 @@
     "lng": "-81.365967"
   },
   {
+    "repo": "ca-midland-mid-pen-transit-bus-android",
+    "pkg": "org.mtransit.android.ca_midland_mid_pen_transit_bus",
+    "store": "production",
+    "name": "Mid-Pen Transit",
+    "location": "Midland, Penetanguishene, ON, Canada",
+    "type_id": "3",
+    "color": "196DBE",
+    "lat": "44.749194",
+    "lng": "-79.926858"
+  },
+  {
     "repo": "ca-milton-transit-bus-android",
     "pkg": "org.mtransit.android.ca_milton_transit_bus",
     "store": "production",
