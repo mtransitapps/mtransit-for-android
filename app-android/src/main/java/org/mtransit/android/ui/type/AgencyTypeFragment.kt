@@ -222,7 +222,7 @@ class AgencyTypeFragment :
     private val defaultColor: Int by lazy { getDefaultABBgColor(requireContext()) }
 
     private var abColors: IntArray = intArrayOf()
-    private fun IntArray.getBgColor(position: Int) = getOrNull(position % this.size)
+private fun IntArray.getBgColor(position: Int) = if (isEmpty()) null else getOrNull(position % size)
 
     private var pagerAdapter: AgencyTypePagerAdapter? = null
 
