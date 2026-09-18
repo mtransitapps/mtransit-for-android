@@ -10,6 +10,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.MainThread
 import androidx.annotation.PluralsRes
 import androidx.annotation.Px
+import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
@@ -31,6 +32,11 @@ var TextView.textAndVisibility: CharSequence?
         isVisible = !value.isNullOrBlank()
         text = value
     }
+
+fun TextView.setTextAndVisibility(@StringRes resId: Int?) {
+    isVisible = resId?.takeIf { it != ResourcesCompat.ID_NULL } != null
+    text = resId?.takeIf { it != ResourcesCompat.ID_NULL }?.let { context.getText(it) }
+}
 
 @Suppress("unused")
 fun TextView.setTextQuantityText(@PluralsRes resId: Int, quantity: Int) {
@@ -131,10 +137,10 @@ inline var View.isVisibleOnce: Boolean
 @Suppress("unused")
 fun View.toStringSimple(): String {
     return javaClass.simpleName + "{" +
-            "hex:${Integer.toHexString(System.identityHashCode(this))}, " +
-            "id:${prettyId()}, " +
-            "isVisible:$isVisible, " +
-            "}"
+        "hex:${Integer.toHexString(System.identityHashCode(this))}, " +
+        "id:${prettyId()}, " +
+        "isVisible:$isVisible, " +
+        "}"
 }
 
 /**

@@ -26,5 +26,4 @@ object UIRouteUtils {
     fun getRouteShortNameFont(rsn: String) = getRouteShortNameFont(isRouteShortNameCondensed(rsn))
 
     fun getRouteShortNameFont(condensed: Boolean) = if (condensed) FONT_CONDENSED else FONT_REGULAR
-
 }

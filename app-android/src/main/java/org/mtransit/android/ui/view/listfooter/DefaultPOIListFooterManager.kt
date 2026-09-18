@@ -91,6 +91,7 @@ class DefaultPOIListFooterManager(
                             is FrameLayout -> widthInPx = maxOf(widthInPx, viewTotalWidth)
                             is ConstraintLayout,
                             is RelativeLayout -> widthInPx += viewTotalWidth
+
                             else -> {
                                 MTLog.w(LOG_TAG, "Unexpected footer root view type: ${this.javaClass.simpleName}")
                                 widthInPx += viewTotalWidth
@@ -120,11 +121,9 @@ class DefaultPOIListFooterManager(
     override val isShowLoading get() = getShowLoading()
 
     override val isShowText: Boolean
-        get() {
-            return (dataSourcesRepository.hasAgenciesEnabled()
-                    && adManager.canShowAds() == true
-                    && !getHideText())
-        }
+        get() = dataSourcesRepository.hasAgenciesEnabled()
+            && adManager.canShowAds() == true
+            && !getHideText()
 
     override val text: CharSequence?
         get() {
@@ -132,8 +131,11 @@ class DefaultPOIListFooterManager(
                 null
             } else if (canShowRewardedAd() && !showSupportInsteadOfRewardedAd) {
                 getFragment()?.context?.resources?.getQuantityText(
-                    if (adManager.isRewardedNow()) R.plurals.watch_rewarded_ad_btn_more_and_days_formatted
-                    else R.plurals.watch_rewarded_ad_btn_and_days_formatted,
+                    if (adManager.isRewardedNow()) {
+                        R.plurals.watch_rewarded_ad_btn_more_and_days_formatted
+                    } else {
+                        R.plurals.watch_rewarded_ad_btn_and_days_formatted
+                    },
                     adManager.rewardedAdAmountInDays,
                     adManager.rewardedAdAmountInDays
                 )

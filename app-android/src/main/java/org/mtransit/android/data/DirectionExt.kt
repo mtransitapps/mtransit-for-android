@@ -3,8 +3,8 @@ package org.mtransit.android.data
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import org.mtransit.android.commons.StringUtils.EMPTY
-import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.Direction
+import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.util.UIDirectionUtils
 
 fun Direction.decorateDirection(context: Context, small: Boolean, centered: Boolean = false) =

@@ -91,7 +91,7 @@ internal fun POIFragment.makePoiListFooterManager() =
         getShowLoading = { attachedViewModel?.nearbyPOIs?.value == null },
         canShowRewardedAd = {
             adManager.canShowRewardedAd()
-                    && !(agencyOrNull?.updateAvailable == true && agencyOrNull?.shouldShowUpdateLayout == true)
+                && !(agencyOrNull?.updateAvailable == true && agencyOrNull?.shouldShowUpdateLayout == true)
         },
         getHideText = {
             val nearbyPOIs = attachedViewModel?.nearbyPOIs?.value
@@ -100,12 +100,14 @@ internal fun POIFragment.makePoiListFooterManager() =
             val poiHasServiceUpdate = attachedViewModel?.poim?.value?.serviceUpdatesOrNull?.isNotEmpty() == true
             val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
                 ?: return@DefaultPOIListFooterManager false
-            val listItemCount = (2 // top map
+            val listItemCount = (
+                2 // top map
                     + 1 // this POI list item
                     + 2 // this POI detailed status
+                    + (if (poiHasServiceUpdate) 3 else 0)
+                    + (if (latestNewsArticles) 3 else 0)
                     + nearbyPOIs.size.let { if (it > 0) it + 1 else it } // nearby section header + nearby POIs
-                    + if (latestNewsArticles) 3 else 0
-                    + if (poiHasServiceUpdate) 3 else 0)
+                )
             listItemCount < minListItemToNotHide
         },
     )
@@ -154,7 +156,7 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
                         poiList.subList(poimIndex + 1, poiList.size).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
                     val previousPOIM = sortedPreviousPOIList.getOrNull(0)
                     val nextPOIM = sortedNextPOIList.getOrNull(0)
-                    val nextRelevantPOIM = nextPOIM ?: previousPOIM  // next or previous
+                    val nextRelevantPOIM = nextPOIM ?: previousPOIM // next or previous
                     poiDistanceToNextRelevantPOIM = nextRelevantPOIM?.latLng?.distanceToInMeters(poimLatLng)?.coerceAtMost(
                         previousPOIM?.latLng?.distanceToInMeters(poimLatLng) ?: Float.MAX_VALUE
                     )

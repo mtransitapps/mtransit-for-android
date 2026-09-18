@@ -37,8 +37,8 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
-import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.MediatorLiveData3
+import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.ui.view.map.MTMapIconDef
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.getIconDefForRotation
@@ -55,7 +55,7 @@ class MapViewModel @Inject constructor(
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val adManager: IAdManager,
-    private val pm: PackageManager,
+    pm: PackageManager,
 ) : MTViewModelWithLocation(),
     ModuleDisabledAwareViewModel,
     LocationSettingsAwareViewModel {
@@ -168,7 +168,7 @@ class MapViewModel @Inject constructor(
                     }
                     if (!availableTypes.contains(type)) {
                         MTLog.d(this, "makeFilterTypeId() > included '$includedTypeId' not available")
-                        return@let  // DO NOTHING
+                        return@let // DO NOTHING
                     }
                     filterTypeIds.add(type.id)
                     true
@@ -199,7 +199,7 @@ class MapViewModel @Inject constructor(
         filterTypeIds?.let { theFilterTypeIds ->
             allAgencies?.filter { agency ->
                 agency.getSupportedType().isMapScreen
-                        && (theFilterTypeIds.isEmpty() || theFilterTypeIds.contains(agency.getSupportedType().id))
+                    && (theFilterTypeIds.isEmpty() || theFilterTypeIds.contains(agency.getSupportedType().id))
             }
         }
     }
@@ -340,7 +340,7 @@ class MapViewModel @Inject constructor(
             poim.latLng?.let { poim to it }
         }.filterNot { (_, position) ->
             !loadingArea.contains(position)
-                    && loadedArea?.contains(position) == true
+                && loadedArea?.contains(position) == true
         }.forEach { (poim, position) ->
             coroutineScope.ensureActive()
             positionTrunc = MTPOIMarker.getLatLngTrunc(poim)

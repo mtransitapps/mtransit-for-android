@@ -27,9 +27,12 @@ import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.provider.sensor.SensorManagerImpl
 import javax.inject.Singleton
 
+@Suppress("AbstractClassCanBeInterface")
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppModule {
+
+    // region abstract binding methods
 
     @Singleton
     @Binds
@@ -63,6 +66,10 @@ abstract class AppModule {
     @Binds
     abstract fun bindSensorManager(sensorManager: SensorManagerImpl): MTSensorManager
 
+    // endregion
+
+    // region static binding methods
+
     companion object {
         @Singleton
         @Provides
@@ -80,4 +87,6 @@ abstract class AppModule {
             return appContext.packageManager
         }
     }
+
+    // endregion
 }

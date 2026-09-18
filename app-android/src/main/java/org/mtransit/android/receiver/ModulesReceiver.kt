@@ -19,7 +19,8 @@ import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class ModulesReceiver : BroadcastReceiver(),
+class ModulesReceiver :
+    BroadcastReceiver(),
     MTLog.Loggable {
 
     companion object {
@@ -108,8 +109,8 @@ class ModulesReceiver : BroadcastReceiver(),
             }
         }
         val canBeAProvider = isAProvider
-                || Intent.ACTION_PACKAGE_FULLY_REMOVED == action
-                || Intent.ACTION_PACKAGE_REMOVED == action
+            || Intent.ACTION_PACKAGE_FULLY_REMOVED == action
+            || Intent.ACTION_PACKAGE_REMOVED == action
         if (!canBeAProvider) {
             MTLog.d(this, "onReceive() > SKIP (can NOT be a provider: pkg:%s, action:%s)", pkg, action)
             return

@@ -95,6 +95,10 @@ class DemoModeManager @Inject constructor(
 
     private var filterAgencyPOIM: POIManager? = null
 
+    /**
+     * RedundantSuspendModifier: calling [DataSourceManager] on Worker thread with I/O dispatcher
+     */
+    @Suppress("RedundantSuspendModifier")
     private suspend fun findNearbyPOIM(
         lat: Double,
         lng: Double,
@@ -112,7 +116,9 @@ class DemoModeManager @Inject constructor(
                 .removeAllAnd {
                     if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
                         (it.poi as? RouteDirectionStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
-                    } else false
+                    } else {
+                        false
+                    }
                 }
                 .updateDistanceM(lat, lng)
                 .firstOrNull()
@@ -161,24 +167,22 @@ class DemoModeManager @Inject constructor(
             else -> null
         }
 
+    private val enabledDebug: Boolean
+        get() = !filterAgencyAuthority.isNullOrBlank()
+            || !filterScreen.isNullOrBlank()
+            || !forceLang.isNullOrBlank()
+            || !forceTimestampSec.isNullOrBlank()
+            || !forceTimeZoneId.isNullOrBlank()
+            || !forceTimeFormat.isNullOrBlank()
+
     val enabled: Boolean
-        get() = (
-                BuildConfig.DEBUG
-                        && (
-                        !filterAgencyAuthority.isNullOrBlank()
-                                || !filterScreen.isNullOrBlank()
-                                || !forceLang.isNullOrBlank()
-                                || !forceTimestampSec.isNullOrBlank()
-                                || !forceTimeZoneId.isNullOrBlank()
-                                || !forceTimeFormat.isNullOrBlank()
-                        )
-                )
-                || isFullDemo()
+        get() = (BuildConfig.DEBUG && enabledDebug)
+            || isFullDemo()
 
     fun isFullDemo(): Boolean =
         !filterAgencyAuthority.isNullOrBlank()
-                && !filterScreen.isNullOrBlank()
-                && !forceLang.isNullOrBlank()
+            && !filterScreen.isNullOrBlank()
+            && !forceLang.isNullOrBlank()
     // not mandatory: forceTimestampSec, forceTimeZone, forceTimeFormat
 
     suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesStorage: DataSourcesStorage) {
@@ -203,12 +207,10 @@ class DemoModeManager @Inject constructor(
             if (filterScreen != FILTER_SCREEN_POI) return@let null // SKIP
             var lat = agency.area.centerLat
             val lng = agency.area.centerLng
-            lat += (abs(agency.area.maxLat - agency.area.minLat) / Random.nextDouble(
-                GPS_COORDINATE_VARIATION_FACTOR_MIN,
-                GPS_COORDINATE_VARIATION_FACTOR_MAX
-            )).coerceAtMost(
-                MAX_GPS_COORDINATE_VARIATION
-            )
+            lat += (
+                abs(agency.area.maxLat - agency.area.minLat)
+                    / Random.nextDouble(GPS_COORDINATE_VARIATION_FACTOR_MIN, GPS_COORDINATE_VARIATION_FACTOR_MAX)
+                ).coerceAtMost(MAX_GPS_COORDINATE_VARIATION)
             findNearbyPOIM(lat, lng, agency)
         }
 
@@ -225,9 +227,10 @@ class DemoModeManager @Inject constructor(
             var lat = agency.area.centerLat
             val lng = agency.area.centerLng
             if (filterScreen != FILTER_SCREEN_HOME) {
-                lat -= (abs(agency.area.maxLat - agency.area.minLat)
+                lat -= (
+                    abs(agency.area.maxLat - agency.area.minLat)
                         / Random.nextDouble(GPS_COORDINATE_VARIATION_FACTOR_MIN, GPS_COORDINATE_VARIATION_FACTOR_MAX)
-                        ).coerceAtMost(MAX_GPS_COORDINATE_VARIATION)
+                    ).coerceAtMost(MAX_GPS_COORDINATE_VARIATION)
             }
             findNearbyPOIM(lat, lng, agency)?.let { poim ->
                 LatLngBounds.builder()

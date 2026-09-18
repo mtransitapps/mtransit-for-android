@@ -2,73 +2,191 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>AbstractClassCanBeInterface:AppModule.kt:AppModule$AppModule</ID>
     <ID>ArrayPrimitive:AgencyTypeFragment.kt:AgencyTypeFragment$arrayOf(defaultColor)</ID>
-    <ID>ComplexCondition:IAgencyNearbyProperties.kt:IAgencyNearbyProperties.Companion$area1MinLat &gt;= area2.minLat &amp;&amp; area1MaxLat &lt;= area2.maxLat // &amp;&amp; area2.minLng &gt;= area1MinLng &amp;&amp; area2.maxLng &lt;= area1MaxLng</ID>
-    <ID>ComplexCondition:IAgencyNearbyProperties.kt:IAgencyNearbyProperties.Companion$area2.minLat &gt;= area1MinLat &amp;&amp; area2.maxLat &lt;= area1MaxLat // &amp;&amp; area1MinLng &gt;= area2.minLng &amp;&amp; area1MaxLng &lt;= area2.maxLng</ID>
-    <ID>ComplexCondition:MTBillingManager.kt:MTBillingManager$AVOID_REFRESH_PURCHASES &amp;&amp; this.billingClient.isReady &amp;&amp; this.billingClientConnected == true &amp;&amp; this.hasSubscription.value != null</ID>
-    <ID>ComplexCondition:ScheduleViewModel.kt:ScheduleViewModel$rds == null || startsAtInMs == null || endAtInMS == null || scheduleProviders == null</ID>
-    <ID>ComplexCondition:SensorManagerImpl.kt:SensorManagerImpl$accelerometerValues == null || accelerometerValues.size != 3 || magneticFieldValues == null || magneticFieldValues.size != 3</ID>
-    <ID>ComplexCondition:SensorManagerImpl.kt:SensorManagerImpl$accelerometerValues.size == 3 &amp;&amp; accelerometerValues[0] != 0.0f &amp;&amp; accelerometerValues[1] != 0.0f &amp;&amp; accelerometerValues[2] != 0.0f</ID>
-    <ID>ComplexCondition:SensorManagerImpl.kt:SensorManagerImpl$magneticFieldValues.size == 3 &amp;&amp; magneticFieldValues[0] != 0.0f &amp;&amp; magneticFieldValues[1] != 0.0f &amp;&amp; magneticFieldValues[2] != 0.0f</ID>
+    <ID>BackingPropertyNaming:AgencyPOIsViewModel.kt:AgencyPOIsViewModel$private val _authority = savedStateHandle.getLiveDataDistinct&lt;String?&gt;(EXTRA_AGENCY_AUTHORITY)</ID>
+    <ID>BackingPropertyNaming:AgencyPOIsViewModel.kt:AgencyPOIsViewModel$private val _selectedMapCameraPositionLat = savedStateHandle.getLiveDataDistinct&lt;Double?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT)</ID>
+    <ID>BackingPropertyNaming:AgencyPOIsViewModel.kt:AgencyPOIsViewModel$private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct&lt;Double?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)</ID>
+    <ID>BackingPropertyNaming:AgencyPOIsViewModel.kt:AgencyPOIsViewModel$private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct&lt;Float?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)</ID>
+    <ID>BackingPropertyNaming:AgencyTypeViewModel.kt:AgencyTypeViewModel$private val _selectedAgencyAuthority = savedStateHandle.getLiveDataDistinct&lt;String?&gt;(EXTRA_SELECTED_AUTHORITY)</ID>
+    <ID>BackingPropertyNaming:AgencyTypeViewModel.kt:AgencyTypeViewModel$private val _selectedMapCameraPositionLat = savedStateHandle.getLiveDataDistinct&lt;Double?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT)</ID>
+    <ID>BackingPropertyNaming:AgencyTypeViewModel.kt:AgencyTypeViewModel$private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct&lt;Double?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)</ID>
+    <ID>BackingPropertyNaming:AgencyTypeViewModel.kt:AgencyTypeViewModel$private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct&lt;Float?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)</ID>
+    <ID>BackingPropertyNaming:AgencyTypeViewModel.kt:AgencyTypeViewModel$private val _typeId = savedStateHandle.getLiveDataDistinct&lt;Int&gt;(EXTRA_TYPE_ID)</ID>
+    <ID>BackingPropertyNaming:AppOpenAdManager.kt:AppOpenAdManager$private var _isShowingAd = AtomicBoolean(false)</ID>
+    <ID>BackingPropertyNaming:AppOpenAdManager.kt:AppOpenAdManager$private var _loadTime = AtomicLong(0L)</ID>
+    <ID>BackingPropertyNaming:BannerAdManager.kt:BannerAdManager$private val _adBannerLoadedLastInMs = AtomicLong(LOADED_UNKNOWN)</ID>
+    <ID>BackingPropertyNaming:BannerAdManager.kt:BannerAdManager$private val _adRequestLoading = AtomicInteger(-1)</ID>
+    <ID>BackingPropertyNaming:DataSourcesInMemoryCache.kt:DataSourcesInMemoryCache$private var _agencyBaseProperties = listOf&lt;AgencyBaseProperties&gt;() // sorted</ID>
+    <ID>BackingPropertyNaming:DataSourcesInMemoryCache.kt:DataSourcesInMemoryCache$private var _agencyProperties = listOf&lt;AgencyProperties&gt;() // sorted</ID>
+    <ID>BackingPropertyNaming:DataSourcesInMemoryCache.kt:DataSourcesInMemoryCache$private var _newsProviderProperties = listOf&lt;NewsProviderProperties&gt;() // sorted for stability</ID>
+    <ID>BackingPropertyNaming:DataSourcesInMemoryCache.kt:DataSourcesInMemoryCache$private var _scheduleProviderProperties = listOf&lt;ScheduleProviderProperties&gt;() // sorted for stability</ID>
+    <ID>BackingPropertyNaming:DataSourcesInMemoryCache.kt:DataSourcesInMemoryCache$private var _serviceUpdateProviderProperties = listOf&lt;ServiceUpdateProviderProperties&gt;() // sorted for stability</ID>
+    <ID>BackingPropertyNaming:DataSourcesInMemoryCache.kt:DataSourcesInMemoryCache$private var _statusProviderProperties = listOf&lt;StatusProviderProperties&gt;() // sorted for stability</ID>
+    <ID>BackingPropertyNaming:DataSourcesInMemoryCache.kt:DataSourcesInMemoryCache$private var _supportedDataSourceTypes = listOf&lt;DataSourceType&gt;() // sorted</ID>
+    <ID>BackingPropertyNaming:DataSourcesInMemoryCache.kt:DataSourcesInMemoryCache$private var _vehicleLocationProviderProperties = listOf&lt;VehicleLocationProviderProperties&gt;() // sorted for stability</ID>
+    <ID>BackingPropertyNaming:DefaultPOIListFooterManager.kt:DefaultPOIListFooterManager$@Volatile private var _showSupportInsteadOfRewardedAd: Boolean? = null</ID>
+    <ID>BackingPropertyNaming:DefaultPreferenceRepository.kt:DefaultPreferenceRepository$private var _prefs: SharedPreferences? = null</ID>
+    <ID>BackingPropertyNaming:FaresViewModel.kt:FaresViewModel$private val _filteredAgencies = dataSourcesRepository.readingAllAgencies().map { agencies -&gt; agencies .ifEmpty { null } // difference between loading &amp; loaded ?.filter { agency -&gt; agency.getSupportedType() !in UNSUPPORTED_TYPE } ?.filter { it.hasFaresWebForLang } ?.sortedBy { it.shortNameLC } }</ID>
+    <ID>BackingPropertyNaming:FavoriteRepository.kt:FavoriteRepository$private var _authority: String? = null</ID>
+    <ID>BackingPropertyNaming:FavoritesViewModel.kt:FavoritesViewModel$private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged</ID>
+    <ID>BackingPropertyNaming:FavoritesViewModel.kt:FavoritesViewModel$private val _homeScreenTypes = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { // #onModulesUpdated it.filter { dst -&gt; dst.isHomeScreen &amp;&amp; dst != DataSourceType.TYPE_MODULE } }.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:FeedbackViewModel.kt:FeedbackViewModel$private val _filteredAgencies = dataSourcesRepository.readingAllAgencies().map { agencies -&gt; agencies .ifEmpty { null } // difference between loading &amp; loaded ?.filter { agency -&gt; agency.getSupportedType() !in UNSUPPORTED_TYPE } ?.filter { it.hasContactUs() } ?.sortedBy { it.shortNameLC } }</ID>
+    <ID>BackingPropertyNaming:GlobalAdManager.kt:GlobalAdManager$@Volatile private var _newUser: Boolean? = null</ID>
+    <ID>BackingPropertyNaming:GooglePlacesApiProvider.kt:GooglePlacesApiProvider$private var _placesClient: PlacesClient? = null</ID>
+    <ID>BackingPropertyNaming:HomeViewModel.kt:HomeViewModel$private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated</ID>
+    <ID>BackingPropertyNaming:HomeViewModel.kt:HomeViewModel$private val _distanceUnitsPref = userPrefManager.distanceUnits.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:HomeViewModel.kt:HomeViewModel$private val _ipLocation = networkLocationRepository.ipLocation</ID>
+    <ID>BackingPropertyNaming:HomeViewModel.kt:HomeViewModel$private val _locationAddress: LiveData&lt;Address&gt; = _nearbyLocation.switchMap { nearbyLocation -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { nearbyLocation ?: return@liveData LocationUtils.getLocationAddress(appContext, nearbyLocation) ?.let { emit(it) } } }</ID>
+    <ID>BackingPropertyNaming:HomeViewModel.kt:HomeViewModel$private val _nearbyLocation: LiveData&lt;Location?&gt; = MediatorLiveData3(deviceLocation, _nearbyLocationForceReset, _ipLocation) .switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) -&gt; liveData { val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false if (forceReset) { emit(null) // force reset } emit(getNearbyLocation(lastDeviceLocation ?: ipLocation, forceReset)) } }.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:HomeViewModel.kt:HomeViewModel$private val _nearbyLocationForceReset = MutableLiveData&lt;Event&lt;Boolean&gt;&gt;()</ID>
+    <ID>BackingPropertyNaming:HomeViewModel.kt:HomeViewModel$private val _typeToHomeAgencies: LiveData&lt;SortedMap&lt;DataSourceType, List&lt;AgencyBaseProperties&gt;&gt;?&gt; = MediatorLiveData2(_allAgencies, _nearbyLocation) .map { (allAgencies, nearbyLocation) -&gt; if (nearbyLocation == null || allAgencies.isNullOrEmpty()) { null } else { val unsortedTypeToHomeAgencies = allAgencies .filter { agency -&gt; agency.getSupportedType().isHomeScreen } .groupBy { agency -&gt; agency.getSupportedType() } unsortedTypeToHomeAgencies.toSortedMap( HomeTypeAgencyComparator(appContext, unsortedTypeToHomeAgencies, nearbyLocation) ) } }.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:MTBillingManager.kt:MTBillingManager$private val _billingClientResponseCode = AtomicInteger(BILLING_CLIENT_RESPONSE_CODE_UNKNOWN)</ID>
+    <ID>BackingPropertyNaming:MTBillingManager.kt:MTBillingManager$private val _productIdsWithDetails = MutableLiveData&lt;Map&lt;String, ProductDetails&gt;&gt;()</ID>
+    <ID>BackingPropertyNaming:MapViewModel.kt:MapViewModel$private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated</ID>
+    <ID>BackingPropertyNaming:MapViewModel.kt:MapViewModel$private val _loadedArea = MutableLiveData&lt;LatLngBounds?&gt;(null)</ID>
+    <ID>BackingPropertyNaming:MapViewModel.kt:MapViewModel$private val _loadingArea = MutableLiveData&lt;LatLngBounds?&gt;(null)</ID>
+    <ID>BackingPropertyNaming:MapViewModel.kt:MapViewModel$private val _poiMarkersReset = MutableLiveData&lt;Event&lt;Boolean&gt;&gt;()</ID>
+    <ID>BackingPropertyNaming:ModulesViewModel.kt:ModulesViewModel$private val _filteredAgencies = dataSourcesRepository.readingAllAgencies().map { agencies -&gt; agencies.filter { agency -&gt; agency.getSupportedType() !in UNSUPPORTED_TYPE } }</ID>
+    <ID>BackingPropertyNaming:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged</ID>
+    <ID>BackingPropertyNaming:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private val _distanceCoveredInMeters = MutableLiveData(0f)</ID>
+    <ID>BackingPropertyNaming:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private val _params = MutableLiveData(NearbyParams())</ID>
+    <ID>BackingPropertyNaming:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private val _sizeCovered = MutableLiveData(0)</ID>
+    <ID>BackingPropertyNaming:NearbyViewModel.kt:NearbyViewModel$private val _distanceUnitsPref = this.userPrefManager.distanceUnits.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:NearbyViewModel.kt:NearbyViewModel$private val _fixedOnLat = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LAT, EXTRA_FIXED_ON_LAT_DEFAULT) .map { if (it == 999f) null else it.toDouble() }</ID>
+    <ID>BackingPropertyNaming:NearbyViewModel.kt:NearbyViewModel$private val _fixedOnLng = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LNG, EXTRA_FIXED_ON_LNG_DEFAULT) .map { if (it == 999f) null else it.toDouble() }</ID>
+    <ID>BackingPropertyNaming:NearbyViewModel.kt:NearbyViewModel$private val _ipLocation = networkLocationRepository.ipLocation</ID>
+    <ID>BackingPropertyNaming:NearbyViewModel.kt:NearbyViewModel$private val _locationAddress: LiveData&lt;Address&gt; = nearbyLocation.switchMap { nearbyLocation -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { nearbyLocation ?: return@liveData LocationUtils.getLocationAddress(appContext, nearbyLocation) ?.let { emit(it) } } }</ID>
+    <ID>BackingPropertyNaming:NearbyViewModel.kt:NearbyViewModel$private val _selectedTypeIdPref: LiveData&lt;Int?&gt; = lclPrefRepository.pref.liveData( LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE, LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT, // default = no selection )</ID>
+    <ID>BackingPropertyNaming:NetworkLocationRepository.kt:NetworkLocationRepository$private val _hasAgenciesAdded = dataSourcesRepository.readingHasAgenciesAdded()</ID>
+    <ID>BackingPropertyNaming:NetworkLocationRepository.kt:NetworkLocationRepository$private var _ipLocationLat = lclPrefRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, DEFAULT_LOCATION_VALUE)</ID>
+    <ID>BackingPropertyNaming:NetworkLocationRepository.kt:NetworkLocationRepository$private var _ipLocationLng = lclPrefRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, DEFAULT_LOCATION_VALUE)</ID>
+    <ID>BackingPropertyNaming:NewsListViewModel.kt:NewsListViewModel$private val _allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated</ID>
+    <ID>BackingPropertyNaming:NewsListViewModel.kt:NewsListViewModel$private val _filterArticlesUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_ARTICLE_UUIDS, EXTRA_FILTER_ARTICLE_UUIDS_DEFAULT)</ID>
+    <ID>BackingPropertyNaming:NewsListViewModel.kt:NewsListViewModel$private val _filterTargetsUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_TARGETS_UUIDS, EXTRA_FILTER_TARGETS_UUIDS_DEFAULT)</ID>
+    <ID>BackingPropertyNaming:NewsListViewModel.kt:NewsListViewModel$private val _filters = MediatorLiveData3(_targetAuthorities, _filterTargetsUUIDs, _filterArticlesUUIDs) .map { (targetAuthorities, filterTargetsUUIDs, filterArticlesUUIDs) -&gt; Filters(targetAuthorities?.toList(), filterTargetsUUIDs?.toList(), filterArticlesUUIDs?.toList()) }.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:NewsListViewModel.kt:NewsListViewModel$private val _refreshRequestedTrigger = MutableLiveData&lt;Int&gt;() // no initial value to avoid triggering onChanged()</ID>
+    <ID>BackingPropertyNaming:NewsListViewModel.kt:NewsListViewModel$private val _selectedNewsArticleAgencyAuthority = savedStateHandle.getLiveDataDistinct&lt;String?&gt;(EXTRA_SELECTED_ARTICLE_AUTHORITY)</ID>
+    <ID>BackingPropertyNaming:NewsListViewModel.kt:NewsListViewModel$private val _selectedNewsArticleUUID = savedStateHandle.getLiveDataDistinct&lt;String?&gt;(EXTRA_SELECTED_ARTICLE_UUID)</ID>
+    <ID>BackingPropertyNaming:NewsListViewModel.kt:NewsListViewModel$private val _targetAuthorities = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_TARGET_AUTHORITIES, EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT)</ID>
+    <ID>BackingPropertyNaming:NextMainViewModel.kt:NextMainViewModel$private val _abBgColor = MutableLiveData&lt;Int?&gt;(DEFAULT_AB_BG_COLOR)</ID>
+    <ID>BackingPropertyNaming:NextMainViewModel.kt:NextMainViewModel$private val _abSubtitle = MutableLiveData&lt;CharSequence?&gt;(DEFAULT_AB_SUBTITLE)</ID>
+    <ID>BackingPropertyNaming:NextMainViewModel.kt:NextMainViewModel$private val _abTitle = MutableLiveData&lt;CharSequence?&gt;(DEFAULT_AB_TITLE)</ID>
+    <ID>BackingPropertyNaming:NextMainViewModel.kt:NextMainViewModel$private val _selectedItemIdPref: LiveData&lt;String&gt; = lclPrefRepository.pref.liveData( LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT ).distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _authority = savedStateHandle.getLiveDataDistinct&lt;String&gt;(EXTRA_AUTHORITY)</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _favorite: LiveData&lt;Favorite?&gt; = MediatorLiveData2(this.uuid, favoriteRepository.readingAllFavoritesChange) .switchMap { (uuid, trigger) -&gt; liveData { uuid ?: return@liveData val favorite = favoriteRepository.getFavorite(uuid) emit(favorite) favorite?.let { emitSource(favoriteRepository.getReadingFavoriteById(favorite.id)) } } }</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _newsProviders = _authority.switchMap { dataSourcesRepository.readingNewsProviders(it) // #onModulesUpdated }</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _poi = this.poim.map { it?.poi }.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _poiArea = _poi.map { poi -&gt; poi?.let { Area.getArea(it.lat, it.lng, 0.01) } }</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _rds = _poi.map { it as? RouteDirectionStop }</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _scheduleProviders: LiveData&lt;List&lt;ScheduleProviderProperties&gt;&gt; = _authority.switchMap { authority -&gt; this.dataSourcesRepository.readingScheduleProviders(authority) }</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _vehicleLocationDataRefreshMinMs = remoteConfigProvider.get( RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS, RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT, ).milliseconds</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _vehicleLocationProviders: LiveData&lt;List&lt;VehicleLocationProviderProperties&gt;&gt; = _authority.switchMap { if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@switchMap null dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated }</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private val _vehicleLocationRequestedTrigger = MutableLiveData&lt;Int?&gt;(null) // no initial value to avoid triggering onChanged()</ID>
+    <ID>BackingPropertyNaming:POIViewModel.kt:POIViewModel$private var _vehicleRefreshJob: Job? = null</ID>
+    <ID>BackingPropertyNaming:PickPOIViewModel.kt:PickPOIViewModel$private val _allAgencies = dataSourcesRepository.readingAllAgenciesBase()</ID>
+    <ID>BackingPropertyNaming:PickPOIViewModel.kt:PickPOIViewModel$private val _poiAuthorities = savedStateHandle.getLiveDataDistinct&lt;ArrayList&lt;String&gt;?&gt;(EXTRA_POI_AUTHORITIES)</ID>
+    <ID>BackingPropertyNaming:PickPOIViewModel.kt:PickPOIViewModel$private val _poiUuids = savedStateHandle.getLiveDataDistinct&lt;ArrayList&lt;String&gt;?&gt;(EXTRA_POI_UUIDS)</ID>
+    <ID>BackingPropertyNaming:PlaceProvider.kt:PlaceProvider$@Suppress("unused") private val _authorityUri: Uri by lazy { UriUtils.newContentUri(_authority) }</ID>
+    <ID>BackingPropertyNaming:PlaceProvider.kt:PlaceProvider$private val _authority: String by lazy { requiredContext.getString(R.string.place_authority) }</ID>
+    <ID>BackingPropertyNaming:PlaceProvider.kt:PlaceProvider$private val _uriMatcher: UriMatcher by lazy { getNewUriMatcher(_authority) }</ID>
+    <ID>BackingPropertyNaming:PlaceProvider.kt:PlaceProvider$private var _currentDbVersion: Int = -1</ID>
+    <ID>BackingPropertyNaming:PlaceProvider.kt:PlaceProvider$private var _dbHelper: PlaceDbHelper? = null</ID>
+    <ID>BackingPropertyNaming:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter$private var _agency: IAgencyUIProperties? = null</ID>
+    <ID>BackingPropertyNaming:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter$private var _showingListInsteadOfGrid: Boolean? = null</ID>
+    <ID>BackingPropertyNaming:RDSAgencyRoutesViewModel.kt:RDSAgencyRoutesViewModel$private val _authority = savedStateHandle.getLiveDataDistinct&lt;String?&gt;(EXTRA_AGENCY_AUTHORITY)</ID>
+    <ID>BackingPropertyNaming:RDSAgencyRoutesViewModel.kt:RDSAgencyRoutesViewModel$private val _routeColorInts: LiveData&lt;List&lt;Int&gt;&gt; = _routes.map { routes -&gt; routes.filter { it.hasColor() }.map { it.colorInt } }</ID>
+    <ID>BackingPropertyNaming:RDSAgencyRoutesViewModel.kt:RDSAgencyRoutesViewModel$private val _routes: LiveData&lt;List&lt;Route&gt;&gt; = this._authority.switchMap { authority -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { authority ?: return@liveData val newRoutes = dataSourceRequestManager.findAllRDSAgencyRoutes(authority) .sortedWith(Route.SHORT_NAME_COMPARATOR) if (newRoutes != _routes.value) { // do not emit(newRoutes) } } }.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment$private var _vehicleLocationCountdownRefreshJob: Job? = null</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _agency: LiveData&lt;AgencyBaseProperties?&gt; = this._authority.switchMap { authority -&gt; this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated }</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _authority = savedStateHandle.getLiveDataDistinct&lt;String?&gt;(EXTRA_AGENCY_AUTHORITY)</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _direction: LiveData&lt;Direction?&gt; = MediatorLiveData2(_authority, directionId).switchMap { (authority, directionId) -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { authority ?: return@liveData directionId ?: return@liveData emit(dataSourceRequestManager.findRDSDirection(authority, directionId)) } }</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _route: LiveData&lt;Route?&gt; = MediatorLiveData2(_authority, _routeId).switchMap { (authority, routeId) -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { authority ?: return@liveData routeId ?: return@liveData emit(dataSourceRequestManager.findRDSRoute(authority, routeId)) } }</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _routeDirection: LiveData&lt;RouteDirection?&gt; = MediatorLiveData2(_route, _direction).switchMap { (route, direction) -&gt; liveData(viewModelScope.coroutineContext) { route ?: return@liveData direction ?: return@liveData emit(RouteDirection(route, direction)) } }</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _routeId = savedStateHandle.getLiveDataDistinct&lt;Long?&gt;(EXTRA_ROUTE_ID)</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _selectedMapCameraPositionLat = savedStateHandle.getLiveDataDistinct&lt;Double?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT)</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct&lt;Double?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct&lt;Float?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _vehicleLocationDataRefreshMinMs = remoteConfigProvider.get( RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS, RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT, ).milliseconds</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _vehicleLocationProviders: LiveData&lt;List&lt;VehicleLocationProviderProperties&gt;&gt; = _authority.switchMap { if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@switchMap null dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated }</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val _vehicleLocationRequestedTrigger = MutableLiveData&lt;Int?&gt;(null) // no initial value to avoid triggering onChanged()</ID>
+    <ID>BackingPropertyNaming:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private var _vehicleRefreshJob: Job? = null</ID>
+    <ID>BackingPropertyNaming:RDSRouteViewModel.kt:RDSRouteViewModel$private val _authority = savedStateHandle.getLiveDataDistinct&lt;String&gt;(EXTRA_AUTHORITY)</ID>
+    <ID>BackingPropertyNaming:RDSRouteViewModel.kt:RDSRouteViewModel$private val _route: LiveData&lt;Route?&gt; = MediatorLiveData2(agency, _routeId).switchMap { (agency, routeId) -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { emit(getRoute(agency, routeId)) } }</ID>
+    <ID>BackingPropertyNaming:RDSRouteViewModel.kt:RDSRouteViewModel$private val _routeId = savedStateHandle.getLiveDataDistinct&lt;Long&gt;(EXTRA_ROUTE_ID)</ID>
+    <ID>BackingPropertyNaming:RDSRouteViewModel.kt:RDSRouteViewModel$private val _selectedDirectionId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_DIRECTION_ID, EXTRA_SELECTED_DIRECTION_ID_DEFAULT) .map { if (it &lt; 0L) null else it }</ID>
+    <ID>BackingPropertyNaming:RDSRouteViewModel.kt:RDSRouteViewModel$private val _selectedDirectionIdPref: LiveData&lt;Long?&gt; = MediatorLiveData2(_authority, _routeId).switchMap { (authority, routeId) -&gt; authority ?: return@switchMap MutableLiveData(null) routeId ?: return@switchMap MutableLiveData(null) lclPrefRepository.pref.liveData( LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(authority, routeId), LocalPreferenceRepository.PREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB_DEFAULT ) }</ID>
+    <ID>BackingPropertyNaming:RDSRouteViewModel.kt:RDSRouteViewModel$private val _selectedMapCameraPositionLat = savedStateHandle.getLiveDataDistinct&lt;Double?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT)</ID>
+    <ID>BackingPropertyNaming:RDSRouteViewModel.kt:RDSRouteViewModel$private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct&lt;Double?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)</ID>
+    <ID>BackingPropertyNaming:RDSRouteViewModel.kt:RDSRouteViewModel$private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct&lt;Float?&gt;(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)</ID>
+    <ID>BackingPropertyNaming:RewardedAdManager.kt:RewardedAdManager$private var _rewardedAdLoadedActivityHashCode = AtomicInteger(0)</ID>
+    <ID>BackingPropertyNaming:RewardedAdManager.kt:RewardedAdManager$private var _rewardedAdLoadingActivityHashCode = AtomicInteger(0)</ID>
+    <ID>BackingPropertyNaming:RewardedUserManager.kt:RewardedUserManager$@get:WorkerThread private val _hasLowLoadShowRatio: Boolean get() { //noinspection DiscouragedApi val showCounts = userManager.getRewardedShowCountsNow() //noinspection DiscouragedApi val loadCounts = userManager.getRewardedLoadCountsNow() val newHasLowLoadShowRatio = when { loadCounts &lt;= 0 -&gt; false // never loaded showCounts &lt;= 0 -&gt; loadCounts &gt;= MAX_LOAD_FOR_NO_SHOW // never showed else -&gt; (showCounts.toFloat() / loadCounts) &lt; MIN_SHOW_TO_LOAD_RATIO } return newHasLowLoadShowRatio }</ID>
+    <ID>BackingPropertyNaming:RewardedUserManager.kt:RewardedUserManager$private var _rewardedUntilInMs = AtomicLong(REWARDED_UNTIL_NO_VALUE)</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _endsAtDaysAfter = savedStateHandle.getLiveDataDistinct&lt;Int?&gt;(EXTRA_END_AT_DAYS_AFTER)</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _endsAtInMs: LiveData&lt;Long?&gt; = MediatorLiveData2(_endsAtDaysAfter, localTimeZone).map { (endsAtDaysBefore, localTimeZone) -&gt; endsAtDaysBefore ?: return@map null val timeZone = localTimeZone ?: TimeZone.getDefault() UITimeUtils.currentTimeMillis().toCalendar(timeZone).beginningOfDay.timeInMillis + TimeUnit.DAYS.toMillis(endsAtDaysBefore.toLong()) }.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _nonScheduleStatusProviders = MediatorLiveData2(_statusProviders, _scheduleProviders) .map { (statusProviders, scheduleProviders) -&gt; scheduleProviders ?: return@map null statusProviders?.filter { statusProvider -&gt; scheduleProviders.none { it.authority == statusProvider.authority } } }</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _refreshRTTimestampsTrigger = MutableLiveData&lt;Int&gt;()</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _rtReadFromSource = MutableLiveData&lt;Instant?&gt;(null)</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _rtSourceLabel = MutableLiveData&lt;String?&gt;(null)</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _rtTimestamps: LiveData&lt;List&lt;Schedule.Timestamp&gt;?&gt; = MediatorLiveData3(poim, _nonScheduleStatusProviders, _refreshRTTimestampsTrigger) .switchMap { (poim, rtStatusProviders) -&gt; liveData(viewModelScope.coroutineContext) { rtStatusProviders ?: return@liveData val statusFilter = poim?.makeStatusFilter() ?: return@liveData rtStatusProviders.forEach { statusProvider -&gt; val schedule = dataSourceRequestManager.findStatus(statusProvider, statusFilter) as? Schedule _rtReadFromSource.postValue(schedule?.readFromSource?.takeIf { schedule.hasRealTimeOrCancelled }) _rtSourceLabel.postValue(schedule?.sourceLabel?.takeIf { schedule.hasRealTimeOrCancelled }) emit(schedule?.timestamps) // always emit to erase old real-time value } } }</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _scheduleLocalTimeZoneId = savedStateHandle.getLiveDataDistinct&lt;String?&gt;(SCHEDULE_LOCAL_TIME_ZONE_ID)</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _scheduleProviders: LiveData&lt;List&lt;ScheduleProviderProperties&gt;&gt; = this.authority .switchMap { authority -&gt; this.dataSourcesRepository.readingScheduleProviders(authority) }</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _scheduleSourceLabel = MutableLiveData&lt;String?&gt;(null)</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _scheduleTimestamps: LiveData&lt;List&lt;Schedule.Timestamp&gt;?&gt; = MediatorLiveData4(rds, _startsAtInMs, _endsAtInMs, _scheduleProviders) .switchMap { (rds, startsAtInMs, endsAtInMs, scheduleProviders) -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { emit(getTimestamps(rds, startsAtInMs, endsAtInMs, scheduleProviders)) } }</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _startsAtDaysBefore = savedStateHandle.getLiveDataDistinct&lt;Int?&gt;(EXTRA_START_AT_DAYS_BEFORE)</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _startsAtInMs: LiveData&lt;Long?&gt; = MediatorLiveData2(_startsAtDaysBefore, localTimeZone).map { (startsAtDaysBefore, localTimeZone) -&gt; startsAtDaysBefore ?: return@map null val timeZone = localTimeZone ?: TimeZone.getDefault() UITimeUtils.currentTimeMillis().toCalendar(timeZone).beginningOfDay.timeInMillis - TimeUnit.DAYS.toMillis(startsAtDaysBefore.toLong()) }.distinctUntilChanged()</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _statusProviders = this.authority .switchMap { authority -&gt; this.dataSourcesRepository.readingStatusProviders(authority) }</ID>
+    <ID>BackingPropertyNaming:ScheduleViewModel.kt:ScheduleViewModel$private val _stop = this.rds.map { it?.stop }</ID>
+    <ID>BackingPropertyNaming:SearchViewModel.kt:SearchViewModel$private val _searchableAgencies: LiveData&lt;List&lt;IAgencyProperties&gt;&gt; = this.dataSourcesRepository.readingAllAgenciesBase().map { list -&gt; list.filter { agency -&gt; agency.getSupportedType().isSearchable } }</ID>
+    <ID>BackingPropertyNaming:SearchViewModel.kt:SearchViewModel$private val _typeFilterId = savedStateHandle.getLiveDataDistinct(EXTRA_TYPE_FILTER, EXTRA_TYPE_FILTER_DEFAULT)</ID>
+    <ID>BackingPropertyNaming:ServiceUpdatesViewModel.kt:ServiceUpdatesViewModel$private val _authority = savedStateHandle.getLiveDataDistinct&lt;String&gt;(EXTRA_AUTHORITY)</ID>
+    <ID>BackingPropertyNaming:ServiceUpdatesViewModel.kt:ServiceUpdatesViewModel$private val _direction: LiveData&lt;Direction?&gt; = MediatorLiveData2(_authority, _directionId).switchMap { (authority, directionId) -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { authority ?: return@liveData directionId ?: return@liveData emit(dataSourceRequestManager.findRDSDirection(authority, directionId)) } }</ID>
+    <ID>BackingPropertyNaming:ServiceUpdatesViewModel.kt:ServiceUpdatesViewModel$private val _directionId = savedStateHandle.getLiveDataDistinct&lt;Long?&gt;(EXTRA_DIRECTION_ID)</ID>
+    <ID>BackingPropertyNaming:ServiceUpdatesViewModel.kt:ServiceUpdatesViewModel$private val _poiUuid = savedStateHandle.getLiveDataDistinct&lt;String?&gt;(EXTRA_POI_UUID)</ID>
+    <ID>BackingPropertyNaming:ServiceUpdatesViewModel.kt:ServiceUpdatesViewModel$private val _poim: LiveData&lt;POIManager?&gt; = MediatorLiveData2(agency, _poiUuid) .switchMap { (agency, poiUuid) -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { agency ?: return@liveData poiUuid ?: return@liveData emitSource( poiRepository.readingPOIM(agency, poiUuid, currentValue = _poim.value, onDataSourceRemoved = { // do nothing }) ) } }</ID>
+    <ID>BackingPropertyNaming:ServiceUpdatesViewModel.kt:ServiceUpdatesViewModel$private val _route: LiveData&lt;Route?&gt; = MediatorLiveData2(_authority, _routeId).switchMap { (authority, routeId) -&gt; liveData(viewModelScope.coroutineContext + Dispatchers.IO) { authority ?: return@liveData routeId ?: return@liveData emit(dataSourceRequestManager.findRDSRoute(authority, routeId)) } }</ID>
+    <ID>BackingPropertyNaming:ServiceUpdatesViewModel.kt:ServiceUpdatesViewModel$private val _routeId = savedStateHandle.getLiveDataDistinct&lt;Long&gt;(EXTRA_ROUTE_ID)</ID>
+    <ID>BackingPropertyNaming:SplashScreenActivity.kt:SplashScreenActivity$private var _toast: Toast? = null</ID>
+    <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private val _appOpenAdShowing = MutableLiveData&lt;Boolean&gt;(null)</ID>
+    <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private val _readyForNextScreen = MutableLiveData(false)</ID>
+    <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private var _appOpenAdShowComplete = AtomicBoolean(false)</ID>
     <ID>CyclomaticComplexMethod:AgencyPOIsFragment.kt:AgencyPOIsFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:AgencyTypeFragment.kt:AgencyTypeFragment$override fun onViewCreated</ID>
-    <ID>CyclomaticComplexMethod:AppRatingsManager.kt:AppRatingsManager$@Suppress("RedundantIf") @VisibleForTesting fun shouldShowAppRatingRequest: Boolean</ID>
     <ID>CyclomaticComplexMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
-    <ID>CyclomaticComplexMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshAgencyProperties</ID>
     <ID>CyclomaticComplexMethod:EmptyLayoutUtils.kt:EmptyLayoutUtils$fun LayoutEmptyBinding.updateEmptyLayout</ID>
     <ID>CyclomaticComplexMethod:FavoritesUI.kt:FavoritesUI$@MainThread private fun FavoriteRepository.showPickFavoriteFolderDialog</ID>
-    <ID>CyclomaticComplexMethod:FavoritesViewModel.kt:FavoritesViewModel$@WorkerThread private suspend fun getFavorites: List&lt;POIManager&gt;</ID>
     <ID>CyclomaticComplexMethod:HomeViewModel.kt:HomeViewModel$private fun filterTypePOIs</ID>
     <ID>CyclomaticComplexMethod:KeysManager.kt:KeysManager.Companion$private fun getKeysMap: Map&lt;String, String&gt;?</ID>
     <ID>CyclomaticComplexMethod:MTPOIMarker.kt:MTPOIMarker$fun merge</ID>
     <ID>CyclomaticComplexMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onCreate</ID>
     <ID>CyclomaticComplexMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:MapViewModel.kt:MapViewModel$private fun loadPOIMarkers</ID>
-    <ID>CyclomaticComplexMethod:MapViewModel.kt:MapViewModel$private fun makeFilterTypeId: Collection&lt;Int&gt;?</ID>
     <ID>CyclomaticComplexMethod:ModulesAdapter.kt:ModulesAdapter.ModuleViewHolder$@SuppressLint("SetTextI18n") fun bind</ID>
     <ID>CyclomaticComplexMethod:NavigationDrawerControllerExt.kt:internal fun NavigationDrawerController.trackNavigationItemSelected</ID>
-    <ID>CyclomaticComplexMethod:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$fun isLoadingMore: Boolean</ID>
     <ID>CyclomaticComplexMethod:NearbyAgencyTypeViewModel.kt:NearbyAgencyTypeViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
-    <ID>CyclomaticComplexMethod:NearbyFragment.kt:NearbyFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
-    <ID>CyclomaticComplexMethod:NewsDetailsFragment.kt:NewsDetailsFragment$private fun FragmentNewsDetailsBinding.updateNewsArticleText</ID>
     <ID>CyclomaticComplexMethod:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
     <ID>CyclomaticComplexMethod:NewsListDetailFragment.kt:NewsListDetailFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:NextMainViewModel.kt:NextMainViewModel$private fun idPrefToIdRes</ID>
     <ID>CyclomaticComplexMethod:NextMainViewModel.kt:NextMainViewModel$private fun idResToIdPref</ID>
     <ID>CyclomaticComplexMethod:POIViewModel.kt:POIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
-    <ID>CyclomaticComplexMethod:PlaceProvider.kt:PlaceProvider$private fun getTextSearchResults: Cursor?</ID>
     <ID>CyclomaticComplexMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onAvailableProductIdsLoaded</ID>
     <ID>CyclomaticComplexMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onBuyBtnClick</ID>
     <ID>CyclomaticComplexMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onPriceOrPeriodSelectionChanged</ID>
     <ID>CyclomaticComplexMethod:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter.RouteViewHolder$fun bind</ID>
     <ID>CyclomaticComplexMethod:RDSAgencyRoutesFragment.kt:RDSAgencyRoutesFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment$override fun onViewCreated</ID>
-    <ID>CyclomaticComplexMethod:RDSRouteFragment.kt:RDSRouteFragment$override fun onViewCreated</ID>
-    <ID>CyclomaticComplexMethod:ScheduleAdapter.kt:ScheduleAdapter$private fun getPosition: Int</ID>
     <ID>CyclomaticComplexMethod:ScheduleAdapter.kt:ScheduleAdapter.TimeViewHolder$fun bind</ID>
     <ID>CyclomaticComplexMethod:ScheduleFragment.kt:ScheduleFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:SearchFragment.kt:SearchFragment$override fun onViewCreated</ID>
-    <ID>CyclomaticComplexMethod:SearchViewModel.kt:SearchViewModel.POISearchComparator$override fun compare: Int</ID>
-    <ID>CyclomaticComplexMethod:SensorManagerImpl.kt:SensorManagerImpl$override fun checkForCompass</ID>
     <ID>CyclomaticComplexMethod:SplashScreenViewModel.kt:SplashScreenViewModel$@VisibleForTesting internal suspend fun getAndUpdateAppOpenCounts: Int</ID>
-    <ID>CyclomaticComplexMethod:StrictModeImpl.kt:StrictModeImpl$override fun setup</ID>
     <ID>DoubleMutabilityForCollection:AgencyTypePagerAdapter.kt:AgencyTypePagerAdapter$private var agencies: MutableList&lt;IAgencyUIProperties&gt;? = null</ID>
     <ID>DoubleMutabilityForCollection:HomeViewModel.kt:HomeViewModel$var typePOIs: MutableList&lt;POIManager&gt;</ID>
     <ID>DoubleMutabilityForCollection:NearbyPagerAdapter.kt:NearbyPagerAdapter$private var types: MutableList&lt;DataSourceType&gt;? = null</ID>
     <ID>DoubleMutabilityForCollection:RDSRouteDirectionPagerAdapter.kt:RDSRouteDirectionPagerAdapter$private var routeDirections: MutableList&lt;Direction&gt;? = null</ID>
     <ID>DoubleMutabilityForCollection:UIAccessibilityUtils.kt:UIAccessibilityUtils$private var a11yImages = mutableMapOf&lt;ImageFilter, ImageSpan?&gt;()</ID>
     <ID>ForbiddenComment:MTTransitions.kt:MTTransitions$* Android Dev: * https://developer.android.com/guide/fragments/animate#shared * https://developer.android.com/guide/navigation/navigation-animate-transitions#set-fragment * https://android-developers.googleblog.com/2018/02/continuous-shared-element-transitions.html * https://medium.com/androiddevelopers/fragment-transitions-ea2726c3f36f * Material: * https://material.io/develop/android/theming/motion#container-transform * https://material.io/develop/android/theming/motion#customization * Blog: * https://chris.banes.dev/fragmented-transitions/ * https://wykorijnsburger.nl/dev/2019/04/30/shared-element-transition/ * * TODO: * - look at visibility changing during transition (enter + exit) * - POI scree * - Home screen</ID>
-    <ID>ForbiddenVoid:HomeViewModel.kt:HomeViewModel$Void</ID>
-    <ID>ForbiddenVoid:RouteDirectionManager.kt:RouteDirectionManager$Void?</ID>
-    <ID>ForbiddenVoid:RouteManager.kt:RouteManager$Void?</ID>
-    <ID>ForbiddenVoid:SetupBannerAdTask.kt:SetupBannerAdTask$Void?</ID>
-    <ID>ForbiddenVoid:SetupInlineBannerAdTask.kt:SetupInlineBannerAdTask$Void?</ID>
-    <ID>FunctionOnlyReturningConstant:BatteryOptimizationIssueUtils.kt:BatteryOptimizationIssueUtils$private fun isInvisibleActivityEnabled</ID>
-    <ID>ImplicitDefaultLocale:BatteryOptimizationIssueUtils.kt:BatteryOptimizationIssueUtils$DO_NOT_KILL_MY_APP_IMAGE_URL_AND_MANUFACTURER .format(manufacturerDNTLC)</ID>
-    <ID>ImplicitDefaultLocale:BatteryOptimizationIssueUtils.kt:BatteryOptimizationIssueUtils$DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER .format(manufacturerDNTLC)</ID>
-    <ID>ImplicitDefaultLocale:PlaceProvider.kt:PlaceProvider$String.format("Unknown URI (query): '$uri'")</ID>
     <ID>InjectDispatcher:AgencyPOIsViewModel.kt:AgencyPOIsViewModel$IO</ID>
     <ID>InjectDispatcher:AgencyTypeFragment.kt:AgencyTypeFragment$Default</ID>
     <ID>InjectDispatcher:AppRatingsManager.kt:AppRatingsManager$IO</ID>
@@ -106,100 +224,44 @@
     <ID>InjectDispatcher:SplashScreenViewModel.kt:SplashScreenViewModel$IO</ID>
     <ID>InjectDispatcher:UserManager.kt:UserManager$IO</ID>
     <ID>InjectDispatcher:UserPrefManager.kt:UserPrefManager$IO</ID>
-    <ID>LargeClass:DataSourcesReader.kt:DataSourcesReader : Loggable</ID>
     <ID>LongMethod:AgencyPOIsFragment.kt:AgencyPOIsFragment$override fun onViewCreated</ID>
-    <ID>LongMethod:AgencyTypeFragment.kt:AgencyTypeFragment$override fun onViewCreated</ID>
     <ID>LongMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
-    <ID>LongMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshAgencyProperties</ID>
-    <ID>LongMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun updateKnownActiveDataSources</ID>
     <ID>LongMethod:EmptyLayoutUtils.kt:EmptyLayoutUtils$fun LayoutEmptyBinding.updateEmptyLayout</ID>
     <ID>LongMethod:FavoritesUI.kt:FavoritesUI$@MainThread private fun FavoriteRepository.showPickFavoriteFolderDialog</ID>
-    <ID>LongMethod:FavoritesViewModel.kt:FavoritesViewModel$@WorkerThread private suspend fun getFavorites: List&lt;POIManager&gt;</ID>
     <ID>LongMethod:HomeFragment.kt:HomeFragment$override fun onViewCreated</ID>
-    <ID>LongMethod:KeysManager.kt:KeysManager.Companion$private fun getKeysMap: Map&lt;String, String&gt;?</ID>
-    <ID>LongMethod:MTBillingManager.kt:MTBillingManager$private fun queryAvailableProductDetails</ID>
-    <ID>LongMethod:MainActivity.kt:MainActivity$override fun onCreate</ID>
-    <ID>LongMethod:MainPreferencesFragment.kt:MainPreferencesFragment$@SuppressLint("InflateParams") private fun showPowerManagementDialog</ID>
     <ID>LongMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onCreate</ID>
     <ID>LongMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onViewCreated</ID>
     <ID>LongMethod:ModulesAdapter.kt:ModulesAdapter.ModuleViewHolder$@SuppressLint("SetTextI18n") fun bind</ID>
-    <ID>LongMethod:NearbyAgencyTypeFragment.kt:NearbyAgencyTypeFragment$override fun onViewCreated</ID>
-    <ID>LongMethod:NearbyFragment.kt:NearbyFragment$override fun onViewCreated</ID>
     <ID>LongMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
-    <ID>LongMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun updateNewsView</ID>
     <ID>LongMethod:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
     <ID>LongMethod:NewsListDetailFragment.kt:NewsListDetailFragment$override fun onViewCreated</ID>
-    <ID>LongMethod:NextMainActivity.kt:NextMainActivity$override fun onCreate</ID>
-    <ID>LongMethod:POIArrayAdapterExt.kt:fun POIArrayAdapter.onCreateViewKt</ID>
     <ID>LongMethod:POIViewModel.kt:POIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
     <ID>LongMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onAvailableProductIdsLoaded</ID>
     <ID>LongMethod:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter.RouteViewHolder$fun bind</ID>
     <ID>LongMethod:RDSAgencyRoutesFragment.kt:RDSAgencyRoutesFragment$override fun onViewCreated</ID>
     <ID>LongMethod:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment$override fun onViewCreated</ID>
-    <ID>LongMethod:RDSRouteFragment.kt:RDSRouteFragment$override fun onViewCreated</ID>
-    <ID>LongMethod:ScheduleAdapter.kt:ScheduleAdapter.TimeViewHolder$fun bind</ID>
     <ID>LongMethod:ScheduleFragment.kt:ScheduleFragment$override fun onViewCreated</ID>
     <ID>LongMethod:SearchFragment.kt:SearchFragment$override fun onViewCreated</ID>
-    <ID>LongMethod:StrictModeImpl.kt:StrictModeImpl$override fun setup</ID>
-    <ID>LongParameterList:AgencyPOIsFragment.kt:AgencyPOIsFragment.Companion$@JvmStatic fun newInstance</ID>
-    <ID>LongParameterList:AgencyTypeFragment.kt:AgencyTypeFragment.Companion$@JvmStatic fun newInstance</ID>
-    <ID>LongParameterList:AgencyTypeFragment.kt:AgencyTypeFragment.Companion$@JvmStatic fun newInstanceArgs</ID>
-    <ID>LongParameterList:AgencyTypeViewModel.kt:AgencyTypeViewModel</ID>
-    <ID>LongParameterList:AppRatingsManager.kt:AppRatingsManager$@Suppress("RedundantIf") @VisibleForTesting fun shouldShowAppRatingRequest: Boolean</ID>
     <ID>LongParameterList:DataSourceRequestManager.kt:DataSourceRequestManager$suspend fun findAgencyProperties: AgencyProperties?</ID>
-    <ID>LongParameterList:DataSourcesReader.kt:DataSourcesReader$private suspend fun refreshAgencyProperties</ID>
     <ID>LongParameterList:DataSourcesRepository.kt:DataSourcesRepository</ID>
-    <ID>LongParameterList:DefaultPOIListFooterManager.kt:DefaultPOIListFooterManager</ID>
-    <ID>LongParameterList:DefaultPOIListFooterManager.kt:DefaultPOIListFooterManager.Companion$@JvmStatic fun observe</ID>
     <ID>LongParameterList:GlobalAdManager.kt:GlobalAdManager</ID>
     <ID>LongParameterList:GlobalAdManager.kt:GlobalAdManager$constructor</ID>
     <ID>LongParameterList:HomeViewModel.kt:HomeViewModel</ID>
-    <ID>LongParameterList:HomeViewModel.kt:HomeViewModel$private fun shouldContinueSearching</ID>
     <ID>LongParameterList:HomeViewModel.kt:HomeViewModel$private suspend fun getAreaTypeNearbyPOIs: MutableList&lt;POIManager&gt;</ID>
-    <ID>LongParameterList:HomeViewModel.kt:HomeViewModel$private suspend fun getTypeNearbyPOIs: MutableList&lt;POIManager&gt;</ID>
     <ID>LongParameterList:InAppNotificationFragment.kt:InAppNotificationFragment$fun showInAppNotification: Boolean</ID>
-    <ID>LongParameterList:InAppNotificationUI.kt:InAppNotificationUI.Companion$@JvmStatic fun showInAppNotification: Boolean</ID>
-    <ID>LongParameterList:InAppNotificationUI.kt:InAppNotificationUI.Companion$@SuppressLint("ClickableViewAccessibility", "KotlinPairNotCreated") @JvmOverloads @JvmStatic fun makeInAppNotification: AndroidXPair&lt;PopupWindow?, Snackbar?&gt;</ID>
     <ID>LongParameterList:MTPOIMarker.kt:MTPOIMarker$fun merge</ID>
     <ID>LongParameterList:MTSensorManager.kt:MTSensorManager$fun updateCompass</ID>
-    <ID>LongParameterList:MainPreferencesViewModel.kt:MainPreferencesViewModel</ID>
-    <ID>LongParameterList:MapUtils.kt:MapUtils$@JvmOverloads @JvmStatic fun showDirection</ID>
-    <ID>LongParameterList:MapViewConfig.kt:MapViewConfig</ID>
     <ID>LongParameterList:NearbyViewModel.kt:NearbyViewModel</ID>
-    <ID>LongParameterList:NewsImagesAdapter.kt:NewsImagesAdapter.NewsImageItemViewHolder$fun bind</ID>
     <ID>LongParameterList:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
-    <ID>LongParameterList:NewsListDetailFragment.kt:NewsListDetailFragment.Companion$private fun newInstanceArgs</ID>
     <ID>LongParameterList:NewsRepository.kt:NewsRepository$fun loadingNewsArticles</ID>
-    <ID>LongParameterList:NewsRepository.kt:NewsRepository$private fun loadingNewsArticles</ID>
-    <ID>LongParameterList:POIRepository.kt:POIRepository$@Suppress("unused") fun loadingPOIMs</ID>
-    <ID>LongParameterList:POIRepository.kt:POIRepository$fun loadingPOIMs</ID>
-    <ID>LongParameterList:POIRepository.kt:POIRepository$suspend fun loadPOIMs</ID>
-    <ID>LongParameterList:POIViewHolderUtils.kt:POIViewHolderUtils$@JvmOverloads @JvmStatic fun RouteDirectionStopViewHolder.updateExtra</ID>
-    <ID>LongParameterList:POIViewHolders.kt:RouteDirectionStopViewHolder</ID>
     <ID>LongParameterList:POIViewModel.kt:POIViewModel</ID>
-    <ID>LongParameterList:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment.Companion$@JvmStatic fun newInstance</ID>
-    <ID>LongParameterList:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel</ID>
-    <ID>LongParameterList:RDSRouteFragment.kt:RDSRouteFragment.Companion$@JvmStatic fun newInstance</ID>
-    <ID>LongParameterList:RDSRouteFragment.kt:RDSRouteFragment.Companion$@JvmStatic fun newInstanceArgs</ID>
     <ID>LongParameterList:ScheduleAdapter.kt:ScheduleAdapter.TimeViewHolder$fun bind</ID>
     <ID>LongParameterList:SplashScreenViewModel.kt:SplashScreenViewModel</ID>
-    <ID>LongParameterList:UILocationUtils.kt:UILocationUtils$@AnyThread private fun getDistance</ID>
-    <ID>LongParameterList:UIScheduleExt.kt:fun UISchedule.getStatusK: androidXPair&lt;CharSequence?, CharSequence?&gt;?</ID>
-    <ID>LongParameterList:VehicleLocationExt.kt:fun VehicleLocation.updateMarker</ID>
-    <ID>LongParameterList:ViewKtx.kt:fun TextView.setDrawables</ID>
-    <ID>LongParameterList:ViewKtx.kt:fun View.setPadding</ID>
     <ID>LoopWithTooManyJumpStatements:DemoModeManager.kt:DemoModeManager$while</ID>
     <ID>LoopWithTooManyJumpStatements:HomeViewModel.kt:HomeViewModel$while</ID>
     <ID>LoopWithTooManyJumpStatements:POIFragmentExt.kt:for</ID>
     <ID>LoopWithTooManyJumpStatements:POIViewModel.kt:POIViewModel$for</ID>
     <ID>LoopWithTooManyJumpStatements:POIViewModel.kt:POIViewModel$while</ID>
-    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.FAVORITE$777</ID>
-    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.MODULE$999</ID>
-    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.NEWS_ARTICLE$888</ID>
-    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.PLACE$666</ID>
-    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.PORT$5</ID>
-    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.TERMINAL$4</ID>
-    <ID>MagicNumber:DataSourceStopType.kt:DataSourceStopType.TRAIN_STATION$3</ID>
     <ID>MagicNumber:DegreeUtils.kt:DegreeUtils$360</ID>
     <ID>MagicNumber:DemoModeManager.kt:DemoModeManager$13f</ID>
     <ID>MagicNumber:DemoModeManager.kt:DemoModeManager$77f</ID>
@@ -234,115 +296,8 @@
     <ID>MagicNumber:VehicleLocationExt.kt:100L</ID>
     <ID>NestedBlockDepth:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
     <ID>NestedBlockDepth:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
-    <ID>NestedBlockDepth:POIAvailabilityStatusViewHolder.kt:POIAvailabilityStatusViewHolder$@SuppressLint("KotlinPairNotCreated") // MTPieChartPercentView in Java override fun bind</ID>
-    <ID>NewLineAtEndOfFile:HomeTypeAgencyComparator.kt:org.mtransit.android.ui.home.HomeTypeAgencyComparator.kt</ID>
-    <ID>NewLineAtEndOfFile:HomeViewModel.kt:org.mtransit.android.ui.home.HomeViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:IAgencyNearbyProperties.kt:org.mtransit.android.data.IAgencyNearbyProperties.kt</ID>
-    <ID>NewLineAtEndOfFile:IAgencyNearbyUIProperties.kt:org.mtransit.android.data.IAgencyNearbyUIProperties.kt</ID>
-    <ID>NewLineAtEndOfFile:IAgencyProperties.kt:org.mtransit.android.data.IAgencyProperties.kt</ID>
-    <ID>NewLineAtEndOfFile:IAgencyUIProperties.kt:org.mtransit.android.data.IAgencyUIProperties.kt</ID>
-    <ID>NewLineAtEndOfFile:IAgencyUpdatableProperties.kt:org.mtransit.android.data.IAgencyUpdatableProperties.kt</ID>
-    <ID>NewLineAtEndOfFile:IFragment.kt:org.mtransit.android.ui.view.common.IFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:IPWhoIsApiService.kt:org.mtransit.android.provider.location.network.IPWhoIsApiService.kt</ID>
-    <ID>NewLineAtEndOfFile:ITargetedProviderProperties.kt:org.mtransit.android.data.ITargetedProviderProperties.kt</ID>
-    <ID>NewLineAtEndOfFile:ImageManager.kt:org.mtransit.android.ui.view.common.ImageManager.kt</ID>
-    <ID>NewLineAtEndOfFile:InAppNotificationFragment.kt:org.mtransit.android.ui.inappnotification.InAppNotificationFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:InAppNotificationUI.kt:org.mtransit.android.ui.inappnotification.InAppNotificationUI.kt</ID>
-    <ID>NewLineAtEndOfFile:InAppNotificationViewModel.kt:org.mtransit.android.ui.inappnotification.InAppNotificationViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:KeysManager.kt:org.mtransit.android.util.KeysManager.kt</ID>
-    <ID>NewLineAtEndOfFile:LocationPermissionAwareFragment.kt:org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:LocationPermissionAwareViewModel.kt:org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:LocationPermissionUI.kt:org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionUI.kt</ID>
-    <ID>NewLineAtEndOfFile:LocationSettingsAwareFragment.kt:org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:LocationSettingsAwareViewModel.kt:org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:LocationSettingsUI.kt:org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI.kt</ID>
-    <ID>NewLineAtEndOfFile:MTDotsView.kt:org.mtransit.android.ui.view.MTDotsView.kt</ID>
-    <ID>NewLineAtEndOfFile:MTSensorManager.kt:org.mtransit.android.provider.sensor.MTSensorManager.kt</ID>
-    <ID>NewLineAtEndOfFile:MTTransitions.kt:org.mtransit.android.ui.view.common.MTTransitions.kt</ID>
-    <ID>NewLineAtEndOfFile:MTViewModelWithLocation.kt:org.mtransit.android.ui.MTViewModelWithLocation.kt</ID>
-    <ID>NewLineAtEndOfFile:MapExt.kt:org.mtransit.android.util.MapExt.kt</ID>
-    <ID>NewLineAtEndOfFile:MapViewInScroll.kt:org.mtransit.android.ui.view.common.MapViewInScroll.kt</ID>
-    <ID>NewLineAtEndOfFile:MapViewModel.kt:org.mtransit.android.ui.map.MapViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:MediatorLiveData3.kt:org.mtransit.android.ui.view.common.MediatorLiveData3.kt</ID>
-    <ID>NewLineAtEndOfFile:MediatorLiveData4.kt:org.mtransit.android.ui.view.common.MediatorLiveData4.kt</ID>
-    <ID>NewLineAtEndOfFile:MediatorLiveData5.kt:org.mtransit.android.ui.view.common.MediatorLiveData5.kt</ID>
-    <ID>NewLineAtEndOfFile:ModuleDisabledAwareFragment.kt:org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:ModuleDisabledAwareViewModel.kt:org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:ModuleDisabledUI.kt:org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI.kt</ID>
-    <ID>NewLineAtEndOfFile:ModulesActivity.kt:org.mtransit.android.ui.modules.ModulesActivity.kt</ID>
-    <ID>NewLineAtEndOfFile:ModulesAdapter.kt:org.mtransit.android.ui.modules.ModulesAdapter.kt</ID>
-    <ID>NewLineAtEndOfFile:ModulesDiffCallback.kt:org.mtransit.android.ui.modules.ModulesDiffCallback.kt</ID>
-    <ID>NewLineAtEndOfFile:ModulesFragment.kt:org.mtransit.android.ui.modules.ModulesFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:ModulesViewModel.kt:org.mtransit.android.ui.modules.ModulesViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:NavControllerExt.kt:org.mtransit.android.ui.view.common.NavControllerExt.kt</ID>
-    <ID>NewLineAtEndOfFile:NearbyAgencyTypeFragment.kt:org.mtransit.android.ui.nearby.type.NearbyAgencyTypeFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:NearbyAgencyTypeViewModel.kt:org.mtransit.android.ui.nearby.type.NearbyAgencyTypeViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:NearbyPagerAdapter.kt:org.mtransit.android.ui.nearby.NearbyPagerAdapter.kt</ID>
-    <ID>NewLineAtEndOfFile:NearbyViewModel.kt:org.mtransit.android.ui.nearby.NearbyViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:NestedScrollableHost.kt:org.mtransit.android.ui.view.common.NestedScrollableHost.kt</ID>
-    <ID>NewLineAtEndOfFile:NetworkLocationModule.kt:org.mtransit.android.provider.location.network.NetworkLocationModule.kt</ID>
-    <ID>NewLineAtEndOfFile:NetworkLocationRepository.kt:org.mtransit.android.provider.location.network.NetworkLocationRepository.kt</ID>
-    <ID>NewLineAtEndOfFile:NetworkModule.kt:org.mtransit.android.di.NetworkModule.kt</ID>
-    <ID>NewLineAtEndOfFile:NewLocationAwareFragment.kt:org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:NewLocationAwareViewModel.kt:org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:NewLocationUI.kt:org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI.kt</ID>
-    <ID>NewLineAtEndOfFile:NewsDetailsViewModel.kt:org.mtransit.android.ui.news.details.NewsDetailsViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:NewsExt.kt:org.mtransit.android.data.NewsExt.kt</ID>
-    <ID>NewLineAtEndOfFile:NewsImage.kt:org.mtransit.android.data.NewsImage.kt</ID>
-    <ID>NewLineAtEndOfFile:NewsImagesAdapter.kt:org.mtransit.android.ui.news.image.NewsImagesAdapter.kt</ID>
-    <ID>NewLineAtEndOfFile:NewsListAdapter.kt:org.mtransit.android.ui.news.NewsListAdapter.kt</ID>
-    <ID>NewLineAtEndOfFile:NewsListViewModel.kt:org.mtransit.android.ui.news.NewsListViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:NewsPagerAdapter.kt:org.mtransit.android.ui.news.pager.NewsPagerAdapter.kt</ID>
-    <ID>NewLineAtEndOfFile:NewsProviderPropertiesDao.kt:org.mtransit.android.datasource.NewsProviderPropertiesDao.kt</ID>
-    <ID>NewLineAtEndOfFile:NewsRepository.kt:org.mtransit.android.datasource.NewsRepository.kt</ID>
-    <ID>NewLineAtEndOfFile:NextMainActivity.kt:org.mtransit.android.ui.main.NextMainActivity.kt</ID>
-    <ID>NewLineAtEndOfFile:POIAlphaComparator.kt:org.mtransit.android.data.POIAlphaComparator.kt</ID>
-    <ID>NewLineAtEndOfFile:POIAppStatusViewHolder.kt:org.mtransit.android.ui.view.poi.status.POIAppStatusViewHolder.kt</ID>
-    <ID>NewLineAtEndOfFile:POIAvailabilityStatusViewHolder.kt:org.mtransit.android.ui.view.poi.status.POIAvailabilityStatusViewHolder.kt</ID>
-    <ID>NewLineAtEndOfFile:POICommonStatusViewHolder.kt:org.mtransit.android.ui.view.poi.status.POICommonStatusViewHolder.kt</ID>
-    <ID>NewLineAtEndOfFile:POIConnectionComparator.kt:org.mtransit.android.data.POIConnectionComparator.kt</ID>
-    <ID>NewLineAtEndOfFile:POIDataProvider.kt:org.mtransit.android.ui.view.POIDataProvider.kt</ID>
-    <ID>NewLineAtEndOfFile:POIFragment.kt:org.mtransit.android.ui.poi.POIFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:POIScheduleViewHolder.kt:org.mtransit.android.ui.view.poi.status.POIScheduleViewHolder.kt</ID>
-    <ID>NewLineAtEndOfFile:POIServiceUpdateViewHolder.kt:org.mtransit.android.ui.view.poi.serviceupdate.POIServiceUpdateViewHolder.kt</ID>
-    <ID>NewLineAtEndOfFile:POIStatusDataProvider.kt:org.mtransit.android.ui.view.poi.status.POIStatusDataProvider.kt</ID>
-    <ID>NewLineAtEndOfFile:POIViewModel.kt:org.mtransit.android.ui.poi.POIViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:POIViewUtils.kt:org.mtransit.android.ui.view.POIViewUtils.kt</ID>
-    <ID>NewLineAtEndOfFile:PickPOIDialogFragment.kt:org.mtransit.android.ui.pick.PickPOIDialogFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:PickPOIViewModel.kt:org.mtransit.android.ui.pick.PickPOIViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:PreferencesActivity.kt:org.mtransit.android.ui.pref.PreferencesActivity.kt</ID>
-    <ID>NewLineAtEndOfFile:PreferencesViewModel.kt:org.mtransit.android.ui.pref.PreferencesViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:PurchaseActivity.kt:org.mtransit.android.ui.purchase.PurchaseActivity.kt</ID>
-    <ID>NewLineAtEndOfFile:PurchaseFragment.kt:org.mtransit.android.ui.purchase.PurchaseFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:PurchaseViewModel.kt:org.mtransit.android.ui.purchase.PurchaseViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:RDSAgencyRoutesFragment.kt:org.mtransit.android.ui.type.rds.RDSAgencyRoutesFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:RDSAgencyRoutesViewModel.kt:org.mtransit.android.ui.type.rds.RDSAgencyRoutesViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:RDSDirectionStopsViewModel.kt:org.mtransit.android.ui.rds.route.direction.RDSDirectionStopsViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:RDSRouteDirectionPagerAdapter.kt:org.mtransit.android.ui.rds.route.RDSRouteDirectionPagerAdapter.kt</ID>
-    <ID>NewLineAtEndOfFile:RDSRouteViewModel.kt:org.mtransit.android.ui.rds.route.RDSRouteViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:RecyclerViewExt.kt:org.mtransit.android.ui.view.common.RecyclerViewExt.kt</ID>
-    <ID>NewLineAtEndOfFile:SVGDrawableTranscoder.kt:org.mtransit.android.ui.view.common.SVGDrawableTranscoder.kt</ID>
-    <ID>NewLineAtEndOfFile:SVGModule.kt:org.mtransit.android.ui.view.common.SVGModule.kt</ID>
-    <ID>NewLineAtEndOfFile:SavedStateHandleExt.kt:org.mtransit.android.ui.view.common.SavedStateHandleExt.kt</ID>
-    <ID>NewLineAtEndOfFile:ScheduleFragment.kt:org.mtransit.android.ui.schedule.ScheduleFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:ScheduleProviderProperties.kt:org.mtransit.android.data.ScheduleProviderProperties.kt</ID>
-    <ID>NewLineAtEndOfFile:ScheduleProviderPropertiesDao.kt:org.mtransit.android.datasource.ScheduleProviderPropertiesDao.kt</ID>
-    <ID>NewLineAtEndOfFile:SearchFragment.kt:org.mtransit.android.ui.search.SearchFragment.kt</ID>
-    <ID>NewLineAtEndOfFile:SearchTypeFilterAdapter.kt:org.mtransit.android.ui.search.SearchTypeFilterAdapter.kt</ID>
-    <ID>NewLineAtEndOfFile:SearchViewModel.kt:org.mtransit.android.ui.search.SearchViewModel.kt</ID>
-    <ID>NewLineAtEndOfFile:ServiceUpdateLoaderProvider.kt:org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider.kt</ID>
-    <ID>NewLineAtEndOfFile:ServiceUpdateProviderProperties.kt:org.mtransit.android.data.ServiceUpdateProviderProperties.kt</ID>
-    <ID>NewLineAtEndOfFile:ServiceUpdateProviderPropertiesDao.kt:org.mtransit.android.datasource.ServiceUpdateProviderPropertiesDao.kt</ID>
-    <ID>NewLineAtEndOfFile:SpacesItemDecoration.kt:org.mtransit.android.ui.view.common.SpacesItemDecoration.kt</ID>
-    <ID>NewLineAtEndOfFile:SplashScreenActivity.kt:org.mtransit.android.ui.splash.SplashScreenActivity.kt</ID>
-    <ID>NewLineAtEndOfFile:StatusProviderProperties.kt:org.mtransit.android.data.StatusProviderProperties.kt</ID>
-    <ID>NewLineAtEndOfFile:StatusProviderPropertiesDao.kt:org.mtransit.android.datasource.StatusProviderPropertiesDao.kt</ID>
-    <ID>NewLineAtEndOfFile:StickyHeaderItemDecorator.kt:org.mtransit.android.ui.view.common.StickyHeaderItemDecorator.kt</ID>
-    <ID>NewLineAtEndOfFile:StrictModeImpl.kt:org.mtransit.android.dev.StrictModeImpl.kt</ID>
-    <ID>NewLineAtEndOfFile:SystemSettingManager.kt:org.mtransit.android.util.SystemSettingManager.kt</ID>
-    <ID>NewLineAtEndOfFile:UIAccessibilityUtils.kt:org.mtransit.android.util.UIAccessibilityUtils.kt</ID>
-    <ID>NewLineAtEndOfFile:UIColorUtils.kt:org.mtransit.android.ui.common.UIColorUtils.kt</ID>
-    <ID>NewLineAtEndOfFile:UIRouteUtils.kt:org.mtransit.android.util.UIRouteUtils.kt</ID>
+    <ID>NoEmptyFile:POIFragment.kt:org.mtransit.android.ui.poi.POIFragment.kt</ID>
+    <ID>NoEmptyFile:POIViewModel.kt:org.mtransit.android.ui.poi.POIViewModel.kt</ID>
     <ID>NoNameShadowing:AgencyPOIsViewModel.kt:AgencyPOIsViewModel$agency</ID>
     <ID>NoNameShadowing:AgencyTypeFragment.kt:AgencyTypeFragment${ updateScreenToolbarTitle(it) }</ID>
     <ID>NoNameShadowing:AppRatingsManager.kt:AppRatingsManager$appOpenCounts</ID>
@@ -375,9 +330,6 @@
     <ID>NoNameShadowing:ScheduleViewModel.kt:ScheduleViewModel${ ColorUtils.parseColor(it) }</ID>
     <ID>NoNameShadowing:SearchFragment.kt:SearchFragment${ updateScreenToolbarCustomView(it) }</ID>
     <ID>NoNameShadowing:UISourceLabelUtils.kt:UISourceLabelUtils$sourceLabels</ID>
-    <ID>RedundantSuspendModifier:DataSourceRequestManager.kt:DataSourceRequestManager$suspend</ID>
-    <ID>RedundantSuspendModifier:DemoModeManager.kt:DemoModeManager$suspend</ID>
-    <ID>RedundantSuspendModifier:DevicePrefManager.kt:DevicePrefManager$suspend</ID>
     <ID>ReturnCount:AgencyTypeFragment.kt:AgencyTypeFragment$@ColorInt @WorkerThread private fun getNewABBgColorInt: Int?</ID>
     <ID>ReturnCount:AppOpenAdManager.kt:AppOpenAdManager$@MainThread fun loadAd: Boolean</ID>
     <ID>ReturnCount:AppRatingsManager.kt:AppRatingsManager$@Suppress("RedundantIf") @VisibleForTesting fun shouldShowAppRatingRequest: Boolean</ID>
@@ -424,11 +376,8 @@
     <ID>ReturnCount:SensorManagerImpl.kt:SensorManagerImpl$private fun calculateOrientation: Float?</ID>
     <ID>ReturnCount:StickyHeaderItemDecorator.kt:StickyHeaderItemDecorator$override fun onDrawOver</ID>
     <ID>ReturnCount:UIColorUtils.kt:UIColorUtils$@JvmStatic @ColorInt fun adaptBackgroundColorToLightText: Int</ID>
-    <ID>SpreadOperator:AgencyTypeFragment.kt:AgencyTypeFragment$( *(agencies ?.filter { it.type != DataSourceType.TYPE_MODULE } ?.takeIf { it.isNotEmpty() } ?.map { UIColorUtils.adaptBackgroundColorToLightText(context, it.colorInt ?: defaultColor) } ?.toIntArray() ?: arrayOf(defaultColor).toIntArray()) )</ID>
     <ID>SpreadOperator:GlobalAdManager.kt:GlobalAdManager$(*context.resources.getStringArray(R.array.google_ads_test_devices_ids))</ID>
     <ID>SpreadOperator:UISourceLabelUtils.kt:UISourceLabelUtils$(textView, readFromSource = null, *it.toTypedArray())</ID>
-    <ID>ThrowingExceptionsWithoutMessageOrCause:NestedScrollableHost.kt:NestedScrollableHost$IllegalArgumentException()</ID>
-    <ID>ThrowsCount:HomeFragment.kt:HomeFragment$override fun onResume</ID>
     <ID>TooGenericExceptionCaught:AnalyticsManager.kt:AnalyticsManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:BannerAdManager.kt:BannerAdManager$t: Throwable</ID>
     <ID>TooGenericExceptionCaught:BatteryOptimizationIssueUtils.kt:BatteryOptimizationIssueUtils$e: Exception</ID>
@@ -480,7 +429,7 @@
     <ID>TooManyFunctions:HomeViewModel.kt:HomeViewModel : MTViewModelWithLocationNewLocationAwareViewModelLocationSettingsAwareViewModelLocationPermissionAwareViewModelModuleDisabledAwareViewModel</ID>
     <ID>TooManyFunctions:IAdManager.kt:IAdManager</ID>
     <ID>TooManyFunctions:InlineBannerAdManager.kt:InlineBannerAdManager : Loggable</ID>
-    <ID>TooManyFunctions:MTBillingManager.kt:MTBillingManager : LoggableIBillingManagerPurchasesUpdatedListener</ID>
+    <ID>TooManyFunctions:MTBillingManager.kt:MTBillingManager : LoggablePurchasesUpdatedListenerIBillingManager</ID>
     <ID>TooManyFunctions:MainActivity.kt:MainActivity : MTActivityWithLocationOnBackStackChangedListenerAnalyticsScreenIActivityIAdScreenActivityLoggableRewardedAdListener</ID>
     <ID>TooManyFunctions:MapFragment.kt:MapFragment : ABFragmentDeviceLocationListenerLocationSettingsAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>
     <ID>TooManyFunctions:NearbyFragment.kt:NearbyFragment : ABFragmentDeviceLocationListenerNewLocationAwareFragmentLocationSettingsAwareFragmentLocationPermissionAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>
@@ -491,50 +440,14 @@
     <ID>TooManyFunctions:NextMainViewModel.kt:NextMainViewModel : ViewModelLoggable</ID>
     <ID>TooManyFunctions:POIManagerExt.kt:org.mtransit.android.data.POIManagerExt.kt</ID>
     <ID>TooManyFunctions:POIRepository.kt:POIRepository : Loggable</ID>
-    <ID>TooManyFunctions:PickPOIDialogFragment.kt:PickPOIDialogFragment : MTBottomSheetDialogFragmentXDeviceLocationListenerIFragment</ID>
     <ID>TooManyFunctions:PlaceProvider.kt:PlaceProvider : AgencyProviderPOIProviderContract</ID>
     <ID>TooManyFunctions:PurchaseDialogFragment.kt:PurchaseDialogFragment : MTDialogFragmentXRewardedAdListenerLoggable</ID>
     <ID>TooManyFunctions:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment : MTFragmentX</ID>
     <ID>TooManyFunctions:RDSRouteFragment.kt:RDSRouteFragment : ABFragmentDeviceLocationListenerMenuProvider</ID>
-    <ID>TooManyFunctions:RewardedUserManager.kt:RewardedUserManager : Loggable</ID>
     <ID>TooManyFunctions:ScheduleAdapter.kt:ScheduleAdapter : AdapterStickyAdapterServiceUpdateLoaderListenerLoggable</ID>
     <ID>TooManyFunctions:ScheduleFragment.kt:ScheduleFragment : ABFragmentMenuProvider</ID>
     <ID>TooManyFunctions:SearchFragment.kt:SearchFragment : ABFragmentDeviceLocationListenerTypeHeaderButtonsClickListenerOnItemSelectedListener</ID>
     <ID>TooManyFunctions:UserManager.kt:UserManager</ID>
-    <ID>UnnecessaryApply:AgencyPOIsFragment.kt:AgencyPOIsFragment$apply { setUpFabEdgeToEdge( originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last, originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom, ) }</ID>
-    <ID>UnnecessaryApply:EdgeToEdge.kt:apply { isAppearanceLightNavigationBars = !isDark }</ID>
-    <ID>UnnecessaryApply:EdgeToEdge.kt:apply { isAppearanceLightStatusBars = !isDark &amp;&amp; false // top bar is always dark }</ID>
-    <ID>UnnecessaryApply:FavoritesFragment.kt:FavoritesFragment$apply { addFragmentToStack(NewsListDetailFragment.newInstance()) }</ID>
-    <ID>UnnecessaryApply:MainPreferencesFragment.kt:MainPreferencesFragment$apply { isEnabled = true }</ID>
-    <ID>UnnecessaryApply:MainPreferencesFragment.kt:MainPreferencesFragment$apply { isVisible = if (BatteryOptimizationIssueUtils.isSamsungDevice()) { setText(R.string.battery_optimization_samsung_use_device_care) true } else { false } }</ID>
-    <ID>UnnecessaryApply:MainPreferencesFragment.kt:MainPreferencesFragment$apply { setSummary( when (lang) { DefaultPreferenceRepository.PREFS_LANG_EN -&gt; R.string.lang_pref_en DefaultPreferenceRepository.PREFS_LANG_FR -&gt; R.string.lang_pref_fr DefaultPreferenceRepository.PREFS_LANG_SYSTEM_DEFAULT -&gt; R.string.lang_pref_system_default else -&gt; R.string.lang_pref_system_default } ) }</ID>
-    <ID>UnnecessaryApply:MainPreferencesFragment.kt:MainPreferencesFragment$apply { setSummary( when (theme) { DefaultPreferenceRepository.PREFS_THEME_LIGHT -&gt; R.string.theme_pref_light DefaultPreferenceRepository.PREFS_THEME_DARK -&gt; R.string.theme_pref_dark DefaultPreferenceRepository.PREFS_THEME_SYSTEM_DEFAULT -&gt; R.string.theme_pref_system_default else -&gt; R.string.theme_pref_system_default } ) }</ID>
-    <ID>UnnecessaryApply:MainPreferencesFragment.kt:MainPreferencesFragment$apply { setSummary( when (units) { DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_METRIC -&gt; R.string.unit_pref_meter DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL -&gt; R.string.unit_pref_imperial else -&gt; R.string.unit_pref_summary } ) }</ID>
-    <ID>UnnecessaryApply:MainPreferencesFragment.kt:MainPreferencesFragment$apply { setSummary( when { showAccessibility -&gt; R.string.show_accessibility_pref_summary_on else -&gt; R.string.show_accessibility_pref_summary_off } ) }</ID>
-    <ID>UnnecessaryApply:MainPreferencesFragment.kt:MainPreferencesFragment$apply { setSummary( when { useInternalWebBrowser -&gt; R.string.use_internal_web_browser_pref_summary_on else -&gt; R.string.use_internal_web_browser_pref_summary_off } ) }</ID>
-    <ID>UnnecessaryApply:MainPreferencesFragment.kt:MainPreferencesFragment$apply { summary = token ?: "(none)" }</ID>
-    <ID>UnnecessaryApply:MainPreferencesFragment.kt:MainPreferencesFragment$apply { text = getString(R.string.battery_optimization_issue_message_1_and_manufacturer, BatteryOptimizationIssueUtils.manufacturer.capitalize()) }</ID>
-    <ID>UnnecessaryApply:ModulesAdapter.kt:ModulesAdapter.ModuleViewHolder$apply { textAndVisibility = item?.let { "${it.pkg.substringAfter(IAgencyProperties.PKG_COMMON)} r${it.versionCode} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}" } }</ID>
-    <ID>UnnecessaryApply:ModulesFragment.kt:ModulesFragment$apply { setDisplayHomeAsUpEnabled(true) }</ID>
-    <ID>UnnecessaryApply:NewsDetailsFragment.kt:NewsDetailsFragment$apply { isVisible = if (newsArticle.hasAuthorPictureURL()) { noAuthorIconSpace.isVisible = false imageManager.loadInto(context, newsArticle.authorPictureURL, this) true } else { noAuthorIconSpace.isVisible = true imageManager.clear(context, this) false } }</ID>
-    <ID>UnnecessaryApply:NewsImagesAdapter.kt:NewsImagesAdapter.NewsImageItemViewHolder$apply { imageManager.loadInto(context, newsImage.imageUrl, this) }</ID>
-    <ID>UnnecessaryApply:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$apply { isVisible = if (newsArticle.hasAuthorPictureURL()) { imageManager.loadInto(context, newsArticle.authorPictureURL, this) true } else { imageManager.clear(context, this) false } }</ID>
-    <ID>UnnecessaryApply:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$apply { isVisible = if (newsArticle.hasValidImageUrls()) { imageManager.loadInto(context, newsArticle.firstValidImageUrl, this) true } else { imageManager.clear(context, this) false } }</ID>
-    <ID>UnnecessaryApply:RDSAgencyRoutesFragment.kt:RDSAgencyRoutesFragment$apply { setUpFabEdgeToEdge( originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last, originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom, ) }</ID>
-    <ID>UnnecessaryApply:ScheduleFragment.kt:ScheduleFragment$apply { UISourceLabelUtils.setSourceLabelTextView(this.sourceLabel, readFromSource, sourceLabel) }</ID>
-    <ID>UnnecessaryApply:ScheduleFragment.kt:ScheduleFragment$apply { textAndVisibility = localTimeDifferent?.let { context.getString(R.string.local_time_and_time, UITimeUtils.cleanNoRealTime(false, it)) } }</ID>
-    <ID>UnnecessaryApply:SensorManagerImpl.kt:SensorManagerImpl$apply { unregisterListener(sensorEventListener) }</ID>
-    <ID>UnnecessaryFilter:DataSourcesRepository.kt:DataSourcesRepository$filter { agency -&gt; agency.isEnabled(pm) }</ID>
-    <ID>UnnecessarySafeCall:AgencyPOIsFragment.kt:AgencyPOIsFragment$context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }</ID>
-    <ID>UnnecessarySafeCall:AgencyTypeFragment.kt:AgencyTypeFragment$getABBgColor(context)?.let { activity?.setStatusBarBgColorEdgeToEdge(it) binding?.tabs?.setBackgroundColor(it) // TODO if (FeatureFlags.F_NAVIGATION) nextMainViewModel.setABBgColor(it) }</ID>
-    <ID>UnnecessarySafeCall:NearbyFragment.kt:NearbyFragment$getABBgColor(context)?.let { activity?.setStatusBarBgColorEdgeToEdge(it) binding?.tabs?.setBackgroundColor(it) if (FeatureFlags.F_NAVIGATION) { nextMainViewModel.setABBgColor(it) } }</ID>
-    <ID>UnnecessarySafeCall:NewsDetailsFragment.kt:NewsDetailsFragment$context?.let { ContextCompat.registerReceiver(it, timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED) timeChangedReceiverEnabled = true updateNewsView() // force update to current time before next change }</ID>
-    <ID>UnnecessarySafeCall:NewsDetailsFragment.kt:NewsDetailsFragment$context?.let { it.unregisterReceiver(timeChangedReceiver) timeChangedReceiverEnabled = false }</ID>
-    <ID>UnnecessarySafeCall:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment$context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }</ID>
-    <ID>UnnecessarySafeCall:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment$context?.let { mapViewController.updateVehicleLocationMarkers(it, vehicleLocations = vehicleLocations) }</ID>
-    <ID>UnnecessarySafeCall:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment$context?.let { mapViewController.updateVehicleLocationMarkersCountdown(it) }</ID>
-    <ID>UnnecessarySafeCall:ScheduleFragment.kt:ScheduleFragment$context?.let { ContextCompat.registerReceiver(it, timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED) timeChangedReceiverEnabled = true timeChangedListener.onTimeChanged() // force update to current time before next change }</ID>
-    <ID>UnnecessarySafeCall:ScheduleFragment.kt:ScheduleFragment$context?.let { it.unregisterReceiver(timeChangedReceiver) timeChangedReceiverEnabled = false }</ID>
     <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$!billingFlowLaunched</ID>
     <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$MTLog.w(this, "onBuyBtnClick() &gt; skip (can not launch billing flow for: $productId)", productId)</ID>
     <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)</ID>
@@ -546,31 +459,12 @@
     <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val priceFormatted = this.pricesFormatted.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() } ?: run { MTLog.w(this, "onBuyBtnClick() &gt; skip (unexpected price position: $pricePosition)") ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message) return }</ID>
     <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val pricePosition = binding.price.selectedItemPosition</ID>
     <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val productId = this.periodAndPriceCatToProductId[periodCat to priceCat] ?: run { MTLog.w(this, "onBuyBtnClick() &gt; skip (no product ID for period/price: $periodCat/$priceCat)") ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message) return }</ID>
-    <ID>UnsafeCast:NextMainActivity.kt:NextMainActivity$currentFragment as? SearchFragment</ID>
-    <ID>UnsafeCast:POIArrayAdapterExt.kt:this.fragmentWR?.get() as? AnalyticsScreen</ID>
-    <ID>UnusedImport:NewsImageDiffCallback.kt:import org.mtransit.android.commons.data.News</ID>
     <ID>UnusedPrivateFunction:AgencyTypeViewModel.kt:AgencyTypeViewModel$private fun saveSelectedTypeAgency</ID>
-    <ID>UnusedPrivateProperty:AgencyPOIsViewModel.kt:AgencyPOIsViewModel$private val poiRepository: POIRepository</ID>
-    <ID>UnusedPrivateProperty:AgencyTypeViewModel.kt:AgencyTypeViewModel$private val pm: PackageManager</ID>
-    <ID>UnusedPrivateProperty:HomeViewModel.kt:HomeViewModel$private val pm: PackageManager</ID>
-    <ID>UnusedPrivateProperty:MapViewModel.kt:MapViewModel$private val pm: PackageManager</ID>
-    <ID>UnusedPrivateProperty:NearbyViewModel.kt:NearbyViewModel$private val pm: PackageManager</ID>
-    <ID>UnusedPrivateProperty:NewsDetailsViewModel.kt:NewsDetailsViewModel$private val newsRepository: NewsRepository</ID>
-    <ID>UnusedPrivateProperty:NewsListViewModel.kt:NewsListViewModel$private val newsRepository: NewsRepository</ID>
-    <ID>UnusedPrivateProperty:NewsListViewModel.kt:NewsListViewModel$private val pm: PackageManager</ID>
-    <ID>UnusedPrivateProperty:POIViewModel.kt:POIViewModel$private val dataSourceRequestManager: DataSourceRequestManager</ID>
-    <ID>UnusedPrivateProperty:POIViewModel.kt:POIViewModel$private val favoriteRepository: FavoriteRepository</ID>
-    <ID>UnusedPrivateProperty:POIViewModel.kt:POIViewModel$private val newsRepository: NewsRepository</ID>
-    <ID>UnusedPrivateProperty:PurchaseViewModel.kt:PurchaseViewModel$billingManager: IBillingManager</ID>
-    <ID>UnusedPrivateProperty:RDSAgencyRoutesViewModel.kt:RDSAgencyRoutesViewModel$private val dataSourceRequestManager: DataSourceRequestManager</ID>
-    <ID>UnusedPrivateProperty:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel$private val dataSourceRequestManager: DataSourceRequestManager</ID>
-    <ID>UnusedPrivateProperty:ScheduleViewModel.kt:ScheduleViewModel$private val poiRepository: POIRepository</ID>
-    <ID>UnusedPrivateProperty:ServiceUpdatesViewModel.kt:ServiceUpdatesViewModel$private val dataSourceRequestManager: DataSourceRequestManager</ID>
-    <ID>UnusedPrivateProperty:ServiceUpdatesViewModel.kt:ServiceUpdatesViewModel$private val poiRepository: POIRepository</ID>
     <ID>UnusedVariable:POIViewModel.kt:POIViewModel$trigger</ID>
-    <ID>UseCheckOrError:ScheduleViewModel.kt:ScheduleViewModel$throw IllegalStateException("No schedule timestamp timezone available!")</ID>
     <ID>UseOrEmpty:IBillingManager.kt:IBillingManager.Companion$arrayListOf( NEW_BASIC_SUBSCRIPTIONS, NEW_PRO_SUBSCRIPTIONS ).takeIf { UIFeatureFlags.F_NEW_IN_APP_SUBS } ?: emptyList()</ID>
     <ID>UseOrEmpty:NewsPagerAdapter.kt:NewsPagerAdapter$newItems ?: emptyList()</ID>
+    <ID>ValueArgumentComment:SetupBannerAdTask.kt:SetupBannerAdTask$// #gmaNextGen</ID>
+    <ID>ValueArgumentComment:SetupInlineBannerAdTask.kt:SetupInlineBannerAdTask$// #gmaNextGen</ID>
     <ID>VarCouldBeVal:AppOpenAdManager.kt:AppOpenAdManager$private var _isShowingAd = AtomicBoolean(false)</ID>
     <ID>VarCouldBeVal:AppOpenAdManager.kt:AppOpenAdManager$private var _loadTime = AtomicLong(0L)</ID>
     <ID>VarCouldBeVal:AppOpenAdManager.kt:AppOpenAdManager$private var isLoadingAd = AtomicBoolean(false)</ID>

@@ -52,7 +52,7 @@ class ScheduleViewModel @Inject constructor(
     userPrefManager: UserPrefManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
-    private val poiRepository: POIRepository,
+    poiRepository: POIRepository,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -226,14 +226,21 @@ class ScheduleViewModel @Inject constructor(
 
     private suspend fun setScheduleLocalTimeZoneId(scheduleTimestamps: ScheduleTimestamps? = null) = withContext(Dispatchers.Main) {
         savedStateHandle[SCHEDULE_LOCAL_TIME_ZONE_ID] = scheduleTimestamps?.localTimeZoneId
-            ?: scheduleTimestamps?.timestamps?.firstNotNullOfOrNull { @SuppressLint("DiscouragedApi") it.localTimeZoneId }
-                    ?: run {
-                if (BuildConfig.DEBUG && scheduleTimestamps?.timestamps?.isNotEmpty() == true) {
-                    throw IllegalStateException("No schedule timestamp timezone available!")
-                }
-                MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device TZ)!")
-                TimeZone.getDefault().id // must set a timezone to display calendar
-            }
+            ?: scheduleTimestamps?.scheduleTimestampsLocalTimeZoneId ?: scheduleTimestamps.failToDefaultTimeZoneId()
+    }
+
+    private val ScheduleTimestamps.scheduleTimestampsLocalTimeZoneId: String?
+        get() = this.timestamps.firstNotNullOfOrNull {
+            @SuppressLint("DiscouragedApi")
+            it.localTimeZoneId
+        }
+
+    private fun ScheduleTimestamps?.failToDefaultTimeZoneId(): String? {
+        if (BuildConfig.DEBUG && this?.timestamps?.isNotEmpty() == true) {
+            error("No schedule timestamp timezone available!")
+        }
+        MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device TZ)!")
+        return TimeZone.getDefault().id // must set a timezone to display calendar
     }
 
     val showAccessibility: LiveData<Boolean> = userPrefManager.showAccessibility.distinctUntilChanged()

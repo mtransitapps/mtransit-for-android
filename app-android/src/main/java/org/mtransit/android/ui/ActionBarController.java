@@ -457,25 +457,4 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			}
 		}
 	}
-
-	public interface ActionBarColorizer {
-		@Nullable
-		Integer getBgColor(int position);
-	}
-
-	public static class SimpleActionBarColorizer implements ActionBarColorizer {
-
-		@Nullable
-		private int[] bgColors;
-
-		@Nullable
-		@Override
-		public final Integer getBgColor(int position) {
-			return bgColors == null ? null : bgColors[position % bgColors.length];
-		}
-
-		public void setBgColors(@NonNull int... colors) {
-			bgColors = colors;
-		}
-	}
 }

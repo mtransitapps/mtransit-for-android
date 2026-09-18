@@ -1,62 +1,62 @@
 package org.mtransit.android.ui.poi
 //
-//import android.content.Context
-//import android.hardware.SensorEvent
-//import android.location.Location
-//import android.widget.AbsListView
-//import androidx.annotation.WorkerThread
-//import androidx.lifecycle.LiveData
-//import androidx.lifecycle.MutableLiveData
-//import androidx.lifecycle.SavedStateHandle
-//import androidx.lifecycle.distinctUntilChanged
-//import androidx.lifecycle.liveData
-//import androidx.lifecycle.map
-//import androidx.lifecycle.switchMap
-//import androidx.lifecycle.viewModelScope
-//import dagger.hilt.android.lifecycle.HiltViewModel
-//import kotlinx.coroutines.Dispatchers
-//import kotlinx.coroutines.launch
-//import org.mtransit.android.ad.IAdManager
-//import org.mtransit.android.ad.IAdManager.RewardedAdListener
-//import org.mtransit.android.analytics.AnalyticsEvents
-//import org.mtransit.android.analytics.AnalyticsEventsParamsProvider
-//import org.mtransit.android.analytics.IAnalyticsManager
-//import org.mtransit.android.commons.Constants
-//import org.mtransit.android.commons.LocationUtils
-//import org.mtransit.android.commons.MTLog
-//import org.mtransit.android.commons.data.News
-//import org.mtransit.android.commons.data.POI
-//import org.mtransit.android.commons.data.POIStatus
-//import org.mtransit.android.commons.data.ScheduleStatusFilter
-//import org.mtransit.android.commons.data.ServiceUpdate
-//import org.mtransit.android.commons.provider.news.NewsProviderContract
-//import org.mtransit.android.commons.provider.poi.POIProviderContract
-//import org.mtransit.android.data.AgencyProperties
-//import org.mtransit.android.data.POIManager
-//import org.mtransit.android.data.ScheduleProviderProperties
-//import org.mtransit.android.datasource.DataSourceRequestManager
-//import org.mtransit.android.datasource.DataSourcesRepository
-//import org.mtransit.android.provider.FavoriteRepository
-//import org.mtransit.android.provider.location.MTLocationProvider
-//import org.mtransit.android.provider.sensor.MTSensorManager
-//import org.mtransit.android.provider.sensor.MTSensorManager.CompassListener
-//import org.mtransit.android.provider.sensor.MTSensorManager.SensorTaskCompleted
-//import org.mtransit.android.task.ServiceUpdateLoader
-//import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
-//import org.mtransit.android.task.StatusLoader
-//import org.mtransit.android.task.StatusLoader.StatusLoaderListener
-//import org.mtransit.android.ui.MTViewModelWithLocation
-//import org.mtransit.android.ui.news.details.NewsDetailsViewModel
-//import org.mtransit.android.ui.view.common.Event
-//import org.mtransit.android.ui.view.common.IActivity
-//import org.mtransit.android.ui.view.common.PairMediatorLiveData
-//import org.mtransit.android.util.DegreeUtils.convertToPositive360Degree
-//import org.mtransit.android.util.UITimeUtils
-//import java.util.concurrent.TimeUnit
-//import javax.inject.Inject
+// import android.content.Context
+// import android.hardware.SensorEvent
+// import android.location.Location
+// import android.widget.AbsListView
+// import androidx.annotation.WorkerThread
+// import androidx.lifecycle.LiveData
+// import androidx.lifecycle.MutableLiveData
+// import androidx.lifecycle.SavedStateHandle
+// import androidx.lifecycle.distinctUntilChanged
+// import androidx.lifecycle.liveData
+// import androidx.lifecycle.map
+// import androidx.lifecycle.switchMap
+// import androidx.lifecycle.viewModelScope
+// import dagger.hilt.android.lifecycle.HiltViewModel
+// import kotlinx.coroutines.Dispatchers
+// import kotlinx.coroutines.launch
+// import org.mtransit.android.ad.IAdManager
+// import org.mtransit.android.ad.IAdManager.RewardedAdListener
+// import org.mtransit.android.analytics.AnalyticsEvents
+// import org.mtransit.android.analytics.AnalyticsEventsParamsProvider
+// import org.mtransit.android.analytics.IAnalyticsManager
+// import org.mtransit.android.commons.Constants
+// import org.mtransit.android.commons.LocationUtils
+// import org.mtransit.android.commons.MTLog
+// import org.mtransit.android.commons.data.News
+// import org.mtransit.android.commons.data.POI
+// import org.mtransit.android.commons.data.POIStatus
+// import org.mtransit.android.commons.data.ScheduleStatusFilter
+// import org.mtransit.android.commons.data.ServiceUpdate
+// import org.mtransit.android.commons.provider.news.NewsProviderContract
+// import org.mtransit.android.commons.provider.poi.POIProviderContract
+// import org.mtransit.android.data.AgencyProperties
+// import org.mtransit.android.data.POIManager
+// import org.mtransit.android.data.ScheduleProviderProperties
+// import org.mtransit.android.datasource.DataSourceRequestManager
+// import org.mtransit.android.datasource.DataSourcesRepository
+// import org.mtransit.android.provider.FavoriteRepository
+// import org.mtransit.android.provider.location.MTLocationProvider
+// import org.mtransit.android.provider.sensor.MTSensorManager
+// import org.mtransit.android.provider.sensor.MTSensorManager.CompassListener
+// import org.mtransit.android.provider.sensor.MTSensorManager.SensorTaskCompleted
+// import org.mtransit.android.task.ServiceUpdateLoader
+// import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
+// import org.mtransit.android.task.StatusLoader
+// import org.mtransit.android.task.StatusLoader.StatusLoaderListener
+// import org.mtransit.android.ui.MTViewModelWithLocation
+// import org.mtransit.android.ui.news.details.NewsDetailsViewModel
+// import org.mtransit.android.ui.view.common.Event
+// import org.mtransit.android.ui.view.common.IActivity
+// import org.mtransit.android.ui.view.common.PairMediatorLiveData
+// import org.mtransit.android.util.DegreeUtils.convertToPositive360Degree
+// import org.mtransit.android.util.UITimeUtils
+// import java.util.concurrent.TimeUnit
+// import javax.inject.Inject
 //
-//@HiltViewModel
-//class POIViewModel @Inject constructor(
+// @HiltViewModel
+// class POIViewModel @Inject constructor(
 // savedStateHandle: SavedStateHandle,
 // private val dataSourcesRepository: DataSourcesRepository,
 // private val dataSourceRequestManager: DataSourceRequestManager,
@@ -68,7 +68,7 @@ package org.mtransit.android.ui.poi
 // private val statusLoader: StatusLoader,
 // private val serviceUpdateLoader: ServiceUpdateLoader,
 // // private val lclPrefRepository: LocalPreferenceRepository,
-//) : MTViewModelWithLocation() {
+// ) : MTViewModelWithLocation() {
 //
 //
 // companion object {
@@ -478,4 +478,4 @@ package org.mtransit.android.ui.poi
 // }
 // return nearbyPOIs.take(LocationUtils.MAX_POI_NEARBY_POIS_LIST)
 // }
-//}
+// }

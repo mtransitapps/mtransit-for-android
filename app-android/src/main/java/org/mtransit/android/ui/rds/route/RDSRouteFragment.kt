@@ -51,7 +51,8 @@ import javax.inject.Inject
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
+class RDSRouteFragment :
+    ABFragment(R.layout.fragment_rds_route),
     DeviceLocationListener,
     MenuProvider {
 
@@ -443,7 +444,7 @@ class RDSRouteFragment : ABFragment(R.layout.fragment_rds_route),
         }
         if (startShortName < endShortName) {
             ssb = SpanUtils.setNN(
-                ssb, startShortName, endShortName,  //
+                ssb, startShortName, endShortName,
                 UIRouteUtils.getRouteShortNameFont(route.shortName),
                 TITLE_RSN_STYLE
             )

@@ -40,7 +40,8 @@ import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MapFragment : ABFragment(R.layout.fragment_map),
+class MapFragment :
+    ABFragment(R.layout.fragment_map),
     DeviceLocationListener,
     LocationSettingsAwareFragment,
     ModuleDisabledAwareFragment,
@@ -279,12 +280,15 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         menuInflater.inflate(R.menu.menu_map, menu)
     }
 
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        return if (menuItem.itemId == R.id.menu_filter) {
-            analyticsManager.trackButtonClick("toolbar_filter", this)
-            showMenuFilterDialog()
-        } else false // not handled
-    }
+    override fun onMenuItemSelected(menuItem: MenuItem) =
+        when (menuItem.itemId) {
+            R.id.menu_filter -> {
+                analyticsManager.trackButtonClick("toolbar_filter", this)
+                showMenuFilterDialog()
+            }
+
+            else -> false // not handled
+        }
 
     private fun showMenuFilterDialog(): Boolean {
         val filterTypeIds = attachedViewModel?.filterTypeIds?.value ?: return false
@@ -346,10 +350,12 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     override fun getABTitle(context: Context?) = context?.let { makeABTitle(it) } ?: super.getABTitle(null)
 
     private fun makeABTitle(context: Context): CharSequence {
-        return (attachedViewModel?.filterTypeIds?.value?.let { it.ifEmpty { null } } // empty = all
-            ?.mapNotNull { typeId ->
-                DataSourceType.parseId(typeId)?.shortNamesResId?.let { context.getString(it) }
-            } ?: listOf(context.getString(R.string.all)))
+        return (
+            attachedViewModel?.filterTypeIds?.value?.ifEmpty { null } // empty = all
+                ?.mapNotNull { typeId ->
+                    DataSourceType.parseId(typeId)?.shortNamesResId?.let { context.getString(it) }
+                } ?: listOf(context.getString(R.string.all))
+            )
             .joinToString(prefix = "${context.getString(R.string.map)} (", separator = ", ", postfix = ")")
     }
 

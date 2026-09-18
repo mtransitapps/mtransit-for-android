@@ -29,8 +29,7 @@ class FaresDialog : MTBottomSheetDialogFragmentX() {
         private val LOG_TAG: String = FaresDialog::class.java.simpleName
 
         @JvmStatic
-        fun newInstance(
-        ): FaresDialog {
+        fun newInstance(): FaresDialog {
             return FaresDialog()
         }
     }

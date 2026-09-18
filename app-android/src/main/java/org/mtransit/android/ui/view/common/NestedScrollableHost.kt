@@ -6,10 +6,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import androidx.core.view.isNotEmpty
 import androidx.viewpager2.widget.ViewPager2
 import kotlin.math.absoluteValue
 import kotlin.math.sign
-import androidx.core.view.isNotEmpty
 
 /**
  * Layout to wrap a scrollable component inside a ViewPager2. Provided as a solution to the problem
@@ -43,12 +43,12 @@ class NestedScrollableHost : FrameLayout {
         touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }
 
-    private fun canChildScroll(orientation: Int, delta: Float): Boolean {
+    private fun canChildScroll(@ViewPager2.Orientation orientation: Int, delta: Float): Boolean {
         val direction = -delta.sign.toInt()
         return when (orientation) {
-            0 -> child?.canScrollHorizontally(direction) ?: false
-            1 -> child?.canScrollVertically(direction) ?: false
-            else -> throw IllegalArgumentException()
+            ViewPager2.ORIENTATION_HORIZONTAL -> child?.canScrollHorizontally(direction) ?: false
+            ViewPager2.ORIENTATION_VERTICAL -> child?.canScrollVertically(direction) ?: false
+            else -> error("Unexpected view pager 2 orientation!")
         }
     }
 

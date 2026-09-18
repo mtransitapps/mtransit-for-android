@@ -49,11 +49,11 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-@SuppressLint("CustomSplashScreen")
-@HiltViewModel
 /**
  * Not using [org.mtransit.android.datasource.DataSourcesRepository] because memory cache might not be available yet
  */
+@SuppressLint("CustomSplashScreen")
+@HiltViewModel
 class SplashScreenViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val lclPrefRepository: LocalPreferenceRepository,
@@ -111,17 +111,17 @@ class SplashScreenViewModel @Inject constructor(
         .map { (readyForNextScreen, appOpenAdShowing) ->
             if (KEEP_SPLASH_SCREEN_BELOW_AD) {
                 readyForNextScreen != true // not ready
-                        || appOpenAdShowing == true // currently showing ad
+                    || appOpenAdShowing == true // currently showing ad
             } else {
                 readyForNextScreen != true // not ready
-                        && appOpenAdShowing != true // not currently showing ad
+                    && appOpenAdShowing != true // not currently showing ad
             }
         }.distinctUntilChanged()
 
     val showNextScreen: LiveData<Boolean> = MediatorLiveData2(_readyForNextScreen, _appOpenAdShowing)
         .map { (readyForNextScreen, appOpenAdShowing) ->
             appOpenAdShowing == false // ad was dismissed by user -> show next screen
-                    || readyForNextScreen == true && appOpenAdShowing != true // ready and not currently showing ad
+                || (readyForNextScreen == true && appOpenAdShowing != true) // ready and not currently showing ad
         }.distinctUntilChanged()
 
     fun initHasSubscriptionFromCache() {
@@ -184,10 +184,10 @@ class SplashScreenViewModel @Inject constructor(
         }
         val agenciesWithSetupRequired = dataSourcesStorage.getAllAgencies()
             .filter { agency ->
-                agency.pkg != appContext.packageName  // not module / place providers
-                        && agency.isInstalled
-                        && agency.setupRequired
-                        && agency.isEnabled(pm)
+                agency.pkg != appContext.packageName // not module / place providers
+                    && agency.isInstalled
+                    && agency.setupRequired
+                    && agency.isEnabled(pm)
             }
         if (agenciesWithSetupRequired.isEmpty()) return@withContext // NOT NECESSARY TO DEPLOY
         deploying.set(true)
@@ -250,7 +250,7 @@ class SplashScreenViewModel @Inject constructor(
     internal suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
         val appOpenCounts = userManager.getAppOpenCount()
         val appOpenFirst = userManager.getAppOpenFirstOrNull()?.millisToInstant()
-        val appOpenLast =  userManager.getAppOpenLastOrNull()?.millisToInstant()
+        val appOpenLast = userManager.getAppOpenLastOrNull()?.millisToInstant()
         val now = TimeUtilsK.currentInstant()
         val shouldResetUx = appOpenLast?.let { lastAppOpen ->
             now - lastAppOpen >= RESET_DEFAULT_ROOT_SCREEN_AFTER
@@ -288,7 +288,7 @@ class SplashScreenViewModel @Inject constructor(
             }
             null
         } ?: appOpenLast?.let {
-            if (it + 99.days < now  // a long time ago
+            if (it + 99.days < now // a long time ago
                 && appOpenCounts < 33 // "few" app opens
             ) {
                 return@let true // old user coming back with "few" app opens

@@ -36,10 +36,10 @@ import javax.inject.Inject
 @HiltViewModel
 class NewsListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val newsRepository: NewsRepository,
+    newsRepository: NewsRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val adManager: IAdManager,
-    private val pm: PackageManager,
+    pm: PackageManager,
 ) : ViewModel(),
     ModuleDisabledAwareViewModel,
     MTLog.Loggable {
@@ -167,7 +167,7 @@ class NewsListViewModel @Inject constructor(
             fullscreenAndAvailable ?: return@map null
             if (fullscreenAndAvailable) return@map ColorUtils.BLACK
             return@map colorString
-    }
+        }
 
     fun setFullscreenMode(newFullscreenMode: Boolean) {
         savedStateHandle[EXTRA_FULL_SCREEN_MODE] = newFullscreenMode

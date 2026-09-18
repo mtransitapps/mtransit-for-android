@@ -41,7 +41,8 @@ import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SearchFragment : ABFragment(R.layout.fragment_search),
+class SearchFragment :
+    ABFragment(R.layout.fragment_search),
     DeviceLocationListener,
     TypeHeaderButtonsClickListener,
     OnItemSelectedListener {

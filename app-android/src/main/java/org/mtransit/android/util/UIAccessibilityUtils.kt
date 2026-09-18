@@ -111,7 +111,5 @@ object UIAccessibilityUtils {
 
     data class ImageFilter(val accessiblePossible: Boolean, val size: ImageSize, val alignBottom: Boolean)
 
-    enum class ImageSize {
-        SMALL, MEDIUM, LARGE
-    }
+    enum class ImageSize { SMALL, MEDIUM, LARGE }
 }

@@ -42,7 +42,7 @@ class NewsRepository @Inject constructor(
         poi?.let {
             NewsProviderContract.Filter.newPOIFilter(poi)
                 .copy(
-                    inFocus = true,  // focuses on POI
+                    inFocus = true, // focuses on POI
                     minCreatedAtInMs = UITimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(if (demoModeManager.enabled) 365L else 100L),
                 )
         },
@@ -67,7 +67,7 @@ class NewsRepository @Inject constructor(
     ) = loadingNewsArticles(
         providers = allProviders?.filter {
             targetProviderAuthorities != null // SKIP (bundle extra not read yet)
-                    && (targetProviderAuthorities.isEmpty() || targetProviderAuthorities.contains(it.targetAuthority))
+                && (targetProviderAuthorities.isEmpty() || targetProviderAuthorities.contains(it.targetAuthority))
         },
         filter = when {
             filterArticleUUIDs == null || filterTargetUUIDs == null -> null // SKIP (bundle extra not read yet)

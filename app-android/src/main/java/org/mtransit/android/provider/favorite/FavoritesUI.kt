@@ -242,7 +242,7 @@ object FavoritesUI : MTLog.Loggable {
         layoutInflater: LayoutInflater,
         favoriteFolder: FavoriteFolder,
     ) {
-        if (activity == null || activity.isFinishing) return  // SKIP
+        if (activity == null || activity.isFinishing) return // SKIP
         @SuppressLint("InflateParams") // dialog
         val editView = layoutInflater.inflate(R.layout.layout_favorites_folder_edit, null)
         val newFolderNameTv = editView.findViewById<EditText>(R.id.folder_name)

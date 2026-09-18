@@ -77,13 +77,15 @@ object MapUtils : MTLog.Loggable {
     fun showDirection(
         binding: ViewBinding? = null,
         activity: Activity,
-        optDestLat: Double? = null, optDestLng: Double? = null,
-        optSrcLat: Double? = null, optSrcLng: Double? = null,
+        optDestLat: Double? = null,
+        optDestLng: Double? = null,
+        optSrcLat: Double? = null,
+        optSrcLng: Double? = null,
         optQuery: String? = null,
         useInternalWebBrowserPref: Boolean?
     ) {
         val useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
-                && (useInternalWebBrowserPref ?: DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT)
+            && (useInternalWebBrowserPref ?: DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT)
         val gmmIntentUri = getMapsDirectionUrl(optDestLat, optDestLng, optSrcLat, optSrcLng, optQuery)
         if (useInternalWebBrowser) {
             LinkUtils.open(
@@ -101,8 +103,10 @@ object MapUtils : MTLog.Loggable {
 
     @JvmStatic
     fun getMapsDirectionUrl(
-        optDestLat: Double?, optDestLng: Double?,
-        optSrcLat: Double?, optSrcLng: Double?,
+        optDestLat: Double?,
+        optDestLng: Double?,
+        optSrcLat: Double?,
+        optSrcLng: Double?,
         @Suppress("unused") optQuery: String?
     ): Uri = MAP_DIRECTION_URL_PART_1.toUri().buildUpon().apply {
         if (optSrcLat != null && optSrcLng != null) {

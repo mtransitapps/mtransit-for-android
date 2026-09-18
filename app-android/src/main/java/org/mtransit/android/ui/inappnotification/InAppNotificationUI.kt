@@ -42,42 +42,47 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
             onActionClicked: (() -> Boolean)? = null,
         ): AndroidXPair<PopupWindow?, Snackbar?> {
             if (SNACKBAR_INSTEAD_OF_TOAST) {
-                return AndroidXPair(null, contextView?.let { theContextView ->
-                    Snackbar.make(theContextView, labelText, Snackbar.LENGTH_INDEFINITE).apply {
-                        if (!actionText.isNullOrBlank() && onActionClick != null) {
-                            setAction(actionText) { v ->
-                                onActionClick.onLongClick(v)
-                                onActionClicked?.invoke()
+                return AndroidXPair(
+                    null,
+                    contextView?.let { theContextView ->
+                        Snackbar.make(theContextView, labelText, Snackbar.LENGTH_INDEFINITE).apply {
+                            if (!actionText.isNullOrBlank() && onActionClick != null) {
+                                setAction(actionText) { v ->
+                                    onActionClick.onLongClick(v)
+                                    onActionClicked?.invoke()
+                                }
                             }
+                            anchorView.takeIf { it?.isVisible == true }?.let { setAnchorView(it) }
+                            addCallback(object : Snackbar.Callback() {
+                                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                                    onDismiss()
+                                }
+                            })
                         }
-                        anchorView.takeIf { it?.isVisible == true }?.let { setAnchorView(it) }
-                        addCallback(object : Snackbar.Callback() {
-                            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                                onDismiss()
-                            }
-                        })
                     }
-                }
                 )
             }
-            return AndroidXPair(ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {
-                if (!actionText.isNullOrBlank() && onActionClick != null) {
-                    setTouchInterceptor { v, event ->
-                        when (event.action) {
-                            MotionEvent.ACTION_DOWN -> {
-                                val handled = onActionClick.onLongClick(v)
-                                onActionClicked?.invoke()
-                                handled
-                            }
+            return AndroidXPair(
+                ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, labelText, actionText)?.apply {
+                    if (!actionText.isNullOrBlank() && onActionClick != null) {
+                        setTouchInterceptor { v, event ->
+                            when (event.action) {
+                                MotionEvent.ACTION_DOWN -> {
+                                    val handled = onActionClick.onLongClick(v)
+                                    onActionClicked?.invoke()
+                                    handled
+                                }
 
-                            else -> false // not handled
+                                else -> false // not handled
+                            }
                         }
                     }
-                }
-                setOnDismissListener {
-                    onDismiss()
-                }
-            }, null)
+                    setOnDismissListener {
+                        onDismiss()
+                    }
+                },
+                null
+            )
         }
 
         @JvmStatic

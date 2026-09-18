@@ -1,5 +1,6 @@
 package org.mtransit.android.data
 
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
@@ -81,7 +82,11 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     }
 }
 
-internal val POIArrayAdapter.analyticsScreen: AnalyticsScreen? get() = this.fragmentWR?.get() as? AnalyticsScreen
+// UnsafeCast: false positive
+@Suppress("UnsafeCast")
+internal val POIArrayAdapter.analyticsScreen: AnalyticsScreen?
+    get() = this.fragmentWR?.get() as? AnalyticsScreen
+        ?: this.fragmentWR?.get()?.let { (it as? Fragment)?.parentFragment as? AnalyticsScreen }
 
 internal fun POIArrayAdapter.trackTypeHeaderButtonClick(buttonId: Int) {
     when (buttonId) {

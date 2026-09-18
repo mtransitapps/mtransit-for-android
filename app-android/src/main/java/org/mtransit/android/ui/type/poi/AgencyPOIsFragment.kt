@@ -214,7 +214,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
                     ?: return@DefaultPOIListFooterManager false
                 val listItemCount = 1 + // for tabs
-                        poiList.size
+                    poiList.size
                 listItemCount < minListItemToNotHide
             },
             getTextHorizontalMargin = {
@@ -271,12 +271,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
-            fabFares.apply {
-                setUpFabEdgeToEdge(
-                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last,
-                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
-                )
-            }
+            fabFares.setUpFabEdgeToEdge(
+                originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last,
+                originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+            )
             map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
         }
         listAdapter.onCreateView(viewLifecycleOwner)

@@ -1,9 +1,9 @@
 package org.mtransit.android.ad.rewarded
 
-import androidx.annotation.AnyThread
 // import com.google.android.gms.ads.AdRequest // #gmaLegacy
 // import com.google.android.gms.ads.LoadAdError // #gmaLegacy
 // import com.google.android.gms.ads.rewarded.RewardedAd // #gmaLegacy
+import androidx.annotation.AnyThread
 import com.google.android.libraries.ads.mobile.sdk.common.AdLoadCallback // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd // #gmaNextGen
@@ -74,8 +74,8 @@ class RewardedAdLoadCallback(
             LoadAdError.ErrorCode.NOT_FOUND, // #gmaNextGen
             LoadAdError.ErrorCode.INVALID_AD_RESPONSE, // #gmaNextGen
             LoadAdError.ErrorCode.AD_RESPONSE_ALREADY_USED, // #gmaNextGen
-                // else // #gmaLegacy
                 -> this.crashReporter.w(this, "Failed to receive rewarded ad! Error code: '${adError.code}' ($adError).")
+            // else // #gmaLegacy
         }
     }
 }

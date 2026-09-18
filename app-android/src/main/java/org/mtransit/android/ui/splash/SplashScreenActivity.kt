@@ -27,8 +27,10 @@ import javax.inject.Inject
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
-open class SplashScreenActivity : MTActivity(),
-    IActivity, IAdScreenActivity,
+open class SplashScreenActivity :
+    MTActivity(),
+    IActivity,
+    IAdScreenActivity,
     AnalyticsScreen {
 
     companion object {

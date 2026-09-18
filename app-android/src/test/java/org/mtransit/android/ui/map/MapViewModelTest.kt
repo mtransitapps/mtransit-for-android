@@ -1,18 +1,18 @@
 package org.mtransit.android.ui.map
 //
-//import androidx.lifecycle.SavedStateHandle
-//import com.google.android.gms.maps.model.LatLng
-//import com.google.android.gms.maps.model.LatLngBounds
-//import org.junit.Assert
-//import org.junit.Before
-//import org.junit.Test
-//import org.mockito.Mockito.mock
-//import org.mtransit.android.common.repository.LocalPreferenceRepository
-//import org.mtransit.android.datasource.DataSourcesRepository
-//import org.mtransit.android.datasource.POIRepository
-//import org.mtransit.commons.CommonsApp
+// import androidx.lifecycle.SavedStateHandle
+// import com.google.android.gms.maps.model.LatLng
+// import com.google.android.gms.maps.model.LatLngBounds
+// import org.junit.Assert
+// import org.junit.Before
+// import org.junit.Test
+// import org.mockito.Mockito.mock
+// import org.mtransit.android.common.repository.LocalPreferenceRepository
+// import org.mtransit.android.datasource.DataSourcesRepository
+// import org.mtransit.android.datasource.POIRepository
+// import org.mtransit.commons.CommonsApp
 //
-//class MapViewModelTest {
+// class MapViewModelTest {
 //
 // private val savedStateHandle: SavedStateHandle = mock()
 //
@@ -39,4 +39,4 @@ package org.mtransit.android.ui.map
 // // Assert
 // Assert.assertEquals(true, result)
 // }
-//}
+// }

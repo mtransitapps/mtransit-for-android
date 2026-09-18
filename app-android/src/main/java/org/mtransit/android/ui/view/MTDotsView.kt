@@ -46,9 +46,7 @@ class MTDotsView @JvmOverloads constructor(
         if (isInEditMode) {
             setColorDots(
                 20,
-                (List(Random.nextInt(1, 15)) { Color.RED }
-                        + List(Random.nextInt(1, 5)) { Color.BLUE }
-                        ).reversed()
+                (List(Random.nextInt(1, 15)) { Color.RED } + List(Random.nextInt(1, 5)) { Color.BLUE }).reversed()
             )
         }
         if (!isInEditMode) {

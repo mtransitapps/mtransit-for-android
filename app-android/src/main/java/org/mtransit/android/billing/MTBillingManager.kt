@@ -41,9 +41,8 @@ class MTBillingManager @Inject constructor(
     @ApplicationContext appContext: Context,
     private val lclPrefRepository: LocalPreferenceRepository,
 ) : MTLog.Loggable,
-    IBillingManager,
-    PurchasesUpdatedListener // purchases updated
-{
+    PurchasesUpdatedListener, // purchases updated
+    IBillingManager {
 
     companion object {
         private val LOG_TAG: String = MTBillingManager::class.java.simpleName
@@ -114,8 +113,8 @@ class MTBillingManager @Inject constructor(
 
     override var fullDemoMode: Boolean? = null
 
-    override fun showingPaidFeatures() = (hasSubscription.value == true
-            && !isUsingFirebaseTestLab)
+    override fun showingPaidFeatures() =
+        (hasSubscription.value == true && !isUsingFirebaseTestLab)
             || fullDemoMode == true
     // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
@@ -182,11 +181,12 @@ class MTBillingManager @Inject constructor(
 
             BillingResponseCode.DEVELOPER_ERROR -> {
                 MTLog.w(
-                    this, "onPurchasesUpdated: Developer error means that Google Play " +
-                            "does not recognize the configuration. If you are just getting started, " +
-                            "make sure you have configured the application correctly in the " +
-                            "Google Play Console. The product ID must match and the APK you " +
-                            "are using must be signed with release keys."
+                    this,
+                    "onPurchasesUpdated: Developer error means that Google Play " +
+                        "does not recognize the configuration. If you are just getting started, " +
+                        "make sure you have configured the application correctly in the " +
+                        "Google Play Console. The product ID must match and the APK you " +
+                        "are using must be signed with release keys."
                 )
             }
 

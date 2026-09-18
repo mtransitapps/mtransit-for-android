@@ -24,12 +24,13 @@ object MapsInitializerUtil : MTLog.Loggable {
             return
         }
         try {
+            @Suppress("DEPRECATION")
             MapsInitializer.initialize(appContext, MapsInitializer.Renderer.LATEST) { renderer ->
                 when (renderer) {
                     MapsInitializer.Renderer.LATEST -> {
                         MTLog.d(this, "The latest version of the renderer is used.")
                     }
-                    @Suppress("DEPRECATION")
+
                     MapsInitializer.Renderer.LEGACY -> {
                         MTLog.d(this, "The legacy version of the renderer is used.")
                     }

@@ -215,11 +215,10 @@ class NearbyAgencyTypeViewModel @Inject constructor(
             minSize = currentParams.minSize?.let { it * 2 } ?: LocationUtils.MIN_NEARBY_LIST,
             maxSize = currentParams.maxSize?.let { it * 2 } ?: LocationUtils.MAX_NEARBY_LIST,
             minCoverageInMeters = currentParams.minCoverageInMeters?.let { it * 2f } ?: run {
-                val nearbyLocation = currentParams.nearbyLocation
-                val ad = currentParams.ad
-                if (nearbyLocation == null || ad == null) -1f else {
-                    LocationUtils.getAroundCoveredDistanceInMeters(nearbyLocation.latitude, nearbyLocation.longitude, ad.aroundDiff)
-                }.coerceAtLeast(max(MIN_NEARBY_LIST_COVERAGE_IN_METERS, nearbyLocation?.accuracy ?: 0f))
+                val nearbyLocation = currentParams.nearbyLocation ?: return@run null
+                val ad = currentParams.ad ?: return@run null
+                LocationUtils.getAroundCoveredDistanceInMeters(nearbyLocation.latitude, nearbyLocation.longitude, ad.aroundDiff)
+                    .coerceAtLeast(max(MIN_NEARBY_LIST_COVERAGE_IN_METERS, nearbyLocation.accuracy))
             },
             ad = LocationUtils.incAroundDiff(currentParams.ad ?: LocationUtils.getNewDefaultAroundDiff())
         )

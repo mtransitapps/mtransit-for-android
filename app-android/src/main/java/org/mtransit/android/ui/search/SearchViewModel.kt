@@ -154,8 +154,8 @@ class SearchViewModel @Inject constructor(
                     ?.also { typeToAgencies ->
                         keepAll = typeToAgencies.keys.size == 1
                     },
-                filter = if (query.isNullOrBlank()) null else {
-                    POIProviderContract.Filter.getNewSearchFilter(query).copy(
+                filter = query?.takeIf { it.isNotBlank() }?.let {
+                    POIProviderContract.Filter.getNewSearchFilter(it).copy(
                         extras = SimpleArrayMap<String, Any>().apply {
                             put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
                             put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)

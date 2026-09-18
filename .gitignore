@@ -171,6 +171,7 @@ dev.properties
 /.idea/studiobot.xml
 /.idea/vcs.xml
 /.vscode/settings.json
+/.editorconfig
 /all_apps_logcat_tag_mt.sh
 /all_apps_logcat_tag_mtd.sh
 /all_apps_pidcat_tag_mt.sh

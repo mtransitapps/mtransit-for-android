@@ -61,10 +61,12 @@ import javax.inject.Inject
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER", "unused", "MemberVisibilityCanBePrivate")
 @AndroidEntryPoint
-class NextMainActivity : MTActivityWithLocation(),
+class NextMainActivity :
+    MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,
     AnalyticsScreen,
-    IActivity, IAdScreenActivity,
+    IActivity,
+    IAdScreenActivity,
     IAdManager.RewardedAdListener {
 
     companion object {
@@ -265,6 +267,8 @@ class NextMainActivity : MTActivityWithLocation(),
     }
 
     fun onSearchQueryRequested(query: String?) {
+        // UnsafeCast: false positive
+        @Suppress("UnsafeCast")
         (currentFragment as? SearchFragment)?.apply {
             setSearchQuery(query, false)
         } ?: run {

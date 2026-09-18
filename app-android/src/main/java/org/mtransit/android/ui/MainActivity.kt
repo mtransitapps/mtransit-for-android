@@ -66,10 +66,12 @@ import java.util.WeakHashMap
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : MTActivityWithLocation(),
+class MainActivity :
+    MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,
     AnalyticsScreen,
-    IActivity, IAdScreenActivity,
+    IActivity,
+    IAdScreenActivity,
     MTLog.Loggable,
     IAdManager.RewardedAdListener {
 

@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 @Singleton
 class DataSourcesRepository @Inject constructor(
@@ -100,7 +99,7 @@ class DataSourcesRepository @Inject constructor(
     }.distinctUntilChanged()
 
     fun readingAllAgenciesEnabledCount() = readingAllAgenciesBase().map {
-        it.filter { agency -> agency.isEnabled(pm) }.size
+        it.count { agency -> agency.isEnabled(pm) }
     }
 
     fun getAllAgenciesEnabled() = getAllAgencies().filter { agency -> agency.isEnabled(pm) }
@@ -269,10 +268,10 @@ class DataSourcesRepository @Inject constructor(
 
     private val filterNewsProviders: (NewsProviderProperties) -> Boolean = {
         (
-                !it.authority.contains("news.instagram") // not working
-                        // || it.authority == "org.mtransit.android.news.instagram" // DEBUG
-                        // || it.authority == "org.mtransit.android.debug.news.instagram" // DEBUG
-                )
+            !it.authority.contains("news.instagram") // not working
+            // || it.authority == "org.mtransit.android.news.instagram" // DEBUG
+            // || it.authority == "org.mtransit.android.debug.news.instagram" // DEBUG
+            )
     }
 
     fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
@@ -283,12 +282,14 @@ class DataSourcesRepository @Inject constructor(
         emit(
             dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
         )
-        emitSource(dataSourcesStorage.readingAllNewsProviders().map { newsProviders ->
-            newsProviders
-                .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
-                .filterDemoModeTargeted(demoModeManager)
-                .filterNewsProviders()
-        }) // #onModulesUpdated
+        emitSource(
+            dataSourcesStorage.readingAllNewsProviders().map { newsProviders ->
+                newsProviders
+                    .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
+                    .filterDemoModeTargeted(demoModeManager)
+                    .filterNewsProviders()
+            }
+        ) // #onModulesUpdated
     }.distinctUntilChanged()
 
     fun getNewsProviders(targetAuthority: String) =
@@ -305,7 +306,8 @@ class DataSourcesRepository @Inject constructor(
                         .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
                         .filterDemoModeTargeted(demoModeManager)
                         .filterNewsProviders()
-                }) // #onModulesUpdated
+                }
+            ) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -331,7 +333,6 @@ class DataSourcesRepository @Inject constructor(
         } finally {
             runningUpdateMap[forcePkg ?: ALL_PKG] = false
         }
-
     }
 
     private suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {

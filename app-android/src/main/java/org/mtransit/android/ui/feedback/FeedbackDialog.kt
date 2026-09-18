@@ -31,8 +31,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
         private val LOG_TAG: String = FeedbackDialog::class.java.simpleName
 
         @JvmStatic
-        fun newInstance(
-        ): FeedbackDialog {
+        fun newInstance(): FeedbackDialog {
             return FeedbackDialog()
         }
     }

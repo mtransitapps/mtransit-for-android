@@ -24,10 +24,10 @@ fun Purchase.toStringPlus(short: Boolean = false) = buildString {
     quantity.takeIf { it > 0 }?.let { append("quantity:$it, ") }
     orderId?.let { append("orderId:$it, ") }
     if (short) {
-        append("purchase{time:${purchaseTime.toDateTimeLog()}|state:${purchaseState}|token:*** (${purchaseToken.length})}, ")
+        append("purchase{time:${purchaseTime.toDateTimeLog()}|state:$purchaseState|token:*** (${purchaseToken.length})}, ")
     } else {
         append("purchaseTime:${purchaseTime.toDateTimeLog()},")
-        append("purchaseState:${purchaseState}, ")
+        append("purchaseState:$purchaseState, ")
         append("purchaseToken: *** (${purchaseToken.length}), ")
     }
     if (isAcknowledged) append("acknowledged, ")
@@ -65,7 +65,7 @@ fun ProductDetails.toStringPlus(short: Boolean = false) = buildString {
 
 fun List<ProductDetails.SubscriptionOfferDetails>.toStringPlus(short: Boolean = false) = buildString {
     append(if (short) "SODs{" else "SubscriptionOfferDetails{")
-    append("[${size}]:")
+    append("[$size]:")
     append(joinToString { subscriptionOfferDetails -> subscriptionOfferDetails.toStringPlus(short = short) })
     append("}")
 }
@@ -98,16 +98,18 @@ fun ProductDetails.PricingPhase.toStringPlus(short: Boolean = false) = buildStri
         append("billingPeriod: $billingPeriod, ")
         billingCycleCount.takeIf { it > 0 }?.let { append("billingCycleCount: $it, ") }
     }
-    append(buildString {
-        append(if (short) "recurrence: " else "recurrenceMode: ")
-        when (recurrenceMode) {
-            ProductDetails.RecurrenceMode.INFINITE_RECURRING -> append("infinite")
-            ProductDetails.RecurrenceMode.FINITE_RECURRING -> append("finite")
-            ProductDetails.RecurrenceMode.NON_RECURRING -> append("non-recurring")
-            else -> append("unknown")
+    append(
+        buildString {
+            append(if (short) "recurrence: " else "recurrenceMode: ")
+            when (recurrenceMode) {
+                ProductDetails.RecurrenceMode.INFINITE_RECURRING -> append("infinite")
+                ProductDetails.RecurrenceMode.FINITE_RECURRING -> append("finite")
+                ProductDetails.RecurrenceMode.NON_RECURRING -> append("non-recurring")
+                else -> append("unknown")
+            }
+            append(", ")
         }
-        append(", ")
-    })
+    )
     if (short) {
         append("price: $formattedPrice ($priceAmountMicros, $priceCurrencyCode), ")
     } else {

@@ -22,5 +22,4 @@ enum class DataSourceStopType(
     MODULE(999, R.string.agency_stop_type_module, R.string.agency_stop_type_modules), // agencies
     FAVORITE(777, R.string.agency_stop_type_favorite, R.string.agency_stop_type_favorites),
     NEWS_ARTICLE(888, R.string.agency_stop_type_news_article, R.string.agency_stop_type_news_articles),
-
 }

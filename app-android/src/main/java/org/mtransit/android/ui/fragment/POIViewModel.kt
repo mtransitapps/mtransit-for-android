@@ -69,10 +69,10 @@ class POIViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
-    private val newsRepository: NewsRepository,
+    newsRepository: NewsRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
-    private val favoriteRepository: FavoriteRepository,
+    dataSourceRequestManager: DataSourceRequestManager,
+    favoriteRepository: FavoriteRepository,
     userPrefManager: UserPrefManager,
     remoteConfigProvider: RemoteConfigProvider,
 ) : ViewModel(), MTLog.Loggable {
@@ -212,8 +212,8 @@ class POIViewModel @Inject constructor(
     private val nearbyAgencies: LiveData<List<AgencyBaseProperties>?> = MediatorLiveData2(_poiArea, _allAgencies).map { (poiArea, allAgencies) ->
         allAgencies?.filter { agency ->
             agency.type.isNearbyScreen
-                    && agency.type != DataSourceType.TYPE_MODULE
-                    && agency.isInArea(poiArea)
+                && agency.type != DataSourceType.TYPE_MODULE
+                && agency.isInArea(poiArea)
         }
     }
 
@@ -246,7 +246,7 @@ class POIViewModel @Inject constructor(
     private fun POI.isSameRouteDirection(other: POI): Boolean {
         if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
         return this.route.id == other.route.id
-                && this.direction.id == other.direction.id
+            && this.direction.id == other.direction.id
     }
 
     private suspend fun getNearbyPOIs(
@@ -289,7 +289,7 @@ class POIViewModel @Inject constructor(
                         poiRepository.findPOIMs(nearbyAgency, poiFilter)
                             .removeAllAnd {
                                 it.poi.uuid == excludedUUID
-                                        || (it.poi.isNoPickup && !it.poi.isSameRoute(excludedPoi))
+                                    || (it.poi.isNoPickup && !it.poi.isSameRoute(excludedPoi))
                             }
                             .updateDistanceM(lat, lng)
                             .removeTooFar(
@@ -369,7 +369,7 @@ class POIViewModel @Inject constructor(
                     poiRepository.findPOIMs(agency, poiFilter)
                         .removeAllAnd {
                             it.poi.uuid == excludedUUID
-                                    || (it.poi.isNoPickup && it.poi.isSameRoute(excludedPoi)) // remove if no pickup && another route
+                                || (it.poi.isNoPickup && it.poi.isSameRoute(excludedPoi)) // remove if no pickup && another route
                         }
                         .updateDistanceM(lat, lng)
                         .removeTooFar(maxDistanceInMeters)
@@ -421,7 +421,7 @@ class POIViewModel @Inject constructor(
             { allNews ->
                 val nowInMs = UITimeUtils.currentTimeMillis()
                 val selectedNews = mutableListOf<News>()
-                val minSelectedArticles = min(2, allNews.size)  // encourage 2+ articles
+                val minSelectedArticles = min(2, allNews.size) // encourage 2+ articles
                 val maxSelectedArticles = max(5, minSelectedArticles)
                 var noteworthiness = 1L
                 while (selectedNews.size < minSelectedArticles
@@ -430,7 +430,7 @@ class POIViewModel @Inject constructor(
                     for (news in allNews) {
                         val validityInMs: Long = news.createdAtInMs + news.noteworthyInMs * noteworthiness
                         if (validityInMs < nowInMs) {
-                            continue  // news too old to be worthy
+                            continue // news too old to be worthy
                         }
                         if (!selectedNews.contains(news)) {
                             selectedNews.add(news)

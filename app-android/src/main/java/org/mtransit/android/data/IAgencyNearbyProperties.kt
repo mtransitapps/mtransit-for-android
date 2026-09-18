@@ -60,7 +60,9 @@ interface IAgencyNearbyProperties : IAgencyProperties {
             }
             return if (isInside(area2.maxLat, area2.maxLng, area1)) {
                 true // max lat, max lng
-            } else areCompletelyOverlapping(area1, area2)
+            } else {
+                areCompletelyOverlapping(area1, area2)
+            }
         }
 
         private fun isInside(lat: Double, lng: Double, area: LatLngBounds?): Boolean {
@@ -87,7 +89,9 @@ interface IAgencyNearbyProperties : IAgencyProperties {
                 && area1MinLng >= area2.minLng && area1MaxLng <= area2.maxLng
             ) {
                 true // area 2 wider than area 1 but area 1 higher than area 2
-            } else false
+            } else {
+                false
+            }
         }
     }
 

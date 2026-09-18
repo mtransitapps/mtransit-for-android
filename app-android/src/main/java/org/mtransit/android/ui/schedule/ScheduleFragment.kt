@@ -56,7 +56,8 @@ import java.util.TimeZone
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
+class ScheduleFragment :
+    ABFragment(R.layout.fragment_schedule_infinite),
     MenuProvider {
 
     companion object {
@@ -188,8 +189,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             // NOTHING
         }
         viewModel.sourceLabelAndReadFromSource.observe(viewLifecycleOwner) { (sourceLabel, readFromSource) ->
-            binding?.apply {
-                UISourceLabelUtils.setSourceLabelTextView(this.sourceLabel, readFromSource, sourceLabel)
+            binding?.let {
+                UISourceLabelUtils.setSourceLabelTextView(it.sourceLabel, readFromSource, sourceLabel)
             }
         }
         viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
@@ -268,10 +269,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite),
             formatTime(context, nowInMs, tz)
                 .takeIf { it != formatTime(context, nowInMs, TimeZone.getDefault()) }
         }.let { localTimeDifferent ->
-            localTime.apply {
-                textAndVisibility = localTimeDifferent?.let {
-                    context.getString(R.string.local_time_and_time, UITimeUtils.cleanNoRealTime(false, it))
-                }
+            localTime.textAndVisibility = localTimeDifferent?.let {
+                context.getString(R.string.local_time_and_time, UITimeUtils.cleanNoRealTime(false, it))
             }
         }
     }

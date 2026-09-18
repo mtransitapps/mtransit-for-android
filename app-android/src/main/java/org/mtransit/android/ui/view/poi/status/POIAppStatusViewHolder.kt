@@ -23,7 +23,9 @@ data class POIAppStatusViewHolder(
     ) = if (dataProvider.isShowingStatus && statusViewHolder is POIAppStatusViewHolder) {
         poim.setStatusLoaderListener(dataProvider)
         poim.getStatus(dataProvider.providesStatusLoader()) as? AppStatus
-    } else null
+    } else {
+        null
+    }
 
     override fun update(
         statusViewHolder: POICommonStatusViewHolder<*, *>?,

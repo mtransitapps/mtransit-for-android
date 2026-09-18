@@ -376,12 +376,11 @@ class ScheduleAdapter(
     val isReady get() = this.timesCount != null
 
     override fun getItemCount(): Int {
-        return if (!isReady) 0
-        else
-            (this.timesCount ?: 0) + // times
-                    dayToHourToTimestamps.size + // day separator
-                    dayToHourToTimestamps.size * HOUR_SEPARATORS_COUNT + // time separator
-                    1 // loading
+        if (!isReady) return 0
+        return (this.timesCount ?: 0) + // times
+            dayToHourToTimestamps.size + // day separator
+            dayToHourToTimestamps.size * HOUR_SEPARATORS_COUNT + // time separator
+            1 // loading
     }
 
     private fun getTimestampItem(position: Int): Schedule.Timestamp? {
@@ -547,7 +546,6 @@ class ScheduleAdapter(
                 )
                 return DaySeparatorViewHolder(binding)
             }
-
         }
 
         val context: Context
@@ -712,8 +710,7 @@ class ScheduleAdapter(
                 val departureMs = timestamp.departureMs(hideRealTime)
                 val compareToNow = nowToTheMinuteInMs - departureMs
                 val sameTimestamp = nextTimeInMsT == departureMs
-                if (sameTimestamp
-                ) { // now
+                if (sameTimestamp) { // now
                     SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE)
                 } else if (compareToNow > 0L) { // past
                     SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
@@ -741,7 +738,6 @@ class ScheduleAdapter(
                 )
                 return LoadingViewHolder(binding)
             }
-
         }
 
         val context: Context
