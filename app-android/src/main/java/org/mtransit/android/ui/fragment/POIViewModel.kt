@@ -269,6 +269,20 @@ class POIViewModel @Inject constructor(
         val maxSize = LocationUtils.MAX_POI_NEARBY_POIS_LIST
         val minCoverageInMeters = LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS.toFloat()
         val nearbyPOIs = mutableListOf<POIManager>()
+        val poiFilters = mutableMapOf<Double, POIProviderContract.Filter>()
+        val agenciesToLoadedPOIs = mutableMapOf<Pair<String, Double>, MutableList<POIManager>>()
+        fun getPoiFilter(aroundDiff: Double) = poiFilters.getOrPut(aroundDiff) {
+            POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+                extras = SimpleArrayMap<String, Any>().apply {
+                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+                },
+            )
+        }
+        suspend fun getLoadedPOIs(targetAgency: IAgencyProperties, aroundDiff: Double): MutableList<POIManager> {
+            return agenciesToLoadedPOIs.getOrPut(targetAgency.authority to aroundDiff) {
+                poiRepository.findPOIMs(targetAgency, getPoiFilter(aroundDiff))
+            }.toMutableList()
+        }
         var ad = LocationUtils.getNewDefaultAroundDiff()
         var maxDistanceInMeters = NEARBY_CONNECTIONS_INITIAL_COVERAGE
         var nearbyAgencyPOIAdded = false
@@ -278,15 +292,10 @@ class POIViewModel @Inject constructor(
                 LocationUtils.incAroundDiff(ad)
             }
             val aroundDiff = ad.aroundDiff
-            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
-                extras = SimpleArrayMap<String, Any>().apply {
-                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                },
-            )
             nearbyAgencies
                 .forEach { nearbyAgency ->
                     nearbyPOIs.addAllN(
-                        poiRepository.findPOIMs(nearbyAgency, poiFilter)
+                        getLoadedPOIs(nearbyAgency, aroundDiff)
                             .removeAllAnd {
                                 it.poi.uuid == excludedUUID
                                     || (it.poi.isNoPickup && !it.poi.isSameRoute(excludedPoi))
@@ -360,13 +369,8 @@ class POIViewModel @Inject constructor(
             while (true) {
                 val aroundDiff = ad.aroundDiff
                 maxDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
-                val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
-                    extras = SimpleArrayMap<String, Any>().apply {
-                        put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                    },
-                )
                 nearbyPOIs.addAllN(
-                    poiRepository.findPOIMs(agency, poiFilter)
+                    getLoadedPOIs(agency, aroundDiff)
                         .removeAllAnd {
                             it.poi.uuid == excludedUUID
                                 || (it.poi.isNoPickup && it.poi.isSameRoute(excludedPoi)) // remove if no pickup && another route
