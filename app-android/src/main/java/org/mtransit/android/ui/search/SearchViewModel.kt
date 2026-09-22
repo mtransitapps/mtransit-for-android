@@ -143,8 +143,8 @@ class SearchViewModel @Inject constructor(
 
     val searchHasFocus: LiveData<Boolean> = _searchHasFocus
 
-    val searchResults: LiveData<List<POIManager>?> =
-        MediatorLiveData3(query, _typeFilterId, _searchableAgencies).switchMap { (query, typeFilterId, searchableAgencies) ->
+    val searchResults: LiveData<List<POIManager>?> = MediatorLiveData3(query, _typeFilterId, _searchableAgencies)
+        .switchMap { (query, typeFilterId, searchableAgencies) ->
             var keepAll = false
             this.poiRepository.loadingPOIMs(
                 typeToProviders = searchableAgencies

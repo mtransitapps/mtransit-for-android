@@ -2,15 +2,18 @@ package org.mtransit.android.ui.view.map
 
 import androidx.annotation.DrawableRes
 
+/**
+ * Same default values as [com.google.android.gms.maps.model.MarkerOptions]
+ */
 data class MTMapIconDef(
     @get:DrawableRes val resId: Int,
     @get:DrawableRes val smallResId: Int = resId,
     @get:DrawableRes val mediumResId: Int = resId,
-    val flat: Boolean = false,
+    val flat: Boolean = true,
     val anchorU: Float = 0.5f,
-    val anchorV: Float = 1.0f,
+    val anchorV: Float = if (flat) 0.5f else 1.0f,
     val infoWindowAnchorU: Float = 0.5f,
-    val infoWindowAnchorV: Float = 0.5f,
+    val infoWindowAnchorV: Float = if (flat) 0.5f else 0.0f,
     val replaceColor: Boolean = false,
     val oneSize: Boolean = false,
     val size: Int? = null,

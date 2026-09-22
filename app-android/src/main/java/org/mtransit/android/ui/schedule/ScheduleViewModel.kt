@@ -118,17 +118,19 @@ class ScheduleViewModel @Inject constructor(
         timeZoneId?.let { TimeZone.getTimeZone(it) }
     }
 
-    private val _startsAtInMs: LiveData<Long?> = MediatorLiveData2(_startsAtDaysBefore, localTimeZone).map { (startsAtDaysBefore, localTimeZone) ->
-        startsAtDaysBefore ?: return@map null
-        val timeZone = localTimeZone ?: TimeZone.getDefault()
-        UITimeUtils.currentTimeMillis().toCalendar(timeZone).beginningOfDay.timeInMillis - TimeUnit.DAYS.toMillis(startsAtDaysBefore.toLong())
-    }.distinctUntilChanged()
+    private val _startsAtInMs: LiveData<Long?> = MediatorLiveData2(_startsAtDaysBefore, localTimeZone)
+        .map { (startsAtDaysBefore, localTimeZone) ->
+            startsAtDaysBefore ?: return@map null
+            val timeZone = localTimeZone ?: TimeZone.getDefault()
+            UITimeUtils.currentTimeMillis().toCalendar(timeZone).beginningOfDay.timeInMillis - TimeUnit.DAYS.toMillis(startsAtDaysBefore.toLong())
+        }.distinctUntilChanged()
 
-    private val _endsAtInMs: LiveData<Long?> = MediatorLiveData2(_endsAtDaysAfter, localTimeZone).map { (endsAtDaysBefore, localTimeZone) ->
-        endsAtDaysBefore ?: return@map null
-        val timeZone = localTimeZone ?: TimeZone.getDefault()
-        UITimeUtils.currentTimeMillis().toCalendar(timeZone).beginningOfDay.timeInMillis + TimeUnit.DAYS.toMillis(endsAtDaysBefore.toLong())
-    }.distinctUntilChanged()
+    private val _endsAtInMs: LiveData<Long?> = MediatorLiveData2(_endsAtDaysAfter, localTimeZone)
+        .map { (endsAtDaysBefore, localTimeZone) ->
+            endsAtDaysBefore ?: return@map null
+            val timeZone = localTimeZone ?: TimeZone.getDefault()
+            UITimeUtils.currentTimeMillis().toCalendar(timeZone).beginningOfDay.timeInMillis + TimeUnit.DAYS.toMillis(endsAtDaysBefore.toLong())
+        }.distinctUntilChanged()
 
     val startEndAt = MediatorLiveData2(_startsAtInMs, _endsAtInMs)
 

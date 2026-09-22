@@ -42,6 +42,9 @@ import org.mtransit.android.data.POIConnectionComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
+import org.mtransit.android.data.isNoPickup
+import org.mtransit.android.data.isSameRoute
+import org.mtransit.android.data.isSameRouteDirection
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
@@ -85,6 +88,9 @@ class POIViewModel @Inject constructor(
 
         private const val NEARBY_CONNECTIONS_INITIAL_COVERAGE = 100f
         private const val NEARBY_CONNECTIONS_MAX_COVERAGE = 2f * LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS.toFloat()
+        private const val NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE = 250f
+
+        private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
     override fun getLogTag() = LOG_TAG
@@ -166,21 +172,22 @@ class POIViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    val poiList: LiveData<List<POIManager>?> = MediatorLiveData2(agency, _poi).switchMap { (agency, poi) ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            agency ?: return@liveData
-            poi ?: return@liveData
-            emit(
-                poiRepository.findPOIMs(agency, getFilter(poi))
-                    .apply {
-                        if (poi !is RouteDirectionStop) {
-                            updateDistanceM(poi.lat, poi.lng)
-                            sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
+    val poiList: LiveData<List<POIManager>?> = MediatorLiveData2(agency, _poi)
+        .switchMap { (agency, poi) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                agency ?: return@liveData
+                poi ?: return@liveData
+                emit(
+                    poiRepository.findPOIMs(agency, getFilter(poi))
+                        .apply {
+                            if (poi !is RouteDirectionStop) {
+                                updateDistanceM(poi.lat, poi.lng)
+                                sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
+                            }
                         }
-                    }
-            )
+                )
+            }
         }
-    }
 
     private fun getFilter(poi: POI): POIProviderContract.Filter = when (poi) {
         is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
@@ -209,44 +216,30 @@ class POIViewModel @Inject constructor(
 
     private val _poiArea = _poi.map { poi -> poi?.let { Area.getArea(it.lat, it.lng, 0.01) } }
 
-    private val nearbyAgencies: LiveData<List<AgencyBaseProperties>?> = MediatorLiveData2(_poiArea, _allAgencies).map { (poiArea, allAgencies) ->
-        allAgencies?.filter { agency ->
-            agency.type.isNearbyScreen
-                && agency.type != DataSourceType.TYPE_MODULE
-                && agency.isInArea(poiArea)
+    private val nearbyAgencies: LiveData<List<AgencyBaseProperties>?> = MediatorLiveData2(_poiArea, _allAgencies)
+        .map { (poiArea, allAgencies) ->
+            allAgencies?.filter { agency ->
+                agency.type.isNearbyScreen
+                    && agency.type != DataSourceType.TYPE_MODULE
+                    && agency.isInArea(poiArea)
+            }
         }
-    }
 
     // like Home screen (no infinite loading like in Nearby screen)
-    val nearbyPOIs: LiveData<List<POIManager>?> = MediatorLiveData3(nearbyAgencies, agency, _poi).switchMap { (nearbyAgencies, agency, poi) ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getNearbyPOIs(nearbyAgencies, agency, poi))
+    val nearbyPOIs: LiveData<List<POIManager>?> = MediatorLiveData3(nearbyAgencies, agency, _poi)
+        .switchMap { (nearbyAgencies, agency, poi) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                emit(getNearbyPOIs(nearbyAgencies, agency, poi))
+            }
         }
-    }
 
     private val poiConnectionComparator by lazy {
         POIConnectionComparator({ dataSourceTypeId ->
             when (dataSourceTypeId) {
-                DataSourceType.TYPE_BIKE.id -> 250f
+                DataSourceType.TYPE_BIKE.id -> NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE
                 else -> NEARBY_CONNECTIONS_MAX_COVERAGE
             }
         })
-    }
-
-    private val poiAlphaComparator by lazy { POIAlphaComparator() }
-
-    private val POI.isNoPickup: Boolean
-        get() = this is RouteDirectionStop && this.isNoPickup
-
-    private fun POI.isSameRoute(other: POI): Boolean {
-        if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
-        return this.route.id == other.route.id
-    }
-
-    private fun POI.isSameRouteDirection(other: POI): Boolean {
-        if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
-        return this.route.id == other.route.id
-            && this.direction.id == other.direction.id
     }
 
     private suspend fun getNearbyPOIs(
@@ -277,8 +270,7 @@ class POIViewModel @Inject constructor(
             if (maxDistanceInMeters >= LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)) {
                 LocationUtils.incAroundDiff(ad)
             }
-            val aroundDiff = ad.aroundDiff
-            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).copy(
                 extras = SimpleArrayMap<String, Any>().apply {
                     put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
                 },
@@ -388,7 +380,7 @@ class POIViewModel @Inject constructor(
             }
         }
         nearbyPOIs.sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
-        nearbyPOIs.sortWithAnd(poiAlphaComparator)
+        nearbyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
         nearbyPOIs.sortWithAnd(poiConnectionComparator)
         return nearbyPOIs
     }
@@ -412,40 +404,41 @@ class POIViewModel @Inject constructor(
         dataSourcesRepository.readingNewsProviders(it) // #onModulesUpdated
     }
 
-    val latestNewsArticleList: LiveData<List<News>?> = MediatorLiveData2(_poi, _newsProviders).switchMap { (poi, newsProviders) ->
-        newsRepository.loadingNewsArticles(
-            newsProviders,
-            poi,
-            News.NEWS_SEVERITY_COMPARATOR,
-            firstLoad = latestNewsArticleList.value == null,
-            { allNews ->
-                val nowInMs = UITimeUtils.currentTimeMillis()
-                val selectedNews = mutableListOf<News>()
-                val minSelectedArticles = min(2, allNews.size) // encourage 2+ articles
-                val maxSelectedArticles = max(5, minSelectedArticles)
-                var noteworthiness = 1L
-                while (selectedNews.size < minSelectedArticles
-                    && noteworthiness < 13L
-                ) {
-                    for (news in allNews) {
-                        val validityInMs: Long = news.createdAtInMs + news.noteworthyInMs * noteworthiness
-                        if (validityInMs < nowInMs) {
-                            continue // news too old to be worthy
+    val latestNewsArticleList: LiveData<List<News>?> = MediatorLiveData2(_poi, _newsProviders)
+        .switchMap { (poi, newsProviders) ->
+            newsRepository.loadingNewsArticles(
+                newsProviders,
+                poi,
+                News.NEWS_SEVERITY_COMPARATOR,
+                firstLoad = latestNewsArticleList.value == null,
+                { allNews ->
+                    val nowInMs = UITimeUtils.currentTimeMillis()
+                    val selectedNews = mutableListOf<News>()
+                    val minSelectedArticles = min(2, allNews.size) // encourage 2+ articles
+                    val maxSelectedArticles = max(5, minSelectedArticles)
+                    var noteworthiness = 1L
+                    while (selectedNews.size < minSelectedArticles
+                        && noteworthiness < 13L
+                    ) {
+                        for (news in allNews) {
+                            val validityInMs: Long = news.createdAtInMs + news.noteworthyInMs * noteworthiness
+                            if (validityInMs < nowInMs) {
+                                continue // news too old to be worthy
+                            }
+                            if (!selectedNews.contains(news)) {
+                                selectedNews.add(news)
+                            }
+                            if (selectedNews.size >= maxSelectedArticles) {
+                                break // found enough news article
+                            }
                         }
-                        if (!selectedNews.contains(news)) {
-                            selectedNews.add(news)
-                        }
-                        if (selectedNews.size >= maxSelectedArticles) {
-                            break // found enough news article
-                        }
+                        noteworthiness++
                     }
-                    noteworthiness++
-                }
-                return@loadingNewsArticles selectedNews
-            },
-            coroutineContext = viewModelScope.coroutineContext + Dispatchers.IO,
-        )
-    }
+                    return@loadingNewsArticles selectedNews
+                },
+                coroutineContext = viewModelScope.coroutineContext + Dispatchers.IO,
+            )
+        }
 
     fun onBatteryOptimizationSettingsOpened() {
         lclPrefRepository.pref.edit {

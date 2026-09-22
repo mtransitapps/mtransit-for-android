@@ -64,6 +64,18 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
                 }
             }
         }
+        @JvmStatic
+        fun newInstance(
+            fixedOnLat: Double,
+            fixedOnLng: Double,
+        ): PickPOIDialogFragment {
+            return PickPOIDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putDouble(PickPOIViewModel.EXTRA_FIXED_ON_LAT, fixedOnLat)
+                    putDouble(PickPOIViewModel.EXTRA_FIXED_ON_LNG, fixedOnLng)
+                }
+            }
+        }
     }
 
     override fun getLogTag() = LOG_TAG
@@ -159,7 +171,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             }
         }
         this.adapter.onCreateView(viewLifecycleOwner)
-        viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
+        viewModel.poiNearbyList.observe(viewLifecycleOwner) { poiList ->
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             adapter.initManual()

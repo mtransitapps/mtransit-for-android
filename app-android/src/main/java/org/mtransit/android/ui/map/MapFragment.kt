@@ -34,8 +34,10 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.clearSelectedPlace
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.map.IMarker
+import org.mtransit.android.ui.view.setSelectedPlace
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
@@ -124,6 +126,10 @@ class MapFragment :
 
         override fun onMapClick(position: LatLng) = Unit // DO NOTHING
 
+        override fun onMapLongClick(position: LatLng) {
+            viewModel.onSelectedPlaceLocation(position)
+        }
+
         override fun onMarkerClick(marker: IMarker?) = false
 
         override fun onCameraChanged(latLngBounds: LatLngBounds, zoom: Float) {
@@ -202,9 +208,7 @@ class MapFragment :
             viewModel.onSelectedUUIDSet()
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
-            context?.let { context ->
-                mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
-            }
+            context?.let { mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(it)) }
             mapViewController.onDeviceLocationChanged(it)
         }
         LocationSettingsUI.onViewCreated(this)
@@ -232,6 +236,12 @@ class MapFragment :
                 mapViewController.showMap(view)
             }
         }
+        viewModel.selectedPlace.observe(viewLifecycleOwner) { place ->
+            place?.let {
+                context?.let { mapViewController.setSelectedPlace(it, place) }
+            } ?: run {
+                mapViewController.clearSelectedPlace()
+            }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

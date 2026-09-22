@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view;
 
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedPlace;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
@@ -51,6 +52,7 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
+import org.mtransit.android.data.Place;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.device.DevicePrefManager;
 import org.mtransit.android.ui.MainActivity;
@@ -77,6 +79,7 @@ import org.mtransit.commons.FeatureFlags;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -91,6 +94,8 @@ public class MapViewController implements
 		ExtendedGoogleMap.OnMarkerClickListener,
 		ExtendedGoogleMap.OnMyLocationButtonClickListener,
 		ExtendedGoogleMap.OnMapClickListener,
+		ExtendedGoogleMap.OnMapLongClickListener,
+		ExtendedGoogleMap.OnMarkerDragListener,
 		LocationSource,
 		OnMapReadyCallback,
 		ViewTreeObserver.OnGlobalLayoutListener,
@@ -125,7 +130,7 @@ public class MapViewController implements
 	private boolean mapLayoutReady = false;
 	private boolean mapVisible = false;
 	@Nullable
-	private LocationSource.OnLocationChangedListener locationChangedListener;
+	private OnLocationChangedListener locationChangedListener;
 	@Nullable
 	private Location deviceLocation;
 	private boolean waitingForGlobalLayout = false;
@@ -340,6 +345,8 @@ public class MapViewController implements
 		this.extendedGoogleMap.setOnInfoWindowCloseListener(this);
 		this.extendedGoogleMap.setOnMarkerClickListener(this);
 		this.extendedGoogleMap.setOnMapClickListener(this);
+		this.extendedGoogleMap.setOnMapLongClickListener(this);
+		this.extendedGoogleMap.setOnMarkerDragListener(this);
 		this.extendedGoogleMap.setLocationSource(this);
 		this.extendedGoogleMap.setOnCameraIdleListener(this);
 		this.extendedGoogleMap.setClustering(new ClusteringSettings()
@@ -372,6 +379,9 @@ public class MapViewController implements
 		}
 		showMapInternal(null);
 	}
+
+	@Nullable
+	protected IMarker selectedPlaceMarker = null;
 
 	public void setPaddingTopDp(int paddingTopDp) {
 		this.config.setPaddingTopDp(paddingTopDp);
@@ -570,10 +580,34 @@ public class MapViewController implements
 	}
 
 	@Override
+	public void onMapLongClick(@NonNull LatLng position) {
+		final MapListener mapListener = this.config.getMapListener();
+		if (mapListener != null) {
+			mapListener.onMapLongClick(position);
+		}
+	}
+
+	@Override
+	public void onMarkerDragStart(@NonNull IMarker marker) {
+		marker.hideInfoWindow();
+	}
+
+	@Override
+	public void onMarkerDrag(@NonNull IMarker marker) {
+		// DO NOTHING
+	}
+
+	@Override
+	public void onMarkerDragEnd(@NonNull IMarker marker) {
+		onMapLongClick(marker.getPosition());
+	}
+
+	@Override
 	public void onInfoWindowClick(@Nullable IMarker marker) {
-		final String selectedUUID = IMarkerExtKt.getUuid(marker);
-		final MTPOIMarkerIds poiMarkerIds = marker != null && marker.getData() instanceof MTPOIMarkerIds ? marker.getData() : null;
-		if (selectedUUID != null && poiMarkerIds != null) {
+		if (marker == null) return;
+		final MTPOIMarkerIds poiMarkerIds = marker.getData() instanceof MTPOIMarkerIds ? marker.getData() : null;
+		final String selectedUUID = poiMarkerIds != null ? poiMarkerIds.getFirstUUIDOrNull() : null;
+		if (poiMarkerIds != null && selectedUUID != null) {
 			this.lastSelectedUUID = selectedUUID; // keep selected if leaving the screen
 			if (poiMarkerIds.size() > 0) {
 				if (FeatureFlags.F_NAVIGATION) {
@@ -590,12 +624,29 @@ public class MapViewController implements
 					}
 				}
 			}
+			return;
+		}
+		final Place selectedPlace = marker.getData() instanceof Place ? marker.getData() : null;
+		if (selectedPlace != null) {
+			if (FeatureFlags.F_NAVIGATION) {
+				// TODO navigate to dialog
+			} else {
+				final Activity activity = getActivityOrNull();
+				if (activity instanceof MainActivity) {
+					FragmentUtils.replaceDialogFragment(
+							(MainActivity) activity,
+							FragmentUtils.DIALOG_TAG,
+							PickPOIDialogFragment.newInstance(selectedPlace.getLat(), selectedPlace.getLng()),
+							null
+					);
+				}
+			}
 		}
 	}
 
 	@Override
 	public void onInfoWindowClose(@Nullable IMarker marker) {
-		final String closeUUID = IMarkerExtKt.getUuid(marker);
+		final String closeUUID = IMarkerExtKt.getFirstUUIDOrNull(marker);
 		if (this.lastSelectedUUID != null && this.lastSelectedUUID.equals(closeUUID)) {
 			this.lastSelectedUUID = null;
 		}
@@ -605,10 +656,12 @@ public class MapViewController implements
 
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
+		clearSelectedPlace(this);
+		if (marker == null) return false; // not handled
 		final MapListener mapListener = this.config.getMapListener();
 		if (mapListener != null && mapListener.onMarkerClick(marker)) return true; // handled
-		final String selectedUUID = IMarkerExtKt.getUuid(marker);
-		final boolean isCluster = marker != null && marker.isCluster();
+		final String selectedUUID = IMarkerExtKt.getFirstUUIDOrNull(marker);
+		final boolean isCluster = marker.isCluster();
 		if (isCluster) {
 			if (this.extendedGoogleMap != null) {
 				final float zoom = this.extendedGoogleMap.getCameraPosition().zoom + MARKER_ZOOM_INC;
@@ -616,6 +669,10 @@ public class MapViewController implements
 			}
 		} else if (selectedUUID != null) {
 			this.lastSelectedUUID = selectedUUID;
+			if (this.config.getAutoClickInfoWindow()) {
+				onInfoWindowClick(marker);
+			}
+		} else if (marker.getData() instanceof Place) {
 			if (this.config.getAutoClickInfoWindow()) {
 				onInfoWindowClick(marker);
 			}
@@ -782,7 +839,7 @@ public class MapViewController implements
 				return true;
 			}
 		}
-		final java.util.List<IMarker> markers = this.extendedGoogleMap == null ? null : this.extendedGoogleMap.getMarkers();
+		final List<IMarker> markers = this.extendedGoogleMap == null ? null : this.extendedGoogleMap.getMarkers();
 		if (markers != null && !markers.isEmpty()) {
 			for (IMarker imarker : markers) {
 				llb.include(imarker.getPosition());
@@ -840,7 +897,7 @@ public class MapViewController implements
 		);
 	}
 
-	private static final float DEVICE_LOCATION_ZOOM = MapUtils.MAP_ZOOM_LEVEL_STREETS_BUSY_BUSY;
+	private static final float DEVICE_LOCATION_ZOOM = MapUtils.MAP_ZOOM_LEVEL_STREETS_BUSY;
 
 	private boolean updateMapCamera(boolean anim, @NonNull CameraUpdate cameraUpdate) {
 		if (this.extendedGoogleMap == null) {
@@ -1148,9 +1205,7 @@ public class MapViewController implements
 	}
 
 	public void onDeviceLocationChanged(@Nullable Location newLocation) {
-		if (newLocation == null) {
-			return;
-		}
+		if (newLocation == null) return;
 		final boolean firstLocation = this.deviceLocation == null;
 		if (this.deviceLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.deviceLocation, newLocation)) {
 			this.deviceLocation = newLocation;
@@ -1184,7 +1239,7 @@ public class MapViewController implements
 
 	private boolean showLastCameraPosition() {
 		if (this.lastCameraPosition == null) {
-			MTLog.d(this, "showLastCameraPosition() > SKIP (no camera position)");
+			MTLog.d(this, "showLastCameraPosition() > SKIP (no last camera position)");
 			return false; // nothing shown
 		}
 		final boolean success = updateMapCamera(false, CameraUpdateFactory.newCameraPosition(this.lastCameraPosition));
@@ -1245,9 +1300,7 @@ public class MapViewController implements
 	}
 
 	public void setInitialLocation(@Nullable Location initialLocation) {
-		if (initialLocation == null) {
-			return;
-		}
+		if (initialLocation == null) return;
 		setInitialCameraPosition(
 				CameraPosition.builder()
 						.target(LatLngUtils.fromLocation(initialLocation))
@@ -1257,9 +1310,7 @@ public class MapViewController implements
 	}
 
 	public void setInitialCameraPosition(@Nullable CameraPosition initialCameraPosition) {
-		if (initialCameraPosition == null) {
-			return;
-		}
+		if (initialCameraPosition == null) return;
 		this.lastCameraPosition = initialCameraPosition;
 	}
 
@@ -1364,6 +1415,8 @@ public class MapViewController implements
 	public interface MapListener {
 
 		void onMapClick(@NonNull LatLng position);
+
+		void onMapLongClick(@NonNull LatLng position);
 
 		boolean onMarkerClick(@Nullable IMarker marker);
 

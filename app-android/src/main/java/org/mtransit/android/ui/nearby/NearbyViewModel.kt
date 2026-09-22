@@ -28,6 +28,7 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
+import org.mtransit.android.commons.toAddress
 import org.mtransit.android.commons.toStringSimple
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -101,13 +102,12 @@ class NearbyViewModel @Inject constructor(
     private val _fixedOnLng = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LNG, EXTRA_FIXED_ON_LNG_DEFAULT)
         .map { if (it == 999f) null else it.toDouble() }
 
-    val fixedOnLocation: LiveData<Location?> = MediatorLiveData2(_fixedOnLat, _fixedOnLng).map { (fixedOnLat, fixedOnLng) ->
-        if (fixedOnLat == null || fixedOnLng == null) {
-            null
-        } else {
+    val fixedOnLocation: LiveData<Location?> = MediatorLiveData2(_fixedOnLat, _fixedOnLng)
+        .map { (fixedOnLat, fixedOnLng) ->
+            fixedOnLat ?: return@map null
+            fixedOnLng ?: return@map null
             LocationUtils.getNewLocation(fixedOnLat, fixedOnLng)
-        }
-    }.distinctUntilChanged()
+        }.distinctUntilChanged()
 
     private val _nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
     val nearbyLocationForceReset: LiveData<Event<Boolean>> = _nearbyLocationForceReset
@@ -161,8 +161,8 @@ class NearbyViewModel @Inject constructor(
         this.locationProvider.doSetup(activity)
     }
 
-    override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
-        MediatorLiveData2(nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
+    override val locationSettingsNeededResolution: LiveData<PendingIntent?> = MediatorLiveData2(nearbyLocation, locationSettingsResolution)
+        .map { (nearbyLocation, resolution) ->
             if (nearbyLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -176,11 +176,9 @@ class NearbyViewModel @Inject constructor(
 
     private val _locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            nearbyLocation ?: return@liveData
-            LocationUtils.getLocationAddress(appContext, nearbyLocation)
-                ?.let {
-                    emit(it)
-                }
+            nearbyLocation?.toAddress(appContext)?.let {
+                emit(it)
+            }
         }
     }
 
@@ -193,12 +191,13 @@ class NearbyViewModel @Inject constructor(
 
     val fixedOnName = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
 
-    val isFixedOn: LiveData<Boolean?> = MediatorLiveData3(_fixedOnLat, _fixedOnLng, fixedOnName).map { (lat, lng, name) ->
-        lat != null && lng != null && !name.isNullOrBlank()
-    }
+    val isFixedOn: LiveData<Boolean?> = MediatorLiveData3(_fixedOnLat, _fixedOnLng, fixedOnName)
+        .map { (lat, lng, name) ->
+            lat != null && lng != null && !name.isNullOrBlank()
+        }
 
-    override val newLocationAvailable: LiveData<Boolean?> =
-        MediatorLiveData3(isFixedOn, nearbyLocation, deviceLocation).map { (isFixedOn, nearbyLocation, deviceLocation) ->
+    override val newLocationAvailable: LiveData<Boolean?> = MediatorLiveData3(isFixedOn, nearbyLocation, deviceLocation)
+        .map { (isFixedOn, nearbyLocation, deviceLocation) ->
             isFixedOn == false
                 && nearbyLocation != null
                 && deviceLocation != null
@@ -217,18 +216,20 @@ class NearbyViewModel @Inject constructor(
         LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT, // default = no selection
     )
 
-    val selectedTypeId: LiveData<Int?> = MediatorLiveData2(_selectedTypeId, _selectedTypeIdPref).map { (selectedTypeId, selectedTypeIdPref) ->
-        selectedTypeId ?: selectedTypeIdPref
-    }
+    val selectedTypeId: LiveData<Int?> = MediatorLiveData2(_selectedTypeId, _selectedTypeIdPref)
+        .map { (selectedTypeId, selectedTypeIdPref) ->
+            selectedTypeId ?: selectedTypeIdPref
+        }
 
-    val selectedTypePosition: LiveData<Int?> = MediatorLiveData2(selectedTypeId, availableTypes).map { (selectedTypeId, availableTypes) ->
-        if (availableTypes == null || selectedTypeId == null) return@map null
-        val availableSelectedId = selectedTypeId.takeIf { it >= 0 } ?: availableTypes.firstOrNull()?.id
-        availableTypes
-            .indexOf(DataSourceType.parseId(availableSelectedId))
-            .takeIf { it >= 0 } // selected might not be in available (installed) types
-            ?: 0 // 1st tab by default
-    }
+    val selectedTypePosition: LiveData<Int?> = MediatorLiveData2(selectedTypeId, availableTypes)
+        .map { (selectedTypeId, availableTypes) ->
+            if (availableTypes == null || selectedTypeId == null) return@map null
+            val availableSelectedId = selectedTypeId.takeIf { it >= 0 } ?: availableTypes.firstOrNull()?.id
+            availableTypes
+                .indexOf(DataSourceType.parseId(availableSelectedId))
+                .takeIf { it >= 0 } // selected might not be in available (installed) types
+                ?: 0 // 1st tab by default
+        }
 
     fun onPageSelected(position: Int) {
         if (UIFeatureFlags.F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN) {

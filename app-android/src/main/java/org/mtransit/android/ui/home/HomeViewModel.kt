@@ -33,6 +33,7 @@ import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
+import org.mtransit.android.commons.toAddress
 import org.mtransit.android.commons.toStringSimple
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
@@ -151,8 +152,8 @@ class HomeViewModel @Inject constructor(
         this.locationProvider.doSetup(activity)
     }
 
-    override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
-        MediatorLiveData2(_nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
+    override val locationSettingsNeededResolution: LiveData<PendingIntent?> = MediatorLiveData2(_nearbyLocation, locationSettingsResolution)
+        .map { (nearbyLocation, resolution) ->
             if (nearbyLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -164,11 +165,9 @@ class HomeViewModel @Inject constructor(
 
     private val _locationAddress: LiveData<Address> = _nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            nearbyLocation ?: return@liveData
-            LocationUtils.getLocationAddress(appContext, nearbyLocation)
-                ?.let {
-                    emit(it)
-                }
+            nearbyLocation?.toAddress(appContext)?.let {
+                emit(it)
+            }
         }
     }
 
@@ -179,8 +178,8 @@ class HomeViewModel @Inject constructor(
             getLocationString(this.appContext, locationAddress, nearbyLocation.accuracy, distanceUnitsPref)
         }
 
-    override val newLocationAvailable: LiveData<Boolean?> =
-        MediatorLiveData2(_nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
+    override val newLocationAvailable: LiveData<Boolean?> = MediatorLiveData2(_nearbyLocation, deviceLocation)
+        .map { (nearbyLocation, newDeviceLocation) ->
             if (nearbyLocation == null) {
                 null // not new if current unknown
             } else {
@@ -215,8 +214,8 @@ class HomeViewModel @Inject constructor(
     private val _nearbyPOIsTrigger = MutableLiveData<Event<Boolean>>()
     val nearbyPOIsTrigger: LiveData<Event<Boolean>> = _nearbyPOIsTrigger
 
-    val nearbyPOIsTriggerListener: LiveData<Any> =
-        MediatorLiveData2(_typeToHomeAgencies, _nearbyLocation).switchMap { (typeToHomeAgencies, nearbyLocation) ->
+    val nearbyPOIsTriggerListener: LiveData<Any> = MediatorLiveData2(_typeToHomeAgencies, _nearbyLocation)
+        .switchMap { (typeToHomeAgencies, nearbyLocation) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 if (typeToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
                     nearbyPOIsLoadJob?.cancel()
@@ -268,8 +267,7 @@ class HomeViewModel @Inject constructor(
         typeToHomeAgencies.forEach { (type, typeAgencies) ->
             scope.ensureActive()
             val typeMaxByType = nbMaxByType
-                .takeUnless { type == DataSourceType.TYPE_MODULE && hasDisabledModule.value ?: false }
-                ?: NB_MAX_BY_TYPE_ONE_TYPE // show more disabled modules
+                .takeUnless { type == DataSourceType.TYPE_MODULE && hasDisabledModule.value ?: false } ?: NB_MAX_BY_TYPE_ONE_TYPE // show more disabled modules
             val typePOIs = getTypeNearbyPOIs(scope, typeAgencies, lat, lng, minDistanceInMeters, typeMaxByType)
             filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters, typeMaxByType)
             typePOIs.sortWith(POI_ALPHA_COMPARATOR)
@@ -382,19 +380,18 @@ class HomeViewModel @Inject constructor(
         typeAgencies: List<IAgencyNearbyProperties>,
     ): MutableList<POIManager> {
         val typePOIs = mutableListOf<POIManager>()
-        val area = Area.getArea(lat, lng, ad.aroundDiff)
         // TODO latter optimize val optLastArea = if (optLastAroundDiff == null) null else LocationUtils.getArea(lat, lng, optLastAroundDiff)
-        val aroundDiff = ad.aroundDiff
-        val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
+        val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)
         val hideBookingRequired = lclPrefRepository.pref.getBoolean(
             LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
         )
-        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).copy(
             extras = SimpleArrayMap<String, Any>().apply {
                 put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
                 put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
             },
         )
+        val area = Area.getArea(lat, lng, ad.aroundDiff)
         typeAgencies
             .filter { Area.areOverlapping(it.area, area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->

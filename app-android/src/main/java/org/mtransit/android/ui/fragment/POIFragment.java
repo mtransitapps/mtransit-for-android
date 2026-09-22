@@ -492,6 +492,11 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
+	public void onMapLongClick(@NonNull LatLng position) {
+		// should not happen (map not interactive)
+	}
+
+	@Override
 	public void onAttach(@NonNull Context context) {
 		super.onAttach(context);
 		initAdapters(this);

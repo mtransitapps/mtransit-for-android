@@ -124,6 +124,20 @@ val POIManager.shortUUIDAndDistance: String
 val POIManager.shortUUID: String get() = this.poi.shortUUID
 val POI.shortUUID: String get() = this.uuid.substring(this.authority.length + 1)
 
+val POI.isNoPickup: Boolean
+    get() = this is RouteDirectionStop && this.isNoPickup
+
+fun POI.isSameRoute(other: POI): Boolean {
+    if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
+    return this.route.id == other.route.id
+}
+
+fun POI.isSameRouteDirection(other: POI): Boolean {
+    if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
+    return this.route.id == other.route.id
+        && this.direction.id == other.direction.id
+}
+
 fun POIManager.makeStatusFilter(inFocus: Boolean? = null) =
     StatusProviderContract.Filter.from(
         poi = this.poi,

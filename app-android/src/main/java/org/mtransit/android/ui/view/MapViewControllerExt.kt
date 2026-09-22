@@ -5,6 +5,8 @@ import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
+import org.mtransit.android.data.Place
+import org.mtransit.android.data.toExtendedMarkerOptions
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
 import org.mtransit.android.ui.view.map.countMarkersInside
@@ -116,4 +118,18 @@ fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
             updateSnippet(if (config.hideMapMarkerSnippet) null else vehicleLocation.getMapMarkerSnippet(context))
         }
     }
+}
+
+fun MapViewController.clearSelectedPlace() = this.extendedGoogleMap?.apply {
+    selectedPlaceMarker?.remove()
+    selectedPlaceMarker = null
+}
+
+fun MapViewController.setSelectedPlace(context: Context, place: Place) = this.extendedGoogleMap?.apply {
+    clearSelectedPlace()
+    selectedPlaceMarker = addMarker(place.toExtendedMarkerOptions(context))
+        .apply {
+            showInfoWindow()
+            onMarkerClick(this)
+        }
 }

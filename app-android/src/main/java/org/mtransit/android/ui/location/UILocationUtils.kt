@@ -11,12 +11,26 @@ import org.mtransit.android.commons.R as commonsR
 
 object UILocationUtils : LocationUtils() {
 
+    const val PLACE_USE_ADDRESS_LAT_LNG_MAX_DISTANCE_IN_METER: Float = 10.0f
+    const val PLACE_SHOW_ADDRESS_SELECTED_MAX_DISTANCE_IN_METER: Float = 33.0f
+
+    private const val MIN_DISTANCE_IN_METER_VERY_ACCURATE = 10.0f // 10 m
+    private const val MAX_DISTANCE_IN_METER_ACCURATE = 5000.0f // 5 km
+
     @AnyThread
     @JvmStatic
-    fun getLocationString(context: Context, locationAddress: Address?, accuracyInMeters: Float, distanceUnitsPref: String) = buildString {
-        val isAccurate = accuracyInMeters < 5000.0f
+    fun getLocationString(
+        context: Context,
+        locationAddress: Address?,
+        accuracyInMeters: Float = 0.0F,
+        distanceUnitsPref: String? = null,
+        preferFeatureName: Boolean = false,
+    ) = buildString {
+        val isAccurate = accuracyInMeters < MAX_DISTANCE_IN_METER_ACCURATE
         if (locationAddress != null) {
-            if (isAccurate && locationAddress.maxAddressLineIndex > 0) {
+            if (preferFeatureName && isAccurate && locationAddress.usefulFeatureName != null) {
+                append(locationAddress.usefulFeatureName)
+            } else if (accuracyInMeters <= MIN_DISTANCE_IN_METER_VERY_ACCURATE && locationAddress.maxAddressLineIndex >= 0) {
                 append(locationAddress.getAddressLine(0))
             } else if (isAccurate && locationAddress.thoroughfare != null) {
                 append(locationAddress.thoroughfare)
@@ -30,7 +44,7 @@ object UILocationUtils : LocationUtils() {
         } else if (isAccurate) {
             append(context.getString(commonsR.string.unknown_address))
         }
-        if (isAccurate && accuracyInMeters > 0.0f) {
+        if (isAccurate && accuracyInMeters > 0.0f && distanceUnitsPref != null) {
             append(" ± ").append(getDistanceString(accuracyInMeters, accuracyInMeters, distanceUnitsPref))
         }
     }

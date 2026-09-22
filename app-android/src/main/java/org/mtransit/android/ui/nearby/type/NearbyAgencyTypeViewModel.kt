@@ -54,18 +54,19 @@ class NearbyAgencyTypeViewModel @Inject constructor(
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
 
-    val typeAgencies = MediatorLiveData2(typeId, _allAgencies).map { (typeId, allAgencies) ->
-        val currentParams = this._params.value ?: NearbyParams()
-        this._params.value = currentParams.copy(
-            typeId = typeId,
-            allAgencies = allAgencies,
-        )
-        typeId?.let { dstId ->
-            allAgencies?.filter { agency ->
-                agency.getSupportedType().id == dstId
+    val typeAgencies = MediatorLiveData2(typeId, _allAgencies)
+        .map { (typeId, allAgencies) ->
+            val currentParams = this._params.value ?: NearbyParams()
+            this._params.value = currentParams.copy(
+                typeId = typeId,
+                allAgencies = allAgencies,
+            )
+            typeId?.let { dstId ->
+                allAgencies?.filter { agency ->
+                    agency.getSupportedType().id == dstId
+                }
             }
         }
-    }
 
     val oneTypeAgency: LiveData<AgencyBaseProperties?> = typeAgencies.map { // many users have only 1 agency installed
         if (it?.size == 1) it[0] else null
