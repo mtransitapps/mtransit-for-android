@@ -66,6 +66,17 @@
     "lng": "-79.690981"
   },
   {
+    "repo": "ca-bc-ferries-ferry-android",
+    "pkg": "org.mtransit.android.ca_bc_ferries_ferry",
+    "store": "production",
+    "name": "BC Ferries",
+    "location": "Bowen Island, Campbell River, Comox, Nanaimo, Southern Gulf Islands, Sunshine Coast, Vancouver, Victoria, BC, Canada",
+    "type_id": "4",
+    "color": "003366",
+    "lat": "49.329057",
+    "lng": "-123.783126"
+  },
+  {
     "repo": "ca-belleville-transit-bus-android",
     "pkg": "org.mtransit.android.ca_belleville_transit_bus",
     "store": "production",
