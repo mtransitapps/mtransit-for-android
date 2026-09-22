@@ -186,6 +186,13 @@ class PickPOIViewModel @Inject constructor(
         return nearbyPOIs
     }
 
+    val nearbyLatLng: LiveData<Pair<Double, Double>?> = MediatorLiveData2(_fixedOnLat, _fixedOnLng)
+        .map { (fixedOnLat, fixedOnLng) ->
+            fixedOnLat?: return@map null
+            fixedOnLng?: return@map null
+            fixedOnLat to fixedOnLng
+        }
+
     val poiNearbyList: LiveData<List<POIManager>?> = MediatorLiveData2(poiList, nearbyList)
         .map { (poiList, nearbyList) ->
             poiList ?: nearbyList

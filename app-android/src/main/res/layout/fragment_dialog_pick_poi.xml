@@ -13,37 +13,57 @@
     tools:background="?android:attr/colorBackground"
     tools:context=".ui.pick.PickPOIDialogFragment">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/baseline_240"
-        android:orientation="vertical">
+        android:minHeight="@dimen/baseline_240">
         <!-- DRAG HANDLE -->
         <com.google.android.material.bottomsheet.BottomSheetDragHandleView
             android:id="@+id/drag_handle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-        <!-- LOADING -->
-        <include
-            android:id="@id/loading_layout"
-            layout="@layout/layout_loading_large"
-            android:visibility="gone"
-            tools:visibility="gone" />
-        <!-- LIST -->
         <LinearLayout
-            android:id="@id/list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            tools:background="#FFFF00"
-            tools:minHeight="@dimen/list_view_item_height"
-            tools:visibility="visible" />
-        <!-- EMPTY -->
-        <include
-            android:id="@id/empty_layout"
-            layout="@layout/layout_empty"
-            android:visibility="gone"
-            tools:visibility="gone" />
-    </LinearLayout>
+            android:orientation="vertical">
+            <Space
+                android:id="@+id/space_for_drag_handle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/baseline_48"
+                android:visibility="visible"
+                tools:visibility="visible" />
+            <include
+                android:id="@+id/nearby_pois_title"
+                layout="@layout/layout_poi_nearby_pois_title"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/header_height"
+                android:minHeight="0dp"
+                android:paddingTop="0dp"
+                android:visibility="gone"
+                tools:visibility="gone" />
+            <!-- LOADING -->
+            <include
+                android:id="@id/loading_layout"
+                layout="@layout/layout_loading_large"
+                android:visibility="gone"
+                tools:visibility="gone" />
+            <!-- LIST -->
+            <LinearLayout
+                android:id="@id/list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:background="#FFFF00"
+                tools:minHeight="@dimen/list_view_item_height"
+                tools:visibility="visible" />
+            <!-- EMPTY -->
+            <include
+                android:id="@id/empty_layout"
+                layout="@layout/layout_empty"
+                android:visibility="gone"
+                tools:visibility="gone" />
+        </LinearLayout>
+    </FrameLayout>
 </ScrollView>

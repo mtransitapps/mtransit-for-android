@@ -12,6 +12,8 @@ import androidx.collection.ArrayMap
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,12 +30,15 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
+import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
+import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.user.UserPrefManager
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -64,6 +69,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
                 }
             }
         }
+
         @JvmStatic
         fun newInstance(
             fixedOnLat: Double,
@@ -203,6 +209,51 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
         viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
             if (removed) {
                 dismiss()
+            }
+        }
+        viewModel.nearbyLatLng.observe(viewLifecycleOwner) { nearbyLatLng ->
+            binding?.apply {
+                nearbyLatLng?.let { (lat, lng) ->
+                    nearbyPoisTitle.moreBtn.setOnClickListener {
+                        onClickHandledListener.onLeaving()
+                        if (FeatureFlags.F_NAVIGATION) {
+                            var extras: FragmentNavigator.Extras? = null
+                            if (FeatureFlags.F_TRANSITION) {
+                                extras = null // TODO button ? extras = FragmentNavigatorExtras(view to view.transitionName)
+                            }
+                            findNavController().navigate(
+                                R.id.nav_to_nearby_screen,
+                                NearbyFragment.newFixedOnInstanceArgs(
+                                    optTypeId = null,
+                                    fixedOnLat = lat,
+                                    fixedOnLng = lng,
+                                    fixedOnName = null
+                                ),
+                                null,
+                                extras
+                            )
+                        } else {
+                            (activity as? MainActivity)?.addFragmentToStack(
+                                NearbyFragment.newFixedOnInstance(
+                                    optTypeId = null,
+                                    fixedOnLat = lat,
+                                    fixedOnLng = lng,
+                                    fixedOnName = null
+                                ),
+                                this@PickPOIDialogFragment
+                            )
+                        }
+                    }
+                    nearbyPoisTitle.isVisible = true
+                    nearbyPoisTitle.moreBtn.isVisible = true
+
+                    spaceForDragHandle.isVisible = false
+                } ?: run {
+                    spaceForDragHandle.isVisible = true
+
+                    nearbyPoisTitle.isVisible = false
+                    nearbyPoisTitle.moreBtn.isVisible = false
+                }
             }
         }
     }
