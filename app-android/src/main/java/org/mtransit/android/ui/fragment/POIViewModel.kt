@@ -270,7 +270,7 @@ class POIViewModel @Inject constructor(
         val minCoverageInMeters = LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS.toFloat()
         val nearbyPOIs = mutableListOf<POIManager>()
         val poiFilters = mutableMapOf<Double, POIProviderContract.Filter>()
-        val agenciesToLoadedPOIs = mutableMapOf<Pair<IAgencyProperties, Double>, MutableList<POIManager>>()
+        val agenciesToLoadedPOIs = mutableMapOf<Pair<IAgencyProperties, Double>, List<POIManager>>()
         fun getPoiFilter(aroundDiff: Double) = poiFilters.getOrPut(aroundDiff) {
             POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
                 extras = SimpleArrayMap<String, Any>().apply {
@@ -278,10 +278,10 @@ class POIViewModel @Inject constructor(
                 },
             )
         }
-        suspend fun getLoadedPOIs(targetAgency: IAgencyProperties, aroundDiff: Double): MutableList<POIManager> {
+        suspend fun getLoadedPOIs(targetAgency: IAgencyProperties, aroundDiff: Double): List<POIManager> {
             return agenciesToLoadedPOIs.getOrPut(targetAgency to aroundDiff) {
                 poiRepository.findPOIMs(targetAgency, getPoiFilter(aroundDiff))
-            }.toMutableList()
+            }
         }
         var ad = LocationUtils.getNewDefaultAroundDiff()
         var maxDistanceInMeters = NEARBY_CONNECTIONS_INITIAL_COVERAGE
@@ -296,6 +296,7 @@ class POIViewModel @Inject constructor(
                 .forEach { nearbyAgency ->
                     nearbyPOIs.addAllN(
                         getLoadedPOIs(nearbyAgency, aroundDiff)
+                            .toMutableList()
                             .removeAllAnd {
                                 it.poi.uuid == excludedUUID
                                     || (it.poi.isNoPickup && !it.poi.isSameRoute(excludedPoi))
@@ -371,6 +372,7 @@ class POIViewModel @Inject constructor(
                 maxDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
                 nearbyPOIs.addAllN(
                     getLoadedPOIs(agency, aroundDiff)
+                        .toMutableList()
                         .removeAllAnd {
                             it.poi.uuid == excludedUUID
                                 || (it.poi.isNoPickup && it.poi.isSameRoute(excludedPoi)) // remove if no pickup && another route
