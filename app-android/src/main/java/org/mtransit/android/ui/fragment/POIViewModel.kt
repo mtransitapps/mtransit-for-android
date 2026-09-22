@@ -262,6 +262,14 @@ class POIViewModel @Inject constructor(
         val maxSize = LocationUtils.MAX_POI_NEARBY_POIS_LIST
         val minCoverageInMeters = LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS.toFloat()
         val nearbyPOIs = mutableListOf<POIManager>()
+        val agenciesToLoadedPOIs = mutableMapOf<Pair<IAgencyProperties, Double>, List<POIManager>>()
+
+        suspend fun getLoadedPOIs(targetAgency: IAgencyProperties, aroundDiff: Double): List<POIManager> {
+            return agenciesToLoadedPOIs.getOrPut(targetAgency to aroundDiff) {
+                poiRepository.findPOIMsAroundLoc(targetAgency, lat, lng, aroundDiff, avoidLoading = true)
+            }
+        }
+
         var ad = LocationUtils.getNewDefaultAroundDiff()
         var maxDistanceInMeters = NEARBY_CONNECTIONS_INITIAL_COVERAGE
         var nearbyAgencyPOIAdded = false
@@ -270,46 +278,40 @@ class POIViewModel @Inject constructor(
             if (maxDistanceInMeters >= LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)) {
                 LocationUtils.incAroundDiff(ad)
             }
-            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).copy(
-                extras = SimpleArrayMap<String, Any>().apply {
-                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                },
-            )
-            nearbyAgencies
-                .forEach { nearbyAgency ->
-                    nearbyPOIs.addAllN(
-                        poiRepository.findPOIMs(nearbyAgency, poiFilter)
-                            .removeAllAnd {
-                                it.poi.uuid == excludedUUID
-                                    || (it.poi.isNoPickup && !it.poi.isSameRoute(excludedPoi))
-                            }
-                            .updateDistanceM(lat, lng)
-                            .removeTooFar(
-                                when (nearbyAgency.type) {
-                                    DataSourceType.TYPE_BUS -> maxDistanceInMeters
-                                    DataSourceType.TYPE_BIKE -> maxDistanceInMeters * 1.5f
-                                    DataSourceType.TYPE_SUBWAY -> maxDistanceInMeters * 2f
-                                    DataSourceType.TYPE_RAIL -> maxDistanceInMeters * 2f
-                                    DataSourceType.TYPE_LIGHT_RAIL -> maxDistanceInMeters * 2f
-                                    DataSourceType.TYPE_FERRY -> maxDistanceInMeters * 2f
-                                    else -> {
-                                        MTLog.w(this, "Unexpected type ${nearbyAgency.type} in POI nearby agencies!")
-                                        maxDistanceInMeters
-                                    }
-                                }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
-                            )
-                            .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                            .removeAllAnd { nearbyPOIs.contains(it) }
-                            .removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteDirection(new.poi) } }
-                            .also {
-                                if (!nearbyAgencyPOIAdded
-                                    && nearbyAgency.authority == agency.authority && it.isNotEmpty()
-                                ) {
-                                    nearbyAgencyPOIAdded = true
+            nearbyAgencies.forEach { nearbyAgency ->
+                nearbyPOIs.addAllN(
+                    getLoadedPOIs(nearbyAgency, ad.aroundDiff)
+                        .toMutableList()
+                        .removeAllAnd {
+                            it.poi.uuid == excludedUUID
+                                || (it.poi.isNoPickup && !it.poi.isSameRoute(excludedPoi))
+                        }
+                        .removeTooFar(
+                            when (nearbyAgency.type) {
+                                DataSourceType.TYPE_BUS -> maxDistanceInMeters
+                                DataSourceType.TYPE_BIKE -> maxDistanceInMeters * 1.5f
+                                DataSourceType.TYPE_SUBWAY -> maxDistanceInMeters * 2f
+                                DataSourceType.TYPE_RAIL -> maxDistanceInMeters * 2f
+                                DataSourceType.TYPE_LIGHT_RAIL -> maxDistanceInMeters * 2f
+                                DataSourceType.TYPE_FERRY -> maxDistanceInMeters * 2f
+                                else -> {
+                                    MTLog.w(this, "Unexpected type ${nearbyAgency.type} in POI nearby agencies!")
+                                    maxDistanceInMeters
                                 }
+                            }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
+                        )
+                        .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
+                        .removeAllAnd { nearbyPOIs.contains(it) }
+                        .removeAllAnd { new -> nearbyPOIs.any { it.poi.isSameRouteDirection(new.poi) } }
+                        .also {
+                            if (!nearbyAgencyPOIAdded
+                                && nearbyAgency.authority == agency.authority && it.isNotEmpty()
+                            ) {
+                                nearbyAgencyPOIAdded = true
                             }
-                    )
-                }
+                        }
+                )
+            }
             nearbyPOIs.sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
             removeDuplicateRouteDirection(sortedPOIMList = nearbyPOIs)
             val firstRelevantDistance = nearbyPOIs.firstOrNull { it.distance > 0f && !it.poi.isSameRoute(excludedPoi) }?.distance
@@ -350,27 +352,19 @@ class POIViewModel @Inject constructor(
             val connectionSize = nearbyPOIs.size
             ad = LocationUtils.getNewDefaultAroundDiff()
             while (true) {
-                val aroundDiff = ad.aroundDiff
-                maxDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
-                val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
-                    extras = SimpleArrayMap<String, Any>().apply {
-                        put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                    },
-                )
                 nearbyPOIs.addAllN(
-                    poiRepository.findPOIMs(agency, poiFilter)
+                    getLoadedPOIs(agency, ad.aroundDiff)
+                        .toMutableList()
                         .removeAllAnd {
                             it.poi.uuid == excludedUUID
                                 || (it.poi.isNoPickup && it.poi.isSameRoute(excludedPoi)) // remove if no pickup && another route
                         }
-                        .updateDistanceM(lat, lng)
-                        .removeTooFar(maxDistanceInMeters)
                         .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
                         .removeAllAnd { nearbyPOIs.contains(it) }
                         .takeAnd(minNotConnectionSize - (nearbyPOIs.size - connectionSize))
                 )
                 if (nearbyPOIs.size >= connectionSize + minNotConnectionSize // enough POI
-                    || LocationUtils.searchComplete(lat, lng, aroundDiff) // world explored
+                    || LocationUtils.searchComplete(lat, lng, ad.aroundDiff) // world explored
                 ) {
                     break
                 } else {

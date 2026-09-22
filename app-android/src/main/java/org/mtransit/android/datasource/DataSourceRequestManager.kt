@@ -120,9 +120,6 @@ class DataSourceRequestManager(
             .also { ensureAgencyNotSetupRequired(agency.authority) }
     }
 
-    @Suppress("unused")
-    suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI> = findPOIMs(agency, poiFilter).map { it.poi }
-
     suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager> = withContext(ioDispatcher) {
         DataSourceManager.findPOIMs(appContext, agency.authority, poiFilter)
             .also { ensureAgencyNotSetupRequired(agency.authority) }

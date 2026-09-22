@@ -2,7 +2,6 @@ package org.mtransit.android.ui.nearby.type
 
 import android.content.pm.PackageManager
 import android.location.Location
-import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -17,10 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
-import org.mtransit.android.commons.provider.poi.POIProviderContract
-import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
-import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
@@ -144,16 +140,10 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         val minSize: Int = currentParams.minSize ?: return null
         val maxSize: Int = currentParams.maxSize ?: return null
         val area: Area = currentParams.area ?: return null
-        val maxDistance: Float = currentParams.maxDistance ?: return null
         val lat = nearbyLocation.latitude
         val lng = nearbyLocation.longitude
         val aroundDiff = ad.aroundDiff
         val nearbyPOIs = mutableListOf<POIManager>()
-        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
-            extras = SimpleArrayMap<String, Any>().apply {
-                put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-            },
-        )
         typeAgencies
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
@@ -161,9 +151,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
                     _hasNearbyPOIAgencyDisabled.postValue(true)
                 }
                 nearbyPOIs.addAllN(
-                    poiRepository.findPOIMs(agency, poiFilter)
-                        .updateDistanceM(lat, lng)
-                        .removeTooFar(maxDistance)
+                    poiRepository.findPOIMsAroundLoc(agency, lat, lng, aroundDiff, avoidLoading = true)
                         .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
                 )
             }

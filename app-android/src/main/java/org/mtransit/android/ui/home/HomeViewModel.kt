@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Location
-import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -29,13 +28,9 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
-import org.mtransit.android.commons.provider.GTFSProviderContract
-import org.mtransit.android.commons.provider.poi.POIProviderContract
-import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.toAddress
 import org.mtransit.android.commons.toStringSimple
-import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
@@ -381,15 +376,8 @@ class HomeViewModel @Inject constructor(
     ): MutableList<POIManager> {
         val typePOIs = mutableListOf<POIManager>()
         // TODO latter optimize val optLastArea = if (optLastAroundDiff == null) null else LocationUtils.getArea(lat, lng, optLastAroundDiff)
-        val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)
         val hideBookingRequired = lclPrefRepository.pref.getBoolean(
             LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
-        )
-        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).copy(
-            extras = SimpleArrayMap<String, Any>().apply {
-                put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
-            },
         )
         val area = Area.getArea(lat, lng, ad.aroundDiff)
         typeAgencies
@@ -397,7 +385,7 @@ class HomeViewModel @Inject constructor(
             .forEach { agency ->
                 scope.ensureActive()
                 typePOIs.addAllN(
-                    poiRepository.findPOIMs(agency, poiFilter)
+                    poiRepository.findPOIMsAroundLoc(agency, lat, lng, ad.aroundDiff, avoidLoading = true, noPickup = true)
                         .removeAllAnd {
                             if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
                                 hideBookingRequired && (it.poi as? RouteDirectionStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
@@ -405,8 +393,6 @@ class HomeViewModel @Inject constructor(
                                 false
                             }
                         }
-                        .updateDistanceM(lat, lng)
-                        .removeTooFar(maxDistance)
                         .removeTooMuchWhenNotInCoverage(
                             typeMinCoverageInMeters,
                             if (this.demoModeManager.isFullDemo()) Int.MAX_VALUE else maxSize // keep all
