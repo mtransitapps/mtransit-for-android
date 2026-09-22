@@ -242,6 +242,7 @@ class MapFragment :
             } ?: run {
                 mapViewController.clearSelectedPlace()
             }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
