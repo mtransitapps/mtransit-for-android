@@ -22,8 +22,6 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.shortUUID
-import org.mtransit.android.data.simpleDistanceString
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation

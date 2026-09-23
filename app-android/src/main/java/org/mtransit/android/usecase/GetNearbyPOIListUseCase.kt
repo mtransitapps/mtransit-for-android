@@ -91,9 +91,11 @@ class GetNearbyPOIListUseCase(
                         .removeTooFar(getMaxDistanceInMeters(maxDistanceInMeters, nearbyAgency.type))
                         .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
                         .removeAllAnd { nearbyPOIs.contains(it) }
-                        .also {
-                            if (!poiAgencyPOIAdded
-                                && nearbyAgency.authority == mainAgency?.authority && it.isNotEmpty()
+                        .also { nearbyPOIs ->
+                            if (mainAgency != null
+                                && !poiAgencyPOIAdded
+                                && nearbyAgency.authority == mainAgency.authority
+                                && nearbyPOIs.isNotEmpty()
                             ) {
                                 poiAgencyPOIAdded = true
                             }

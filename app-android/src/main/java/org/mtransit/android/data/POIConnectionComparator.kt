@@ -13,7 +13,7 @@ class POIConnectionComparator(
 ) : Comparator<POIManager> {
 
     companion object {
-        private const val SAME_LOCATION_DISTANCE_IN_METER: Float = 25f
+        private const val SAME_LOCATION_DISTANCE_IN_METER = 25f
     }
 
     var targetedPOI: POI? = null
