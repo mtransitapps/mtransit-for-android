@@ -54,7 +54,16 @@ class GetNearbyPOIListUseCase(
         mainAgency: IAgencyProperties? = null,
         excludedUUID: String? = null,
         excludedRouteId: Long? = null,
-    ): MutableList<POIManager> {
+        getOrFindPOIMAroundLoc: suspend (
+            agenciesToPOIMs: MutableMap<Pair<String, Double>, List<POIManager>>,
+            agency: IAgencyProperties,
+            aroundDiff: Double
+        ) -> List<POIManager> = { agenciesToPOIMs, agency, aroundDiff ->
+            agenciesToPOIMs.getOrPut(agency.authority to aroundDiff) {
+                poiRepository.findPOIMsAroundLoc(agency, lat, lng, aroundDiff, avoidLoading = true)
+            }
+        }
+    ): MutableList<POIManager> = withContext(ioDispatcher) {
         val nearbyAgencyArea = Area.getArea(lat, lng, 0.01)
         val nearbyAgencies = allAgencies.filter { agency ->
             agency.type.isNearbyScreen
@@ -63,24 +72,17 @@ class GetNearbyPOIListUseCase(
         }
         val nearbyPOIs = mutableListOf<POIManager>()
         val agenciesToPOIMs = mutableMapOf<Pair<String, Double>, List<POIManager>>()
-
-        suspend fun getOrFindPOIMAroundLoc(agency: IAgencyProperties, aroundDiff: Double): List<POIManager> {
-            return agenciesToPOIMs.getOrPut(agency.authority to aroundDiff) {
-                poiRepository.findPOIMsAroundLoc(agency, lat, lng, aroundDiff, avoidLoading = true)
-            }
-        }
-
-        var ad = LocationUtils.getNewDefaultAroundDiff()
+        val ad = LocationUtils.getNewDefaultAroundDiff()
         var maxDistanceInMeters = INITIAL_COVERAGE_IN_METERS
         var poiAgencyPOIAdded = false
-        // 1 - try connections only in the closest nearby area
+        // 1 - nearby POIs from nearby agencies
         while (true) {
             if (maxDistanceInMeters >= LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)) {
                 LocationUtils.incAroundDiff(ad)
             }
             nearbyAgencies.forEach { nearbyAgency ->
                 nearbyPOIs.addAllN(
-                    getOrFindPOIMAroundLoc(nearbyAgency, ad.aroundDiff)
+                    getOrFindPOIMAroundLoc(agenciesToPOIMs, nearbyAgency, ad.aroundDiff)
                         .toMutableList() // creates new list to modify (keep cached list unchanged)
                         .removeAllAnd {
                             it.poi.uuid == excludedUUID
@@ -126,42 +128,72 @@ class GetNearbyPOIListUseCase(
                 maxDistanceInMeters *= MAX_DISTANCE_INCREASE
             }
         }
-        if (mainAgency != null) {
-            val minNotConnectionSize = when {
-                nearbyPOIs.isEmpty() -> 5
-                !poiAgencyPOIAdded -> 1
-                else -> 0
-            }
-            // 2 - try all nearby from current agency
-            if (minNotConnectionSize > 0) {
-                val connectionSize = nearbyPOIs.size
-                ad = LocationUtils.getNewDefaultAroundDiff()
-                while (true) {
-                    nearbyPOIs.addAllN(
-                        getOrFindPOIMAroundLoc(mainAgency, ad.aroundDiff)
-                            .toMutableList() // creates new list to modify (keep cached list unchanged)
-                            .removeAllAnd {
-                                it.poi.uuid == excludedUUID
-                                    || (it.poi.isNoPickup && it.poi.isSameRoute(excludedRouteId)) // remove if no pickup && another route
-                            }
-                            .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                            .removeAllAnd { nearbyPOIs.contains(it) }
-                            .takeAnd(minNotConnectionSize - (nearbyPOIs.size - connectionSize))
-                    )
-                    if (nearbyPOIs.size >= connectionSize + minNotConnectionSize // enough POI
-                        || LocationUtils.searchComplete(lat, lng, ad.aroundDiff) // world explored
-                    ) {
-                        break
-                    } else {
-                        // TODO latter ? lastTypeAroundDiff = if (nearbyPOIs.isNullOrEmpty()) aroundDiff else null
-                        LocationUtils.incAroundDiff(ad)
-                    }
-                }
-            }
+        // 2 - try all nearby from current agency
+        mainAgency?.let {
+            nearbyPOIs.appendMainAgencyPOI(
+                lat = lat,
+                lng = lng,
+                maxSize = maxSize,
+                minCoverageInMeters = minCoverageInMeters,
+                mainAgency = it,
+                excludedUUID = excludedUUID,
+                excludedRouteId = excludedRouteId,
+                getOrFindPOIMAroundLoc = getOrFindPOIMAroundLoc,
+                poiAgencyPOIAdded = poiAgencyPOIAdded,
+                agenciesToPOIMs = agenciesToPOIMs,
+            )
         }
         nearbyPOIs.sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
         nearbyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
-        return nearbyPOIs
+        return@withContext nearbyPOIs
+    }
+
+    private suspend fun MutableList<POIManager>.appendMainAgencyPOI(
+        lat: Double,
+        lng: Double,
+        maxSize: Int,
+        minCoverageInMeters: Float,
+        mainAgency: IAgencyProperties,
+        excludedUUID: String?,
+        excludedRouteId: Long?,
+        getOrFindPOIMAroundLoc: suspend (
+            agenciesToPOIMs: MutableMap<Pair<String, Double>, List<POIManager>>,
+            agency: IAgencyProperties,
+            aroundDiff: Double
+        ) -> List<POIManager>,
+        poiAgencyPOIAdded: Boolean,
+        agenciesToPOIMs: MutableMap<Pair<String, Double>, List<POIManager>>,
+    ) {
+        val minNotConnectionSize = when {
+            isEmpty() -> 5
+            !poiAgencyPOIAdded -> 1
+            else -> 0
+        }
+        if (minNotConnectionSize > 0) {
+            val connectionSize = size
+            val mainAgencyAd = LocationUtils.getNewDefaultAroundDiff()
+            while (true) {
+                addAllN(
+                    getOrFindPOIMAroundLoc(agenciesToPOIMs, mainAgency, mainAgencyAd.aroundDiff)
+                        .toMutableList() // creates new list to modify (keep cached list unchanged)
+                        .removeAllAnd {
+                            it.poi.uuid == excludedUUID
+                                || (it.poi.isNoPickup && it.poi.isSameRoute(excludedRouteId)) // remove if no pickup && another route
+                        }
+                        .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
+                        .removeAllAnd { contains(it) }
+                        .takeAnd(minNotConnectionSize - (size - connectionSize))
+                )
+                if (size >= connectionSize + minNotConnectionSize // enough POI
+                    || LocationUtils.searchComplete(lat, lng, mainAgencyAd.aroundDiff) // world explored
+                ) {
+                    break
+                } else {
+                    // TODO latter ? lastTypeAroundDiff = if (nearbyPOIs.isNullOrEmpty()) aroundDiff else null
+                    LocationUtils.incAroundDiff(mainAgencyAd)
+                }
+            }
+        }
     }
 
     private fun MutableList<POIManager>.removeDuplicateRouteDirection() {
