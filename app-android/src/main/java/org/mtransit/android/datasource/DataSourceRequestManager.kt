@@ -46,7 +46,7 @@ class DataSourceRequestManager(
     private val keysManager: KeysManager,
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
     private val dataSourcesDatabase: DataSourcesDatabase,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
 
     @Inject

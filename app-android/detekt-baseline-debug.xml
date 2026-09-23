@@ -248,6 +248,7 @@
     <ID>LongMethod:SearchFragment.kt:SearchFragment$override fun onViewCreated</ID>
     <ID>LongParameterList:DataSourceRequestManager.kt:DataSourceRequestManager$suspend fun findAgencyProperties: AgencyProperties?</ID>
     <ID>LongParameterList:DataSourcesRepository.kt:DataSourcesRepository</ID>
+    <ID>LongParameterList:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$private suspend fun MutableList&lt;POIManager&gt;.appendMainAgencyPOI</ID>
     <ID>LongParameterList:GlobalAdManager.kt:GlobalAdManager</ID>
     <ID>LongParameterList:GlobalAdManager.kt:GlobalAdManager$constructor</ID>
     <ID>LongParameterList:HomeViewModel.kt:HomeViewModel</ID>
@@ -264,9 +265,9 @@
     <ID>LoopWithTooManyJumpStatements:DemoModeManager.kt:DemoModeManager$while</ID>
     <ID>LoopWithTooManyJumpStatements:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$while</ID>
     <ID>LoopWithTooManyJumpStatements:HomeViewModel.kt:HomeViewModel$while</ID>
-    <ID>LoopWithTooManyJumpStatements:PickPOIViewModel.kt:PickPOIViewModel$while</ID>
     <ID>LoopWithTooManyJumpStatements:POIFragmentExt.kt:for</ID>
     <ID>LoopWithTooManyJumpStatements:POIViewModel.kt:POIViewModel$for</ID>
+    <ID>LoopWithTooManyJumpStatements:PickPOIViewModel.kt:PickPOIViewModel$while</ID>
     <ID>LoopWithTooManyJumpStatements:POIViewModel.kt:POIViewModel$while</ID>
     <ID>MagicNumber:DegreeUtils.kt:DegreeUtils$360</ID>
     <ID>MagicNumber:DemoModeManager.kt:DemoModeManager$13f</ID>
@@ -444,9 +445,9 @@
     <ID>TooManyFunctions:NewsListDetailFragment.kt:NewsListDetailFragment : ABFragmentMenuProviderModuleDisabledAwareFragment</ID>
     <ID>TooManyFunctions:NextMainActivity.kt:NextMainActivity : MTActivityWithLocationOnBackStackChangedListenerAnalyticsScreenIActivityIAdScreenActivityRewardedAdListener</ID>
     <ID>TooManyFunctions:NextMainViewModel.kt:NextMainViewModel : ViewModelLoggable</ID>
-    <ID>TooManyFunctions:PickPOIDialogFragment.kt:PickPOIDialogFragment : MTBottomSheetDialogFragmentXDeviceLocationListenerIFragment</ID>
     <ID>TooManyFunctions:POIManagerExt.kt:org.mtransit.android.data.POIManagerExt.kt</ID>
     <ID>TooManyFunctions:POIRepository.kt:POIRepository : Loggable</ID>
+    <ID>TooManyFunctions:PickPOIDialogFragment.kt:PickPOIDialogFragment : MTBottomSheetDialogFragmentXDeviceLocationListenerIFragment</ID>
     <ID>TooManyFunctions:PlaceProvider.kt:PlaceProvider : AgencyProviderPOIProviderContract</ID>
     <ID>TooManyFunctions:PurchaseDialogFragment.kt:PurchaseDialogFragment : MTDialogFragmentXRewardedAdListenerLoggable</ID>
     <ID>TooManyFunctions:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment : MTFragmentX</ID>

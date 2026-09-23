@@ -45,7 +45,7 @@ class GlobalAdManager(
     private val userManager: UserManager,
     private val remoteConfigProvider: RemoteConfigProvider,
     private val billingManager: IBillingManager,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
 
     @Inject

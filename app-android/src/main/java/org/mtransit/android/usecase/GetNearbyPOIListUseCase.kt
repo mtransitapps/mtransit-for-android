@@ -1,5 +1,8 @@
 package org.mtransit.android.usecase
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
@@ -18,10 +21,20 @@ import org.mtransit.commons.removeAllAnd
 import org.mtransit.commons.sortWithAnd
 import org.mtransit.commons.takeAnd
 import javax.inject.Inject
+import kotlin.collections.mutableMapOf
 
-class GetNearbyPOIListUseCase @Inject constructor(
+class GetNearbyPOIListUseCase(
     private val poiRepository: POIRepository,
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
+
+    @Inject
+    constructor(
+        poiRepository: POIRepository,
+    ) : this(
+        poiRepository = poiRepository,
+        ioDispatcher = Dispatchers.IO,
+    )
 
     companion object {
         private const val INITIAL_COVERAGE_IN_METERS = 100f
