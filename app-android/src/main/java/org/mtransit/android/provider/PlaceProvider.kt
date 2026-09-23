@@ -201,7 +201,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     override fun isAgencyDeployed() = SqlUtils.isDbExist(requireContextCompat(), getDbName())
 
     override fun isAgencySetupRequired(): Boolean {
-        if (_currentDbVersion > 0 && _currentDbVersion != getCurrentDbVersion()) {
+        if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
             return true // live update required => update
         }
         if (!SqlUtils.isDbExist(requireContextCompat(), getDbName())) {
@@ -273,23 +273,23 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     @get:WorkerThread
     override val writeDB: SQLiteDatabase get() = getDBHelper().writableDatabase
 
-    private var _dbHelper: PlaceDbHelper? = null
-    private var _currentDbVersion = -1
+    private var dbHelper: PlaceDbHelper? = null
+    private var currentDbVersion = -1
 
     private fun getDBHelper(context: Context): PlaceDbHelper {
-        when (val currentDbHelper: PlaceDbHelper? = _dbHelper) {
+        when (val currentDbHelper: PlaceDbHelper? = dbHelper) {
             null -> { // initialize
                 val newDbHelper = getNewDbHelper(context)
-                _dbHelper = newDbHelper
-                _currentDbVersion = getCurrentDbVersion()
+                dbHelper = newDbHelper
+                currentDbVersion = getCurrentDbVersion()
                 return newDbHelper
             }
 
             else -> {
                 return try {
-                    if (_currentDbVersion == getCurrentDbVersion()) {
-                        _dbHelper?.close()
-                        _dbHelper = null
+                    if (currentDbVersion == getCurrentDbVersion()) {
+                        dbHelper?.close()
+                        dbHelper = null
                         getDBHelper(context)
                     } else {
                         currentDbHelper

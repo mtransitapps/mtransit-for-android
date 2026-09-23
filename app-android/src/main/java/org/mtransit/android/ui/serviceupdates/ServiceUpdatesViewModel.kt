@@ -51,17 +51,17 @@ class ServiceUpdatesViewModel @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    private val _authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
-    private val _routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)
-    private val _poiUuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
+    private val authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
+    private val routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)
+    private val poiUuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
 
-    private val _directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
+    private val directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
 
-    val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
+    val agency: LiveData<AgencyProperties?> = authority.switchMap { authority ->
         this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE
     }
 
-    private val _route: LiveData<Route?> = MediatorLiveData2(_authority, _routeId)
+    private val route: LiveData<Route?> = MediatorLiveData2(authority, routeId)
         .switchMap { (authority, routeId) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 authority ?: return@liveData
@@ -70,7 +70,7 @@ class ServiceUpdatesViewModel @Inject constructor(
             }
         }
 
-    private val _direction: LiveData<Direction?> = MediatorLiveData2(_authority, _directionId)
+    private val direction: LiveData<Direction?> = MediatorLiveData2(authority, directionId)
         .switchMap { (authority, directionId) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 authority ?: return@liveData
@@ -79,20 +79,20 @@ class ServiceUpdatesViewModel @Inject constructor(
             }
         }
 
-    private val _poim: LiveData<POIManager?> = MediatorLiveData2(agency, _poiUuid)
+    private val poim: LiveData<POIManager?> = MediatorLiveData2(agency, poiUuid)
         .switchMap { (agency, poiUuid) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 agency ?: return@liveData
                 poiUuid ?: return@liveData
                 emitSource(
-                    poiRepository.readingPOIM(agency, poiUuid, currentValue = _poim.value, onDataSourceRemoved = {
+                    poiRepository.readingPOIM(agency, poiUuid, currentValue = poim.value, onDataSourceRemoved = {
                         // do nothing
                     })
                 )
             }
         }
 
-    val holder: LiveData<ServiceUpdatesHolder> = MediatorLiveData4(_authority, _route, _direction, _poim)
+    val holder: LiveData<ServiceUpdatesHolder> = MediatorLiveData4(authority, route, direction, poim)
         .switchMap { (authority, route, direction, poim) ->
             liveData(viewModelScope.coroutineContext) {
                 authority ?: return@liveData

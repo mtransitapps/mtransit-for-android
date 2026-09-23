@@ -207,9 +207,9 @@ class MapFragment :
             mapViewController.setInitialSelectedUUID(selectedUUID)
             viewModel.onSelectedUUIDSet()
         }
-        viewModel.deviceLocation.observe(viewLifecycleOwner) {
+        viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             context?.let { mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(it)) }
-            mapViewController.onDeviceLocationChanged(it)
+            mapViewController.onDeviceLocationChanged(deviceLocation)
         }
         LocationSettingsUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
@@ -237,8 +237,8 @@ class MapFragment :
             }
         }
         viewModel.selectedPlace.observe(viewLifecycleOwner) { place ->
-            place?.let {
-                context?.let { mapViewController.setSelectedPlace(it, place) }
+            place?.let { placeSelected ->
+                context?.let { mapViewController.setSelectedPlace(it, placeSelected) }
             } ?: run {
                 mapViewController.clearSelectedPlace()
             }

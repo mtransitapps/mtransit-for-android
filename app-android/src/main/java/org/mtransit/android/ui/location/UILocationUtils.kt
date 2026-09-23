@@ -11,8 +11,8 @@ import org.mtransit.android.commons.R as commonsR
 
 object UILocationUtils : LocationUtils() {
 
-    const val PLACE_USE_ADDRESS_LAT_LNG_MAX_DISTANCE_IN_METER: Float = 10.0f
-    const val PLACE_SHOW_ADDRESS_SELECTED_MAX_DISTANCE_IN_METER: Float = 33.0f
+    const val PLACE_USE_ADDRESS_LAT_LNG_MAX_DISTANCE_IN_METER = 10.0f
+    const val PLACE_SHOW_ADDRESS_SELECTED_MAX_DISTANCE_IN_METER = 33.0f
 
     private const val MIN_DISTANCE_IN_METER_VERY_ACCURATE = 10.0f // 10 m
     private const val MAX_DISTANCE_IN_METER_ACCURATE = 5000.0f // 5 km
@@ -44,6 +44,10 @@ object UILocationUtils : LocationUtils() {
         } else if (isAccurate) {
             append(context.getString(commonsR.string.unknown_address))
         }
+        appendDistance(isAccurate, accuracyInMeters, distanceUnitsPref)
+    }
+
+    private fun StringBuilder.appendDistance(isAccurate: Boolean, accuracyInMeters: Float, distanceUnitsPref: String?) {
         if (isAccurate && accuracyInMeters > 0.0f && distanceUnitsPref != null) {
             append(" ± ").append(getDistanceString(accuracyInMeters, accuracyInMeters, distanceUnitsPref))
         }

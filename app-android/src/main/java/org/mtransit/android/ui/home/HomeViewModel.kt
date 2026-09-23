@@ -106,11 +106,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private val _ipLocation = networkLocationRepository.ipLocation
+    private val ipLocation = networkLocationRepository.ipLocation
 
-    private val _nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
+    private val nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
 
-    private val _nearbyLocation: LiveData<Location?> = MediatorLiveData3(deviceLocation, _nearbyLocationForceReset, _ipLocation)
+    private val nearbyLocation: LiveData<Location?> = MediatorLiveData3(deviceLocation, nearbyLocationForceReset, ipLocation)
         .switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
@@ -123,7 +123,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getNearbyLocation(lastDeviceLocation: Location?, forceReset: Boolean): Location? {
         if (!forceReset) {
-            _nearbyLocation.value?.let {
+            nearbyLocation.value?.let {
                 MTLog.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
                 return it
             }
@@ -135,7 +135,6 @@ class HomeViewModel @Inject constructor(
     override val hasAgenciesAdded: LiveData<Boolean> = this.dataSourcesRepository.readingHasAgenciesAdded()
 
     private var _locationPermissionNeeded = MutableLiveData(!locationPermissionProvider.allRequiredPermissionsGranted(appContext))
-
     override val locationPermissionNeeded: LiveData<Boolean> = _locationPermissionNeeded
     // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -147,7 +146,7 @@ class HomeViewModel @Inject constructor(
         this.locationProvider.doSetup(activity)
     }
 
-    override val locationSettingsNeededResolution: LiveData<PendingIntent?> = MediatorLiveData2(_nearbyLocation, locationSettingsResolution)
+    override val locationSettingsNeededResolution: LiveData<PendingIntent?> = MediatorLiveData2(nearbyLocation, locationSettingsResolution)
         .map { (nearbyLocation, resolution) ->
             if (nearbyLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
@@ -156,9 +155,9 @@ class HomeViewModel @Inject constructor(
         it != null
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    private val _distanceUnitsPref = userPrefManager.distanceUnits.distinctUntilChanged()
+    private val distanceUnitsPref = userPrefManager.distanceUnits.distinctUntilChanged()
 
-    private val _locationAddress: LiveData<Address> = _nearbyLocation.switchMap { nearbyLocation ->
+    private val locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             nearbyLocation?.toAddress(appContext)?.let {
                 emit(it)
@@ -166,14 +165,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(_nearbyLocation, _locationAddress, _distanceUnitsPref)
+    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(nearbyLocation, locationAddress, distanceUnitsPref)
         .map { (nearbyLocation, locationAddress, distanceUnitsPref) ->
             nearbyLocation ?: return@map null
             distanceUnitsPref ?: return@map null
             getLocationString(this.appContext, locationAddress, nearbyLocation.accuracy, distanceUnitsPref)
         }
 
-    override val newLocationAvailable: LiveData<Boolean?> = MediatorLiveData2(_nearbyLocation, deviceLocation)
+    override val newLocationAvailable: LiveData<Boolean?> = MediatorLiveData2(nearbyLocation, deviceLocation)
         .map { (nearbyLocation, newDeviceLocation) ->
             if (nearbyLocation == null) {
                 null // not new if current unknown
@@ -183,9 +182,9 @@ class HomeViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
+    private val allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
-    private val _typeToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = MediatorLiveData2(_allAgencies, _nearbyLocation)
+    private val typeToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = MediatorLiveData2(allAgencies, nearbyLocation)
         .map { (allAgencies, nearbyLocation) ->
             if (nearbyLocation == null || allAgencies.isNullOrEmpty()) {
                 null
@@ -199,7 +198,7 @@ class HomeViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    val sortedTypeToHomeAgencies: LiveData<List<DataSourceType>?> = _typeToHomeAgencies.map {
+    val sortedTypeToHomeAgencies: LiveData<List<DataSourceType>?> = typeToHomeAgencies.map {
         it?.keys?.toList()
     }.distinctUntilChanged()
 
@@ -209,7 +208,7 @@ class HomeViewModel @Inject constructor(
     private val _nearbyPOIsTrigger = MutableLiveData<Event<Boolean>>()
     val nearbyPOIsTrigger: LiveData<Event<Boolean>> = _nearbyPOIsTrigger
 
-    val nearbyPOIsTriggerListener: LiveData<Any> = MediatorLiveData2(_typeToHomeAgencies, _nearbyLocation)
+    val nearbyPOIsTriggerListener: LiveData<Any> = MediatorLiveData2(typeToHomeAgencies, nearbyLocation)
         .switchMap { (typeToHomeAgencies, nearbyLocation) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 if (typeToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
@@ -408,7 +407,7 @@ class HomeViewModel @Inject constructor(
 
     override fun initiateRefresh(): Boolean {
         val newDeviceLocation = this.deviceLocation.value ?: return false
-        val currentNearbyLocation = this._nearbyLocation.value
+        val currentNearbyLocation = this.nearbyLocation.value
         @Suppress("SimplifyBooleanWithConstants")
         if (!IGNORE_SAME_LOCATION_CHECK
             && LocationUtils.areAlmostTheSame(currentNearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)
@@ -416,14 +415,14 @@ class HomeViewModel @Inject constructor(
             MTLog.d(this, "initiateRefresh() > SKIP (same location)")
             return false
         }
-        this._nearbyLocationForceReset.value = Event(true)
+        this.nearbyLocationForceReset.value = Event(true)
         MTLog.d(this, "initiateRefresh() > use NEW location")
         return true
     }
 
     override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
 
-    override val moduleDisabled = _allAgencies.map {
+    override val moduleDisabled = allAgencies.map {
         it.filter { agency -> !agency.isEnabled }
     }.distinctUntilChanged()
 

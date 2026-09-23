@@ -95,10 +95,10 @@ class NearbyViewModel @Inject constructor(
     private val _selectedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_TYPE, EXTRA_SELECTED_TYPE_DEFAULT)
         .map { if (it < 0) null else it }
 
-    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LAT)
-    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LNG)
+    private val fixedOnLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LAT)
+    private val fixedOnLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LNG)
 
-    val fixedOnLocation: LiveData<Location?> = MediatorLiveData2(_fixedOnLat, _fixedOnLng)
+    val fixedOnLocation: LiveData<Location?> = MediatorLiveData2(fixedOnLat, fixedOnLng)
         .map { (fixedOnLat, fixedOnLng) ->
             fixedOnLat ?: return@map null
             fixedOnLng ?: return@map null
@@ -170,7 +170,7 @@ class NearbyViewModel @Inject constructor(
 
     private val _distanceUnitsPref = this.userPrefManager.distanceUnits.distinctUntilChanged()
 
-    private val _locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
+    private val locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             nearbyLocation?.toAddress(appContext)?.let {
                 emit(it)
@@ -178,7 +178,7 @@ class NearbyViewModel @Inject constructor(
         }
     }
 
-    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(nearbyLocation, _locationAddress, _distanceUnitsPref)
+    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(nearbyLocation, locationAddress, _distanceUnitsPref)
         .map { (nearbyLocation, locationAddress, distanceUnitsPref) ->
             nearbyLocation ?: return@map null
             distanceUnitsPref ?: return@map null
@@ -187,7 +187,7 @@ class NearbyViewModel @Inject constructor(
 
     val fixedOnName = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
 
-    val isFixedOn: LiveData<Boolean?> = MediatorLiveData3(_fixedOnLat, _fixedOnLng, fixedOnName)
+    val isFixedOn: LiveData<Boolean?> = MediatorLiveData3(fixedOnLat, fixedOnLng, fixedOnName)
         .map { (lat, lng, name) ->
             lat != null && lng != null && !name.isNullOrBlank()
         }

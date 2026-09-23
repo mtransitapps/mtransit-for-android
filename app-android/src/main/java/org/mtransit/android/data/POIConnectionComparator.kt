@@ -19,13 +19,14 @@ class POIConnectionComparator(
     var targetedPOI: POI? = null
 
     override fun compare(poim1: POIManager?, poim2: POIManager?): Int {
-        if (this.targetedPOI == null || poim1 == null || poim2 == null) return ComparatorUtils.SAME
-        val poim1Connection = isConnection(poim1.poi)
-        val poim2Connection = isConnection(poim2.poi)
-        if (poim1Connection && !poim2Connection) {
-            return ComparatorUtils.BEFORE
-        } else if (!poim1Connection && poim2Connection) {
-            return ComparatorUtils.AFTER
+        if (this.targetedPOI != null && poim1 != null && poim2 != null) {
+            val poim1Connection = isConnection(poim1.poi)
+            val poim2Connection = isConnection(poim2.poi)
+            if (poim1Connection && !poim2Connection) {
+                return ComparatorUtils.BEFORE
+            } else if (!poim1Connection && poim2Connection) {
+                return ComparatorUtils.AFTER
+            }
         }
         return ComparatorUtils.SAME
     }

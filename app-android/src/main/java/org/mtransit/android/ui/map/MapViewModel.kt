@@ -113,13 +113,13 @@ class MapViewModel @Inject constructor(
         it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
 
-    private val _loadingSelectedPlace = MutableLiveData<Boolean>()
+    private val loadingSelectedPlace = MutableLiveData<Boolean>()
     private val _selectedPlace = MutableLiveData<Place?>()
     val selectedPlace: LiveData<Place?> = _selectedPlace
 
     fun onSelectedPlaceLocation(latLng: LatLng) {
         viewModelScope.launch(Dispatchers.IO) {
-            _loadingSelectedPlace.postValue(true)
+            loadingSelectedPlace.postValue(true)
             var selectedLatLng = latLng
             val selectedAddress = selectedLatLng.toLocation().toAddress(appContext)
             selectedAddress?.latLng
@@ -146,7 +146,9 @@ class MapViewModel @Inject constructor(
                         val maxLength = subTitle.length
                         if (it.length > maxLength) {
                             it.substring(0, it.length.coerceAtMost(maxLength - 1)) + appContext.getString(commonsR.string.ellipsis)
-                        } else it
+                        } else {
+                            it
+                        }
                     }
                     ?: appContext.getString(R.string.place_pin_placed)
                 this.subTitle = subTitle
@@ -154,7 +156,7 @@ class MapViewModel @Inject constructor(
                 lng = selectedLatLng.longitude
             }
             _selectedPlace.postValue(longPressPlace)
-            _loadingSelectedPlace.postValue(false)
+            loadingSelectedPlace.postValue(false)
         }
     }
 
@@ -276,7 +278,7 @@ class MapViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    val loaded: LiveData<Boolean?> = MediatorLiveData3(_loadingArea, _loadedArea, _loadingSelectedPlace)
+    val loaded: LiveData<Boolean?> = MediatorLiveData3(_loadingArea, _loadedArea, loadingSelectedPlace)
         .map { (loadingArea, loadedArea, loadingSelectedPlace) ->
             loadingSelectedPlace.takeIf { it != false }
                 ?: loadedArea.containsEntirely(loadingArea)

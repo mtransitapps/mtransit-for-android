@@ -83,7 +83,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     private val _routeId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_ROUTE_ID)
 
-    private val _route: LiveData<Route?> = MediatorLiveData2(_authority, _routeId)
+    private val route: LiveData<Route?> = MediatorLiveData2(_authority, _routeId)
         .switchMap { (authority, routeId) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 authority ?: return@liveData
@@ -94,7 +94,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     val directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
 
-    private val _direction: LiveData<Direction?> = MediatorLiveData2(_authority, directionId)
+    private val direction: LiveData<Direction?> = MediatorLiveData2(_authority, directionId)
         .switchMap { (authority, directionId) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 authority ?: return@liveData
@@ -103,7 +103,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
             }
         }
 
-    private val _routeDirection: LiveData<RouteDirection?> = MediatorLiveData2(_route, _direction)
+    private val routeDirection: LiveData<RouteDirection?> = MediatorLiveData2(route, direction)
         .switchMap { (route, direction) ->
             liveData(viewModelScope.coroutineContext) {
                 route ?: return@liveData
@@ -144,7 +144,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
         _vehicleRefreshJob = null
     }
 
-    val vehicleLocations = MediatorLiveData3(_vehicleLocationProviders, _routeDirection, _vehicleLocationRequestedTrigger)
+    val vehicleLocations = MediatorLiveData3(_vehicleLocationProviders, routeDirection, _vehicleLocationRequestedTrigger)
         .switchMap { (vehicleLocationProviders, rd, trigger) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
@@ -191,7 +191,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
         savedStateHandle[EXTRA_CLOSEST_POI_SHOWN] = true
     }
 
-    val routeDirectionM: LiveData<RouteDirectionManager> = MediatorLiveData2(_authority, _routeDirection)
+    val routeDirectionM: LiveData<RouteDirectionManager> = MediatorLiveData2(_authority, routeDirection)
         .switchMap { (authority, routeDirection) ->
             liveData(viewModelScope.coroutineContext) {
                 authority ?: return@liveData
@@ -255,7 +255,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
             }
         }
 
-    val showingListInsteadOfMap: LiveData<Boolean> = _routeDirection
+    val showingListInsteadOfMap: LiveData<Boolean> = routeDirection
         .switchMap { routeDirection ->
             liveData {
                 if (demoModeManager.isFullDemo()) {
@@ -269,7 +269,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
         if (demoModeManager.isFullDemo()) return // SKIP (demo mode ON)
-        val routeDirection = _routeDirection.value ?: return
+        val routeDirection = routeDirection.value ?: return
         viewModelScope.launch {
             devicePrefManager.updateRouteDirectionShowingListInsteadOfMap(routeDirection, showingListInsteadOfMap)
         }

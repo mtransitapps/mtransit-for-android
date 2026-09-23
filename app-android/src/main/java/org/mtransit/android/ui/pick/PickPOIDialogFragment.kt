@@ -181,27 +181,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             adapter.initManual()
-            binding?.apply {
-                when {
-                    !adapter.isInitialized -> {
-                        emptyLayout.isVisible = false
-                        list.isVisible = false
-                        loadingLayout.isVisible = true
-                    }
-
-                    adapter.poisCount == 0 -> {
-                        loadingLayout.isVisible = false
-                        list.isVisible = false
-                        emptyLayout.isVisible = true
-                    }
-
-                    else -> {
-                        loadingLayout.isVisible = false
-                        emptyLayout.isVisible = false
-                        list.isVisible = true
-                    }
-                }
-            }
+            setupListLoadingEmpty()
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
@@ -215,34 +195,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             binding?.apply {
                 nearbyLatLng?.let { (lat, lng) ->
                     nearbyPoisTitle.moreBtn.setOnClickListener {
-                        onClickHandledListener.onLeaving()
-                        if (FeatureFlags.F_NAVIGATION) {
-                            var extras: FragmentNavigator.Extras? = null
-                            if (FeatureFlags.F_TRANSITION) {
-                                extras = null // TODO button ? extras = FragmentNavigatorExtras(view to view.transitionName)
-                            }
-                            findNavController().navigate(
-                                R.id.nav_to_nearby_screen,
-                                NearbyFragment.newFixedOnInstanceArgs(
-                                    optTypeId = null,
-                                    fixedOnLat = lat,
-                                    fixedOnLng = lng,
-                                    fixedOnName = null
-                                ),
-                                null,
-                                extras
-                            )
-                        } else {
-                            (activity as? MainActivity)?.addFragmentToStack(
-                                NearbyFragment.newFixedOnInstance(
-                                    optTypeId = null,
-                                    fixedOnLat = lat,
-                                    fixedOnLng = lng,
-                                    fixedOnName = null
-                                ),
-                                this@PickPOIDialogFragment
-                            )
-                        }
+                        onNearbyMoreButtonClick(lat, lng)
                     }
                     nearbyPoisTitle.isVisible = true
                     nearbyPoisTitle.moreBtn.isVisible = true
@@ -255,6 +208,59 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
                     nearbyPoisTitle.moreBtn.isVisible = false
                 }
             }
+        }
+    }
+
+    private fun setupListLoadingEmpty() = binding?.apply {
+        when {
+            !adapter.isInitialized -> {
+                emptyLayout.isVisible = false
+                list.isVisible = false
+                loadingLayout.isVisible = true
+            }
+
+            adapter.poisCount == 0 -> {
+                loadingLayout.isVisible = false
+                list.isVisible = false
+                emptyLayout.isVisible = true
+            }
+
+            else -> {
+                loadingLayout.isVisible = false
+                emptyLayout.isVisible = false
+                list.isVisible = true
+            }
+        }
+    }
+
+    private fun onNearbyMoreButtonClick(lat: Double, lng: Double) {
+        onClickHandledListener.onLeaving()
+        if (FeatureFlags.F_NAVIGATION) {
+            var extras: FragmentNavigator.Extras? = null
+            if (FeatureFlags.F_TRANSITION) {
+                extras = null // TODO button ? extras = FragmentNavigatorExtras(view to view.transitionName)
+            }
+            findNavController().navigate(
+                R.id.nav_to_nearby_screen,
+                NearbyFragment.newFixedOnInstanceArgs(
+                    optTypeId = null,
+                    fixedOnLat = lat,
+                    fixedOnLng = lng,
+                    fixedOnName = null
+                ),
+                null,
+                extras
+            )
+        } else {
+            (activity as? MainActivity)?.addFragmentToStack(
+                NearbyFragment.newFixedOnInstance(
+                    optTypeId = null,
+                    fixedOnLat = lat,
+                    fixedOnLng = lng,
+                    fixedOnName = null
+                ),
+                this@PickPOIDialogFragment
+            )
         }
     }
 

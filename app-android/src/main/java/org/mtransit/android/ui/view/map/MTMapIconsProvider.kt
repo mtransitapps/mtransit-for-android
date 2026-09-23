@@ -13,11 +13,14 @@ object MTMapIconsProvider {
     // @formatter:off
 
     @JvmStatic
-    val selectedDefaultIconDef = MTMapIconDef(R.drawable.map_icon_place_replace_slim_original_nodpi,
-            flat = false,
-            anchorU = 0.5f, anchorV = 1.0f,
-            infoWindowAnchorU = 0.5f, infoWindowAnchorV = 0.0f,
-            oneSize = true, size = 36.dpToPx, replaceColor = true)
+    val selectedDefaultIconDef = MTMapIconDef(
+        R.drawable.map_icon_place_replace_slim_original_nodpi,
+        flat = false,
+        anchorU = 0.5f, anchorV = 1.0f,
+        infoWindowAnchorU = 0.5f, infoWindowAnchorV = 0.0f,
+        oneSize = true, size = 36.dpToPx,
+        replaceColor = true,
+    )
 
     @JvmStatic
     val defaultIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_nodpi, size = 21.dpToPx, replaceColor = true)
@@ -32,7 +35,7 @@ object MTMapIconsProvider {
     val lightRailVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_tram_nodpi, size = 41.dpToPx, replaceColor = true)
 
     @JvmStatic
-    val subwayVehicleIconDef = MTMapIconDef( R.drawable.map_icon_stop_replace_flat_filled_subway_nodpi, size = 41.dpToPx, replaceColor = true)
+    val subwayVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_subway_nodpi, size = 41.dpToPx, replaceColor = true)
 
     @JvmStatic
     val railVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_railway_nodpi, size = 41.dpToPx, replaceColor = true)
@@ -41,7 +44,7 @@ object MTMapIconsProvider {
     val busVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_bus_nodpi, size = 41.dpToPx, replaceColor = true)
 
     @JvmStatic
-    val ferryVehicleIconDef = MTMapIconDef( R.drawable.map_icon_stop_replace_flat_filled_boat_nodpi, size = 41.dpToPx, replaceColor = true)
+    val ferryVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_boat_nodpi, size = 41.dpToPx, replaceColor = true)
 
     // @formatter:on
 

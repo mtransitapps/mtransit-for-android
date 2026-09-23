@@ -88,14 +88,14 @@ class RDSRouteViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    private val _route: LiveData<Route?> = MediatorLiveData2(agency, _routeId)
+    private val route: LiveData<Route?> = MediatorLiveData2(agency, _routeId)
         .switchMap { (agency, routeId) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getRoute(agency, routeId))
             }
         }
 
-    val routeM: LiveData<RouteManager> = MediatorLiveData2(_authority, _route)
+    val routeM: LiveData<RouteManager> = MediatorLiveData2(_authority, route)
         .switchMap { (authority, route) ->
             liveData(viewModelScope.coroutineContext) {
                 authority ?: return@liveData
@@ -119,7 +119,7 @@ class RDSRouteViewModel @Inject constructor(
     private suspend fun getRoute(agency: IAgencyUIProperties?, routeId: Long?): Route? {
         routeId ?: return null
         if (agency == null) {
-            if (_route.value != null) {
+            if (route.value != null) {
                 MTLog.d(this, "getRoute() > data source removed (no more agency)")
                 dataSourceRemovedEvent.postValue(Event(true))
             }
@@ -133,7 +133,7 @@ class RDSRouteViewModel @Inject constructor(
         return newRoute
     }
 
-    val colorInt: LiveData<Int?> = MediatorLiveData2(_route, agency)
+    val colorInt: LiveData<Int?> = MediatorLiveData2(route, agency)
         .map { (route, agency) ->
             route?.let { if (it.hasColor()) route.colorInt else agency?.colorInt }
         }
@@ -153,7 +153,7 @@ class RDSRouteViewModel @Inject constructor(
         return this.dataSourceRequestManager.findRDSRouteDirections(authority, routeId)
     }
 
-    private val _selectedDirectionIdPref: LiveData<Long?> = MediatorLiveData2(_authority, _routeId)
+    private val selectedDirectionIdPref: LiveData<Long?> = MediatorLiveData2(_authority, _routeId)
         .switchMap { (authority, routeId) ->
             authority ?: return@switchMap MutableLiveData(null)
             routeId ?: return@switchMap MutableLiveData(null)
@@ -187,7 +187,7 @@ class RDSRouteViewModel @Inject constructor(
         }
     }
 
-    private val currentSelectedDirectionId: LiveData<Long?> = MediatorLiveData2(_selectedDirectionId, _selectedDirectionIdPref)
+    private val currentSelectedDirectionId: LiveData<Long?> = MediatorLiveData2(_selectedDirectionId, selectedDirectionIdPref)
         .map { (selectedDirectionId, selectedDirectionIdPref) ->
             selectedDirectionId ?: selectedDirectionIdPref
         }.distinctUntilChanged()

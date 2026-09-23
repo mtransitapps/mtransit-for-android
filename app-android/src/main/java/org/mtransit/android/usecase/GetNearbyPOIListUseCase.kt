@@ -26,6 +26,8 @@ class GetNearbyPOIListUseCase @Inject constructor(
     companion object {
         private const val INITIAL_COVERAGE_IN_METERS = 100f
 
+        private const val MAX_DISTANCE_INCREASE = 1.5f
+
         private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
@@ -92,7 +94,7 @@ class GetNearbyPOIListUseCase @Inject constructor(
                 ?: INITIAL_COVERAGE_IN_METERS
             val significantDistance = firstRelevantDistance
                 ?.coerceAtLeast(.5f * INITIAL_COVERAGE_IN_METERS)
-                ?.let { it * 1.5f }
+                ?.let { it * MAX_DISTANCE_INCREASE }
                 ?.coerceAtLeast(minDistance)
             if (
                 2f * INITIAL_COVERAGE_IN_METERS <= maxDistanceInMeters
@@ -108,7 +110,7 @@ class GetNearbyPOIListUseCase @Inject constructor(
                     maxDistanceInMeters += firstLastDistanceDiff
                     continue
                 }
-                maxDistanceInMeters *= 1.5f
+                maxDistanceInMeters *= MAX_DISTANCE_INCREASE
             }
         }
         if (mainAgency != null) {
@@ -158,9 +160,9 @@ class GetNearbyPOIListUseCase @Inject constructor(
             val routeDirectionId = "${rds.route.id}-${rds.direction.id}"
             if (routeDirectionKept.contains(routeDirectionId)) {
                 it.remove()
-                continue
+            } else {
+                routeDirectionKept += routeDirectionId
             }
-            routeDirectionKept += routeDirectionId
         }
     }
 }

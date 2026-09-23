@@ -60,14 +60,14 @@ import kotlin.time.Duration.Companion.milliseconds
 class POIViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val poiRepository: POIRepository,
+    poiRepository: POIRepository,
     newsRepository: NewsRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     dataSourceRequestManager: DataSourceRequestManager,
     favoriteRepository: FavoriteRepository,
     userPrefManager: UserPrefManager,
     remoteConfigProvider: RemoteConfigProvider,
-    private val getNearbyPOIListUseCase: GetNearbyPOIListUseCase,
+    getNearbyPOIListUseCase: GetNearbyPOIListUseCase,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -240,7 +240,8 @@ class POIViewModel @Inject constructor(
                     ).apply {
                         poiConnectionComparator.targetedPOI = poi
                         sortWithAnd(poiConnectionComparator)
-                    })
+                    }
+                )
             }
         }
 
@@ -253,11 +254,11 @@ class POIViewModel @Inject constructor(
         })
     }
 
-    private val _newsProviders = _authority.switchMap {
+    private val newsProviders = _authority.switchMap {
         dataSourcesRepository.readingNewsProviders(it) // #onModulesUpdated
     }
 
-    val latestNewsArticleList: LiveData<List<News>?> = MediatorLiveData2(_poi, _newsProviders)
+    val latestNewsArticleList: LiveData<List<News>?> = MediatorLiveData2(_poi, newsProviders)
         .switchMap { (poi, newsProviders) ->
             newsRepository.loadingNewsArticles(
                 newsProviders,
@@ -311,7 +312,7 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private val _favorite: LiveData<Favorite?> = MediatorLiveData2(this.uuid, favoriteRepository.readingAllFavoritesChange)
+    private val favorite: LiveData<Favorite?> = MediatorLiveData2(this.uuid, favoriteRepository.readingAllFavoritesChange)
         .switchMap { (uuid, trigger) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 uuid ?: return@liveData
@@ -321,7 +322,7 @@ class POIViewModel @Inject constructor(
             }
         }
 
-    val isFavorite: LiveData<Boolean> = _favorite.map { it != null }
+    val isFavorite: LiveData<Boolean> = favorite.map { it != null }
 
     val usingFavoriteFolders: LiveData<Boolean> = favoriteRepository.isUsingFolders
 }

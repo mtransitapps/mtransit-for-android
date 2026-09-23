@@ -58,15 +58,15 @@ class PickPOIViewModel @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    private val _poiUuids = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_UUIDS)
-    private val _poiAuthorities = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_AUTHORITIES)
+    private val poiUuids = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_UUIDS)
+    private val poiAuthorities = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_AUTHORITIES)
 
-    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LAT)
-    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LNG)
+    private val fixedOnLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LAT)
+    private val fixedOnLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LNG)
 
     private val _allAgencies = dataSourcesRepository.readingAllAgenciesBase()
 
-    val dataSourceRemovedEvent: LiveData<Event<Boolean>> = MediatorLiveData2(_poiAuthorities, _allAgencies)
+    val dataSourceRemovedEvent: LiveData<Event<Boolean>> = MediatorLiveData2(poiAuthorities, _allAgencies)
         .switchMap { (authorities, allAgencies) ->
             liveData {
                 authorities ?: return@liveData
@@ -83,7 +83,7 @@ class PickPOIViewModel @Inject constructor(
         return false
     }
 
-    private val poiList: LiveData<List<POIManager>?> = MediatorLiveData3(_poiUuids, _poiAuthorities, _allAgencies)
+    private val poiList: LiveData<List<POIManager>?> = MediatorLiveData3(poiUuids, poiAuthorities, _allAgencies)
         .switchMap { (poiUuids, poiAuthorities, allAgencies) ->
             poiUuids ?: return@switchMap null
             poiAuthorities ?: return@switchMap null
@@ -114,7 +114,7 @@ class PickPOIViewModel @Inject constructor(
         return poiList
     }
 
-    val nearbyList: LiveData<List<POIManager>?> = MediatorLiveData3(_fixedOnLat, _fixedOnLng, _allAgencies)
+    val nearbyList: LiveData<List<POIManager>?> = MediatorLiveData3(fixedOnLat, fixedOnLng, _allAgencies)
         .switchMap { (fixedOnLat, fixedOnLng, allAgencies) ->
             fixedOnLat ?: return@switchMap null
             fixedOnLng ?: return@switchMap null
@@ -187,7 +187,7 @@ class PickPOIViewModel @Inject constructor(
         return nearbyPOIs
     }
 
-    val nearbyLatLng: LiveData<Pair<Double, Double>?> = MediatorLiveData2(_fixedOnLat, _fixedOnLng)
+    val nearbyLatLng: LiveData<Pair<Double, Double>?> = MediatorLiveData2(fixedOnLat, fixedOnLng)
         .map { (fixedOnLat, fixedOnLng) ->
             fixedOnLat ?: return@map null
             fixedOnLng ?: return@map null
