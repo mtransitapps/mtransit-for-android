@@ -302,7 +302,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	protected AgencyProperties getAgencyOrNull() {
-		return getAttachedViewModel() == null ? null : getAttachedViewModel().getAgency().getValue();
+		return getAttachedViewModel() == null ? null : getAttachedViewModel().getPoiAgency().getValue();
 	}
 
 	@Nullable
@@ -554,7 +554,7 @@ public class POIFragment extends ABFragment implements
 			}
 			return null;
 		}));
-		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
+		viewModel.getPoiAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
 		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitPrefLoaded);
 		viewModel.getUseInternalWebBrowserPref().observe(getViewLifecycleOwner(), this::onUseInternalWebBrowserPrefLoaded);

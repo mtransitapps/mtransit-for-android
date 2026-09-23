@@ -124,9 +124,13 @@ class PickPOIViewModel @Inject constructor(
             }
         }
 
-    private suspend fun getNearbyPOIs(lat: Double, lng: Double, allAgencies: List<AgencyBaseProperties>): List<POIManager> {
+    private suspend fun getNearbyPOIs(
+        lat: Double,
+        lng: Double,
+        allAgencies: List<AgencyBaseProperties>
+    ): List<POIManager> {
         val maxSize = LocationUtils.MAX_NEARBY_LIST
-        val minCoverageInMeters = LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS.toFloat()
+        val minCoverageInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS
         val nearbyPOIs = mutableListOf<POIManager>()
         val ad = LocationUtils.getNewDefaultAroundDiff()
         val nearbyAgencyArea = Area.getArea(lat, lng, 0.01)
@@ -142,6 +146,7 @@ class PickPOIViewModel @Inject constructor(
                     put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
                 },
             )
+            val routeDirectionKept = mutableSetOf<String>()
             nearbyAgencies.forEach { nearbyAgency ->
                 nearbyPOIs.addAllN(
                     poiRepository.findPOIMs(nearbyAgency, poiFilter)
@@ -150,20 +155,17 @@ class PickPOIViewModel @Inject constructor(
                         .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
                         .removeAllAnd { nearbyPOIs.contains(it) }
                         .let { nearbyPOISortedByDistance -> // sorted by distance
-                            val routeDirectionKept = mutableSetOf<String>()
                             val poiToRemove = mutableListOf<POIManager>()
-                            nearbyPOIs.forEach {
-                                (it.poi as? RouteDirectionStop)?.let { rds ->
-                                    routeDirectionKept.add("${rds.route.id}-${rds.direction.id}")
-                                }
-                            }
                             nearbyPOISortedByDistance.forEach {
-                                (it.poi as? RouteDirectionStop)?.let { rds ->
-                                    if (routeDirectionKept.contains("${rds.route.id}-${rds.direction.id}")) {
-                                        poiToRemove.add(it)
-                                    } else {
-                                        routeDirectionKept.add("${rds.route.id}-${rds.direction.id}")
-                                    }
+                                val rds = it.poi as? RouteDirectionStop ?: return@forEach
+                                val rdId = "${rds.route.id}-${rds.direction.id}"
+                                if (routeDirectionKept.contains(rdId)) {
+                                    poiToRemove.add(it)
+                                } else if (it.poi.isNoPickup) {
+                                    poiToRemove.add(it)
+                                    routeDirectionKept.add(rdId)
+                                } else {
+                                    routeDirectionKept.add(rdId)
                                 }
                             }
                             nearbyPOISortedByDistance.removeAll(poiToRemove)
@@ -171,7 +173,6 @@ class PickPOIViewModel @Inject constructor(
                         }
                 )
             }
-            nearbyPOIs.sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
             if (nearbyPOIs.isEmpty() && ad.incAroundDiff == LocationUtils.MIN_AROUND_DIFF) {
                 LocationUtils.incAroundDiff(ad) // try one more time
                 continue
@@ -188,8 +189,8 @@ class PickPOIViewModel @Inject constructor(
 
     val nearbyLatLng: LiveData<Pair<Double, Double>?> = MediatorLiveData2(_fixedOnLat, _fixedOnLng)
         .map { (fixedOnLat, fixedOnLng) ->
-            fixedOnLat?: return@map null
-            fixedOnLng?: return@map null
+            fixedOnLat ?: return@map null
+            fixedOnLng ?: return@map null
             fixedOnLat to fixedOnLng
         }
 

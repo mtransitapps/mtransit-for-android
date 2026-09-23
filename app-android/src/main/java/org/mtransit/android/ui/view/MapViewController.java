@@ -573,6 +573,7 @@ public class MapViewController implements
 
 	@Override
 	public void onMapClick(@NonNull LatLng position) {
+		clearSelectedPlace(this);
 		final MapListener mapListener = this.config.getMapListener();
 		if (mapListener != null) {
 			mapListener.onMapClick(position);

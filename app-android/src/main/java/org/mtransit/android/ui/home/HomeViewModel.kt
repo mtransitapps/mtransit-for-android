@@ -254,7 +254,7 @@ class HomeViewModel @Inject constructor(
         val accuracyInMeters = nearbyLocation.accuracy
         val minDistanceInMeters = maxOf(
             LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, LocationUtils.MIN_AROUND_DIFF),
-            LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS.toFloat(),
+            LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS,
             accuracyInMeters
         )
         val nearbyPOIs = mutableListOf<POIManager>()

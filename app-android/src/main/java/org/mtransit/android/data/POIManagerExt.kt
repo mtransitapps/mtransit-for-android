@@ -128,8 +128,13 @@ val POI.isNoPickup: Boolean
     get() = this is RouteDirectionStop && this.isNoPickup
 
 fun POI.isSameRoute(other: POI): Boolean {
-    if (this !is RouteDirectionStop || other !is RouteDirectionStop) return false
-    return this.route.id == other.route.id
+    if (other !is RouteDirectionStop) return false
+    return isSameRoute(other.route.id)
+}
+
+fun POI.isSameRoute(otherRouteId: Long?): Boolean {
+    if (this !is RouteDirectionStop) return false
+    return this.route.id == otherRouteId
 }
 
 fun POI.isSameRouteDirection(other: POI): Boolean {

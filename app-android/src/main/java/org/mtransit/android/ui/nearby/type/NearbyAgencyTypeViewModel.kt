@@ -41,7 +41,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
 
         internal const val EXTRA_TYPE_ID = "extra_type_id"
 
-        private const val MIN_NEARBY_LIST_COVERAGE_IN_METERS = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS.toFloat()
+        private const val MIN_NEARBY_LIST_COVERAGE_IN_METERS = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS
     }
 
     override fun getLogTag(): String = typeId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
