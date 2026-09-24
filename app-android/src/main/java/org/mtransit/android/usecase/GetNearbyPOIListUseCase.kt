@@ -86,6 +86,7 @@ class GetNearbyPOIListUseCase(
             }
         val nearbyPOIs = mutableListOf<POIManager>()
         val agenciesToPOIMs = mutableMapOf<Pair<String, Double>, List<POIManager>>()
+        val aroundDiff = AroundDiff()
         var maxDistanceInMeters = INITIAL_COVERAGE_IN_METERS
         var poiAgencyPOIAdded = false
         // 1 - nearby POIs from nearby agencies
