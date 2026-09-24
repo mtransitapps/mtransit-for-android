@@ -27,9 +27,9 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.isAppEnabled
+import org.mtransit.android.commons.location.toStringSimple
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.toAddress
-import org.mtransit.android.commons.toStringSimple
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.location.MTLocationProvider

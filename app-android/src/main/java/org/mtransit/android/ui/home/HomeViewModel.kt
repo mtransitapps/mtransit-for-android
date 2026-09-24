@@ -29,9 +29,9 @@ import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.location.AroundDiff
+import org.mtransit.android.commons.location.toStringSimple
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.toAddress
-import org.mtransit.android.commons.toStringSimple
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
