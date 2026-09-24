@@ -151,6 +151,7 @@
     <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private val _appOpenAdShowing = MutableLiveData&lt;Boolean&gt;(null)</ID>
     <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private val _readyForNextScreen = MutableLiveData(false)</ID>
     <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private var _appOpenAdShowComplete = AtomicBoolean(false)</ID>
+    <ID>ComplexCondition:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$(nearbyPOIs.size &lt;= (minSize ?: 0) || newNearbyPOIsLoadedCount &gt; 0) &amp;&amp; maxDistanceInMeters &lt;= (maxCoverageInMeters ?: Float.MAX_VALUE) &amp;&amp; aroundDiff.increment &lt;= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT) &amp;&amp; !LocationUtils.searchComplete(lat, lng, aroundDiff.ad)</ID>
     <ID>CyclomaticComplexMethod:AgencyPOIsFragment.kt:AgencyPOIsFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:AgencyTypeFragment.kt:AgencyTypeFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
@@ -254,9 +255,9 @@
     <ID>LongParameterList:HomeViewModel.kt:HomeViewModel</ID>
     <ID>LongParameterList:HomeViewModel.kt:HomeViewModel$private suspend fun getAreaTypeNearbyPOIs: MutableList&lt;POIManager&gt;</ID>
     <ID>LongParameterList:InAppNotificationFragment.kt:InAppNotificationFragment$fun showInAppNotification: Boolean</ID>
-    <ID>LongParameterList:MapViewModel.kt:MapViewModel</ID>
     <ID>LongParameterList:MTPOIMarker.kt:MTPOIMarker$fun merge</ID>
     <ID>LongParameterList:MTSensorManager.kt:MTSensorManager$fun updateCompass</ID>
+    <ID>LongParameterList:MapViewModel.kt:MapViewModel</ID>
     <ID>LongParameterList:NearbyViewModel.kt:NearbyViewModel</ID>
     <ID>LongParameterList:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
     <ID>LongParameterList:NewsRepository.kt:NewsRepository$fun loadingNewsArticles</ID>

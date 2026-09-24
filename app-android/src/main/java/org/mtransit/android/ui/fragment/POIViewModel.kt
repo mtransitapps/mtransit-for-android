@@ -83,6 +83,10 @@ class POIViewModel @Inject constructor(
         private const val NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE = 2.5f * UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS
     }
 
+    init {
+        getNearbyPOIListUseCase.logTag = LOG_TAG
+    }
+
     override fun getLogTag() = LOG_TAG
 
     val uuid = savedStateHandle.getLiveDataDistinct<String>(EXTRA_POI_UUID)

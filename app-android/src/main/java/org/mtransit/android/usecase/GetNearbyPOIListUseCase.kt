@@ -26,7 +26,7 @@ import javax.inject.Inject
 class GetNearbyPOIListUseCase(
     private val poiRepository: POIRepository,
     private val ioDispatcher: CoroutineDispatcher,
-) {
+) : MTLog.Loggable {
 
     @Inject
     constructor(
@@ -37,11 +37,21 @@ class GetNearbyPOIListUseCase(
     )
 
     companion object {
+        private val LOG_TAG: String = GetNearbyPOIListUseCase::class.java.simpleName
+
         private const val INITIAL_COVERAGE_IN_METERS = 100f
 
         private const val MAX_DISTANCE_INCREASE = 1.5f
 
         private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
+    }
+
+    private var logTag: String = LOG_TAG
+
+    override fun getLogTag(): String = logTag
+
+    fun setLogTag(tag: String) {
+        this.logTag = "$LOG_TAG-$tag"
     }
 
     private suspend fun MutableMap<Pair<String, Double>, List<POIManager>>.getOrFindPOIMAroundLoc(
@@ -90,8 +100,10 @@ class GetNearbyPOIListUseCase(
         val aroundDiff = AroundDiff()
         var maxDistanceInMeters = INITIAL_COVERAGE_IN_METERS
         var poiAgencyPOIAdded = false
+        var newNearbyPOIsLoadedCount: Int
         // 1 - nearby POIs from nearby agencies
         while (true) {
+            newNearbyPOIsLoadedCount = 0
             if (maxDistanceInMeters >= LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff.ad)) {
                 aroundDiff.increment()
             }
@@ -103,11 +115,12 @@ class GetNearbyPOIListUseCase(
                         .removeTooFar(getMaxDistanceInMeters(maxDistanceInMeters, nearbyAgency.type))
                         .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
                         .removeAllAnd { nearbyPOIs.contains(it) }
-                        .also { nearbyPOIs ->
+                        .also { newAgencyNearbyPOIs ->
+                            newNearbyPOIsLoadedCount += newAgencyNearbyPOIs.size
                             if (mainAgency != null
                                 && !poiAgencyPOIAdded
                                 && nearbyAgency.authority == mainAgency.authority
-                                && nearbyPOIs.isNotEmpty()
+                                && newAgencyNearbyPOIs.isNotEmpty()
                             ) {
                                 poiAgencyPOIAdded = true
                             }
@@ -116,7 +129,7 @@ class GetNearbyPOIListUseCase(
             }
             nearbyPOIs.removeDuplicateRouteDirection()
             if (mainAgency == null) {
-                if (nearbyPOIs.size <= (minSize ?: 0)
+                if ((nearbyPOIs.size <= (minSize ?: 0) || newNearbyPOIsLoadedCount > 0)
                     && maxDistanceInMeters <= (maxCoverageInMeters ?: Float.MAX_VALUE)
                     && aroundDiff.increment <= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT)
                     && !LocationUtils.searchComplete(lat, lng, aroundDiff.ad) // world explored

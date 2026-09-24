@@ -81,13 +81,11 @@ class NearbyViewModel @Inject constructor(
         // private const val IGNORE_SAME_LOCATION_CHECK = true // DEBUG
 
         internal const val EXTRA_SELECTED_TYPE = "extra_selected_type"
-        internal const val EXTRA_SELECTED_TYPE_DEFAULT: Int = -1
+        internal const val EXTRA_SELECTED_TYPE_DEFAULT = -1
         internal const val EXTRA_FIXED_ON_LAT = "extra_fixed_on_lat"
         internal const val EXTRA_FIXED_ON_LNG = "extra_fixed_on_lng"
         internal const val EXTRA_FIXED_ON_NAME = "extra_fixed_on_name"
-        internal val EXTRA_FIXED_ON_NAME_DEFAULT: String? = null
         internal const val EXTRA_FIXED_ON_COLOR = "extra_fixed_on_color"
-        internal val EXTRA_FIXED_ON_COLOR_DEFAULT: String? = null
     }
 
     override fun getLogTag() = LOG_TAG
@@ -185,11 +183,11 @@ class NearbyViewModel @Inject constructor(
             getLocationString(this.appContext, locationAddress, nearbyLocation.accuracy, distanceUnitsPref)
         }
 
-    val fixedOnName = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
+    val fixedOnName = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_NAME)
 
-    val isFixedOn: LiveData<Boolean?> = MediatorLiveData3(fixedOnLat, fixedOnLng, fixedOnName)
-        .map { (lat, lng, name) ->
-            lat != null && lng != null && !name.isNullOrBlank()
+    val isFixedOn: LiveData<Boolean?> = MediatorLiveData2(fixedOnLat, fixedOnLng)
+        .map { (lat, lng) ->
+            lat != null && lng != null // fixedOnName optional
         }
 
     override val newLocationAvailable: LiveData<Boolean?> = MediatorLiveData3(isFixedOn, nearbyLocation, deviceLocation)
@@ -200,7 +198,7 @@ class NearbyViewModel @Inject constructor(
                 && !LocationUtils.areAlmostTheSame(nearbyLocation, deviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
         }
 
-    val fixedOnColorInt = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_COLOR, EXTRA_FIXED_ON_COLOR_DEFAULT)
+    val fixedOnColorInt = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_COLOR)
         .map { it?.let { ColorUtils.parseColor(it) } }
 
     val availableTypes = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { // #onModulesUpdated

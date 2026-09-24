@@ -157,11 +157,11 @@ class NearbyFragment :
         ): Bundle {
             val validNearbyTypeId: Int? = optTypeId?.takeIf { DataSourceType.parseId(it)?.isNearbyScreen == true }
             return Bundle().apply {
-                putInt(NearbyViewModel.EXTRA_SELECTED_TYPE, validNearbyTypeId ?: NearbyViewModel.EXTRA_SELECTED_TYPE_DEFAULT)
+                validNearbyTypeId?.let { putInt(NearbyViewModel.EXTRA_SELECTED_TYPE, it) }
                 optFixedOnLat?.let { putDouble(NearbyViewModel.EXTRA_FIXED_ON_LAT, it) }
                 optFixedOnLng?.let { putDouble(NearbyViewModel.EXTRA_FIXED_ON_LNG, it) }
-                putString(NearbyViewModel.EXTRA_FIXED_ON_NAME, optFixedOnName ?: NearbyViewModel.EXTRA_FIXED_ON_NAME_DEFAULT)
-                putString(NearbyViewModel.EXTRA_FIXED_ON_COLOR, optFixedOnColor ?: NearbyViewModel.EXTRA_FIXED_ON_COLOR_DEFAULT)
+                optFixedOnName?.let { putString(NearbyViewModel.EXTRA_FIXED_ON_NAME, it) }
+                optFixedOnColor?.let { putString(NearbyViewModel.EXTRA_FIXED_ON_COLOR, it) }
             }
         }
     }

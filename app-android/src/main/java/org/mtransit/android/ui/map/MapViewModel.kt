@@ -18,6 +18,8 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.ktx.utils.component1
+import com.google.maps.android.ktx.utils.component2
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +31,7 @@ import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.common.roundTo
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
@@ -93,6 +96,10 @@ class MapViewModel @Inject constructor(
         internal const val EXTRA_INCLUDE_TYPE_ID_DEFAULT = -1
 
         internal const val EXTRA_MAP_CAMERA_MOVED = "extra_map_camera_moved"
+    }
+
+    init {
+        getNearbyPOIListUseCase.logTag = LOG_TAG
     }
 
     override fun getLogTag() = LOG_TAG
@@ -275,17 +282,16 @@ class MapViewModel @Inject constructor(
         savedStateHandle[EXTRA_MAP_CAMERA_MOVED] = true
     }
 
-    val initialVisibleArea: LiveData<Collection<LatLng>?> = MediatorLiveData3(mapCameraMoved, deviceLocation, _allAgencies)
+    private val stableDeviceLatLng: LiveData<LatLng?> = deviceLocation.map {
+        it?.let { (lat, lng) -> LatLng(lat.roundTo(3), lng.roundTo(3)) }
+    }.distinctUntilChanged()
+
+    val initialVisibleArea: LiveData<Collection<LatLng>?> = MediatorLiveData3(mapCameraMoved, stableDeviceLatLng, _allAgencies)
         .switchMap { (mapCameraMoved, deviceLocation, allAgencies) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 mapCameraMoved ?: return@liveData
                 val (deviceLat, deviceLng) = deviceLocation ?: return@liveData
                 val allAgencies = allAgencies ?: return@liveData
-                if (mapCameraMoved) {
-                    MTLog.d(this@MapViewModel, "initialVisibleArea.onChanged() > SKIP (map camera moved)")
-                    emit(emptyList())
-                    return@liveData
-                }
                 val nearbyPOILatLng = getNearbyPOIListUseCase(
                     lat = deviceLat,
                     lng = deviceLng,

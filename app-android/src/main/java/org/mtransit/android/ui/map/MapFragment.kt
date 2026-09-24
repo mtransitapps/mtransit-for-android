@@ -231,7 +231,8 @@ class MapFragment :
         }
         LocationSettingsUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
-        viewModel.filterTypeIds.observe(viewLifecycleOwner) {
+        viewModel.filterTypeIds.observe(viewLifecycleOwner) { _ ->
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABTitle(this, getABTitle(context), true)
         }
         viewModel.typeMapAgencies.observe(viewLifecycleOwner) {

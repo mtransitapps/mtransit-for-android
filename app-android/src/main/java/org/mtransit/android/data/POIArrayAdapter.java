@@ -979,14 +979,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.closestPoiUuids = new HashSet<>();
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				List<POIManager> poiManagers = this.poisByType.get(type);
-				if (poiManagers == null || poiManagers.isEmpty()) {
-					continue;
-				}
+				final List<POIManager> poiManagers = this.poisByType.get(type);
+				if (poiManagers == null || poiManagers.isEmpty()) continue;
 				this.closestPoiUuids.addAll(
-						LocationUtilsExtKt.findClosestPOISUuid(
-								poiManagers
-						)
+						LocationUtilsExtKt.findClosestPOISUuid(poiManagers)
 				);
 			}
 		}
@@ -1008,10 +1004,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@Nullable
 	public POIManager getClosestPOI() {
-		if (this.closestPoiUuids == null || this.closestPoiUuids.isEmpty()) {
-			return null;
-		}
-		String closestPOIUUID = this.closestPoiUuids.iterator().next();
+		if (this.closestPoiUuids == null || this.closestPoiUuids.isEmpty()) return null;
+		final String closestPOIUUID = this.closestPoiUuids.iterator().next();
 		return getItem(closestPOIUUID);
 	}
 

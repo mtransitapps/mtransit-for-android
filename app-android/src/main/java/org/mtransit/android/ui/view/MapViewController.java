@@ -96,6 +96,7 @@ public class MapViewController implements
 		ExtendedGoogleMap.OnMapClickListener,
 		ExtendedGoogleMap.OnMapLongClickListener,
 		ExtendedGoogleMap.OnMarkerDragListener,
+		ExtendedGoogleMap.OnCameraMoveStartedListener,
 		LocationSource,
 		OnMapReadyCallback,
 		ViewTreeObserver.OnGlobalLayoutListener,
@@ -169,7 +170,7 @@ public class MapViewController implements
 			this.initialMapCameraSetup = showMarkers(false, this.config.getFollowingDevice());
 		}
 		if (!this.initialMapCameraSetup) {
-			this.initialMapCameraSetup = showDeviceLocation(false);
+			this.initialMapCameraSetup = showDeviceLocation(false, false);
 		}
 	}
 
@@ -349,6 +350,7 @@ public class MapViewController implements
 		this.extendedGoogleMap.setOnMarkerDragListener(this);
 		this.extendedGoogleMap.setLocationSource(this);
 		this.extendedGoogleMap.setOnCameraIdleListener(this);
+		this.extendedGoogleMap.setOnCameraMoveStartedListener(this);
 		this.extendedGoogleMap.setClustering(new ClusteringSettings()
 				.enabled(this.config.getClusteringEnabled())
 				.clusterOptionsProvider(new MTClusterOptionsProvider(activity))
@@ -683,14 +685,18 @@ public class MapViewController implements
 
 	@Override
 	public void onCameraIdle() {
-		if (this.extendedGoogleMap == null) {
-			return; // SKIP (no map)
-		}
+		if (this.extendedGoogleMap == null) return; // SKIP (no map)
 		onCameraChanged(this.extendedGoogleMap.getCameraPosition());
 	}
 
+	@Override
+	public void onCameraMoveStarted(int reason) {
+		if (reason == ExtendedGoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+			this.showingMyLocation = false;
+		}
+	}
+
 	private void onCameraChanged(@NonNull CameraPosition cameraPosition) {
-		this.showingMyLocation = this.showingMyLocation == null;
 		Integer visibleMarkersCount = null;
 		if (this.extendedGoogleMap != null) {
 			final Area visibleArea = AreaExtKt.toArea(this.extendedGoogleMap.getProjection().getVisibleRegion());
@@ -759,14 +765,24 @@ public class MapViewController implements
 
 	@Override
 	public boolean onMyLocationButtonClick() {
+		boolean handled = false;
 		if (Boolean.TRUE.equals(this.showingMyLocation)) {
-			showMarkers(true, false);
-			this.showingMyLocation = false;
-			return true; // handled
+			handled = showMarkers(true, false);
+			if (handled) {
+				this.showingMyLocation = false;
+			}
 		}
-		boolean handled = showClosestPOI();
 		if (!handled) {
-			handled = showDeviceLocation(true);
+			handled = showClosestPOI();
+			if (handled) {
+				this.showingMyLocation = true;
+			}
+		}
+		if (!handled) {
+			handled = showDeviceLocation(true, true);
+			if (handled) {
+				this.showingMyLocation = true;
+			}
 		}
 		return handled;
 	}
@@ -887,15 +903,21 @@ public class MapViewController implements
 		return updateMapCamera(false, CameraUpdateFactory.zoomOut());
 	}
 
-	private boolean showDeviceLocation(boolean anim) {
+	private boolean showDeviceLocation(boolean anim, boolean keepZoom) {
 		if (!this.mapLayoutReady) return false;
 		if (this.deviceLocation == null) return false;
-		return updateMapCamera(anim,
-				CameraUpdateFactory.newLatLngZoom(
-						LatLngUtils.fromLocation(this.deviceLocation),
-						DEVICE_LOCATION_ZOOM
-				)
-		);
+		CameraUpdate cameraUpdate;
+		if (keepZoom) {
+			cameraUpdate = CameraUpdateFactory.newLatLng(
+					LatLngUtils.fromLocation(this.deviceLocation)
+			);
+		} else {
+			cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+					LatLngUtils.fromLocation(this.deviceLocation),
+					DEVICE_LOCATION_ZOOM
+			);
+		}
+		return updateMapCamera(anim, cameraUpdate);
 	}
 
 	private static final float DEVICE_LOCATION_ZOOM = MapUtils.MAP_ZOOM_LEVEL_STREETS_BUSY;

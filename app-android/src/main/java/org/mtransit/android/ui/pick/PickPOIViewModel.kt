@@ -47,6 +47,10 @@ class PickPOIViewModel @Inject constructor(
         private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
+    init {
+        getNearbyPOIListUseCase.logTag = LOG_TAG
+    }
+
     override fun getLogTag() = LOG_TAG
 
     private val poiUuids = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_UUIDS)
