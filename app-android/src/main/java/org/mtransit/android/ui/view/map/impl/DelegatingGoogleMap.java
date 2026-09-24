@@ -544,10 +544,8 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 		@Override
 		public void onMarkerDragStart(@NonNull com.google.android.gms.maps.model.Marker marker) {
-			DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
-			if (delegating == null) {
-				return;
-			}
+			final DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
+			if (delegating == null) return;
 			delegating.clearCachedPosition();
 			markerManager.onDragStart(delegating);
 			if (onMarkerDragListener != null) {
@@ -557,10 +555,8 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 		@Override
 		public void onMarkerDrag(@NonNull com.google.android.gms.maps.model.Marker marker) {
-			DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
-			if (delegating == null) {
-				return;
-			}
+			final DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
+			if (delegating == null) return;
 			delegating.clearCachedPosition();
 			if (onMarkerDragListener != null) {
 				onMarkerDragListener.onMarkerDrag(delegating);
@@ -569,10 +565,8 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 		@Override
 		public void onMarkerDragEnd(@NonNull com.google.android.gms.maps.model.Marker marker) {
-			DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
-			if (delegating == null) {
-				return;
-			}
+			final DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
+			if (delegating == null) return;
 			delegating.clearCachedPosition();
 			markerManager.onPositionChange(delegating);
 			if (onMarkerDragListener != null) {

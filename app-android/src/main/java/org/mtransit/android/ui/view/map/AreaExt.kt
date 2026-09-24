@@ -1,20 +1,31 @@
 package org.mtransit.android.ui.view.map
 
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.VisibleRegion
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
+import kotlin.math.max
+import kotlin.math.min
 
 fun VisibleRegion.toArea() = this.latLngBounds.toArea()
 
-fun LatLngBounds.toArea(): Area {
-    return Area(
-        minLat = this.southwest.latitude,
-        maxLat = this.northeast.latitude,
-        minLng = this.southwest.longitude,
-        maxLng = this.northeast.longitude
-    )
+fun LatLngBounds.toArea() = Area(
+    minLat = min(this.southwest.latitude, this.northeast.latitude),
+    maxLat = max(this.northeast.latitude, this.southwest.latitude),
+    minLng = min(this.southwest.longitude, this.northeast.longitude),
+    maxLng = max(this.northeast.longitude, this.southwest.longitude),
+)
+
+fun Area.toLatLngBounds() = LatLngBounds.builder().apply {
+    include(LatLng(this@toLatLngBounds.minLat, this@toLatLngBounds.minLng))
+    include(LatLng(this@toLatLngBounds.minLat, this@toLatLngBounds.maxLng))
+}.build()
+
+fun Area.toLngLngList(): Collection<LatLng> = buildList {
+    add(LatLng(this@toLngLngList.minLat, this@toLngLngList.minLng))
+    add(LatLng(this@toLngLngList.minLat, this@toLngLngList.maxLng))
 }
 
 fun Area.countPOIInside(poiList: Collection<POI>?): Int {

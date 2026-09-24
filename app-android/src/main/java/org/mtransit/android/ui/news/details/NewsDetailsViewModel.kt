@@ -46,33 +46,35 @@ class NewsDetailsViewModel @Inject constructor(
 
     private val allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
 
-    private val thisNewsProvider: LiveData<NewsProviderProperties?> = MediatorLiveData2(allNewsProviders, authority).map { (allNewsProviders, authority) ->
-        if (allNewsProviders != null && authority != null) {
-            allNewsProviders.firstOrNull { it.authority == authority }
-        } else {
-            null
+    private val thisNewsProvider: LiveData<NewsProviderProperties?> = MediatorLiveData2(allNewsProviders, authority)
+        .map { (allNewsProviders, authority) ->
+            if (allNewsProviders != null && authority != null) {
+                allNewsProviders.firstOrNull { it.authority == authority }
+            } else {
+                null
+            }
         }
-    }
 
-    val newsArticle: LiveData<News?> = MediatorLiveData2(uuid, thisNewsProvider).switchMap { (uuid, thisNewsProvider) ->
-        newsRepository.loadingNewsArticle(
-            uuid,
-            thisNewsProvider,
-            onMissingProvider = { oldNews ->
-                if (oldNews != null) {
-                    MTLog.d(this, "getNewsArticle() > data source removed (no more agency)")
-                    dataSourceRemovedEvent.postValue(Event(true))
-                }
-            },
-            onNewsLoaded = { loadedNews ->
-                if (loadedNews == null) {
-                    MTLog.d(this, "getNewsArticle() > data source updated (no more news article)")
-                    dataSourceRemovedEvent.postValue(Event(true))
-                }
-            },
-            coroutineContext = viewModelScope.coroutineContext + Dispatchers.IO,
-        )
-    }
+    val newsArticle: LiveData<News?> = MediatorLiveData2(uuid, thisNewsProvider)
+        .switchMap { (uuid, thisNewsProvider) ->
+            newsRepository.loadingNewsArticle(
+                uuid,
+                thisNewsProvider,
+                onMissingProvider = { oldNews ->
+                    if (oldNews != null) {
+                        MTLog.d(this, "getNewsArticle() > data source removed (no more agency)")
+                        dataSourceRemovedEvent.postValue(Event(true))
+                    }
+                },
+                onNewsLoaded = { loadedNews ->
+                    if (loadedNews == null) {
+                        MTLog.d(this, "getNewsArticle() > data source updated (no more news article)")
+                        dataSourceRemovedEvent.postValue(Event(true))
+                    }
+                },
+                coroutineContext = viewModelScope.coroutineContext + Dispatchers.IO,
+            )
+        }
 
     val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 }

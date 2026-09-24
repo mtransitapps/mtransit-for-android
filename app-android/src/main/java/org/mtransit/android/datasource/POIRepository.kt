@@ -2,6 +2,7 @@ package org.mtransit.android.datasource
 
 import android.location.Location
 import androidx.collection.LruCache
+import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -10,11 +11,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.set
+import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
+import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.updateDistance
+import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
@@ -117,15 +122,29 @@ class POIRepository(
             }
     }.distinctUntilChanged()
 
-    @Suppress("unused")
-    suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI> {
-        return dataSourceRequestManager.findPOIs(agency, commonSetup(poiFilter))
-            .updateSupportedType(agency)
-    }
-
     suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager> {
         return dataSourceRequestManager.findPOIMs(agency, commonSetup(poiFilter))
             .updateSupportedType(agency)
+    }
+
+    suspend fun findPOIMsAroundLoc(
+        agency: IAgencyProperties,
+        lat: Double,
+        lng: Double,
+        aroundDiff: Double,
+        avoidLoading: Boolean = false,
+        noPickup: Boolean = false
+    ): MutableList<POIManager> {
+        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+            extras = SimpleArrayMap<String, Any>().apply {
+                put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, avoidLoading)
+                put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, noPickup)
+            },
+        )
+        val maxAroundDiffDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
+        return findPOIMs(agency, poiFilter)
+            .updateDistanceM(lat, lng)
+            .removeTooFar(maxAroundDiffDistanceInMeters)
     }
 
     fun loadingPOIMs(

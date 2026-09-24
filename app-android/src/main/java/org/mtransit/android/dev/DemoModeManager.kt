@@ -19,6 +19,7 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.location.AroundDiff
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.updateDistanceM
@@ -69,7 +70,7 @@ class DemoModeManager @Inject constructor(
         private const val GPS_COORDINATE_VARIATION_FACTOR_MIN = 7.0
         private const val GPS_COORDINATE_VARIATION_FACTOR_MAX = 10.0
         private const val MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION = 0.0007
-        private const val MAX_GPS_COORDINATE_VARIATION = LocationUtils.MIN_AROUND_DIFF + LocationUtils.INC_AROUND_DIFF
+        private const val MAX_GPS_COORDINATE_VARIATION = AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT
 
         private val AVAILABLE_TIMEZONE_IDS by lazy { TimeZone.getAvailableIDs().toSet() }
     }
@@ -104,10 +105,10 @@ class DemoModeManager @Inject constructor(
         lng: Double,
         agency: AgencyProperties,
     ): POIManager? = withContext(Dispatchers.IO) {
-        val ad = LocationUtils.getNewDefaultAroundDiff()
+        val aroundDiff = AroundDiff()
         var poim: POIManager?
         while (true) {
-            val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).copy(
+            val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff.ad).copy(
                 extras = SimpleArrayMap<String, Any>().apply {
                     put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
                 },
@@ -124,10 +125,10 @@ class DemoModeManager @Inject constructor(
                 .firstOrNull()
             if (poim != null) {
                 break
-            } else if (LocationUtils.searchComplete(lat, lng, ad.aroundDiff)) {
+            } else if (LocationUtils.searchComplete(lat, lng, aroundDiff.ad)) {
                 break
             } else {
-                LocationUtils.incAroundDiff(ad)
+                aroundDiff.increment()
                 continue
             }
         }

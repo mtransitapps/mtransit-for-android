@@ -46,7 +46,7 @@ class DataSourceRequestManager(
     private val keysManager: KeysManager,
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
     private val dataSourcesDatabase: DataSourcesDatabase,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
 
     @Inject
@@ -119,9 +119,6 @@ class DataSourceRequestManager(
         DataSourceManager.findPOIM(appContext, agency.authority, poiFilter)
             .also { ensureAgencyNotSetupRequired(agency.authority) }
     }
-
-    @Suppress("unused")
-    suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI> = findPOIMs(agency, poiFilter).map { it.poi }
 
     suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager> = withContext(ioDispatcher) {
         DataSourceManager.findPOIMs(appContext, agency.authority, poiFilter)

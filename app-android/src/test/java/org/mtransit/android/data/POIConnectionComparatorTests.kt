@@ -26,9 +26,7 @@ class POIConnectionComparatorTests {
         }
     }
 
-    private val subject = POIConnectionComparator(
-        computeDistance = computeDistance
-    )
+    private lateinit var subject: POIConnectionComparator
 
     @Test
     fun `test POISameRouteComparator - same stop`() {
@@ -62,7 +60,8 @@ class POIConnectionComparatorTests {
             RouteDirectionStop(authority, dst, routeSH, directionShCt, stopStLambert, false).toPOIM(),
             RouteDirectionStop(authority, dst, routeSH, directionShSh, stopStLambert, false).toPOIM(),
         )
-        subject.targetedPOI = excludedPOI.poi
+        subject = POIConnectionComparator(targetedPOI = excludedPOI.poi, computeDistance = computeDistance)
+
         val result = poiListSortedByDistance.sortedWith(subject)
 
         var i = 0
@@ -102,9 +101,9 @@ class POIConnectionComparatorTests {
             // 98 same route as targeted
             RouteDirectionStop(authority, dst, route98, direction98Pa, stopTL34417, false).toPOIM(),
         )
-        subject.targetedPOI = excludedPOI.poi
-        assertEquals(true, subject.isAlmostSameLocation(poiListSortedByDistance[0], poiListSortedByDistance[1]))
+        subject = POIConnectionComparator(targetedPOI = excludedPOI.poi, computeDistance = computeDistance)
 
+        assertEquals(true, subject.isAlmostSameLocation(poiListSortedByDistance[0], poiListSortedByDistance[1]))
         assertEquals(true, subject.isConnection(poiListSortedByDistance[4].poi))
 
         val result = poiListSortedByDistance.sortedWith(subject)

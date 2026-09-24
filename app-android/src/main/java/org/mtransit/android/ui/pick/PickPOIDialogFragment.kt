@@ -12,6 +12,8 @@ import androidx.collection.ArrayMap
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,12 +30,15 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
+import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
+import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.user.UserPrefManager
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -61,6 +66,19 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
                 arguments = Bundle().apply {
                     putStringArrayList(PickPOIViewModel.EXTRA_POI_UUIDS, uuids)
                     putStringArrayList(PickPOIViewModel.EXTRA_POI_AUTHORITIES, authorities)
+                }
+            }
+        }
+
+        @JvmStatic
+        fun newInstance(
+            fixedOnLat: Double,
+            fixedOnLng: Double,
+        ): PickPOIDialogFragment {
+            return PickPOIDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putDouble(PickPOIViewModel.EXTRA_FIXED_ON_LAT, fixedOnLat)
+                    putDouble(PickPOIViewModel.EXTRA_FIXED_ON_LNG, fixedOnLng)
                 }
             }
         }
@@ -159,31 +177,11 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             }
         }
         this.adapter.onCreateView(viewLifecycleOwner)
-        viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
+        viewModel.poiNearbyList.observe(viewLifecycleOwner) { poiList ->
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             adapter.initManual()
-            binding?.apply {
-                when {
-                    !adapter.isInitialized -> {
-                        emptyLayout.isVisible = false
-                        list.isVisible = false
-                        loadingLayout.isVisible = true
-                    }
-
-                    adapter.poisCount == 0 -> {
-                        loadingLayout.isVisible = false
-                        list.isVisible = false
-                        emptyLayout.isVisible = true
-                    }
-
-                    else -> {
-                        loadingLayout.isVisible = false
-                        emptyLayout.isVisible = false
-                        list.isVisible = true
-                    }
-                }
-            }
+            setupListLoadingEmpty()
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
@@ -192,6 +190,77 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             if (removed) {
                 dismiss()
             }
+        }
+        viewModel.nearbyLatLng.observe(viewLifecycleOwner) { nearbyLatLng ->
+            binding?.apply {
+                nearbyLatLng?.let { (lat, lng) ->
+                    nearbyPoisTitle.moreBtn.setOnClickListener {
+                        onNearbyMoreButtonClick(lat, lng)
+                    }
+                    nearbyPoisTitle.isVisible = true
+                    nearbyPoisTitle.moreBtn.isVisible = true
+
+                    spaceForDragHandle.isVisible = false
+                } ?: run {
+                    spaceForDragHandle.isVisible = true
+
+                    nearbyPoisTitle.isVisible = false
+                    nearbyPoisTitle.moreBtn.isVisible = false
+                }
+            }
+        }
+    }
+
+    private fun setupListLoadingEmpty() = binding?.apply {
+        when {
+            !adapter.isInitialized -> {
+                emptyLayout.isVisible = false
+                list.isVisible = false
+                loadingLayout.isVisible = true
+            }
+
+            adapter.poisCount == 0 -> {
+                loadingLayout.isVisible = false
+                list.isVisible = false
+                emptyLayout.isVisible = true
+            }
+
+            else -> {
+                loadingLayout.isVisible = false
+                emptyLayout.isVisible = false
+                list.isVisible = true
+            }
+        }
+    }
+
+    private fun onNearbyMoreButtonClick(lat: Double, lng: Double) {
+        onClickHandledListener.onLeaving()
+        if (FeatureFlags.F_NAVIGATION) {
+            var extras: FragmentNavigator.Extras? = null
+            if (FeatureFlags.F_TRANSITION) {
+                extras = null // TODO button ? extras = FragmentNavigatorExtras(view to view.transitionName)
+            }
+            findNavController().navigate(
+                R.id.nav_to_nearby_screen,
+                NearbyFragment.newFixedOnInstanceArgs(
+                    optTypeId = null,
+                    fixedOnLat = lat,
+                    fixedOnLng = lng,
+                    fixedOnName = null
+                ),
+                null,
+                extras
+            )
+        } else {
+            (activity as? MainActivity)?.addFragmentToStack(
+                NearbyFragment.newFixedOnInstance(
+                    optTypeId = null,
+                    fixedOnLat = lat,
+                    fixedOnLng = lng,
+                    fixedOnName = null
+                ),
+                this@PickPOIDialogFragment
+            )
         }
     }
 

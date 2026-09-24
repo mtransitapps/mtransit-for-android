@@ -4,19 +4,50 @@ import android.content.Context
 import android.location.Address
 import android.location.Location
 import androidx.annotation.AnyThread
+import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.data.Area
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 import org.mtransit.android.commons.R as commonsR
 
 object UILocationUtils : LocationUtils() {
 
+    const val MIN_NEARBY_LIST = 10
+
+    const val MAX_NEARBY_LIST = 20
+
+    const val MAX_POI_NEARBY_POIS_LIST = 30
+
+    // const val MIN_NEARBY_LIST_COVERAGE_IN_METERS = 0f // DEBUG
+    const val MIN_NEARBY_LIST_COVERAGE_IN_METERS = 100f
+
+    const val MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS = 100f
+
+    const val MAX_NEARBY_RELEVANT_COVERAGE_IN_METERS = 1_000.0f // 1 km
+
+    const val PLACE_USE_ADDRESS_LAT_LNG_MAX_DISTANCE_IN_METER = 10.0f
+    const val PLACE_SHOW_ADDRESS_SELECTED_MAX_DISTANCE_IN_METER = 33.0f
+
+    private const val MIN_DISTANCE_IN_METER_VERY_ACCURATE = 10.0f // 10 m
+    private const val MAX_DISTANCE_IN_METER_ACCURATE = 5000.0f // 5 km
+
     @AnyThread
     @JvmStatic
-    fun getLocationString(context: Context, locationAddress: Address?, accuracyInMeters: Float, distanceUnitsPref: String) = buildString {
-        val isAccurate = accuracyInMeters < 5000.0f
+    fun getLocationString(
+        context: Context,
+        locationAddress: Address?,
+        accuracyInMeters: Float = 0.0F,
+        distanceUnitsPref: String? = null,
+        preferFeatureName: Boolean = false,
+    ) = buildString {
+        val isAccurate = accuracyInMeters < MAX_DISTANCE_IN_METER_ACCURATE
         if (locationAddress != null) {
-            if (isAccurate && locationAddress.maxAddressLineIndex > 0) {
+            if (preferFeatureName && isAccurate && locationAddress.usefulFeatureName != null) {
+                append(locationAddress.usefulFeatureName)
+            } else if (accuracyInMeters <= MIN_DISTANCE_IN_METER_VERY_ACCURATE && locationAddress.maxAddressLineIndex >= 0) {
                 append(locationAddress.getAddressLine(0))
             } else if (isAccurate && locationAddress.thoroughfare != null) {
                 append(locationAddress.thoroughfare)
@@ -30,7 +61,11 @@ object UILocationUtils : LocationUtils() {
         } else if (isAccurate) {
             append(context.getString(commonsR.string.unknown_address))
         }
-        if (isAccurate && accuracyInMeters > 0.0f) {
+        appendDistance(isAccurate, accuracyInMeters, distanceUnitsPref)
+    }
+
+    private fun StringBuilder.appendDistance(isAccurate: Boolean, accuracyInMeters: Float, distanceUnitsPref: String?) {
+        if (isAccurate && accuracyInMeters > 0.0f && distanceUnitsPref != null) {
             append(" ± ").append(getDistanceString(accuracyInMeters, accuracyInMeters, distanceUnitsPref))
         }
     }
@@ -80,6 +115,26 @@ object UILocationUtils : LocationUtils() {
                 val niceDistanceInSmallUnit = distance.roundToInt()
                 append(getSimplerDistance(niceDistanceInSmallUnit, accuracy)).append(" ").append(smallUnit)
             }
+        }
+    }
+
+    fun computeArea(center: LatLng, visibleLocation: LatLng): Area {
+        val visibleLocationOppositeCenter = LatLng(
+            center.latitude - (visibleLocation.latitude - center.latitude),
+            center.longitude - (visibleLocation.longitude - center.longitude)
+        )
+        return Area(
+            minLat = min(visibleLocationOppositeCenter.latitude, visibleLocation.latitude),
+            maxLat = max(visibleLocationOppositeCenter.latitude, visibleLocation.latitude),
+            minLng = min(visibleLocationOppositeCenter.longitude, visibleLocation.longitude),
+            maxLng = max(visibleLocationOppositeCenter.longitude, visibleLocation.longitude)
+        )
+    }
+
+    fun computeAreaLatLng(center: LatLng, visibleLocation: LatLng): Collection<LatLng> = buildList {
+        computeArea(center, visibleLocation).let {
+            add(LatLng(it.minLat, it.minLng))
+            add(LatLng(it.minLat, it.maxLng))
         }
     }
 }

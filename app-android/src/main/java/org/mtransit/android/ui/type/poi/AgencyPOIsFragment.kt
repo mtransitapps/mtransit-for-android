@@ -7,16 +7,12 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.commons.data.Area
-import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
-import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
@@ -46,7 +42,7 @@ import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
-import org.mtransit.android.ui.view.map.MTPOIMarker
+import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.LinkUtils
@@ -145,34 +141,21 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     @Inject
     lateinit var userManager: UserManager
 
-    private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+    private val mapMarkerProvider = object : MapMarkerProvider {
 
-        override fun getPOMarkers(): Collection<MTPOIMarker>? = null
-
-        override fun getPOIs(): Collection<POIManager>? {
-            if (!listAdapter.isInitialized) return null
-            return buildList {
-                for (i in 0 until listAdapter.poisCount) {
-                    listAdapter.getItem(i)?.let { add(it) }
+        override val pois: Collection<POIManager>?
+            get() {
+                if (!listAdapter.isInitialized) return null
+                return buildList {
+                    for (i in 0 until listAdapter.poisCount) {
+                        listAdapter.getItem(i)?.let { add(it) }
+                    }
                 }
             }
-        }
 
-        override fun getPOI(position: Int): POIManager? = null
-
-        override fun getClosestPOI() = listAdapter.closestPOI
+        override val closestPOI: POIManager? get() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
-
-        override fun getVehicleLocations(): Collection<VehicleLocation?>? = null
-
-        override fun getVehicleColorInt(): Int? = null
-
-        override fun getVehicleType(): DataSourceType? = null
-
-        override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
-
-        override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
     }
 
     private val mapViewController: MapViewController by lazy {

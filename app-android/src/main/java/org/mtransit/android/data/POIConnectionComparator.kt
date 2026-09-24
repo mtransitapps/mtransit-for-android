@@ -8,21 +8,17 @@ import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
 
 class POIConnectionComparator(
+    private val targetedPOI: POI? = null,
     private val maxDistanceInMeters: (@DataSourceTypeId.DataSourceType Int) -> Float = { SAME_LOCATION_DISTANCE_IN_METER },
-    private val computeDistance: (POI, POI) -> Float? = { poi1: POI, poi2: POI -> poi1.distanceToInMeters(poi2) }
+    private val computeDistance: (POI, POI) -> Float? = { poi1: POI, poi2: POI -> poi1.distanceToInMeters(poi2) },
 ) : Comparator<POIManager> {
 
     companion object {
-        private const val SAME_LOCATION_DISTANCE_IN_METER: Float = 25f
+        private const val SAME_LOCATION_DISTANCE_IN_METER = 25f
     }
 
-    var targetedPOI: POI? = null
-
     override fun compare(poim1: POIManager?, poim2: POIManager?): Int {
-        if (this.targetedPOI != null
-            && (poim1 != null)
-            && (poim2 != null)
-        ) {
+        if (this.targetedPOI != null && poim1 != null && poim2 != null) {
             val poim1Connection = isConnection(poim1.poi)
             val poim2Connection = isConnection(poim2.poi)
             if (poim1Connection && !poim2Connection) {

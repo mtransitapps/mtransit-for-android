@@ -151,11 +151,13 @@
     <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private val _appOpenAdShowing = MutableLiveData&lt;Boolean&gt;(null)</ID>
     <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private val _readyForNextScreen = MutableLiveData(false)</ID>
     <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private var _appOpenAdShowComplete = AtomicBoolean(false)</ID>
+    <ID>ComplexCondition:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$(nearbyPOIs.size &lt;= (minSize ?: 0) || newNearbyPOIsLoadedCount &gt; 0) &amp;&amp; maxDistanceInMeters &lt;= (maxCoverageInMeters ?: Float.MAX_VALUE) &amp;&amp; aroundDiff.increment &lt;= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT) &amp;&amp; !LocationUtils.searchComplete(lat, lng, aroundDiff.ad)</ID>
     <ID>CyclomaticComplexMethod:AgencyPOIsFragment.kt:AgencyPOIsFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:AgencyTypeFragment.kt:AgencyTypeFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
     <ID>CyclomaticComplexMethod:EmptyLayoutUtils.kt:EmptyLayoutUtils$fun LayoutEmptyBinding.updateEmptyLayout</ID>
     <ID>CyclomaticComplexMethod:FavoritesUI.kt:FavoritesUI$@MainThread private fun FavoriteRepository.showPickFavoriteFolderDialog</ID>
+    <ID>CyclomaticComplexMethod:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$suspend operator fun invoke: MutableList&lt;POIManager&gt;</ID>
     <ID>CyclomaticComplexMethod:HomeViewModel.kt:HomeViewModel$private fun filterTypePOIs</ID>
     <ID>CyclomaticComplexMethod:KeysManager.kt:KeysManager.Companion$private fun getKeysMap: Map&lt;String, String&gt;?</ID>
     <ID>CyclomaticComplexMethod:MTPOIMarker.kt:MTPOIMarker$fun merge</ID>
@@ -170,6 +172,7 @@
     <ID>CyclomaticComplexMethod:NewsListDetailFragment.kt:NewsListDetailFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:NextMainViewModel.kt:NextMainViewModel$private fun idPrefToIdRes</ID>
     <ID>CyclomaticComplexMethod:NextMainViewModel.kt:NextMainViewModel$private fun idResToIdPref</ID>
+    <ID>CyclomaticComplexMethod:PickPOIViewModel.kt:PickPOIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;</ID>
     <ID>CyclomaticComplexMethod:POIViewModel.kt:POIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
     <ID>CyclomaticComplexMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onAvailableProductIdsLoaded</ID>
     <ID>CyclomaticComplexMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onBuyBtnClick</ID>
@@ -228,6 +231,7 @@
     <ID>LongMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
     <ID>LongMethod:EmptyLayoutUtils.kt:EmptyLayoutUtils$fun LayoutEmptyBinding.updateEmptyLayout</ID>
     <ID>LongMethod:FavoritesUI.kt:FavoritesUI$@MainThread private fun FavoriteRepository.showPickFavoriteFolderDialog</ID>
+    <ID>LongMethod:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$suspend operator fun invoke: MutableList&lt;POIManager&gt;</ID>
     <ID>LongMethod:HomeFragment.kt:HomeFragment$override fun onViewCreated</ID>
     <ID>LongMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onCreate</ID>
     <ID>LongMethod:MainPreferencesFragment.kt:MainPreferencesFragment$override fun onViewCreated</ID>
@@ -235,6 +239,7 @@
     <ID>LongMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
     <ID>LongMethod:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
     <ID>LongMethod:NewsListDetailFragment.kt:NewsListDetailFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:PickPOIViewModel.kt:PickPOIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;</ID>
     <ID>LongMethod:POIViewModel.kt:POIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
     <ID>LongMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onAvailableProductIdsLoaded</ID>
     <ID>LongMethod:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter.RouteViewHolder$fun bind</ID>
@@ -244,6 +249,7 @@
     <ID>LongMethod:SearchFragment.kt:SearchFragment$override fun onViewCreated</ID>
     <ID>LongParameterList:DataSourceRequestManager.kt:DataSourceRequestManager$suspend fun findAgencyProperties: AgencyProperties?</ID>
     <ID>LongParameterList:DataSourcesRepository.kt:DataSourcesRepository</ID>
+    <ID>LongParameterList:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$private suspend fun MutableList&lt;POIManager&gt;.appendMainAgencyPOI</ID>
     <ID>LongParameterList:GlobalAdManager.kt:GlobalAdManager</ID>
     <ID>LongParameterList:GlobalAdManager.kt:GlobalAdManager$constructor</ID>
     <ID>LongParameterList:HomeViewModel.kt:HomeViewModel</ID>
@@ -251,6 +257,7 @@
     <ID>LongParameterList:InAppNotificationFragment.kt:InAppNotificationFragment$fun showInAppNotification: Boolean</ID>
     <ID>LongParameterList:MTPOIMarker.kt:MTPOIMarker$fun merge</ID>
     <ID>LongParameterList:MTSensorManager.kt:MTSensorManager$fun updateCompass</ID>
+    <ID>LongParameterList:MapViewModel.kt:MapViewModel</ID>
     <ID>LongParameterList:NearbyViewModel.kt:NearbyViewModel</ID>
     <ID>LongParameterList:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
     <ID>LongParameterList:NewsRepository.kt:NewsRepository$fun loadingNewsArticles</ID>
@@ -258,9 +265,11 @@
     <ID>LongParameterList:ScheduleAdapter.kt:ScheduleAdapter.TimeViewHolder$fun bind</ID>
     <ID>LongParameterList:SplashScreenViewModel.kt:SplashScreenViewModel</ID>
     <ID>LoopWithTooManyJumpStatements:DemoModeManager.kt:DemoModeManager$while</ID>
+    <ID>LoopWithTooManyJumpStatements:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$while</ID>
     <ID>LoopWithTooManyJumpStatements:HomeViewModel.kt:HomeViewModel$while</ID>
     <ID>LoopWithTooManyJumpStatements:POIFragmentExt.kt:for</ID>
     <ID>LoopWithTooManyJumpStatements:POIViewModel.kt:POIViewModel$for</ID>
+    <ID>LoopWithTooManyJumpStatements:PickPOIViewModel.kt:PickPOIViewModel$while</ID>
     <ID>LoopWithTooManyJumpStatements:POIViewModel.kt:POIViewModel$while</ID>
     <ID>MagicNumber:DegreeUtils.kt:DegreeUtils$360</ID>
     <ID>MagicNumber:DemoModeManager.kt:DemoModeManager$13f</ID>
@@ -440,6 +449,7 @@
     <ID>TooManyFunctions:NextMainViewModel.kt:NextMainViewModel : ViewModelLoggable</ID>
     <ID>TooManyFunctions:POIManagerExt.kt:org.mtransit.android.data.POIManagerExt.kt</ID>
     <ID>TooManyFunctions:POIRepository.kt:POIRepository : Loggable</ID>
+    <ID>TooManyFunctions:PickPOIDialogFragment.kt:PickPOIDialogFragment : MTBottomSheetDialogFragmentXDeviceLocationListenerIFragment</ID>
     <ID>TooManyFunctions:PlaceProvider.kt:PlaceProvider : AgencyProviderPOIProviderContract</ID>
     <ID>TooManyFunctions:PurchaseDialogFragment.kt:PurchaseDialogFragment : MTDialogFragmentXRewardedAdListenerLoggable</ID>
     <ID>TooManyFunctions:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment : MTFragmentX</ID>

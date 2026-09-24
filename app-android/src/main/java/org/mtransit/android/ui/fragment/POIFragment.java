@@ -112,6 +112,8 @@ import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog;
+import org.mtransit.android.ui.view.map.MapListener;
+import org.mtransit.android.ui.view.map.MapMarkerProvider;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
@@ -158,8 +160,8 @@ public class POIFragment extends ABFragment implements
 		IContext,
 		IAdManager.RewardedAdListener,
 		MenuProvider,
-		MapViewController.MapMarkerProvider,
-		MapViewController.MapListener {
+		MapMarkerProvider,
+		MapListener {
 
 	private static final String LOG_TAG = POIFragment.class.getSimpleName();
 
@@ -302,7 +304,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	protected AgencyProperties getAgencyOrNull() {
-		return getAttachedViewModel() == null ? null : getAttachedViewModel().getAgency().getValue();
+		return getAttachedViewModel() == null ? null : getAttachedViewModel().getPoiAgency().getValue();
 	}
 
 	@Nullable
@@ -412,7 +414,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
-	public Collection<POIManager> getPOIs() {
+	public Collection<POIManager> getPois() {
 		return viewModel == null ? null : viewModel.getPoiList().getValue();
 	}
 
@@ -424,7 +426,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
-	public Collection<MTPOIMarker> getPOMarkers() {
+	public Collection<MTPOIMarker> getPoiMarkers() {
 		return null;
 	}
 
@@ -455,7 +457,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
-	public Collection<LatLng> getVisibleMarkersLocations() {
+	public Collection<LatLng> getVisibleArea() {
 		return getVisibleMarkersLocationList(this);
 	}
 
@@ -489,6 +491,11 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onMapClick(@NonNull LatLng position) {
 		onMapClickKt(this);
+	}
+
+	@Override
+	public void onMapLongClick(@NonNull LatLng position) {
+		// should not happen (map not interactive)
 	}
 
 	@Override
@@ -549,7 +556,7 @@ public class POIFragment extends ABFragment implements
 			}
 			return null;
 		}));
-		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
+		viewModel.getPoiAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
 		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitPrefLoaded);
 		viewModel.getUseInternalWebBrowserPref().observe(getViewLifecycleOwner(), this::onUseInternalWebBrowserPrefLoaded);

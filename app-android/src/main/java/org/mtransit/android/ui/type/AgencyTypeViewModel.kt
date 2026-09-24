@@ -117,11 +117,12 @@ class AgencyTypeViewModel @Inject constructor(
         devicePrefManager.selectedAgencyTypeTab(typeId)
     }.distinctUntilChanged()
 
-    val selectedTypeAgencyPosition: LiveData<Int?> = MediatorLiveData2(selectedTypeAgencyAuthority, typeAgencies).map { (agencyAuthority, agencies) ->
-        agencyAuthority ?: return@map null
-        agencies ?: return@map null
-        agencies.indexOfFirst { it.authority == agencyAuthority }.coerceAtLeast(0)
-    }
+    val selectedTypeAgencyPosition: LiveData<Int?> = MediatorLiveData2(selectedTypeAgencyAuthority, typeAgencies)
+        .map { (agencyAuthority, agencies) ->
+            agencyAuthority ?: return@map null
+            agencies ?: return@map null
+            agencies.indexOfFirst { it.authority == agencyAuthority }.coerceAtLeast(0)
+        }
 
     fun onPageSelected(position: Int) {
         if (UIFeatureFlags.F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN) {

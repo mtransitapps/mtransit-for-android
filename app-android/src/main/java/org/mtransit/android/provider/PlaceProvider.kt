@@ -22,7 +22,6 @@ import com.google.android.libraries.places.api.net.SearchByTextRequest
 import org.mtransit.android.R
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.SqlUtils.ProjectionMapBuilder
@@ -31,6 +30,7 @@ import org.mtransit.android.commons.UriUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI.POIUtils
+import org.mtransit.android.commons.location.AroundDiff
 import org.mtransit.android.commons.provider.agency.AgencyProvider
 import org.mtransit.android.commons.provider.common.ContentProviderConstants
 import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper
@@ -201,7 +201,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     override fun isAgencyDeployed() = SqlUtils.isDbExist(requireContextCompat(), getDbName())
 
     override fun isAgencySetupRequired(): Boolean {
-        if (_currentDbVersion > 0 && _currentDbVersion != getCurrentDbVersion()) {
+        if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
             return true // live update required => update
         }
         if (!SqlUtils.isDbExist(requireContextCompat(), getDbName())) {
@@ -273,23 +273,23 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     @get:WorkerThread
     override val writeDB: SQLiteDatabase get() = getDBHelper().writableDatabase
 
-    private var _dbHelper: PlaceDbHelper? = null
-    private var _currentDbVersion: Int = -1
+    private var dbHelper: PlaceDbHelper? = null
+    private var currentDbVersion = -1
 
     private fun getDBHelper(context: Context): PlaceDbHelper {
-        when (val currentDbHelper: PlaceDbHelper? = _dbHelper) {
+        when (val currentDbHelper: PlaceDbHelper? = dbHelper) {
             null -> { // initialize
                 val newDbHelper = getNewDbHelper(context)
-                _dbHelper = newDbHelper
-                _currentDbVersion = getCurrentDbVersion()
+                dbHelper = newDbHelper
+                currentDbVersion = getCurrentDbVersion()
                 return newDbHelper
             }
 
             else -> {
                 return try {
-                    if (_currentDbVersion == getCurrentDbVersion()) {
-                        _dbHelper?.close()
-                        _dbHelper = null
+                    if (currentDbVersion == getCurrentDbVersion()) {
+                        dbHelper?.close()
+                        dbHelper = null
                         getDBHelper(context)
                     } else {
                         currentDbHelper
@@ -337,23 +337,25 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             /**
              * Override if multiple [PlaceDbHelper] in same app.
              */
-            const val DB_NAME: String = "place.db"
+            const val DB_NAME = "place.db"
 
             /**
              * Override if multiple [PlaceDbHelper] in same app.
              */
-            const val DB_VERSION: Int = 4
+            const val DB_VERSION = 4
 
-            const val T_PLACE: String = POIProvider.POIDbHelper.T_POI
-            val T_PLACE_K_PROVIDER_ID: String = POIProvider.POIDbHelper.getFkColumnName("provider_id")
-            val T_PLACE_K_LANG: String = POIProvider.POIDbHelper.getFkColumnName("lang")
-            val T_PLACE_K_READ_AT_IN_MS: String = POIProvider.POIDbHelper.getFkColumnName("read_at_in_ms")
-            val T_PLACE_K_ICON_URL: String = POIProvider.POIDbHelper.getFkColumnName("icon_url")
-            val T_PLACE_K_ICON_BG_COLOR: String = POIProvider.POIDbHelper.getFkColumnName("icon_bg_url")
+            const val T_PLACE = POIProvider.POIDbHelper.T_POI
+            val T_PLACE_K_PROVIDER_ID = POIProvider.POIDbHelper.getFkColumnName("provider_id")
+            val T_PLACE_K_LANG = POIProvider.POIDbHelper.getFkColumnName("lang")
+            val T_PLACE_K_READ_AT_IN_MS = POIProvider.POIDbHelper.getFkColumnName("read_at_in_ms")
+            val T_PLACE_K_SUB_TITLE = POIProvider.POIDbHelper.getFkColumnName("sub_title")
+            val T_PLACE_K_ICON_URL = POIProvider.POIDbHelper.getFkColumnName("icon_url")
+            val T_PLACE_K_ICON_BG_COLOR = POIProvider.POIDbHelper.getFkColumnName("icon_bg_url")
             private val T_PLACE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreateBuilder(T_PLACE)
                 .appendColumn(T_PLACE_K_PROVIDER_ID, SqlUtils.TXT)
                 .appendColumn(T_PLACE_K_LANG, SqlUtils.TXT)
                 .appendColumn(T_PLACE_K_READ_AT_IN_MS, SqlUtils.INT)
+                .appendColumn(T_PLACE_K_SUB_TITLE, SqlUtils.TXT)
                 .appendColumn(T_PLACE_K_ICON_URL, SqlUtils.TXT)
                 .appendColumn(T_PLACE_K_ICON_BG_COLOR, SqlUtils.INT) // @ColorInt
                 .build()
@@ -368,19 +370,22 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     object PlaceColumns {
         @JvmField
-        val T_PLACE_K_PROVIDER_ID: String = POIProviderContract.Columns.getFkColumnName("provider_id")
+        val T_PLACE_K_PROVIDER_ID = POIProviderContract.Columns.getFkColumnName("provider_id")
 
         @JvmField
-        val T_PLACE_K_LANG: String = POIProviderContract.Columns.getFkColumnName("lang")
+        val T_PLACE_K_LANG = POIProviderContract.Columns.getFkColumnName("lang")
 
         @JvmField
-        val T_PLACE_K_READ_AT_IN_MS: String = POIProviderContract.Columns.getFkColumnName("read_at_in_ms")
+        val T_PLACE_K_READ_AT_IN_MS = POIProviderContract.Columns.getFkColumnName("read_at_in_ms")
 
         @JvmField
-        val T_PLACE_K_ICON_URL: String = POIProviderContract.Columns.getFkColumnName("icon_url")
+        val T_PLACE_K_ICON_URL = POIProviderContract.Columns.getFkColumnName("icon_url")
 
         @JvmField
-        val T_PLACE_K_ICON_BG_COLOR: String = POIProviderContract.Columns.getFkColumnName("icon_bg_color")
+        val T_PLACE_K_SUB_TITLE = POIProviderContract.Columns.getFkColumnName("sub_title")
+
+        @JvmField
+        val T_PLACE_K_ICON_BG_COLOR = POIProviderContract.Columns.getFkColumnName("icon_bg_color")
     }
 
     companion object {
@@ -396,6 +401,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             POIProviderContract.Columns.T_POI_K_SCORE_META_OPT,
             PlaceColumns.T_PLACE_K_PROVIDER_ID,
             PlaceColumns.T_PLACE_K_LANG,
+            PlaceColumns.T_PLACE_K_SUB_TITLE,
             PlaceColumns.T_PLACE_K_READ_AT_IN_MS,
             PlaceColumns.T_PLACE_K_ICON_URL,
             PlaceColumns.T_PLACE_K_ICON_BG_COLOR,
@@ -449,7 +455,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                             CircularBounds.newInstance(LatLng(optLat, optLng), (optRadiusInMeters ?: TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT).toDouble())
                                 .takeIf { false } // doesn't work? maybe with SDK 4.0.0+ (minSDK 23)
                                 ?: RectangularBounds.newInstance(
-                                    Area.getArea(optLat, optLng, LocationUtils.MIN_AROUND_DIFF + LocationUtils.INC_AROUND_DIFF).toLatLngBounds()
+                                    Area.getArea(optLat, optLng, AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT).toLatLngBounds()
                                 )
                         )
                     }
@@ -478,6 +484,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_PROVIDER_ID)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_LANG)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_READ_AT_IN_MS, PlaceColumns.T_PLACE_K_READ_AT_IN_MS)
+            .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_SUB_TITLE, PlaceColumns.T_PLACE_K_SUB_TITLE)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_ICON_URL, PlaceColumns.T_PLACE_K_ICON_URL)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_ICON_BG_COLOR, PlaceColumns.T_PLACE_K_ICON_BG_COLOR)
             .appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE)
