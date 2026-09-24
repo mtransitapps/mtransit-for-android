@@ -80,7 +80,7 @@ class POIViewModel @Inject constructor(
         internal const val EXTRA_POI_UUID = "extra_poi_uuid"
 
         private const val NEARBY_CONNECTIONS_MAX_COVERAGE = 2f * UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS
-        private const val NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE = 250f
+        private const val NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE = 2.5f * UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS
     }
 
     override fun getLogTag() = LOG_TAG
@@ -168,7 +168,7 @@ class POIViewModel @Inject constructor(
                 agency ?: return@liveData
                 poi ?: return@liveData
                 emit(
-                    poiRepository.findPOIMs(agency, getFilter(poi))
+                    poiRepository.findPOIMs(agency, poi.toFilter())
                         .apply {
                             if (poi !is RouteDirectionStop) {
                                 updateDistanceM(poi.lat, poi.lng)
@@ -179,10 +179,10 @@ class POIViewModel @Inject constructor(
             }
         }
 
-    private fun getFilter(poi: POI): POIProviderContract.Filter = when (poi) {
+    private fun POI.toFilter(): POIProviderContract.Filter = when (this) {
         is RouteDirectionStop -> POIProviderContract.Filter.getNewSqlSelectionFilter(
             SqlUtils.getWhereEquals(
-                GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, poi.direction.id
+                GTFSProviderContract.RouteDirectionStopColumns.T_DIRECTION_K_ID, this.direction.id
             )
         ).copy(
             extras = SimpleArrayMap<String, Any>().apply {
@@ -233,7 +233,7 @@ class POIViewModel @Inject constructor(
                                 DataSourceType.TYPE_LIGHT_RAIL -> maxDistanceInMeters * 2f
                                 DataSourceType.TYPE_FERRY -> maxDistanceInMeters * 2f
                                 else -> {
-                                    MTLog.w(this, "Unexpected type $dst in POI nearby agencies!")
+                                    MTLog.w(this@POIViewModel, "Unexpected type $dst in POI nearby agencies!")
                                     maxDistanceInMeters
                                 }
                             }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
@@ -248,21 +248,20 @@ class POIViewModel @Inject constructor(
                                 || (it.poi.isNoPickup && !it.poi.isSameRoute(poi))
                         },
                     ).apply {
-                        poiConnectionComparator.targetedPOI = poi
+                        val poiConnectionComparator = POIConnectionComparator(
+                            targetedPOI = poi,
+                            maxDistanceInMeters = { dataSourceTypeId ->
+                                when (dataSourceTypeId) {
+                                    DataSourceType.TYPE_BIKE.id -> NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE
+                                    else -> NEARBY_CONNECTIONS_MAX_COVERAGE
+                                }
+                            },
+                        )
                         sortWithAnd(poiConnectionComparator)
                     }
                 )
             }
         }
-
-    private val poiConnectionComparator by lazy {
-        POIConnectionComparator({ dataSourceTypeId ->
-            when (dataSourceTypeId) {
-                DataSourceType.TYPE_BIKE.id -> NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE
-                else -> NEARBY_CONNECTIONS_MAX_COVERAGE
-            }
-        })
-    }
 
     private val newsProviders = _authority.switchMap {
         dataSourcesRepository.readingNewsProviders(it) // #onModulesUpdated

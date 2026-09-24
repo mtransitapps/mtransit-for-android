@@ -254,6 +254,7 @@
     <ID>LongParameterList:HomeViewModel.kt:HomeViewModel</ID>
     <ID>LongParameterList:HomeViewModel.kt:HomeViewModel$private suspend fun getAreaTypeNearbyPOIs: MutableList&lt;POIManager&gt;</ID>
     <ID>LongParameterList:InAppNotificationFragment.kt:InAppNotificationFragment$fun showInAppNotification: Boolean</ID>
+    <ID>LongParameterList:MapViewModel.kt:MapViewModel</ID>
     <ID>LongParameterList:MTPOIMarker.kt:MTPOIMarker$fun merge</ID>
     <ID>LongParameterList:MTSensorManager.kt:MTSensorManager$fun updateCompass</ID>
     <ID>LongParameterList:NearbyViewModel.kt:NearbyViewModel</ID>

@@ -48,7 +48,6 @@ import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
@@ -58,6 +57,7 @@ import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
+import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
 import org.mtransit.android.user.UserManager

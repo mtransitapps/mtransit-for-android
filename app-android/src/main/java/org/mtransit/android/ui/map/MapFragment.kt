@@ -32,13 +32,13 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.setUpMapEdgeToEdge
-import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.clearSelectedPlace
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.map.IMarker
 import org.mtransit.android.ui.view.map.MapListener
+import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.setSelectedPlace
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject

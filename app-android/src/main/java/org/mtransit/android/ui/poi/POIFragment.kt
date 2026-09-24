@@ -139,7 +139,7 @@ package org.mtransit.android.ui.poi
 //
 // private val mapMarkerProvider = object : MapMarkerProvider {
 //
-// override fun getPOMarkers(): Collection<MapViewController.POIMarker>? = null
+// override fun getPOIMarkers(): Collection<MapViewController.POIMarker>? = null
 //
 // override fun getPOIs() = viewModel.poimV?.let { listOf(it) }
 //
