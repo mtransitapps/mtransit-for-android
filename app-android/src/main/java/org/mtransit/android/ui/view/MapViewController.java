@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,7 +47,6 @@ import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.RouteDirectionStop;
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
-import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
@@ -68,6 +66,8 @@ import org.mtransit.android.ui.view.map.MTMapIconZoomGroup;
 import org.mtransit.android.ui.view.map.MTMapIconsProvider;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarkerIds;
+import org.mtransit.android.ui.view.map.MapListener;
+import org.mtransit.android.ui.view.map.MapMarkerProvider;
 import org.mtransit.android.ui.view.map.VehicleLocationExtKt;
 import org.mtransit.android.ui.view.map.impl.ExtendedMapFactory;
 import org.mtransit.android.ui.view.map.utils.LatLngUtils;
@@ -247,22 +247,22 @@ public class MapViewController implements
 
 	@MainThread
 	@Nullable
-	private MapView getMapViewOrInit(@NonNull View view) {
+	private MapView getMapViewOrInit(@NonNull View parentLayout) {
 		if (this.mapView == null) {
-			initMapViewAsync(view);
+			initMapViewAsync(parentLayout);
 		}
 		return this.mapView;
 	}
 
 	@MainThread
-	private void initMapViewAsync(@NonNull View view) {
+	private void initMapViewAsync(@NonNull View parentLayout) {
 		if (initializingMapView.getAndSet(true)) {
 			MTLog.d(this, "initMapViewAsync() > SKIP (already running)");
 			return;
 		}
 		try {
-			MapsInitializerUtil.initMap(view.getContext(), renderer -> {
-				applyNewMapView(view);
+			MapsInitializerUtil.initMap(parentLayout.getContext(), renderer -> {
+				applyNewMapView(parentLayout);
 				return kotlin.Unit.INSTANCE;
 			});
 		} catch (Exception e) {
@@ -275,14 +275,14 @@ public class MapViewController implements
 	private final AtomicBoolean initializingMapView = new AtomicBoolean(false);
 
 	@MainThread
-	private void applyNewMapView(@NonNull View view) {
+	private void applyNewMapView(@NonNull View parentLayout) {
 		if (this.mapView != null) {
 			MTLog.d(this, "applyNewMapView() > SKIP (already set)");
 			return;
 		}
-		this.mapView = view.findViewById(R.id.map);
-		this.loadingMapView = view.findViewById(R.id.map_loading);
-		this.typeSwitchView = view.findViewById(R.id.map_type_switch);
+		this.mapView = parentLayout.findViewById(R.id.map);
+		this.loadingMapView = parentLayout.findViewById(R.id.map_loading);
+		this.typeSwitchView = parentLayout.findViewById(R.id.map_type_switch);
 		if (this.mapView != null) {
 			try {
 				this.mapView.onCreate(this.lastSavedInstanceState);
@@ -515,14 +515,14 @@ public class MapViewController implements
 	}
 
 	@MainThread
-	public boolean showMap(@Nullable View view) {
+	public boolean showMap(@Nullable View parentLayout) {
 		this.mapVisible = true;
-		return showMapInternal(view);
+		return showMapInternal(parentLayout);
 	}
 
 	@MainThread
-	private boolean showMapInternal(@Nullable View optView) {
-		final MapView mapView = optView == null ? getMapViewOrNull() : getMapViewOrInit(optView);
+	private boolean showMapInternal(@Nullable View parentLayout) {
+		final MapView mapView = parentLayout == null ? getMapViewOrNull() : getMapViewOrInit(parentLayout);
 		if (mapView == null) {
 			MTLog.d(this, "showMapInternal() > SKIP (no map)");
 			return false; // not shown
@@ -831,10 +831,10 @@ public class MapViewController implements
 	private boolean includeMarkersInLatLngBounds(@NonNull LatLngBounds.Builder llb) {
 		final MapMarkerProvider markerProvider = this.config.getMarkerProvider();
 		if (markerProvider != null) {
-			final Collection<LatLng> visibleMarkersLocations = markerProvider.getVisibleMarkersLocations();
-			if (visibleMarkersLocations != null) {
-				if (visibleMarkersLocations.isEmpty()) return false; // try latter
-				for (LatLng latLng : visibleMarkersLocations) {
+			final Collection<LatLng> visibleArea = markerProvider.getVisibleArea();
+			if (visibleArea != null) {
+				if (visibleArea.isEmpty()) return false; // try latter
+				for (LatLng latLng : visibleArea) {
 					llb.include(latLng);
 				}
 				return true;
@@ -850,14 +850,14 @@ public class MapViewController implements
 		if (markerProvider == null) {
 			return false;
 		}
-		final Collection<MTPOIMarker> poiMarkers = markerProvider.getPOMarkers();
+		final Collection<MTPOIMarker> poiMarkers = markerProvider.getPoiMarkers();
 		if (poiMarkers != null) {
 			for (MTPOIMarker poiMarker : poiMarkers) {
 				llb.include(poiMarker.getPosition());
 			}
 			return true;
 		}
-		final Collection<POIManager> pois = markerProvider.getPOIs();
+		final Collection<POIManager> pois = markerProvider.getPois();
 		if (pois != null) {
 			for (POIManager poim : pois) {
 				final LatLng poimlatLng = POIManagerExtKt.getLatLng(poim);
@@ -1025,7 +1025,7 @@ public class MapViewController implements
 			if (mapViewController == null) return null;
 			final MapMarkerProvider markerProvider = mapViewController.config.getMarkerProvider();
 			if (markerProvider == null) return null;
-			final Collection<MTPOIMarker> poiMarkers = markerProvider.getPOMarkers();
+			final Collection<MTPOIMarker> poiMarkers = markerProvider.getPoiMarkers();
 			if (poiMarkers != null) return poiMarkers;
 			return createPOIMarkers(markerProvider, mapViewController);
 		}
@@ -1033,7 +1033,7 @@ public class MapViewController implements
 		@WorkerThread
 		@Nullable
 		private Collection<MTPOIMarker> createPOIMarkers(MapMarkerProvider markerProvider, MapViewController mapViewController) {
-			final Collection<POIManager> pois = markerProvider.getPOIs();
+			final Collection<POIManager> pois = markerProvider.getPois();
 			if (pois == null) return null;
 			final DataSourcesRepository dataSourcesRepository = mapViewController.dataSourcesRepository;
 			if (dataSourcesRepository == null) return null;
@@ -1287,16 +1287,12 @@ public class MapViewController implements
 	}
 
 	public void setInitialSelectedUUID(@Nullable String uuid) {
-		if (TextUtils.isEmpty(uuid)) {
-			return;
-		}
+		if (TextUtils.isEmpty(uuid)) return;
 		this.lastSelectedUUID = uuid; // initial
 	}
 
 	public void setFocusedOnUUID(@Nullable String uuid) {
-		if (TextUtils.isEmpty(uuid)) {
-			return;
-		}
+		if (TextUtils.isEmpty(uuid)) return;
 		this.focusedOnUUID = uuid;
 	}
 
@@ -1376,53 +1372,5 @@ public class MapViewController implements
 		clearActivity();
 		this.config.getMarkerProviderWR().clear();
 		this.config.getMapListenerWR().clear();
-	}
-
-	public interface MapMarkerProvider {
-
-		@Nullable
-		Collection<MTPOIMarker> getPOMarkers(); // unused?
-
-		@Nullable
-		Collection<POIManager> getPOIs();
-
-		@Nullable
-		POIManager getPOI(int position);
-
-		@Nullable
-		POIManager getClosestPOI();
-
-		@SuppressWarnings("unused")
-		@Nullable
-		POIManager getPOI(@Nullable String uuid);
-
-		@Nullable
-		Collection<VehicleLocation> getVehicleLocations();
-
-		@Nullable
-		@ColorInt
-		Integer getVehicleColorInt();
-
-		@Nullable
-		DataSourceType getVehicleType();
-
-		@Nullable
-		Collection<LatLng> getVisibleMarkersLocations();
-
-		@Nullable
-		Float getMapMarkerAlpha(int position, @NonNull Area visibleArea);
-	}
-
-	public interface MapListener {
-
-		void onMapClick(@NonNull LatLng position);
-
-		void onMapLongClick(@NonNull LatLng position);
-
-		boolean onMarkerClick(@Nullable IMarker marker);
-
-		void onCameraChanged(@NonNull LatLngBounds latLngBounds, float zoom);
-
-		void onMapReady();
 	}
 }

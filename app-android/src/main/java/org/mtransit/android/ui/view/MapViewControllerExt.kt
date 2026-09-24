@@ -9,6 +9,7 @@ import org.mtransit.android.data.Place
 import org.mtransit.android.data.toExtendedMarkerOptions
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
+import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.map.countMarkersInside
 import org.mtransit.android.ui.view.map.getMapMarkerAlpha
 import org.mtransit.android.ui.view.map.getMapMarkerSnippet
@@ -28,7 +29,7 @@ import kotlin.math.abs
 fun MapViewController.updateVehicleLocationMarkers(
     context: Context,
     selectedUuid: String? = this.lastSelectedUUID,
-    markerProvider: MapViewController.MapMarkerProvider? = this.config.markerProvider,
+    markerProvider: MapMarkerProvider? = this.config.markerProvider,
     vehicleLocations: Collection<VehicleLocation>? = markerProvider?.vehicleLocations,
     avoidCollapseLatLng: LatLng? = null,
 ): Boolean {
@@ -50,8 +51,8 @@ fun MapViewController.updateVehicleLocationMarkers(
     val visibleMarkersCount = visibleArea.countMarkersInside(googleMap.getMarkers()) +
         vehicleLocations.count { !this.vehicleLocationsMarkers.containsKey(it.uuid) }
     val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)
-    val vehicleColorInt = markerProvider.getVehicleColorInt()
-    val vehicleDst = markerProvider.getVehicleType()
+    val vehicleColorInt = markerProvider.vehicleColorInt
+    val vehicleDst = markerProvider.vehicleType
     val processedVehicleLocationsUUIDs = mutableSetOf<String>()
     var index = 0
     vehicleLocations.forEach { vehicleLocation ->

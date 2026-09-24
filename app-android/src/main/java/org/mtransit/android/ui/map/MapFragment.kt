@@ -32,11 +32,13 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.setUpMapEdgeToEdge
+import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.clearSelectedPlace
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.map.IMarker
+import org.mtransit.android.ui.view.map.MapListener
 import org.mtransit.android.ui.view.setSelectedPlace
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
@@ -122,7 +124,7 @@ class MapFragment :
     @Inject
     lateinit var analyticsManager: IAnalyticsManager
 
-    private val mapListener = object : MapViewController.MapListener {
+    private val mapListener = object : MapListener {
 
         override fun onMapClick(position: LatLng) = Unit // DO NOTHING
 
@@ -140,19 +142,25 @@ class MapFragment :
         }
 
         override fun onMapReady() {
-            attachedViewModel?.poiMarkers?.value?.let {
+            attachedViewModel?.poiMarkers?.value?.let { poiMarkers ->
                 mapViewController.clearMarkers()
-                mapViewController.addMarkers(it)
+                mapViewController.addMarkers(poiMarkers)
                 mapViewController.showMap(view)
             }
         }
+    }
+
+    private val mapMarkerProvider = object : MapMarkerProvider {
+
+        override val visibleArea get() = attachedViewModel?.initialVisibleArea?.value
+            ?.takeIf { it.isNotEmpty() } // do not try later
     }
 
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,
             MapViewConfig(
-                markerProvider = null,
+                markerProvider = mapMarkerProvider,
                 mapListener = mapListener,
                 mapToolbarEnabled = false,
                 myLocationEnabled = true,
@@ -207,9 +215,19 @@ class MapFragment :
             mapViewController.setInitialSelectedUUID(selectedUUID)
             viewModel.onSelectedUUIDSet()
         }
+        viewModel.initialVisibleArea.observe(viewLifecycleOwner) { initialVisibleArea ->
+            if (initialVisibleArea != null) { // initial visible area computed
+                viewModel.deviceLocation.value?.let { deviceLocation ->
+                    mapViewController.onDeviceLocationChanged(deviceLocation)
+                }
+                mapViewController.showMap(view)
+            }
+        }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             context?.let { mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(it)) }
-            mapViewController.onDeviceLocationChanged(deviceLocation)
+            if (viewModel.initialVisibleArea.value != null) { // initial visible area computed
+                mapViewController.onDeviceLocationChanged(deviceLocation)
+            }
         }
         LocationSettingsUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
@@ -264,7 +282,9 @@ class MapFragment :
         super.onResume()
         binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         mapViewController.onResume()
-        mapViewController.showMap(view)
+        if (viewModel.initialVisibleArea.value != null) {
+            mapViewController.showMap(view)
+        }
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }

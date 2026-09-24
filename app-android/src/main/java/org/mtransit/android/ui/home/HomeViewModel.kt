@@ -28,6 +28,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
+import org.mtransit.android.commons.location.AroundDiff
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.toAddress
 import org.mtransit.android.commons.toStringSimple
@@ -50,6 +51,7 @@ import org.mtransit.android.ui.inappnotification.locationpermission.LocationPerm
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
+import org.mtransit.android.ui.location.UILocationUtils
 import org.mtransit.android.ui.location.UILocationUtils.getLocationString
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
@@ -252,8 +254,8 @@ class HomeViewModel @Inject constructor(
         val lng = nearbyLocation.longitude
         val accuracyInMeters = nearbyLocation.accuracy
         val minDistanceInMeters = maxOf(
-            LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, LocationUtils.MIN_AROUND_DIFF),
-            LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS,
+            LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, AroundDiff.AD_MINIMUM),
+            UILocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS,
             accuracyInMeters
         )
         val nearbyPOIs = mutableListOf<POIManager>()
@@ -321,9 +323,9 @@ class HomeViewModel @Inject constructor(
         nbMaxByType: Int,
     ): MutableList<POIManager> {
         var typePOIs: MutableList<POIManager>
-        val typeAd = LocationUtils.getNewDefaultAroundDiff()
+        val typeAd = AroundDiff()
         var lastTypeAroundDiff: Double? = null
-        val typeMaxSize = LocationUtils.MAX_NEARBY_LIST
+        val typeMaxSize = UILocationUtils.MAX_NEARBY_LIST
         while (true) {
             scope.ensureActive()
             typePOIs = getAreaTypeNearbyPOIs(scope, typeLat, typeLng, typeAd, lastTypeAroundDiff, typeMaxSize, typeMinCoverageInMeters, typeAgencies)
@@ -339,8 +341,8 @@ class HomeViewModel @Inject constructor(
             if (!shouldContinueSearching(typeLat, typeLng, typeAd, typePOIs, typeMinCoverageInMeters, nbMaxByType)) {
                 break
             }
-            lastTypeAroundDiff = if (typePOIs.isEmpty()) typeAd.aroundDiff else null
-            LocationUtils.incAroundDiff(typeAd)
+            lastTypeAroundDiff = if (typePOIs.isEmpty()) typeAd.ad else null
+            typeAd.increment()
         }
         return typePOIs
     }
@@ -348,15 +350,15 @@ class HomeViewModel @Inject constructor(
     private fun shouldContinueSearching(
         typeLat: Double,
         typeLng: Double,
-        typeAd: LocationUtils.AroundDiff,
+        typeAd: AroundDiff,
         typePOIs: List<POIManager>,
         typeMinCoverageInMeters: Float,
         nbMaxByType: Int,
     ) = when {
-        LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff) -> false // world exploration completed
+        LocationUtils.searchComplete(typeLat, typeLng, typeAd.ad) -> false // world exploration completed
         this.demoModeManager.isFullDemo() && typePOIs.size < DemoModeManager.MIN_POI_HOME_SCREEN -> true // continue
         typePOIs.size > nbMaxByType
-            && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters -> {
+            && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.ad) >= typeMinCoverageInMeters -> {
             false // enough POIs / type & enough distance covered
         }
 
@@ -367,7 +369,7 @@ class HomeViewModel @Inject constructor(
         scope: CoroutineScope,
         lat: Double,
         lng: Double,
-        ad: LocationUtils.AroundDiff, // TODO latter optimize
+        aroundDiff: AroundDiff, // TODO latter optimize
         @Suppress("unused") optLastAroundDiff: Double? = null,
         @Suppress("SameParameterValue") maxSize: Int,
         typeMinCoverageInMeters: Float,
@@ -378,13 +380,13 @@ class HomeViewModel @Inject constructor(
         val hideBookingRequired = lclPrefRepository.pref.getBoolean(
             LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
         )
-        val area = Area.getArea(lat, lng, ad.aroundDiff)
+        val area = Area.getArea(lat, lng, aroundDiff.ad)
         typeAgencies
             .filter { Area.areOverlapping(it.area, area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
                 scope.ensureActive()
                 typePOIs.addAllN(
-                    poiRepository.findPOIMsAroundLoc(agency, lat, lng, ad.aroundDiff, avoidLoading = true, noPickup = true)
+                    poiRepository.findPOIMsAroundLoc(agency, lat, lng, aroundDiff.ad, avoidLoading = true, noPickup = true)
                         .removeAllAnd {
                             if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
                                 hideBookingRequired && (it.poi as? RouteDirectionStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING

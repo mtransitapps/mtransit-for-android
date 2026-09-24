@@ -4,12 +4,29 @@ import android.content.Context
 import android.location.Address
 import android.location.Location
 import androidx.annotation.AnyThread
+import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.data.Area
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 import org.mtransit.android.commons.R as commonsR
 
 object UILocationUtils : LocationUtils() {
+
+    const val MIN_NEARBY_LIST = 10
+
+    const val MAX_NEARBY_LIST = 20
+
+    const val MAX_POI_NEARBY_POIS_LIST = 30
+
+    // const val MIN_NEARBY_LIST_COVERAGE_IN_METERS = 0f // DEBUG
+    const val MIN_NEARBY_LIST_COVERAGE_IN_METERS = 100f
+
+    const val MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS = 100f
+
+    const val MAX_NEARBY_RELEVANT_COVERAGE_IN_METERS = 1_000.0f // 1 km
 
     const val PLACE_USE_ADDRESS_LAT_LNG_MAX_DISTANCE_IN_METER = 10.0f
     const val PLACE_SHOW_ADDRESS_SELECTED_MAX_DISTANCE_IN_METER = 33.0f
@@ -98,6 +115,26 @@ object UILocationUtils : LocationUtils() {
                 val niceDistanceInSmallUnit = distance.roundToInt()
                 append(getSimplerDistance(niceDistanceInSmallUnit, accuracy)).append(" ").append(smallUnit)
             }
+        }
+    }
+
+    fun computeArea(center: LatLng, visibleLocation: LatLng): Area {
+        val visibleLocationOppositeCenter = LatLng(
+            center.latitude - (visibleLocation.latitude - center.latitude),
+            center.longitude - (visibleLocation.longitude - center.longitude)
+        )
+        return Area(
+            minLat = min(visibleLocationOppositeCenter.latitude, visibleLocation.latitude),
+            maxLat = max(visibleLocationOppositeCenter.latitude, visibleLocation.latitude),
+            minLng = min(visibleLocationOppositeCenter.longitude, visibleLocation.longitude),
+            maxLng = max(visibleLocationOppositeCenter.longitude, visibleLocation.longitude)
+        )
+    }
+
+    fun computeAreaLatLng(center: LatLng, visibleLocation: LatLng): Collection<LatLng> = buildList {
+        computeArea(center, visibleLocation).let {
+            add(LatLng(it.minLat, it.minLng))
+            add(LatLng(it.minLat, it.maxLng))
         }
     }
 }

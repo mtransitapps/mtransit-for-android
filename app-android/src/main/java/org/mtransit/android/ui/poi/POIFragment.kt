@@ -137,7 +137,7 @@ package org.mtransit.android.ui.poi
 // private var poiRewardedAdBinding: LayoutPoiRewardedAdBinding? = null
 // // private var nearbyMoreBtn: View? = null
 //
-// private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+// private val mapMarkerProvider = object : MapMarkerProvider {
 //
 // override fun getPOMarkers(): Collection<MapViewController.POIMarker>? = null
 //
@@ -150,7 +150,7 @@ package org.mtransit.android.ui.poi
 // }
 // }
 //
-// private val mapListener = object : MapViewController.MapListener {
+// private val mapListener = object : MapListener {
 //
 // override fun onMapClick(position: LatLng) {
 // if (!FragmentUtils.isFragmentReady(this@POIFragment)) {

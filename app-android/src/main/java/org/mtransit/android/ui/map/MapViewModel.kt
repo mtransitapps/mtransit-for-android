@@ -6,11 +6,15 @@ import android.content.pm.PackageManager
 import android.location.Location
 import androidx.collection.ArrayMap
 import androidx.core.content.edit
+import androidx.core.location.component1
+import androidx.core.location.component2
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.liveData
 import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -54,8 +58,11 @@ import org.mtransit.android.ui.view.map.MTMapIconDef
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.getIconDefForRotation
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.map.distanceToInMeters
+import org.mtransit.android.ui.view.map.toLngLngList
 import org.mtransit.android.ui.view.map.toLocation
+import org.mtransit.android.usecase.GetNearbyPOIListUseCase
 import org.mtransit.android.util.containsEntirely
+import org.mtransit.commons.sortWithAnd
 import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
@@ -71,6 +78,7 @@ class MapViewModel @Inject constructor(
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val adManager: IAdManager,
+    getNearbyPOIListUseCase: GetNearbyPOIListUseCase,
     pm: PackageManager,
 ) : MTViewModelWithLocation(),
     ModuleDisabledAwareViewModel,
@@ -82,7 +90,9 @@ class MapViewModel @Inject constructor(
         internal const val EXTRA_INITIAL_LOCATION = "extra_initial_location"
         internal const val EXTRA_SELECTED_UUID = "extra_selected_uuid"
         internal const val EXTRA_INCLUDE_TYPE_ID = "extra_include_type_id"
-        internal const val EXTRA_INCLUDE_TYPE_ID_DEFAULT: Int = -1
+        internal const val EXTRA_INCLUDE_TYPE_ID_DEFAULT = -1
+
+        internal const val EXTRA_MAP_CAMERA_MOVED = "extra_map_camera_moved"
     }
 
     override fun getLogTag() = LOG_TAG
@@ -259,6 +269,50 @@ class MapViewModel @Inject constructor(
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
+    private val mapCameraMoved = savedStateHandle.getLiveDataDistinct(EXTRA_MAP_CAMERA_MOVED, false)
+
+    private fun onMapCameraMoved() {
+        savedStateHandle[EXTRA_MAP_CAMERA_MOVED] = true
+    }
+
+    val initialVisibleArea: LiveData<Collection<LatLng>?> = MediatorLiveData3(mapCameraMoved, deviceLocation, _allAgencies)
+        .switchMap { (mapCameraMoved, deviceLocation, allAgencies) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                mapCameraMoved ?: return@liveData
+                val (deviceLat, deviceLng) = deviceLocation ?: return@liveData
+                val allAgencies = allAgencies ?: return@liveData
+                if (mapCameraMoved) {
+                    MTLog.d(this@MapViewModel, "initialVisibleArea.onChanged() > SKIP (map camera moved)")
+                    emit(emptyList())
+                    return@liveData
+                }
+                val nearbyPOILatLng = getNearbyPOIListUseCase(
+                    lat = deviceLat,
+                    lng = deviceLng,
+                    allAgencies = allAgencies,
+                    minSize = 1,
+                    maxSize = 1,
+                    minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
+                    maxCoverageInMeters = UILocationUtils.MAX_NEARBY_RELEVANT_COVERAGE_IN_METERS,
+                    excludeAgency = { agency ->
+                        !agency.type.isMapScreen
+                            || agency.type == DataSourceType.TYPE_MODULE
+                    },
+                    excludePOI = { false },
+                )
+                    .sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
+                    .firstOrNull()
+                    ?.latLng
+                    ?: run {
+                        MTLog.d(this@MapViewModel, "initialVisibleArea.onChanged() > SKIP (no POI nearby)")
+                        emit(emptyList())
+                        return@liveData
+                    }
+                val visibleArea = UILocationUtils.computeArea(LatLng(deviceLat, deviceLng), nearbyPOILatLng).toLngLngList()
+                emit(visibleArea)
+            }
+        }
+
     val typeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(_allAgencies, filterTypeIds)
         .map { (allAgencies, filterTypeIds) ->
             filterTypeIds?.let { theFilterTypeIds ->
@@ -285,6 +339,7 @@ class MapViewModel @Inject constructor(
         }
 
     fun onCameraChanged(newVisibleArea: LatLngBounds, getBigCameraPosition: () -> LatLngBounds?): Boolean {
+        onMapCameraMoved()
         val loadedArea: LatLngBounds? = this._loadedArea.value
         val loadingArea: LatLngBounds? = this._loadingArea.value
         val loaded = loadedArea.containsEntirely(newVisibleArea)

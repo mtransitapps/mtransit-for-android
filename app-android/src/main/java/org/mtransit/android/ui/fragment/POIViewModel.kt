@@ -36,12 +36,15 @@ import org.mtransit.android.data.POIConnectionComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
+import org.mtransit.android.data.isNoPickup
+import org.mtransit.android.data.isSameRoute
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
+import org.mtransit.android.ui.location.UILocationUtils
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -76,7 +79,7 @@ class POIViewModel @Inject constructor(
         internal const val EXTRA_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_POI_UUID = "extra_poi_uuid"
 
-        private const val NEARBY_CONNECTIONS_MAX_COVERAGE = 2f * LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS
+        private const val NEARBY_CONNECTIONS_MAX_COVERAGE = 2f * UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS
         private const val NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE = 250f
     }
 
@@ -218,8 +221,9 @@ class POIViewModel @Inject constructor(
                         lat = poi.lat,
                         lng = poi.lng,
                         allAgencies = allAgencies,
-                        maxSize = LocationUtils.MAX_POI_NEARBY_POIS_LIST,
-                        minCoverageInMeters = LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
+                        minSize = 1,
+                        maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
+                        minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
                         getMaxDistanceInMeters = { maxDistanceInMeters, dst ->
                             when (dst) {
                                 DataSourceType.TYPE_BUS -> maxDistanceInMeters
@@ -235,8 +239,14 @@ class POIViewModel @Inject constructor(
                             }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
                         },
                         mainAgency = poiAgency,
-                        excludedUUID = poi.uuid,
-                        excludedRouteId = (poi as? RouteDirectionStop)?.route?.id,
+                        excludeAgency = { agency ->
+                            !agency.type.isNearbyScreen
+                                || agency.type == DataSourceType.TYPE_MODULE
+                        },
+                        excludePOI = {
+                            it.poi.uuid == poi.uuid
+                                || (it.poi.isNoPickup && !it.poi.isSameRoute(poi))
+                        },
                     ).apply {
                         poiConnectionComparator.targetedPOI = poi
                         sortWithAnd(poiConnectionComparator)

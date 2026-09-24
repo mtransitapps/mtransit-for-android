@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.pick
 
-import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.liveData
@@ -9,29 +8,22 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.Area
-import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.poi.POIProviderContract
-import org.mtransit.android.commons.removeTooFar
-import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
-import org.mtransit.android.commons.updateDistanceM
-import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.isNoPickup
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
+import org.mtransit.android.ui.location.UILocationUtils
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
-import org.mtransit.commons.addAllN
-import org.mtransit.commons.removeAllAnd
-import org.mtransit.commons.sortWithAnd
+import org.mtransit.android.usecase.GetNearbyPOIListUseCase
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -40,6 +32,7 @@ class PickPOIViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
+    getNearbyPOIListUseCase: GetNearbyPOIListUseCase,
 ) : MTViewModelWithLocation() {
 
     companion object {
@@ -118,72 +111,22 @@ class PickPOIViewModel @Inject constructor(
             fixedOnLng ?: return@switchMap null
             allAgencies ?: return@switchMap null
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-                emit(getNearbyPOIs(fixedOnLat, fixedOnLng, allAgencies))
-            }
-        }
-
-    private suspend fun getNearbyPOIs(
-        lat: Double,
-        lng: Double,
-        allAgencies: List<AgencyBaseProperties>
-    ): List<POIManager> {
-        val maxSize = LocationUtils.MAX_NEARBY_LIST
-        val minCoverageInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS
-        val nearbyPOIs = mutableListOf<POIManager>()
-        val ad = LocationUtils.getNewDefaultAroundDiff()
-        val nearbyAgencyArea = Area.getArea(lat, lng, 0.01)
-        val nearbyAgencies = allAgencies.filter { agency ->
-            agency.type.isNearbyScreen
-                && agency.type != DataSourceType.TYPE_MODULE
-                && agency.isInArea(nearbyAgencyArea)
-        }
-        while (true) {
-            val maxDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)
-            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).copy(
-                extras = SimpleArrayMap<String, Any>().apply {
-                    put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                },
-            )
-            val routeDirectionKept = mutableSetOf<String>()
-            nearbyAgencies.forEach { nearbyAgency ->
-                nearbyPOIs.addAllN(
-                    poiRepository.findPOIMs(nearbyAgency, poiFilter)
-                        .updateDistanceM(lat, lng)
-                        .removeTooFar(maxDistanceInMeters)
-                        .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                        .removeAllAnd { nearbyPOIs.contains(it) }
-                        .let { nearbyPOISortedByDistance -> // sorted by distance
-                            val poiToRemove = mutableListOf<POIManager>()
-                            nearbyPOISortedByDistance.forEach {
-                                val rds = it.poi as? RouteDirectionStop ?: return@forEach
-                                val rdId = "${rds.route.id}-${rds.direction.id}"
-                                if (routeDirectionKept.contains(rdId)) {
-                                    poiToRemove.add(it)
-                                } else if (it.poi.isNoPickup) {
-                                    poiToRemove.add(it)
-                                    routeDirectionKept.add(rdId)
-                                } else {
-                                    routeDirectionKept.add(rdId)
-                                }
-                            }
-                            nearbyPOISortedByDistance.removeAll(poiToRemove)
-                            return@let nearbyPOISortedByDistance
-                        }
+                emit(
+                    getNearbyPOIListUseCase(
+                        fixedOnLat,
+                        fixedOnLng,
+                        allAgencies,
+                        minSize = null,
+                        maxCoverageInMeters = UILocationUtils.MAX_NEARBY_RELEVANT_COVERAGE_IN_METERS,
+                        excludeAgency = { agency ->
+                            !agency.type.isNearbyScreen
+                                || agency.type == DataSourceType.TYPE_MODULE
+                        },
+                        excludePOI = { it.poi.isNoPickup }
+                    )
                 )
             }
-            if (nearbyPOIs.isEmpty() && ad.incAroundDiff == LocationUtils.MIN_AROUND_DIFF) {
-                LocationUtils.incAroundDiff(ad) // try one more time
-                continue
-            }
-            break
         }
-        nearbyPOIs.sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
-        if (nearbyPOIs.size > maxSize) {
-            nearbyPOIs.subList(nearbyPOIs.size - maxSize, nearbyPOIs.size).clear() // remove last(s) in place
-        }
-        nearbyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
-        return nearbyPOIs
-    }
 
     val nearbyLatLng: LiveData<Pair<Double, Double>?> = MediatorLiveData2(fixedOnLat, fixedOnLng)
         .map { (fixedOnLat, fixedOnLng) ->

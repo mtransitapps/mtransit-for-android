@@ -5,12 +5,10 @@ import android.content.res.ColorStateList
 import android.location.Location
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -22,7 +20,6 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.findClosestPOISIdxUuid
@@ -51,6 +48,7 @@ import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
+import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.context
@@ -60,7 +58,6 @@ import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
-import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
 import org.mtransit.android.user.UserManager
@@ -177,35 +174,29 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     @Inject
     lateinit var userManager: UserManager
 
-    private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+    private val mapMarkerProvider = object : MapMarkerProvider {
 
-        override fun getPOMarkers(): Collection<MTPOIMarker>? = null
-
-        override fun getPOIs(): Collection<POIManager>? {
-            if (!listAdapter.isInitialized) return null
-            return buildList {
-                for (i in 0 until listAdapter.poisCount) {
-                    listAdapter.getItem(i)?.let { add(it) }
+        override val pois: Collection<POIManager>?
+            get() {
+                if (!listAdapter.isInitialized) return null
+                return buildList {
+                    for (i in 0 until listAdapter.poisCount) {
+                        listAdapter.getItem(i)?.let { add(it) }
+                    }
                 }
             }
-        }
 
         override fun getPOI(position: Int) = listAdapter.getItem(position)
 
-        override fun getClosestPOI() = listAdapter.closestPOI
+        override val closestPOI: POIManager? get() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
 
-        override fun getVehicleLocations() = attachedViewModel?.vehicleLocations?.value
+        override val vehicleLocations: Collection<VehicleLocation>? get() = attachedViewModel?.vehicleLocations?.value
 
-        @ColorInt
-        override fun getVehicleColorInt(): Int? = attachedParentViewModel?.colorInt?.value
+        override val vehicleColorInt: Int? get() = attachedParentViewModel?.colorInt?.value
 
-        override fun getVehicleType(): DataSourceType? = attachedParentViewModel?.routeType?.value
-
-        override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
-
-        override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
+        override val vehicleType: DataSourceType? get() = attachedParentViewModel?.routeType?.value
     }
 
     private val mapViewController: MapViewController by lazy {

@@ -22,7 +22,6 @@ import com.google.android.libraries.places.api.net.SearchByTextRequest
 import org.mtransit.android.R
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.SqlUtils.ProjectionMapBuilder
@@ -31,6 +30,7 @@ import org.mtransit.android.commons.UriUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI.POIUtils
+import org.mtransit.android.commons.location.AroundDiff
 import org.mtransit.android.commons.provider.agency.AgencyProvider
 import org.mtransit.android.commons.provider.common.ContentProviderConstants
 import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper
@@ -455,7 +455,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                             CircularBounds.newInstance(LatLng(optLat, optLng), (optRadiusInMeters ?: TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT).toDouble())
                                 .takeIf { false } // doesn't work? maybe with SDK 4.0.0+ (minSDK 23)
                                 ?: RectangularBounds.newInstance(
-                                    Area.getArea(optLat, optLng, LocationUtils.MIN_AROUND_DIFF + LocationUtils.INC_AROUND_DIFF).toLatLngBounds()
+                                    Area.getArea(optLat, optLng, AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT).toLatLngBounds()
                                 )
                         )
                     }
