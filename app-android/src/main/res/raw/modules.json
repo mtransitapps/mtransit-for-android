@@ -66,6 +66,17 @@
     "lng": "-79.690981"
   },
   {
+    "repo": "ca-bc-ferries-ferry-android",
+    "pkg": "org.mtransit.android.ca_bc_ferries_ferry",
+    "store": "production",
+    "name": "BC Ferries",
+    "location": "Bowen Island, Campbell River, Comox, Nanaimo, Southern Gulf Islands, Sunshine Coast, Vancouver, Victoria, BC, Canada",
+    "type_id": "4",
+    "color": "003366",
+    "lat": "49.329057",
+    "lng": "-123.783126"
+  },
+  {
     "repo": "ca-belleville-transit-bus-android",
     "pkg": "org.mtransit.android.ca_belleville_transit_bus",
     "store": "production",
@@ -1595,6 +1606,17 @@
     "color": "DA291C",
     "lat": "43.669947",
     "lng": "-79.391131"
+  },
+  {
+    "repo": "ca-trois-rivieres-sttr-bus-android",
+    "pkg": "org.mtransit.android.ca_trois_rivieres_sttr_bus",
+    "store": "production",
+    "name": "STTR (Société de transport de Trois-Rivières)",
+    "location": "Trois-Rivières, QC, Canada",
+    "type_id": "3",
+    "color": "008939",
+    "lat": "46.339598",
+    "lng": "-72.542847"
   },
   {
     "repo": "ca-vancouver-mobi-bike-android",
