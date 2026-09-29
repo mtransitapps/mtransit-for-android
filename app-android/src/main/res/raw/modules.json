@@ -477,6 +477,17 @@
     "lng": "-79.903420"
   },
   {
+    "repo": "ca-hullo-ferry-android",
+    "pkg": "org.mtransit.android.ca_hullo_ferry",
+    "store": "production",
+    "name": "Hullo",
+    "location": "Nanaimo, Vancouver, BC, Canada",
+    "type_id": "4",
+    "color": "004137",
+    "lat": "49.227733",
+    "lng": "-123.538483"
+  },
+  {
     "repo": "ca-kamloops-transit-system-bus-android",
     "pkg": "org.mtransit.android.ca_kamloops_transit_system_bus",
     "store": "production",
