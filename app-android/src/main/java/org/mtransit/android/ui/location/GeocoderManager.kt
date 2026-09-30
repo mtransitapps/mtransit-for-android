@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.location
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Address
 import android.location.Geocoder
@@ -57,6 +58,7 @@ class GeocoderManager(
             }
         } else {
             @Suppress("DEPRECATION")
+            @SuppressLint("DeprecatedCall")
             geocoder.getFromLocation(latitude, longitude, maxResults).orEmpty()
         }
     }
@@ -84,6 +86,7 @@ class GeocoderManager(
             }
         } else {
             @Suppress("DEPRECATION")
+            @SuppressLint("DeprecatedCall")
             geocoder.getFromLocationName(locationName, maxResults).orEmpty()
         }
     }
