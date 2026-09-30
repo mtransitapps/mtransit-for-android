@@ -103,7 +103,7 @@ class MapViewModel @Inject constructor(
 
     override val locationSettingsNeededResolution: LiveData<PendingIntent?> = MediatorLiveData2(deviceLocation, locationSettingsResolution)
         .map { (deviceLocation, resolution) ->
-            if (deviceLocation != null) null else resolution
+            resolution?.takeIf { deviceLocation == null }
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
     override val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
@@ -130,7 +130,7 @@ class MapViewModel @Inject constructor(
 
     fun onSelectedPlaceLocation(latLng: LatLng) {
         viewModelScope.launch(Dispatchers.IO) {
-             loadingSelectedAddress.postValue(true)
+            loadingSelectedAddress.postValue(true)
             _selectedLocation.postValue(latLng)
             val selectedAddress = latLng.toLocation().toAddress(geocoderManager)
             _selectedAddress.postValue(selectedAddress)

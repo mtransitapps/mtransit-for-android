@@ -135,7 +135,6 @@ class GetNearbyPOIListUseCase(
                     && aroundDiff.increment <= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT)
                     && !LocationUtils.searchComplete(lat, lng, aroundDiff.ad) // world explored
                 ) {
-                    val firstRelevantDistance = nearbyPOIs.firstOrNull { it.distanceOrNull != null && !excludePOI(it) }?.distanceOrNull
                     val lastDistance = nearbyPOIs.takeIf { it.isNotEmpty() }?.lastOrNull()?.distanceOrNull
                     val firstLastDistanceDiff = nearbyPOIs
                         .filter { it.distanceOrNull != null }
