@@ -31,7 +31,6 @@ import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.location.AroundDiff
 import org.mtransit.android.commons.location.toStringSimple
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
-import org.mtransit.android.commons.toAddress
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
@@ -51,8 +50,10 @@ import org.mtransit.android.ui.inappnotification.locationpermission.LocationPerm
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
+import org.mtransit.android.ui.location.GeocoderManager
 import org.mtransit.android.ui.location.UILocationUtils
 import org.mtransit.android.ui.location.UILocationUtils.getLocationString
+import org.mtransit.android.ui.location.toAddress
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -68,6 +69,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
+    private val geocoderManager: GeocoderManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
@@ -161,7 +163,7 @@ class HomeViewModel @Inject constructor(
 
     private val locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            nearbyLocation?.toAddress(appContext)?.let {
+            nearbyLocation?.toAddress(geocoderManager)?.let {
                 emit(it)
             }
         }
@@ -188,16 +190,14 @@ class HomeViewModel @Inject constructor(
 
     private val typeToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = MediatorLiveData2(allAgencies, nearbyLocation)
         .map { (allAgencies, nearbyLocation) ->
-            if (nearbyLocation == null || allAgencies.isNullOrEmpty()) {
-                null
-            } else {
-                val unsortedTypeToHomeAgencies = allAgencies
-                    .filter { agency -> agency.getSupportedType().isHomeScreen }
-                    .groupBy { agency -> agency.getSupportedType() }
-                unsortedTypeToHomeAgencies.toSortedMap(
-                    HomeTypeAgencyComparator(appContext, unsortedTypeToHomeAgencies, nearbyLocation)
-                )
-            }
+            nearbyLocation ?: return@map null
+            allAgencies?.takeIf { it.isNotEmpty() } ?: return@map null
+            val unsortedTypeToHomeAgencies = allAgencies
+                .filter { agency -> agency.getSupportedType().isHomeScreen }
+                .groupBy { agency -> agency.getSupportedType() }
+            unsortedTypeToHomeAgencies.toSortedMap(
+                HomeTypeAgencyComparator(appContext, unsortedTypeToHomeAgencies, nearbyLocation)
+            )
         }.distinctUntilChanged()
 
     val sortedTypeToHomeAgencies: LiveData<List<DataSourceType>?> = typeToHomeAgencies.map {

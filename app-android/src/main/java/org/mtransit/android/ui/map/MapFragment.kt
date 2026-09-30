@@ -34,12 +34,10 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.clearSelectedPlace
 import org.mtransit.android.ui.view.common.isAttached
-import org.mtransit.android.ui.view.map.IMarker
 import org.mtransit.android.ui.view.map.MapListener
 import org.mtransit.android.ui.view.map.MapMarkerProvider
-import org.mtransit.android.ui.view.setSelectedPlace
+import org.mtransit.android.ui.view.onSelectedPlaceLocation
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
@@ -126,13 +124,9 @@ class MapFragment :
 
     private val mapListener = object : MapListener {
 
-        override fun onMapClick(position: LatLng) = Unit // DO NOTHING
-
         override fun onMapLongClick(position: LatLng) {
             viewModel.onSelectedPlaceLocation(position)
         }
-
-        override fun onMarkerClick(marker: IMarker?) = false
 
         override fun onCameraChanged(latLngBounds: LatLngBounds, zoom: Float) {
             attachedViewModel?.onCameraChanged(
@@ -152,8 +146,9 @@ class MapFragment :
 
     private val mapMarkerProvider = object : MapMarkerProvider {
 
-        override val visibleArea get() = attachedViewModel?.initialVisibleArea?.value
-            ?.takeIf { it.isNotEmpty() } // do not try later
+        override val visibleArea
+            get() = attachedViewModel?.initialVisibleArea?.value
+                ?.takeIf { it.isNotEmpty() } // do not try later
     }
 
     private val mapViewController: MapViewController by lazy {
@@ -255,11 +250,12 @@ class MapFragment :
                 mapViewController.showMap(view)
             }
         }
-        viewModel.selectedPlace.observe(viewLifecycleOwner) { place ->
-            place?.let { placeSelected ->
-                context?.let { mapViewController.setSelectedPlace(it, placeSelected) }
-            } ?: run {
-                mapViewController.clearSelectedPlace()
+        viewModel.selectedLocation.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
+            viewModel.selectedLocation.value?.let {
+                mapViewController.onSelectedPlaceLocation(it, address)
             }
         }
     }
@@ -296,6 +292,16 @@ class MapFragment :
 
     override fun onDeviceLocationChanged(newLocation: Location?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapViewController.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapViewController.onStop()
     }
 
     override fun onPause() {

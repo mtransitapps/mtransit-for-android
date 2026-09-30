@@ -42,8 +42,8 @@ class POIConnectionComparator(
 
     @VisibleForTesting
     fun isConnection(poi: POI) = targetedPOI
-        ?.takeIf { it.authority == poi.authority } // same agency
-        ?.takeIf { isAlmostSameLocation(it, poi) }
+        ?.takeIf { targetedPOI -> targetedPOI.authority == poi.authority }
+        ?.takeIf { targetedPOI -> isAlmostSameLocation(targetedPOI, poi) }
         ?.let { targetedPOI ->
             if (targetedPOI is RouteDirectionStop && poi is RouteDirectionStop) {
                 return@let poi.route.id == targetedPOI.route.id

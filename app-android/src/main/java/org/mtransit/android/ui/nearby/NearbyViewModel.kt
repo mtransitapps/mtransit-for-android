@@ -29,7 +29,6 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.location.toStringSimple
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.commons.toAddress
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.location.MTLocationProvider
@@ -43,7 +42,9 @@ import org.mtransit.android.ui.inappnotification.locationpermission.LocationPerm
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
+import org.mtransit.android.ui.location.GeocoderManager
 import org.mtransit.android.ui.location.UILocationUtils.getLocationString
+import org.mtransit.android.ui.location.toAddress
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -56,6 +57,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NearbyViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
+    private val geocoderManager: GeocoderManager,
     savedStateHandle: SavedStateHandle,
     private val analyticsManager: IAnalyticsManager,
     private val adManager: IAdManager,
@@ -170,7 +172,7 @@ class NearbyViewModel @Inject constructor(
 
     private val locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            nearbyLocation?.toAddress(appContext)?.let {
+            nearbyLocation?.toAddress(geocoderManager)?.let {
                 emit(it)
             }
         }

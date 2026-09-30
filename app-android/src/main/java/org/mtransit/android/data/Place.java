@@ -44,8 +44,8 @@ public class Place extends DefaultPOI {
 	@ColorInt
 	private Integer iconBgColorInt = null;
 
-	public Place(@NonNull String authority, @NonNull String providerId, @NonNull String lang, long readAtInMs) {
-		super(authority, -1, DataSourceTypeId.PLACE, POI.ITEM_VIEW_TYPE_PLACE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_PLACE);
+	public Place(@NonNull String authority, @NonNull String providerId, @NonNull String lang, long readAtInMs, double lat, double lng) {
+		super(authority, -1, DataSourceTypeId.PLACE, POI.ITEM_VIEW_TYPE_PLACE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_PLACE, lat, lng);
 		this.providerId = providerId;
 		this.lang = lang;
 		this.readAtInMs = readAtInMs;
@@ -181,7 +181,9 @@ public class Place extends DefaultPOI {
 					DefaultPOI.getAuthorityFromJSON(json),
 					json.getString(JSON_PROVIDER_ID),
 					json.getString(JSON_LANG),
-					json.getLong(JSON_READ_AT_IN_MS)
+					json.getLong(JSON_READ_AT_IN_MS),
+					DefaultPOI.getLatFromJSON(json),
+					DefaultPOI.getLngFromJSON(json)
 			);
 			if (json.has(JSON_SUB_TITLE)) {
 				place.setSubTitle(json.getString(JSON_SUB_TITLE));
@@ -250,7 +252,9 @@ public class Place extends DefaultPOI {
 		final String providerId = c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_PROVIDER_ID));
 		final String lang = c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_LANG));
 		final long readAtInMs = c.getLong(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_READ_AT_IN_MS));
-		final Place place = new Place(authority, providerId, lang, readAtInMs);
+		final double lat = DefaultPOI.getLatFromCursor(c);
+		final double lng = DefaultPOI.getLngFromCursor(c);
+		final Place place = new Place(authority, providerId, lang, readAtInMs, lat, lng);
 		final String subTitle = CursorExtKt.optString(c, PlaceProvider.PlaceColumns.T_PLACE_K_SUB_TITLE, null);
 		if (subTitle != null) {
 			place.setSubTitle(subTitle);

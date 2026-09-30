@@ -5,13 +5,13 @@ import com.google.android.gms.maps.model.LatLngBounds
 
 interface MapListener {
 
-    fun onMapClick(position: LatLng)
+    fun onMapClick(position: LatLng) = Unit
 
-    fun onMapLongClick(position: LatLng)
+    fun onMapLongClick(position: LatLng)= Unit
 
-    fun onMarkerClick(marker: IMarker?): Boolean
+    fun onMarkerClick(marker: IMarker?): Boolean = false
 
-    fun onCameraChanged(latLngBounds: LatLngBounds, zoom: Float)
+    fun onCameraChanged(latLngBounds: LatLngBounds, zoom: Float) = Unit
 
-    fun onMapReady()
+    fun onMapReady() = Unit
 }

@@ -107,8 +107,8 @@ internal fun POIArrayAdapter.trackTypeHeaderButtonClick(buttonId: Int) {
 }
 
 fun POIArrayAdapter.allowTriggerStatusServiceUpdateRefresh() {
-    this.poisByType?.values?.forEach { typePOIMs ->
-        typePOIMs?.forEach { poim ->
+    this.poisByDstOrFavFolderId?.values?.forEach { dstOrFavFolderIdPOIMs ->
+        dstOrFavFolderIdPOIMs?.forEach { poim ->
             poim.allowTriggerStatusAndServiceUpdatesRefresh()
         }
     }

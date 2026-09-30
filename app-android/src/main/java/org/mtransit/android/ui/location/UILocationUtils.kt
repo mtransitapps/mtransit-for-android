@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
+import org.mtransit.android.commons.metersToFeet
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -76,7 +77,7 @@ object UILocationUtils : LocationUtils() {
         val accuracyInMeters = currentLocation.accuracy
         if (!poi.hasLocation()) return
         val newDistance = distanceToInMeters(currentLocation.latitude, currentLocation.longitude, poi.getLat(), poi.getLng())
-        if (poi.getDistance() > 1 && newDistance == poi.getDistance() && poi.getDistanceString() != null) return
+        if (poi.getDistance() >= 0f && poi.getDistance() == newDistance && poi.getDistanceString() != null) return
         poi.setDistance(newDistance)
         poi.setDistanceString(getDistanceString(poi.getDistance(), accuracyInMeters, distanceUnitsPref))
     }
@@ -85,8 +86,8 @@ object UILocationUtils : LocationUtils() {
     private fun getDistanceString(distanceInMeters: Float, accuracyInMeters: Float, distanceUnitsPref: String) =
         when (distanceUnitsPref) {
             DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL -> {
-                val distanceInSmall = distanceInMeters * FEET_PER_M
-                val accuracyInSmall = accuracyInMeters * FEET_PER_M
+                val distanceInSmall = distanceInMeters.metersToFeet
+                val accuracyInSmall = accuracyInMeters.metersToFeet
                 getDistance(distanceInSmall, accuracyInSmall, FEET_PER_MILE, 10, "ft", "mi")
             }
 
@@ -100,7 +101,7 @@ object UILocationUtils : LocationUtils() {
         if (accuracy > distance) {
             if (accuracy > (smallPerBig / threshold)) {
                 val accuracyInBigUnit = accuracy / smallPerBig
-                val niceAccuracyInBigUnit = (accuracyInBigUnit * 10).roundToInt().toFloat() / 10
+                val niceAccuracyInBigUnit = (accuracyInBigUnit * 10f).roundToInt().toFloat() / 10f
                 append("< ").append(niceAccuracyInBigUnit).append(" ").append(bigUnit)
             } else {
                 val niceAccuracyInSmallUnit = accuracy.roundToInt()
@@ -109,7 +110,7 @@ object UILocationUtils : LocationUtils() {
         } else {
             if (distance > (smallPerBig / threshold)) {
                 val distanceInBigUnit = distance / smallPerBig
-                val niceDistanceInBigUnit = (distanceInBigUnit * 10).roundToInt().toFloat() / 10
+                val niceDistanceInBigUnit = (distanceInBigUnit * 10f).roundToInt().toFloat() / 10f
                 append(niceDistanceInBigUnit).append(" ").append(bigUnit)
             } else {
                 val niceDistanceInSmallUnit = distance.roundToInt()
@@ -129,12 +130,5 @@ object UILocationUtils : LocationUtils() {
             minLng = min(visibleLocationOppositeCenter.longitude, visibleLocation.longitude),
             maxLng = max(visibleLocationOppositeCenter.longitude, visibleLocation.longitude)
         )
-    }
-
-    fun computeAreaLatLng(center: LatLng, visibleLocation: LatLng): Collection<LatLng> = buildList {
-        computeArea(center, visibleLocation).let {
-            add(LatLng(it.minLat, it.minLng))
-            add(LatLng(it.minLat, it.maxLng))
-        }
     }
 }

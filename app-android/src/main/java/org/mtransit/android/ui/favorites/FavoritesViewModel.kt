@@ -25,6 +25,7 @@ import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.FavoriteFolder
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.dstOrFavFolderId
 import org.mtransit.android.data.toPOIM
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -136,7 +137,7 @@ class FavoritesViewModel @Inject constructor(
         pois.forEach { favPOIM ->
             val favFolderId = uuidToFavoriteFolderId[favPOIM.poi.uuid]
             if (favFolderId != null && favFolderId > FavoriteFolder.DEFAULT_FOLDER_ID) {
-                favPOIM.poi.dataSourceTypeId = FavoritesFolderDSTUtils.generateFavoriteFolderDataSourceId(favFolderId)
+                favPOIM.dstFavoriteFolderId = FavoritesFolderDSTUtils.generateDstFavoriteFolderId(favFolderId)
                 favFolderIds.add(favFolderId)
             }
         }
@@ -146,12 +147,18 @@ class FavoritesViewModel @Inject constructor(
         favFolders
             .filter { favFolder -> favFolder.id > FavoriteFolder.DEFAULT_FOLDER_ID && !favFolderIds.contains(favFolder.id) }
             .forEach { favoriteFolder ->
-                val dataSourceTypeId = FavoritesFolderDSTUtils.generateFavoriteFolderDataSourceId(favoriteFolder.id)
-                pois.add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, dataSourceTypeId).toPOIM())
+                val dstFavoriteFolderId = FavoritesFolderDSTUtils.generateDstFavoriteFolderId(favoriteFolder.id)
+                pois.add(
+                    FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, dstFavoriteFolderId)
+                        .toPOIM()
+                        .apply {
+                            this.dstFavoriteFolderId = dstFavoriteFolderId
+                        }
+                )
             }
         val folderIdToName = favFolders.associate { it.id to it.name }
         val favoriteFolderNameComparator = compareBy<POIManager, String?>(nullsLast()) { poim ->
-            val favFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(poim.poi.dataSourceTypeId)
+            val favFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(poim.dstOrFavFolderId)
             folderIdToName[favFolderId]
         }
         if (pois.isNotEmpty()) {

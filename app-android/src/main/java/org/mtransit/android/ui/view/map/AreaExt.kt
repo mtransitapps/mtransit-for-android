@@ -18,14 +18,14 @@ fun LatLngBounds.toArea() = Area(
     maxLng = max(this.northeast.longitude, this.southwest.longitude),
 )
 
-fun Area.toLatLngBounds() = LatLngBounds.builder().apply {
-    include(LatLng(this@toLatLngBounds.minLat, this@toLatLngBounds.minLng))
-    include(LatLng(this@toLatLngBounds.minLat, this@toLatLngBounds.maxLng))
-}.build()
+fun Area.toLatLngBounds() = LatLngBounds.builder()
+    .include(LatLng(this@toLatLngBounds.minLat, this@toLatLngBounds.minLng))
+    .include(LatLng(this@toLatLngBounds.maxLat, this@toLatLngBounds.maxLng))
+    .build()
 
-fun Area.toLngLngList(): Collection<LatLng> = buildList {
+fun Area.toLngLngList() = buildList {
     add(LatLng(this@toLngLngList.minLat, this@toLngLngList.minLng))
-    add(LatLng(this@toLngLngList.minLat, this@toLngLngList.maxLng))
+    add(LatLng(this@toLngLngList.maxLat, this@toLngLngList.maxLng))
 }
 
 fun Area.countPOIInside(poiList: Collection<POI>?): Int {

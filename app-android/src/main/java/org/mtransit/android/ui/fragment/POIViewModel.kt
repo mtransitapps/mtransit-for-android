@@ -91,9 +91,9 @@ class POIViewModel @Inject constructor(
 
     val uuid = savedStateHandle.getLiveDataDistinct<String>(EXTRA_POI_UUID)
 
-    private val _authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
+    private val authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
 
-    val poiAgency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
+    val poiAgency: LiveData<AgencyProperties?> = this.authority.switchMap { authority ->
         this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE
     }
 
@@ -110,52 +110,48 @@ class POIViewModel @Inject constructor(
             })
         }
 
-    private val _poi = this.poim.map {
+    private val poi: LiveData<POI?> = poim.map {
         it?.poi
     }.distinctUntilChanged()
 
-    private val _rds = _poi.map {
-        it as? RouteDirectionStop
-    }
-
-    private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
+    private val vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = authority.switchMap {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@switchMap null
         dataSourcesRepository.readingVehicleLocationProviders(it) // #onModulesUpdated
     }
 
-    private val _vehicleLocationRequestedTrigger = MutableLiveData<Int?>(null) // no initial value to avoid triggering onChanged()
+    private val vehicleLocationRequestedTrigger = MutableLiveData<Int?>(null) // no initial value to avoid triggering onChanged()
 
-    private var _vehicleRefreshJob: Job? = null
+    private var vehicleRefreshJob: Job? = null
 
-    private val _vehicleLocationDataRefreshMinMs = remoteConfigProvider.get(
+    private val vehicleLocationDataRefreshMinMs = remoteConfigProvider.get(
         RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS,
         RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT,
     ).milliseconds
 
     fun startVehicleLocationRefresh() {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
-        _vehicleRefreshJob?.cancel()
-        _vehicleRefreshJob = viewModelScope.launch {
+        vehicleRefreshJob?.cancel()
+        vehicleRefreshJob = viewModelScope.launch {
             while (true) {
-                _vehicleLocationRequestedTrigger.value = (_vehicleLocationRequestedTrigger.value ?: 0) + 1
-                delay(_vehicleLocationDataRefreshMinMs)
+                vehicleLocationRequestedTrigger.value = (vehicleLocationRequestedTrigger.value ?: 0) + 1
+                delay(vehicleLocationDataRefreshMinMs)
             }
         }
     }
 
     fun stopVehicleLocationRefresh() {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
-        _vehicleLocationRequestedTrigger.value = null // disable when not visible
-        _vehicleRefreshJob?.cancel()
-        _vehicleRefreshJob = null
+        vehicleLocationRequestedTrigger.value = null // disable when not visible
+        vehicleRefreshJob?.cancel()
+        vehicleRefreshJob = null
     }
 
-    val vehicleLocations = MediatorLiveData3(_vehicleLocationProviders, _rds, _vehicleLocationRequestedTrigger)
-        .switchMap { (vehicleLocationProviders, rds, trigger) ->
+    val vehicleLocations = MediatorLiveData3(vehicleLocationProviders, poi, vehicleLocationRequestedTrigger)
+        .switchMap { (vehicleLocationProviders, poi, trigger) ->
             liveData(viewModelScope.coroutineContext) {
                 if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return@liveData
                 vehicleLocationProviders ?: return@liveData
-                rds ?: return@liveData
+                val rds = poi as? RouteDirectionStop ?: return@liveData
                 trigger ?: return@liveData // skip when not visible
                 emit(
                     vehicleLocationProviders.mapNotNull {
@@ -166,7 +162,7 @@ class POIViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    val poiList: LiveData<List<POIManager>?> = MediatorLiveData2(poiAgency, _poi)
+    val poiList: LiveData<List<POIManager>?> = MediatorLiveData2(poiAgency, poi)
         .switchMap { (agency, poi) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 agency ?: return@liveData
@@ -200,23 +196,23 @@ class POIViewModel @Inject constructor(
         else -> POIProviderContract.Filter.getNewEmptyFilter()
     }
 
-    private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
+    private val scheduleProviders: LiveData<List<ScheduleProviderProperties>> = authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)
     }
 
-    val hasScheduleProviders = _scheduleProviders.map { it.isNotEmpty() }
+    val hasScheduleProviders = scheduleProviders.map { it.isNotEmpty() }
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
+    private val allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
     // like Home screen (no infinite loading like in Nearby screen)
-    val nearbyPOIs: LiveData<List<POIManager>?> = MediatorLiveData3(_allAgencies, poiAgency, _poi)
+    val nearbyPOIs: LiveData<List<POIManager>?> = MediatorLiveData3(allAgencies, poiAgency, poi)
         .switchMap { (allAgencies, poiAgency, poi) ->
             allAgencies ?: return@switchMap null
             poiAgency ?: return@switchMap null
             poi ?: return@switchMap null
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 if (Constants.FORCE_NEARBY_POI_LIST_OFF) {
-                    MTLog.d(this, "getNearbyPOIs() > SKIP (feature disabled)")
+                    MTLog.d(this@POIViewModel, "nearbyPOIs.onChanged() > SKIP (feature disabled)")
                     emit(emptyList())
                     return@liveData
                 }
@@ -251,8 +247,8 @@ class POIViewModel @Inject constructor(
                             it.poi.uuid == poi.uuid
                                 || (it.poi.isNoPickup && !it.poi.isSameRoute(poi))
                         },
-                    ).apply {
-                        val poiConnectionComparator = POIConnectionComparator(
+                    ).sortWithAnd(
+                        POIConnectionComparator(
                             targetedPOI = poi,
                             maxDistanceInMeters = { dataSourceTypeId ->
                                 when (dataSourceTypeId) {
@@ -261,17 +257,16 @@ class POIViewModel @Inject constructor(
                                 }
                             },
                         )
-                        sortWithAnd(poiConnectionComparator)
-                    }
+                    )
                 )
             }
         }
 
-    private val newsProviders = _authority.switchMap {
+    private val newsProviders = authority.switchMap {
         dataSourcesRepository.readingNewsProviders(it) // #onModulesUpdated
     }
 
-    val latestNewsArticleList: LiveData<List<News>?> = MediatorLiveData2(_poi, newsProviders)
+    val latestNewsArticleList: LiveData<List<News>?> = MediatorLiveData2(poi, newsProviders)
         .switchMap { (poi, newsProviders) ->
             newsRepository.loadingNewsArticles(
                 newsProviders,

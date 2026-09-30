@@ -13,7 +13,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.set
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
@@ -23,7 +22,6 @@ import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.toPOIM
 import org.mtransit.android.data.updateSupportedType
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -64,18 +62,6 @@ class POIRepository(
 
     private fun commonSetup(filter: POIProviderContract.Filter) = filter
 
-    @Suppress("unused")
-    suspend fun findPOI(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POI? {
-        return dataSourceRequestManager.findPOI(agency, commonSetup(poiFilter))
-            ?.updateSupportedType(agency)
-    }
-
-    @Suppress("unused")
-    suspend fun findPOIM(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POIManager? {
-        return dataSourceRequestManager.findPOIM(agency, commonSetup(poiFilter))
-            ?.updateSupportedType(agency)
-    }
-
     fun readingPOIM(
         agency: IAgencyProperties?,
         uuid: String?,
@@ -96,21 +82,22 @@ class POIRepository(
             return@liveData // SKIP
         }
         val cachePOIM = read(agency.authority, uuid)
-            ?.also { emit(it) }
+            ?.also { cachedPOI ->
+                emit(cachedPOI)
+            }
         val poiFilter = commonSetup(POIProviderContract.Filter.getNewUUIDFilter(uuid))
-        dataSourceRequestManager.findPOI(agency, poiFilter)
+        dataSourceRequestManager.findPOIM(agency, poiFilter)
             ?.updateSupportedType(agency)
-            ?.let { newPOIFromModule -> // WITHOUT status OR service update
+            ?.let { newPOIMFromModule -> // WITHOUT status OR service update
+                val newPOIFromModule = newPOIMFromModule.poi
                 if (cachePOIM == null // no cache POI
                     || newPOIFromModule != cachePOIM.poi // new POI != cache POI
                 ) {
                     MTLog.d(this@POIRepository, "readingPOIM() > EMIT (new POI != cache POI)")
-                    val newPOIM = newPOIFromModule.toPOIM(
-                        serviceUpdates = cachePOIM?.serviceUpdatesOrNull,
-                        status = cachePOIM?.statusOrNull,
-                    )
-                    emit(newPOIM)
-                    push(newPOIM)
+                    cachePOIM?.serviceUpdatesOrNull?.let { newPOIMFromModule.setServiceUpdates(it) }
+                    cachePOIM?.statusOrNull?.let { newPOIMFromModule.setStatus(it) }
+                    emit(newPOIMFromModule)
+                    push(newPOIMFromModule)
                 } else { // ELSE same POI, keep cache w/ extras (status, service update...)
                     MTLog.d(this@POIRepository, "readingPOIM() > SKIP (new POI == cache POI, keep status, service update...)")
                 }

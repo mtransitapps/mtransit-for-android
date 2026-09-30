@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.rds.route.direction
 
+import android.location.Address
 import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -38,16 +39,20 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.ui.location.GeocoderManager
+import org.mtransit.android.ui.location.toAddress
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.ui.view.map.toLocation
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class RDSDirectionStopsViewModel @Inject constructor(
+    private val geocoderManager: GeocoderManager,
     private val savedStateHandle: SavedStateHandle,
     private val poiRepository: POIRepository,
     private val devicePrefManager: DevicePrefManager,
@@ -272,6 +277,23 @@ class RDSDirectionStopsViewModel @Inject constructor(
         val routeDirection = routeDirection.value ?: return
         viewModelScope.launch {
             devicePrefManager.updateRouteDirectionShowingListInsteadOfMap(routeDirection, showingListInsteadOfMap)
+        }
+    }
+
+    private val _selectedLocation = MutableLiveData<LatLng?>()
+    val selectedLocation: LiveData<LatLng?> = _selectedLocation
+
+    private val loadingSelectedAddress = MutableLiveData<Boolean>()
+    private val _selectedAddress = MutableLiveData<Address?>()
+    val selectedAddress: LiveData<Address?> = _selectedAddress
+
+    fun onSelectedPlaceLocation(latLng: LatLng) {
+        viewModelScope.launch(Dispatchers.IO) {
+            loadingSelectedAddress.postValue(true)
+            _selectedLocation.postValue(latLng)
+            val selectedAddress = latLng.toLocation().toAddress(geocoderManager)
+            _selectedAddress.postValue(selectedAddress)
+            loadingSelectedAddress.postValue(false)
         }
     }
 }

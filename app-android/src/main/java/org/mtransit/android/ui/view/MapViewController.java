@@ -3,6 +3,7 @@ package org.mtransit.android.ui.view;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedPlace;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.respondToLayoutChanges;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
 
 import android.annotation.SuppressLint;
@@ -152,7 +153,15 @@ public class MapViewController implements
 
 	private boolean initialMapCameraSetup = false;
 
-	private void setupInitialCamera() {
+	public boolean getInitialMapCameraSetup() {
+		return this.initialMapCameraSetup;
+	}
+
+	public void setInitialMapCameraSetup(boolean initialMapCameraSetup) {
+		this.initialMapCameraSetup = initialMapCameraSetup;
+	}
+
+	protected void setupInitialCamera() {
 		if (this.initialMapCameraSetup) {
 			MTLog.d(this, "setupInitialCamera() > SKIP (already setup)");
 			return;
@@ -275,6 +284,9 @@ public class MapViewController implements
 	@NonNull
 	private final AtomicBoolean initializingMapView = new AtomicBoolean(false);
 
+	/**
+	 * Gated by [this.initializingMapView]
+	 */
 	@MainThread
 	private void applyNewMapView(@NonNull View parentLayout) {
 		if (this.mapView != null) {
@@ -285,18 +297,23 @@ public class MapViewController implements
 		this.loadingMapView = parentLayout.findViewById(R.id.map_loading);
 		this.typeSwitchView = parentLayout.findViewById(R.id.map_type_switch);
 		if (this.mapView != null) {
-			try {
-				this.mapView.onCreate(this.lastSavedInstanceState);
-			} catch (Exception e) {
-				MTLog.w(this, e, "Error while creating map view with '%s' (trying again)", this.lastSavedInstanceState);
-				this.mapView.onCreate(null);
-			}
-			if (this.needToResumeMap) {
-				this.mapView.onResume();
-				this.needToResumeMap = false;
-			}
-			this.lastSavedInstanceState = null;
-			this.mapView.getMapAsync(this);
+			this.mapView.post(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						MapViewController.this.mapView.onCreate(MapViewController.this.lastSavedInstanceState);
+					} catch (Exception e) {
+						MTLog.w(this, e, "Error while creating map view with '%s' (trying again)", MapViewController.this.lastSavedInstanceState);
+						MapViewController.this.mapView.onCreate(null);
+					}
+					if (MapViewController.this.needToResumeMap) {
+						MapViewController.this.mapView.onResume();
+						MapViewController.this.needToResumeMap = false;
+					}
+					MapViewController.this.lastSavedInstanceState = null;
+					MapViewController.this.mapView.getMapAsync(MapViewController.this);
+				}
+			});
 		}
 		showHideLoading();
 		initTypeSwitch();
@@ -1244,6 +1261,26 @@ public class MapViewController implements
 		}
 	}
 
+	public void onStart() {
+		MTLog.d(this, "onStart()");
+		final MapView mapView = getMapViewOrNull();
+		if (mapView == null) {
+			MTLog.d(this, "onStart() > SKIP (no map)");
+			return;
+		}
+		mapView.onStart();
+	}
+
+	public void onStop() {
+		MTLog.d(this, "onStop()");
+		final MapView mapView = getMapViewOrNull();
+		if (mapView == null) {
+			MTLog.d(this, "onStop() > SKIP (no map)");
+			return;
+		}
+		mapView.onStop();
+	}
+
 	private boolean needToResumeMap = false;
 
 	public boolean onResume() {
@@ -1257,6 +1294,7 @@ public class MapViewController implements
 		this.needToResumeMap = false;
 		showMapInternal(null);
 		setMapType(getMapType());
+		respondToLayoutChanges(this, mapView);
 		return true; // resumed
 	}
 
@@ -1277,7 +1315,7 @@ public class MapViewController implements
 	}
 
 	@Nullable
-	private Activity getActivityOrNull() {
+	protected Activity getActivityOrNull() {
 		return this.activityWR == null ? null : this.activityWR.get();
 	}
 

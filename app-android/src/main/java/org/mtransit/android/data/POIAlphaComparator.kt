@@ -14,6 +14,6 @@ class POIAlphaComparator : Comparator<POIManager?> {
         } else if (rhsPoi == null) {
             return ComparatorUtils.AFTER
         }
-        return lhsPoi.compareToAlpha(null, rhsPoi)
+        return lhsPoi.compareToAlpha(rhsPoi)
     }
 }

@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Direction
-import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.provider.common.ProviderContract.Filter.Companion.toProvidedKeys
@@ -112,8 +111,6 @@ class DataSourceRequestManager(
     // end region
 
     // region POI
-
-    suspend fun findPOI(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POI? = findPOIM(agency, poiFilter)?.poi
 
     suspend fun findPOIM(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POIManager? = withContext(ioDispatcher) {
         DataSourceManager.findPOIM(appContext, agency.authority, poiFilter)

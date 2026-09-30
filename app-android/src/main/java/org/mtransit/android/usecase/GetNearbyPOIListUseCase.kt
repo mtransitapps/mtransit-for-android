@@ -15,6 +15,7 @@ import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.distanceOrNull
 import org.mtransit.android.data.isNoPickup
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.location.UILocationUtils
@@ -25,6 +26,7 @@ import javax.inject.Inject
 
 class GetNearbyPOIListUseCase(
     private val poiRepository: POIRepository,
+    private val getAroundCoveredDistanceInMeters: (lat: Double, lng: Double, aroundDiff: Double) -> Float,
     private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
 
@@ -33,13 +35,20 @@ class GetNearbyPOIListUseCase(
         poiRepository: POIRepository,
     ) : this(
         poiRepository = poiRepository,
+        getAroundCoveredDistanceInMeters = { lat, lng, aroundDiff ->
+            LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
+        },
         ioDispatcher = Dispatchers.IO,
     )
 
     companion object {
         private val LOG_TAG: String = GetNearbyPOIListUseCase::class.java.simpleName
 
+        private const val SAME_LOGIC_FOR_TARGET_AGENCY = true
+
         private const val INITIAL_COVERAGE_IN_METERS = 100f
+
+        private const val MIN_LASTS_DISTANCE_DIFF_IN_METERS = 13f
 
         private const val MAX_DISTANCE_INCREASE = 1.5f
 
@@ -52,17 +61,6 @@ class GetNearbyPOIListUseCase(
 
     fun setLogTag(tag: String) {
         this.logTag = "$LOG_TAG-$tag"
-    }
-
-    private suspend fun MutableMap<Pair<String, Double>, List<POIManager>>.getOrFindPOIMAroundLoc(
-        agency: IAgencyProperties,
-        lat: Double,
-        lng: Double,
-        aroundDiff: Double,
-    ): List<POIManager> {
-        return getOrPut(agency.authority to aroundDiff) {
-            poiRepository.findPOIMsAroundLoc(agency, lat, lng, aroundDiff, avoidLoading = true)
-        }
     }
 
     suspend operator fun invoke(
@@ -104,7 +102,7 @@ class GetNearbyPOIListUseCase(
         // 1 - nearby POIs from nearby agencies
         while (true) {
             newNearbyPOIsLoadedCount = 0
-            if (maxDistanceInMeters >= LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff.ad)) {
+            if (maxDistanceInMeters >= getAroundCoveredDistanceInMeters(lat, lng, aroundDiff.ad)) {
                 aroundDiff.increment()
             }
             nearbyAgencies.forEach { nearbyAgency ->
@@ -114,7 +112,8 @@ class GetNearbyPOIListUseCase(
                         .removeAllAnd(excludePOI)
                         .removeTooFar(getMaxDistanceInMeters(maxDistanceInMeters, nearbyAgency.type))
                         .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                        .removeAllAnd { nearbyPOIs.contains(it) }
+                        .also { newAgencyNearbyPOIs ->
+                        .removeAllAnd { new -> nearbyPOIs.any { it.uuid == new.uuid } }
                         .also { newAgencyNearbyPOIs ->
                             newNearbyPOIsLoadedCount += newAgencyNearbyPOIs.size
                             if (mainAgency != null
@@ -127,28 +126,50 @@ class GetNearbyPOIListUseCase(
                         }
                 )
             }
-            nearbyPOIs.removeDuplicateRouteDirection()
-            if (mainAgency == null) {
+            val removed = nearbyPOIs.removeDuplicateRouteDirection()
+            newNearbyPOIsLoadedCount -= removed
+            @Suppress("SimplifyBooleanWithConstants")
+            if (mainAgency == null || SAME_LOGIC_FOR_TARGET_AGENCY) {
                 if ((nearbyPOIs.size <= (minSize ?: 0) || newNearbyPOIsLoadedCount > 0)
                     && maxDistanceInMeters <= (maxCoverageInMeters ?: Float.MAX_VALUE)
                     && aroundDiff.increment <= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT)
                     && !LocationUtils.searchComplete(lat, lng, aroundDiff.ad) // world explored
                 ) {
-                    maxDistanceInMeters *= MAX_DISTANCE_INCREASE
+                    val firstRelevantDistance = nearbyPOIs.firstOrNull { it.distanceOrNull != null && !excludePOI(it) }?.distanceOrNull
+                    val lastDistance = nearbyPOIs.takeIf { it.isNotEmpty() }?.lastOrNull()?.distanceOrNull
+                    val firstLastDistanceDiff = nearbyPOIs
+                        .filter { it.distanceOrNull != null }
+                        .takeIf { it.size >= 2 }
+                        ?.let { it.last().distance - it.first().distance }
+                        ?.takeIf { it > 0f }?.coerceAtMost(maxDistanceInMeters)
+                    val distinctLastDistance = nearbyPOIs.takeIf { it.size > 2 }?.lastOrNull { poim ->
+                        poim.distanceOrNull?.let { poimDistance ->
+                            lastDistance?.let { it - poimDistance > 0.0f }
+                        } == true
+                    }?.distance
+                    val lastsDistanceDiff = distinctLastDistance?.let {
+                        lastDistance?.let { it - distinctLastDistance }
+                    }?.coerceAtLeast(
+                        MIN_LASTS_DISTANCE_DIFF_IN_METERS
+                    )
+                    val avgDistanceDiff = ((firstLastDistanceDiff ?: INITIAL_COVERAGE_IN_METERS) +
+                        (lastsDistanceDiff ?: MIN_LASTS_DISTANCE_DIFF_IN_METERS)) / 2f
+                    if (nearbyPOIs.size >= 2 && avgDistanceDiff > 0f) {
+                        maxDistanceInMeters = (lastDistance ?: maxDistanceInMeters) + avgDistanceDiff
+                    } else {
+                        maxDistanceInMeters *= MAX_DISTANCE_INCREASE
+                    }
                     continue
                 }
                 break
             } else {
-                val firstRelevantDistance = nearbyPOIs.firstOrNull { it.distance > 0f && !excludePOI(it) }?.distance
-                val firstLastDistanceDiff = nearbyPOIs.takeIf { it.size >= 2 }?.let { it.last().distance - it.first().distance }
-                    ?.takeIf { it > 0f }?.coerceAtMost(maxDistanceInMeters)
-                val minDistance = firstRelevantDistance
-                    ?.let { it + it.coerceAtLeast(.5f * INITIAL_COVERAGE_IN_METERS) } // 1st relevant distance x2 ( min initial coverage)
-                    ?: INITIAL_COVERAGE_IN_METERS
+                val firstRelevantDistance = nearbyPOIs.firstOrNull { it.distanceOrNull != null && !excludePOI(it) }?.distanceOrNull
                 val significantDistance = firstRelevantDistance
                     ?.coerceAtLeast(.5f * INITIAL_COVERAGE_IN_METERS)
                     ?.let { it * MAX_DISTANCE_INCREASE }
-                    ?.coerceAtLeast(minDistance)
+                    ?.coerceAtLeast(
+                        firstRelevantDistance + firstRelevantDistance.coerceAtLeast(.5f * INITIAL_COVERAGE_IN_METERS) // 1st relevant distance x2 ( min initial coverage)
+                    )
                 if (
                     2f * INITIAL_COVERAGE_IN_METERS <= maxDistanceInMeters
                     || (significantDistance != null && significantDistance <= maxDistanceInMeters)
@@ -159,6 +180,11 @@ class GetNearbyPOIListUseCase(
                     maxDistanceInMeters = significantDistance
                     continue
                 }
+                val firstLastDistanceDiff = nearbyPOIs
+                    .filter { it.distanceOrNull != null }
+                    .takeIf { it.size >= 2 }
+                    ?.let { it.last().distance - it.first().distance }
+                    ?.takeIf { it > 0f }?.coerceAtMost(maxDistanceInMeters)
                 if (firstLastDistanceDiff != null && firstLastDistanceDiff > 0f) {
                     maxDistanceInMeters += firstLastDistanceDiff
                     continue
@@ -182,6 +208,17 @@ class GetNearbyPOIListUseCase(
         nearbyPOIs.sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
         nearbyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
         return@withContext nearbyPOIs
+    }
+
+    private suspend fun MutableMap<Pair<String, Double>, List<POIManager>>.getOrFindPOIMAroundLoc(
+        agency: IAgencyProperties,
+        lat: Double,
+        lng: Double,
+        aroundDiff: Double,
+    ): List<POIManager> {
+        return getOrPut(agency.authority to aroundDiff) {
+            poiRepository.findPOIMsAroundLoc(agency, lat, lng, aroundDiff, avoidLoading = true)
+        }
     }
 
     private suspend fun MutableList<POIManager>.appendMainAgencyPOI(
@@ -220,18 +257,21 @@ class GetNearbyPOIListUseCase(
         }
     }
 
-    private fun MutableList<POIManager>.removeDuplicateRouteDirection() {
+    private fun MutableList<POIManager>.removeDuplicateRouteDirection(): Int {
         sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
         val it = iterator()
-        val routeDirectionKept = mutableSetOf<String>()
+        val routeDirectionUUIDKept = mutableSetOf<String>()
+        var poiRemoved = 0
         while (it.hasNext()) {
             val rds = it.next().poi as? RouteDirectionStop ?: continue
-            val routeDirectionId = "${rds.route.id}-${rds.direction.id}"
-            if (routeDirectionKept.contains(routeDirectionId)) {
+            val routeDirectionId = rds.routeDirectionUUID
+            if (routeDirectionUUIDKept.contains(routeDirectionId)) {
                 it.remove()
+                poiRemoved++
             } else {
-                routeDirectionKept += routeDirectionId
+                routeDirectionUUIDKept += routeDirectionId
             }
         }
+        return poiRemoved
     }
 }

@@ -7,6 +7,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
@@ -36,13 +37,17 @@ import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.clearSelectedPlace
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
+import org.mtransit.android.ui.view.map.MapListener
 import org.mtransit.android.ui.view.map.MapMarkerProvider
+import org.mtransit.android.ui.view.onSelectedPlaceLocation
+import org.mtransit.android.ui.view.setSelectedPlace
 import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.LinkUtils
@@ -141,6 +146,13 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     @Inject
     lateinit var userManager: UserManager
 
+    private val mapListener = object : MapListener {
+
+        override fun onMapLongClick(position: LatLng) {
+            viewModel.onSelectedPlaceLocation(position)
+        }
+    }
+
     private val mapMarkerProvider = object : MapMarkerProvider {
 
         override val pois: Collection<POIManager>?
@@ -163,7 +175,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             logTag,
             MapViewConfig(
                 markerProvider = mapMarkerProvider,
-                mapListener = null, // DO NOTHING (map click, camera change)
+                mapListener = mapListener,
                 mapToolbarEnabled = false,
                 myLocationEnabled = true,
                 myLocationButtonEnabled = true,
@@ -335,6 +347,14 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 applySelectedUUIDChanged(selectedUUID)
             }
         }
+        viewModel.selectedLocation.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
+            viewModel.selectedLocation.value?.let {
+                mapViewController.onSelectedPlaceLocation(it, address)
+            }
+        }
     }
 
     private fun applySelectedUUIDChanged(
@@ -424,6 +444,16 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         listAdapter.onVisible(this, parentViewModel.deviceLocation.value)
         updateFabListMapUI()
         switchView()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapViewController.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapViewController.onStop()
     }
 
     override fun onPause() {

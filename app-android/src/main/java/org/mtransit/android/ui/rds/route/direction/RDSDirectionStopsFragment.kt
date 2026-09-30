@@ -9,6 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -57,7 +58,9 @@ import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
+import org.mtransit.android.ui.view.map.MapListener
 import org.mtransit.android.ui.view.map.MapMarkerProvider
+import org.mtransit.android.ui.view.onSelectedPlaceLocation
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
 import org.mtransit.android.user.UserManager
@@ -174,6 +177,13 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     @Inject
     lateinit var userManager: UserManager
 
+    private val mapListener = object : MapListener {
+
+        override fun onMapLongClick(position: LatLng) {
+            viewModel.onSelectedPlaceLocation(position)
+        }
+    }
+
     private val mapMarkerProvider = object : MapMarkerProvider {
 
         override val pois: Collection<POIManager>?
@@ -204,7 +214,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             logTag,
             MapViewConfig(
                 markerProvider = mapMarkerProvider,
-                mapListener = null, // DO NOTHING (map click, camera change)
+                mapListener = mapListener,
                 mapToolbarEnabled = false,
                 myLocationEnabled = true,
                 myLocationButtonEnabled = true,
@@ -451,6 +461,14 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository, userManager) {
             this.listAdapter.notifyDataSetChanged(false)
         }
+        viewModel.selectedLocation.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
+            viewModel.selectedLocation.value?.let {
+                mapViewController.onSelectedPlaceLocation(it, address)
+            }
+        }
     }
 
     private fun onTimeChanged() {
@@ -600,6 +618,16 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         listAdapter.onVisible(this, parentViewModel.deviceLocation.value)
         updateFabListMapUI()
         switchView()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapViewController.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapViewController.onStop()
     }
 
     private var _vehicleLocationCountdownRefreshJob: Job? = null

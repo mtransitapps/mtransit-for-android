@@ -1,6 +1,8 @@
 package org.mtransit.android.ui.type.poi
 
+import android.location.Address
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
@@ -20,13 +22,17 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.ui.location.GeocoderManager
+import org.mtransit.android.ui.location.toAddress
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.ui.view.map.toLocation
 import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 
 @HiltViewModel
 class AgencyPOIsViewModel @Inject constructor(
+    private val geocoderManager: GeocoderManager,
     private val savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     poiRepository: POIRepository,
@@ -108,4 +114,21 @@ class AgencyPOIsViewModel @Inject constructor(
     }
 
     val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
+
+    private val _selectedLocation = MutableLiveData<LatLng?>()
+    val selectedLocation: LiveData<LatLng?> = _selectedLocation
+
+    private val loadingSelectedAddress = MutableLiveData<Boolean>()
+    private val _selectedAddress = MutableLiveData<Address?>()
+    val selectedAddress: LiveData<Address?> = _selectedAddress
+
+    fun onSelectedPlaceLocation(latLng: LatLng) {
+        viewModelScope.launch(Dispatchers.IO) {
+            loadingSelectedAddress.postValue(true)
+            _selectedLocation.postValue(latLng)
+            val selectedAddress = latLng.toLocation().toAddress(geocoderManager)
+            _selectedAddress.postValue(selectedAddress)
+            loadingSelectedAddress.postValue(false)
+        }
+    }
 }

@@ -1164,6 +1164,18 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		this.mapViewController.onStart();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		this.mapViewController.onStop();
+	}
+
 	@WorkerThread
 	@Override
 	public boolean skipLoadingRewardedAd() {

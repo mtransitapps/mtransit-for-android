@@ -1,16 +1,25 @@
 package org.mtransit.android.ui.view
 
 import android.content.Context
+import android.location.Address
+import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.LatLng
+import org.mtransit.android.R
+import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.Place
 import org.mtransit.android.data.toExtendedMarkerOptions
+import org.mtransit.android.ui.location.UILocationUtils
+import org.mtransit.android.ui.location.latLng
+import org.mtransit.android.ui.location.toNameOnly
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
 import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.map.countMarkersInside
+import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.getMapMarkerAlpha
 import org.mtransit.android.ui.view.map.getMapMarkerSnippet
 import org.mtransit.android.ui.view.map.getMapMarkerTitle
@@ -23,7 +32,10 @@ import org.mtransit.android.ui.view.map.updateSnippet
 import org.mtransit.android.ui.view.map.updateTitle
 import org.mtransit.android.ui.view.map.uuidOrGenerated
 import org.mtransit.android.util.MapUtils
+import java.util.Locale
+import java.util.UUID
 import kotlin.math.abs
+import org.mtransit.android.commons.R as commonsR
 
 @JvmOverloads
 fun MapViewController.updateVehicleLocationMarkers(
@@ -121,9 +133,59 @@ fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
     }
 }
 
+fun MapViewController.respondToLayoutChanges(mapView: MapView) {
+    mapView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+        val heightChanged = bottom != oldBottom // banner ad show/hide
+        if (heightChanged && oldBottom > 0) {
+            if (initialMapCameraSetup) {
+                initialMapCameraSetup = false
+                setupInitialCamera()
+            }
+        }
+    }
+}
+
 fun MapViewController.clearSelectedPlace() = this.extendedGoogleMap?.apply {
     selectedPlaceMarker?.remove()
     selectedPlaceMarker = null
+}
+
+fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selectedAddress: Address?) {
+    var usedLocation = selectedLocation
+    selectedAddress?.latLng
+        ?.takeIf { it.distanceToInMeters(selectedLocation) <= UILocationUtils.PLACE_USE_ADDRESS_LAT_LNG_MAX_DISTANCE_IN_METER }
+        ?.let {
+            usedLocation = it // move selected PIN to exact location
+        }
+    val selectedPlace = Place(
+        "android.location.Geocoder",
+        UUID.randomUUID().toString(),
+        selectedAddress?.locale?.language ?: Locale.getDefault().language,
+        TimeUtils.currentTimeMillis(),
+        usedLocation.latitude,
+        usedLocation.longitude
+    ).apply {
+        val accuracyInMeters = selectedAddress?.let {
+            LocationUtils.distanceToInMeters(
+                selectedLocation.latitude, selectedLocation.longitude,
+                it.latitude, it.longitude
+            )
+        } ?: 0.0F
+        val subTitle = context.getString(R.string.place_pin_click_to_nearby)
+        this.name = selectedAddress
+            ?.toNameOnly(context, accuracyInMeters <= UILocationUtils.PLACE_SHOW_ADDRESS_SELECTED_MAX_DISTANCE_IN_METER)
+            ?.let {
+                val maxLength = subTitle.length
+                if (it.length > maxLength) {
+                    it.substring(0, it.length.coerceAtMost(maxLength - 1)) + context.getString(commonsR.string.ellipsis)
+                } else {
+                    it
+                }
+            }
+            ?: context.getString(R.string.place_pin_placed)
+        this.subTitle = subTitle
+    }
+    setSelectedPlace(context, selectedPlace)
 }
 
 fun MapViewController.setSelectedPlace(context: Context, place: Place) = this.extendedGoogleMap?.apply {

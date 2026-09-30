@@ -1,8 +1,8 @@
 package org.mtransit.android.ui.map
 
 import android.app.PendingIntent
-import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
 import android.location.Location
 import androidx.collection.ArrayMap
 import androidx.core.content.edit
@@ -21,37 +21,32 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.ktx.utils.component1
 import com.google.maps.android.ktx.utils.component2
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.common.roundTo
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.poi.POIProviderContract
-import org.mtransit.android.commons.toAddress
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyUIProperties
-import org.mtransit.android.data.Place
 import org.mtransit.android.data.latLng
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
+import org.mtransit.android.ui.location.GeocoderManager
 import org.mtransit.android.ui.location.UILocationUtils
-import org.mtransit.android.ui.location.latLng
-import org.mtransit.android.ui.location.toNameOnly
+import org.mtransit.android.ui.location.toAddress
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -60,22 +55,18 @@ import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.ui.view.map.MTMapIconDef
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.getIconDefForRotation
 import org.mtransit.android.ui.view.map.MTPOIMarker
-import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.toLngLngList
 import org.mtransit.android.ui.view.map.toLocation
 import org.mtransit.android.usecase.GetNearbyPOIListUseCase
 import org.mtransit.android.util.containsEntirely
 import org.mtransit.commons.sortWithAnd
-import java.util.Locale
-import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
-import org.mtransit.android.commons.R as commonsR
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    @param:ApplicationContext private val appContext: Context,
+    private val geocoderManager: GeocoderManager,
     private val savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
@@ -130,50 +121,20 @@ class MapViewModel @Inject constructor(
         it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
 
-    private val loadingSelectedPlace = MutableLiveData<Boolean>()
-    private val _selectedPlace = MutableLiveData<Place?>()
-    val selectedPlace: LiveData<Place?> = _selectedPlace
+    private val _selectedLocation = MutableLiveData<LatLng?>()
+    val selectedLocation: LiveData<LatLng?> = _selectedLocation
+
+    private val loadingSelectedAddress = MutableLiveData<Boolean>()
+    private val _selectedAddress = MutableLiveData<Address?>()
+    val selectedAddress: LiveData<Address?> = _selectedAddress
 
     fun onSelectedPlaceLocation(latLng: LatLng) {
         viewModelScope.launch(Dispatchers.IO) {
-            loadingSelectedPlace.postValue(true)
-            var selectedLatLng = latLng
-            val selectedAddress = selectedLatLng.toLocation().toAddress(appContext)
-            selectedAddress?.latLng
-                ?.takeIf { it.distanceToInMeters(latLng) <= UILocationUtils.PLACE_USE_ADDRESS_LAT_LNG_MAX_DISTANCE_IN_METER }
-                ?.let {
-                    selectedLatLng = it // move selected PIN to exact location
-                }
-            val longPressPlace = Place(
-                "android.location.Geocoder",
-                UUID.randomUUID().toString(),
-                selectedAddress?.locale?.language ?: Locale.getDefault().language,
-                TimeUtils.currentTimeMillis(),
-            ).apply {
-                val accuracyInMeters = selectedAddress?.let {
-                    LocationUtils.distanceToInMeters(
-                        latLng.latitude, latLng.longitude,
-                        it.latitude, it.longitude
-                    )
-                } ?: 0.0F
-                val subTitle = appContext.getString(R.string.place_pin_click_to_nearby)
-                this.name = selectedAddress
-                    ?.toNameOnly(appContext, accuracyInMeters <= UILocationUtils.PLACE_SHOW_ADDRESS_SELECTED_MAX_DISTANCE_IN_METER)
-                    ?.let {
-                        val maxLength = subTitle.length
-                        if (it.length > maxLength) {
-                            it.substring(0, it.length.coerceAtMost(maxLength - 1)) + appContext.getString(commonsR.string.ellipsis)
-                        } else {
-                            it
-                        }
-                    }
-                    ?: appContext.getString(R.string.place_pin_placed)
-                this.subTitle = subTitle
-                lat = selectedLatLng.latitude
-                lng = selectedLatLng.longitude
-            }
-            _selectedPlace.postValue(longPressPlace)
-            loadingSelectedPlace.postValue(false)
+             loadingSelectedAddress.postValue(true)
+            _selectedLocation.postValue(latLng)
+            val selectedAddress = latLng.toLocation().toAddress(geocoderManager)
+            _selectedAddress.postValue(selectedAddress)
+            loadingSelectedAddress.postValue(false)
         }
     }
 
@@ -338,9 +299,9 @@ class MapViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    val loaded: LiveData<Boolean?> = MediatorLiveData3(_loadingArea, _loadedArea, loadingSelectedPlace)
-        .map { (loadingArea, loadedArea, loadingSelectedPlace) ->
-            loadingSelectedPlace.takeIf { it != false }
+    val loaded: LiveData<Boolean?> = MediatorLiveData3(_loadingArea, _loadedArea, loadingSelectedAddress)
+        .map { (loadingArea, loadedArea, loadingSelectedAddress) ->
+            loadingSelectedAddress.takeIf { it != false }
                 ?: loadedArea.containsEntirely(loadingArea)
         }
 

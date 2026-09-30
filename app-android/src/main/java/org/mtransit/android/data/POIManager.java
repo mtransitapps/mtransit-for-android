@@ -90,6 +90,8 @@ public class POIManager implements LocationPOI,
 	private CharSequence distanceString = null;
 	private float distance = -1f;
 	@Nullable
+	private Integer dstFavoriteFolderId = null;
+	@Nullable
 	private POIStatus status = null;
 	@Nullable
 	private ServiceUpdates serviceUpdates = null; // null == not loaded | empty == loaded w/o service updates
@@ -110,8 +112,8 @@ public class POIManager implements LocationPOI,
 	@Override
 	public String toString() {
 		return POIManager.class.getSimpleName() + '[' +
-				"poi:" + this.poi + ',' +
-				"status:" + this.status + ',' +
+				"poi:" + this.poi + ", " +
+				"status:" + this.status + ", " +
 				']';
 	}
 
@@ -119,14 +121,23 @@ public class POIManager implements LocationPOI,
 	@NonNull
 	public String toStringSimple() {
 		return POIManager.class.getSimpleName() + '[' +
-				"poi:" + this.poi.getUUID() + ',' +
-				"status:" + (this.status != null) + ',' +
-				"service updated:" + (this.serviceUpdates == null ? null : this.serviceUpdates.size()) + ',' +
+				"poi:" + this.poi.getUUID() + ", " +
+				"status:" + (this.status != null) + ", " +
+				"service updates:" + (this.serviceUpdates == null ? null : this.serviceUpdates.size()) + ", " +
 				']';
 	}
 
 	public void setInFocus(boolean inFocus) {
 		this.inFocus = inFocus;
+	}
+
+	@Nullable
+	public Integer getDstFavoriteFolderId() {
+		return dstFavoriteFolderId;
+	}
+
+	public void setDstFavoriteFolderId(@Nullable Integer dstFavoriteFolderId) {
+		this.dstFavoriteFolderId = dstFavoriteFolderId;
 	}
 
 	@Override

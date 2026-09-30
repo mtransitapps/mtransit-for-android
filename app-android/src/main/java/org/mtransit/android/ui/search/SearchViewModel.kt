@@ -24,6 +24,7 @@ import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.distanceOrNull
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
@@ -205,8 +206,15 @@ class SearchViewModel @Inject constructor(
             } else if (!lFav && rFav) {
                 return ComparatorUtils.AFTER
             }
-            val ld = lhs.distance
-            val rd = rhs.distance
+            val ld = lhs.distanceOrNull
+            val rd = rhs.distanceOrNull
+            if (ld == null && rd == null) {
+                return ComparatorUtils.SAME
+            } else if (ld == null) {
+                return ComparatorUtils.AFTER
+            } else if (rd == null) {
+                return ComparatorUtils.BEFORE
+            }
             if (ld > rd) {
                 return ComparatorUtils.AFTER
             } else if (ld < rd) {
