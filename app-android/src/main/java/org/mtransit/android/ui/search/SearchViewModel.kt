@@ -183,15 +183,8 @@ class SearchViewModel @Inject constructor(
             )
         }
 
-    class POISearchComparator(private val favoriteUUIDs: Set<String>) : Comparator<POIManager?> {
-        override fun compare(lhs: POIManager?, rhs: POIManager?): Int {
-            if (lhs == null && rhs == null) {
-                return ComparatorUtils.SAME
-            } else if (lhs == null) {
-                return ComparatorUtils.AFTER
-            } else if (rhs == null) {
-                return ComparatorUtils.BEFORE
-            }
+    class POISearchComparator(private val favoriteUUIDs: Set<String>) : Comparator<POIManager> {
+        override fun compare(lhs: POIManager, rhs: POIManager): Int {
             val lScore = lhs.poi.score ?: 0
             val rScore = rhs.poi.score ?: 0
             if (lScore > rScore) {

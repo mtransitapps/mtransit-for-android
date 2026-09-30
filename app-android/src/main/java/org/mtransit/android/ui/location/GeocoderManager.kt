@@ -40,19 +40,24 @@ class GeocoderManager(
     ): List<Address> = withContext(ioDispatcher) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             suspendCancellableCoroutine { continuation ->
-                geocoder.getFromLocation(latitude, longitude, maxResults, object : Geocoder.GeocodeListener {
-                    override fun onGeocode(addresses: List<Address>) {
-                        continuation.resume(addresses)
-                    }
+                geocoder.getFromLocation(
+                    latitude,
+                    longitude,
+                    maxResults,
+                    object : Geocoder.GeocodeListener {
+                        override fun onGeocode(addresses: List<Address>) {
+                            continuation.resume(addresses)
+                        }
 
-                    override fun onError(errorMessage: String?) {
-                        continuation.resumeWithException(IOException(errorMessage ?: "Unknown Geocoder error"))
+                        override fun onError(errorMessage: String?) {
+                            continuation.resumeWithException(IOException(errorMessage ?: "Unknown Geocoder error"))
+                        }
                     }
-                })
+                )
             }
         } else {
             @Suppress("DEPRECATION")
-            geocoder.getFromLocation(latitude, longitude, maxResults) ?: emptyList()
+            geocoder.getFromLocation(latitude, longitude, maxResults).orEmpty()
         }
     }
 
@@ -63,19 +68,23 @@ class GeocoderManager(
     ): List<Address> = withContext(ioDispatcher) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             suspendCancellableCoroutine { continuation ->
-                geocoder.getFromLocationName(locationName, maxResults, object : Geocoder.GeocodeListener {
-                    override fun onGeocode(addresses: List<Address>) {
-                        continuation.resume(addresses)
-                    }
+                geocoder.getFromLocationName(
+                    locationName,
+                    maxResults,
+                    object : Geocoder.GeocodeListener {
+                        override fun onGeocode(addresses: List<Address>) {
+                            continuation.resume(addresses)
+                        }
 
-                    override fun onError(errorMessage: String?) {
-                        continuation.resumeWithException(IOException(errorMessage ?: "Unknown Geocoder error"))
+                        override fun onError(errorMessage: String?) {
+                            continuation.resumeWithException(IOException(errorMessage ?: "Unknown Geocoder error"))
+                        }
                     }
-                })
+                )
             }
         } else {
             @Suppress("DEPRECATION")
-            geocoder.getFromLocationName(locationName, maxResults) ?: emptyList()
+            geocoder.getFromLocationName(locationName, maxResults).orEmpty()
         }
     }
 }

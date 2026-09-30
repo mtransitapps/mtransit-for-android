@@ -7,7 +7,7 @@ interface MapListener {
 
     fun onMapClick(position: LatLng) = Unit
 
-    fun onMapLongClick(position: LatLng)= Unit
+    fun onMapLongClick(position: LatLng) = Unit
 
     fun onMarkerClick(marker: IMarker?): Boolean = false
 

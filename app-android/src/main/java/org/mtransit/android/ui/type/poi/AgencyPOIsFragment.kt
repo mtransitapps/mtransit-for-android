@@ -37,7 +37,6 @@ import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.clearSelectedPlace
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -47,7 +46,6 @@ import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Compa
 import org.mtransit.android.ui.view.map.MapListener
 import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.onSelectedPlaceLocation
-import org.mtransit.android.ui.view.setSelectedPlace
 import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.LinkUtils

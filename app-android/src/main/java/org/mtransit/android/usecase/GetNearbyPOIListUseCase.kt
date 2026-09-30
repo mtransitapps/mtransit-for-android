@@ -17,6 +17,7 @@ import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.distanceOrNull
 import org.mtransit.android.data.isNoPickup
+import org.mtransit.android.data.uuid
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.location.UILocationUtils
 import org.mtransit.commons.removeAllAnd
@@ -147,13 +148,15 @@ class GetNearbyPOIListUseCase(
                             lastDistance?.let { it - poimDistance > 0.0f }
                         } == true
                     }?.distance
-                    val lastsDistanceDiff = distinctLastDistance?.let {
+                    val lastsDistanceDiff = distinctLastDistance?.let { distinctLastDistance ->
                         lastDistance?.let { it - distinctLastDistance }
                     }?.coerceAtLeast(
                         MIN_LASTS_DISTANCE_DIFF_IN_METERS
                     )
-                    val avgDistanceDiff = ((firstLastDistanceDiff ?: INITIAL_COVERAGE_IN_METERS) +
-                        (lastsDistanceDiff ?: MIN_LASTS_DISTANCE_DIFF_IN_METERS)) / 2f
+                    val avgDistanceDiff = (
+                        (firstLastDistanceDiff ?: INITIAL_COVERAGE_IN_METERS) +
+                            (lastsDistanceDiff ?: MIN_LASTS_DISTANCE_DIFF_IN_METERS)
+                        ) / 2f
                     if (nearbyPOIs.size >= 2 && avgDistanceDiff > 0f) {
                         maxDistanceInMeters = (lastDistance ?: maxDistanceInMeters) + avgDistanceDiff
                     } else {
@@ -167,8 +170,8 @@ class GetNearbyPOIListUseCase(
                 val significantDistance = firstRelevantDistance
                     ?.coerceAtLeast(.5f * INITIAL_COVERAGE_IN_METERS)
                     ?.let { it * MAX_DISTANCE_INCREASE }
-                    ?.coerceAtLeast(
-                        firstRelevantDistance + firstRelevantDistance.coerceAtLeast(.5f * INITIAL_COVERAGE_IN_METERS) // 1st relevant distance x2 ( min initial coverage)
+                    ?.coerceAtLeast( // 1st relevant distance x2 ( min initial coverage)
+                        firstRelevantDistance + firstRelevantDistance.coerceAtLeast(.5f * INITIAL_COVERAGE_IN_METERS)
                     )
                 if (
                     2f * INITIAL_COVERAGE_IN_METERS <= maxDistanceInMeters

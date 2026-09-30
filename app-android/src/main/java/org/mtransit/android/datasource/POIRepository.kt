@@ -139,7 +139,7 @@ class POIRepository(
         filter: POIProviderContract.Filter?,
         deviceLocation: Location? = null,
         comparator: Comparator<POIManager> = compareBy { null },
-        typeComparator: Comparator<POIManager?> = compareBy { null },
+        typeComparator: Comparator<POIManager> = compareBy { null },
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         typeLet: ((List<POIManager>) -> List<POIManager>?) = { it },
         onSuccess: (() -> Unit)? = null,
@@ -157,7 +157,7 @@ class POIRepository(
         filter: POIProviderContract.Filter,
         deviceLocation: Location? = null,
         comparator: Comparator<POIManager> = compareBy { null },
-        typeComparator: Comparator<POIManager?> = compareBy { null },
+        typeComparator: Comparator<POIManager> = compareBy { null },
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         letComparator: ((List<POIManager>) -> List<POIManager>?) = { it },
         context: CoroutineContext = ioDispatcher
@@ -181,7 +181,7 @@ class POIRepository(
         providers: List<IAgencyProperties>?,
         filter: POIProviderContract.Filter?,
         deviceLocation: Location? = null,
-        comparator: Comparator<POIManager?> = compareBy { null },
+        comparator: Comparator<POIManager> = compareBy { null },
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         onSuccess: (() -> Unit)? = null,
         context: CoroutineContext = EmptyCoroutineContext,
@@ -196,7 +196,7 @@ class POIRepository(
         providers: List<IAgencyProperties>,
         filter: POIProviderContract.Filter,
         deviceLocation: Location? = null,
-        comparator: Comparator<POIManager?>,
+        comparator: Comparator<POIManager>,
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         context: CoroutineContext = ioDispatcher
     ) = withContext(context) {

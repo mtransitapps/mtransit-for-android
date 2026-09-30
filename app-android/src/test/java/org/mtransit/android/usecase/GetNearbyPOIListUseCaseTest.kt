@@ -61,6 +61,7 @@ class GetNearbyPOIListUseCaseTest {
         ioDispatcher = mainDispatcherRule.testDispatcher
     )
 
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
     fun test_POI_Nearby_Connection_REM_Brossard() = runTest(mainDispatcherRule.testDispatcher) {
         val mainAgency = CA_MTL_REM

@@ -262,6 +262,7 @@
     <ID>LongParameterList:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
     <ID>LongParameterList:NewsRepository.kt:NewsRepository$fun loadingNewsArticles</ID>
     <ID>LongParameterList:POIViewModel.kt:POIViewModel</ID>
+    <ID>LongParameterList:RDSDirectionStopsViewModel.kt:RDSDirectionStopsViewModel</ID>
     <ID>LongParameterList:ScheduleAdapter.kt:ScheduleAdapter.TimeViewHolder$fun bind</ID>
     <ID>LongParameterList:SplashScreenViewModel.kt:SplashScreenViewModel</ID>
     <ID>LoopWithTooManyJumpStatements:DemoModeManager.kt:DemoModeManager$while</ID>
