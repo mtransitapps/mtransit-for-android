@@ -113,7 +113,6 @@ class GetNearbyPOIListUseCase(
                         .removeAllAnd(excludePOI)
                         .removeTooFar(getMaxDistanceInMeters(maxDistanceInMeters, nearbyAgency.type))
                         .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                        .also { newAgencyNearbyPOIs ->
                         .removeAllAnd { new -> nearbyPOIs.any { it.uuid == new.uuid } }
                         .also { newAgencyNearbyPOIs ->
                             newNearbyPOIsLoadedCount += newAgencyNearbyPOIs.size
