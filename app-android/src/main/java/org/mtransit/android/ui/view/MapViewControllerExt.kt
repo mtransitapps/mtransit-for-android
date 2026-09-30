@@ -151,6 +151,7 @@ fun MapViewController.clearSelectedPlace() = this.extendedGoogleMap?.apply {
 }
 
 fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selectedAddress: Address?) {
+    val context: Context = activityOrNull ?: return
     var usedLocation = selectedLocation
     selectedAddress?.latLng
         ?.takeIf { it.distanceToInMeters(selectedLocation) <= UILocationUtils.PLACE_USE_ADDRESS_LAT_LNG_MAX_DISTANCE_IN_METER }
