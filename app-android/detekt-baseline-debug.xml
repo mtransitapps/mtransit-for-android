@@ -151,7 +151,7 @@
     <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private val _appOpenAdShowing = MutableLiveData&lt;Boolean&gt;(null)</ID>
     <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private val _readyForNextScreen = MutableLiveData(false)</ID>
     <ID>BackingPropertyNaming:SplashScreenViewModel.kt:SplashScreenViewModel$private var _appOpenAdShowComplete = AtomicBoolean(false)</ID>
-    <ID>ComplexCondition:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$(nearbyPOIs.size &lt;= (minSize ?: 0) || newNearbyPOIsLoadedCount &gt; 0) &amp;&amp; maxDistanceInMeters &lt;= (maxCoverageInMeters ?: Float.MAX_VALUE) &amp;&amp; aroundDiff.increment &lt;= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT) &amp;&amp; !LocationUtils.searchComplete(lat, lng, aroundDiff.ad)</ID>
+    <ID>ComplexCondition:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$(nearbyPOIs.size &lt;= (minSize ?: 0) || newNearbyPOIsLoadedCount &gt; 0) &amp;&amp; maxDistanceInMeters &lt;= (enoughCoverageInMeters ?: Float.MAX_VALUE) &amp;&amp; aroundDiff.increment &lt;= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT) &amp;&amp; !LocationUtils.searchComplete(lat, lng, aroundDiff.ad)</ID>
     <ID>CyclomaticComplexMethod:AgencyPOIsFragment.kt:AgencyPOIsFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:AgencyTypeFragment.kt:AgencyTypeFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:DataSourcesReader.kt:DataSourcesReader$private suspend fun lookForNewDataSources</ID>
@@ -439,6 +439,7 @@
     <ID>TooManyFunctions:HomeViewModel.kt:HomeViewModel : MTViewModelWithLocationNewLocationAwareViewModelLocationSettingsAwareViewModelLocationPermissionAwareViewModelModuleDisabledAwareViewModel</ID>
     <ID>TooManyFunctions:IAdManager.kt:IAdManager</ID>
     <ID>TooManyFunctions:InlineBannerAdManager.kt:InlineBannerAdManager : Loggable</ID>
+    <ID>TooManyFunctions:MapViewModel.kt:MapViewModel : MTViewModelWithLocationModuleDisabledAwareViewModelLocationSettingsAwareViewModel</ID>
     <ID>TooManyFunctions:MTBillingManager.kt:MTBillingManager : LoggablePurchasesUpdatedListenerIBillingManager</ID>
     <ID>TooManyFunctions:MainActivity.kt:MainActivity : MTActivityWithLocationOnBackStackChangedListenerAnalyticsScreenIActivityIAdScreenActivityLoggableRewardedAdListener</ID>
     <ID>TooManyFunctions:MapFragment.kt:MapFragment : ABFragmentDeviceLocationListenerLocationSettingsAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>

@@ -282,8 +282,7 @@ class MapFragment :
         super.onResume()
         binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         mapViewController.onResume()
-        if (viewModel.initialVisibleArea.value != null // wait for initial visible area
-        ) {
+        if (viewModel.initialVisibleArea.value != null) { // wait for initial visible area
             mapViewController.showMap(view)
         }
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
