@@ -233,12 +233,12 @@ class MapViewModel @Inject constructor(
         return filterTypeIds
     }
 
-    private val _loadedArea = MutableLiveData<LatLngBounds?>(null)
-    private val _loadingArea = MutableLiveData<LatLngBounds>()
+    private val loadedArea = MutableLiveData<LatLngBounds?>(null)
+    private val loadingArea = MutableLiveData<LatLngBounds>()
 
     @MainThread
     fun resetLoadedPOIMarkers() {
-        this._loadedArea.value = null // loaded w/ wrong filter -> RESET -> trigger new load
+        this.loadedArea.value = null // loaded w/ wrong filter -> RESET -> trigger new load
         this._poiMarkersReset.value = Event(true)
     }
 
@@ -297,7 +297,7 @@ class MapViewModel @Inject constructor(
             }
         }
 
-    private val loadingAreaAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(filteredTypeAgencies, _loadingArea)
+    private val loadingAreaAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(filteredTypeAgencies, loadingArea)
         .map { (filteredTypeAgencies, loadingArea) ->
             loadingArea ?: return@map null // loading area REQUIRED
             filteredTypeAgencies ?: return@map null
@@ -306,7 +306,7 @@ class MapViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    val loading: LiveData<Boolean> = MediatorLiveData3(_loadingArea, _loadedArea, loadingSelectedLocationAddress)
+    val loading: LiveData<Boolean> = MediatorLiveData3(loadingArea, loadedArea, loadingSelectedLocationAddress)
         .map { (loadingArea, loadedArea, loadingSelectedLocationAddress) ->
             loadingSelectedLocationAddress == true || !loadedArea.containsEntirely(loadingArea)
         }
@@ -314,8 +314,8 @@ class MapViewModel @Inject constructor(
     @MainThread
     fun onCameraChanged(newVisibleArea: LatLngBounds, getBigCameraPosition: () -> LatLngBounds?): Boolean {
         onMapCameraMoved()
-        val loadedArea = this._loadedArea.value
-        val loadingArea = this._loadingArea.value
+        val loadedArea = this.loadedArea.value
+        val loadingArea = this.loadingArea.value
         val loaded = loadedArea.containsEntirely(newVisibleArea)
         val loading = loadingArea.containsEntirely(newVisibleArea)
         if (loaded || loading) {
@@ -329,7 +329,7 @@ class MapViewModel @Inject constructor(
         loadedArea?.apply {
             newLoadingArea = newLoadingArea.including(southwest).including(northeast)
         }
-        this._loadingArea.value = newLoadingArea // set NOW (no post)
+        this.loadingArea.value = newLoadingArea // set NOW (no post)
         return newLoadingArea != loadingArea // same area?
     }
 
@@ -338,69 +338,69 @@ class MapViewModel @Inject constructor(
     private val _poiMarkers = MutableLiveData<Collection<MTPOIMarker>?>(null)
     val poiMarkers: LiveData<Collection<MTPOIMarker>?> = _poiMarkers
 
-    val poiMarkersTrigger: LiveData<Any?> = MediatorLiveData4(loadingAreaAgencies, _loadedArea, _loadingArea, _poiMarkersReset)
+    val poiMarkersTrigger: LiveData<Any?> = MediatorLiveData4(loadingAreaAgencies, loadedArea, loadingArea, _poiMarkersReset)
         .map { (loadingAreaAgencies, loadedArea, loadingArea, poiMarkersResetEvent) ->
             loadingAreaAgencies ?: return@map null
             loadingArea ?: return@map null
             val poiMarkersReset = poiMarkersResetEvent?.getContentIfNotHandled()
-            loadPOIMarkers(loadingAreaAgencies, loadingArea, loadedArea, poiMarkersReset)
+            poiMarkersLoadJob?.cancel()
+            val reset = poiMarkersReset == true
+            if (reset) {
+                _poiMarkers.value = null
+            }
+            if (loadedArea == loadingArea) {
+                MTLog.d(this@MapViewModel, "poiMarkersTrigger.onChanged() > SKIP (loading area already loaded)")
+                return@map null
+            }
+            poiMarkersLoadJob = viewModelScope.launch(Dispatchers.IO) {
+                loadPOIMarkers(loadingAreaAgencies, loadingArea, loadedArea, reset)
+            }
             null
         }
 
     private var poiMarkersLoadJob: Job? = null
 
     @MainThread
-    private fun loadPOIMarkers(
+    private suspend fun CoroutineScope.loadPOIMarkers(
         loadingAreaAgencies: List<IAgencyNearbyUIProperties>,
         loadingArea: LatLngBounds,
         loadedArea: LatLngBounds?,
-        poiMarkersReset: Boolean?,
+        poiMarkersReset: Boolean,
     ) {
-        poiMarkersLoadJob?.cancel()
-        val reset = poiMarkersReset == true
-        if (reset) {
-            _poiMarkers.value = null
-        }
-        if (loadedArea == loadingArea) {
-            MTLog.d(this@MapViewModel, "loadPOIMarkers() > SKIP (loading area already loaded)")
-            return
-        }
-        poiMarkersLoadJob = viewModelScope.launch(Dispatchers.IO) {
-            val positionToPoiMarkers = ArrayMap<LatLng, MTPOIMarker>()
-            var positionTrunc: LatLng
-            if (!reset) {
-                _poiMarkers.value?.forEach { currentPOIMarker ->
-                    positionTrunc = MTPOIMarker.getLatLngTrunc(currentPOIMarker.position.latitude, currentPOIMarker.position.longitude)
-                    positionToPoiMarkers[positionTrunc] = positionToPoiMarkers[positionTrunc]?.apply {
-                        merge(currentPOIMarker)
-                    } ?: currentPOIMarker
-                }
+        val positionToPoiMarkers = ArrayMap<LatLng, MTPOIMarker>()
+        var positionTrunc: LatLng
+        if (!poiMarkersReset) {
+            _poiMarkers.value?.forEach { currentPOIMarker ->
+                positionTrunc = MTPOIMarker.getLatLngTrunc(currentPOIMarker.position.latitude, currentPOIMarker.position.longitude)
+                positionToPoiMarkers[positionTrunc] = positionToPoiMarkers[positionTrunc]?.apply {
+                    merge(currentPOIMarker)
+                } ?: currentPOIMarker
             }
-            var hasChanged = false
-            loadingAreaAgencies.filterNot { loadingAreaAgency ->
-                loadingAreaAgency.isEntirelyInside(loadedArea) // ignore agencies already entirely loaded
-            }.map { agency ->
-                ensureActive()
-                findAgencyPOIMarkers(agency, loadingArea, loadedArea, this).also {
-                    if (!hasChanged && it.isNotEmpty()) {
-                        hasChanged = true
-                    }
-                }
-            }.forEach { agencyPOIMarkers ->
-                ensureActive()
-                agencyPOIMarkers.forEach { (positionTrunc, poiMarker) ->
-                    positionToPoiMarkers[positionTrunc] = positionToPoiMarkers[positionTrunc]?.apply {
-                        merge(poiMarker)
-                    } ?: poiMarker
-                }
-            }
+        }
+        var hasChanged = false
+        loadingAreaAgencies.filterNot { loadingAreaAgency ->
+            loadingAreaAgency.isEntirelyInside(loadedArea) // ignore agencies already entirely loaded
+        }.map { agency ->
             ensureActive()
-            if (loadedArea != loadingArea) {
-                _loadedArea.postValue(loadingArea) // LOADED DONE
+            findAgencyPOIMarkers(agency, loadingArea, loadedArea, this).also {
+                if (!hasChanged && it.isNotEmpty()) {
+                    hasChanged = true
+                }
             }
-            if (hasChanged) {
-                _poiMarkers.postValue(positionToPoiMarkers.values)
+        }.forEach { agencyPOIMarkers ->
+            ensureActive()
+            agencyPOIMarkers.forEach { (positionTrunc, poiMarker) ->
+                positionToPoiMarkers[positionTrunc] = positionToPoiMarkers[positionTrunc]?.apply {
+                    merge(poiMarker)
+                } ?: poiMarker
             }
+        }
+        ensureActive()
+        if (loadedArea != loadingArea) {
+            this@MapViewModel.loadedArea.postValue(loadingArea) // LOADED DONE
+        }
+        if (hasChanged) {
+            _poiMarkers.postValue(positionToPoiMarkers.values)
         }
     }
 
