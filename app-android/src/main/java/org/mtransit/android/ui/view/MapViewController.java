@@ -304,18 +304,20 @@ public class MapViewController implements
 			this.mapView.post(new Runnable() {
 				@Override
 				public void run() {
-					try {
-						MapViewController.this.mapView.onCreate(MapViewController.this.lastSavedInstanceState);
-					} catch (Exception e) {
-						MTLog.w(this, e, "Error while creating map view with '%s' (trying again)", MapViewController.this.lastSavedInstanceState);
-						MapViewController.this.mapView.onCreate(null);
+					if (MapViewController.this.mapView != null) {
+						try {
+							MapViewController.this.mapView.onCreate(MapViewController.this.lastSavedInstanceState);
+						} catch (Exception e) {
+							MTLog.w(this, e, "Error while creating map view with '%s' (trying again)", MapViewController.this.lastSavedInstanceState);
+							MapViewController.this.mapView.onCreate(null);
+						}
+						if (MapViewController.this.needToResumeMap) {
+							MapViewController.this.mapView.onResume();
+							MapViewController.this.needToResumeMap = false;
+						}
+						MapViewController.this.lastSavedInstanceState = null;
+						MapViewController.this.mapView.getMapAsync(MapViewController.this);
 					}
-					if (MapViewController.this.needToResumeMap) {
-						MapViewController.this.mapView.onResume();
-						MapViewController.this.needToResumeMap = false;
-					}
-					MapViewController.this.lastSavedInstanceState = null;
-					MapViewController.this.mapView.getMapAsync(MapViewController.this);
 				}
 			});
 		}
@@ -680,7 +682,6 @@ public class MapViewController implements
 
 	@Override
 	public boolean onMarkerClick(@Nullable IMarker marker) {
-		clearSelectedPlace(this);
 		if (marker == null) return false; // not handled
 		final MapListener mapListener = this.config.getMapListener();
 		if (mapListener != null && mapListener.onMarkerClick(marker)) return true; // handled
