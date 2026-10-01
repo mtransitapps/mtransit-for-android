@@ -25,7 +25,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
-import org.mtransit.android.toDateTimeLog
+import org.mtransit.android.commons.toDateTimeLog
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.user.UserManager
 import java.util.concurrent.atomic.AtomicBoolean

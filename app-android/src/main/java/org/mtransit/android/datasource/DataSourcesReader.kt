@@ -33,8 +33,8 @@ import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
-import org.mtransit.android.toDateTimeLog
-import org.mtransit.android.toDurationLog
+import org.mtransit.android.commons.toDateTimeLog
+import org.mtransit.android.commons.toDurationLog
 import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

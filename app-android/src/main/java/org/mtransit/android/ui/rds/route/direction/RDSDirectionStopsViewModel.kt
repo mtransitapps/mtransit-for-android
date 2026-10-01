@@ -40,7 +40,7 @@ import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.location.GeocoderManager
-import org.mtransit.android.ui.location.toAddress
+import org.mtransit.android.ui.location.toAddressOrNull
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -283,17 +283,24 @@ class RDSDirectionStopsViewModel @Inject constructor(
     private val _selectedLocation = MutableLiveData<LatLng?>()
     val selectedLocation: LiveData<LatLng?> = _selectedLocation
 
-    private val loadingSelectedAddress = MutableLiveData<Boolean>()
+    private val loadingSelectedLocationAddress = MutableLiveData<Boolean>()
     private val _selectedAddress = MutableLiveData<Address?>()
     val selectedAddress: LiveData<Address?> = _selectedAddress
 
-    fun onSelectedPlaceLocation(latLng: LatLng) {
-        viewModelScope.launch(Dispatchers.IO) {
-            loadingSelectedAddress.postValue(true)
-            _selectedLocation.postValue(latLng)
-            val selectedAddress = latLng.toLocation().toAddress(geocoderManager)
+    fun onLocationSelected(selectedLocation: LatLng) {
+        _selectedLocation.postValue(selectedLocation)
+        loadSelectedLocationAddress(selectedLocation)
+    }
+
+    private var loadSelectedLocationAddressJob: Job? = null
+
+    private fun loadSelectedLocationAddress(selectedLocation: LatLng) {
+        loadSelectedLocationAddressJob?.cancel()
+        loadSelectedLocationAddressJob = viewModelScope.launch(Dispatchers.IO) {
+            loadingSelectedLocationAddress.postValue(true)
+            val selectedAddress = selectedLocation.toLocation().toAddressOrNull(geocoderManager)
             _selectedAddress.postValue(selectedAddress)
-            loadingSelectedAddress.postValue(false)
+            loadingSelectedLocationAddress.postValue(false)
         }
     }
 }

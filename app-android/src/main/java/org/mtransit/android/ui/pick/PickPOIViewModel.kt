@@ -121,7 +121,7 @@ class PickPOIViewModel @Inject constructor(
                         fixedOnLng,
                         allAgencies,
                         minSize = null,
-                        maxCoverageInMeters = UILocationUtils.MAX_NEARBY_RELEVANT_COVERAGE_IN_METERS,
+                        enoughCoverageInMeters = UILocationUtils.MAX_NEARBY_RELEVANT_COVERAGE_IN_METERS,
                         excludeAgency = { agency ->
                             !agency.type.isNearbyScreen
                                 || agency.type == DataSourceType.TYPE_MODULE

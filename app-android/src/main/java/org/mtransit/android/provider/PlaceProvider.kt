@@ -342,7 +342,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             /**
              * Override if multiple [PlaceDbHelper] in same app.
              */
-            const val DB_VERSION = 4
+            const val DB_VERSION = 5
 
             const val T_PLACE = POIProvider.POIDbHelper.T_POI
             val T_PLACE_K_PROVIDER_ID = POIProvider.POIDbHelper.getFkColumnName("provider_id")

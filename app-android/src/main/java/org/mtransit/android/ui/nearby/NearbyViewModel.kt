@@ -44,7 +44,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
 import org.mtransit.android.ui.location.GeocoderManager
 import org.mtransit.android.ui.location.UILocationUtils.getLocationString
-import org.mtransit.android.ui.location.toAddress
+import org.mtransit.android.ui.location.toAddressOrNull
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -172,8 +172,8 @@ class NearbyViewModel @Inject constructor(
 
     private val locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            nearbyLocation?.toAddress(geocoderManager)?.let {
-                emit(it)
+            nearbyLocation?.toAddressOrNull(geocoderManager)?.let { nearbyAddress ->
+                emit(nearbyAddress)
             }
         }
     }

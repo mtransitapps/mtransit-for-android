@@ -71,7 +71,7 @@ class GetNearbyPOIListUseCase(
         minSize: Int? = UILocationUtils.MIN_NEARBY_LIST,
         maxSize: Int = UILocationUtils.MAX_NEARBY_LIST,
         minCoverageInMeters: Float = UILocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS,
-        maxCoverageInMeters: Float? = null,
+        enoughCoverageInMeters: Float? = null,
         getMaxDistanceInMeters: (maxDistanceInMeters: Float, dst: DataSourceType) -> Float = { maxDistanceInMeters, _ ->
             maxDistanceInMeters
         },
@@ -131,7 +131,7 @@ class GetNearbyPOIListUseCase(
             @Suppress("SimplifyBooleanWithConstants")
             if (mainAgency == null || SAME_LOGIC_FOR_TARGET_AGENCY) {
                 if ((nearbyPOIs.size <= (minSize ?: 0) || newNearbyPOIsLoadedCount > 0)
-                    && maxDistanceInMeters <= (maxCoverageInMeters ?: Float.MAX_VALUE)
+                    && maxDistanceInMeters <= (enoughCoverageInMeters ?: Float.MAX_VALUE)
                     && aroundDiff.increment <= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT)
                     && !LocationUtils.searchComplete(lat, lng, aroundDiff.ad) // world explored
                 ) {

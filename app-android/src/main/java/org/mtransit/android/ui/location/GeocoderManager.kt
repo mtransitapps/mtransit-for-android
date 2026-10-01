@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import org.mtransit.android.commons.MTLog
 import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
@@ -20,7 +21,7 @@ import kotlin.coroutines.resumeWithException
 class GeocoderManager(
     @ApplicationContext private val appContext: Context,
     private val ioDispatcher: CoroutineDispatcher,
-) {
+) : MTLog.Loggable {
 
     @Inject
     constructor(
@@ -29,6 +30,12 @@ class GeocoderManager(
         appContext = appContext,
         ioDispatcher = Dispatchers.IO,
     )
+
+    companion object {
+        private val LOG_TAG: String = GeocoderManager::class.java.simpleName
+    }
+
+    override fun getLogTag() = LOG_TAG
 
     private val geocoder: Geocoder by lazy {
         Geocoder(appContext, Locale.getDefault())
@@ -92,5 +99,15 @@ class GeocoderManager(
     }
 }
 
-suspend fun Location.toAddress(geocoderManager: GeocoderManager): Address? =
-    geocoderManager.getAddressesFromLocation(this.latitude, this.longitude, maxResults = 1).firstOrNull()
+suspend fun Location.toAddressOrNull(geocoderManager: GeocoderManager): Address? {
+    return try {
+        geocoderManager.getAddressesFromLocation(this.latitude, this.longitude, maxResults = 1).firstOrNull()
+    } catch (ioe: IOException) {
+        if (MTLog.isLoggable(android.util.Log.DEBUG)) {
+            MTLog.w(GeocoderManager, ioe, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+        } else {
+            MTLog.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+        }
+        null
+    }
+}

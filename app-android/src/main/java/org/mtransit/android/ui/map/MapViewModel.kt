@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Location
+import androidx.annotation.MainThread
 import androidx.collection.ArrayMap
 import androidx.core.content.edit
 import androidx.core.location.component1
@@ -46,7 +47,7 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.location.GeocoderManager
 import org.mtransit.android.ui.location.UILocationUtils
-import org.mtransit.android.ui.location.toAddress
+import org.mtransit.android.ui.location.toAddressOrNull
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -124,17 +125,24 @@ class MapViewModel @Inject constructor(
     private val _selectedLocation = MutableLiveData<LatLng?>()
     val selectedLocation: LiveData<LatLng?> = _selectedLocation
 
-    private val loadingSelectedAddress = MutableLiveData<Boolean>()
+    private val loadingSelectedLocationAddress = MutableLiveData<Boolean>()
     private val _selectedAddress = MutableLiveData<Address?>()
     val selectedAddress: LiveData<Address?> = _selectedAddress
 
-    fun onSelectedPlaceLocation(latLng: LatLng) {
-        viewModelScope.launch(Dispatchers.IO) {
-            loadingSelectedAddress.postValue(true)
-            _selectedLocation.postValue(latLng)
-            val selectedAddress = latLng.toLocation().toAddress(geocoderManager)
+    fun onLocationSelected(selectedLocation: LatLng) {
+        _selectedLocation.postValue(selectedLocation)
+        loadSelectedLocationAddress(selectedLocation)
+    }
+
+    private var loadSelectedLocationAddressJob: Job? = null
+
+    private fun loadSelectedLocationAddress(selectedLocation: LatLng) {
+        loadSelectedLocationAddressJob?.cancel()
+        loadSelectedLocationAddressJob = viewModelScope.launch(Dispatchers.IO) {
+            loadingSelectedLocationAddress.postValue(true)
+            val selectedAddress = selectedLocation.toLocation().toAddressOrNull(geocoderManager)
             _selectedAddress.postValue(selectedAddress)
-            loadingSelectedAddress.postValue(false)
+            loadingSelectedLocationAddress.postValue(false)
         }
     }
 
@@ -150,8 +158,7 @@ class MapViewModel @Inject constructor(
         it.filter { dst -> dst.isMapScreen }
     }
 
-    private val includedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_INCLUDE_TYPE_ID, EXTRA_INCLUDE_TYPE_ID_DEFAULT)
-        .map { if (it < 0) null else it }
+    private val includedTypeIdOrDefault = savedStateHandle.getLiveDataDistinct(EXTRA_INCLUDE_TYPE_ID, EXTRA_INCLUDE_TYPE_ID_DEFAULT)
 
     private val filterTypeIdsPref: LiveData<Set<String>> = lclPrefRepository.pref.liveData(
         LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS, LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT
@@ -165,20 +172,19 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    val filterTypeIds: LiveData<Collection<Int>?> = MediatorLiveData3(mapTypes, filterTypeIdsPref, includedTypeId)
-        .map { (mapTypes, filterTypeIdsPref, includedTypeId) ->
-            makeFilterTypeId(mapTypes, filterTypeIdsPref, includedTypeId)
+    val filterTypeIds: LiveData<Collection<Int>?> = MediatorLiveData3(mapTypes, filterTypeIdsPref, includedTypeIdOrDefault)
+        .map { (mapTypes, filterTypeIdsPref, includedTypeIdOrDefault) ->
+            mapTypes ?: return@map null
+            filterTypeIdsPref ?: return@map null
+            includedTypeIdOrDefault ?: return@map null
+            makeFilterTypeId(mapTypes, filterTypeIdsPref, includedTypeIdOrDefault)
         }.distinctUntilChanged()
 
     private fun makeFilterTypeId(
-        availableTypes: List<DataSourceType>?,
-        filterTypeIdsPref: Set<String>?,
-        inclTypeId: Int? = null,
-    ): Collection<Int>? {
-        if (filterTypeIdsPref == null || availableTypes == null) {
-            MTLog.d(this, "makeFilterTypeId() > SKIP (no pref or available types")
-            return null
-        }
+        availableTypes: List<DataSourceType>,
+        filterTypeIdsPref: Set<String>,
+        includedTypeIdOrDefault: Int,
+    ): Collection<Int> {
         val filterTypeIds = mutableSetOf<Int>()
         var prefHasChanged = false
         filterTypeIdsPref.forEach { typeIdString ->
@@ -200,7 +206,7 @@ class MapViewModel @Inject constructor(
                 prefHasChanged = true
             }
         }
-        inclTypeId?.let { includedTypeId ->
+        includedTypeIdOrDefault.takeIf { it != EXTRA_INCLUDE_TYPE_ID_DEFAULT }?.let { includedTypeId ->
             if (filterTypeIds.isNotEmpty() && !filterTypeIds.contains(includedTypeId)) {
                 prefHasChanged = try {
                     val type = DataSourceType.parseId(includedTypeId)
@@ -228,14 +234,15 @@ class MapViewModel @Inject constructor(
     }
 
     private val _loadedArea = MutableLiveData<LatLngBounds?>(null)
-    private val _loadingArea = MutableLiveData<LatLngBounds?>(null)
+    private val _loadingArea = MutableLiveData<LatLngBounds>()
 
+    @MainThread
     fun resetLoadedPOIMarkers() {
         this._loadedArea.value = null // loaded w/ wrong filter -> RESET -> trigger new load
         this._poiMarkersReset.value = Event(true)
     }
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
+    private val allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
     private val mapCameraMoved = savedStateHandle.getLiveDataDistinct(EXTRA_MAP_CAMERA_MOVED, false)
 
@@ -247,7 +254,7 @@ class MapViewModel @Inject constructor(
         it?.let { (lat, lng) -> LatLng(lat.roundTo(3), lng.roundTo(3)) }
     }.distinctUntilChanged()
 
-    val initialVisibleArea: LiveData<Collection<LatLng>?> = MediatorLiveData3(mapCameraMoved, stableDeviceLatLng, _allAgencies)
+    val initialVisibleArea: LiveData<Collection<LatLng>?> = MediatorLiveData3(mapCameraMoved, stableDeviceLatLng, allAgencies)
         .switchMap { (mapCameraMoved, deviceLocation, allAgencies) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 mapCameraMoved ?: return@liveData
@@ -260,7 +267,7 @@ class MapViewModel @Inject constructor(
                     minSize = 1,
                     maxSize = 1,
                     minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
-                    maxCoverageInMeters = UILocationUtils.MAX_NEARBY_RELEVANT_COVERAGE_IN_METERS,
+                    enoughCoverageInMeters = UILocationUtils.MAX_NEARBY_RELEVANT_COVERAGE_IN_METERS,
                     excludeAgency = { agency ->
                         !agency.type.isMapScreen
                             || agency.type == DataSourceType.TYPE_MODULE
@@ -280,38 +287,39 @@ class MapViewModel @Inject constructor(
             }
         }
 
-    val typeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(_allAgencies, filterTypeIds)
+    val filteredTypeAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(allAgencies, filterTypeIds)
         .map { (allAgencies, filterTypeIds) ->
-            filterTypeIds?.let { theFilterTypeIds ->
-                allAgencies?.filter { agency ->
-                    agency.getSupportedType().isMapScreen
-                        && (theFilterTypeIds.isEmpty() || theFilterTypeIds.contains(agency.getSupportedType().id))
-                }
+            filterTypeIds ?: return@map null
+            allAgencies ?: return@map null
+            allAgencies.filter { agency ->
+                agency.getSupportedType().isMapScreen
+                    && (filterTypeIds.isEmpty() || filterTypeIds.contains(agency.getSupportedType().id))
             }
         }
 
-    private val areaTypeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(typeMapAgencies, _loadingArea)
-        .map { (typeMapAgencies, loadingArea) ->
-            loadingArea?.let { theLoadingArea -> // loading area REQUIRED
-                typeMapAgencies?.filter { agency ->
-                    agency.isInArea(theLoadingArea)
-                }
+    private val loadingAreaAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(filteredTypeAgencies, _loadingArea)
+        .map { (filteredTypeAgencies, loadingArea) ->
+            loadingArea ?: return@map null // loading area REQUIRED
+            filteredTypeAgencies ?: return@map null
+            filteredTypeAgencies.filter { agency ->
+                agency.isInArea(loadingArea)
             }
         }.distinctUntilChanged()
 
-    val loaded: LiveData<Boolean?> = MediatorLiveData3(_loadingArea, _loadedArea, loadingSelectedAddress)
-        .map { (loadingArea, loadedArea, loadingSelectedAddress) ->
-            loadingSelectedAddress.takeIf { it != false }
-                ?: loadedArea.containsEntirely(loadingArea)
+    val loading: LiveData<Boolean> = MediatorLiveData3(_loadingArea, _loadedArea, loadingSelectedLocationAddress)
+        .map { (loadingArea, loadedArea, loadingSelectedLocationAddress) ->
+            loadingSelectedLocationAddress == true || !loadedArea.containsEntirely(loadingArea)
         }
 
+    @MainThread
     fun onCameraChanged(newVisibleArea: LatLngBounds, getBigCameraPosition: () -> LatLngBounds?): Boolean {
         onMapCameraMoved()
-        val loadedArea: LatLngBounds? = this._loadedArea.value
-        val loadingArea: LatLngBounds? = this._loadingArea.value
+        val loadedArea = this._loadedArea.value
+        val loadingArea = this._loadingArea.value
         val loaded = loadedArea.containsEntirely(newVisibleArea)
         val loading = loadingArea.containsEntirely(newVisibleArea)
         if (loaded || loading) {
+            MTLog.d(this, "onCameraChanged() > SKIP (no change)")
             return false // no change
         }
         var newLoadingArea: LatLngBounds = getBigCameraPosition() ?: newVisibleArea
@@ -330,44 +338,49 @@ class MapViewModel @Inject constructor(
     private val _poiMarkers = MutableLiveData<Collection<MTPOIMarker>?>(null)
     val poiMarkers: LiveData<Collection<MTPOIMarker>?> = _poiMarkers
 
-    val poiMarkersTrigger: LiveData<Any?> = MediatorLiveData4(areaTypeMapAgencies, _loadedArea, _loadingArea, _poiMarkersReset)
-        .map {
-            loadPOIMarkers()
+    val poiMarkersTrigger: LiveData<Any?> = MediatorLiveData4(loadingAreaAgencies, _loadedArea, _loadingArea, _poiMarkersReset)
+        .map { (loadingAreaAgencies, loadedArea, loadingArea, poiMarkersResetEvent) ->
+            loadingAreaAgencies ?: return@map null
+            loadingArea ?: return@map null
+            val poiMarkersReset = poiMarkersResetEvent?.getContentIfNotHandled()
+            loadPOIMarkers(loadingAreaAgencies, loadingArea, loadedArea, poiMarkersReset)
             null
         }
 
     private var poiMarkersLoadJob: Job? = null
 
-    private fun loadPOIMarkers() {
+    @MainThread
+    private fun loadPOIMarkers(
+        loadingAreaAgencies: List<IAgencyNearbyUIProperties>,
+        loadingArea: LatLngBounds,
+        loadedArea: LatLngBounds?,
+        poiMarkersReset: Boolean?,
+    ) {
         poiMarkersLoadJob?.cancel()
-        val reset: Boolean = _poiMarkersReset.value?.getContentIfNotHandled() == true
+        val reset = poiMarkersReset == true
         if (reset) {
             _poiMarkers.value = null
+        if (loadedArea == loadingArea) {
+            MTLog.d(this@MapViewModel, "loadPOIMarkers() > SKIP (loading area already loaded)")
+            return
         }
         poiMarkersLoadJob = viewModelScope.launch(Dispatchers.IO) {
-            val areaTypeMapAgencies: List<IAgencyNearbyUIProperties>? = areaTypeMapAgencies.value
-            val loadedArea: LatLngBounds? = _loadedArea.value
-            val loadingArea: LatLngBounds? = _loadingArea.value
-            val currentPOIMarkers: Collection<MTPOIMarker>? = _poiMarkers.value
-            if (loadingArea == null || areaTypeMapAgencies == null) {
-                MTLog.d(this@MapViewModel, "loadPOIMarkers() > SKIP (no loading area OR agencies)")
-                return@launch // SKIP (missing loading area or agencies)
-            }
             val positionToPoiMarkers = ArrayMap<LatLng, MTPOIMarker>()
             var positionTrunc: LatLng
             if (!reset) {
-                currentPOIMarkers?.forEach { poiMarker ->
-                    positionTrunc = MTPOIMarker.getLatLngTrunc(poiMarker.position.latitude, poiMarker.position.longitude)
+                _poiMarkers.value?.forEach { currentPOIMarker ->
+                    positionTrunc = MTPOIMarker.getLatLngTrunc(currentPOIMarker.position.latitude, currentPOIMarker.position.longitude)
                     positionToPoiMarkers[positionTrunc] = positionToPoiMarkers[positionTrunc]?.apply {
-                        merge(poiMarker)
-                    } ?: poiMarker
+                        merge(currentPOIMarker)
+                    } ?: currentPOIMarker
                 }
             }
             var hasChanged = false
-            areaTypeMapAgencies.filter { agency ->
-                !agency.isEntirelyInside(loadedArea)
+            loadingAreaAgencies.filterNot { loadingAreaAgency ->
+                loadingAreaAgency.isEntirelyInside(loadedArea) // ignore agencies already entirely loaded
             }.map { agency ->
-                getAgencyPOIMarkers(agency, loadingArea, loadedArea, this).also {
+                ensureActive()
+                findAgencyPOIMarkers(agency, loadingArea, loadedArea, this).also {
                     if (!hasChanged && it.isNotEmpty()) {
                         hasChanged = true
                     }
@@ -390,7 +403,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getAgencyPOIMarkers(
+    private suspend fun findAgencyPOIMarkers(
         agency: IAgencyNearbyUIProperties,
         loadingArea: LatLngBounds,
         loadedArea: LatLngBounds? = null,
@@ -398,14 +411,14 @@ class MapViewModel @Inject constructor(
     ): ArrayMap<LatLng, MTPOIMarker> {
         val clusterItems = ArrayMap<LatLng, MTPOIMarker>()
         val poiFilter = POIProviderContract.Filter.getNewAreaFilter(
-            loadingArea.let { min(it.northeast.latitude, it.southwest.latitude) }, // MIN LAT
-            loadingArea.let { max(it.northeast.latitude, it.southwest.latitude) }, // MAX LAT
-            loadingArea.let { min(it.northeast.longitude, it.southwest.longitude) }, // MIN LNG
-            loadingArea.let { max(it.northeast.longitude, it.southwest.longitude) }, // MAX LNG
-            loadedArea?.let { min(it.northeast.latitude, it.southwest.latitude) },
-            loadedArea?.let { max(it.northeast.latitude, it.southwest.latitude) },
-            loadedArea?.let { min(it.northeast.longitude, it.southwest.longitude) },
-            loadedArea?.let { max(it.northeast.longitude, it.southwest.longitude) },
+            minLat = loadingArea.let { min(it.northeast.latitude, it.southwest.latitude) },
+            maxLat = loadingArea.let { max(it.northeast.latitude, it.southwest.latitude) },
+            minLng = loadingArea.let { min(it.northeast.longitude, it.southwest.longitude) },
+            maxLng = loadingArea.let { max(it.northeast.longitude, it.southwest.longitude) },
+            optLoadedMinLat = loadedArea?.let { min(it.northeast.latitude, it.southwest.latitude) },
+            optLoadedMaxLat = loadedArea?.let { max(it.northeast.latitude, it.southwest.latitude) },
+            optLoadedMinLng = loadedArea?.let { min(it.northeast.longitude, it.southwest.longitude) },
+            optLoadedMaxLng = loadedArea?.let { max(it.northeast.longitude, it.southwest.longitude) },
         )
         coroutineScope.ensureActive()
         val agencyPOIs = poiRepository.findPOIMs(agency, poiFilter)

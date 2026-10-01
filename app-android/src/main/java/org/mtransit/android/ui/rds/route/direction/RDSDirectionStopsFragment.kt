@@ -180,7 +180,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     private val mapListener = object : MapListener {
 
         override fun onMapLongClick(position: LatLng) {
-            viewModel.onSelectedPlaceLocation(position)
+            viewModel.onLocationSelected(position)
         }
     }
 

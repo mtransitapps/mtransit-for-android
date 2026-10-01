@@ -147,7 +147,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     private val mapListener = object : MapListener {
 
         override fun onMapLongClick(position: LatLng) {
-            viewModel.onSelectedPlaceLocation(position)
+            viewModel.onLocationSelected(position)
         }
     }
 

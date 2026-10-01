@@ -2,7 +2,7 @@ package org.mtransit.android.ui.view
 
 import android.content.Context
 import android.location.Address
-import com.google.android.gms.maps.MapView
+import android.view.View
 import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.R
 import org.mtransit.android.commons.LocationUtils
@@ -133,16 +133,24 @@ fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
     }
 }
 
-fun MapViewController.respondToLayoutChanges(mapView: MapView) {
-    mapView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
-        val heightChanged = bottom != oldBottom // banner ad show/hide
-        if (heightChanged && oldBottom > 0) {
-            if (initialMapCameraSetup) {
-                initialMapCameraSetup = false
-                setupInitialCamera()
+fun MapViewController.addOnLayoutChangeListener() {
+    mapView?.addOnLayoutChangeListener(
+        this.layoutChangeListener ?: View.OnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+            val heightChanged = bottom != oldBottom // banner ad show/hide
+            if (heightChanged && oldBottom > 0) {
+                if (initialMapCameraSetup) {
+                    initialMapCameraSetup = false
+                    setupInitialCamera()
+                }
             }
+        }.also {
+            this.layoutChangeListener = it
         }
-    }
+    )
+}
+
+fun MapViewController.removeOnLayoutChangeListener() {
+    this.layoutChangeListener?.let { mapView?.removeOnLayoutChangeListener(it) }
 }
 
 fun MapViewController.clearSelectedPlace() = this.extendedGoogleMap?.apply {

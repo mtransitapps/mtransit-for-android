@@ -3,7 +3,8 @@ package org.mtransit.android.ui.view;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedPlace;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
-import static org.mtransit.android.ui.view.MapViewControllerExtKt.respondToLayoutChanges;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.addOnLayoutChangeListener;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeOnLayoutChangeListener;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
 
 import android.annotation.SuppressLint;
@@ -120,7 +121,7 @@ public class MapViewController implements
 	@Nullable
 	private WeakReference<Activity> activityWR;
 	@Nullable
-	private MapView mapView;
+	protected MapView mapView;
 	@Nullable
 	private View loadingMapView;
 	@Nullable
@@ -150,6 +151,9 @@ public class MapViewController implements
 			showMapInternal(null);
 		}
 	}
+
+	@Nullable
+	protected View.OnLayoutChangeListener layoutChangeListener = null;
 
 	private boolean initialMapCameraSetup = false;
 
@@ -1262,7 +1266,6 @@ public class MapViewController implements
 	}
 
 	public void onStart() {
-		MTLog.d(this, "onStart()");
 		final MapView mapView = getMapViewOrNull();
 		if (mapView == null) {
 			MTLog.d(this, "onStart() > SKIP (no map)");
@@ -1272,7 +1275,6 @@ public class MapViewController implements
 	}
 
 	public void onStop() {
-		MTLog.d(this, "onStop()");
 		final MapView mapView = getMapViewOrNull();
 		if (mapView == null) {
 			MTLog.d(this, "onStop() > SKIP (no map)");
@@ -1293,8 +1295,8 @@ public class MapViewController implements
 		mapView.onResume();
 		this.needToResumeMap = false;
 		showMapInternal(null);
+		addOnLayoutChangeListener(this);
 		setMapType(getMapType());
-		respondToLayoutChanges(this, mapView);
 		return true; // resumed
 	}
 
@@ -1408,6 +1410,7 @@ public class MapViewController implements
 	}
 
 	public void onDestroyView() {
+		removeOnLayoutChangeListener(this);
 		destroyMapView();
 		this.mapVisible = false;
 		this.waitingForGlobalLayout = false;

@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.poi.POIProviderContract
@@ -23,7 +24,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.location.GeocoderManager
-import org.mtransit.android.ui.location.toAddress
+import org.mtransit.android.ui.location.toAddressOrNull
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.ui.view.map.toLocation
@@ -118,17 +119,24 @@ class AgencyPOIsViewModel @Inject constructor(
     private val _selectedLocation = MutableLiveData<LatLng?>()
     val selectedLocation: LiveData<LatLng?> = _selectedLocation
 
-    private val loadingSelectedAddress = MutableLiveData<Boolean>()
+    private val loadingSelectedLocationAddress = MutableLiveData<Boolean>()
     private val _selectedAddress = MutableLiveData<Address?>()
     val selectedAddress: LiveData<Address?> = _selectedAddress
 
-    fun onSelectedPlaceLocation(latLng: LatLng) {
-        viewModelScope.launch(Dispatchers.IO) {
-            loadingSelectedAddress.postValue(true)
-            _selectedLocation.postValue(latLng)
-            val selectedAddress = latLng.toLocation().toAddress(geocoderManager)
+    fun onLocationSelected(selectedLocation: LatLng) {
+        _selectedLocation.postValue(selectedLocation)
+        loadSelectedLocationAddress(selectedLocation)
+    }
+
+    private var loadSelectedLocationAddressJob: Job? = null
+
+    private fun loadSelectedLocationAddress(selectedLocation: LatLng) {
+        loadSelectedLocationAddressJob?.cancel()
+        loadSelectedLocationAddressJob = viewModelScope.launch(Dispatchers.IO) {
+            loadingSelectedLocationAddress.postValue(true)
+            val selectedAddress = selectedLocation.toLocation().toAddressOrNull(geocoderManager)
             _selectedAddress.postValue(selectedAddress)
-            loadingSelectedAddress.postValue(false)
+            loadingSelectedLocationAddress.postValue(false)
         }
     }
 }

@@ -125,7 +125,7 @@ class MapFragment :
     private val mapListener = object : MapListener {
 
         override fun onMapLongClick(position: LatLng) {
-            viewModel.onSelectedPlaceLocation(position)
+            viewModel.onLocationSelected(position)
         }
 
         override fun onCameraChanged(latLngBounds: LatLngBounds, zoom: Float) {
@@ -230,16 +230,19 @@ class MapFragment :
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABTitle(this, getABTitle(context), true)
         }
-        viewModel.typeMapAgencies.observe(viewLifecycleOwner) {
+        viewModel.mapTypes.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.filteredTypeAgencies.observe(viewLifecycleOwner) {
             viewModel.resetLoadedPOIMarkers()
         }
         viewModel.poiMarkersTrigger.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
-        viewModel.loaded.observe(viewLifecycleOwner) {
-            if (it == false) {
+        viewModel.loading.observe(viewLifecycleOwner) { loading ->
+            if (loading) {
                 mapViewController.showLoading()
-            } else if (it == true) {
+            } else {
                 mapViewController.hideLoading()
             }
         }
@@ -279,7 +282,8 @@ class MapFragment :
         super.onResume()
         binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         mapViewController.onResume()
-        if (viewModel.initialVisibleArea.value != null) {
+        if (viewModel.initialVisibleArea.value != null // wait for initial visible area
+        ) {
             mapViewController.showMap(view)
         }
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
