@@ -360,6 +360,7 @@ class MapViewModel @Inject constructor(
         val reset = poiMarkersReset == true
         if (reset) {
             _poiMarkers.value = null
+        }
         if (loadedArea == loadingArea) {
             MTLog.d(this@MapViewModel, "loadPOIMarkers() > SKIP (loading area already loaded)")
             return
