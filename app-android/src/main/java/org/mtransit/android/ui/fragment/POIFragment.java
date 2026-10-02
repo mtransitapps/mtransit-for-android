@@ -85,6 +85,7 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
+import org.mtransit.android.data.POIArrayAdapterExtKt;
 import org.mtransit.android.data.POIListFooterManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
@@ -554,7 +555,7 @@ public class POIFragment extends ABFragment implements
 			if (removed) {
 				onDataSourceRemoved();
 			}
-			return null;
+			return kotlin.Unit.INSTANCE;
 		}));
 		viewModel.getPoiAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
@@ -692,8 +693,7 @@ public class POIFragment extends ABFragment implements
 
 	private void onNearbyPOIsLoaded(@Nullable List<POIManager> nearbyPOIs) {
 		if (this.nearbyListAdapter == null) return;
-		this.nearbyListAdapter.setPois(nearbyPOIs);
-		this.nearbyListAdapter.updateDistanceNowAsync(this.deviceLocation);
+		POIArrayAdapterExtKt.setPoisUpdateDistanceAndClosest(this.nearbyListAdapter, nearbyPOIs, this.deviceLocation);
 		this.nearbyListAdapter.initManual();
 		if (this.nearbyListAdapter.getPoisCount() > 0) {
 			showNearbyList();

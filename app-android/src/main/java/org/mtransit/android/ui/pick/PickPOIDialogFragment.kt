@@ -20,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.data.POIArrayAdapter
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -178,8 +179,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
         }
         this.adapter.onCreateView(viewLifecycleOwner)
         viewModel.poiNearbyList.observe(viewLifecycleOwner) { poiList ->
-            adapter.setPois(poiList)
-            adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+            adapter.setPoisUpdateDistanceAndClosest(poiList, viewModel.deviceLocation.value)
             adapter.initManual()
             setupListLoadingEmpty()
         }

@@ -17,6 +17,7 @@ import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -324,8 +325,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
-            listAdapter.setPois(poiList)
-            listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
+            listAdapter.setPoisUpdateDistanceAndClosest(poiList, parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged()
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)

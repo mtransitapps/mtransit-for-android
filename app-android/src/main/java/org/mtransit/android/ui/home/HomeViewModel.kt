@@ -268,7 +268,9 @@ class HomeViewModel @Inject constructor(
             filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters, typeMaxByType)
             typePOIs.sortWith(POI_ALPHA_COMPARATOR)
             scope.ensureActive()
-            typePOIs.takeIf { it.isNotEmpty() }?.let { _nearbyPOIs.postValue(it) }
+            typePOIs.takeIf { it.isNotEmpty() }?.let { newTypePOIs ->
+                _nearbyPOIs.postValue(newTypePOIs)
+            }
             nearbyPOIs.addAll(typePOIs)
         }
         scope.ensureActive()

@@ -972,7 +972,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return getPoisCount() > 0;
 	}
 
-	private void updateClosestPoi() {
+	public void updateClosestPoi() {
 		if (getPoisCount() == 0) {
 			this.closestPoiUuids = null;
 			return;
@@ -983,7 +983,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				final List<POIManager> dstOrFavFolderIdPOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
 				if (dstOrFavFolderIdPOIMs == null || dstOrFavFolderIdPOIMs.isEmpty()) continue;
 				this.closestPoiUuids.addAll(
-						LocationUtilsExtKt.findClosestPOISUuid(dstOrFavFolderIdPOIMs)
+						LocationUtilsExtKt.findClosestPOIUuids(dstOrFavFolderIdPOIMs)
 				);
 			}
 		}
@@ -996,18 +996,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@SuppressWarnings("unused")
 	public boolean isClosestPOI(int position) {
-		if (this.closestPoiUuids == null) {
-			return false;
-		}
-		POIManager poim = getItem(position);
+		if (this.closestPoiUuids == null) return false;
+		final POIManager poim = getItem(position);
 		return poim != null && this.closestPoiUuids.contains(poim.poi.getUUID());
 	}
 
 	@Nullable
 	public POIManager getClosestPOI() {
 		if (this.closestPoiUuids == null || this.closestPoiUuids.isEmpty()) return null;
-		final String closestPOIUUID = this.closestPoiUuids.iterator().next();
-		return getItem(closestPOIUUID);
+		final String closestPoiUuid = this.closestPoiUuids.iterator().next();
+		return getItem(closestPoiUuid);
 	}
 
 	@AnyThread
@@ -1015,7 +1013,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if (this.location == null) return;
 		if (this.poisByDstOrFavFolderId == null) return;
 		if (this.distanceUnitsPref == null) return;
-		for (List<POIManager> dstOrFavFolderIdPOIMs : poisByDstOrFavFolderId.values()) {
+		for (List<POIManager> dstOrFavFolderIdPOIMs : this.poisByDstOrFavFolderId.values()) {
 			for (POIManager poim : dstOrFavFolderIdPOIMs) {
 				UILocationUtils.updateDistanceWithStringNN(this.distanceUnitsPref, poim, this.location);
 			}
@@ -1586,8 +1584,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			holder.moreBtn.setOnClickListener(view ->
 					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_MORE, type)
 			);
-			holder.layout.setOnClickListener(view ->
-					holder.moreBtn.performClick()
+			holder.layout.setOnClickListener(view -> {
+						if (holder.moreBtn != null) {
+							holder.moreBtn.performClick();
+						}
+					}
 			);
 		} else {
 			holder.layout.setClickable(false);

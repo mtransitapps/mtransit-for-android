@@ -23,13 +23,14 @@ import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.findClosestPOISIdxUuid
+import org.mtransit.android.commons.findClosestPOIIdxUuids
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.RouteDirectionManager
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -432,7 +433,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 // do nothing
             }
         }
-        viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
+        viewModel.poiList.observe(viewLifecycleOwner) { poiList -> // w/o distance
             var currentSelectedItemIndexUuid: Pair<Int?, String?>? = null
             val selectedStopId = viewModel.selectedStopId.value
             val closestPOIShow = viewModel.closestPOIShown.value
@@ -447,8 +448,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
                 viewModel.setSelectedOrClosestStopShown()
             }
-            listAdapter.setPois(poiList)
-            listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
+            listAdapter.setPoisUpdateDistanceAndClosest(poiList, parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged()
             if (viewModel.listVisible(context)) {
                 val selectedPosition = currentSelectedItemIndexUuid?.first ?: -1
@@ -543,13 +543,12 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         pois: List<POIManager>?,
         deviceLocation: Location? = parentViewModel.deviceLocation.value,
     ): Pair<Int?, String?>? {
-        if (deviceLocation != null && pois?.isNotEmpty() == true) {
-            return pois
-                .updateDistance(deviceLocation.latitude, deviceLocation.longitude)
-                .findClosestPOISIdxUuid()
-                .firstOrNull()
-        }
-        return null
+        deviceLocation ?: return null
+        return pois
+            ?.takeIf { it.isNotEmpty()}
+            ?.updateDistance(deviceLocation.latitude, deviceLocation.longitude)
+            ?.findClosestPOIIdxUuids()
+            ?.firstOrNull()
     }
 
     private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) = binding?.apply {

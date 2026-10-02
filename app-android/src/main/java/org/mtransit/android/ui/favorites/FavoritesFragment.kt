@@ -21,6 +21,7 @@ import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -184,9 +185,8 @@ class FavoritesFragment :
         viewModel.hasFavoritesAgencyDisabled.observe(viewLifecycleOwner) { hasFavoritesAgencyDisabled ->
             updateEmptyLayout(hasFavoritesAgencyDisabled = hasFavoritesAgencyDisabled)
         }
-        viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
-            listAdapter.setPois(favoritePOIS)
-            listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+        viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS -> // w/o distance
+            listAdapter.setPoisUpdateDistanceAndClosest(favoritePOIS, viewModel.deviceLocation.value)
             updateEmptyLayout(empty = favoritePOIS.isNullOrEmpty())
             setupView(favoritePOIS)
         }

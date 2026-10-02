@@ -109,12 +109,10 @@ class RDSDirectionStopsViewModel @Inject constructor(
         }
 
     private val routeDirection: LiveData<RouteDirection?> = MediatorLiveData2(route, direction)
-        .switchMap { (route, direction) ->
-            liveData(viewModelScope.coroutineContext) {
-                route ?: return@liveData
-                direction ?: return@liveData
-                emit(RouteDirection(route, direction))
-            }
+        .map { (route, direction) ->
+            route ?: return@map null
+            direction ?: return@map null
+            RouteDirection(route, direction)
         }
 
     private val _vehicleLocationProviders: LiveData<List<VehicleLocationProviderProperties>> = _authority.switchMap {
@@ -254,10 +252,8 @@ class RDSDirectionStopsViewModel @Inject constructor(
                     )
                 },
             )
-        ).apply {
-            forEach { poim ->
-                poim.addServiceUpdateLoaderListener(serviceUpdateLoaderListener) // trigger refresh because some provider do not fetch for route #stmbus
-            }
+        ).onEach { poim ->
+            poim.addServiceUpdateLoaderListener(serviceUpdateLoaderListener) // trigger refresh because some provider do not fetch for route #stmbus
         }
 
     val showingListInsteadOfMap: LiveData<Boolean> = routeDirection
