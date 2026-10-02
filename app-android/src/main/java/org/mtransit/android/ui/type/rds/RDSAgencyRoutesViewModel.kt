@@ -71,20 +71,21 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    val routesM: LiveData<List<RouteManager>> = MediatorLiveData2(agency, _routes).switchMap { (agency, routes) ->
-        liveData(viewModelScope.coroutineContext) {
-            agency ?: return@liveData
-            routes ?: return@liveData
-            emit(
-                routes.map { route ->
-                    route.toRouteM(agency.authority)
-                        .apply {
-                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                        }
-                }
-            )
+    val routesM: LiveData<List<RouteManager>> = MediatorLiveData2(agency, _routes)
+        .switchMap { (agency, routes) ->
+            liveData(viewModelScope.coroutineContext) {
+                agency ?: return@liveData
+                routes ?: return@liveData
+                emit(
+                    routes.map { route ->
+                        route.toRouteM(agency.authority)
+                            .apply {
+                                addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                            }
+                    }
+                )
+            }
         }
-    }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
@@ -107,8 +108,9 @@ class RDSAgencyRoutesViewModel @Inject constructor(
         }
     }
 
-    val colorIntDistinct: LiveData<Int?> = MediatorLiveData2(colorInt, _routeColorInts).map { (colorInt, routeColorInts) ->
-        colorInt?.let {
+    val colorIntDistinct: LiveData<Int?> = MediatorLiveData2(colorInt, _routeColorInts)
+        .map { (colorInt, routeColorInts) ->
+            colorInt ?: return@map null
             if (routeColorInts == null || (routeColorInts.isNotEmpty() && !routeColorInts.contains(colorInt))) {
                 colorInt
             } else {
@@ -120,15 +122,15 @@ class RDSAgencyRoutesViewModel @Inject constructor(
                 }
             }
         }
-    }
 
-    val showingListInsteadOfGrid: LiveData<Boolean> = MediatorLiveData2(_authority, _routes).switchMap { (authority, routes) ->
-        liveData(viewModelScope.coroutineContext) { // emit source Live Data = stay Main Thread
-            routes ?: return@liveData
-            authority ?: return@liveData
-            emitSource(userPrefManager.getRDSRoutesShowingListInsteadOfGrid(authority, routes.size))
-        }
-    }.distinctUntilChanged()
+    val showingListInsteadOfGrid: LiveData<Boolean> = MediatorLiveData2(_authority, _routes)
+        .switchMap { (authority, routes) ->
+            liveData(viewModelScope.coroutineContext) { // emit source Live Data = stay Main Thread
+                routes ?: return@liveData
+                authority ?: return@liveData
+                emitSource(userPrefManager.getRDSRoutesShowingListInsteadOfGrid(authority, routes.size))
+            }
+        }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfGrid(showingListInsteadOfGrid: Boolean) {
         _authority.value?.let { authority ->

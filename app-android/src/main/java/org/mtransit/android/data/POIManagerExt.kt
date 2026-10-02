@@ -45,6 +45,10 @@ fun <P : POI> P.toPOIM(
     status?.let { setStatus(it) }
 }
 
+val POIManager.dstOrFavFolderId: Int get() = this.dstFavoriteFolderId ?: this.dataSourceTypeId
+
+val POIManager.dataSourceTypeId: Int get() = this.poi.dataSourceTypeId
+
 val POIManager.dataSourceType: DataSourceType? get() = this.poi.dataSourceType
 val POI.dataSourceType: DataSourceType? get() = this.dataSourceTypeId.let { DataSourceType.parseId(it) }
 
@@ -109,20 +113,37 @@ fun POI.getNewOneLineTitleForSchedule() = buildSpannedString {
     }
 }
 
-val POIManager.simpleDistanceString: String
-    get() = this.distance.takeIf { it >= 0f }?.let { "${it}m" } ?: "?m"
+val POIManager.distanceOrNull: Float? get() = this.distance.takeIf { it >= 0f }
 
-@Suppress("unused")
+@Suppress("unused") // used for debug logs
+val POIManager.simpleDistanceString: String
+    get() = this.distanceOrNull?.let { "${it}m" } ?: "?m"
+
+val POIManager.uuid: String get() = this.poi.uuid
+
+@Suppress("unused") // used for debug logs
 val POIManager.uuidAndDistance: String
     get() = this.poi.uuid + " " + this.simpleDistanceString
 
-@Suppress("unused")
+@Suppress("unused") // used for debug logs
 val POIManager.shortUUIDAndDistance: String
     get() = this.poi.shortUUID + " " + this.simpleDistanceString
 
-@Suppress("unused")
+@Suppress("unused") // used for debug logs
 val POIManager.shortUUID: String get() = this.poi.shortUUID
 val POI.shortUUID: String get() = this.uuid.substring(this.authority.length + 1)
+
+@Suppress("unused") // used for debug logs
+val POI.shortAuthority: String get() = this.authority.toShortAuthority()
+
+val POI.isNoPickup: Boolean
+    get() = this is RouteDirectionStop && this.isNoPickup
+
+fun POI.isSameRoute(other: POI): Boolean {
+    if (other !is RouteDirectionStop || this !is RouteDirectionStop) return false
+    if (this.authority != other.authority) return false
+    return this.route.id == other.route.id
+}
 
 fun POIManager.makeStatusFilter(inFocus: Boolean? = null) =
     StatusProviderContract.Filter.from(

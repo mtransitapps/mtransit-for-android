@@ -21,11 +21,11 @@ import org.mtransit.android.ad.rewarded.RewardedUserManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.toDateTimeLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
-import org.mtransit.android.toDateTimeLog
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.user.UserManager
 import java.util.concurrent.atomic.AtomicBoolean
@@ -45,7 +45,7 @@ class GlobalAdManager(
     private val userManager: UserManager,
     private val remoteConfigProvider: RemoteConfigProvider,
     private val billingManager: IBillingManager,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : MTLog.Loggable {
 
     @Inject

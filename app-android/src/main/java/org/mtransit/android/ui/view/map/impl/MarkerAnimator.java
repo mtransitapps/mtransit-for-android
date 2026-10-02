@@ -76,7 +76,7 @@ class MarkerAnimator {
 	}
 
 	public void cancelAnimation(@NonNull DelegatingMarker marker, @NonNull IMarker.AnimationCallback.CancelReason reason) {
-		MarkerAnimatorData data = queue.remove(marker);
+		final MarkerAnimatorData data = queue.remove(marker);
 		if (data != null && data.getCallback() != null) {
 			data.getCallback().onCancel(marker, reason);
 		}

@@ -2,6 +2,7 @@ package org.mtransit.android.datasource
 
 import android.location.Location
 import androidx.collection.LruCache
+import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -10,15 +11,17 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.set
+import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
+import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.updateDistance
+import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.toPOIM
 import org.mtransit.android.data.updateSupportedType
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -59,18 +62,6 @@ class POIRepository(
 
     private fun commonSetup(filter: POIProviderContract.Filter) = filter
 
-    @Suppress("unused")
-    suspend fun findPOI(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POI? {
-        return dataSourceRequestManager.findPOI(agency, commonSetup(poiFilter))
-            ?.updateSupportedType(agency)
-    }
-
-    @Suppress("unused")
-    suspend fun findPOIM(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POIManager? {
-        return dataSourceRequestManager.findPOIM(agency, commonSetup(poiFilter))
-            ?.updateSupportedType(agency)
-    }
-
     fun readingPOIM(
         agency: IAgencyProperties?,
         uuid: String?,
@@ -91,21 +82,22 @@ class POIRepository(
             return@liveData // SKIP
         }
         val cachePOIM = read(agency.authority, uuid)
-            ?.also { emit(it) }
+            ?.also { cachedPOI ->
+                emit(cachedPOI)
+            }
         val poiFilter = commonSetup(POIProviderContract.Filter.getNewUUIDFilter(uuid))
-        dataSourceRequestManager.findPOI(agency, poiFilter)
+        dataSourceRequestManager.findPOIM(agency, poiFilter)
             ?.updateSupportedType(agency)
-            ?.let { newPOIFromModule -> // WITHOUT status OR service update
+            ?.let { newPOIMFromModule -> // WITHOUT status OR service update
+                val newPOIFromModule = newPOIMFromModule.poi
                 if (cachePOIM == null // no cache POI
                     || newPOIFromModule != cachePOIM.poi // new POI != cache POI
                 ) {
                     MTLog.d(this@POIRepository, "readingPOIM() > EMIT (new POI != cache POI)")
-                    val newPOIM = newPOIFromModule.toPOIM(
-                        serviceUpdates = cachePOIM?.serviceUpdatesOrNull,
-                        status = cachePOIM?.statusOrNull,
-                    )
-                    emit(newPOIM)
-                    push(newPOIM)
+                    cachePOIM?.serviceUpdatesOrNull?.let { newPOIMFromModule.setServiceUpdates(it) }
+                    cachePOIM?.statusOrNull?.let { newPOIMFromModule.setStatus(it) }
+                    emit(newPOIMFromModule)
+                    push(newPOIMFromModule)
                 } else { // ELSE same POI, keep cache w/ extras (status, service update...)
                     MTLog.d(this@POIRepository, "readingPOIM() > SKIP (new POI == cache POI, keep status, service update...)")
                 }
@@ -117,15 +109,29 @@ class POIRepository(
             }
     }.distinctUntilChanged()
 
-    @Suppress("unused")
-    suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI> {
-        return dataSourceRequestManager.findPOIs(agency, commonSetup(poiFilter))
-            .updateSupportedType(agency)
-    }
-
     suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager> {
         return dataSourceRequestManager.findPOIMs(agency, commonSetup(poiFilter))
             .updateSupportedType(agency)
+    }
+
+    suspend fun findPOIMsAroundLoc(
+        agency: IAgencyProperties,
+        lat: Double,
+        lng: Double,
+        aroundDiff: Double,
+        avoidLoading: Boolean = false,
+        noPickup: Boolean = false
+    ): MutableList<POIManager> {
+        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).copy(
+            extras = SimpleArrayMap<String, Any>().apply {
+                put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, avoidLoading)
+                put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, noPickup)
+            },
+        )
+        val maxAroundDiffDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
+        return findPOIMs(agency, poiFilter)
+            .updateDistanceM(lat, lng)
+            .removeTooFar(maxAroundDiffDistanceInMeters)
     }
 
     fun loadingPOIMs(
@@ -133,7 +139,7 @@ class POIRepository(
         filter: POIProviderContract.Filter?,
         deviceLocation: Location? = null,
         comparator: Comparator<POIManager> = compareBy { null },
-        typeComparator: Comparator<POIManager?> = compareBy { null },
+        typeComparator: Comparator<POIManager> = compareBy { null },
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         typeLet: ((List<POIManager>) -> List<POIManager>?) = { it },
         onSuccess: (() -> Unit)? = null,
@@ -151,7 +157,7 @@ class POIRepository(
         filter: POIProviderContract.Filter,
         deviceLocation: Location? = null,
         comparator: Comparator<POIManager> = compareBy { null },
-        typeComparator: Comparator<POIManager?> = compareBy { null },
+        typeComparator: Comparator<POIManager> = compareBy { null },
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         letComparator: ((List<POIManager>) -> List<POIManager>?) = { it },
         context: CoroutineContext = ioDispatcher
@@ -175,7 +181,7 @@ class POIRepository(
         providers: List<IAgencyProperties>?,
         filter: POIProviderContract.Filter?,
         deviceLocation: Location? = null,
-        comparator: Comparator<POIManager?> = compareBy { null },
+        comparator: Comparator<POIManager> = compareBy { null },
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         onSuccess: (() -> Unit)? = null,
         context: CoroutineContext = EmptyCoroutineContext,
@@ -190,7 +196,7 @@ class POIRepository(
         providers: List<IAgencyProperties>,
         filter: POIProviderContract.Filter,
         deviceLocation: Location? = null,
-        comparator: Comparator<POIManager?>,
+        comparator: Comparator<POIManager>,
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         context: CoroutineContext = ioDispatcher
     ) = withContext(context) {

@@ -30,7 +30,7 @@ interface IAgencyNearbyProperties : IAgencyProperties {
         }
 
         fun isEntirelyInside(agency: IAgencyNearbyProperties, area: LatLngBounds?): Boolean {
-            return area?.containsEntirely(agency.area.toLatLngBounds()) == true
+            return area.containsEntirely(agency.area.toLatLngBounds())
         }
 
         private fun areOverlapping(area1: LatLngBounds?, area2: Area?): Boolean {

@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.toStringSimple
+import org.mtransit.android.commons.location.toStringSimple
 
 abstract class MTViewModelWithLocation : ViewModel(), MTLog.Loggable {
 

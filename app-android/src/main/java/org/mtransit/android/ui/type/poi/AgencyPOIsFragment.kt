@@ -14,12 +14,10 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.commons.data.Area
-import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
-import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -46,7 +44,9 @@ import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
-import org.mtransit.android.ui.view.map.MTPOIMarker
+import org.mtransit.android.ui.view.map.MapListener
+import org.mtransit.android.ui.view.map.MapMarkerProvider
+import org.mtransit.android.ui.view.onSelectedPlaceLocation
 import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.LinkUtils
@@ -145,34 +145,28 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     @Inject
     lateinit var userManager: UserManager
 
-    private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+    private val mapListener = object : MapListener {
 
-        override fun getPOMarkers(): Collection<MTPOIMarker>? = null
+        override fun onMapLongClick(position: LatLng) {
+            viewModel.onLocationSelected(position)
+        }
+    }
 
-        override fun getPOIs(): Collection<POIManager>? {
-            if (!listAdapter.isInitialized) return null
-            return buildList {
-                for (i in 0 until listAdapter.poisCount) {
-                    listAdapter.getItem(i)?.let { add(it) }
+    private val mapMarkerProvider = object : MapMarkerProvider {
+
+        override val pois: Collection<POIManager>?
+            get() {
+                if (!listAdapter.isInitialized) return null
+                return buildList {
+                    for (i in 0 until listAdapter.poisCount) {
+                        listAdapter.getItem(i)?.let { add(it) }
+                    }
                 }
             }
-        }
 
-        override fun getPOI(position: Int): POIManager? = null
-
-        override fun getClosestPOI() = listAdapter.closestPOI
+        override val closestPOI: POIManager? get() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
-
-        override fun getVehicleLocations(): Collection<VehicleLocation?>? = null
-
-        override fun getVehicleColorInt(): Int? = null
-
-        override fun getVehicleType(): DataSourceType? = null
-
-        override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
-
-        override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
     }
 
     private val mapViewController: MapViewController by lazy {
@@ -180,7 +174,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             logTag,
             MapViewConfig(
                 markerProvider = mapMarkerProvider,
-                mapListener = null, // DO NOTHING (map click, camera change)
+                mapListener = mapListener,
                 mapToolbarEnabled = false,
                 myLocationEnabled = true,
                 myLocationButtonEnabled = true,
@@ -331,8 +325,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
-            listAdapter.setPois(poiList)
-            listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
+            listAdapter.setPoisUpdateDistanceAndClosest(poiList, parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged()
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
@@ -350,6 +343,14 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
             if (viewModel.mapVisible(context)) {
                 applySelectedUUIDChanged(selectedUUID)
+            }
+        }
+        viewModel.selectedLocation.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
+            viewModel.selectedLocation.value?.let {
+                mapViewController.onSelectedPlaceLocation(it, address)
             }
         }
     }
@@ -441,6 +442,16 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         listAdapter.onVisible(this, parentViewModel.deviceLocation.value)
         updateFabListMapUI()
         switchView()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapViewController.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapViewController.onStop()
     }
 
     override fun onPause() {

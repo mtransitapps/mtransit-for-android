@@ -20,6 +20,7 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIArrayAdapter.TypeHeaderButtonsClickListener
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentSearchBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -186,8 +187,7 @@ class SearchFragment :
             }
         }
         viewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
-            listAdapter.setPois(searchResults)
-            listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+            listAdapter.setPoisUpdateDistanceAndClosest(searchResults, viewModel.deviceLocation.value)
             binding?.apply {
                 loadingLayout.isVisible = false
                 if (searchResults.isNullOrEmpty()) { // SHOW EMPTY

@@ -31,7 +31,7 @@ public class TextMessage extends DefaultPOI {
 	private final long messageId;
 
 	public TextMessage(long messageId, @DataSourceTypeId.DataSourceType int dataSourceTypeId, @NonNull String message) {
-		super(AUTHORITY, -1, dataSourceTypeId, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE);
+		super(AUTHORITY, -1, dataSourceTypeId, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE, 0.0d, 0.0d);
 		this.messageId = messageId;
 		setName(message);
 	}

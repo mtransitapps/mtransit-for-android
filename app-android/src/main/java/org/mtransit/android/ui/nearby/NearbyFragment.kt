@@ -25,7 +25,6 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
@@ -72,9 +71,9 @@ class NearbyFragment :
             poim: POIManager,
             dataSourcesRepository: DataSourcesRepository,
         ) = newFixedOnInstanceArgs(
-            optTypeId = poim.poi.dataSourceTypeId.takeUnless { poim.poi.dataSourceTypeId == DataSourceTypeId.PLACE },
-            fixedOnLat = poim.lat.toFloat(),
-            fixedOnLng = poim.lng.toFloat(),
+            optTypeId = poim.poi.dataSourceTypeId,
+            fixedOnLat = poim.lat,
+            fixedOnLng = poim.lng,
             fixedOnName = poim.poi.name,
             optFixedOnColorInt = poim.getColor(dataSourcesRepository)
         )
@@ -85,9 +84,9 @@ class NearbyFragment :
             dataSourcesRepository: DataSourcesRepository,
         ): NearbyFragment {
             return newFixedOnInstance(
-                optTypeId = poim.poi.dataSourceTypeId.takeUnless { poim.poi.dataSourceTypeId == DataSourceTypeId.PLACE },
-                fixedOnLat = poim.lat.toFloat(),
-                fixedOnLng = poim.lng.toFloat(),
+                optTypeId = poim.poi.dataSourceTypeId,
+                fixedOnLat = poim.lat,
+                fixedOnLng = poim.lng,
                 fixedOnName = poim.poi.name,
                 optFixedOnColorInt = poim.getColor(dataSourcesRepository)
             )
@@ -97,9 +96,9 @@ class NearbyFragment :
         @JvmStatic
         fun newFixedOnInstanceArgs(
             optTypeId: Int? = null,
-            fixedOnLat: Float,
-            fixedOnLng: Float,
-            fixedOnName: String,
+            fixedOnLat: Double,
+            fixedOnLng: Double,
+            fixedOnName: String?,
             @ColorInt optFixedOnColorInt: Int? = null,
         ) = newInstanceArgs(
             optTypeId = optTypeId,
@@ -113,9 +112,9 @@ class NearbyFragment :
         @JvmStatic
         fun newFixedOnInstance(
             optTypeId: Int? = null,
-            fixedOnLat: Float,
-            fixedOnLng: Float,
-            fixedOnName: String,
+            fixedOnLat: Double,
+            fixedOnLng: Double,
+            fixedOnName: String?,
             @ColorInt optFixedOnColorInt: Int? = null,
         ): NearbyFragment {
             return newInstance(
@@ -139,8 +138,8 @@ class NearbyFragment :
 
         private fun newInstance(
             optTypeId: Int? = null,
-            optFixedOnLat: Float? = null,
-            optFixedOnLng: Float? = null,
+            optFixedOnLat: Double? = null,
+            optFixedOnLng: Double? = null,
             optFixedOnName: String? = null,
             optFixedOnColor: String? = null,
         ): NearbyFragment {
@@ -151,18 +150,18 @@ class NearbyFragment :
 
         private fun newInstanceArgs(
             optTypeId: Int? = null,
-            optFixedOnLat: Float? = null,
-            optFixedOnLng: Float? = null,
+            optFixedOnLat: Double? = null,
+            optFixedOnLng: Double? = null,
             optFixedOnName: String? = null,
             optFixedOnColor: String? = null,
         ): Bundle {
             val validNearbyTypeId: Int? = optTypeId?.takeIf { DataSourceType.parseId(it)?.isNearbyScreen == true }
             return Bundle().apply {
-                putInt(NearbyViewModel.EXTRA_SELECTED_TYPE, validNearbyTypeId ?: NearbyViewModel.EXTRA_SELECTED_TYPE_DEFAULT)
-                putFloat(NearbyViewModel.EXTRA_FIXED_ON_LAT, optFixedOnLat ?: NearbyViewModel.EXTRA_FIXED_ON_LAT_DEFAULT)
-                putFloat(NearbyViewModel.EXTRA_FIXED_ON_LNG, optFixedOnLng ?: NearbyViewModel.EXTRA_FIXED_ON_LNG_DEFAULT)
-                putString(NearbyViewModel.EXTRA_FIXED_ON_NAME, optFixedOnName ?: NearbyViewModel.EXTRA_FIXED_ON_NAME_DEFAULT)
-                putString(NearbyViewModel.EXTRA_FIXED_ON_COLOR, optFixedOnColor ?: NearbyViewModel.EXTRA_FIXED_ON_COLOR_DEFAULT)
+                validNearbyTypeId?.let { putInt(NearbyViewModel.EXTRA_SELECTED_TYPE, it) }
+                optFixedOnLat?.let { putDouble(NearbyViewModel.EXTRA_FIXED_ON_LAT, it) }
+                optFixedOnLng?.let { putDouble(NearbyViewModel.EXTRA_FIXED_ON_LNG, it) }
+                optFixedOnName?.let { putString(NearbyViewModel.EXTRA_FIXED_ON_NAME, it) }
+                optFixedOnColor?.let { putString(NearbyViewModel.EXTRA_FIXED_ON_COLOR, it) }
             }
         }
     }

@@ -35,7 +35,9 @@ import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.isAttached
-import org.mtransit.android.ui.view.map.IMarker
+import org.mtransit.android.ui.view.map.MapListener
+import org.mtransit.android.ui.view.map.MapMarkerProvider
+import org.mtransit.android.ui.view.onSelectedPlaceLocation
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
@@ -120,11 +122,11 @@ class MapFragment :
     @Inject
     lateinit var analyticsManager: IAnalyticsManager
 
-    private val mapListener = object : MapViewController.MapListener {
+    private val mapListener = object : MapListener {
 
-        override fun onMapClick(position: LatLng) = Unit // DO NOTHING
-
-        override fun onMarkerClick(marker: IMarker?) = false
+        override fun onMapLongClick(position: LatLng) {
+            viewModel.onLocationSelected(position)
+        }
 
         override fun onCameraChanged(latLngBounds: LatLngBounds, zoom: Float) {
             attachedViewModel?.onCameraChanged(
@@ -134,19 +136,26 @@ class MapFragment :
         }
 
         override fun onMapReady() {
-            attachedViewModel?.poiMarkers?.value?.let {
+            attachedViewModel?.poiMarkers?.value?.let { poiMarkers ->
                 mapViewController.clearMarkers()
-                mapViewController.addMarkers(it)
+                mapViewController.addMarkers(poiMarkers)
                 mapViewController.showMap(view)
             }
         }
+    }
+
+    private val mapMarkerProvider = object : MapMarkerProvider {
+
+        override val visibleArea
+            get() = attachedViewModel?.initialVisibleArea?.value
+                ?.takeIf { it.isNotEmpty() } // do not try later
     }
 
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,
             MapViewConfig(
-                markerProvider = null,
+                markerProvider = mapMarkerProvider,
                 mapListener = mapListener,
                 mapToolbarEnabled = false,
                 myLocationEnabled = true,
@@ -201,27 +210,39 @@ class MapFragment :
             mapViewController.setInitialSelectedUUID(selectedUUID)
             viewModel.onSelectedUUIDSet()
         }
-        viewModel.deviceLocation.observe(viewLifecycleOwner) {
-            context?.let { context ->
-                mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
+        viewModel.initialVisibleArea.observe(viewLifecycleOwner) { initialVisibleArea ->
+            if (initialVisibleArea != null) { // initial visible area computed
+                viewModel.deviceLocation.value?.let { deviceLocation ->
+                    mapViewController.onDeviceLocationChanged(deviceLocation)
+                }
+                mapViewController.showMap(view)
             }
-            mapViewController.onDeviceLocationChanged(it)
+        }
+        viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
+            context?.let { mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(it)) }
+            if (viewModel.initialVisibleArea.value != null) { // initial visible area computed
+                mapViewController.onDeviceLocationChanged(deviceLocation)
+            }
         }
         LocationSettingsUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
-        viewModel.filterTypeIds.observe(viewLifecycleOwner) {
+        viewModel.filterTypeIds.observe(viewLifecycleOwner) { _ ->
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABTitle(this, getABTitle(context), true)
         }
-        viewModel.typeMapAgencies.observe(viewLifecycleOwner) {
+        viewModel.mapTypes.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.filteredTypeAgencies.observe(viewLifecycleOwner) {
             viewModel.resetLoadedPOIMarkers()
         }
         viewModel.poiMarkersTrigger.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
-        viewModel.loaded.observe(viewLifecycleOwner) {
-            if (it == false) {
+        viewModel.loading.observe(viewLifecycleOwner) { loading ->
+            if (loading) {
                 mapViewController.showLoading()
-            } else if (it == true) {
+            } else {
                 mapViewController.hideLoading()
             }
         }
@@ -230,6 +251,14 @@ class MapFragment :
             it?.let { poiMarkers ->
                 mapViewController.addMarkers(poiMarkers)
                 mapViewController.showMap(view)
+            }
+        }
+        viewModel.selectedLocation.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
+            viewModel.selectedLocation.value?.let {
+                mapViewController.onSelectedPlaceLocation(it, address)
             }
         }
     }
@@ -253,7 +282,9 @@ class MapFragment :
         super.onResume()
         binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         mapViewController.onResume()
-        mapViewController.showMap(view)
+        if (viewModel.initialVisibleArea.value != null) { // wait for initial visible area
+            mapViewController.showMap(view)
+        }
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }
@@ -264,6 +295,16 @@ class MapFragment :
 
     override fun onDeviceLocationChanged(newLocation: Location?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapViewController.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapViewController.onStop()
     }
 
     override fun onPause() {

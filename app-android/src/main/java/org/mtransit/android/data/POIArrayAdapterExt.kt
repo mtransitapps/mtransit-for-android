@@ -1,5 +1,6 @@
 package org.mtransit.android.data
 
+import android.location.Location
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.distinctUntilChanged
@@ -82,6 +83,15 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     }
 }
 
+fun POIArrayAdapter.setPoisUpdateDistanceAndClosest(
+    pois: List<POIManager>?, // w/o distance?
+    deviceLocation: Location?,
+) {
+    setPois(pois)
+    updateDistanceNowAsync(deviceLocation) // add distance + string
+    updateClosestPoi() // then compute closest poi
+}
+
 // UnsafeCast: false positive
 @Suppress("UnsafeCast")
 internal val POIArrayAdapter.analyticsScreen: AnalyticsScreen?
@@ -107,8 +117,8 @@ internal fun POIArrayAdapter.trackTypeHeaderButtonClick(buttonId: Int) {
 }
 
 fun POIArrayAdapter.allowTriggerStatusServiceUpdateRefresh() {
-    this.poisByType?.values?.forEach { typePOIMs ->
-        typePOIMs?.forEach { poim ->
+    this.poisByDstOrFavFolderId?.values?.forEach { dstOrFavFolderIdPOIMs ->
+        dstOrFavFolderIdPOIMs?.forEach { poim ->
             poim.allowTriggerStatusAndServiceUpdatesRefresh()
         }
     }

@@ -36,13 +36,16 @@ public class Place extends DefaultPOI {
 	private final long readAtInMs;
 
 	@Nullable
+	private String subTitle = null;
+
+	@Nullable
 	private String iconUrl = null;
 	@Nullable
 	@ColorInt
 	private Integer iconBgColorInt = null;
 
-	public Place(@NonNull String authority, @NonNull String providerId, @NonNull String lang, long readAtInMs) {
-		super(authority, -1, DataSourceTypeId.PLACE, POI.ITEM_VIEW_TYPE_PLACE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_PLACE);
+	public Place(@NonNull String authority, @NonNull String providerId, @NonNull String lang, long readAtInMs, double lat, double lng) {
+		super(authority, -1, DataSourceTypeId.PLACE, POI.ITEM_VIEW_TYPE_PLACE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_PLACE, lat, lng);
 		this.providerId = providerId;
 		this.lang = lang;
 		this.readAtInMs = readAtInMs;
@@ -69,6 +72,15 @@ public class Place extends DefaultPOI {
 		return readAtInMs;
 	}
 
+	public void setSubTitle(@Nullable String subTitle) {
+		this.subTitle = subTitle;
+	}
+
+	@Nullable
+	public String getSubTitle() {
+		return subTitle;
+	}
+
 	public void setIconUrl(@Nullable String iconUrl) {
 		this.iconUrl = iconUrl;
 	}
@@ -91,11 +103,14 @@ public class Place extends DefaultPOI {
 	@NonNull
 	@Override
 	public String toString() {
-		return Place.class.getSimpleName() + ":[" + //
-				"authority:" + getAuthority() + ',' + //
-				"providerId:" + getProviderId() + ',' + //
-				"name:" + getName() + ',' + //
-				"icon: " + getIconUrl() + " (" + getIconBgColor() + ")" + ',' + //
+		return Place.class.getSimpleName() + ":[" +
+				"authority:" + getAuthority() + ',' +
+				"providerId:" + getProviderId() + ',' +
+				"name:" + getName() + ',' +
+				"subTitle: " + getSubTitle() + "," +
+				"lat:" + getLat() + ',' +
+				"lng:" + getLng() + ',' +
+				"icon: " + getIconUrl() + " (" + getIconBgColor() + ")" + ',' +
 				']';
 	}
 
@@ -124,6 +139,7 @@ public class Place extends DefaultPOI {
 	private static final String JSON_PROVIDER_ID = "provider_id";
 	private static final String JSON_LANG = "lang";
 	private static final String JSON_READ_AT_IN_MS = "read_at_in_ms";
+	private static final String JSON_SUB_TITLE = "sub_title";
 	private static final String JSON_ICON_URL = "icon_url";
 	private static final String JSON_ICON_BG_COLOR = "icon_bg_color";
 
@@ -131,10 +147,13 @@ public class Place extends DefaultPOI {
 	@Override
 	public JSONObject toJSON() {
 		try {
-			JSONObject json = new JSONObject();
+			final JSONObject json = new JSONObject();
 			json.put(JSON_PROVIDER_ID, getProviderId());
 			json.put(JSON_LANG, getLang());
 			json.put(JSON_READ_AT_IN_MS, getReadAtInMs());
+			if (getSubTitle() != null) {
+				json.put(JSON_SUB_TITLE, getSubTitle());
+			}
 			if (getIconUrl() != null) {
 				json.put(JSON_ICON_URL, getIconUrl());
 			}
@@ -158,12 +177,17 @@ public class Place extends DefaultPOI {
 	@Nullable
 	public static Place fromJSONStatic(@NonNull JSONObject json) {
 		try {
-			final Place place = new Place( //
-					DefaultPOI.getAuthorityFromJSON(json), //
-					json.getString(JSON_PROVIDER_ID), //
-					json.getString(JSON_LANG), //
-					json.getLong(JSON_READ_AT_IN_MS) //
+			final Place place = new Place(
+					DefaultPOI.getAuthorityFromJSON(json),
+					json.getString(JSON_PROVIDER_ID),
+					json.getString(JSON_LANG),
+					json.getLong(JSON_READ_AT_IN_MS),
+					DefaultPOI.getLatFromJSON(json),
+					DefaultPOI.getLngFromJSON(json)
 			);
+			if (json.has(JSON_SUB_TITLE)) {
+				place.setSubTitle(json.getString(JSON_SUB_TITLE));
+			}
 			if (json.has(JSON_ICON_URL)) {
 				place.setIconUrl(json.getString(JSON_ICON_URL));
 			}
@@ -182,18 +206,19 @@ public class Place extends DefaultPOI {
 	public Object[] getCursorRow() {
 		//noinspection DiscouragedApi
 		final int id = getId();
-		return new Object[]{ //
-				getUUID(), //
-				getDataSourceTypeId(), //
-				id,//
-				getName(), //
-				getLat(),//
-				getLng(), //
-				getAccessible(), //
-				getType(), getStatusType(), getActionsType(), //
-				getScore(), //
-				getProviderId(), getLang(), getReadAtInMs(), //
-				getIconUrl(), getIconBgColor() //
+		return new Object[]{
+				getUUID(),
+				getDataSourceTypeId(),
+				id,
+				getName(),
+				getLat(),
+				getLng(),
+				getAccessible(),
+				getType(), getStatusType(), getActionsType(),
+				getScore(),
+				getProviderId(), getLang(), getReadAtInMs(),
+				getSubTitle(),
+				getIconUrl(), getIconBgColor()
 		};
 	}
 
@@ -204,6 +229,9 @@ public class Place extends DefaultPOI {
 		values.put(PlaceProvider.PlaceColumns.T_PLACE_K_PROVIDER_ID, getProviderId());
 		values.put(PlaceProvider.PlaceColumns.T_PLACE_K_LANG, getLang());
 		values.put(PlaceProvider.PlaceColumns.T_PLACE_K_READ_AT_IN_MS, getReadAtInMs());
+		if (getSubTitle() != null) {
+			values.put(PlaceProvider.PlaceColumns.T_PLACE_K_SUB_TITLE, getSubTitle());
+		}
 		if (getIconUrl() != null) {
 			values.put(PlaceProvider.PlaceColumns.T_PLACE_K_ICON_URL, getIconUrl());
 		}
@@ -224,7 +252,13 @@ public class Place extends DefaultPOI {
 		final String providerId = c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_PROVIDER_ID));
 		final String lang = c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_LANG));
 		final long readAtInMs = c.getLong(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_READ_AT_IN_MS));
-		final Place place = new Place(authority, providerId, lang, readAtInMs);
+		final double lat = DefaultPOI.getLatFromCursor(c);
+		final double lng = DefaultPOI.getLngFromCursor(c);
+		final Place place = new Place(authority, providerId, lang, readAtInMs, lat, lng);
+		final String subTitle = CursorExtKt.optString(c, PlaceProvider.PlaceColumns.T_PLACE_K_SUB_TITLE, null);
+		if (subTitle != null) {
+			place.setSubTitle(subTitle);
+		}
 		final Integer iconColor = CursorExtKt.optInt(c, PlaceProvider.PlaceColumns.T_PLACE_K_ICON_BG_COLOR, null);
 		if (iconColor != null) {
 			place.setIconBgColor(iconColor);

@@ -207,11 +207,11 @@ public interface ExtendedGoogleMap {
 
 	interface OnMarkerDragListener {
 
-		void onMarkerDragStart(IMarker marker);
+		void onMarkerDragStart(@NonNull IMarker marker);
 
-		void onMarkerDrag(IMarker marker);
+		void onMarkerDrag(@NonNull IMarker marker);
 
-		void onMarkerDragEnd(IMarker marker);
+		void onMarkerDragEnd(@NonNull IMarker marker);
 	}
 
 	interface OnMyLocationButtonClickListener extends GoogleMap.OnMyLocationButtonClickListener {

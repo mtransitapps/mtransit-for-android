@@ -160,7 +160,7 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         adManager.initForScreens(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
-        this.currentUiMode = getResources().configuration.uiMode
+        this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         setContentView(R.layout.activity_main)
         findViewById<View>(R.id.main_content).applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
@@ -266,7 +266,7 @@ class MainActivity :
         onLastLocationChanged(deviceLocation)
 
         this.isMTResumed = true
-        if (this.currentUiMode != getResources().configuration.uiMode) {
+        if (this.currentUiMode != resources.configuration.uiMode) {
             Handler(Looper.getMainLooper()).post {
                 NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             }
@@ -437,7 +437,7 @@ class MainActivity :
             updateAB()
         }
         this.navigationDrawerController?.onBackStackChanged(this.backStackEntryCount)
-        this.adManager.adaptToScreenSize(this, getResources().configuration)
+        this.adManager.adaptToScreenSize(this, resources.configuration)
         mainOnBackPressedCallback.isEnabled = this.backStackEntryCount > 0
     }
 

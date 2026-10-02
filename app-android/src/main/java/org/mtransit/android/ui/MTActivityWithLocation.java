@@ -22,7 +22,16 @@ import dagger.hilt.android.AndroidEntryPoint;
 public abstract class MTActivityWithLocation extends MTActivity implements
 		MTLocationProvider.ScreenWithLocationView,
 		MTLocationProvider.OnLocationSettingsChangeListener,
-		MTLocationProvider.OnLastLocationChangeListener {
+		MTLocationProvider.OnLastLocationChangeListener,
+		MTLog.Loggable {
+
+	private static final String LOG_TAG = MTActivityWithLocation.class.getSimpleName();
+
+	@NonNull
+	@Override
+	public String getLogTag() {
+		return LOG_TAG;
+	}
 
 	@Inject
 	MTLocationProvider locationProvider;
@@ -75,9 +84,11 @@ public abstract class MTActivityWithLocation extends MTActivity implements
 	@Nullable
 	public abstract PendingIntent getLastLocationSettingsResolution();
 
-	public static void broadcastLocationSettingsResolutionChanged(@SuppressWarnings("unused") @NonNull MTLog.Loggable loggable,
-																  @Nullable Collection<Fragment> fragments,
-																  @Nullable PendingIntent resolution) {
+	public static void broadcastLocationSettingsResolutionChanged(
+			@SuppressWarnings("unused") @NonNull MTLog.Loggable loggable,
+			@Nullable Collection<Fragment> fragments,
+			@Nullable PendingIntent resolution
+	) {
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment == null) {
@@ -93,9 +104,11 @@ public abstract class MTActivityWithLocation extends MTActivity implements
 		}
 	}
 
-	public static void broadcastDeviceLocationChanged(@SuppressWarnings("unused") @NonNull MTLog.Loggable loggable,
-													  @Nullable Collection<Fragment> fragments,
-													  @Nullable Location newLocation) {
+	public static void broadcastDeviceLocationChanged(
+			@SuppressWarnings("unused") @NonNull MTLog.Loggable loggable,
+			@Nullable Collection<Fragment> fragments,
+			@Nullable Location newLocation
+	) {
 		if (fragments == null) return;
 		for (Fragment fragment : fragments) {
 			if (fragment == null) continue;
