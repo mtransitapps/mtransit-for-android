@@ -545,7 +545,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     ): Pair<Int?, String?>? {
         deviceLocation ?: return null
         return pois
-            ?.takeIf { it.isNotEmpty()}
+            ?.takeIf { it.isNotEmpty() }
             ?.updateDistance(deviceLocation.latitude, deviceLocation.longitude)
             ?.findClosestPOIIdxUuids()
             ?.firstOrNull()

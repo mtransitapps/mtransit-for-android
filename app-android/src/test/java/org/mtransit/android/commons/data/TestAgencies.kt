@@ -15,7 +15,6 @@ val CA_CRC_EXO = mkAgency(
     ),
 )
 
-
 val CA_LE_RICHELAIN_ROUSSILLON_EXO = mkAgency(
     pkg = "org.mtransit.android.ca_le_richelain_citlr_bus",
     type = DataSourceType.TYPE_BUS,
