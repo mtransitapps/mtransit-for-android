@@ -188,9 +188,11 @@ class FavoritesViewModel @Inject constructor(
         textMessageId: Long
     ) {
         var textMessageId1 = textMessageId
-        val favoritePOIsDstIds = map { it.poi.dataSourceTypeId }.toSet()
+        val favoritePOIsWithoutFolderDstIds = this
+            .filter { it.dstFavoriteFolderId == null } // ignore POI in favorite folders
+            .map { it.poi.dataSourceTypeId }.toSet()
         homeScreenTypes
-            .filter { dst -> dst.id !in favoritePOIsDstIds }
+            .filter { dst -> dst.id !in favoritePOIsWithoutFolderDstIds }
             .forEach {
                 add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId1++, it.id).toPOIM())
             }
