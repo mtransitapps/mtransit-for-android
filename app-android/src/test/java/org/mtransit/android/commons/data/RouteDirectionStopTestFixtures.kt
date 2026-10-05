@@ -1,5 +1,41 @@
 package org.mtransit.android.commons.data
 
+fun makeDefaultPOI(
+    authority: String = "authority",
+    id: Int = 1,
+    @DataSourceTypeId.DataSourceType dataSourceTypeId: Int = DataSourceTypeId.INVALID,
+    @POI.ItemViewType type: Int = POI.ITEM_VIEW_TYPE_BASIC_POI,
+    @POI.ItemStatusType statusType: Int = POI.ITEM_STATUS_TYPE_NONE,
+    @POI.ItemActionType actionsType: Int = POI.ITEM_ACTION_TYPE_NONE,
+    lat: Double = 1.0,
+    lng: Double = 2.0,
+) = DefaultPOI(
+    authority,
+    id,
+    dataSourceTypeId,
+    type,
+    statusType,
+    actionsType,
+    lat,
+    lng,
+)
+
+fun makeBikeStation(
+    authority: String = "authority",
+    id: Int = 1,
+    lat: Double = 1.0,
+    lng: Double = 2.0,
+) = makeDefaultPOI(
+    authority = authority,
+    id = id,
+    dataSourceTypeId = DataSourceTypeId.BIKE,
+    type = POI.ITEM_VIEW_TYPE_BASIC_POI,
+    statusType = POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT,
+    actionsType = POI.ITEM_ACTION_TYPE_FAVORITABLE,
+    lat = lat,
+    lng = lng,
+)
+
 fun makeRDS(
     authority: String = "authority",
     routeId: Long = 1L,

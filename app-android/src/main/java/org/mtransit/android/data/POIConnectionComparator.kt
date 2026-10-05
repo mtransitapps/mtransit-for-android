@@ -45,11 +45,10 @@ class POIConnectionComparator(
         ?.takeIf { targetedPOI -> targetedPOI.authority == poi.authority }
         ?.takeIf { targetedPOI -> isAlmostSameLocation(targetedPOI, poi) }
         ?.let { targetedPOI ->
-            if (targetedPOI is RouteDirectionStop && poi is RouteDirectionStop) {
-                return@let poi.route.id == targetedPOI.route.id
-            } else if (targetedPOI is DefaultPOI && poi is DefaultPOI) {
-                return@let true // nearby [bike] station...
+            when (targetedPOI) {
+                is RouteDirectionStop if poi is RouteDirectionStop -> return@let poi.route.id == targetedPOI.route.id // same route
+                is DefaultPOI if poi is DefaultPOI -> return@let true // nearby [bike] station...
+                else -> null // mixed POI
             }
-            null
         } ?: false
 }

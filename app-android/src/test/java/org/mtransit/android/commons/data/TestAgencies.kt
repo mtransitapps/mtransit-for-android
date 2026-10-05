@@ -15,17 +15,6 @@ val CA_CRC_EXO = mkAgency(
     ),
 )
 
-val CA_MTL_REM = mkAgency(
-    pkg = "org.mtransit.android.ca_montreal_rem_light_rail",
-    type = DataSourceType.TYPE_LIGHT_RAIL,
-    shortName = "REM",
-    area = Area(
-        minLat = 45.431542,
-        maxLat = 45.545713,
-        minLng = -73.912393,
-        maxLng = -73.430645,
-    ),
-)
 
 val CA_LE_RICHELAIN_ROUSSILLON_EXO = mkAgency(
     pkg = "org.mtransit.android.ca_le_richelain_citlr_bus",
@@ -49,6 +38,54 @@ val CA_LONGUEUIL_RTL = mkAgency(
         minLng = -73.5780492556561,
         maxLng = -73.3172516037979,
     )
+)
+
+val CA_MTL_BIXI = mkAgency(
+    pkg = "org.mtransit.android.ca_montreal_bixi_bike",
+    type = DataSourceType.TYPE_BIKE,
+    shortName = "Bixi",
+    area = Area(
+        minLat = 45.38,
+        maxLat = 45.71,
+        minLng = -73.94,
+        maxLng = -71.87,
+    ),
+)
+
+val CA_MTL_REM = mkAgency(
+    pkg = "org.mtransit.android.ca_montreal_rem_light_rail",
+    type = DataSourceType.TYPE_LIGHT_RAIL,
+    shortName = "REM",
+    area = Area(
+        minLat = 45.431542,
+        maxLat = 45.545713,
+        minLng = -73.912393,
+        maxLng = -73.430645,
+    ),
+)
+
+val CA_MTL_STM_BUS = mkAgency(
+    pkg = "org.mtransit.android.ca_montreal_stm_bus",
+    type = DataSourceType.TYPE_BUS,
+    shortName = "STM Bus",
+    area = Area(
+        minLat = 45.402668,
+        maxLat = 45.701116,
+        minLng = -73.966098,
+        maxLng = -73.480581,
+    ),
+)
+
+val CA_MTL_STM_SUBWAY = mkAgency(
+    pkg = "org.mtransit.android.ca_montreal_stm_subway",
+    type = DataSourceType.TYPE_SUBWAY,
+    shortName = "STM Subway",
+    area = Area(
+        minLat = 45.446466,
+        maxLat = 45.596572,
+        minLng = -73.722422,
+        maxLng = -73.521976,
+    ),
 )
 
 val CA_RICHELIEU_EXO = mkAgency(
@@ -93,7 +130,10 @@ val ALL_AGENCIES = listOf(
     CA_CRC_EXO,
     CA_LE_RICHELAIN_ROUSSILLON_EXO,
     CA_LONGUEUIL_RTL,
+    CA_MTL_BIXI,
     CA_MTL_REM,
+    CA_MTL_STM_BUS,
+    CA_MTL_STM_SUBWAY,
     CA_RICHELIEU_EXO,
     CA_STE_JULIE_EXO,
 )

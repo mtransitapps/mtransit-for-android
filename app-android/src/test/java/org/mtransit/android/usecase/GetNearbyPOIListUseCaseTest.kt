@@ -11,11 +11,15 @@ import org.mtransit.android.commons.data.ALL_AGENCIES
 import org.mtransit.android.commons.data.CA_CRC_EXO
 import org.mtransit.android.commons.data.CA_LE_RICHELAIN_ROUSSILLON_EXO
 import org.mtransit.android.commons.data.CA_LONGUEUIL_RTL
+import org.mtransit.android.commons.data.CA_MTL_BIXI
+import org.mtransit.android.commons.data.CA_MTL_BIXI_HONORE_BEAUGRAND_METRO
+import org.mtransit.android.commons.data.CA_MTL_BIXI_PARC_DU_MAIL
 import org.mtransit.android.commons.data.CA_MTL_REM
+import org.mtransit.android.commons.data.CA_MTL_STM_BUS
+import org.mtransit.android.commons.data.CA_MTL_STM_SUBWAY
 import org.mtransit.android.commons.data.CA_RICHELIEU_EXO
 import org.mtransit.android.commons.data.CA_STE_JULIE_EXO
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.mkCA_CRC_EXO_TERM_BROSSARD_Q13
 import org.mtransit.android.commons.data.mkCA_CRC_EXO_TERM_BROSSARD_Q15
 import org.mtransit.android.commons.data.mkCA_CRC_EXO_TERM_BROSSARD_Q3
@@ -27,6 +31,23 @@ import org.mtransit.android.commons.data.mkCA_LONGUEUIL_RTL_9700_LEDUC
 import org.mtransit.android.commons.data.mkCA_LONGUEUIL_RTL_TERM_BROSSARD
 import org.mtransit.android.commons.data.mkCA_MTL_REM_BROSSARD
 import org.mtransit.android.commons.data.mkCA_MTL_REM_DU_QUARTIER
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53251
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53252
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53253
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_54115
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_54257
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_61814
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53724
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53725
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53754
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53755
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53756
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_54008
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_54119
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_S_53275
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_S_53876
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_S_54237
+import org.mtransit.android.commons.data.mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_TERM_BROSSARD
 import org.mtransit.android.commons.data.mkCA_STE_JULIE_EXO_TERM_BROSSARD_Q5
 import org.mtransit.android.commons.distanceToInMetersJVM
@@ -42,7 +63,9 @@ import org.mtransit.android.data.toPOIM
 import org.mtransit.android.data.uuid
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.location.UILocationUtils
+import org.mtransit.commons.CommonsApp
 import org.mtransit.commons.sortWithAnd
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -60,6 +83,11 @@ class GetNearbyPOIListUseCaseTest {
         },
         ioDispatcher = mainDispatcherRule.testDispatcher
     )
+
+    @BeforeTest
+    fun setUp() {
+        CommonsApp.setup(false)
+    }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
@@ -126,6 +154,9 @@ class GetNearbyPOIListUseCaseTest {
                 add(mkCA_STE_JULIE_EXO_TERM_BROSSARD_Q5(routeId = it, isNoPickup = true).toPOIM())
             }
         }
+        (ALL_AGENCIES - setOf(CA_CRC_EXO, CA_LE_RICHELAIN_ROUSSILLON_EXO, CA_LONGUEUIL_RTL, CA_MTL_REM, CA_RICHELIEU_EXO, CA_STE_JULIE_EXO)).forEach {
+            whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
+        }
 
         val result = subject.invoke(
             lat = mainPOI.lat,
@@ -178,9 +209,116 @@ class GetNearbyPOIListUseCaseTest {
         assertEquals(result.size, ++index)
     }
 
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Test
+    fun test_POI_Nearby_Connection_Metro_Honore_Beaugrand() = runTest(mainDispatcherRule.testDispatcher) {
+        val mainAgency = CA_MTL_BIXI
+        val mainPOI = CA_MTL_BIXI_HONORE_BEAUGRAND_METRO
+        whenever_POIMsAroundLoc(CA_MTL_BIXI, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(CA_MTL_BIXI_HONORE_BEAUGRAND_METRO.toPOIM())
+            add(CA_MTL_BIXI_PARC_DU_MAIL.toPOIM())
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        whenever_POIMsAroundLoc(CA_MTL_STM_BUS, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            listOf(85L, 189L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53251(routeId = it).toPOIM())
+            }
+            listOf(26L, 364L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53252(routeId = it).toPOIM())
+            }
+            listOf(18L to false, 364L to true).forEach { (routeId, isNoPickup) ->
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53253(routeId = routeId, isNoPickup = isNoPickup).toPOIM())
+            }
+            listOf(186L, 187L, 486L, 487L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_54115(routeId = it, isNoPickup = true).toPOIM())
+            }
+            listOf(26L, 28L, 362L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_54257(routeId = it).toPOIM())
+            }
+            listOf(189L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_61814(routeId = it, isNoPickup = true).toPOIM())
+            }
+            listOf(187L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53724(routeId = it).toPOIM())
+            }
+            listOf(186L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53725(routeId = it).toPOIM())
+            }
+            listOf(189L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53754(routeId = it).toPOIM())
+            }
+            listOf(185L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53755(routeId = it).toPOIM())
+            }
+            listOf(85L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53756(routeId = it).toPOIM())
+            }
+            listOf(487L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_54008(routeId = it).toPOIM())
+            }
+            listOf(486L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_54119(routeId = it).toPOIM())
+            }
+            listOf(18L to false, 370L to false, 370L to true).forEach { (routeId, isNoPickup) ->
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_S_53275(routeId = routeId, isNoPickup = isNoPickup).toPOIM())
+            }
+            listOf(141L).forEach {
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_S_53876(routeId = it).toPOIM())
+            }
+            listOf(18L to false, 141L to true, 362L to false).forEach { (routeId, isNoPickup) ->
+                add(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_S_54237(routeId = routeId, isNoPickup = isNoPickup).toPOIM())
+            }
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        whenever_POIMsAroundLoc(CA_MTL_STM_SUBWAY, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND().toPOIM())
+            add(mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND(isNoPickup = true).toPOIM())
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        (ALL_AGENCIES - setOf(CA_MTL_BIXI, CA_MTL_STM_BUS, CA_MTL_STM_SUBWAY)).forEach {
+            whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
+        }
+
+        val result = subject.invoke(
+            lat = mainPOI.lat,
+            lng = mainPOI.lng,
+            allAgencies = ALL_AGENCIES,
+            minSize = 1,
+            maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
+            minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
+            getMaxDistanceInMeters = getMaxDistanceInMeters,
+            mainAgency = mainAgency,
+            excludeAgency = { agency ->
+                !agency.type.isNearbyScreen
+                    || agency.type == DataSourceType.TYPE_MODULE
+            },
+            excludePOI = {
+                it.poi.uuid == mainPOI.uuid
+                    || (it.poi.isNoPickup && !it.poi.isSameRoute(mainPOI))
+            },
+        ).sortWithAnd(mkPOIConnectionComparator(targetedPOI = mainPOI))
+
+        assertEquals(16, result.size)
+        var index = -1
+        assertEquals(mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND().uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53253(18L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53252(26L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_54257(28L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53251(85L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_S_53876(141L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53755(185L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53725(186L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53724(187L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_53754(189L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_54257(362L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53252(364L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_S_53275(370L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_54119(486L).uuid, result[++index].uuid)
+        assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_TERM_N_54008(487L).uuid, result[++index].uuid)
+        assertEquals(CA_MTL_BIXI_PARC_DU_MAIL.uuid, result[++index].uuid) // last because too far to be a connection
+        assertEquals(result.size, ++index)
+    }
+
     private fun whenever_POIMsAroundLoc(
         agency: AgencyBaseProperties,
-        mainPOI: RouteDirectionStop
+        mainPOI: POI,
     ): OngoingStubbing<MutableList<POIManager>> = whenever {
         poiRepository.findPOIMsAroundLoc(
             agency = agency,
