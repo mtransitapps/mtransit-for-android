@@ -166,32 +166,33 @@ fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selected
         ?.let {
             usedLocation = it // move selected PIN to exact location
         }
+    val accuracyInMeters = selectedAddress?.let {
+        LocationUtils.distanceToInMeters(
+            selectedLocation.latitude, selectedLocation.longitude,
+            it.latitude, it.longitude
+        )
+    } ?: 0.0F
+    val subTitle = context.getString(R.string.place_pin_click_to_nearby)
+    val name = selectedAddress
+        ?.toNameOnly(context, accuracyInMeters <= UILocationUtils.PLACE_SHOW_ADDRESS_SELECTED_MAX_DISTANCE_IN_METER)
+        ?.let {
+            val maxLength = subTitle.length
+            if (it.length > maxLength) {
+                it.substring(0, it.length.coerceAtMost(maxLength - 1)) + context.getString(commonsR.string.ellipsis)
+            } else {
+                it
+            }
+        }
+        ?: context.getString(R.string.place_pin_placed)
     val selectedPlace = Place(
         "android.location.Geocoder",
         UUID.randomUUID().toString(),
         selectedAddress?.locale?.language ?: Locale.getDefault().language,
         TimeUtils.currentTimeMillis(),
         usedLocation.latitude,
-        usedLocation.longitude
+        usedLocation.longitude,
+        name
     ).apply {
-        val accuracyInMeters = selectedAddress?.let {
-            LocationUtils.distanceToInMeters(
-                selectedLocation.latitude, selectedLocation.longitude,
-                it.latitude, it.longitude
-            )
-        } ?: 0.0F
-        val subTitle = context.getString(R.string.place_pin_click_to_nearby)
-        this.name = selectedAddress
-            ?.toNameOnly(context, accuracyInMeters <= UILocationUtils.PLACE_SHOW_ADDRESS_SELECTED_MAX_DISTANCE_IN_METER)
-            ?.let {
-                val maxLength = subTitle.length
-                if (it.length > maxLength) {
-                    it.substring(0, it.length.coerceAtMost(maxLength - 1)) + context.getString(commonsR.string.ellipsis)
-                } else {
-                    it
-                }
-            }
-            ?: context.getString(R.string.place_pin_placed)
         this.subTitle = subTitle
     }
     setSelectedPlace(context, selectedPlace)

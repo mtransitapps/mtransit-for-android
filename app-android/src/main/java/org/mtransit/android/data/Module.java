@@ -56,8 +56,16 @@ public class Module extends DefaultPOI {
 	/**
 	 * @param id useful to store in DB
 	 */
-	public Module(@NonNull String authority, int id, @NonNull String pkg, @DataSourceTypeId.DataSourceType int dstId, double lat, double lng) {
-		super(authority, id, DataSourceTypeId.MODULE, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP, lat, lng);
+	public Module(
+			@NonNull String authority,
+			int id,
+			@NonNull String pkg,
+			@DataSourceTypeId.DataSourceType int dstId,
+			double lat,
+			double lng,
+			@NonNull String name
+	) {
+		super(authority, id, DataSourceTypeId.MODULE, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP, lat, lng, name);
 		this.pkg = pkg;
 		resetUUID();
 		this.dstId = dstId;
@@ -260,7 +268,8 @@ public class Module extends DefaultPOI {
 					json.getString(JSON_PKG),
 					json.getInt(JSON_TYPE_ID),
 					DefaultPOI.getLatFromJSON(json),
-					DefaultPOI.getLngFromJSON(json)
+					DefaultPOI.getLngFromJSON(json),
+					DefaultPOI.getNameFromJSON(json)
 			);
 			final String optColor = json.optString(JSON_COLOR);
 			if (!TextUtils.isEmpty(optColor)) {
@@ -300,9 +309,9 @@ public class Module extends DefaultPOI {
 					json.getString(JSON_PKG),
 					Integer.parseInt(json.getString(JSON_TYPE_ID)),
 					DefaultPOI.getLatFromJSON(json),
-					DefaultPOI.getLngFromJSON(json)
+					DefaultPOI.getLngFromJSON(json),
+					DefaultPOI.getNameFromJSON(json)
 			);
-			module.setName(json.getString(JSON_NAME));
 			final String optColor = json.optString(JSON_COLOR);
 			if (!TextUtils.isEmpty(optColor)) {
 				module.setColor(optColor);
@@ -351,12 +360,15 @@ public class Module extends DefaultPOI {
 
 	@NonNull
 	public static Module fromCursorStatic(@NonNull Cursor c, @NonNull String authority) {
-		final String pkg = c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_PKG));
-		final int targetTypeId = c.getInt(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID));
-		final int id = DefaultPOI.getIdFromCursor(c);
-		final double lat = DefaultPOI.getLatFromCursor(c);
-		final double lng = DefaultPOI.getLngFromCursor(c);
-		final Module module = new Module(authority, id, pkg, targetTypeId, lat, lng);
+		final Module module = new Module(
+				authority,
+				DefaultPOI.getIdFromCursor(c),
+				c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_PKG)),
+				c.getInt(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID)),
+				DefaultPOI.getLatFromCursor(c),
+				DefaultPOI.getLngFromCursor(c),
+				DefaultPOI.getNameFromCursor(c)
+		);
 		module.setColor(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR)));
 		module.setLocation(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION)));
 		module.setNameFr(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR)));

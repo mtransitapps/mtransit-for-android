@@ -32,12 +32,14 @@ import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.Favorite
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIConnectionComparator
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.data.isNoPickup
 import org.mtransit.android.data.isSameRoute
+import org.mtransit.android.data.isSameRouteDirection
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
@@ -81,6 +83,19 @@ class POIViewModel @Inject constructor(
 
         private const val NEARBY_CONNECTIONS_MAX_COVERAGE = 2f * UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS
         private const val NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE = 2.5f * UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS
+
+        const val NEARBY_CONNECTIONS_SAME_AGENCY_1ST = true
+
+        val NEARBY_CONNECTIONS_EXCLUDE_AGENCY: (IAgencyProperties) -> Boolean = { agency ->
+            !agency.type.isNearbyScreen
+                || agency.type == DataSourceType.TYPE_MODULE
+        }
+
+        val NEARBY_CONNECTIONS_EXCLUDE_POI: (poim: POIManager, mainPOI: POI) -> Boolean = { poim, mainPOI ->
+            poim.poi.uuid == mainPOI.uuid
+                || (poim.poi.isNoPickup && !poim.poi.isSameRoute(mainPOI))
+                || poim.poi.isSameRouteDirection(mainPOI)
+        }
     }
 
     init {
@@ -239,14 +254,8 @@ class POIViewModel @Inject constructor(
                             }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
                         },
                         mainAgency = poiAgency,
-                        excludeAgency = { agency ->
-                            !agency.type.isNearbyScreen
-                                || agency.type == DataSourceType.TYPE_MODULE
-                        },
-                        excludePOI = {
-                            it.poi.uuid == poi.uuid
-                                || (it.poi.isNoPickup && !it.poi.isSameRoute(poi))
-                        },
+                        excludeAgency = NEARBY_CONNECTIONS_EXCLUDE_AGENCY,
+                        excludePOI = { NEARBY_CONNECTIONS_EXCLUDE_POI(it, poi) },
                     ).sortWithAnd(
                         POIConnectionComparator(
                             targetedPOI = poi,

@@ -12,7 +12,7 @@
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
     tools:background="?android:attr/colorBackground"
     tools:context=".ui.pick.PickPOIDialogFragment">
-
+    <!-- SCROLLABLE CONTENT -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,10 +22,12 @@
             android:id="@+id/drag_handle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+        <!-- LAYOUT ABOVE DRAG HANDLE UI -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+            <!-- DRAG HANDLE SPACE -->
             <Space
                 android:id="@+id/space_for_drag_handle"
                 android:layout_width="match_parent"
@@ -33,6 +35,7 @@
                 android:minHeight="@dimen/baseline_48"
                 android:visibility="visible"
                 tools:visibility="visible" />
+            <!-- TITLE & MORE -> -->
             <include
                 android:id="@+id/nearby_pois_title"
                 layout="@layout/layout_poi_nearby_pois_title"

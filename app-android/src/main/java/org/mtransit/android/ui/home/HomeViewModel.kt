@@ -34,8 +34,8 @@ import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
-import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.POI_ALPHA_COMPARATOR
 import org.mtransit.android.data.dataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -93,8 +93,6 @@ class HomeViewModel @Inject constructor(
         private const val NB_MAX_BY_TYPE = 2
         private const val NB_MAX_BY_TYPE_ONE_TYPE = 6
         private const val NB_MAX_BY_TYPE_TWO_TYPES = 4
-
-        private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
 
         private const val IGNORE_SAME_LOCATION_CHECK = false
         // private const val IGNORE_SAME_LOCATION_CHECK = true // DEBUG

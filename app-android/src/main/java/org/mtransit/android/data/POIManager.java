@@ -186,6 +186,8 @@ public class POIManager implements LocationPOI,
 		return this.poi.getStatusType();
 	}
 
+	private static final boolean STATUS_DEBUG = false;
+
 	public boolean setStatus(@NonNull POIStatus newStatus) {
 		// 1 - validate status type
 		switch (getStatusType()) {
@@ -193,41 +195,41 @@ public class POIManager implements LocationPOI,
 			return false; // no change
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (!(newStatus instanceof UISchedule)) {
-				MTLog.w(this, "setStatus() > Unexpected schedule status '%s'!", newStatus);
+				if (STATUS_DEBUG) MTLog.w(this, "setStatus() > Unexpected schedule status '%s'!", newStatus);
 				return false; // no change
 			}
 			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			if (!(newStatus instanceof AvailabilityPercent)) {
-				MTLog.w(this, "setStatus() > Unexpected availability percent status '%s'!", newStatus);
+				if (STATUS_DEBUG) MTLog.w(this, "setStatus() > Unexpected availability percent status '%s'!", newStatus);
 				return false; // no change
 			}
 			break;
 		case POI.ITEM_STATUS_TYPE_APP:
 			if (!(newStatus instanceof AppStatus)) {
-				MTLog.w(this, "setStatus() > Unexpected app status '%s'!", newStatus);
+				if (STATUS_DEBUG) MTLog.w(this, "setStatus() > Unexpected app status '%s'!", newStatus);
 				return false; // no change
 			}
 			break;
 		default:
-			MTLog.w(this, "setStatus() > Unexpected status '%s'!", newStatus);
+			if (STATUS_DEBUG) MTLog.w(this, "setStatus() > Unexpected status '%s'!", newStatus);
 			return false; // no change
 		}
 		// 2 - validate new status more useful & better than current status
 		if (this.status != null) {
 			if (this.status.isUseful()) {
 				if (newStatus.getReadFromSourceAtInMs() < this.status.getReadFromSourceAtInMs()) {
-					MTLog.d(this, "setStatus() > IGNORE (new status older than current status)");
+					if (STATUS_DEBUG) MTLog.d(this, "setStatus() > IGNORE (new status older than current status)");
 					return false; // keep status with more recent source
 				}
 			}
 			if (!this.status.isNoData() && newStatus.isNoData()) {
-				MTLog.d(this, "setStatus() > IGNORE (new status is 'no data')");
+				if (STATUS_DEBUG) MTLog.d(this, "setStatus() > IGNORE (new status is 'no data')");
 				return false; // keep status w/o 'no data'
 			}
 		}
 		// 3 - use status
-		MTLog.d(this, "setStatus() > USE new status (useful:%s,noData:%s,read:%s,last:%s,valid:%s)",
+		if (STATUS_DEBUG) MTLog.d(this, "setStatus() > USE new status (useful:%s,noData:%s,read:%s,last:%s,valid:%s)",
 				newStatus.isUseful(),
 				newStatus.isNoData(),
 				MtLogExtKt.toDateTimeLog(newStatus.getReadFromSourceAtInMs()),

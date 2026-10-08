@@ -30,6 +30,7 @@ import org.mtransit.android.ui.MTTopSuperscriptSpan;
 import org.mtransit.commons.StringUtils;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -77,13 +78,9 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	private static final Pattern TIME_W_SECONDS = Pattern.compile("([0-9]{1,2}:[0-9]{2}:[0-9]{2})", Pattern.CASE_INSENSITIVE);
 
-	@SuppressLint("ConstantLocale")
-	// will only be an issue if user switch language w/o re-starting app
-	private static final ThreadSafeDateFormatter STANDALONE_DAY_OF_THE_WEEK_LONG = new ThreadSafeDateFormatter("EEEE", Locale.getDefault());
+	private static final String STANDALONE_DAY_OF_THE_WEEK_LONG_FORMAT = "EEEE";
 
-	@SuppressLint("ConstantLocale")
-	// will only be an issue if user switch language w/o re-starting app
-	private static final ThreadSafeDateFormatter STANDALONE_MONTH_LONG = new ThreadSafeDateFormatter("LLLL", Locale.getDefault());
+	private static final String STANDALONE_MONTH_LONG_FORMAT = "LLLL";
 
 	private static final String AM = "am";
 	private static final String A_M_ = "a.m.";
@@ -780,8 +777,9 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		Calendar nextWeekStarts = (Calendar) today.clone();
 		nextWeekStarts.add(Calendar.DATE, +7);
 		if (targetedTimestamp >= afterTomorrow.getTimeInMillis() && targetedTimestamp < nextWeekStarts.getTimeInMillis()) {
+			final SimpleDateFormat dateFormat = new SimpleDateFormat(STANDALONE_DAY_OF_THE_WEEK_LONG_FORMAT, Locale.getDefault());
 			return new Pair<>( //
-					StringExtKt.capitalize(STANDALONE_DAY_OF_THE_WEEK_LONG.formatThreadSafe(targetedTimestamp)), null); // THIS WEEK (Monday-Sunday)
+					StringExtKt.capitalize(dateFormat.format(targetedTimestamp)), null); // THIS WEEK (Monday-Sunday)
 		}
 		Calendar nextWeekEnds = (Calendar) today.clone();
 		nextWeekEnds.add(Calendar.DATE, +14);
@@ -808,8 +806,9 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		Calendar next12MonthsEnd = (Calendar) today.clone();
 		next12MonthsEnd.add(Calendar.MONTH, +6);
 		if (targetedTimestamp >= next12MonthsStart.getTimeInMillis() && targetedTimestamp < next12MonthsEnd.getTimeInMillis()) {
+			final SimpleDateFormat dateFormat = new SimpleDateFormat(STANDALONE_MONTH_LONG_FORMAT, Locale.getDefault());
 			return new Pair<>( //
-					StringExtKt.capitalize(STANDALONE_MONTH_LONG.formatThreadSafe(targetedTimestamp)), null); // LESS THAN 12 MONTHS (January-December)
+					StringExtKt.capitalize(dateFormat.format(targetedTimestamp)), null); // LESS THAN 12 MONTHS (January-December)
 		}
 		Calendar thisYearStarts = (Calendar) thisMonthStarts.clone();
 		thisYearStarts.set(Calendar.MONTH, Calendar.JANUARY);

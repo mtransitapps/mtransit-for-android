@@ -115,8 +115,8 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                         newLastUpdateInMs,
                         place.location?.latitude ?: return@mapNotNull null,
                         place.location?.longitude ?: return@mapNotNull null,
+                        place.displayName ?: return@mapNotNull null
                     ).apply {
-                        this.name = place.displayName ?: return@mapNotNull null
                         this.score = score--
                         this.iconUrl = place.iconMaskUrl
                         this.iconBgColor = place.iconBackgroundColor

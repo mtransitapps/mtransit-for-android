@@ -122,16 +122,12 @@ val POIManager.simpleDistanceString: String
 val POIManager.uuid: String get() = this.poi.uuid
 
 @Suppress("unused") // used for debug logs
-val POIManager.uuidAndDistance: String
-    get() = this.poi.uuid + " " + this.simpleDistanceString
-
-@Suppress("unused") // used for debug logs
 val POIManager.shortUUIDAndDistance: String
-    get() = this.poi.shortUUID + " " + this.simpleDistanceString
+    get() = "${this.poi.shortUUID} (${this.simpleDistanceString})"
 
 @Suppress("unused") // used for debug logs
 val POIManager.shortUUID: String get() = this.poi.shortUUID
-val POI.shortUUID: String get() = this.uuid.substring(this.authority.length + 1)
+val POI.shortUUID: String get() = "${this.shortAuthority}.${this.uuid.substring(this.authority.length + 1)}"
 
 @Suppress("unused") // used for debug logs
 val POI.shortAuthority: String get() = this.authority.toShortAuthority()
@@ -143,6 +139,13 @@ fun POI.isSameRoute(other: POI): Boolean {
     if (other !is RouteDirectionStop || this !is RouteDirectionStop) return false
     if (this.authority != other.authority) return false
     return this.route.id == other.route.id
+}
+
+fun POI.isSameRouteDirection(other: POI): Boolean {
+    if (other !is RouteDirectionStop || this !is RouteDirectionStop) return false
+    if (this.authority != other.authority) return false
+    return this.route.id == other.route.id
+        && this.direction.id == other.direction.id
 }
 
 fun POIManager.makeStatusFilter(inFocus: Boolean? = null) =

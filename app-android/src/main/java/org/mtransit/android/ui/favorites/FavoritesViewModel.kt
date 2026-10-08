@@ -24,8 +24,8 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.FavoriteFolder
 import org.mtransit.android.data.IAgencyProperties
-import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.POI_ALPHA_COMPARATOR
 import org.mtransit.android.data.dstOrFavFolderId
 import org.mtransit.android.data.toPOIM
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -53,8 +53,6 @@ class FavoritesViewModel @Inject constructor(
 
     companion object {
         private val LOG_TAG: String = FavoritesViewModel::class.java.simpleName
-
-        private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
     override fun getLogTag() = LOG_TAG

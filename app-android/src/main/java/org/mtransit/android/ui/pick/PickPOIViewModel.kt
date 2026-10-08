@@ -12,8 +12,8 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
-import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.POI_ALPHA_COMPARATOR
 import org.mtransit.android.data.isNoPickup
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -43,8 +43,6 @@ class PickPOIViewModel @Inject constructor(
 
         internal const val EXTRA_FIXED_ON_LAT = "extra_fixed_on_lat"
         internal const val EXTRA_FIXED_ON_LNG = "extra_fixed_on_lng"
-
-        private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
     init {

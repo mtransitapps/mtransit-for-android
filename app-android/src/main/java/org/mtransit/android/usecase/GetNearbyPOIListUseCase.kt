@@ -13,8 +13,8 @@ import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.IAgencyProperties
-import org.mtransit.android.data.POIAlphaComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.POI_ALPHA_COMPARATOR
 import org.mtransit.android.data.distanceOrNull
 import org.mtransit.android.data.isNoPickup
 import org.mtransit.android.data.uuid
@@ -47,13 +47,12 @@ class GetNearbyPOIListUseCase(
 
         private const val SAME_LOGIC_FOR_TARGET_AGENCY = true
 
-        private const val INITIAL_COVERAGE_IN_METERS = 100f
+        private const val INITIAL_COVERAGE_IN_METERS = 50f
 
         private const val MIN_LASTS_DISTANCE_DIFF_IN_METERS = 13f
 
         private const val MAX_DISTANCE_INCREASE = 1.5f
 
-        private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
     private var logTag: String = LOG_TAG
@@ -137,15 +136,20 @@ class GetNearbyPOIListUseCase(
                 ) {
                     val lastDistance = nearbyPOIs.takeIf { it.isNotEmpty() }?.lastOrNull()?.distanceOrNull
                     val firstLastDistanceDiff = nearbyPOIs
-                        .filter { it.distanceOrNull != null }
+                        .filter { it.distanceOrNull?.let { distanceNN -> distanceNN > 0f && distanceNN < maxDistanceInMeters } == true }
                         .takeIf { it.size >= 2 }
-                        ?.let { it.last().distance - it.first().distance }
+                        ?.let {
+                            val firstDistance = it.first().distance
+                            val lastDistance = it.last().distance
+                            lastDistance - firstDistance
+                        }
                         ?.takeIf { it > 0f }?.coerceAtMost(maxDistanceInMeters)
-                    val distinctLastDistance = nearbyPOIs.takeIf { it.size > 2 }?.lastOrNull { poim ->
-                        poim.distanceOrNull?.let { poimDistance ->
-                            lastDistance?.let { it - poimDistance > 0.0f }
-                        } == true
-                    }?.distance
+                    val distinctLastDistance = if (lastDistance != null) nearbyPOIs
+                        .filter { it.distanceOrNull != null }
+                        .takeIf { it.size > 2 }
+                        ?.lastOrNull { poim ->
+                            lastDistance - poim.distance > 0.0f
+                        }?.distance else null
                     val lastsDistanceDiff = distinctLastDistance?.let { distinctLastDistance ->
                         lastDistance?.let { it - distinctLastDistance }
                     }?.coerceAtLeast(
