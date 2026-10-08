@@ -367,6 +367,7 @@
     <ID>ReturnCount:NearbyViewModel.kt:NearbyViewModel$override fun initiateRefresh: Boolean</ID>
     <ID>ReturnCount:NetworkLocationRepository.kt:NetworkLocationRepository$suspend fun fetchIPLocationIfNecessary</ID>
     <ID>ReturnCount:POIAlphaComparator.kt:POIAlphaComparator$override fun compare: Int</ID>
+    <ID>ReturnCount:POIConnectionComparator.kt:POIConnectionComparator$override fun compare: Int</ID>
     <ID>ReturnCount:POIFragmentExt.kt:fun POIFragment.getMapMarkerAlphaKt: Float?</ID>
     <ID>ReturnCount:POIFragmentExt.kt:fun POIFragment.onMapClickKt: Boolean</ID>
     <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$override fun getPOI: Cursor?</ID>

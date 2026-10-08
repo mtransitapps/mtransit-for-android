@@ -144,17 +144,21 @@ class GetNearbyPOIListUseCase(
                             lastDistance - firstDistance
                         }
                         ?.takeIf { it > 0f }?.coerceAtMost(maxDistanceInMeters)
-                    val distinctLastDistance = if (lastDistance != null) nearbyPOIs
-                        .filter { it.distanceOrNull != null }
-                        .takeIf { it.size > 2 }
-                        ?.lastOrNull { poim ->
-                            lastDistance - poim.distance > 0.0f
-                        }?.distance else null
-                    val lastsDistanceDiff = distinctLastDistance?.let { distinctLastDistance ->
-                        lastDistance?.let { it - distinctLastDistance }
-                    }?.coerceAtLeast(
-                        MIN_LASTS_DISTANCE_DIFF_IN_METERS
-                    )
+                    val lastsDistanceDiff = if (lastDistance == null) {
+                        null
+                    } else {
+                        nearbyPOIs
+                            .filter { it.distanceOrNull != null }
+                            .takeIf { it.size > 2 }
+                            ?.lastOrNull { poim ->
+                                lastDistance - poim.distance > 0.0f
+                            }?.distance
+                            ?.let { distinctLastDistance ->
+                                lastDistance - distinctLastDistance
+                            }?.coerceAtLeast(
+                                MIN_LASTS_DISTANCE_DIFF_IN_METERS
+                            )
+                    }
                     val avgDistanceDiff = (
                         (firstLastDistanceDiff ?: INITIAL_COVERAGE_IN_METERS) +
                             (lastsDistanceDiff ?: MIN_LASTS_DISTANCE_DIFF_IN_METERS)

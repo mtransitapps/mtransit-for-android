@@ -2258,50 +2258,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Stop.Stop is deprecated; consider using an alternative."
-        errorLine1="        val stopCentrale = Stop(11010, &quot;&quot;, &quot;Centrale&quot;, 45.500002, -73.566668)"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="47"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Stop.Stop is deprecated; consider using an alternative."
-        errorLine1="        val stopVendome = Stop(11160, &quot;&quot;, &quot;Vendôme&quot;, 45.473771, -73.603101)"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="48"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Stop.Stop is deprecated; consider using an alternative."
-        errorLine1="        val stopStLambert = Stop(11440, &quot;&quot;, &quot;St-Lambert&quot;, 45.499634, -73.505824)"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="49"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="org.mtransit.android.commons.data.Stop.Stop is deprecated; consider using an alternative."
-        errorLine1="        val stopTL34417 = Stop(4417, &quot;34417&quot;, &quot;Term Longueuil&quot;, 45.5235276580726, -73.5208026778995)"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/POIConnectionComparatorTests.kt"
-            line="93"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
         errorLine1="  super.onLowMemory();"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~">
