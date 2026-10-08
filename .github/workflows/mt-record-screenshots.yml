@@ -242,7 +242,7 @@ jobs:
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
           gh pr create --base "${MT_BRANCH_NAME}" --title "$COMMIT_MSG" --body "$COMMIT_MSG" --assignee montransit
-          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+          # using CODEOWNERS # gh pr comment --body "@mtransitapps/codeowners please review this pull request"
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
 
@@ -250,6 +250,6 @@ jobs:
         if: ${{ steps.mt-commit-screenshots.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
         run: |
           gh pr edit --add-assignee montransit --title "Update screenshots in \`${MT_BRANCH_NAME}\`"
-          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers
+          gh pr comment --body "@mtransitapps/codeowners please review updated pull request"
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}

@@ -672,6 +672,17 @@
     "lng": "-73.452413"
   },
   {
+    "repo": "ca-medicine-hat-transit-bus-android",
+    "pkg": "org.mtransit.android.ca_medicine_hat_transit_bus",
+    "store": "production",
+    "name": "MHT (Medicine Hat Transit)",
+    "location": "Medicine Hat, AB, Canada",
+    "type_id": "3",
+    "color": "F04C2A",
+    "lat": "50.025678",
+    "lng": "-110.673927"
+  },
+  {
     "repo": "ca-merritt-transit-bus-android",
     "pkg": "org.mtransit.android.ca_merritt_transit_bus",
     "store": "production",

@@ -226,7 +226,7 @@ jobs:
           COMMIT_MESSAGE: ${{ steps.mt-change-message.outputs.commit_message }}
         run: |
           gh pr create --base "${MT_BRANCH_NAME}" --fill --title "$COMMIT_MESSAGE" --assignee montransit
-          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers;
+          # using CODEOWNERS # gh pr comment --body "@mtransitapps/codeowners please review this pull request"
       - name: MT Update pull request (if necessary)
         if: ${{ steps.mt-commit-changes.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
         env:
@@ -234,4 +234,4 @@ jobs:
           COMMIT_MESSAGE: ${{ steps.mt-change-message.outputs.commit_message }}
         run: |
           gh pr edit --add-assignee montransit --title "$COMMIT_MESSAGE"
-          gh pr comment --body "@mtransitapps/reviewers please review" # --reviewer mtransitapps/reviewers;
+          gh pr comment --body "@mtransitapps/codeowners please review updated pull request"
