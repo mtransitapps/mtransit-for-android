@@ -10,7 +10,9 @@ import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.Place
+import org.mtransit.android.data.latLng
 import org.mtransit.android.data.toExtendedMarkerOptions
+import org.mtransit.android.data.updateMarker
 import org.mtransit.android.ui.location.UILocationUtils
 import org.mtransit.android.ui.location.latLng
 import org.mtransit.android.ui.location.toNameOnly
