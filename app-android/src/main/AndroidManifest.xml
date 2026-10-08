@@ -60,8 +60,9 @@
             </intent-filter>
         </activity>
         <!-- REMOVE MODULE REDIRECT ACTIVITY -->
+        <!-- using FQDN to remove build warning "was tagged at AndroidManifest.xml to remove other declarations but no other declaration present" -->
         <activity
-            android:name=".commons.ui.ModuleRedirectActivity"
+            android:name="org.mtransit.android.commons.ui.ModuleRedirectActivity"
             tools:node="remove" />
         <!-- MAIN SCREEN OLD -->
         <activity
