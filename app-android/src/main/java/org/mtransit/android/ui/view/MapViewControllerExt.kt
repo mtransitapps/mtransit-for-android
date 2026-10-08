@@ -198,7 +198,13 @@ fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selected
     setSelectedPlace(context, selectedPlace)
 }
 
-fun MapViewController.setSelectedPlace(context: Context, place: Place) = this.extendedGoogleMap?.apply {
+fun MapViewController.setSelectedPlace(context: Context, place: Place, selectedLocation: LatLng? = place.latLng) = this.extendedGoogleMap?.apply {
+    selectedPlaceMarker?.let {
+        if (it.position == selectedLocation) {
+            place.updateMarker(it, context)
+            return@apply
+        }
+    }
     clearSelectedPlace()
     selectedPlaceMarker = addMarker(place.toExtendedMarkerOptions(context))
         .apply {

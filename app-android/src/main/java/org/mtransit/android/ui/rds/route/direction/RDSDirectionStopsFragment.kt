@@ -462,7 +462,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             this.listAdapter.notifyDataSetChanged(false)
         }
         viewModel.selectedLocation.observe(viewLifecycleOwner) {
-            // DO NOTHING
+            it?.let { mapViewController.onSelectedPlaceLocation(it, null) }
         }
         viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
             viewModel.selectedLocation.value?.let {

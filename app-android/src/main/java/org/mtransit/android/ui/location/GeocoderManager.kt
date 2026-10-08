@@ -41,6 +41,7 @@ class GeocoderManager(
         AndroidGeocoder(appContext, Locale.getDefault())
     }
 
+    @Throws(IllegalArgumentException::class)
     suspend fun getAddressesFromLocation(
         latitude: Double,
         longitude: Double,
@@ -71,6 +72,7 @@ class GeocoderManager(
     }
 
     @Suppress("unused")
+    @Throws(IllegalArgumentException::class)
     suspend fun getLocationFromAddressesName(
         locationName: String,
         maxResults: Int = 1
@@ -102,6 +104,13 @@ class GeocoderManager(
 suspend fun AndroidLocation.toAddressOrNull(geocoderManager: GeocoderManager): AndroidAddress? {
     return try {
         geocoderManager.getAddressesFromLocation(this.latitude, this.longitude, maxResults = 1).firstOrNull()
+    } catch (iea: IllegalArgumentException) {
+        if (MTLog.isLoggable(android.util.Log.DEBUG)) {
+            MTLog.w(GeocoderManager, iea, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+        } else {
+            MTLog.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+        }
+        null
     } catch (ioe: IOException) {
         if (MTLog.isLoggable(android.util.Log.DEBUG)) {
             MTLog.w(GeocoderManager, ioe, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
