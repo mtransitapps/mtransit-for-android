@@ -20,7 +20,6 @@ class POIConnectionComparator(
                 val poim1SameAgency = poim1.poi.authority == this.targetedPOI.authority
                 val poim2SameAgency = poim2.poi.authority == this.targetedPOI.authority
                 if (poim1SameAgency && !poim2SameAgency) {
-                    )
                     return ComparatorUtils.BEFORE
                 }
                 else if (!poim1SameAgency && poim2SameAgency) {
