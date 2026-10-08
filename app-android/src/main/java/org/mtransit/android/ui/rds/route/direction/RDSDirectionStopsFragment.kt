@@ -461,8 +461,8 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository, userManager) {
             this.listAdapter.notifyDataSetChanged(false)
         }
-        viewModel.selectedLocation.observe(viewLifecycleOwner) {
-            it?.let { mapViewController.onSelectedPlaceLocation(it, null) }
+        viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
+            newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
         }
         viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
             viewModel.selectedLocation.value?.let {

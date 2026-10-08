@@ -345,8 +345,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 applySelectedUUIDChanged(selectedUUID)
             }
         }
-        viewModel.selectedLocation.observe(viewLifecycleOwner) {
-            it?.let { mapViewController.onSelectedPlaceLocation(it, null) }
+        viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
+            newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
         }
         viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
             viewModel.selectedLocation.value?.let {
