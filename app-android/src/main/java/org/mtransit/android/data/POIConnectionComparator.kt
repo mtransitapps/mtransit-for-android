@@ -24,7 +24,6 @@ class POIConnectionComparator(
                     return ComparatorUtils.BEFORE
                 }
                 else if (!poim1SameAgency && poim2SameAgency) {
-                    )
                     return ComparatorUtils.AFTER
                 }
             }
