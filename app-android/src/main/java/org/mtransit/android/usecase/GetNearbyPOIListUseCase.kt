@@ -52,7 +52,6 @@ class GetNearbyPOIListUseCase(
         private const val MIN_LASTS_DISTANCE_DIFF_IN_METERS = 13f
 
         private const val MAX_DISTANCE_INCREASE = 1.5f
-
     }
 
     private var logTag: String = LOG_TAG
