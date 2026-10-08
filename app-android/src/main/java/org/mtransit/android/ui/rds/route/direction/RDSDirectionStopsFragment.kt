@@ -2,7 +2,6 @@ package org.mtransit.android.ui.rds.route.direction
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
@@ -71,6 +70,7 @@ import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_stops) {
@@ -541,7 +541,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     private fun findClosestPOIIndexUuid(
         pois: List<POIManager>?,
-        deviceLocation: Location? = parentViewModel.deviceLocation.value,
+        deviceLocation: AndroidLocation? = parentViewModel.deviceLocation.value,
     ): Pair<Int?, String?>? {
         deviceLocation ?: return null
         return pois

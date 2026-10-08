@@ -3,7 +3,6 @@ package org.mtransit.android.ui.map
 import android.app.PendingIntent
 import android.content.pm.PackageManager
 import android.location.Address
-import android.location.Location
 import androidx.annotation.MainThread
 import androidx.collection.ArrayMap
 import androidx.core.content.edit
@@ -64,6 +63,7 @@ import org.mtransit.commons.sortWithAnd
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
+import android.location.Location as AndroidLocation
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
@@ -96,7 +96,7 @@ class MapViewModel @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
-    val initialLocation = savedStateHandle.getLiveDataDistinct<Location?>(EXTRA_INITIAL_LOCATION)
+    val initialLocation = savedStateHandle.getLiveDataDistinct<AndroidLocation?>(EXTRA_INITIAL_LOCATION)
 
     fun onInitialLocationSet() {
         savedStateHandle[EXTRA_INITIAL_LOCATION] = null // set once only

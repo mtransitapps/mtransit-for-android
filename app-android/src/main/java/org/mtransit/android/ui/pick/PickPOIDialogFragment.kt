@@ -3,7 +3,6 @@ package org.mtransit.android.ui.pick
 import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,6 +40,7 @@ import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationListener, IFragment {
@@ -275,7 +275,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

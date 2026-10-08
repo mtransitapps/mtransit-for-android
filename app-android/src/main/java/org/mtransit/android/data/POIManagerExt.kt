@@ -1,7 +1,6 @@
 package org.mtransit.android.data
 
 import android.content.Context
-import android.location.Location
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
@@ -21,6 +20,7 @@ import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
+import android.location.Location as AndroidLocation
 
 @Suppress("unused")
 fun Iterable<POIManager>.toStringUUID(): String {
@@ -52,8 +52,8 @@ val POIManager.dataSourceTypeId: Int get() = this.poi.dataSourceTypeId
 val POIManager.dataSourceType: DataSourceType? get() = this.poi.dataSourceType
 val POI.dataSourceType: DataSourceType? get() = this.dataSourceTypeId.let { DataSourceType.parseId(it) }
 
-val POIManager.location: Location? get() = this.poi.location
-val POI.location: Location? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
+val POIManager.location: AndroidLocation? get() = this.poi.location
+val POI.location: AndroidLocation? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
 
 val POIManager.latLng: LatLng? get() = this.poi.latLng
 val POI.latLng: LatLng? get() = if (this.hasLocation()) LatLng(this.lat, this.lng) else null

@@ -1,12 +1,12 @@
 package org.mtransit.android.ui.view.map
 
-import android.location.Location
 import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.commons.LocationUtils
+import android.location.Location as AndroidLocation
 
-fun Location.toLatLng() = LatLng(this.latitude, this.longitude)
+fun AndroidLocation.toLatLng() = LatLng(this.latitude, this.longitude)
 
-fun LatLng.toLocation(provider: String = "MT") = Location(provider).apply {
+fun LatLng.toLocation(provider: String = "MT") = AndroidLocation(provider).apply {
     this.latitude = this@toLocation.latitude
     this.longitude = this@toLocation.longitude
 }

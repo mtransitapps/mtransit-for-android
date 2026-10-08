@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.nearby.type
 
 import android.content.pm.PackageManager
-import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -29,6 +28,7 @@ import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.commons.addAllN
 import javax.inject.Inject
 import kotlin.math.max
+import android.location.Location as AndroidLocation
 
 @HiltViewModel
 class NearbyAgencyTypeViewModel @Inject constructor(
@@ -70,7 +70,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         if (it?.size == 1) it[0] else null
     }.distinctUntilChanged()
 
-    fun setNearbyLocation(newNearbyLocation: Location?) {
+    fun setNearbyLocation(newNearbyLocation: AndroidLocation?) {
         val currentLocation = _params.value?.nearbyLocation
         if (newNearbyLocation == currentLocation) {
             MTLog.d(this, "setNearbyLocation() > SKIP (same)")
@@ -136,7 +136,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
             return null
         }
         val typeAgencies: List<IAgencyNearbyProperties> = currentParams.typeAgencies ?: return null
-        val nearbyLocation: Location = currentParams.nearbyLocation ?: return null
+        val nearbyLocation: AndroidLocation = currentParams.nearbyLocation ?: return null
         val aroundDiff: AroundDiff = currentParams.aroundDiff ?: return null
         val minCoverageInMeters: Float = currentParams.minCoverageInMeters ?: return null
         val minSize: Int = currentParams.minSize ?: return null

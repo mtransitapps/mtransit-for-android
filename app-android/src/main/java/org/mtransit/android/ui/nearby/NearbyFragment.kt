@@ -3,7 +3,6 @@ package org.mtransit.android.ui.nearby
 import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Color
-import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -50,6 +49,7 @@ import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.MapUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class NearbyFragment :
@@ -345,7 +345,7 @@ class NearbyFragment :
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

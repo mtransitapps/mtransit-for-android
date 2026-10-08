@@ -6,7 +6,7 @@ package org.mtransit.android.ui.poi
 // import android.hardware.Sensor
 // import android.hardware.SensorEvent
 // import android.hardware.SensorEventListener
-// import android.location.Location
+// import android.location.Location as AndroidLocation
 // import android.os.Bundle
 // import android.view.Menu
 // import android.view.MenuInflater

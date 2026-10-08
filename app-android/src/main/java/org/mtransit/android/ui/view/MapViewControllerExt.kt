@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.view
 
 import android.content.Context
-import android.location.Address
 import android.view.View
 import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.R
@@ -35,6 +34,7 @@ import org.mtransit.android.util.MapUtils
 import java.util.Locale
 import java.util.UUID
 import kotlin.math.abs
+import android.location.Address as AndroidAddress
 import org.mtransit.android.commons.R as commonsR
 
 @JvmOverloads
@@ -158,7 +158,7 @@ fun MapViewController.clearSelectedPlace() = this.extendedGoogleMap?.apply {
     selectedPlaceMarker = null
 }
 
-fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selectedAddress: Address?) {
+fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selectedAddress: AndroidAddress?) {
     val context: Context = activityOrNull ?: return
     var usedLocation = selectedLocation
     selectedAddress?.latLng

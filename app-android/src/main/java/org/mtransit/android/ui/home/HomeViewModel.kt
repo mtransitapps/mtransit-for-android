@@ -3,8 +3,6 @@ package org.mtransit.android.ui.home
 import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Address
-import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -65,6 +63,8 @@ import org.mtransit.commons.removeAllAnd
 import java.util.SortedMap
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
+import android.location.Address as AndroidAddress
+import android.location.Location as AndroidLocation
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -112,7 +112,7 @@ class HomeViewModel @Inject constructor(
 
     private val nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
 
-    private val nearbyLocation: LiveData<Location?> = MediatorLiveData3(deviceLocation, nearbyLocationForceReset, ipLocation)
+    private val nearbyLocation: LiveData<AndroidLocation?> = MediatorLiveData3(deviceLocation, nearbyLocationForceReset, ipLocation)
         .switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
@@ -123,7 +123,7 @@ class HomeViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    private fun getNearbyLocation(lastDeviceLocation: Location?, forceReset: Boolean): Location? {
+    private fun getNearbyLocation(lastDeviceLocation: AndroidLocation?, forceReset: Boolean): AndroidLocation? {
         if (!forceReset) {
             nearbyLocation.value?.let {
                 MTLog.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
@@ -159,7 +159,7 @@ class HomeViewModel @Inject constructor(
 
     private val distanceUnitsPref = userPrefManager.distanceUnits.distinctUntilChanged()
 
-    private val locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
+    private val locationAddress: LiveData<AndroidAddress> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             nearbyLocation?.toAddressOrNull(geocoderManager)?.let { nearbyAddress ->
                 emit(nearbyAddress)
@@ -228,7 +228,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun getNearbyPOIs(
         scope: CoroutineScope,
         typeToHomeAgencies: SortedMap<DataSourceType, List<AgencyBaseProperties>>?,
-        nearbyLocation: Location?,
+        nearbyLocation: AndroidLocation?,
     ) {
         if (typeToHomeAgencies.isNullOrEmpty() || nearbyLocation == null) {
             MTLog.d(this@HomeViewModel, "loadNearbyPOIs() > SKIP (no agencies OR no location)")

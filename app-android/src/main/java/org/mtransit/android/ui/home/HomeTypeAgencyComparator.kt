@@ -1,22 +1,22 @@
 package org.mtransit.android.ui.home
 
 import android.content.Context
-import android.location.Location
 import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import java.lang.ref.WeakReference
+import android.location.Location as AndroidLocation
 
 class HomeTypeAgencyComparator(
     private val contextWR: WeakReference<Context>,
     private val typeToAgencies: Map<DataSourceType, List<AgencyBaseProperties>>,
-    private val location: Location,
+    private val location: AndroidLocation,
 ) : Comparator<DataSourceType> {
 
     constructor(
         context: Context,
         typeToAgencies: Map<DataSourceType, List<AgencyBaseProperties>>,
-        location: Location,
+        location: AndroidLocation,
     ) : this(WeakReference(context), typeToAgencies, location)
 
     private val typeToInsideArea: Map<DataSourceType, Boolean> by lazy {

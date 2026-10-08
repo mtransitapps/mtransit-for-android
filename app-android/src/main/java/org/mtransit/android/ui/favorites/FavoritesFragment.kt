@@ -2,7 +2,6 @@ package org.mtransit.android.ui.favorites
 
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -50,6 +49,7 @@ import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class FavoritesFragment :
@@ -276,7 +276,7 @@ class FavoritesFragment :
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

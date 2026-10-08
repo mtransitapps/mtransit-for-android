@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.rds.route.direction
 
-import android.location.Address
 import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -49,6 +48,7 @@ import org.mtransit.android.ui.view.map.toLocation
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
+import android.location.Address as AndroidAddress
 
 @HiltViewModel
 class RDSDirectionStopsViewModel @Inject constructor(
@@ -280,8 +280,8 @@ class RDSDirectionStopsViewModel @Inject constructor(
     val selectedLocation: LiveData<LatLng?> = _selectedLocation
 
     private val loadingSelectedLocationAddress = MutableLiveData<Boolean>()
-    private val _selectedAddress = MutableLiveData<Address?>()
-    val selectedAddress: LiveData<Address?> = _selectedAddress
+    private val _selectedAddress = MutableLiveData<AndroidAddress?>()
+    val selectedAddress: LiveData<AndroidAddress?> = _selectedAddress
 
     fun onLocationSelected(selectedLocation: LatLng) {
         _selectedLocation.postValue(selectedLocation)

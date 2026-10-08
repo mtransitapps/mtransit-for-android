@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Address
-import android.location.Location
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -53,6 +52,7 @@ import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @HiltViewModel
 class NearbyViewModel @Inject constructor(
@@ -98,7 +98,7 @@ class NearbyViewModel @Inject constructor(
     private val fixedOnLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LAT)
     private val fixedOnLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LNG)
 
-    val fixedOnLocation: LiveData<Location?> = MediatorLiveData2(fixedOnLat, fixedOnLng)
+    val fixedOnLocation: LiveData<AndroidLocation?> = MediatorLiveData2(fixedOnLat, fixedOnLng)
         .map { (fixedOnLat, fixedOnLng) ->
             fixedOnLat ?: return@map null
             fixedOnLng ?: return@map null
@@ -116,7 +116,7 @@ class NearbyViewModel @Inject constructor(
 
     private val _ipLocation = networkLocationRepository.ipLocation
 
-    val nearbyLocation: LiveData<Location?> = MediatorLiveData4(fixedOnLocation, deviceLocation, _nearbyLocationForceReset, _ipLocation)
+    val nearbyLocation: LiveData<AndroidLocation?> = MediatorLiveData4(fixedOnLocation, deviceLocation, _nearbyLocationForceReset, _ipLocation)
         .switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
@@ -127,7 +127,7 @@ class NearbyViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    private fun getNearbyLocation(fixedOnLocation: Location?, lastDeviceLocation: Location?, forceReset: Boolean): Location? {
+    private fun getNearbyLocation(fixedOnLocation: AndroidLocation?, lastDeviceLocation: AndroidLocation?, forceReset: Boolean): AndroidLocation? {
         if (!forceReset) {
             nearbyLocation.value?.let {
                 MTLog.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")

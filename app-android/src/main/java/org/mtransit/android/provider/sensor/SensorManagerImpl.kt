@@ -7,7 +7,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.location.Location
 import android.os.Build
 import android.view.Surface
 import android.widget.AbsListView
@@ -19,6 +18,7 @@ import org.mtransit.android.ui.view.common.IFragment
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.abs
+import android.location.Location as AndroidLocation
 
 class SensorManagerImpl @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
@@ -190,7 +190,7 @@ class SensorManagerImpl @Inject constructor(
         return values[0]
     }
 
-    override fun getLocationDeclination(location: Location): Float {
+    override fun getLocationDeclination(location: AndroidLocation): Float {
         return GeomagneticField(
             location.latitude.toFloat(),
             location.longitude.toFloat(),
@@ -201,7 +201,7 @@ class SensorManagerImpl @Inject constructor(
 
     override fun updateCompass(
         force: Boolean,
-        deviceLocation: Location?,
+        deviceLocation: AndroidLocation?,
         roundedOrientation: Int,
         now: Long,
         scrollState: Int,

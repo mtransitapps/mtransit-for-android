@@ -3,7 +3,6 @@ package org.mtransit.android.ui.map
 import android.app.PendingIntent
 import android.content.Context
 import android.content.res.Configuration
-import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -40,6 +39,7 @@ import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.onSelectedPlaceLocation
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class MapFragment :
@@ -64,7 +64,7 @@ class MapFragment :
         @JvmStatic
         @JvmOverloads
         fun newInstance(
-            optInitialLocation: Location? = null,
+            optInitialLocation: AndroidLocation? = null,
             optSelectedUUID: String? = null,
             optIncludeTypeId: Int? = null,
         ): MapFragment {
@@ -83,7 +83,7 @@ class MapFragment :
         @JvmStatic
         @JvmOverloads
         fun newInstanceArgs(
-            optInitialLocation: Location? = null,
+            optInitialLocation: AndroidLocation? = null,
             optSelectedUUID: String? = null,
             optIncludeTypeId: Int? = null,
         ) = Bundle().apply {
@@ -293,7 +293,7 @@ class MapFragment :
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

@@ -2,7 +2,6 @@ package org.mtransit.android.ui.search
 
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -40,6 +39,7 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class SearchFragment :
@@ -289,7 +289,7 @@ class SearchFragment :
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

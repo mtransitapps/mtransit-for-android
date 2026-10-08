@@ -1,9 +1,9 @@
 package org.mtransit.android.util
 
-import android.location.Location
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.data.Area
+import android.location.Location as AndroidLocation
 
 fun LatLngBounds?.containsEntirely(other: LatLngBounds?): Boolean {
     val otherArea = other ?: return false
@@ -23,6 +23,6 @@ fun LatLng.isInside(area: Area): Boolean {
     return Area.isInside(this.latitude, this.longitude, area)
 }
 
-fun Location?.toLatLngS(): String {
+fun AndroidLocation?.toLatLngS(): String {
     return this?.let { "{lat: ${it.latitude}, lng: ${it.longitude}}" } ?: "null"
 }

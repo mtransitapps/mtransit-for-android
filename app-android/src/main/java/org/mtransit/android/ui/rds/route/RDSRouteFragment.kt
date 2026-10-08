@@ -2,7 +2,6 @@ package org.mtransit.android.ui.rds.route
 
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.view.Menu
@@ -49,6 +48,7 @@ import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import kotlin.math.abs
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class RDSRouteFragment :
@@ -359,7 +359,7 @@ class RDSRouteFragment :
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

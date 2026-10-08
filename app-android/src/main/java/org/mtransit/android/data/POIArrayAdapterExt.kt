@@ -1,6 +1,5 @@
 package org.mtransit.android.data
 
-import android.location.Location
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.distinctUntilChanged
@@ -12,6 +11,7 @@ import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData4
+import android.location.Location as AndroidLocation
 
 fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
     this.viewLifecycleOwner = viewLifecycleOwner
@@ -85,7 +85,7 @@ fun POIArrayAdapter.onCreateViewKt(viewLifecycleOwner: LifecycleOwner) {
 
 fun POIArrayAdapter.setPoisUpdateDistanceAndClosest(
     pois: List<POIManager>?, // w/o distance?
-    deviceLocation: Location?,
+    deviceLocation: AndroidLocation?,
 ) {
     setPois(pois)
     updateDistanceNowAsync(deviceLocation) // add distance + string

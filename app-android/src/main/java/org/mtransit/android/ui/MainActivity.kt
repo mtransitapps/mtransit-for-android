@@ -5,7 +5,6 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -64,6 +63,7 @@ import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.NightModeUtils
 import java.util.WeakHashMap
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class MainActivity :
@@ -402,7 +402,7 @@ class MainActivity :
         showNewFragment(newFragment, true, optSource, optTransitionSharedElement, optTransitionName)
     }
 
-    override fun onLastLocationChanged(lastLocation: Location?) {
+    override fun onLastLocationChanged(lastLocation: AndroidLocation?) {
         broadcastDeviceLocationChanged(this, supportFragmentManager.fragments, lastLocation)
     }
 

@@ -3,7 +3,6 @@ package org.mtransit.android.dev
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.location.Location
 import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.SavedStateHandle
 import com.google.android.gms.maps.model.LatLng
@@ -39,6 +38,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
 import kotlin.random.Random
+import android.location.Location as AndroidLocation
 
 @Singleton
 class DemoModeManager @Inject constructor(
@@ -92,7 +92,7 @@ class DemoModeManager @Inject constructor(
 
     val filterAgencyTypeId: Int?
         get() = this.filterAgencyType?.id
-    private var filterAgencyLocation: Location? = null
+    private var filterAgencyLocation: AndroidLocation? = null
 
     private var filterAgencyPOIM: POIManager? = null
 
@@ -138,7 +138,7 @@ class DemoModeManager @Inject constructor(
     val filterTypeId: Int?
         get() = this.filterAgencyTypeId
 
-    val filterLocation: Location?
+    val filterLocation: AndroidLocation?
         get() = this.filterAgencyLocation
 
     fun isFilterLocation() = isFilteringAgency()

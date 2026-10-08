@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.type.poi
 
-import android.location.Address
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -30,6 +29,7 @@ import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.ui.view.map.toLocation
 import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
+import android.location.Address as AndroidAddress
 
 @HiltViewModel
 class AgencyPOIsViewModel @Inject constructor(
@@ -120,8 +120,8 @@ class AgencyPOIsViewModel @Inject constructor(
     val selectedLocation: LiveData<LatLng?> = _selectedLocation
 
     private val loadingSelectedLocationAddress = MutableLiveData<Boolean>()
-    private val _selectedAddress = MutableLiveData<Address?>()
-    val selectedAddress: LiveData<Address?> = _selectedAddress
+    private val _selectedAddress = MutableLiveData<AndroidAddress?>()
+    val selectedAddress: LiveData<AndroidAddress?> = _selectedAddress
 
     fun onLocationSelected(selectedLocation: LatLng) {
         _selectedLocation.postValue(selectedLocation)

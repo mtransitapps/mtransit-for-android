@@ -2,7 +2,6 @@ package org.mtransit.android.ui.type
 
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -56,6 +55,7 @@ import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import android.location.Location as AndroidLocation
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
@@ -433,7 +433,7 @@ class AgencyTypeFragment :
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

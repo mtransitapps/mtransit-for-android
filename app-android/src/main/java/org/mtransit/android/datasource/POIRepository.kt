@@ -1,6 +1,5 @@
 package org.mtransit.android.datasource
 
-import android.location.Location
 import androidx.collection.LruCache
 import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.distinctUntilChanged
@@ -27,6 +26,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import android.location.Location as AndroidLocation
 
 @Singleton
 class POIRepository(
@@ -137,7 +137,7 @@ class POIRepository(
     fun loadingPOIMs(
         typeToProviders: Map<DataSourceType, List<IAgencyProperties>>?,
         filter: POIProviderContract.Filter?,
-        deviceLocation: Location? = null,
+        deviceLocation: AndroidLocation? = null,
         comparator: Comparator<POIManager> = compareBy { null },
         typeComparator: Comparator<POIManager> = compareBy { null },
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
@@ -155,7 +155,7 @@ class POIRepository(
     suspend fun loadPOIMs(
         typeToProviders: Map<DataSourceType, List<IAgencyProperties>>,
         filter: POIProviderContract.Filter,
-        deviceLocation: Location? = null,
+        deviceLocation: AndroidLocation? = null,
         comparator: Comparator<POIManager> = compareBy { null },
         typeComparator: Comparator<POIManager> = compareBy { null },
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
@@ -180,7 +180,7 @@ class POIRepository(
     fun loadingPOIMs(
         providers: List<IAgencyProperties>?,
         filter: POIProviderContract.Filter?,
-        deviceLocation: Location? = null,
+        deviceLocation: AndroidLocation? = null,
         comparator: Comparator<POIManager> = compareBy { null },
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         onSuccess: (() -> Unit)? = null,
@@ -195,7 +195,7 @@ class POIRepository(
     suspend fun loadPOIMs(
         providers: List<IAgencyProperties>,
         filter: POIProviderContract.Filter,
-        deviceLocation: Location? = null,
+        deviceLocation: AndroidLocation? = null,
         comparator: Comparator<POIManager>,
         let: ((List<POIManager>) -> List<POIManager>?) = { it },
         context: CoroutineContext = ioDispatcher
