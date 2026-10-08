@@ -22,6 +22,8 @@ data class MTPOIMarkerIds(
 
     fun entrySet(): Set<Map.Entry<String?, String?>> = this.uuidsAndAuthority.entries
 
+    val firstUUIDOrNull: String? get() = entrySet().firstOrNull()?.key
+
     fun hasUUID(uuid: String?): Boolean = this.uuidsAndAuthority.containsKey(uuid)
 
     val map: ArrayMap<String, String> get() = this.uuidsAndAuthority

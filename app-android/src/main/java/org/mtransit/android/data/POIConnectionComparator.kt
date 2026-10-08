@@ -8,21 +8,23 @@ import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
 
 class POIConnectionComparator(
-    private val maxDistanceInMeters: (@DataSourceTypeId.DataSourceType Int) -> Float = { SAME_LOCATION_DISTANCE_IN_METER },
-    private val computeDistance: (POI, POI) -> Float? = { poi1: POI, poi2: POI -> poi1.distanceToInMeters(poi2) }
+    private val targetedPOI: POI? = null,
+    private val maxDistanceInMeters: (@DataSourceTypeId.DataSourceType Int) -> Float,
+    private val computeDistance: (POI, POI) -> Float? = { poi1: POI, poi2: POI -> poi1.distanceToInMeters(poi2) },
+    private val sameAgency1st: Boolean = false,
 ) : Comparator<POIManager> {
 
-    companion object {
-        private const val SAME_LOCATION_DISTANCE_IN_METER: Float = 25f
-    }
-
-    var targetedPOI: POI? = null
-
     override fun compare(poim1: POIManager?, poim2: POIManager?): Int {
-        if (this.targetedPOI != null
-            && (poim1 != null)
-            && (poim2 != null)
-        ) {
+        if (this.targetedPOI != null && poim1 != null && poim2 != null) {
+            if (this.sameAgency1st) {
+                val poim1SameAgency = poim1.poi.authority == this.targetedPOI.authority
+                val poim2SameAgency = poim2.poi.authority == this.targetedPOI.authority
+                if (poim1SameAgency && !poim2SameAgency) {
+                    return ComparatorUtils.BEFORE
+                } else if (!poim1SameAgency && poim2SameAgency) {
+                    return ComparatorUtils.AFTER
+                }
+            }
             val poim1Connection = isConnection(poim1.poi)
             val poim2Connection = isConnection(poim2.poi)
             if (poim1Connection && !poim2Connection) {
@@ -35,9 +37,9 @@ class POIConnectionComparator(
     }
 
     @VisibleForTesting
-    fun isAlmostSameLocation(poim1: POIManager, poim2: POIManager) = isAlmostSameLocation(poim1.poi, poim2.poi)
+    fun isCloseEnough(poim1: POIManager, poim2: POIManager) = isCloseEnough(poim1.poi, poim2.poi)
 
-    fun isAlmostSameLocation(poi1: POI, poi2: POI): Boolean {
+    fun isCloseEnough(poi1: POI, poi2: POI): Boolean {
         val distanceInMeter = computeDistance(poi1, poi2) ?: return false
         return targetedPOI?.dataSourceTypeId?.let { dataSourceTypeId ->
             distanceInMeter <= maxDistanceInMeters(dataSourceTypeId)
@@ -46,14 +48,13 @@ class POIConnectionComparator(
 
     @VisibleForTesting
     fun isConnection(poi: POI) = targetedPOI
-        ?.takeIf { it.authority == poi.authority } // same agency
-        ?.takeIf { isAlmostSameLocation(it, poi) }
+        ?.takeIf { targetedPOI -> targetedPOI.authority == poi.authority }
+        ?.takeIf { targetedPOI -> isCloseEnough(targetedPOI, poi) }
         ?.let { targetedPOI ->
-            if (targetedPOI is RouteDirectionStop && poi is RouteDirectionStop) {
-                return@let poi.route.id == targetedPOI.route.id
-            } else if (targetedPOI is DefaultPOI && poi is DefaultPOI) {
-                return@let true // nearby [bike] station...
+            when (targetedPOI) {
+                is RouteDirectionStop if poi is RouteDirectionStop -> return@let poi.route.id == targetedPOI.route.id // same route
+                is DefaultPOI if poi is DefaultPOI -> return@let true // nearby [bike] station...
+                else -> null // mixed POI
             }
-            null
         } ?: false
 }

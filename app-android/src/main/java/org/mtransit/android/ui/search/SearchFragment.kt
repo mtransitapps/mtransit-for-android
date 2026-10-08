@@ -2,7 +2,6 @@ package org.mtransit.android.ui.search
 
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -20,6 +19,7 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIArrayAdapter.TypeHeaderButtonsClickListener
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentSearchBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -39,6 +39,7 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class SearchFragment :
@@ -186,8 +187,7 @@ class SearchFragment :
             }
         }
         viewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
-            listAdapter.setPois(searchResults)
-            listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+            listAdapter.setPoisUpdateDistanceAndClosest(searchResults, viewModel.deviceLocation.value)
             binding?.apply {
                 loadingLayout.isVisible = false
                 if (searchResults.isNullOrEmpty()) { // SHOW EMPTY
@@ -289,7 +289,7 @@ class SearchFragment :
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

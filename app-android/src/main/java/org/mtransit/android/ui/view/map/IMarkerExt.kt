@@ -2,7 +2,7 @@ package org.mtransit.android.ui.view.map
 
 import com.google.android.gms.maps.model.LatLng
 
-val IMarker?.uuid: String? get() = (this?.getData<Any?>() as? MTPOIMarkerIds)?.entrySet()?.firstOrNull()?.key
+val IMarker?.firstUUIDOrNull: String? get() = (this?.getData<Any?>() as? MTPOIMarkerIds)?.firstUUIDOrNull
 
 fun IMarker.updateAlpha(alpha: Float) {
     if (alpha != getAlpha()) {

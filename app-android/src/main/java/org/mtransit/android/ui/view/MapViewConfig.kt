@@ -1,10 +1,12 @@
 package org.mtransit.android.ui.view
 
+import org.mtransit.android.ui.view.map.MapListener
+import org.mtransit.android.ui.view.map.MapMarkerProvider
 import java.lang.ref.WeakReference
 
 class MapViewConfig(
-    markerProvider: MapViewController.MapMarkerProvider? = null,
-    mapListener: MapViewController.MapListener? = null,
+    markerProvider: MapMarkerProvider? = null,
+    mapListener: MapListener? = null,
     val mapToolbarEnabled: Boolean = false,
     val myLocationEnabled: Boolean = false,
     val myLocationButtonEnabled: Boolean = false,
@@ -22,9 +24,9 @@ class MapViewConfig(
     val autoClickInfoWindow: Boolean = false,
     val buildingsEnabled: Boolean = true,
 ) {
-    val markerProviderWR: WeakReference<MapViewController.MapMarkerProvider> = WeakReference(markerProvider)
-    val mapListenerWR: WeakReference<MapViewController.MapListener> = WeakReference(mapListener)
+    val markerProviderWR: WeakReference<MapMarkerProvider> = WeakReference(markerProvider)
+    val mapListenerWR: WeakReference<MapListener> = WeakReference(mapListener)
 
-    val mapListener: MapViewController.MapListener? get() = this.mapListenerWR.get()
-    val markerProvider: MapViewController.MapMarkerProvider? get() = this.markerProviderWR.get()
+    val mapListener: MapListener? get() = this.mapListenerWR.get()
+    val markerProvider: MapMarkerProvider? get() = this.markerProviderWR.get()
 }

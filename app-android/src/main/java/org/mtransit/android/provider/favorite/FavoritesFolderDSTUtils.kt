@@ -6,19 +6,19 @@ import org.mtransit.android.data.DataSourceType
 object FavoritesFolderDSTUtils {
 
     @JvmStatic
-    fun isFavoriteFolderDataSourceId(@DataSourceTypeId.DataSourceType dataSourceId: Int) =
-        dataSourceId > DataSourceType.MAX_ID
+    fun isFavoriteFolderDataSourceId(@DataSourceTypeId.DataSourceType dstFavFolderId: Int) =
+        dstFavFolderId > DataSourceType.MAX_ID
 
     @JvmStatic
-    fun extractFavoriteFolderId(@DataSourceTypeId.DataSourceType dataSourceId: Int) =
-        dataSourceId - DataSourceType.MAX_ID
+    fun extractFavoriteFolderId(@DataSourceTypeId.DataSourceType dstFavFolderId: Int) =
+        dstFavFolderId - DataSourceType.MAX_ID
 
     @JvmStatic
-    fun generateFavoriteFolderDataSourceId(favoriteFolderId: Int) =
+    fun generateDstFavoriteFolderId(favoriteFolderId: Int) =
         DataSourceType.MAX_ID + favoriteFolderId
 
     @JvmStatic
-    fun getFavoriteFolderIdOrNull(dataSourceTypeId: Int) =
-        dataSourceTypeId.takeIf { isFavoriteFolderDataSourceId(it) }
+    fun getFavoriteFolderIdOrNull(dstFavFolderIdOrDstId: Int) =
+        dstFavFolderIdOrDstId.takeIf { isFavoriteFolderDataSourceId(it) }
             ?.let { extractFavoriteFolderId(it) }
 }

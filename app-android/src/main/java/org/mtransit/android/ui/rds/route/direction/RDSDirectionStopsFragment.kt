@@ -2,10 +2,8 @@ package org.mtransit.android.ui.rds.route.direction
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.location.Location
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
@@ -22,16 +20,16 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.findClosestPOISIdxUuid
+import org.mtransit.android.commons.findClosestPOIIdxUuids
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.RouteDirectionManager
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentRdsDirectionStopsBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -60,7 +58,9 @@ import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
-import org.mtransit.android.ui.view.map.MTPOIMarker
+import org.mtransit.android.ui.view.map.MapListener
+import org.mtransit.android.ui.view.map.MapMarkerProvider
+import org.mtransit.android.ui.view.onSelectedPlaceLocation
 import org.mtransit.android.ui.view.updateVehicleLocationMarkers
 import org.mtransit.android.ui.view.updateVehicleLocationMarkersCountdown
 import org.mtransit.android.user.UserManager
@@ -70,6 +70,7 @@ import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_stops) {
@@ -177,35 +178,36 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
     @Inject
     lateinit var userManager: UserManager
 
-    private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+    private val mapListener = object : MapListener {
 
-        override fun getPOMarkers(): Collection<MTPOIMarker>? = null
+        override fun onMapLongClick(position: LatLng) {
+            viewModel.onLocationSelected(position)
+        }
+    }
 
-        override fun getPOIs(): Collection<POIManager>? {
-            if (!listAdapter.isInitialized) return null
-            return buildList {
-                for (i in 0 until listAdapter.poisCount) {
-                    listAdapter.getItem(i)?.let { add(it) }
+    private val mapMarkerProvider = object : MapMarkerProvider {
+
+        override val pois: Collection<POIManager>?
+            get() {
+                if (!listAdapter.isInitialized) return null
+                return buildList {
+                    for (i in 0 until listAdapter.poisCount) {
+                        listAdapter.getItem(i)?.let { add(it) }
+                    }
                 }
             }
-        }
 
         override fun getPOI(position: Int) = listAdapter.getItem(position)
 
-        override fun getClosestPOI() = listAdapter.closestPOI
+        override val closestPOI: POIManager? get() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
 
-        override fun getVehicleLocations() = attachedViewModel?.vehicleLocations?.value
+        override val vehicleLocations: Collection<VehicleLocation>? get() = attachedViewModel?.vehicleLocations?.value
 
-        @ColorInt
-        override fun getVehicleColorInt(): Int? = attachedParentViewModel?.colorInt?.value
+        override val vehicleColorInt: Int? get() = attachedParentViewModel?.colorInt?.value
 
-        override fun getVehicleType(): DataSourceType? = attachedParentViewModel?.routeType?.value
-
-        override fun getVisibleMarkersLocations(): Collection<LatLng>? = null
-
-        override fun getMapMarkerAlpha(position: Int, visibleArea: Area): Float? = null
+        override val vehicleType: DataSourceType? get() = attachedParentViewModel?.routeType?.value
     }
 
     private val mapViewController: MapViewController by lazy {
@@ -213,7 +215,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
             logTag,
             MapViewConfig(
                 markerProvider = mapMarkerProvider,
-                mapListener = null, // DO NOTHING (map click, camera change)
+                mapListener = mapListener,
                 mapToolbarEnabled = false,
                 myLocationEnabled = true,
                 myLocationButtonEnabled = true,
@@ -431,7 +433,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 // do nothing
             }
         }
-        viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
+        viewModel.poiList.observe(viewLifecycleOwner) { poiList -> // w/o distance
             var currentSelectedItemIndexUuid: Pair<Int?, String?>? = null
             val selectedStopId = viewModel.selectedStopId.value
             val closestPOIShow = viewModel.closestPOIShown.value
@@ -446,8 +448,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 }
                 viewModel.setSelectedOrClosestStopShown()
             }
-            listAdapter.setPois(poiList)
-            listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
+            listAdapter.setPoisUpdateDistanceAndClosest(poiList, parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged()
             if (viewModel.listVisible(context)) {
                 val selectedPosition = currentSelectedItemIndexUuid?.first ?: -1
@@ -459,6 +460,14 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
         DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository, userManager) {
             this.listAdapter.notifyDataSetChanged(false)
+        }
+        viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
+            newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
+        }
+        viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
+            viewModel.selectedLocation.value?.let {
+                mapViewController.onSelectedPlaceLocation(it, address)
+            }
         }
     }
 
@@ -532,15 +541,14 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
 
     private fun findClosestPOIIndexUuid(
         pois: List<POIManager>?,
-        deviceLocation: Location? = parentViewModel.deviceLocation.value,
+        deviceLocation: AndroidLocation? = parentViewModel.deviceLocation.value,
     ): Pair<Int?, String?>? {
-        if (deviceLocation != null && pois?.isNotEmpty() == true) {
-            return pois
-                .updateDistance(deviceLocation.latitude, deviceLocation.longitude)
-                .findClosestPOISIdxUuid()
-                .firstOrNull()
-        }
-        return null
+        deviceLocation ?: return null
+        return pois
+            ?.takeIf { it.isNotEmpty() }
+            ?.updateDistance(deviceLocation.latitude, deviceLocation.longitude)
+            ?.findClosestPOIIdxUuids()
+            ?.firstOrNull()
     }
 
     private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) = binding?.apply {
@@ -609,6 +617,16 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         listAdapter.onVisible(this, parentViewModel.deviceLocation.value)
         updateFabListMapUI()
         switchView()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapViewController.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapViewController.onStop()
     }
 
     private var _vehicleLocationCountdownRefreshJob: Job? = null

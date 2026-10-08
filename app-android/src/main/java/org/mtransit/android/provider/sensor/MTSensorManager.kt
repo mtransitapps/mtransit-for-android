@@ -2,8 +2,8 @@ package org.mtransit.android.provider.sensor
 
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import android.location.Location
 import org.mtransit.android.ui.view.common.IFragment
+import android.location.Location as AndroidLocation
 
 interface MTSensorManager {
 
@@ -19,11 +19,11 @@ interface MTSensorManager {
         listener: CompassListener
     )
 
-    fun getLocationDeclination(location: Location): Float
+    fun getLocationDeclination(location: AndroidLocation): Float
 
     fun updateCompass(
         force: Boolean,
-        deviceLocation: Location?,
+        deviceLocation: AndroidLocation?,
         roundedOrientation: Int,
         now: Long,
         scrollState: Int,

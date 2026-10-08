@@ -85,6 +85,7 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
+import org.mtransit.android.data.POIArrayAdapterExtKt;
 import org.mtransit.android.data.POIListFooterManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.POIManagerExtKt;
@@ -112,6 +113,8 @@ import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog;
+import org.mtransit.android.ui.view.map.MapListener;
+import org.mtransit.android.ui.view.map.MapMarkerProvider;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
@@ -158,8 +161,8 @@ public class POIFragment extends ABFragment implements
 		IContext,
 		IAdManager.RewardedAdListener,
 		MenuProvider,
-		MapViewController.MapMarkerProvider,
-		MapViewController.MapListener {
+		MapMarkerProvider,
+		MapListener {
 
 	private static final String LOG_TAG = POIFragment.class.getSimpleName();
 
@@ -302,7 +305,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	protected AgencyProperties getAgencyOrNull() {
-		return getAttachedViewModel() == null ? null : getAttachedViewModel().getAgency().getValue();
+		return getAttachedViewModel() == null ? null : getAttachedViewModel().getPoiAgency().getValue();
 	}
 
 	@Nullable
@@ -412,7 +415,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
-	public Collection<POIManager> getPOIs() {
+	public Collection<POIManager> getPois() {
 		return viewModel == null ? null : viewModel.getPoiList().getValue();
 	}
 
@@ -424,7 +427,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
-	public Collection<MTPOIMarker> getPOMarkers() {
+	public Collection<MTPOIMarker> getPoiMarkers() {
 		return null;
 	}
 
@@ -455,7 +458,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	@Override
-	public Collection<LatLng> getVisibleMarkersLocations() {
+	public Collection<LatLng> getVisibleArea() {
 		return getVisibleMarkersLocationList(this);
 	}
 
@@ -489,6 +492,11 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onMapClick(@NonNull LatLng position) {
 		onMapClickKt(this);
+	}
+
+	@Override
+	public void onMapLongClick(@NonNull LatLng position) {
+		// should not happen (map not interactive)
 	}
 
 	@Override
@@ -547,9 +555,9 @@ public class POIFragment extends ABFragment implements
 			if (removed) {
 				onDataSourceRemoved();
 			}
-			return null;
+			return kotlin.Unit.INSTANCE;
 		}));
-		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
+		viewModel.getPoiAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
 		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitPrefLoaded);
 		viewModel.getUseInternalWebBrowserPref().observe(getViewLifecycleOwner(), this::onUseInternalWebBrowserPrefLoaded);
@@ -685,8 +693,7 @@ public class POIFragment extends ABFragment implements
 
 	private void onNearbyPOIsLoaded(@Nullable List<POIManager> nearbyPOIs) {
 		if (this.nearbyListAdapter == null) return;
-		this.nearbyListAdapter.setPois(nearbyPOIs);
-		this.nearbyListAdapter.updateDistanceNowAsync(this.deviceLocation);
+		POIArrayAdapterExtKt.setPoisUpdateDistanceAndClosest(this.nearbyListAdapter, nearbyPOIs, this.deviceLocation);
 		this.nearbyListAdapter.initManual();
 		if (this.nearbyListAdapter.getPoisCount() > 0) {
 			showNearbyList();
@@ -1155,6 +1162,18 @@ public class POIFragment extends ABFragment implements
 				nextMainViewModel.setABBgColor(getABBgColor(getContext()));
 			}
 		}
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		this.mapViewController.onStart();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		this.mapViewController.onStop();
 	}
 
 	@WorkerThread

@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Address
-import android.location.Location
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,8 +26,8 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.isAppEnabled
+import org.mtransit.android.commons.location.toStringSimple
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.commons.toStringSimple
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.location.MTLocationProvider
@@ -42,7 +41,9 @@ import org.mtransit.android.ui.inappnotification.locationpermission.LocationPerm
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
+import org.mtransit.android.ui.location.GeocoderManager
 import org.mtransit.android.ui.location.UILocationUtils.getLocationString
+import org.mtransit.android.ui.location.toAddressOrNull
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
@@ -51,10 +52,12 @@ import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @HiltViewModel
 class NearbyViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
+    private val geocoderManager: GeocoderManager,
     savedStateHandle: SavedStateHandle,
     private val analyticsManager: IAnalyticsManager,
     private val adManager: IAdManager,
@@ -80,15 +83,11 @@ class NearbyViewModel @Inject constructor(
         // private const val IGNORE_SAME_LOCATION_CHECK = true // DEBUG
 
         internal const val EXTRA_SELECTED_TYPE = "extra_selected_type"
-        internal const val EXTRA_SELECTED_TYPE_DEFAULT: Int = -1
+        internal const val EXTRA_SELECTED_TYPE_DEFAULT = -1
         internal const val EXTRA_FIXED_ON_LAT = "extra_fixed_on_lat"
-        internal const val EXTRA_FIXED_ON_LAT_DEFAULT: Float = 999f // valid between -90 and +90
         internal const val EXTRA_FIXED_ON_LNG = "extra_fixed_on_lng"
-        internal const val EXTRA_FIXED_ON_LNG_DEFAULT: Float = 999f // valid between -180 and +180
         internal const val EXTRA_FIXED_ON_NAME = "extra_fixed_on_name"
-        internal val EXTRA_FIXED_ON_NAME_DEFAULT: String? = null
         internal const val EXTRA_FIXED_ON_COLOR = "extra_fixed_on_color"
-        internal val EXTRA_FIXED_ON_COLOR_DEFAULT: String? = null
     }
 
     override fun getLogTag() = LOG_TAG
@@ -96,18 +95,15 @@ class NearbyViewModel @Inject constructor(
     private val _selectedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_TYPE, EXTRA_SELECTED_TYPE_DEFAULT)
         .map { if (it < 0) null else it }
 
-    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LAT, EXTRA_FIXED_ON_LAT_DEFAULT)
-        .map { if (it == 999f) null else it.toDouble() }
-    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LNG, EXTRA_FIXED_ON_LNG_DEFAULT)
-        .map { if (it == 999f) null else it.toDouble() }
+    private val fixedOnLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LAT)
+    private val fixedOnLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LNG)
 
-    val fixedOnLocation: LiveData<Location?> = MediatorLiveData2(_fixedOnLat, _fixedOnLng).map { (fixedOnLat, fixedOnLng) ->
-        if (fixedOnLat == null || fixedOnLng == null) {
-            null
-        } else {
+    val fixedOnLocation: LiveData<AndroidLocation?> = MediatorLiveData2(fixedOnLat, fixedOnLng)
+        .map { (fixedOnLat, fixedOnLng) ->
+            fixedOnLat ?: return@map null
+            fixedOnLng ?: return@map null
             LocationUtils.getNewLocation(fixedOnLat, fixedOnLng)
-        }
-    }.distinctUntilChanged()
+        }.distinctUntilChanged()
 
     private val _nearbyLocationForceReset = MutableLiveData<Event<Boolean>>()
     val nearbyLocationForceReset: LiveData<Event<Boolean>> = _nearbyLocationForceReset
@@ -120,7 +116,7 @@ class NearbyViewModel @Inject constructor(
 
     private val _ipLocation = networkLocationRepository.ipLocation
 
-    val nearbyLocation: LiveData<Location?> = MediatorLiveData4(fixedOnLocation, deviceLocation, _nearbyLocationForceReset, _ipLocation)
+    val nearbyLocation: LiveData<AndroidLocation?> = MediatorLiveData4(fixedOnLocation, deviceLocation, _nearbyLocationForceReset, _ipLocation)
         .switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
@@ -131,7 +127,7 @@ class NearbyViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    private fun getNearbyLocation(fixedOnLocation: Location?, lastDeviceLocation: Location?, forceReset: Boolean): Location? {
+    private fun getNearbyLocation(fixedOnLocation: AndroidLocation?, lastDeviceLocation: AndroidLocation?, forceReset: Boolean): AndroidLocation? {
         if (!forceReset) {
             nearbyLocation.value?.let {
                 MTLog.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
@@ -161,8 +157,8 @@ class NearbyViewModel @Inject constructor(
         this.locationProvider.doSetup(activity)
     }
 
-    override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
-        MediatorLiveData2(nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
+    override val locationSettingsNeededResolution: LiveData<PendingIntent?> = MediatorLiveData2(nearbyLocation, locationSettingsResolution)
+        .map { (nearbyLocation, resolution) ->
             if (nearbyLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -174,38 +170,37 @@ class NearbyViewModel @Inject constructor(
 
     private val _distanceUnitsPref = this.userPrefManager.distanceUnits.distinctUntilChanged()
 
-    private val _locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
+    private val locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            nearbyLocation ?: return@liveData
-            LocationUtils.getLocationAddress(appContext, nearbyLocation)
-                ?.let {
-                    emit(it)
-                }
+            nearbyLocation?.toAddressOrNull(geocoderManager)?.let { nearbyAddress ->
+                emit(nearbyAddress)
+            }
         }
     }
 
-    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(nearbyLocation, _locationAddress, _distanceUnitsPref)
+    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(nearbyLocation, locationAddress, _distanceUnitsPref)
         .map { (nearbyLocation, locationAddress, distanceUnitsPref) ->
             nearbyLocation ?: return@map null
             distanceUnitsPref ?: return@map null
             getLocationString(this.appContext, locationAddress, nearbyLocation.accuracy, distanceUnitsPref)
         }
 
-    val fixedOnName = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
+    val fixedOnName = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_NAME)
 
-    val isFixedOn: LiveData<Boolean?> = MediatorLiveData3(_fixedOnLat, _fixedOnLng, fixedOnName).map { (lat, lng, name) ->
-        lat != null && lng != null && !name.isNullOrBlank()
-    }
+    val isFixedOn: LiveData<Boolean?> = MediatorLiveData2(fixedOnLat, fixedOnLng)
+        .map { (lat, lng) ->
+            lat != null && lng != null // fixedOnName optional
+        }
 
-    override val newLocationAvailable: LiveData<Boolean?> =
-        MediatorLiveData3(isFixedOn, nearbyLocation, deviceLocation).map { (isFixedOn, nearbyLocation, deviceLocation) ->
+    override val newLocationAvailable: LiveData<Boolean?> = MediatorLiveData3(isFixedOn, nearbyLocation, deviceLocation)
+        .map { (isFixedOn, nearbyLocation, deviceLocation) ->
             isFixedOn == false
                 && nearbyLocation != null
                 && deviceLocation != null
                 && !LocationUtils.areAlmostTheSame(nearbyLocation, deviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
         }
 
-    val fixedOnColorInt = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_COLOR, EXTRA_FIXED_ON_COLOR_DEFAULT)
+    val fixedOnColorInt = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_COLOR)
         .map { it?.let { ColorUtils.parseColor(it) } }
 
     val availableTypes = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { // #onModulesUpdated
@@ -217,18 +212,20 @@ class NearbyViewModel @Inject constructor(
         LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT, // default = no selection
     )
 
-    val selectedTypeId: LiveData<Int?> = MediatorLiveData2(_selectedTypeId, _selectedTypeIdPref).map { (selectedTypeId, selectedTypeIdPref) ->
-        selectedTypeId ?: selectedTypeIdPref
-    }
+    val selectedTypeId: LiveData<Int?> = MediatorLiveData2(_selectedTypeId, _selectedTypeIdPref)
+        .map { (selectedTypeId, selectedTypeIdPref) ->
+            selectedTypeId ?: selectedTypeIdPref
+        }
 
-    val selectedTypePosition: LiveData<Int?> = MediatorLiveData2(selectedTypeId, availableTypes).map { (selectedTypeId, availableTypes) ->
-        if (availableTypes == null || selectedTypeId == null) return@map null
-        val availableSelectedId = selectedTypeId.takeIf { it >= 0 } ?: availableTypes.firstOrNull()?.id
-        availableTypes
-            .indexOf(DataSourceType.parseId(availableSelectedId))
-            .takeIf { it >= 0 } // selected might not be in available (installed) types
-            ?: 0 // 1st tab by default
-    }
+    val selectedTypePosition: LiveData<Int?> = MediatorLiveData2(selectedTypeId, availableTypes)
+        .map { (selectedTypeId, availableTypes) ->
+            if (availableTypes == null || selectedTypeId == null) return@map null
+            val availableSelectedId = selectedTypeId.takeIf { it >= 0 } ?: availableTypes.firstOrNull()?.id
+            availableTypes
+                .indexOf(DataSourceType.parseId(availableSelectedId))
+                .takeIf { it >= 0 } // selected might not be in available (installed) types
+                ?: 0 // 1st tab by default
+        }
 
     fun onPageSelected(position: Int) {
         if (UIFeatureFlags.F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN) {

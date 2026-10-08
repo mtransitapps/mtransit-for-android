@@ -2,7 +2,6 @@ package org.mtransit.android.ui.favorites
 
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -21,6 +20,7 @@ import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -49,6 +49,7 @@ import org.mtransit.android.user.UserManager
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class FavoritesFragment :
@@ -184,9 +185,8 @@ class FavoritesFragment :
         viewModel.hasFavoritesAgencyDisabled.observe(viewLifecycleOwner) { hasFavoritesAgencyDisabled ->
             updateEmptyLayout(hasFavoritesAgencyDisabled = hasFavoritesAgencyDisabled)
         }
-        viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
-            listAdapter.setPois(favoritePOIS)
-            listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+        viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS -> // w/o distance
+            listAdapter.setPoisUpdateDistanceAndClosest(favoritePOIS, viewModel.deviceLocation.value)
             updateEmptyLayout(empty = favoritePOIS.isNullOrEmpty())
             setupView(favoritePOIS)
         }
@@ -276,7 +276,7 @@ class FavoritesFragment :
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

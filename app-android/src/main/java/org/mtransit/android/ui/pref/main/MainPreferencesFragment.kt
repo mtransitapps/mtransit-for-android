@@ -417,7 +417,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         else -> R.string.lang_pref_system_default
                     }
                 )
-            languageManager.updateAppLocaleFromUserPref()
+            languageManager.updateAppLocaleFromUserPref(lang)
         }
         viewModel.theme.observe(viewLifecycleOwner) { theme ->
             (findPreference(DefaultPreferenceRepository.PREFS_THEME) as? Preference)

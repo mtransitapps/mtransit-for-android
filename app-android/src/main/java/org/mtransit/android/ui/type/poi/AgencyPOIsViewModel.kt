@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.type.poi
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
@@ -12,6 +13,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.poi.POIProviderContract
@@ -20,13 +22,18 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.ui.location.GeocoderManager
+import org.mtransit.android.ui.location.toAddressOrNull
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.ui.view.map.toLocation
 import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
+import android.location.Address as AndroidAddress
 
 @HiltViewModel
 class AgencyPOIsViewModel @Inject constructor(
+    private val geocoderManager: GeocoderManager,
     private val savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     poiRepository: POIRepository,
@@ -108,4 +115,28 @@ class AgencyPOIsViewModel @Inject constructor(
     }
 
     val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
+
+    private val _selectedLocation = MutableLiveData<LatLng?>()
+    val selectedLocation: LiveData<LatLng?> = _selectedLocation
+
+    private val loadingSelectedLocationAddress = MutableLiveData<Boolean>()
+    private val _selectedAddress = MutableLiveData<AndroidAddress?>()
+    val selectedAddress: LiveData<AndroidAddress?> = _selectedAddress
+
+    fun onLocationSelected(selectedLocation: LatLng) {
+        _selectedLocation.postValue(selectedLocation)
+        loadSelectedLocationAddress(selectedLocation)
+    }
+
+    private var loadSelectedLocationAddressJob: Job? = null
+
+    private fun loadSelectedLocationAddress(selectedLocation: LatLng) {
+        loadSelectedLocationAddressJob?.cancel()
+        loadSelectedLocationAddressJob = viewModelScope.launch(Dispatchers.IO) {
+            loadingSelectedLocationAddress.postValue(true)
+            val selectedAddress = selectedLocation.toLocation().toAddressOrNull(geocoderManager)
+            _selectedAddress.postValue(selectedAddress)
+            loadingSelectedLocationAddress.postValue(false)
+        }
+    }
 }

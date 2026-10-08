@@ -19,13 +19,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
-import org.mtransit.android.MtLogExtKt;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.MtLogExtKt;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.data.AppStatus;
@@ -90,6 +90,8 @@ public class POIManager implements LocationPOI,
 	private CharSequence distanceString = null;
 	private float distance = -1f;
 	@Nullable
+	private Integer dstFavoriteFolderId = null;
+	@Nullable
 	private POIStatus status = null;
 	@Nullable
 	private ServiceUpdates serviceUpdates = null; // null == not loaded | empty == loaded w/o service updates
@@ -110,8 +112,8 @@ public class POIManager implements LocationPOI,
 	@Override
 	public String toString() {
 		return POIManager.class.getSimpleName() + '[' +
-				"poi:" + this.poi + ',' +
-				"status:" + this.status + ',' +
+				"poi:" + this.poi + ", " +
+				"status:" + this.status + ", " +
 				']';
 	}
 
@@ -119,14 +121,23 @@ public class POIManager implements LocationPOI,
 	@NonNull
 	public String toStringSimple() {
 		return POIManager.class.getSimpleName() + '[' +
-				"poi:" + this.poi.getUUID() + ',' +
-				"status:" + (this.status != null) + ',' +
-				"service updated:" + (this.serviceUpdates == null ? null : this.serviceUpdates.size()) + ',' +
+				"poi:" + this.poi.getUUID() + ", " +
+				"status:" + (this.status != null) + ", " +
+				"service updates:" + (this.serviceUpdates == null ? null : this.serviceUpdates.size()) + ", " +
 				']';
 	}
 
 	public void setInFocus(boolean inFocus) {
 		this.inFocus = inFocus;
+	}
+
+	@Nullable
+	public Integer getDstFavoriteFolderId() {
+		return dstFavoriteFolderId;
+	}
+
+	public void setDstFavoriteFolderId(@Nullable Integer dstFavoriteFolderId) {
+		this.dstFavoriteFolderId = dstFavoriteFolderId;
 	}
 
 	@Override
@@ -175,6 +186,8 @@ public class POIManager implements LocationPOI,
 		return this.poi.getStatusType();
 	}
 
+	private static final boolean STATUS_DEBUG = false;
+
 	public boolean setStatus(@NonNull POIStatus newStatus) {
 		// 1 - validate status type
 		switch (getStatusType()) {
@@ -182,41 +195,41 @@ public class POIManager implements LocationPOI,
 			return false; // no change
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (!(newStatus instanceof UISchedule)) {
-				MTLog.w(this, "setStatus() > Unexpected schedule status '%s'!", newStatus);
+				if (STATUS_DEBUG) MTLog.w(this, "setStatus() > Unexpected schedule status '%s'!", newStatus);
 				return false; // no change
 			}
 			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			if (!(newStatus instanceof AvailabilityPercent)) {
-				MTLog.w(this, "setStatus() > Unexpected availability percent status '%s'!", newStatus);
+				if (STATUS_DEBUG) MTLog.w(this, "setStatus() > Unexpected availability percent status '%s'!", newStatus);
 				return false; // no change
 			}
 			break;
 		case POI.ITEM_STATUS_TYPE_APP:
 			if (!(newStatus instanceof AppStatus)) {
-				MTLog.w(this, "setStatus() > Unexpected app status '%s'!", newStatus);
+				if (STATUS_DEBUG) MTLog.w(this, "setStatus() > Unexpected app status '%s'!", newStatus);
 				return false; // no change
 			}
 			break;
 		default:
-			MTLog.w(this, "setStatus() > Unexpected status '%s'!", newStatus);
+			if (STATUS_DEBUG) MTLog.w(this, "setStatus() > Unexpected status '%s'!", newStatus);
 			return false; // no change
 		}
 		// 2 - validate new status more useful & better than current status
 		if (this.status != null) {
 			if (this.status.isUseful()) {
 				if (newStatus.getReadFromSourceAtInMs() < this.status.getReadFromSourceAtInMs()) {
-					MTLog.d(this, "setStatus() > IGNORE (new status older than current status)");
+					if (STATUS_DEBUG) MTLog.d(this, "setStatus() > IGNORE (new status older than current status)");
 					return false; // keep status with more recent source
 				}
 			}
 			if (!this.status.isNoData() && newStatus.isNoData()) {
-				MTLog.d(this, "setStatus() > IGNORE (new status is 'no data')");
+				if (STATUS_DEBUG) MTLog.d(this, "setStatus() > IGNORE (new status is 'no data')");
 				return false; // keep status w/o 'no data'
 			}
 		}
 		// 3 - use status
-		MTLog.d(this, "setStatus() > USE new status (useful:%s,noData:%s,read:%s,last:%s,valid:%s)",
+		if (STATUS_DEBUG) MTLog.d(this, "setStatus() > USE new status (useful:%s,noData:%s,read:%s,last:%s,valid:%s)",
 				newStatus.isUseful(),
 				newStatus.isNoData(),
 				MtLogExtKt.toDateTimeLog(newStatus.getReadFromSourceAtInMs()),

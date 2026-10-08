@@ -8,7 +8,7 @@ import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import kotlinx.datetime.DatePeriod
-import org.mtransit.android.toDateTimeLog
+import org.mtransit.android.commons.toDateTimeLog
 
 @Suppress("SpellCheckingInspection")
 private const val LOG_TAG = "BillingKtx"

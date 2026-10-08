@@ -23,8 +23,10 @@ import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.FavoriteFolder
-import org.mtransit.android.data.POIAlphaComparator
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.POI_ALPHA_COMPARATOR
+import org.mtransit.android.data.dstOrFavFolderId
 import org.mtransit.android.data.toPOIM
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -51,8 +53,6 @@ class FavoritesViewModel @Inject constructor(
 
     companion object {
         private val LOG_TAG: String = FavoritesViewModel::class.java.simpleName
-
-        private val POI_ALPHA_COMPARATOR = POIAlphaComparator()
     }
 
     override fun getLogTag() = LOG_TAG
@@ -96,12 +96,42 @@ class FavoritesViewModel @Inject constructor(
         favorites: Collection<Favorite>,
         allAgencies: List<AgencyBaseProperties>,
         homeScreenTypes: List<DataSourceType>,
-    ): List<POIManager> {
+    ) = buildList {
         if (favorites.isEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no favorites)")
-            return emptyList() // empty (no favorites)
+            return@buildList // empty (no favorites)
         }
-        val pois = mutableListOf<POIManager>()
+        appendFavoritePOIs(allAgencies, favorites)
+        // SET favorite POI DST favorite folder ID
+        val uuidToFavoriteFolderId = favorites.associateBy({ it.fkId }, { it.folderId })
+        val favFolderIds = mutableSetOf<Int>()
+        forEach { favPOIM ->
+            val favFolderId = uuidToFavoriteFolderId[favPOIM.poi.uuid]
+            if (favFolderId != null && favFolderId > FavoriteFolder.DEFAULT_FOLDER_ID) {
+                favPOIM.dstFavoriteFolderId = FavoritesFolderDSTUtils.generateDstFavoriteFolderId(favFolderId)
+                favFolderIds.add(favFolderId)
+            }
+        }
+        // ADD empty favorite folders
+        var textMessageId = UITimeUtils.currentTimeMillis()
+        val favFolders = favoriteRepository.findFolders()
+        appendEmptyFavoriteFoldersPOIs(favFolderIds, favFolders, textMessageId).let { newTextMessageId ->
+            textMessageId = newTextMessageId
+        }
+        val folderIdToName = favFolders.associate { it.id to it.name }
+        val favoriteFolderNameComparator = compareBy<POIManager, String?>(nullsLast()) { poim ->
+            val favFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(poim.dstOrFavFolderId)
+            folderIdToName[favFolderId]
+        }
+        sortWith(favoriteFolderNameComparator)
+        // ADD missing data source type with empty at the end of list
+        appendEmptyDataSourceTypesPOIs(homeScreenTypes, textMessageId)
+    }
+
+    private suspend fun MutableList<POIManager>.appendFavoritePOIs(
+        allAgencies: Iterable<IAgencyProperties>,
+        favorites: Collection<Favorite>
+    ) {
         val authorityToTypeShortName = allAgencies.associate { agency ->
             agency.authority to appContext.getString(agency.getSupportedType().shortNameResId) // app context NOT compat w/ demo mode lang override
         }
@@ -118,53 +148,52 @@ class FavoritesViewModel @Inject constructor(
                     _hasFavoritesAgencyDisabled.postValue(true)
                 }
                 val poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs)
-                this.poiRepository.findPOIMs(agency, poiFilter)
+                poiRepository.findPOIMs(agency, poiFilter)
                     .let { agencyPOIs ->
                         if (agencyPOIs.isNotEmpty()) {
-                            pois.addAll(
+                            addAll(
                                 agencyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
                             )
                         }
                     }
             }
-        if (pois.isNotEmpty()) {
-            pois.sortWith(poiTypeShortNameComparator)
-        }
-        // UPDATE favorite POI data source type ID with favorite folder data source type ID
-        val uuidToFavoriteFolderId = favorites.associateBy({ it.fkId }, { it.folderId })
-        val favFolderIds = mutableSetOf<Int>()
-        pois.forEach { favPOIM ->
-            val favFolderId = uuidToFavoriteFolderId[favPOIM.poi.uuid]
-            if (favFolderId != null && favFolderId > FavoriteFolder.DEFAULT_FOLDER_ID) {
-                favPOIM.poi.dataSourceTypeId = FavoritesFolderDSTUtils.generateFavoriteFolderDataSourceId(favFolderId)
-                favFolderIds.add(favFolderId)
-            }
-        }
-        // ADD empty favorite folders
-        var textMessageId = UITimeUtils.currentTimeMillis()
-        val favFolders = this.favoriteRepository.findFolders()
+        sortWith(poiTypeShortNameComparator)
+    }
+
+    private fun MutableList<POIManager>.appendEmptyFavoriteFoldersPOIs(
+        favFolderIds: Iterable<Int>,
+        favFolders: Set<FavoriteFolder>,
+        textMessageId: Long,
+    ): Long {
+        var newTextMessageId = textMessageId
         favFolders
             .filter { favFolder -> favFolder.id > FavoriteFolder.DEFAULT_FOLDER_ID && !favFolderIds.contains(favFolder.id) }
             .forEach { favoriteFolder ->
-                val dataSourceTypeId = FavoritesFolderDSTUtils.generateFavoriteFolderDataSourceId(favoriteFolder.id)
-                pois.add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, dataSourceTypeId).toPOIM())
+                val dstFavoriteFolderId = FavoritesFolderDSTUtils.generateDstFavoriteFolderId(favoriteFolder.id)
+                add(
+                    FavoritesUI.generateFavEmptyFavPOI(appContext, newTextMessageId++, dstFavoriteFolderId)
+                        .toPOIM()
+                        .apply {
+                            this.dstFavoriteFolderId = dstFavoriteFolderId
+                        }
+                )
             }
-        val folderIdToName = favFolders.associate { it.id to it.name }
-        val favoriteFolderNameComparator = compareBy<POIManager, String?>(nullsLast()) { poim ->
-            val favFolderId = FavoritesFolderDSTUtils.getFavoriteFolderIdOrNull(poim.poi.dataSourceTypeId)
-            folderIdToName[favFolderId]
-        }
-        if (pois.isNotEmpty()) {
-            pois.sortWith(favoriteFolderNameComparator)
-        }
-        // ADD missing data source type with empty at the end of list
-        val favFolderTypeIds = pois.map { it.poi.dataSourceTypeId }.toSet()
+        return newTextMessageId
+    }
+
+    private fun MutableList<POIManager>.appendEmptyDataSourceTypesPOIs(
+        homeScreenTypes: List<DataSourceType>,
+        textMessageId: Long
+    ) {
+        var textMessageId1 = textMessageId
+        val favoritePOIsWithoutFolderDstIds = this
+            .filter { it.dstFavoriteFolderId == null } // ignore POI in favorite folders
+            .map { it.poi.dataSourceTypeId }.toSet()
         homeScreenTypes
-            .filter { it.id !in favFolderTypeIds }
+            .filter { dst -> dst.id !in favoritePOIsWithoutFolderDstIds }
             .forEach {
-                pois.add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId++, it.id).toPOIM())
+                add(FavoritesUI.generateFavEmptyFavPOI(appContext, textMessageId1++, it.id).toPOIM())
             }
-        return pois
     }
 
     override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)

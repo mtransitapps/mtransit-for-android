@@ -1,6 +1,5 @@
 package org.mtransit.android.data
 
-import android.location.Location
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
@@ -8,12 +7,13 @@ import org.mtransit.android.util.containsEntirely
 import org.mtransit.android.util.toLatLngBounds
 import kotlin.math.max
 import kotlin.math.min
+import android.location.Location as AndroidLocation
 
 interface IAgencyNearbyProperties : IAgencyProperties {
 
     companion object {
 
-        fun isLocationInside(location: Location, area: Area): Boolean {
+        fun isLocationInside(location: AndroidLocation, area: Area): Boolean {
             return area.isInside(location.latitude, location.longitude)
         }
 
@@ -30,7 +30,7 @@ interface IAgencyNearbyProperties : IAgencyProperties {
         }
 
         fun isEntirelyInside(agency: IAgencyNearbyProperties, area: LatLngBounds?): Boolean {
-            return area?.containsEntirely(agency.area.toLatLngBounds()) == true
+            return area.containsEntirely(agency.area.toLatLngBounds())
         }
 
         private fun areOverlapping(area1: LatLngBounds?, area2: Area?): Boolean {

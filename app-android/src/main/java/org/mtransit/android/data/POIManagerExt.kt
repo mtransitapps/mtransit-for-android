@@ -1,7 +1,6 @@
 package org.mtransit.android.data
 
 import android.content.Context
-import android.location.Location
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.scale
@@ -21,6 +20,7 @@ import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
+import android.location.Location as AndroidLocation
 
 @Suppress("unused")
 fun Iterable<POIManager>.toStringUUID(): String {
@@ -45,11 +45,15 @@ fun <P : POI> P.toPOIM(
     status?.let { setStatus(it) }
 }
 
+val POIManager.dstOrFavFolderId: Int get() = this.dstFavoriteFolderId ?: this.dataSourceTypeId
+
+val POIManager.dataSourceTypeId: Int get() = this.poi.dataSourceTypeId
+
 val POIManager.dataSourceType: DataSourceType? get() = this.poi.dataSourceType
 val POI.dataSourceType: DataSourceType? get() = this.dataSourceTypeId.let { DataSourceType.parseId(it) }
 
-val POIManager.location: Location? get() = this.poi.location
-val POI.location: Location? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
+val POIManager.location: AndroidLocation? get() = this.poi.location
+val POI.location: AndroidLocation? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
 
 val POIManager.latLng: LatLng? get() = this.poi.latLng
 val POI.latLng: LatLng? get() = if (this.hasLocation()) LatLng(this.lat, this.lng) else null
@@ -109,20 +113,40 @@ fun POI.getNewOneLineTitleForSchedule() = buildSpannedString {
     }
 }
 
+val POIManager.distanceOrNull: Float? get() = this.distance.takeIf { it >= 0f }
+
+@Suppress("unused") // used for debug logs
 val POIManager.simpleDistanceString: String
-    get() = this.distance.takeIf { it >= 0f }?.let { "${it}m" } ?: "?m"
+    get() = this.distanceOrNull?.let { "${it}m" } ?: "?m"
 
-@Suppress("unused")
-val POIManager.uuidAndDistance: String
-    get() = this.poi.uuid + " " + this.simpleDistanceString
+val POIManager.uuid: String get() = this.poi.uuid
 
-@Suppress("unused")
+@Suppress("unused") // used for debug logs
 val POIManager.shortUUIDAndDistance: String
-    get() = this.poi.shortUUID + " " + this.simpleDistanceString
+    get() = "${this.poi.shortUUID} (${this.simpleDistanceString})"
 
-@Suppress("unused")
+@Suppress("unused") // used for debug logs
 val POIManager.shortUUID: String get() = this.poi.shortUUID
-val POI.shortUUID: String get() = this.uuid.substring(this.authority.length + 1)
+val POI.shortUUID: String get() = "${this.shortAuthority}.${this.uuid.substring(this.authority.length + 1)}"
+
+@Suppress("unused") // used for debug logs
+val POI.shortAuthority: String get() = this.authority.toShortAuthority()
+
+val POI.isNoPickup: Boolean
+    get() = this is RouteDirectionStop && this.isNoPickup
+
+fun POI.isSameRoute(other: POI): Boolean {
+    if (other !is RouteDirectionStop || this !is RouteDirectionStop) return false
+    if (this.authority != other.authority) return false
+    return this.route.id == other.route.id
+}
+
+fun POI.isSameRouteDirection(other: POI): Boolean {
+    if (other !is RouteDirectionStop || this !is RouteDirectionStop) return false
+    if (this.authority != other.authority) return false
+    return this.route.id == other.route.id
+        && this.direction.id == other.direction.id
+}
 
 fun POIManager.makeStatusFilter(inFocus: Boolean? = null) =
     StatusProviderContract.Filter.from(

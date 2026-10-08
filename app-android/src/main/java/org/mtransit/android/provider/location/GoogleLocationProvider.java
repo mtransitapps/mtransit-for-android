@@ -275,9 +275,7 @@ public class GoogleLocationProvider
 
 	private void broadcastDeviceLocationChanged(@Nullable Location lastLocation) {
 		for (OnLastLocationChangeListener lastLocationChangeListener : this.onLastLocationChangeListeners.keySet()) {
-			if (lastLocationChangeListener == null) {
-				continue;
-			}
+			if (lastLocationChangeListener == null) continue;
 			lastLocationChangeListener.onLastLocationChanged(lastLocation);
 		}
 	}
