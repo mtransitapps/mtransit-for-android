@@ -203,6 +203,17 @@ val CA_MTL_BIXI_BERRY_GILFORD = makeBikeStation(
     lng = -73.58606100082396,
 )
 
+fun mkCA_MTL_EXO_TRAIN_MSH(routeId: Long = 3L, isNoPickup: Boolean = false) = makeRDS(
+    agency = CA_MTL_EXO_TRAIN,
+    routeId = routeId,
+    directionId = routeId * 100L + (if (isNoPickup) 9L else 0L),
+    stopId = 11490,
+    stopName = "Mont-Saint-Hilaire",
+    stopLat = 45.57719,
+    stopLng = -73.17849,
+    isNoPickup = isNoPickup,
+)
+
 fun mkCA_MTL_REM_BROSSARD(routeId: Long = 4001L, isNoPickup: Boolean = false) = makeRDS(
     agency = CA_MTL_REM,
     routeId = routeId,
@@ -569,6 +580,76 @@ fun mkCA_MTL_STM_SUBWAY_MONT_ROYAL(
     stopName = "Mont-Royal",
     stopLat = 45.52482,
     stopLng = -73.58171,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_RICHELIEU_MSH_Q2(
+    routeId: Long = 300L,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_RICHELIEU_EXO,
+    routeId = routeId,
+    directionId = directionId,
+    stopId = 73048,
+    stopName = "Gare Mont-St-Hilaire Q:2",
+    stopLat = 45.57740,
+    stopLng = -73.17844,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_RICHELIEU_MSH_Q3(routeId: Long = 21L, isNoPickup: Boolean = false) = makeRDS(
+    agency = CA_RICHELIEU_EXO,
+    routeId = routeId,
+    directionId = routeId * 100L + (if (isNoPickup) 9L else 0L),
+    stopId = 73985,
+    stopName = "Gare Mont-St-Hilaire Q:3",
+    stopLat = 45.57753,
+    stopLng = -73.17875,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_RICHELIEU_MSH_Q4(routeId: Long = 25L, isNoPickup: Boolean = false) = makeRDS(
+    agency = CA_RICHELIEU_EXO,
+    routeId = routeId,
+    directionId = routeId * 100L + (if (isNoPickup) 9L else 0L),
+    stopId = 73049,
+    stopName = "Gare Mont-St-Hilaire Q:4",
+    stopLat = 45.57782,
+    stopLng = -73.17881,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_GRAND_ALLEE(
+    routeId: Long = 200L,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_RICHELIEU_EXO,
+    routeId = routeId,
+    directionId = directionId,
+    stopId = 73316,
+    stopName = "Sir-Wilfrid-Laurier / Grande Allée",
+    stopLat = 45.57626,
+    stopLng = -73.17227,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_LAVOIE(
+    routeId: Long = 200L,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_RICHELIEU_EXO,
+    routeId = routeId,
+    directionId = directionId,
+    stopId = 73315,
+    stopName = "SSir-Wilfrid-Laurier / Lavoie",
+    stopLat = 45.57530,
+    stopLng = -73.17267,
     isNoPickup = isNoPickup,
 )
 

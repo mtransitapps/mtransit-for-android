@@ -51,6 +51,18 @@ val CA_MTL_BIXI = mkAgency(
     ),
 )
 
+val CA_MTL_EXO_TRAIN = mkAgency(
+    pkg = "org.mtransit.android.ca_montreal_amt_train",
+    type = DataSourceType.TYPE_RAIL,
+    shortName = "exo Train",
+    area = Area(
+        minLat = 45.360623,
+        maxLat = 45.773171,
+        minLng = -74.140908,
+        maxLng = -73.178489,
+    )
+)
+
 val CA_MTL_REM = mkAgency(
     pkg = "org.mtransit.android.ca_montreal_rem_light_rail",
     type = DataSourceType.TYPE_LIGHT_RAIL,
@@ -130,6 +142,7 @@ val ALL_AGENCIES = listOf(
     CA_LE_RICHELAIN_ROUSSILLON_EXO,
     CA_LONGUEUIL_RTL,
     CA_MTL_BIXI,
+    CA_MTL_EXO_TRAIN,
     CA_MTL_REM,
     CA_MTL_STM_BUS,
     CA_MTL_STM_SUBWAY,

@@ -27,6 +27,7 @@ import org.mtransit.android.commons.data.CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_
 import org.mtransit.android.commons.data.CA_MTL_BIXI_MONT_ROYAL_RESTER
 import org.mtransit.android.commons.data.CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT
 import org.mtransit.android.commons.data.CA_MTL_BIXI_PARC_DU_MAIL
+import org.mtransit.android.commons.data.CA_MTL_EXO_TRAIN
 import org.mtransit.android.commons.data.CA_MTL_REM
 import org.mtransit.android.commons.data.CA_MTL_STM_BUS
 import org.mtransit.android.commons.data.CA_MTL_STM_SUBWAY
@@ -42,6 +43,7 @@ import org.mtransit.android.commons.data.mkCA_LE_RICHELAIN_ROUSSILLON_EXO_TERM_B
 import org.mtransit.android.commons.data.mkCA_LE_RICHELAIN_ROUSSILLON_EXO_TERM_BROSSARD_Q19
 import org.mtransit.android.commons.data.mkCA_LONGUEUIL_RTL_9700_LEDUC
 import org.mtransit.android.commons.data.mkCA_LONGUEUIL_RTL_TERM_BROSSARD
+import org.mtransit.android.commons.data.mkCA_MTL_EXO_TRAIN_MSH
 import org.mtransit.android.commons.data.mkCA_MTL_REM_BROSSARD
 import org.mtransit.android.commons.data.mkCA_MTL_REM_DU_QUARTIER
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53251
@@ -71,6 +73,11 @@ import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897
 import org.mtransit.android.commons.data.mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND
 import org.mtransit.android.commons.data.mkCA_MTL_STM_SUBWAY_MONT_ROYAL
+import org.mtransit.android.commons.data.mkCA_RICHELIEU_MSH_Q2
+import org.mtransit.android.commons.data.mkCA_RICHELIEU_MSH_Q3
+import org.mtransit.android.commons.data.mkCA_RICHELIEU_MSH_Q4
+import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_GRAND_ALLEE
+import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_LAVOIE
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_TERM_BROSSARD_Q4
 import org.mtransit.android.commons.data.mkCA_STE_JULIE_EXO_TERM_BROSSARD_Q5
 import org.mtransit.android.commons.distanceToInMetersJVM
@@ -431,6 +438,70 @@ class GetNearbyPOIListUseCaseTest {
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_58725(97L, 2).uuid, this[3].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(368L, 1).uuid, this[4].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_BERRI_61665(711L, 2).uuid, this[5].uuid)
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Test
+    fun test_POI_Nearby_Connection_Gare_MSH() = runTest(mainDispatcherRule.testDispatcher) {
+        val mainAgency = CA_RICHELIEU_EXO
+        val mainPOI = mkCA_RICHELIEU_MSH_Q2(300L, 0)
+        whenever_POIMsAroundLoc(CA_RICHELIEU_EXO, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            listOf(21L).forEach {
+                add(mkCA_RICHELIEU_MSH_Q3(routeId = it).toPOIM())
+                add(mkCA_RICHELIEU_MSH_Q3(routeId = it, isNoPickup = true).toPOIM())
+            }
+            listOf(25L).forEach {
+                add(mkCA_RICHELIEU_MSH_Q4(routeId = it).toPOIM())
+                add(mkCA_RICHELIEU_MSH_Q4(routeId = it, isNoPickup = true).toPOIM())
+            }
+            listOf(200L).forEach {
+                add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_GRAND_ALLEE(routeId = it, 1).toPOIM())
+                add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_LAVOIE(routeId = it, 0).toPOIM())
+            }
+            listOf(300L).forEach {
+                add(mkCA_RICHELIEU_MSH_Q2(routeId = it, 0).toPOIM())
+                add(mkCA_RICHELIEU_MSH_Q2(routeId = it, 1).toPOIM())
+            }
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        whenever_POIMsAroundLoc(CA_MTL_EXO_TRAIN, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            listOf(3L).forEach {
+                add(mkCA_MTL_EXO_TRAIN_MSH(it).toPOIM())
+                add(mkCA_MTL_EXO_TRAIN_MSH(it, isNoPickup = true).toPOIM())
+            }
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        (ALL_AGENCIES - setOf(CA_RICHELIEU_EXO, CA_MTL_EXO_TRAIN)).forEach {
+            whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
+        }
+
+        val result = subject.invoke(
+            lat = mainPOI.lat,
+            lng = mainPOI.lng,
+            allAgencies = ALL_AGENCIES,
+            minSize = 1,
+            maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
+            minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
+            getMaxDistanceInMeters = getMaxDistanceInMeters,
+            mainAgency = mainAgency,
+            excludeAgency = POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_AGENCY,
+            excludePOI = { POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_POI(it, mainPOI) },
+        ).sortWithAnd(mkPOIConnectionComparator(targetedPOI = mainPOI))
+
+        assertEquals(4, result.size)
+        with(result.map { it.dataSourceTypeId }.distinct()) {
+            assertEquals(2, size)
+            assertEquals(DataSourceType.TYPE_BUS.id, this[0])
+            assertEquals(DataSourceType.TYPE_RAIL.id, this[1])
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+            assertEquals(3, size)
+            assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 1).uuid, this[0].uuid)
+            assertEquals(mkCA_RICHELIEU_MSH_Q3(21L).uuid, this[1].uuid)
+            assertEquals(mkCA_RICHELIEU_MSH_Q4(25L).uuid, this[2].uuid)
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_RAIL.id }) {
+            assertEquals(1, size)
+            assertEquals(mkCA_MTL_EXO_TRAIN_MSH(3L).uuid, this[0].uuid)
         }
     }
 

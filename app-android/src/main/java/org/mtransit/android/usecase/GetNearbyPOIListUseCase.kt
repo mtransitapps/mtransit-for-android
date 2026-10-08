@@ -164,7 +164,7 @@ class GetNearbyPOIListUseCase(
                             (lastsDistanceDiff ?: MIN_LASTS_DISTANCE_DIFF_IN_METERS)
                         ) / 2f
                     if (nearbyPOIs.size >= 2 && avgDistanceDiff > 0f) {
-                        maxDistanceInMeters = (lastDistance ?: maxDistanceInMeters) + avgDistanceDiff
+                        maxDistanceInMeters = (lastDistance?.takeIf { it + avgDistanceDiff > maxDistanceInMeters } ?: maxDistanceInMeters) + avgDistanceDiff
                     } else {
                         maxDistanceInMeters *= MAX_DISTANCE_INCREASE
                     }
