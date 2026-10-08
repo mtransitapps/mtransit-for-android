@@ -134,6 +134,7 @@ class GetNearbyPOIListUseCase(
                     && !LocationUtils.searchComplete(lat, lng, aroundDiff.ad) // world explored
                 ) {
                     val lastDistance = nearbyPOIs.takeIf { it.isNotEmpty() }?.lastOrNull()?.distanceOrNull
+                        ?.coerceAtMost(maxDistanceInMeters) // overrides getMaxDistanceInMeters()
                     val firstLastDistanceDiff = nearbyPOIs
                         .filter { it.distanceOrNull?.let { distanceNN -> distanceNN > 0f && distanceNN < maxDistanceInMeters } == true }
                         .takeIf { it.size >= 2 }
