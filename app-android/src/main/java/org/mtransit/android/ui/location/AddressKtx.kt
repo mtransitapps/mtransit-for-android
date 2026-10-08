@@ -12,7 +12,6 @@ val AndroidAddress.latLng: LatLng?
         return LatLng(latitude, longitude)
     }
 
-
 val AndroidAddress.firstAddressLineOrNull: String? get() = this.takeIf { it.maxAddressLineIndex >= 0 }?.getAddressLine(0)
 
 val AndroidAddress.usefulFeatureName: String? get() = this.featureName?.takeIf { it.isNotBlank() && !featureName.isDigitsOnly() && it.length > 7 }

@@ -91,7 +91,7 @@ class MapViewModel @Inject constructor(
     }
 
     init {
-        getNearbyPOIListUseCase.logTag = LOG_TAG
+        getNearbyPOIListUseCase.setLogTag(LOG_TAG)
     }
 
     override fun getLogTag() = LOG_TAG
