@@ -19,9 +19,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
-import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
+import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
@@ -36,12 +36,14 @@ import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIConnectionComparator
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.POI_ALPHA_COMPARATOR
+import org.mtransit.android.data.POI_MANAGER_ALPHA_COMPARATOR
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.data.isNoPickup
 import org.mtransit.android.data.isSameRoute
 import org.mtransit.android.data.isSameRouteDirection
+import org.mtransit.android.data.shortAuthority
+import org.mtransit.android.data.shortUUIDAndDistance
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
@@ -102,7 +104,7 @@ class POIViewModel @Inject constructor(
         }
 
         @VisibleForTesting
-        internal val GET_NEARBY_CONNECTIONS_MIN_COVERAGE_IN_METERS: Float? = 333f
+        internal val GET_NEARBY_CONNECTIONS_MIN_COVERAGE_IN_METERS = 333f
 
         @VisibleForTesting
         internal val GET_NEARBY_CONNECTIONS_MAX_DISTANCE_IN_METERS: (maxDistanceInMeters: Float, dst: DataSourceType, count: Int) -> Float =
@@ -133,7 +135,7 @@ class POIViewModel @Inject constructor(
                     }
                 },
                 samePOIType1st = NEARBY_CONNECTIONS_SAME_AGENCY_1ST,
-            ).then(POI_ALPHA_COMPARATOR)
+            ).then(POI_MANAGER_ALPHA_COMPARATOR)
         }
     }
 
@@ -226,7 +228,7 @@ class POIViewModel @Inject constructor(
                         .apply {
                             if (poi !is RouteDirectionStop) {
                                 updateDistanceM(poi.lat, poi.lng)
-                                sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
+                                sortWithAnd(LocationPOI.DISTANCE_COMPARATOR)
                             }
                         }
                 )

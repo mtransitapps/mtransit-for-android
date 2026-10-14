@@ -30,8 +30,8 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.common.roundTo
-import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
@@ -276,7 +276,7 @@ class MapViewModel @Inject constructor(
                     },
                     excludePOI = { false },
                 )
-                    .sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
+                    .sortWithAnd(LocationPOI.DISTANCE_COMPARATOR)
                     .firstOrNull()
                     ?.latLng
                     ?: run {

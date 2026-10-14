@@ -33,7 +33,7 @@ import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.POI_ALPHA_COMPARATOR
+import org.mtransit.android.data.POI_MANAGER_ALPHA_COMPARATOR
 import org.mtransit.android.data.dataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -264,7 +264,7 @@ class HomeViewModel @Inject constructor(
                 .takeUnless { type == DataSourceType.TYPE_MODULE && hasDisabledModule.value ?: false } ?: NB_MAX_BY_TYPE_ONE_TYPE // show more disabled modules
             val typePOIs = getTypeNearbyPOIs(scope, typeAgencies, lat, lng, minDistanceInMeters, typeMaxByType)
             filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters, typeMaxByType)
-            typePOIs.sortWith(POI_ALPHA_COMPARATOR)
+            typePOIs.sortWith(POI_MANAGER_ALPHA_COMPARATOR)
             scope.ensureActive()
             typePOIs.takeIf { it.isNotEmpty() }?.let { newTypePOIs ->
                 _nearbyPOIs.postValue(newTypePOIs)

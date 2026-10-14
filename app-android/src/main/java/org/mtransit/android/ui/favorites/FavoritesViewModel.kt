@@ -25,7 +25,7 @@ import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.FavoriteFolder
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.POI_ALPHA_COMPARATOR
+import org.mtransit.android.data.POI_MANAGER_ALPHA_COMPARATOR
 import org.mtransit.android.data.dstOrFavFolderId
 import org.mtransit.android.data.toPOIM
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -152,7 +152,7 @@ class FavoritesViewModel @Inject constructor(
                     .let { agencyPOIs ->
                         if (agencyPOIs.isNotEmpty()) {
                             addAll(
-                                agencyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
+                                agencyPOIs.sortWithAnd(POI_MANAGER_ALPHA_COMPARATOR)
                             )
                         }
                     }

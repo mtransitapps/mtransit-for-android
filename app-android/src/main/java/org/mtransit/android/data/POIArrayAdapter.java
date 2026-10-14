@@ -151,10 +151,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.logTag = LOG_TAG + "-" + tag;
 	}
 
-	public static final int SECTION_TYPE_HEADER_NONE = 0;
-	public static final int SECTION_TYPE_HEADER_BASIC = 1;
-	public static final int SECTION_TYPE_HEADER_ALL_NEARBY = 2;
-	public static final int SECTION_TYPE_HEADER_MORE = 3;
+	public static final int SECTION_TYPE_HEADER_NONE = 0; // no header
+	public static final int SECTION_TYPE_HEADER_BASIC = 1; // no buttons
+	public static final int SECTION_TYPE_HEADER_ALL_NEARBY = 2; // header w/ 2 buttons
+	public static final int SECTION_TYPE_HEADER_MORE = 3; // header w/ 1 button
 
 	private final LayoutInflater layoutInflater;
 
@@ -982,12 +982,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			for (Integer dstOrFavFolderId : this.poisByDstOrFavFolderId.keySet()) {
 				final List<POIManager> dstOrFavFolderIdPOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
 				if (dstOrFavFolderIdPOIMs == null || dstOrFavFolderIdPOIMs.isEmpty()) continue;
-				this.closestPoiUuids.addAll(
-						LocationUtilsExtKt.findClosestPOIUuids(dstOrFavFolderIdPOIMs)
-				);
+				final List<String> closestPOIUuids = LocationUtilsExtKt.findClosestPOIUuids(dstOrFavFolderIdPOIMs);
+				if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE && closestPOIUuids.size() == dstOrFavFolderIdPOIMs.size()) {
+					MTLog.d(this, "updateClosestPoi() > all '%s' POIs are closest -> ignore", dstOrFavFolderId);
+					continue;
+				}
+				this.closestPoiUuids.addAll(closestPOIUuids);
 			}
 		}
-		if (this.closestPoiUuids.size() == getPoisCount()) {
+		if (this.showTypeSectionHeader == SECTION_TYPE_HEADER_NONE && this.closestPoiUuids.size() == getPoisCount()) {
 			MTLog.d(this, "updateClosestPoi() > all POIs are closest -> ignore");
 			this.closestPoiUuids.clear(); // do not show all POIs as closest (BOLD)
 		}

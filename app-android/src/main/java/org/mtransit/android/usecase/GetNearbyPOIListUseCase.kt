@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
+import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.location.AroundDiff
 import org.mtransit.android.commons.removeTooFar
@@ -271,7 +272,7 @@ class GetNearbyPOIListUseCase(
     }
 
     private fun MutableList<POIManager>.removeDuplicateRouteDirection(): Int {
-        sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
+        sortWithAnd(LocationPOI.DISTANCE_COMPARATOR)
         val it = iterator()
         val routeDirectionUUIDKept = mutableSetOf<String>()
         var poiRemoved = 0

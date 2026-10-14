@@ -13,7 +13,7 @@ import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.POI_ALPHA_COMPARATOR
+import org.mtransit.android.data.POI_MANAGER_ALPHA_COMPARATOR
 import org.mtransit.android.data.isNoPickup
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -104,7 +104,7 @@ class PickPOIViewModel @Inject constructor(
                 poiList.addAll(it)
             }
         }
-        poiList.sortWith(POI_ALPHA_COMPARATOR)
+        poiList.sortWith(POI_MANAGER_ALPHA_COMPARATOR)
         return poiList
     }
 
@@ -126,7 +126,7 @@ class PickPOIViewModel @Inject constructor(
                                 || agency.type == DataSourceType.TYPE_MODULE
                         },
                         excludePOI = { it.poi.isNoPickup }
-                    ).sortWithAnd(POI_ALPHA_COMPARATOR)
+                    ).sortWithAnd(POI_MANAGER_ALPHA_COMPARATOR)
                 )
             }
         }

@@ -8,8 +8,8 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
-import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
+import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.commons.updateDistance
@@ -151,9 +151,9 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
         if (isRds) {
             viewModel?.poiList?.value?.let { poiList ->
                 poiList.indexOfFirst { it.poi.uuid == poim.poi.uuid }.takeIf { it > -1 }?.let { poimIndex ->
-                    val sortedPreviousPOIList = poiList.subList(0, poimIndex).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                    val sortedPreviousPOIList = poiList.subList(0, poimIndex).updateDistance(poiLocation).sortedWith(LocationPOI.DISTANCE_COMPARATOR)
                     val sortedNextPOIList =
-                        poiList.subList(poimIndex + 1, poiList.size).updateDistance(poiLocation).sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                        poiList.subList(poimIndex + 1, poiList.size).updateDistance(poiLocation).sortedWith(LocationPOI.DISTANCE_COMPARATOR)
                     val previousPOIM = sortedPreviousPOIList.getOrNull(0)
                     val nextPOIM = sortedNextPOIList.getOrNull(0)
                     val nextRelevantPOIM = nextPOIM ?: previousPOIM // next or previous
@@ -184,7 +184,7 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
             val nearbySameTypePOIs = viewModel?.nearbyPOIs?.value?.filter { it.poi.type == poim.poi.type }?.takeIf { it.isNotEmpty() }
                 ?: viewModel?.poiList?.value?.filter { it.poi.uuid != poim.poi.uuid }?.takeIf { it.isNotEmpty() }
             nearbySameTypePOIs?.let { nearbyPOIs ->
-                val sortedPOIList = nearbyPOIs.sortedWith(LocationUtils.POI_DISTANCE_COMPARATOR)
+                val sortedPOIList = nearbyPOIs.sortedWith(LocationPOI.DISTANCE_COMPARATOR)
                 val nextPOIM = sortedPOIList.getOrNull(0)
                 poiDistanceToNextRelevantPOIM = nextPOIM?.latLng?.distanceToInMeters(poimLatLng)
                 for (nextNextPOIM in sortedPOIList) {
