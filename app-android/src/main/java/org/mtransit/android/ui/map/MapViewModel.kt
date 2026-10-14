@@ -100,6 +100,7 @@ class MapViewModel @Inject constructor(
 
     fun onInitialLocationSet() {
         savedStateHandle[EXTRA_INITIAL_LOCATION] = null // set once only
+        onMapCameraMoved() // showing initial location -> no need for initial visible area
     }
 
     override val locationSettingsNeededResolution: LiveData<PendingIntent?> = MediatorLiveData2(deviceLocation, locationSettingsResolution)
@@ -250,11 +251,12 @@ class MapViewModel @Inject constructor(
         savedStateHandle[EXTRA_MAP_CAMERA_MOVED] = true
     }
 
-    private val stableDeviceLatLng: LiveData<LatLng?> = deviceLocation.map {
-        it?.let { (lat, lng) -> LatLng(lat.roundTo(3), lng.roundTo(3)) }
-    }.distinctUntilChanged()
+    private val stableLocationLatLng: LiveData<LatLng?> = MediatorLiveData2(initialLocation, deviceLocation)
+        .map { (initialLocation, deviceLocation) ->
+            (initialLocation ?: deviceLocation)?.let { (lat, lng) -> LatLng(lat.roundTo(3), lng.roundTo(3)) }
+        }.distinctUntilChanged()
 
-    val initialVisibleArea: LiveData<Collection<LatLng>?> = MediatorLiveData3(mapCameraMoved, stableDeviceLatLng, allAgencies)
+    val initialVisibleArea: LiveData<Collection<LatLng>?> = MediatorLiveData3(mapCameraMoved, stableLocationLatLng, allAgencies)
         .switchMap { (mapCameraMoved, deviceLocation, allAgencies) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 mapCameraMoved ?: return@liveData

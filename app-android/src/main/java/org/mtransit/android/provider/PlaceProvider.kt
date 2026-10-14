@@ -287,7 +287,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
             else -> {
                 return try {
-                    if (currentDbVersion == getCurrentDbVersion()) {
+                    if (currentDbVersion != getCurrentDbVersion()) {
                         dbHelper?.close()
                         dbHelper = null
                         getDBHelper(context)

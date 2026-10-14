@@ -987,6 +987,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				);
 			}
 		}
+		if (this.closestPoiUuids.size() == getPoisCount()) {
+			MTLog.d(this, "updateClosestPoi() > all POIs are closest -> ignore");
+			this.closestPoiUuids.clear(); // do not show all POIs as closest (BOLD)
+		}
 	}
 
 	@SuppressWarnings("unused")

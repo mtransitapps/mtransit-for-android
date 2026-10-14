@@ -158,8 +158,8 @@ class NearbyFragment :
             val validNearbyTypeId: Int? = optTypeId?.takeIf { DataSourceType.parseId(it)?.isNearbyScreen == true }
             return Bundle().apply {
                 validNearbyTypeId?.let { putInt(NearbyViewModel.EXTRA_SELECTED_TYPE, it) }
-                optFixedOnLat?.let { putDouble(NearbyViewModel.EXTRA_FIXED_ON_LAT, it) }
-                optFixedOnLng?.let { putDouble(NearbyViewModel.EXTRA_FIXED_ON_LNG, it) }
+                optFixedOnLat?.let { putString(NearbyViewModel.EXTRA_FIXED_ON_LAT_STRING, it.toString()) } // AndroidX Nav v2.x doesn't support double
+                optFixedOnLng?.let { putString(NearbyViewModel.EXTRA_FIXED_ON_LNG_STRING, it.toString()) } // AndroidX Nav v2.x doesn't support double
                 optFixedOnName?.let { putString(NearbyViewModel.EXTRA_FIXED_ON_NAME, it) }
                 optFixedOnColor?.let { putString(NearbyViewModel.EXTRA_FIXED_ON_COLOR, it) }
             }

@@ -84,8 +84,8 @@ class NearbyViewModel @Inject constructor(
 
         internal const val EXTRA_SELECTED_TYPE = "extra_selected_type"
         internal const val EXTRA_SELECTED_TYPE_DEFAULT = -1
-        internal const val EXTRA_FIXED_ON_LAT = "extra_fixed_on_lat"
-        internal const val EXTRA_FIXED_ON_LNG = "extra_fixed_on_lng"
+        internal const val EXTRA_FIXED_ON_LAT_STRING = "extra_fixed_on_lat_s" // AndroidX Nav v2.x doesn't support double
+        internal const val EXTRA_FIXED_ON_LNG_STRING = "extra_fixed_on_lng_s" // AndroidX Nav v2.x doesn't support double
         internal const val EXTRA_FIXED_ON_NAME = "extra_fixed_on_name"
         internal const val EXTRA_FIXED_ON_COLOR = "extra_fixed_on_color"
     }
@@ -95,8 +95,11 @@ class NearbyViewModel @Inject constructor(
     private val _selectedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_TYPE, EXTRA_SELECTED_TYPE_DEFAULT)
         .map { if (it < 0) null else it }
 
-    private val fixedOnLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LAT)
-    private val fixedOnLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LNG)
+    // AndroidX Nav v2.x doesn't support double
+    private val fixedOnLat = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_LAT_STRING)
+        .map { it?.toDoubleOrNull() }
+    private val fixedOnLng = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_LNG_STRING)
+        .map { it?.toDoubleOrNull() }
 
     val fixedOnLocation: LiveData<AndroidLocation?> = MediatorLiveData2(fixedOnLat, fixedOnLng)
         .map { (fixedOnLat, fixedOnLng) ->
