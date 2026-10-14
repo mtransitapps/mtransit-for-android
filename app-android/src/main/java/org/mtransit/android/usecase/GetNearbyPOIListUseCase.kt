@@ -165,15 +165,12 @@ class GetNearbyPOIListUseCase(
                                 MIN_LASTS_DISTANCE_DIFF_IN_METERS
                             )
                     }
-                    val avgDistanceDiff = ((
+                    val avgDistanceDiff = (
                         (firstLastDistanceDiff ?: INITIAL_COVERAGE_IN_METERS) +
                             (lastsDistanceDiff ?: MIN_LASTS_DISTANCE_DIFF_IN_METERS)
-                        ) / 2f)
+                        ) / 2f
                     if (nearbyPOIs.size >= 2 && avgDistanceDiff > 0f) {
-                        maxDistanceInMeters = avgDistanceDiff +
-                            (lastDistance?.takeIf {
-                                it + avgDistanceDiff > maxDistanceInMeters // increasing
-                            } ?: maxDistanceInMeters)
+                        maxDistanceInMeters = (lastDistance?.takeIf { it + avgDistanceDiff > maxDistanceInMeters } ?: maxDistanceInMeters) + avgDistanceDiff
                     } else {
                         maxDistanceInMeters *= MAX_DISTANCE_INCREASE
                     }
