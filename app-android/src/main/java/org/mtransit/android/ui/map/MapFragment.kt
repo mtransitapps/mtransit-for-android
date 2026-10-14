@@ -369,15 +369,10 @@ class MapFragment :
     }
 
     private fun applyNewFilter(availableTypeIds: List<Int>, selectedTypesIdx: Set<Int>) {
-        viewModel.saveFilterTypeIdsPref(
-            if (selectedTypesIdx.isEmpty() || selectedTypesIdx.size == availableTypeIds.size) { // ALL SELECTED
-                null
-            } else { // NOT ALL SELECTED
-                availableTypeIds.filterIndexed { idx, _ ->
-                    selectedTypesIdx.contains(idx)
-                }
-            }
-        )
+        val selectedTypeIds = availableTypeIds.filterIndexed { idx, _ ->
+            selectedTypesIdx.contains(idx)
+        }
+        viewModel.saveFilterTypeIdsPref(selectedTypeIds, availableTypeIds.size)
     }
 
     override fun isNavBarProtected() = false

@@ -165,12 +165,15 @@ class MapViewModel @Inject constructor(
         LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS, LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT
     ).distinctUntilChanged()
 
-    fun saveFilterTypeIdsPref(filterTypeIds: Collection<Int>?) {
-        val newFilterTypeIdStrings: Set<String> = filterTypeIds?.mapTo(HashSet()) { it.toString() }
+    fun saveFilterTypeIdsPref(filterTypeIds: Collection<Int>?, allTypesCount: Int) {
+        val newFilterTypeIdStrings: Set<String> = filterTypeIds
+            ?.takeIf { filterTypeIds.size != allTypesCount }
+            ?.mapTo(HashSet()) { it.toString() }
             ?: LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT // NULL = EMPTY = ALL (valid)
         lclPrefRepository.pref.edit {
             putStringSet(LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS, newFilterTypeIdStrings)
         }
+        loadedArea.postValue(null) // reset loaded area -> trigger new load
     }
 
     val filterTypeIds: LiveData<Collection<Int>?> = MediatorLiveData3(mapTypes, filterTypeIdsPref, includedTypeIdOrDefault)
@@ -208,7 +211,9 @@ class MapViewModel @Inject constructor(
             }
         }
         includedTypeIdOrDefault.takeIf { it != EXTRA_INCLUDE_TYPE_ID_DEFAULT }?.let { includedTypeId ->
-            if (filterTypeIds.isNotEmpty() && !filterTypeIds.contains(includedTypeId)) {
+            if (filterTypeIds.contains(includedTypeId)) {
+                savedStateHandle[EXTRA_INCLUDE_TYPE_ID] = EXTRA_INCLUDE_TYPE_ID_DEFAULT // only once
+            } else if (filterTypeIds.isNotEmpty() && !filterTypeIds.contains(includedTypeId)) {
                 prefHasChanged = try {
                     val type = DataSourceType.parseId(includedTypeId)
                     if (type == null) {
@@ -221,15 +226,14 @@ class MapViewModel @Inject constructor(
                     }
                     filterTypeIds.add(type.id)
                     true
-                } catch (e: java.lang.Exception) {
+                } catch (e: Exception) {
                     MTLog.w(this, e, "Error while parsing filter type ID '%s'!", includedTypeId)
                     true
                 }
             }
-            savedStateHandle[EXTRA_INCLUDE_TYPE_ID] = EXTRA_INCLUDE_TYPE_ID_DEFAULT // only once
         }
         if (prefHasChanged) { // old setting not valid anymore
-            saveFilterTypeIdsPref(if (filterTypeIds.size == availableTypes.size) null else filterTypeIds) // asynchronous
+            saveFilterTypeIdsPref(filterTypeIds, availableTypes.size) // asynchronous
         }
         return filterTypeIds
     }
@@ -245,6 +249,16 @@ class MapViewModel @Inject constructor(
 
     private val allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
+    val filteredTypeAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(allAgencies, filterTypeIds)
+        .map { (allAgencies, filterTypeIds) ->
+            filterTypeIds ?: return@map null
+            allAgencies ?: return@map null
+            allAgencies.filter { agency ->
+                agency.getSupportedType().isMapScreen
+                    && (filterTypeIds.isEmpty() || filterTypeIds.contains(agency.getSupportedType().id))
+            }
+        }
+
     private val mapCameraMoved = savedStateHandle.getLiveDataDistinct(EXTRA_MAP_CAMERA_MOVED, false)
 
     private fun onMapCameraMoved() {
@@ -256,16 +270,16 @@ class MapViewModel @Inject constructor(
             (initialLocation ?: deviceLocation)?.let { (lat, lng) -> LatLng(lat.roundTo(3), lng.roundTo(3)) }
         }.distinctUntilChanged()
 
-    val initialVisibleArea: LiveData<Collection<LatLng>?> = MediatorLiveData3(mapCameraMoved, stableLocationLatLng, allAgencies)
-        .switchMap { (mapCameraMoved, deviceLocation, allAgencies) ->
+    val initialVisibleArea: LiveData<Collection<LatLng>?> = MediatorLiveData3(mapCameraMoved, stableLocationLatLng, filteredTypeAgencies)
+        .switchMap { (mapCameraMoved, deviceLocation, agencies) ->
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 mapCameraMoved ?: return@liveData
                 val (deviceLat, deviceLng) = deviceLocation ?: return@liveData
-                val allAgencies = allAgencies ?: return@liveData
+                val agencies = agencies ?: return@liveData
                 val nearbyPOILatLng = getNearbyPOIListUseCase(
                     lat = deviceLat,
                     lng = deviceLng,
-                    allAgencies = allAgencies,
+                    allAgencies = agencies,
                     minSize = 1,
                     maxSize = 1,
                     minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
@@ -286,16 +300,6 @@ class MapViewModel @Inject constructor(
                     }
                 val visibleArea = UILocationUtils.computeArea(LatLng(deviceLat, deviceLng), nearbyPOILatLng).toLngLngList()
                 emit(visibleArea)
-            }
-        }
-
-    val filteredTypeAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = MediatorLiveData2(allAgencies, filterTypeIds)
-        .map { (allAgencies, filterTypeIds) ->
-            filterTypeIds ?: return@map null
-            allAgencies ?: return@map null
-            allAgencies.filter { agency ->
-                agency.getSupportedType().isMapScreen
-                    && (filterTypeIds.isEmpty() || filterTypeIds.contains(agency.getSupportedType().id))
             }
         }
 
@@ -401,7 +405,7 @@ class MapViewModel @Inject constructor(
         if (loadedArea != loadingArea) {
             this@MapViewModel.loadedArea.postValue(loadingArea) // LOADED DONE
         }
-        if (hasChanged) {
+        if (hasChanged || _poiMarkers.value == null) {
             _poiMarkers.postValue(positionToPoiMarkers.values)
         }
     }
