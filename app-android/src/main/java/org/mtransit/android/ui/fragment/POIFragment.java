@@ -362,7 +362,7 @@ public class POIFragment extends ABFragment implements
 		if (this.nearbyListAdapter != null) {
 			this.nearbyListAdapter.clear();
 		}
-		this.mapViewController.setFocusedOnUUID(this.poim.getPOI().getUUID());
+		this.mapViewController.setFocusedOnUUID(this.poim.getPoi().getUUID());
 		POIViewController.updateView(getPOIView(), this.poim, this);
 		POIStatusDetailViewController.updateView(getPOIStatusView(), this.poim, this);
 		POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(), this.poim, this);

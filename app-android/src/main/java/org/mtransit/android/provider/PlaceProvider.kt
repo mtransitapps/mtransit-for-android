@@ -397,17 +397,25 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 POIProvider.append(this, authority)
             }
 
-        private val PROJECTION_PLACE: Array<String> = arrayOf(
+        /**
+         * sync w/ [Place.getCursorRow]
+         */
+        @JvmStatic
+        val PROJECTION_PLACE: Array<String> = arrayOf(
             POIProviderContract.Columns.T_POI_K_SCORE_META_OPT,
             PlaceColumns.T_PLACE_K_PROVIDER_ID,
             PlaceColumns.T_PLACE_K_LANG,
-            PlaceColumns.T_PLACE_K_SUB_TITLE,
             PlaceColumns.T_PLACE_K_READ_AT_IN_MS,
+            PlaceColumns.T_PLACE_K_SUB_TITLE,
             PlaceColumns.T_PLACE_K_ICON_URL,
             PlaceColumns.T_PLACE_K_ICON_BG_COLOR,
         )
 
-        private val PROJECTION_PLACE_POI: Array<String> = POIProviderContract.PROJECTION_POI + PROJECTION_PLACE
+        /**
+         * sync w/ [Place.getCursorRow]
+         */
+        @JvmStatic
+        val PROJECTION_PLACE_POI: Array<String> = POIProviderContract.PROJECTION_POI + PROJECTION_PLACE
 
         // https://developers.google.com/maps/documentation/places/android-sdk/text-search
         // https://developers.google.com/maps/documentation/places/android-sdk/usage-and-billing#text-search-id-only-ess-sku
@@ -451,13 +459,12 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 .apply {
                     if (optLat != null && optLng != null) {
                         @Suppress("KotlinConstantConditions") // doesn't work? maybe with SDK 4.0.0+ (minSDK 23)
-                        setLocationRestriction(
+                        this.locationRestriction =
                             CircularBounds.newInstance(LatLng(optLat, optLng), (optRadiusInMeters ?: TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT).toDouble())
                                 .takeIf { false } // doesn't work? maybe with SDK 4.0.0+ (minSDK 23)
                                 ?: RectangularBounds.newInstance(
                                     Area.getArea(optLat, optLng, AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT).toLatLngBounds()
                                 )
-                        )
                     }
                 }.build()
         }

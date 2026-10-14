@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment
 
+import androidx.annotation.VisibleForTesting
 import androidx.collection.SimpleArrayMap
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -35,6 +36,7 @@ import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIConnectionComparator
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.POI_ALPHA_COMPARATOR
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.data.isNoPickup
@@ -86,15 +88,52 @@ class POIViewModel @Inject constructor(
 
         const val NEARBY_CONNECTIONS_SAME_AGENCY_1ST = true
 
-        val NEARBY_CONNECTIONS_EXCLUDE_AGENCY: (IAgencyProperties) -> Boolean = { agency ->
+        @VisibleForTesting
+        internal val NEARBY_CONNECTIONS_EXCLUDE_AGENCY: (IAgencyProperties) -> Boolean = { agency ->
             !agency.type.isNearbyScreen
                 || agency.type == DataSourceType.TYPE_MODULE
         }
 
-        val NEARBY_CONNECTIONS_EXCLUDE_POI: (poim: POIManager, mainPOI: POI) -> Boolean = { poim, mainPOI ->
+        @VisibleForTesting
+        internal val NEARBY_CONNECTIONS_EXCLUDE_POI: (poim: POIManager, mainPOI: POI) -> Boolean = { poim, mainPOI ->
             poim.poi.uuid == mainPOI.uuid
                 || (poim.poi.isNoPickup && !poim.poi.isSameRoute(mainPOI))
                 || poim.poi.isSameRouteDirection(mainPOI)
+        }
+
+        @VisibleForTesting
+        internal val GET_NEARBY_CONNECTIONS_MIN_COVERAGE_IN_METERS: Float? = 333f
+
+        @VisibleForTesting
+        internal val GET_NEARBY_CONNECTIONS_MAX_DISTANCE_IN_METERS: (maxDistanceInMeters: Float, dst: DataSourceType, count: Int) -> Float =
+            { maxDistanceInMeters, dst, count ->
+                when {
+                    count > 0 -> maxDistanceInMeters
+                    dst == DataSourceType.TYPE_BUS -> maxDistanceInMeters
+                    dst == DataSourceType.TYPE_BIKE -> maxDistanceInMeters * 1.5f
+                    dst == DataSourceType.TYPE_SUBWAY -> maxDistanceInMeters * 2f
+                    dst == DataSourceType.TYPE_RAIL -> maxDistanceInMeters * 2f
+                    dst == DataSourceType.TYPE_LIGHT_RAIL -> maxDistanceInMeters * 2f
+                    dst == DataSourceType.TYPE_FERRY -> maxDistanceInMeters * 2f
+                    else -> {
+                        MTLog.w(LOG_TAG, "Unexpected type $dst in POI nearby agencies!")
+                        maxDistanceInMeters
+                    }
+                }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
+            }
+
+        @VisibleForTesting
+        internal val NEARBY_CONNECTIONS_POI_COMPARATOR: (targetedPOI: POI?) -> Comparator<POIManager> = { targetedPOI ->
+            POIConnectionComparator(
+                targetedPOI = targetedPOI,
+                maxDistanceInMeters = { dataSourceTypeId ->
+                    when (dataSourceTypeId) {
+                        DataSourceType.TYPE_BIKE.id -> NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE
+                        else -> NEARBY_CONNECTIONS_MAX_COVERAGE
+                    }
+                },
+                samePOIType1st = NEARBY_CONNECTIONS_SAME_AGENCY_1ST,
+            ).then(POI_ALPHA_COMPARATOR)
         }
     }
 
@@ -239,34 +278,11 @@ class POIViewModel @Inject constructor(
                         minSize = 1,
                         maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
                         minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
-                        getMaxDistanceInMeters = { maxDistanceInMeters, dst ->
-                            when (dst) {
-                                DataSourceType.TYPE_BUS -> maxDistanceInMeters
-                                DataSourceType.TYPE_BIKE -> maxDistanceInMeters * 1.5f
-                                DataSourceType.TYPE_SUBWAY -> maxDistanceInMeters * 2f
-                                DataSourceType.TYPE_RAIL -> maxDistanceInMeters * 2f
-                                DataSourceType.TYPE_LIGHT_RAIL -> maxDistanceInMeters * 2f
-                                DataSourceType.TYPE_FERRY -> maxDistanceInMeters * 2f
-                                else -> {
-                                    MTLog.w(this@POIViewModel, "Unexpected type $dst in POI nearby agencies!")
-                                    maxDistanceInMeters
-                                }
-                            }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
-                        },
+                        getMaxDistanceInMeters = GET_NEARBY_CONNECTIONS_MAX_DISTANCE_IN_METERS,
                         mainAgency = poiAgency,
                         excludeAgency = NEARBY_CONNECTIONS_EXCLUDE_AGENCY,
                         excludePOI = { NEARBY_CONNECTIONS_EXCLUDE_POI(it, poi) },
-                    ).sortWithAnd(
-                        POIConnectionComparator(
-                            targetedPOI = poi,
-                            maxDistanceInMeters = { dataSourceTypeId ->
-                                when (dataSourceTypeId) {
-                                    DataSourceType.TYPE_BIKE.id -> NEARBY_CONNECTIONS_MAX_COVERAGE_BIKE
-                                    else -> NEARBY_CONNECTIONS_MAX_COVERAGE
-                                }
-                            },
-                        )
-                    )
+                    ).sortWithAnd(NEARBY_CONNECTIONS_POI_COMPARATOR(poi))
                 )
             }
         }

@@ -65,8 +65,8 @@ import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52083
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_58725
-import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_BERRI_61665
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_PONTIAC_61802
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_RESTER_61803
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52055
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52057
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61896
@@ -80,12 +80,11 @@ import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_GRAN
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_LAVOIE
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_TERM_BROSSARD_Q4
 import org.mtransit.android.commons.data.mkCA_STE_JULIE_EXO_TERM_BROSSARD_Q5
-import org.mtransit.android.commons.distanceToInMetersJVM
 import org.mtransit.android.commons.getAroundCoveredDistanceInMetersJVM
 import org.mtransit.android.commons.updateDistanceMJVM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
-import org.mtransit.android.data.POIConnectionComparator
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.dataSourceTypeId
 import org.mtransit.android.data.toPOIM
@@ -188,31 +187,20 @@ class GetNearbyPOIListUseCaseTest {
             whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
         }
 
-        val result = subject.invoke(
-            lat = mainPOI.lat,
-            lng = mainPOI.lng,
-            allAgencies = ALL_AGENCIES,
-            minSize = 1,
-            maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
-            minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
-            getMaxDistanceInMeters = getMaxDistanceInMeters,
-            mainAgency = mainAgency,
-            excludeAgency = POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_AGENCY,
-            excludePOI = { POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_POI(it, mainPOI) },
-        ).sortWithAnd(mkPOIConnectionComparator(targetedPOI = mainPOI))
+        val result = subject.invoke(mainPOI, mainAgency)
 
         assertEquals(27, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
-            assertEquals(2, size)
+            assertEquals(2, this.size)
             assertEquals(DataSourceType.TYPE_LIGHT_RAIL.id, this[0])
             assertEquals(DataSourceType.TYPE_BUS.id, this[1])
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_LIGHT_RAIL.id }) {
-            assertEquals(1, size)
+            assertEquals(1, this.size)
             assertEquals(mkCA_MTL_REM_BROSSARD(4001L, isNoPickup = true).uuid, this[0].uuid)
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
-            assertEquals(26, size)
+            assertEquals(26, this.size)
             var index = -1
             assertEquals(mkCA_LONGUEUIL_RTL_TERM_BROSSARD(4L).uuid, this[++index].uuid)
             assertEquals(mkCA_LONGUEUIL_RTL_TERM_BROSSARD(14L).uuid, this[++index].uuid)
@@ -311,36 +299,25 @@ class GetNearbyPOIListUseCaseTest {
             whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
         }
 
-        val result = subject.invoke(
-            lat = mainPOI.lat,
-            lng = mainPOI.lng,
-            allAgencies = ALL_AGENCIES,
-            minSize = 1,
-            maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
-            minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
-            getMaxDistanceInMeters = getMaxDistanceInMeters,
-            mainAgency = mainAgency,
-            excludeAgency = POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_AGENCY,
-            excludePOI = { POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_POI(it, mainPOI) },
-        ).sortWithAnd(mkPOIConnectionComparator(targetedPOI = mainPOI))
+        val result = subject.invoke(mainPOI, mainAgency)
 
         assertEquals(16, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
-            assertEquals(3, size)
+            assertEquals(3, this.size)
             assertEquals(DataSourceType.TYPE_BIKE.id, this[0])
             assertEquals(DataSourceType.TYPE_SUBWAY.id, this[1])
             assertEquals(DataSourceType.TYPE_BUS.id, this[2])
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BIKE.id }) {
-            assertEquals(1, size)
+            assertEquals(1, this.size)
             assertEquals(CA_MTL_BIXI_PARC_DU_MAIL.uuid, this[0].uuid)
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_SUBWAY.id }) {
-            assertEquals(1, size)
+            assertEquals(1, this.size)
             assertEquals(mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND().uuid, this[0].uuid)
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
-            assertEquals(14, size)
+            assertEquals(14, this.size)
             var index = -1
             assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53253(18L).uuid, this[++index].uuid)
             assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53252(26L).uuid, this[++index].uuid)
@@ -383,7 +360,8 @@ class GetNearbyPOIListUseCaseTest {
             add(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(368L, 1).toPOIM())
             add(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52083(11L, 1).toPOIM())
             add(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_58725(97L, 2).toPOIM())
-            add(mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_BERRI_61665(711L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_RESTER_61803(711L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_RESTER_61803(711L, 1, isNoPickup = true).toPOIM())
             add(mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_PONTIAC_61802(11L, 2).toPOIM())
             add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52055(368L, 2).toPOIM())
             add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61896(31L, 3).toPOIM())
@@ -400,50 +378,115 @@ class GetNearbyPOIListUseCaseTest {
             whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
         }
 
-        val result = subject.invoke(
-            lat = mainPOI.lat,
-            lng = mainPOI.lng,
-            allAgencies = ALL_AGENCIES,
-            minSize = 1,
-            maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
-            minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
-            getMaxDistanceInMeters = getMaxDistanceInMeters,
-            mainAgency = mainAgency,
-            excludeAgency = POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_AGENCY,
-            excludePOI = { POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_POI(it, mainPOI) },
-        ).sortWithAnd(mkPOIConnectionComparator(targetedPOI = mainPOI))
+        val result = subject.invoke(mainPOI, mainAgency)
 
         assertEquals(10, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
-            assertEquals(3, size)
+            assertEquals(3, this.size)
             assertEquals(DataSourceType.TYPE_SUBWAY.id, this[0])
             assertEquals(DataSourceType.TYPE_BIKE.id, this[1])
             assertEquals(DataSourceType.TYPE_BUS.id, this[2])
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_SUBWAY.id }) {
-            assertEquals(1, size)
+            assertEquals(1, this.size)
             assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 2).uuid, this[0].uuid) // Montmorency
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BIKE.id }) {
-            assertEquals(3, size)
+            assertEquals(3, this.size)
             assertEquals(CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN.uuid, this[0].uuid)
             assertEquals(CA_MTL_BIXI_MONT_ROYAL_RESTER.uuid, this[1].uuid)
             assertEquals(CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT.uuid, this[2].uuid)
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
-            assertEquals(6, size)
+            assertEquals(6, this.size)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52083(11L, 1).uuid, this[0].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_PONTIAC_61802(11L, 2).uuid, this[1].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(97L, 1).uuid, this[2].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_58725(97L, 2).uuid, this[3].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(368L, 1).uuid, this[4].uuid)
-            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_BERRI_61665(711L, 2).uuid, this[5].uuid)
         }
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @Test
-    fun test_POI_Nearby_Connection_Gare_MSH() = runTest(mainDispatcherRule.testDispatcher) {
+    fun test_POI_Nearby_Connection_Metro_Mont_Royal_Berri() = runTest(mainDispatcherRule.testDispatcher) {
+        val mainAgency = CA_MTL_STM_BUS
+        val mainPOI = mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(97L, 1)
+        whenever_POIMsAroundLoc(CA_MTL_BIXI, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN.toPOIM())
+            add(CA_MTL_BIXI_MONT_ROYAL_RESTER.toPOIM())
+            add(CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT.toPOIM())
+            add(CA_MTL_BIXI_DROLET_MARIE_ANNE.toPOIM())
+            add(CA_MTL_BIXI_GILFORD_ST_DENIS.toPOIM())
+            add(CA_MTL_BIXI_MONT_ROYAL_MENTANA.toPOIM())
+            add(CA_MTL_BIXI_MONT_ROYAL_LAVAL.toPOIM())
+            add(CA_MTL_BIXI_MONT_ROYAL_BOYER.toPOIM())
+            add(CA_MTL_BIXI_MONT_ROYAL_HOTEL_DE_VILLE.toPOIM())
+            add(CA_MTL_BIXI_MENTANA_MARIE_ANNE.toPOIM())
+            add(CA_MTL_BIXI_BERRY_GILFORD.toPOIM())
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        whenever_POIMsAroundLoc(CA_MTL_STM_BUS, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(97L, 1).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(368L, 1).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52083(11L, 1).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_58725(97L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_RESTER_61803(711L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_RESTER_61803(711L, 1, isNoPickup = true).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_PONTIAC_61802(11L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52055(368L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61896(31L, 3).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61896(361L, 3).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897(31L, 4).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897(361L, 4).toPOIM())
+            add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52057(97L, 1).toPOIM())
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        whenever_POIMsAroundLoc(CA_MTL_STM_SUBWAY, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 1).toPOIM()) // Côte-Vertu
+            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 2).toPOIM()) // Montmorency
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        (ALL_AGENCIES - setOf(CA_MTL_BIXI, CA_MTL_STM_BUS, CA_MTL_STM_SUBWAY)).forEach {
+            whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
+        }
+
+        val result = subject.invoke(mainPOI, mainAgency)
+        assertEquals(15, result.size)
+        with(result.map { it.dataSourceTypeId }.distinct()) {
+            assertEquals(3, this.size)
+            assertEquals(DataSourceType.TYPE_BUS.id, this[0])
+            assertEquals(DataSourceType.TYPE_BIKE.id, this[1])
+            assertEquals(DataSourceType.TYPE_SUBWAY.id, this[2])
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+            assertEquals(10, this.size)
+            var index = -1
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_58725(97L, 2).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52083(11L, 1).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_PONTIAC_61802(11L, 2).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61896(31L, 3).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897(31L, 4).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61896(361L, 3).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897(361L, 4).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52055(368L, 2).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(368L, 1).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_RESTER_61803(711L, 2).uuid, this[++index].uuid)
+            assertEquals(this.size, ++index)
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BIKE.id }) {
+            assertEquals(3, this.size)
+            assertEquals(CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN.uuid, this[0].uuid)
+            assertEquals(CA_MTL_BIXI_MONT_ROYAL_RESTER.uuid, this[1].uuid)
+            assertEquals(CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT.uuid, this[2].uuid)
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_SUBWAY.id }) {
+            assertEquals(2, this.size)
+            assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 1).uuid, this[0].uuid) // Côte-Vertu
+            assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 2).uuid, this[1].uuid) // Montmorency
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Test
+    fun test_POI_Nearby_Connection_Gare_MSH_Q2() = runTest(mainDispatcherRule.testDispatcher) {
         val mainAgency = CA_RICHELIEU_EXO
         val mainPOI = mkCA_RICHELIEU_MSH_Q2(300L, 0)
         whenever_POIMsAroundLoc(CA_RICHELIEU_EXO, mainPOI) doReturn mutableListOf<POIManager>().apply {
@@ -474,36 +517,147 @@ class GetNearbyPOIListUseCaseTest {
             whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
         }
 
-        val result = subject.invoke(
-            lat = mainPOI.lat,
-            lng = mainPOI.lng,
-            allAgencies = ALL_AGENCIES,
-            minSize = 1,
-            maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
-            minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
-            getMaxDistanceInMeters = getMaxDistanceInMeters,
-            mainAgency = mainAgency,
-            excludeAgency = POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_AGENCY,
-            excludePOI = { POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_POI(it, mainPOI) },
-        ).sortWithAnd(mkPOIConnectionComparator(targetedPOI = mainPOI))
+        val result = subject.invoke(mainPOI, mainAgency)
 
         assertEquals(4, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
-            assertEquals(2, size)
+            assertEquals(2, this.size)
             assertEquals(DataSourceType.TYPE_BUS.id, this[0])
             assertEquals(DataSourceType.TYPE_RAIL.id, this[1])
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
-            assertEquals(3, size)
+            assertEquals(3, this.size)
             assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 1).uuid, this[0].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q3(21L).uuid, this[1].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q4(25L).uuid, this[2].uuid)
         }
         with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_RAIL.id }) {
-            assertEquals(1, size)
+            assertEquals(1, this.size)
             assertEquals(mkCA_MTL_EXO_TRAIN_MSH(3L).uuid, this[0].uuid)
         }
     }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Test
+    fun test_POI_Nearby_Connection_Gare_MSH_Q4() = runTest(mainDispatcherRule.testDispatcher) {
+        val mainAgency = CA_RICHELIEU_EXO
+        val mainPOI = mkCA_RICHELIEU_MSH_Q4(25L)
+        whenever_POIMsAroundLoc(CA_RICHELIEU_EXO, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            listOf(21L).forEach {
+                add(mkCA_RICHELIEU_MSH_Q3(routeId = it).toPOIM())
+                add(mkCA_RICHELIEU_MSH_Q3(routeId = it, isNoPickup = true).toPOIM())
+            }
+            listOf(25L).forEach {
+                add(mkCA_RICHELIEU_MSH_Q4(routeId = it).toPOIM())
+                add(mkCA_RICHELIEU_MSH_Q4(routeId = it, isNoPickup = true).toPOIM())
+            }
+            listOf(200L).forEach {
+                add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_GRAND_ALLEE(routeId = it, 1).toPOIM())
+                add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_LAVOIE(routeId = it, 0).toPOIM())
+            }
+            listOf(300L).forEach {
+                add(mkCA_RICHELIEU_MSH_Q2(routeId = it, 0).toPOIM())
+                add(mkCA_RICHELIEU_MSH_Q2(routeId = it, 1).toPOIM())
+            }
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        whenever_POIMsAroundLoc(CA_MTL_EXO_TRAIN, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            listOf(3L).forEach {
+                add(mkCA_MTL_EXO_TRAIN_MSH(it).toPOIM())
+                add(mkCA_MTL_EXO_TRAIN_MSH(it, isNoPickup = true).toPOIM())
+            }
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        (ALL_AGENCIES - setOf(CA_RICHELIEU_EXO, CA_MTL_EXO_TRAIN)).forEach {
+            whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
+        }
+
+        val result = subject.invoke(mainPOI, mainAgency)
+
+        assertEquals(5, result.size)
+        with(result.map { it.dataSourceTypeId }.distinct()) {
+            assertEquals(2, this.size)
+            assertEquals(DataSourceType.TYPE_BUS.id, this[0])
+            assertEquals(DataSourceType.TYPE_RAIL.id, this[1])
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+            assertEquals(4, this.size)
+            assertEquals(mkCA_RICHELIEU_MSH_Q4(25L, isNoPickup = true).uuid, this[0].uuid)
+            assertEquals(mkCA_RICHELIEU_MSH_Q3(21L).uuid, this[1].uuid)
+            assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 0).uuid, this[2].uuid)
+            assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 1).uuid, this[3].uuid)
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_RAIL.id }) {
+            assertEquals(1, this.size)
+            assertEquals(mkCA_MTL_EXO_TRAIN_MSH(3L).uuid, this[0].uuid)
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Test
+    fun test_POI_Nearby_Connection_Gare_MSH() = runTest(mainDispatcherRule.testDispatcher) {
+        val mainAgency = CA_MTL_EXO_TRAIN
+        val mainPOI = mkCA_MTL_EXO_TRAIN_MSH(3L)
+        whenever_POIMsAroundLoc(CA_RICHELIEU_EXO, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            listOf(21L).forEach {
+                add(mkCA_RICHELIEU_MSH_Q3(routeId = it).toPOIM())
+                add(mkCA_RICHELIEU_MSH_Q3(routeId = it, isNoPickup = true).toPOIM())
+            }
+            listOf(25L).forEach {
+                add(mkCA_RICHELIEU_MSH_Q4(routeId = it).toPOIM())
+                add(mkCA_RICHELIEU_MSH_Q4(routeId = it, isNoPickup = true).toPOIM())
+            }
+            listOf(200L).forEach {
+                add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_GRAND_ALLEE(routeId = it, 1).toPOIM())
+                add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_LAVOIE(routeId = it, 0).toPOIM())
+            }
+            listOf(300L).forEach {
+                add(mkCA_RICHELIEU_MSH_Q2(routeId = it, 0).toPOIM())
+                add(mkCA_RICHELIEU_MSH_Q2(routeId = it, 1).toPOIM())
+            }
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        whenever_POIMsAroundLoc(CA_MTL_EXO_TRAIN, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            listOf(3L).forEach {
+                add(mkCA_MTL_EXO_TRAIN_MSH(it).toPOIM())
+                add(mkCA_MTL_EXO_TRAIN_MSH(it, isNoPickup = true).toPOIM())
+            }
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        (ALL_AGENCIES - setOf(CA_RICHELIEU_EXO, CA_MTL_EXO_TRAIN)).forEach {
+            whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
+        }
+
+        val result = subject.invoke(mainPOI, mainAgency)
+
+        assertEquals(5, result.size)
+        with(result.map { it.dataSourceTypeId }.distinct()) {
+            assertEquals(2, this.size)
+            assertEquals(DataSourceType.TYPE_RAIL.id, this[0])
+            assertEquals(DataSourceType.TYPE_BUS.id, this[1])
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_RAIL.id }) {
+            assertEquals(1, this.size)
+            assertEquals(mkCA_MTL_EXO_TRAIN_MSH(3L, isNoPickup = true).uuid, this[0].uuid)
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+            assertEquals(4, this.size)
+            assertEquals(mkCA_RICHELIEU_MSH_Q3(21L).uuid, this[0].uuid)
+            assertEquals(mkCA_RICHELIEU_MSH_Q4(25L).uuid, this[1].uuid)
+            assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 0).uuid, this[2].uuid)
+            assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 1).uuid, this[3].uuid)
+        }
+    }
+
+    private suspend fun GetNearbyPOIListUseCase.invoke(mainPOI: POI, mainAgency: IAgencyProperties) = this.invoke(
+        lat = mainPOI.lat,
+        lng = mainPOI.lng,
+        allAgencies = ALL_AGENCIES,
+        minSize = 1,
+        maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
+        minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
+        enoughCoverageInMeters = POIViewModel.GET_NEARBY_CONNECTIONS_MIN_COVERAGE_IN_METERS,
+        getMaxDistanceInMeters = POIViewModel.GET_NEARBY_CONNECTIONS_MAX_DISTANCE_IN_METERS,
+        mainAgency = mainAgency,
+        excludeAgency = POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_AGENCY,
+        excludePOI = { POIViewModel.NEARBY_CONNECTIONS_EXCLUDE_POI(it, mainPOI) },
+    ).sortWithAnd(POIViewModel.NEARBY_CONNECTIONS_POI_COMPARATOR(mainPOI))
 
     private fun whenever_POIMsAroundLoc(
         agency: AgencyBaseProperties,
@@ -518,30 +672,4 @@ class GetNearbyPOIListUseCaseTest {
             noPickup = eq(false),
         )
     }
-
-    private val getMaxDistanceInMeters: (maxDistanceInMeters: Float, dst: DataSourceType) -> Float = { maxDistanceInMeters, dst ->
-        when (dst) {
-            DataSourceType.TYPE_BUS -> maxDistanceInMeters
-            DataSourceType.TYPE_BIKE -> maxDistanceInMeters * 1.5f
-            DataSourceType.TYPE_SUBWAY -> maxDistanceInMeters * 2f
-            DataSourceType.TYPE_RAIL -> maxDistanceInMeters * 2f
-            DataSourceType.TYPE_LIGHT_RAIL -> maxDistanceInMeters * 2f
-            DataSourceType.TYPE_FERRY -> maxDistanceInMeters * 2f
-            else -> {
-                maxDistanceInMeters
-            }
-        }.coerceAtMost(2f * 2f * UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS)
-    }
-
-    private fun mkPOIConnectionComparator(targetedPOI: POI? = null) = POIConnectionComparator(
-        targetedPOI = targetedPOI,
-        maxDistanceInMeters = { dataSourceTypeId ->
-            when (dataSourceTypeId) {
-                DataSourceType.TYPE_BIKE.id -> 2.5f * UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS
-                else -> 2f * UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS
-            }
-        },
-        computeDistance = { poi1, poi2 -> poi1.distanceToInMetersJVM(poi2) },
-        sameAgency1st = POIViewModel.NEARBY_CONNECTIONS_SAME_AGENCY_1ST,
-    )
 }

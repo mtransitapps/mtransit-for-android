@@ -1100,6 +1100,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@Nullable
 	private Runnable notifyDataSetChangedLater = null;
 
+	private static final boolean NOTIFY_DEBUG = false;
+
 	private static final boolean NEVER_IGNORE_NOTIFY_DATA_CHANGED = true;
 
 	private void notifyDataSetChanged(
@@ -1111,7 +1113,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if ((this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE // WARNING: scroll state can stay stuck in other state
 				&& (doNotIgnore || this.lastNotifyDataSetChanged + adapterThresholdMs < now))
 				|| (this.lastNotifyDataSetChanged + (adapterThresholdMs * 2L) < now)) {
-			MTLog.d(this, "notifyDataSetChanged() > NOTIFYING...");
+			if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > NOTIFYING...");
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
 			this.lastNotifyDataSetChanged = now;
@@ -1122,13 +1124,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		} else {
 			final boolean canIgnore = !(doNotIgnore || NEVER_IGNORE_NOTIFY_DATA_CHANGED);
 			if (canIgnore) {
-				MTLog.d(this, "notifyDataSetChanged() > IGNORED");
+				if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > IGNORED");
 			} else if (this.notifyDataSetChangedLater != null) {
-				MTLog.d(this, "notifyDataSetChanged() > already scheduled");
+				if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > already scheduled");
 			} else {
-				MTLog.d(this, "notifyDataSetChanged() > SCHEDULED");
+				if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > SCHEDULED");
 				this.notifyDataSetChangedLater = () -> {
-					MTLog.d(this, "notifyDataSetChanged() > HANDLER");
+					if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > HANDLER");
 					this.notifyDataSetChangedLater = null;
 					notifyDataSetChanged(true);
 				};

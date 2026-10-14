@@ -14,9 +14,10 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.POI_ALPHA_COMPARATOR
+import org.mtransit.android.data.dataSourceTypeId
 import org.mtransit.android.data.distanceOrNull
 import org.mtransit.android.data.isNoPickup
+import org.mtransit.android.data.positiveDistanceOrNull
 import org.mtransit.android.data.uuid
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.location.UILocationUtils
@@ -47,7 +48,7 @@ class GetNearbyPOIListUseCase(
 
         private const val SAME_LOGIC_FOR_TARGET_AGENCY = true
 
-        private const val INITIAL_COVERAGE_IN_METERS = 50f
+        private const val INITIAL_COVERAGE_IN_METERS = 77f
 
         private const val MIN_LASTS_DISTANCE_DIFF_IN_METERS = 13f
 
@@ -70,7 +71,7 @@ class GetNearbyPOIListUseCase(
         maxSize: Int = UILocationUtils.MAX_NEARBY_LIST,
         minCoverageInMeters: Float = UILocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS,
         enoughCoverageInMeters: Float? = null,
-        getMaxDistanceInMeters: (maxDistanceInMeters: Float, dst: DataSourceType) -> Float = { maxDistanceInMeters, _ ->
+        getMaxDistanceInMeters: (maxDistanceInMeters: Float, dst: DataSourceType, count: Int) -> Float = { maxDistanceInMeters, _, _ ->
             maxDistanceInMeters
         },
         mainAgency: IAgencyProperties? = null,
@@ -109,7 +110,13 @@ class GetNearbyPOIListUseCase(
                     agenciesToPOIMs.getOrFindPOIMAroundLoc(nearbyAgency, lat, lng, aroundDiff.ad)
                         .toMutableList() // creates new list to modify (keep cached list unchanged)
                         .removeAllAnd(excludePOI)
-                        .removeTooFar(getMaxDistanceInMeters(maxDistanceInMeters, nearbyAgency.type))
+                        .removeTooFar(
+                            getMaxDistanceInMeters(
+                                maxDistanceInMeters,
+                                nearbyAgency.type,
+                                nearbyPOIs.count { it.dataSourceTypeId == nearbyAgency.type.id },
+                            )
+                        )
                         .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
                         .removeAllAnd { new -> nearbyPOIs.any { it.uuid == new.uuid } }
                         .also { newAgencyNearbyPOIs ->
@@ -133,10 +140,9 @@ class GetNearbyPOIListUseCase(
                     && aroundDiff.increment <= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT)
                     && !LocationUtils.searchComplete(lat, lng, aroundDiff.ad) // world explored
                 ) {
-                    val lastDistance = nearbyPOIs.takeIf { it.isNotEmpty() }?.lastOrNull()?.distanceOrNull
-                        ?.coerceAtMost(maxDistanceInMeters) // overrides getMaxDistanceInMeters()
+                    val lastDistance = nearbyPOIs.takeIf { it.isNotEmpty() }?.lastOrNull { it.distance < maxDistanceInMeters }?.distanceOrNull
                     val firstLastDistanceDiff = nearbyPOIs
-                        .filter { it.distanceOrNull?.let { distanceNN -> distanceNN > 0f && distanceNN < maxDistanceInMeters } == true }
+                        .filter { it.positiveDistanceOrNull?.let { distanceNN -> distanceNN < maxDistanceInMeters } == true }
                         .takeIf { it.size >= 2 }
                         ?.let {
                             val firstDistance = it.first().distance
@@ -148,10 +154,10 @@ class GetNearbyPOIListUseCase(
                         null
                     } else {
                         nearbyPOIs
-                            .filter { it.distanceOrNull != null }
+                            .filter { it.positiveDistanceOrNull != null }
                             .takeIf { it.size > 2 }
                             ?.lastOrNull { poim ->
-                                lastDistance - poim.distance > 0.0f
+                                poim.distance < lastDistance
                             }?.distance
                             ?.let { distinctLastDistance ->
                                 lastDistance - distinctLastDistance
@@ -159,12 +165,15 @@ class GetNearbyPOIListUseCase(
                                 MIN_LASTS_DISTANCE_DIFF_IN_METERS
                             )
                     }
-                    val avgDistanceDiff = (
+                    val avgDistanceDiff = ((
                         (firstLastDistanceDiff ?: INITIAL_COVERAGE_IN_METERS) +
                             (lastsDistanceDiff ?: MIN_LASTS_DISTANCE_DIFF_IN_METERS)
-                        ) / 2f
+                        ) / 2f)
                     if (nearbyPOIs.size >= 2 && avgDistanceDiff > 0f) {
-                        maxDistanceInMeters = (lastDistance?.takeIf { it + avgDistanceDiff > maxDistanceInMeters } ?: maxDistanceInMeters) + avgDistanceDiff
+                        maxDistanceInMeters = avgDistanceDiff +
+                            (lastDistance?.takeIf {
+                                it + avgDistanceDiff > maxDistanceInMeters // increasing
+                            } ?: maxDistanceInMeters)
                     } else {
                         maxDistanceInMeters *= MAX_DISTANCE_INCREASE
                     }
@@ -214,8 +223,6 @@ class GetNearbyPOIListUseCase(
                 agenciesToPOIMs = agenciesToPOIMs,
             )
         }
-        nearbyPOIs.sortWithAnd(LocationUtils.POI_DISTANCE_COMPARATOR)
-        nearbyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
         return@withContext nearbyPOIs
     }
 
@@ -272,7 +279,8 @@ class GetNearbyPOIListUseCase(
         val routeDirectionUUIDKept = mutableSetOf<String>()
         var poiRemoved = 0
         while (it.hasNext()) {
-            val rds = it.next().poi as? RouteDirectionStop ?: continue
+            val poim = it.next()
+            val rds = poim.poi as? RouteDirectionStop ?: continue
             val routeDirectionId = rds.routeDirectionUUID
             if (routeDirectionUUIDKept.contains(routeDirectionId)) {
                 it.remove()

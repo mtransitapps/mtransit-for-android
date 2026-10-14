@@ -6,6 +6,7 @@ import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
+import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.metersToFeet
 import kotlin.math.max
 import kotlin.math.min
@@ -74,12 +75,11 @@ object UILocationUtils : LocationUtils() {
     @JvmStatic
     @AnyThread
     fun updateDistanceWithStringNN(distanceUnitsPref: String, poi: LocationPOI, currentLocation: AndroidLocation) {
-        val accuracyInMeters = currentLocation.accuracy
-        if (!poi.hasLocation()) return
-        val newDistance = distanceToInMeters(currentLocation.latitude, currentLocation.longitude, poi.getLat(), poi.getLng())
-        if (poi.getDistance() >= 0f && poi.getDistance() == newDistance && poi.getDistanceString() != null) return
-        poi.setDistance(newDistance)
-        poi.setDistanceString(getDistanceString(poi.getDistance(), accuracyInMeters, distanceUnitsPref))
+        if (!poi.hasLocation) return
+        val newDistance = distanceToInMeters(currentLocation.latitude, currentLocation.longitude, poi.lat, poi.lng)
+        if (poi.distance >= 0f && poi.distance == newDistance && poi.distanceString != null) return
+        poi.distance = newDistance
+        poi.distanceString = getDistanceString(poi.distance, currentLocation.accuracy, distanceUnitsPref)
     }
 
     @AnyThread

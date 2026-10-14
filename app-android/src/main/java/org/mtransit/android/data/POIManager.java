@@ -23,7 +23,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.DeviceUtils;
-import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.MtLogExtKt;
 import org.mtransit.android.commons.PackageManagerUtils;
@@ -31,6 +30,7 @@ import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.DefaultPOI;
+import org.mtransit.android.commons.data.LocationPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
@@ -145,11 +145,9 @@ public class POIManager implements LocationPOI,
 		return distance;
 	}
 
-	@NonNull
 	@Override
-	public POIManager setDistance(float distance) {
+	public void setDistance(float distance) {
 		this.distance = distance;
-		return this;
 	}
 
 	@Nullable
@@ -158,11 +156,9 @@ public class POIManager implements LocationPOI,
 		return distanceString;
 	}
 
-	@NonNull
 	@Override
-	public POIManager setDistanceString(@Nullable CharSequence distanceString) {
+	public void setDistanceString(@Nullable CharSequence distanceString) {
 		this.distanceString = distanceString;
-		return this;
 	}
 
 	@Nullable
@@ -996,7 +992,7 @@ public class POIManager implements LocationPOI,
 
 	@NonNull
 	@Override
-	public POI getPOI() {
+	public POI getPoi() {
 		return this.poi;
 	}
 
@@ -1011,7 +1007,7 @@ public class POIManager implements LocationPOI,
 	}
 
 	@Override
-	public boolean hasLocation() {
+	public boolean getHasLocation() {
 		return this.poi.hasLocation();
 	}
 

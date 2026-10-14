@@ -311,6 +311,10 @@ public class MapViewController implements
 							MTLog.w(this, e, "Error while creating map view with '%s' (trying again)", MapViewController.this.lastSavedInstanceState);
 							MapViewController.this.mapView.onCreate(null);
 						}
+						if (MapViewController.this.needToStartMap) {
+							MapViewController.this.mapView.onStart();
+							MapViewController.this.needToStartMap = false;
+						}
 						if (MapViewController.this.needToResumeMap) {
 							MapViewController.this.mapView.onResume();
 							MapViewController.this.needToResumeMap = false;
@@ -1266,16 +1270,21 @@ public class MapViewController implements
 		}
 	}
 
+	private boolean needToStartMap = false;
+
 	public void onStart() {
+		this.needToStartMap = true;
 		final MapView mapView = getMapViewOrNull();
 		if (mapView == null) {
 			MTLog.d(this, "onStart() > SKIP (no map)");
 			return;
 		}
 		mapView.onStart();
+		this.needToStartMap = false;
 	}
 
 	public void onStop() {
+		this.needToStartMap = false;
 		final MapView mapView = getMapViewOrNull();
 		if (mapView == null) {
 			MTLog.d(this, "onStop() > SKIP (no map)");

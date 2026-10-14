@@ -114,6 +114,7 @@ fun POI.getNewOneLineTitleForSchedule() = buildSpannedString {
 }
 
 val POIManager.distanceOrNull: Float? get() = this.distance.takeIf { it >= 0f }
+val POIManager.positiveDistanceOrNull: Float? get() = this.distance.takeIf { it > 0f }
 
 @Suppress("unused") // used for debug logs
 val POIManager.simpleDistanceString: String

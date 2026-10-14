@@ -1,7 +1,7 @@
 package org.mtransit.android.commons
 
-import org.mtransit.android.commons.LocationUtils.LocationPOI
 import org.mtransit.android.commons.LocationUtils.MAX_DISTANCE_ON_EARTH_IN_METERS
+import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.POIManager
 import java.util.Arrays
@@ -52,7 +52,7 @@ fun POI.distanceToInMetersJVM(other: POI): Float? =
 
 fun <POI : LocationPOI> MutableList<POI>.updateDistanceMJVM(lat: Double, lng: Double): MutableList<POI> {
     this.forEach { poi ->
-        if (poi.hasLocation()) {
+        if (poi.hasLocation) {
             poi.distance = distanceToInMetersJVM(lat, lng, poi.lat, poi.lng)
         }
     }

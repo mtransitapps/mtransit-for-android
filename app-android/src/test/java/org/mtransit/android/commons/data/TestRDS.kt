@@ -1,5 +1,7 @@
 package org.mtransit.android.commons.data
 
+import androidx.annotation.Discouraged
+
 fun mkCA_CRC_EXO_TERM_BROSSARD_Q3(routeId: Long, isNoPickup: Boolean = false) = makeRDS(
     agency = CA_CRC_EXO,
     routeId = routeId,
@@ -524,6 +526,24 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897(
     isNoPickup = isNoPickup,
 )
 
+fun mkCA_MTL_STM_BUS_MONT_ROYAL_RESTER_61803(
+    routeId: Long = 711L,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false,
+) = makeRDS(
+    agency = CA_MTL_STM_BUS,
+    routeId = routeId,
+    directionId = directionId,
+    stopId = 61803,
+    stopName = "Du Mont-Royal / Resther",
+    stopLat = 45.52538,
+    stopLng = -73.58156,
+    isNoPickup = isNoPickup,
+)
+
+@Suppress("unused")
+@Discouraged("2026-10-09: not in current data")
 fun mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_BERRI_61665(
     routeId: Long,
     originalDirectionId: Int = 0,

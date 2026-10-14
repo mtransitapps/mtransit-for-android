@@ -211,11 +211,17 @@ public class Place extends DefaultPOI {
 		}
 	}
 
+	/**
+	 * {@link org.mtransit.android.provider.PlaceProvider.Companion#getPROJECTION_PLACE_POI()} =
+	 * - {@link org.mtransit.android.commons.provider.poi.POIProviderContract.Companion#getPROJECTION_POI()}
+	 * - {@link org.mtransit.android.provider.PlaceProvider.Companion#getPROJECTION_PLACE()}
+	 */
 	@NonNull
 	public Object[] getCursorRow() {
 		//noinspection DiscouragedApi
 		final int id = getId();
 		return new Object[]{
+				// PROJECTION_POI:
 				getUUID(),
 				getDataSourceTypeId(),
 				id,
@@ -223,11 +229,17 @@ public class Place extends DefaultPOI {
 				getLat(),
 				getLng(),
 				getAccessible(),
-				getType(), getStatusType(), getActionsType(),
+				getType(),
+				getStatusType(),
+				getActionsType(),
+				// PROJECTION_PLACE:
 				getScore(),
-				getProviderId(), getLang(), getReadAtInMs(),
+				getProviderId(),
+				getLang(),
+				getReadAtInMs(),
 				getSubTitle(),
-				getIconUrl(), getIconBgColor()
+				getIconUrl(),
+				getIconBgColor()
 		};
 	}
 

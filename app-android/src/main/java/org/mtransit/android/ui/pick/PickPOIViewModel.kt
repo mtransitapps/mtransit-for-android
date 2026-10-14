@@ -24,6 +24,7 @@ import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.usecase.GetNearbyPOIListUseCase
+import org.mtransit.commons.sortWithAnd
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -125,7 +126,7 @@ class PickPOIViewModel @Inject constructor(
                                 || agency.type == DataSourceType.TYPE_MODULE
                         },
                         excludePOI = { it.poi.isNoPickup }
-                    )
+                    ).sortWithAnd(POI_ALPHA_COMPARATOR)
                 )
             }
         }
