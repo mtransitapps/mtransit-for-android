@@ -87,8 +87,8 @@ fun POI.getNewOneLineSubtitleForSchedule(context: Context?, agencyResolver: POIM
     if (this@getNewOneLineSubtitleForSchedule is RouteDirectionStop) {
         bold {
             append(route.shortestName)
-            context?.let { direction.getUIHeading(context, true) }?.takeIf { it.isNotBlank() }?.let { append(" ").append(it) }
-                ?: direction.heading?.takeIf { it.isNotBlank() }?.let { append(" -> ").append(it) }
+            context?.let { direction.getUIHeading(context, true) }?.takeIf { it.isNotBlank() }?.let { append(" ").append(it) } // includes '->'
+                ?: direction.heading?.takeIf { it.isNotBlank() }?.let { append(" ").append("->").append(it) }
         }
     }
     agencyResolver.agency?.let {

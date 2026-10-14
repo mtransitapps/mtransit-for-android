@@ -115,7 +115,7 @@ class GetNearbyPOIListUseCaseTest {
 
     @BeforeTest
     fun setUp() {
-        CommonsApp.setup(false)
+        CommonsApp.setup(isAndroidPlatform = false)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
