@@ -261,7 +261,7 @@ class GetNearbyPOIListUseCase(
                     .toMutableList() // creates new list to modify (keep cached list unchanged)
                     .removeAllAnd(excludePOI)
                     .removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
-                    .removeAllAnd { contains(it) }
+                    .removeAllAnd { new -> any { it.uuid == new.uuid } }
                     .takeAnd(minNotConnectionSize - (size - connectionSize))
             )
             if (size >= connectionSize + minNotConnectionSize // enough POI

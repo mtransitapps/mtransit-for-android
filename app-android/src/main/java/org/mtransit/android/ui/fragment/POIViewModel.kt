@@ -278,6 +278,7 @@ class POIViewModel @Inject constructor(
                         minSize = 1,
                         maxSize = UILocationUtils.MAX_POI_NEARBY_POIS_LIST,
                         minCoverageInMeters = UILocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS,
+                        enoughCoverageInMeters = GET_NEARBY_CONNECTIONS_MIN_COVERAGE_IN_METERS,
                         getMaxDistanceInMeters = GET_NEARBY_CONNECTIONS_MAX_DISTANCE_IN_METERS,
                         mainAgency = poiAgency,
                         excludeAgency = NEARBY_CONNECTIONS_EXCLUDE_AGENCY,

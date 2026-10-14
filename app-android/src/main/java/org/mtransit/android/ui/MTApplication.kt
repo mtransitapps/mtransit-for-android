@@ -29,6 +29,10 @@ class MTApplication : MTCommonApp() {
 
     override fun getLogTag() = LOG_TAG
 
+    init {
+        CommonsApp.setup(isAndroidPlatform = true)
+    }
+
     @Inject
     lateinit var leakDetector: LeakDetector
 
@@ -54,7 +58,6 @@ class MTApplication : MTCommonApp() {
 
     override fun onCreate() {
         super.onCreate()
-        CommonsApp.setup(true)
         if (BuildConfig.DEBUG) {
             this.leakDetector.setup(this)
         }
