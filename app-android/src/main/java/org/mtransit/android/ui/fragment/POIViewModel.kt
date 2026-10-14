@@ -42,8 +42,6 @@ import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.android.data.isNoPickup
 import org.mtransit.android.data.isSameRoute
 import org.mtransit.android.data.isSameRouteDirection
-import org.mtransit.android.data.shortAuthority
-import org.mtransit.android.data.shortUUIDAndDistance
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
