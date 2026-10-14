@@ -197,7 +197,7 @@ class NearbyViewModel @Inject constructor(
 
     override val newLocationAvailable: LiveData<Boolean?> = MediatorLiveData3(isFixedOn, nearbyLocation, deviceLocation)
         .map { (isFixedOn, nearbyLocation, deviceLocation) ->
-            isFixedOn == false
+            isFixedOn != true
                 && nearbyLocation != null
                 && deviceLocation != null
                 && !LocationUtils.areAlmostTheSame(nearbyLocation, deviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
