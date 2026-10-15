@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.view;
 
-import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedPlace;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.addOnLayoutChangeListener;
@@ -602,7 +601,6 @@ public class MapViewController implements
 
 	@Override
 	public void onMapClick(@NonNull LatLng position) {
-		clearSelectedPlace(this);
 		final MapListener mapListener = this.config.getMapListener();
 		if (mapListener != null) {
 			mapListener.onMapClick(position);

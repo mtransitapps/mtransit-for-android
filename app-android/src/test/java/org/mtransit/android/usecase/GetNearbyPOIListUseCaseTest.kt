@@ -33,6 +33,7 @@ import org.mtransit.android.commons.data.CA_MTL_STM_BUS
 import org.mtransit.android.commons.data.CA_MTL_STM_SUBWAY
 import org.mtransit.android.commons.data.CA_RICHELIEU_EXO
 import org.mtransit.android.commons.data.CA_STE_JULIE_EXO
+import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.mkCA_CRC_EXO_TERM_BROSSARD_Q13
 import org.mtransit.android.commons.data.mkCA_CRC_EXO_TERM_BROSSARD_Q15
@@ -83,7 +84,6 @@ import org.mtransit.android.commons.data.mkCA_STE_JULIE_EXO_TERM_BROSSARD_Q5
 import org.mtransit.android.commons.getAroundCoveredDistanceInMetersJVM
 import org.mtransit.android.commons.updateDistanceMJVM
 import org.mtransit.android.data.AgencyBaseProperties
-import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.dataSourceTypeId
@@ -192,14 +192,14 @@ class GetNearbyPOIListUseCaseTest {
         assertEquals(27, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
             assertEquals(2, this.size)
-            assertEquals(DataSourceType.TYPE_LIGHT_RAIL.id, this[0])
-            assertEquals(DataSourceType.TYPE_BUS.id, this[1])
+            assertEquals(DataSourceTypeId.LIGHT_RAIL, this[0])
+            assertEquals(DataSourceTypeId.BUS, this[1])
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_LIGHT_RAIL.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.LIGHT_RAIL }) {
             assertEquals(1, this.size)
             assertEquals(mkCA_MTL_REM_BROSSARD(4001L, isNoPickup = true).uuid, this[0].uuid)
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BUS }) {
             assertEquals(26, this.size)
             var index = -1
             assertEquals(mkCA_LONGUEUIL_RTL_TERM_BROSSARD(4L).uuid, this[++index].uuid)
@@ -304,19 +304,19 @@ class GetNearbyPOIListUseCaseTest {
         assertEquals(16, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
             assertEquals(3, this.size)
-            assertEquals(DataSourceType.TYPE_BIKE.id, this[0])
-            assertEquals(DataSourceType.TYPE_SUBWAY.id, this[1])
-            assertEquals(DataSourceType.TYPE_BUS.id, this[2])
+            assertEquals(DataSourceTypeId.BIKE, this[0])
+            assertEquals(DataSourceTypeId.SUBWAY, this[1])
+            assertEquals(DataSourceTypeId.BUS, this[2])
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BIKE.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BIKE }) {
             assertEquals(1, this.size)
             assertEquals(CA_MTL_BIXI_PARC_DU_MAIL.uuid, this[0].uuid)
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_SUBWAY.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.SUBWAY }) {
             assertEquals(1, this.size)
             assertEquals(mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND().uuid, this[0].uuid)
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BUS }) {
             assertEquals(14, this.size)
             var index = -1
             assertEquals(mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53253(18L).uuid, this[++index].uuid)
@@ -383,21 +383,21 @@ class GetNearbyPOIListUseCaseTest {
         assertEquals(10, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
             assertEquals(3, this.size)
-            assertEquals(DataSourceType.TYPE_SUBWAY.id, this[0])
-            assertEquals(DataSourceType.TYPE_BIKE.id, this[1])
-            assertEquals(DataSourceType.TYPE_BUS.id, this[2])
+            assertEquals(DataSourceTypeId.SUBWAY, this[0])
+            assertEquals(DataSourceTypeId.BUS, this[1])
+            assertEquals(DataSourceTypeId.BIKE, this[2])
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_SUBWAY.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.SUBWAY }) {
             assertEquals(1, this.size)
             assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 2).uuid, this[0].uuid) // Montmorency
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BIKE.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BIKE }) {
             assertEquals(3, this.size)
             assertEquals(CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN.uuid, this[0].uuid)
             assertEquals(CA_MTL_BIXI_MONT_ROYAL_RESTER.uuid, this[1].uuid)
             assertEquals(CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT.uuid, this[2].uuid)
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BUS }) {
             assertEquals(6, this.size)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52083(11L, 1).uuid, this[0].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_PONTIAC_61802(11L, 2).uuid, this[1].uuid)
@@ -452,11 +452,11 @@ class GetNearbyPOIListUseCaseTest {
         assertEquals(15, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
             assertEquals(3, this.size)
-            assertEquals(DataSourceType.TYPE_BUS.id, this[0])
-            assertEquals(DataSourceType.TYPE_BIKE.id, this[1])
-            assertEquals(DataSourceType.TYPE_SUBWAY.id, this[2])
+            assertEquals(DataSourceTypeId.BUS, this[0])
+            assertEquals(DataSourceTypeId.SUBWAY, this[1])
+            assertEquals(DataSourceTypeId.BIKE, this[2])
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BUS }) {
             assertEquals(10, this.size)
             var index = -1
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_58725(97L, 2).uuid, this[++index].uuid)
@@ -466,18 +466,18 @@ class GetNearbyPOIListUseCaseTest {
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897(31L, 4).uuid, this[++index].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61896(361L, 3).uuid, this[++index].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897(361L, 4).uuid, this[++index].uuid)
-            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52055(368L, 2).uuid, this[++index].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(368L, 1).uuid, this[++index].uuid)
+            assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52055(368L, 2).uuid, this[++index].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_RESTER_61803(711L, 2).uuid, this[++index].uuid)
             assertEquals(this.size, ++index)
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BIKE.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BIKE }) {
             assertEquals(3, this.size)
             assertEquals(CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN.uuid, this[0].uuid)
             assertEquals(CA_MTL_BIXI_MONT_ROYAL_RESTER.uuid, this[1].uuid)
             assertEquals(CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT.uuid, this[2].uuid)
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_SUBWAY.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.SUBWAY }) {
             assertEquals(2, this.size)
             assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 1).uuid, this[0].uuid) // Côte-Vertu
             assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 2).uuid, this[1].uuid) // Montmorency
@@ -522,16 +522,16 @@ class GetNearbyPOIListUseCaseTest {
         assertEquals(4, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
             assertEquals(2, this.size)
-            assertEquals(DataSourceType.TYPE_BUS.id, this[0])
-            assertEquals(DataSourceType.TYPE_RAIL.id, this[1])
+            assertEquals(DataSourceTypeId.BUS, this[0])
+            assertEquals(DataSourceTypeId.RAIL, this[1])
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BUS }) {
             assertEquals(3, this.size)
             assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 1).uuid, this[0].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q3(21L).uuid, this[1].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q4(25L).uuid, this[2].uuid)
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_RAIL.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.RAIL }) {
             assertEquals(1, this.size)
             assertEquals(mkCA_MTL_EXO_TRAIN_MSH(3L).uuid, this[0].uuid)
         }
@@ -575,17 +575,17 @@ class GetNearbyPOIListUseCaseTest {
         assertEquals(5, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
             assertEquals(2, this.size)
-            assertEquals(DataSourceType.TYPE_BUS.id, this[0])
-            assertEquals(DataSourceType.TYPE_RAIL.id, this[1])
+            assertEquals(DataSourceTypeId.BUS, this[0])
+            assertEquals(DataSourceTypeId.RAIL, this[1])
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BUS }) {
             assertEquals(4, this.size)
             assertEquals(mkCA_RICHELIEU_MSH_Q4(25L, isNoPickup = true).uuid, this[0].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q3(21L).uuid, this[1].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 0).uuid, this[2].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 1).uuid, this[3].uuid)
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_RAIL.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.RAIL }) {
             assertEquals(1, this.size)
             assertEquals(mkCA_MTL_EXO_TRAIN_MSH(3L).uuid, this[0].uuid)
         }
@@ -629,14 +629,14 @@ class GetNearbyPOIListUseCaseTest {
         assertEquals(5, result.size)
         with(result.map { it.dataSourceTypeId }.distinct()) {
             assertEquals(2, this.size)
-            assertEquals(DataSourceType.TYPE_RAIL.id, this[0])
-            assertEquals(DataSourceType.TYPE_BUS.id, this[1])
+            assertEquals(DataSourceTypeId.RAIL, this[0])
+            assertEquals(DataSourceTypeId.BUS, this[1])
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_RAIL.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.RAIL }) {
             assertEquals(1, this.size)
             assertEquals(mkCA_MTL_EXO_TRAIN_MSH(3L, isNoPickup = true).uuid, this[0].uuid)
         }
-        with(result.filter { it.dataSourceTypeId == DataSourceType.TYPE_BUS.id }) {
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BUS }) {
             assertEquals(4, this.size)
             assertEquals(mkCA_RICHELIEU_MSH_Q3(21L).uuid, this[0].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q4(25L).uuid, this[1].uuid)

@@ -130,18 +130,18 @@ class MapViewModel @Inject constructor(
     private val _selectedAddress = MutableLiveData<Address?>()
     val selectedAddress: LiveData<Address?> = _selectedAddress
 
-    fun onLocationSelected(selectedLocation: LatLng) {
+    fun onLocationSelected(selectedLocation: LatLng?) {
         _selectedLocation.postValue(selectedLocation)
         loadSelectedLocationAddress(selectedLocation)
     }
 
     private var loadSelectedLocationAddressJob: Job? = null
 
-    private fun loadSelectedLocationAddress(selectedLocation: LatLng) {
+    private fun loadSelectedLocationAddress(selectedLocation: LatLng?) {
         loadSelectedLocationAddressJob?.cancel()
         loadSelectedLocationAddressJob = viewModelScope.launch(Dispatchers.IO) {
             loadingSelectedLocationAddress.postValue(true)
-            val selectedAddress = selectedLocation.toLocation().toAddressOrNull(geocoderManager)
+            val selectedAddress = selectedLocation?.toLocation()?.toAddressOrNull(geocoderManager)
             _selectedAddress.postValue(selectedAddress)
             loadingSelectedLocationAddress.postValue(false)
         }

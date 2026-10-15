@@ -205,7 +205,9 @@ fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selected
 fun MapViewController.setSelectedPlace(context: Context, place: Place, selectedLocation: LatLng? = place.latLng) = this.extendedGoogleMap?.apply {
     selectedPlaceMarker?.let {
         if (it.position == selectedLocation) {
-            place.updateMarker(it, context)
+            place.updateMarker(it, context).apply {
+                showInfoWindow()
+                onInfoWindowClick(this)
             return@apply
         }
     }
@@ -213,6 +215,6 @@ fun MapViewController.setSelectedPlace(context: Context, place: Place, selectedL
     selectedPlaceMarker = addMarker(place.toExtendedMarkerOptions(context))
         .apply {
             showInfoWindow()
-            onMarkerClick(this)
+            onInfoWindowClick(this)
         }
 }

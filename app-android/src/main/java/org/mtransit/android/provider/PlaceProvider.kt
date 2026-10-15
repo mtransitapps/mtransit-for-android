@@ -38,8 +38,8 @@ import org.mtransit.android.commons.provider.common.requiredContext
 import org.mtransit.android.commons.provider.poi.POIProvider
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.Place
+import org.mtransit.android.ui.view.map.toLatLngBounds
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.android.util.toLatLngBounds
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.Locale

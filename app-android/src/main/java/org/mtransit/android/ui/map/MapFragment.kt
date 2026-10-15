@@ -33,6 +33,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.clearSelectedPlace
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.map.MapListener
 import org.mtransit.android.ui.view.map.MapMarkerProvider
@@ -123,6 +124,10 @@ class MapFragment :
     lateinit var analyticsManager: IAnalyticsManager
 
     private val mapListener = object : MapListener {
+
+        override fun onMapClick(position: LatLng) {
+            viewModel.onLocationSelected(null) // clear selection
+        }
 
         override fun onMapLongClick(position: LatLng) {
             viewModel.onLocationSelected(position)
@@ -255,6 +260,7 @@ class MapFragment :
         }
         viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
             newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
+                ?: run { mapViewController.clearSelectedPlace() }
         }
         viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
             viewModel.selectedLocation.value?.let {

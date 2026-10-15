@@ -46,7 +46,7 @@ class AreaExtTest {
         }
         with(result.southwest) {
             assertEquals(45.51, latitude)
-            assertEquals(-73.58, result.southwest.longitude)
+            assertEquals(-73.58, longitude)
         }
     }
 }

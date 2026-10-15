@@ -3,8 +3,8 @@ package org.mtransit.android.data
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
+import org.mtransit.android.ui.view.map.toLatLngBounds
 import org.mtransit.android.util.containsEntirely
-import org.mtransit.android.util.toLatLngBounds
 import kotlin.math.max
 import kotlin.math.min
 import android.location.Location as AndroidLocation

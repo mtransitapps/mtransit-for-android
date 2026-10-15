@@ -422,6 +422,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52083(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 52083,
     stopName = "Mont-Royal / Berri (Mont-Royal)",
@@ -438,6 +439,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 52084,
     stopName = "Mont-Royal / Berri (Mont-Royal)",
@@ -454,6 +456,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_58725(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 58725,
     stopName = "Mont-Royal / Berri (Mont-Royal)",
@@ -470,6 +473,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52055(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 52055,
     stopName = "Du Mont-Royal / Saint-Denis",
@@ -486,6 +490,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52057(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 52057,
     stopName = "Du Mont-Royal / Saint-Denis",
@@ -502,6 +507,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61896(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 61896,
     stopName = "Saint-Denis / Du Mont-Royal",
@@ -518,6 +524,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 61897,
     stopName = "Saint-Denis / Du Mont-Royal",
@@ -534,6 +541,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_RESTER_61803(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 61803,
     stopName = "Du Mont-Royal / Resther",
@@ -552,6 +560,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_BERRI_61665(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 61665,
     stopName = "Berri / Mont-Royal (Mont-Royal)",
@@ -568,6 +577,7 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_PONTIAC_61802(
 ) = makeRDS(
     agency = CA_MTL_STM_BUS,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 61802,
     stopName = "Mont-Royal / Pontiac (Mont-Royal)",
@@ -595,6 +605,7 @@ fun mkCA_MTL_STM_SUBWAY_MONT_ROYAL(
 ) = makeRDS(
     agency = CA_MTL_STM_SUBWAY,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 8,
     stopName = "Mont-Royal",
@@ -611,6 +622,7 @@ fun mkCA_RICHELIEU_MSH_Q2(
 ) = makeRDS(
     agency = CA_RICHELIEU_EXO,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 73048,
     stopName = "Gare Mont-St-Hilaire Q:2",
@@ -649,6 +661,7 @@ fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_GRAND_ALLEE(
 ) = makeRDS(
     agency = CA_RICHELIEU_EXO,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 73316,
     stopName = "Sir-Wilfrid-Laurier / Grande Allée",
@@ -665,6 +678,7 @@ fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_LAVOIE(
 ) = makeRDS(
     agency = CA_RICHELIEU_EXO,
     routeId = routeId,
+    originalDirectionId = originalDirectionId,
     directionId = directionId,
     stopId = 73315,
     stopName = "SSir-Wilfrid-Laurier / Lavoie",

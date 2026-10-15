@@ -3,8 +3,8 @@ package org.mtransit.android.ui.nearby.type
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.location.AroundDiff
+import org.mtransit.android.commons.location.toLatLngS
 import org.mtransit.android.data.AgencyBaseProperties
-import org.mtransit.android.util.toLatLngS
 import android.location.Location as AndroidLocation
 
 data class NearbyParams(

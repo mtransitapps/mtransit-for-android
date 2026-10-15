@@ -38,6 +38,7 @@ import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.clearSelectedPlace
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -146,6 +147,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var userManager: UserManager
 
     private val mapListener = object : MapListener {
+
+        override fun onMapClick(position: LatLng) {
+            viewModel.onLocationSelected(null) // clear selection
+        }
 
         override fun onMapLongClick(position: LatLng) {
             viewModel.onLocationSelected(position)
@@ -347,6 +352,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         }
         viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
             newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
+                ?: run { mapViewController.clearSelectedPlace() }
         }
         viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
             viewModel.selectedLocation.value?.let {

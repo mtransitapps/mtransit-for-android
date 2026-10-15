@@ -21,7 +21,7 @@ fun Place.updateMarker(
     context: Context,
 ) = marker.apply {
     val wasInfoWindowShown = this.isInfoWindowShown
-    updatePosition(this@updateMarker.latLng, animate = true)
+    updatePosition(this@updateMarker.latLng, animate = false)
     val darkTheme = ColorUtils.isDarkTheme(context)
     val iconColorInt = if (darkTheme) Color.LTGRAY else Color.DKGRAY
     val iconDef = MTMapIconsProvider.selectedDefaultIconDef
@@ -46,6 +46,7 @@ fun Place.toExtendedMarkerOptions(context: Context) = ExtendedMarkerOptions().ap
     infoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
     flat(iconDef.flat)
     draggable(true)
+    clusterGroup(-1) // exclude from clustering
     icon(context, iconDef.getZoomResId(zoomGroup), iconDef.getZoomSize(zoomGroup), iconDef.replaceColor, iconColorInt, null, iconColorInt)
     title(this@toExtendedMarkerOptions.name)
     snippet(this@toExtendedMarkerOptions.subTitle?.takeIf { it.isNotBlank() })
