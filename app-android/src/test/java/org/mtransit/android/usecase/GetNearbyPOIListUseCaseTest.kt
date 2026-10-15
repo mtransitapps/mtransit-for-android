@@ -14,6 +14,7 @@ import org.mtransit.android.commons.data.CA_CRC_EXO
 import org.mtransit.android.commons.data.CA_LE_RICHELAIN_ROUSSILLON_EXO
 import org.mtransit.android.commons.data.CA_LONGUEUIL_RTL
 import org.mtransit.android.commons.data.CA_MTL_BIXI
+import org.mtransit.android.commons.data.CA_MTL_BIXI_BERRI_UQAM_ST_DENIS_MAISONNEUVE
 import org.mtransit.android.commons.data.CA_MTL_BIXI_BERRY_GILFORD
 import org.mtransit.android.commons.data.CA_MTL_BIXI_DROLET_MARIE_ANNE
 import org.mtransit.android.commons.data.CA_MTL_BIXI_GILFORD_ST_DENIS
@@ -27,6 +28,9 @@ import org.mtransit.android.commons.data.CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_
 import org.mtransit.android.commons.data.CA_MTL_BIXI_MONT_ROYAL_RESTER
 import org.mtransit.android.commons.data.CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT
 import org.mtransit.android.commons.data.CA_MTL_BIXI_PARC_DU_MAIL
+import org.mtransit.android.commons.data.CA_MTL_BIXI_ST_DENIS_ST_CATH
+import org.mtransit.android.commons.data.CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE
+import org.mtransit.android.commons.data.CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE_PL_E_GAMELIN
 import org.mtransit.android.commons.data.CA_MTL_EXO_TRAIN
 import org.mtransit.android.commons.data.CA_MTL_REM
 import org.mtransit.android.commons.data.CA_MTL_STM_BUS
@@ -47,6 +51,7 @@ import org.mtransit.android.commons.data.mkCA_LONGUEUIL_RTL_TERM_BROSSARD
 import org.mtransit.android.commons.data.mkCA_MTL_EXO_TRAIN_MSH
 import org.mtransit.android.commons.data.mkCA_MTL_REM_BROSSARD
 import org.mtransit.android.commons.data.mkCA_MTL_REM_DU_QUARTIER
+import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53251
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53252
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_HONORE_BEAUGRAND_METRO_53253
@@ -72,6 +77,9 @@ import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52057
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61896
 import org.mtransit.android.commons.data.mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_61897
+import org.mtransit.android.commons.data.mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_JAUNE
+import org.mtransit.android.commons.data.mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_ORANGE
+import org.mtransit.android.commons.data.mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_VERTE
 import org.mtransit.android.commons.data.mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND
 import org.mtransit.android.commons.data.mkCA_MTL_STM_SUBWAY_MONT_ROYAL
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_MSH_Q2
@@ -341,7 +349,7 @@ class GetNearbyPOIListUseCaseTest {
     @Test
     fun test_POI_Nearby_Connection_Metro_Mont_Royal() = runTest(mainDispatcherRule.testDispatcher) {
         val mainAgency = CA_MTL_STM_SUBWAY
-        val mainPOI = mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 1) // Côte-Vertu
+        val mainPOI = mkCA_MTL_STM_SUBWAY_MONT_ROYAL(originalDirectionId = 1) // Côte-Vertu
         whenever_POIMsAroundLoc(CA_MTL_BIXI, mainPOI) doReturn mutableListOf<POIManager>().apply {
             add(CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN.toPOIM())
             add(CA_MTL_BIXI_MONT_ROYAL_RESTER.toPOIM())
@@ -371,8 +379,8 @@ class GetNearbyPOIListUseCaseTest {
             add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52057(97L, 1).toPOIM())
         }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
         whenever_POIMsAroundLoc(CA_MTL_STM_SUBWAY, mainPOI) doReturn mutableListOf<POIManager>().apply {
-            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 1).toPOIM()) // Côte-Vertu
-            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 2).toPOIM()) // Montmorency
+            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(originalDirectionId = 1).toPOIM()) // Côte-Vertu
+            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(originalDirectionId = 0).toPOIM()) // Montmorency
         }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
         (ALL_AGENCIES - setOf(CA_MTL_BIXI, CA_MTL_STM_BUS, CA_MTL_STM_SUBWAY)).forEach {
             whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
@@ -389,7 +397,7 @@ class GetNearbyPOIListUseCaseTest {
         }
         with(result.filter { it.dataSourceTypeId == DataSourceTypeId.SUBWAY }) {
             assertEquals(1, this.size)
-            assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 2).uuid, this[0].uuid) // Montmorency
+            assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(originalDirectionId = 0).uuid, this[0].uuid) // Montmorency
         }
         with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BIKE }) {
             assertEquals(3, this.size)
@@ -404,6 +412,61 @@ class GetNearbyPOIListUseCaseTest {
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(97L, 1).uuid, this[2].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_58725(97L, 2).uuid, this[3].uuid)
             assertEquals(mkCA_MTL_STM_BUS_MONT_ROYAL_BERRI_52084(368L, 1).uuid, this[4].uuid)
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Test
+    fun test_POI_Nearby_Connection_Berri_UQAM_Metro() = runTest(mainDispatcherRule.testDispatcher) {
+        val mainAgency = CA_MTL_STM_SUBWAY
+        val mainPOI = mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_ORANGE(originalDirectionId = 1) // Côte-Vertu
+        whenever_POIMsAroundLoc(CA_MTL_BIXI, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE_PL_E_GAMELIN.toPOIM())
+            add(CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE.toPOIM())
+            add(CA_MTL_BIXI_BERRI_UQAM_ST_DENIS_MAISONNEUVE.toPOIM())
+            add(CA_MTL_BIXI_ST_DENIS_ST_CATH.toPOIM())
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        whenever_POIMsAroundLoc(CA_MTL_STM_BUS, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(150L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(350L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(355L, 4).toPOIM())
+            add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(358L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(364L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(445L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(747L, 2).toPOIM())
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        whenever_POIMsAroundLoc(CA_MTL_STM_SUBWAY, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_ORANGE(originalDirectionId = 1).toPOIM()) // Côte-Vertu
+            add(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_ORANGE(originalDirectionId = 0).toPOIM()) // Montmorency
+            add(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_VERTE(originalDirectionId = 1).toPOIM()) // Angrignon
+            add(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_VERTE(originalDirectionId = 0).toPOIM()) // Honoré-Beaugrand
+            add(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_JAUNE(originalDirectionId = 1).toPOIM()) // Longueuil-UdeS
+            add(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_JAUNE(originalDirectionId = 0, isNoPickup = true).toPOIM()) // Berri-UQAM
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        (ALL_AGENCIES - setOf(CA_MTL_BIXI, CA_MTL_STM_BUS, CA_MTL_STM_SUBWAY)).forEach {
+            whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
+        }
+
+        val result = subject.invoke(mainPOI, mainAgency)
+
+        assertEquals(6, result.size)
+        with(result.map { it.dataSourceTypeId }.distinct()) {
+            assertEquals(2, this.size)
+            assertEquals(DataSourceTypeId.SUBWAY, this[0])
+            assertEquals(DataSourceTypeId.BIKE, this[1])
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.SUBWAY }) {
+            assertEquals(4, this.size)
+            assertEquals(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_ORANGE(originalDirectionId = 0).uuid, this[0].uuid) // Montmorency
+            assertEquals(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_VERTE(originalDirectionId = 1).uuid, this[1].uuid) // Angrignon
+            assertEquals(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_VERTE(originalDirectionId = 0).uuid, this[2].uuid) // Honoré-Beaugrand
+            assertEquals(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_JAUNE(originalDirectionId = 1).uuid, this[3].uuid) // Longueuil-UdeS
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BIKE }) {
+            var index = -1
+            assertEquals(CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE_PL_E_GAMELIN.uuid, this[++index].uuid)
+            assertEquals(CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE.uuid, this[++index].uuid)
+            assertEquals(this.size, ++index)
         }
     }
 
@@ -441,8 +504,8 @@ class GetNearbyPOIListUseCaseTest {
             add(mkCA_MTL_STM_BUS_MONT_ROYAL_ST_DENIS_52057(97L, 1).toPOIM())
         }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
         whenever_POIMsAroundLoc(CA_MTL_STM_SUBWAY, mainPOI) doReturn mutableListOf<POIManager>().apply {
-            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 1).toPOIM()) // Côte-Vertu
-            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 2).toPOIM()) // Montmorency
+            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(originalDirectionId = 1).toPOIM()) // Côte-Vertu
+            add(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(originalDirectionId = 0).toPOIM()) // Montmorency
         }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
         (ALL_AGENCIES - setOf(CA_MTL_BIXI, CA_MTL_STM_BUS, CA_MTL_STM_SUBWAY)).forEach {
             whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
@@ -479,8 +542,8 @@ class GetNearbyPOIListUseCaseTest {
         }
         with(result.filter { it.dataSourceTypeId == DataSourceTypeId.SUBWAY }) {
             assertEquals(2, this.size)
-            assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 1).uuid, this[0].uuid) // Côte-Vertu
-            assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(2L, 2).uuid, this[1].uuid) // Montmorency
+            assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(originalDirectionId = 0).uuid, this[0].uuid) // Montmorency
+            assertEquals(mkCA_MTL_STM_SUBWAY_MONT_ROYAL(originalDirectionId = 1).uuid, this[1].uuid) // Côte-Vertu
         }
     }
 

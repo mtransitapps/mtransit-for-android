@@ -117,6 +117,38 @@ val CA_MTL_BIXI_PARC_DU_MAIL = makeBikeStation(
     lng = -73.54596734046936,
 )
 
+val CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE = makeBikeStation(
+    agency = CA_MTL_BIXI,
+    id = 594,
+    name = "St-Hubert / de Maisonneuve",
+    lat = 45.51613214980722,
+    lng = -73.56049686670303,
+)
+
+val CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE_PL_E_GAMELIN = makeBikeStation(
+    agency = CA_MTL_BIXI,
+    id = 822,
+    name = "Place Émilie-Gamelin (St-Hubert / de Maisonneuve)",
+    lat = 45.51586835126322,
+    lng = -73.56008380651474,
+)
+
+val CA_MTL_BIXI_BERRI_UQAM_ST_DENIS_MAISONNEUVE = makeBikeStation(
+    agency = CA_MTL_BIXI,
+    id = 15,
+    name = "Métro Berri-UQAM (St-Denis / de Maisonneuve)",
+    lat = 45.514249880536184,
+    lng = -73.561496795337,
+)
+
+val CA_MTL_BIXI_ST_DENIS_ST_CATH = makeBikeStation(
+    agency = CA_MTL_BIXI,
+    id = 175,
+    name = "Ste-Catherine / St-Denis",
+    lat = 45.51392079390448,
+    lng = -73.56040771272092,
+)
+
 val CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN = makeBikeStation(
     agency = CA_MTL_BIXI,
     id = 347,
@@ -586,7 +618,79 @@ fun mkCA_MTL_STM_BUS_MONT_ROYAL_METRO_PONTIAC_61802(
     isNoPickup = isNoPickup,
 )
 
-fun mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND(routeId: Long = 1L, isNoPickup: Boolean = false) = makeRDS(
+fun mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(
+    routeId: Long,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false,
+) = makeRDS(
+    agency = CA_MTL_STM_BUS,
+    routeId = routeId,
+    originalDirectionId = originalDirectionId,
+    directionId = directionId,
+    stopId = 52905,
+    stopName = "René-Lévesque / Berri",
+    stopLat = 45.51380,
+    stopLng = -73.55743,
+    isNoPickup = isNoPickup,
+)
+
+const val CA_MTL_STM_SUBWAY_ROUTE_VERTE = 1L
+const val CA_MTL_STM_SUBWAY_ROUTE_ORANGE = 2L
+const val CA_MTL_STM_SUBWAY_ROUTE_JAUNE = 4L
+
+@Suppress("unused")
+const val CA_MTL_STM_SUBWAY_ROUTE_BLEU = 5L
+
+fun mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_VERTE(
+    routeId: Long = CA_MTL_STM_SUBWAY_ROUTE_VERTE,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false,
+) = makeRDS(
+    agency = CA_MTL_STM_SUBWAY,
+    routeId = routeId,
+    directionId = directionId,
+    stopId = 9999111,
+    stopName = "Berri-UQAM",
+    stopLat = 45.51532,
+    stopLng = -73.56108,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_ORANGE(
+    routeId: Long = CA_MTL_STM_SUBWAY_ROUTE_ORANGE,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false,
+) = makeRDS(
+    agency = CA_MTL_STM_SUBWAY,
+    routeId = routeId,
+    directionId = directionId,
+    stopId = 9999112,
+    stopName = "Berri-UQAM",
+    stopLat = 45.51524,
+    stopLng = -73.56103,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_JAUNE(
+    routeId: Long = CA_MTL_STM_SUBWAY_ROUTE_JAUNE,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false,
+) = makeRDS(
+    agency = CA_MTL_STM_SUBWAY,
+    routeId = routeId,
+    directionId = directionId,
+    stopId = 9999114,
+    stopName = "Berri-UQAM",
+    stopLat = 45.51438,
+    stopLng = -73.56191,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND(routeId: Long = CA_MTL_STM_SUBWAY_ROUTE_VERTE, isNoPickup: Boolean = false) = makeRDS(
     agency = CA_MTL_STM_SUBWAY,
     routeId = routeId,
     directionId = routeId * 100L + (if (isNoPickup) 9L else 0L),
@@ -598,7 +702,7 @@ fun mkCA_MTL_STM_SUBWAY_HONORE_BEAUGRAND(routeId: Long = 1L, isNoPickup: Boolean
 )
 
 fun mkCA_MTL_STM_SUBWAY_MONT_ROYAL(
-    routeId: Long = 2L,
+    routeId: Long = CA_MTL_STM_SUBWAY_ROUTE_ORANGE,
     originalDirectionId: Int = 0,
     directionId: Long = routeId * 100L + originalDirectionId,
     isNoPickup: Boolean = false,
