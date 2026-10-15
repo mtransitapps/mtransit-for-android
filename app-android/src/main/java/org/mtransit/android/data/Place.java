@@ -156,6 +156,7 @@ public class Place extends DefaultPOI {
 	public JSONObject toJSON() {
 		try {
 			final JSONObject json = new JSONObject();
+			DefaultPOI.toJSON(this, json);
 			json.put(JSON_PROVIDER_ID, getProviderId());
 			json.put(JSON_LANG, getLang());
 			json.put(JSON_READ_AT_IN_MS, getReadAtInMs());
@@ -168,7 +169,6 @@ public class Place extends DefaultPOI {
 			if (getIconBgColor() != null) {
 				json.put(JSON_ICON_BG_COLOR, getIconBgColor());
 			}
-			DefaultPOI.toJSON(this, json);
 			return json;
 		} catch (JSONException jsone) {
 			MTLog.w(this, jsone, "Error while converting to JSON (%s)!", this);
