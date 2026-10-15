@@ -29,7 +29,7 @@ public class Module extends DefaultPOI {
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return LOG_TAG;
+		return LOG_TAG + "-" + this.pkg;
 	}
 
 	@NonNull

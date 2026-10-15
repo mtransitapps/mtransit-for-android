@@ -23,7 +23,7 @@ public class TextMessage extends DefaultPOI {
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return LOG_TAG;
+		return LOG_TAG + "-" + this.messageId;
 	}
 
 	public static final String AUTHORITY = "org.mtransit.android.message";
