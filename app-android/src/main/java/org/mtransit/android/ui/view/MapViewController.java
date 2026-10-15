@@ -1163,7 +1163,7 @@ public class MapViewController implements
 				return;
 			}
 			final String lastSelectedUUID = mapViewController.lastSelectedUUID;
-			mapViewController.clearMarkers(); // triggers onInfoWindowClose()
+			mapViewController.clearClusterManagerItems(); // triggers onInfoWindowClose()
 			mapViewController.lastSelectedUUID = lastSelectedUUID;
 			final MTMapIconZoomGroup currentZoomGroup = mapViewController.config.getClusteringEnabled() ? null : mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap,
 					AreaExtKt.countPOIMarkersInside(
@@ -1398,11 +1398,13 @@ public class MapViewController implements
 		}
 	}
 
-	public void notifyMarkerChanged() {
+	public void notifyMarkersChanged() {
 		clearMarkers();
 	}
 
 	public void clearMarkers() {
+		clearSelectedPlace(this);
+		removeMissingVehicleLocationMarkers(this);
 		clearClusterManagerItems();
 	}
 
@@ -1432,7 +1434,6 @@ public class MapViewController implements
 	}
 
 	private void clearClusterManagerItems() {
-		removeMissingVehicleLocationMarkers(this);
 		if (this.extendedGoogleMap != null) {
 			this.extendedGoogleMap.clear();
 		}

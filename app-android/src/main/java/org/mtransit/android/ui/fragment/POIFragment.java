@@ -608,7 +608,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void onPOIsLoaded(@Nullable List<POIManager> poiList) {
-		this.mapViewController.notifyMarkerChanged();
+		this.mapViewController.notifyMarkersChanged();
 		this.mapViewController.showMap(this.binding == null ? null : this.binding.getRoot());
 	}
 

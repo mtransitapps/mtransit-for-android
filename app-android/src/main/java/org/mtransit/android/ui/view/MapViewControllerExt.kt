@@ -141,6 +141,7 @@ fun MapViewController.addOnLayoutChangeListener() {
             val heightChanged = bottom != oldBottom // banner ad show/hide
             if (heightChanged && oldBottom > 0) {
                 if (initialMapCameraSetup) {
+                    setInitialCameraPosition(extendedGoogleMap?.cameraPosition)
                     initialMapCameraSetup = false
                     setupInitialCamera()
                 }

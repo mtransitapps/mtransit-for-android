@@ -454,7 +454,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 viewModel.setSelectedOrClosestStopShown()
             }
             listAdapter.setPoisUpdateDistanceAndClosest(poiList, parentViewModel.deviceLocation.value)
-            mapViewController.notifyMarkerChanged()
+            mapViewController.notifyMarkersChanged()
             if (viewModel.listVisible(context)) {
                 val selectedPosition = currentSelectedItemIndexUuid?.first ?: -1
                 if (selectedPosition > 0) {

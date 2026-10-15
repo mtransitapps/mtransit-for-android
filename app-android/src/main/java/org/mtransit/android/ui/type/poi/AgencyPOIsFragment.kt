@@ -331,7 +331,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             listAdapter.setPoisUpdateDistanceAndClosest(poiList, parentViewModel.deviceLocation.value)
-            mapViewController.notifyMarkerChanged()
+            mapViewController.notifyMarkersChanged()
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
