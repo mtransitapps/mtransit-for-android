@@ -1,3 +1,4 @@
 # ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite-all-repositories
+# Used by Qodo for Open Source Projects https://docs.qodo.ai/open-source-program (repo w/ 200+ stars)
 [config]
 publish_output_progress = false  # Disables the temporary "review in progress" comments
