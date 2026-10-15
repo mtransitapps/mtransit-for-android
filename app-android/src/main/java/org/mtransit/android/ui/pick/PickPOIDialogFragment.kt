@@ -177,7 +177,8 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
         }
-        this.adapter.onCreateView(viewLifecycleOwner)
+        adapter.onCreateView(viewLifecycleOwner)
+        setupListLoadingEmpty()
         viewModel.poiNearbyList.observe(viewLifecycleOwner) { poiList ->
             adapter.setPoisUpdateDistanceAndClosest(poiList, viewModel.deviceLocation.value)
             adapter.initManual()

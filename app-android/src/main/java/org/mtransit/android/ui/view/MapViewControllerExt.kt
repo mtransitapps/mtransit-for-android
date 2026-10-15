@@ -155,11 +155,6 @@ fun MapViewController.removeOnLayoutChangeListener() {
     this.layoutChangeListener?.let { mapView?.removeOnLayoutChangeListener(it) }
 }
 
-fun MapViewController.clearSelectedPlace() = this.extendedGoogleMap?.apply {
-    selectedPlaceMarker?.remove()
-    selectedPlaceMarker = null
-}
-
 fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selectedAddress: AndroidAddress?) {
     val context: Context = activityOrNull ?: return
     var usedLocation = selectedLocation
@@ -199,23 +194,33 @@ fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selected
     ).apply {
         this.subTitle = subTitle
     }
-    setSelectedPlace(context, selectedPlace)
+    setSelectedPlace(context, selectedPlace, selectedLocation)
 }
 
 fun MapViewController.setSelectedPlace(context: Context, place: Place, selectedLocation: LatLng? = place.latLng) = this.extendedGoogleMap?.apply {
-    selectedPlaceMarker?.let {
-        if (it.position == selectedLocation) {
-            place.updateMarker(it, context).apply {
-                showInfoWindow()
-                onInfoWindowClick(this)
-            }
+    selectedPlaceMarker
+        ?.takeIf { it.position == selectedLocation }
+        ?.let {
+            place.updateMarker(it, context)
+                .also { marker ->
+                    if (!marker.isInfoWindowShown) {
+                        marker.showInfoWindow()
+                        onInfoWindowClick(marker)
+                    }
+                }
             return@apply
         }
-    }
     clearSelectedPlace()
     selectedPlaceMarker = addMarker(place.toExtendedMarkerOptions(context))
-        .apply {
-            showInfoWindow()
-            onInfoWindowClick(this)
+        .also { marker ->
+            if (!marker.isInfoWindowShown) {
+                marker.showInfoWindow()
+                onInfoWindowClick(marker)
+            }
         }
+}
+
+fun MapViewController.clearSelectedPlace() = this.extendedGoogleMap?.apply {
+    selectedPlaceMarker?.remove()
+    selectedPlaceMarker = null
 }
