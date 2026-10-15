@@ -208,6 +208,7 @@ fun MapViewController.setSelectedPlace(context: Context, place: Place, selectedL
             place.updateMarker(it, context).apply {
                 showInfoWindow()
                 onInfoWindowClick(this)
+            }
             return@apply
         }
     }
