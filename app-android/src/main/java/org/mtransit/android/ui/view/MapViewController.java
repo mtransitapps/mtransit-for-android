@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view;
 
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedPlace;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.addOnLayoutChangeListener;
