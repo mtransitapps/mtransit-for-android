@@ -1,0 +1,34 @@
+{
+    "name": "MonTransit",
+    // "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    // "image": "mcr.microsoft.com/devcontainers/java:17",
+    "image": "mcr.microsoft.com/devcontainers/java",
+    "features": {
+        // https://github.com/devcontainers/features/tree/main/src/java
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "17"
+            // "installGradle": false,
+            // "installMaven": false
+        }
+    },
+    "customizations": {
+		"codespaces": {
+			"repositories": {
+                // https://docs.github.com/en/codespaces/managing-your-codespaces/managing-repository-access-for-your-codespaces#setting-additional-repository-permissions
+				"mtransitapps/commons-android": {
+					"permissions": "write-all"
+				},
+				"mtransitapps/parser": {
+					"permissions": "write-all"
+				},
+				"mtransitapps/commons-java": {
+					"permissions": "write-all"
+				},
+				"mtransitapps/commons": {
+					"permissions": "write-all"
+				}
+			}
+		}
+	},
+    "postCreateCommand": "./submodules_init.sh && ./commons/code_setup.sh"
+}
