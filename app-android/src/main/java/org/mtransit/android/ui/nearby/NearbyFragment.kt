@@ -237,6 +237,9 @@ class NearbyFragment :
             showSelectedTab()
             switchView()
             setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
+            screenToolbarLayout.screenToolbar.setOnClickListener {
+                (activity as? MainActivity)?.onSearchRequested()
+            }
         }
         viewModel.availableTypes.observe(viewLifecycleOwner) {
             pagerAdapter?.setTypes(it)

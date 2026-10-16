@@ -240,6 +240,9 @@ class HomeFragment :
                 }
             }
             setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
+            screenToolbarLayout.screenToolbar.setOnClickListener {
+                (activity as? MainActivity)?.onSearchRequested()
+            }
         }
         listAdapter.onCreateView(viewLifecycleOwner)
         DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository, userManager) {
