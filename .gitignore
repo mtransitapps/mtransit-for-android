@@ -253,6 +253,7 @@ dev.properties
 /app-android/sh/adb/app_release_pidcat.sh
 /app-android/sh/adb/app_release_pidcat_tag_mt.sh
 /app-android/sh/adb/app_release_start.sh
+/app-android/sh/adb/app_release_stop_force.sh
 /app-android/sh/adb/app_setup.sh
 /app-android/sh/adb/main_app_debug_start.sh
 /app-android/sh/adb/main_app_debug_stop_force.sh
