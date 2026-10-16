@@ -151,15 +151,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		this.logTag = LOG_TAG + "-" + tag;
 	}
 
-	public static final int SECTION_TYPE_HEADER_NONE = 0;
-	public static final int SECTION_TYPE_HEADER_BASIC = 1;
-	public static final int SECTION_TYPE_HEADER_ALL_NEARBY = 2;
-	public static final int SECTION_TYPE_HEADER_MORE = 3;
+	public static final int SECTION_TYPE_HEADER_NONE = 0; // no header
+	public static final int SECTION_TYPE_HEADER_BASIC = 1; // no buttons
+	public static final int SECTION_TYPE_HEADER_ALL_NEARBY = 2; // header w/ 2 buttons
+	public static final int SECTION_TYPE_HEADER_MORE = 3; // header w/ 1 button
 
 	private final LayoutInflater layoutInflater;
 
 	@Nullable
-	LinkedHashMap<Integer, List<POIManager>> poisByType;
+	LinkedHashMap<Integer, List<POIManager>> poisByDstOrFavFolderId;
 
 	@Nullable
 	private HashSet<String> favUUIDs;
@@ -360,10 +360,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				return 9; // FOOTER
 			}
 			if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
-				if (this.poisByType != null) {
-					final Integer typeId = getItemTypeHeader(position);
-					if (typeId != null) {
-						if (FavoritesFolderDSTUtils.isFavoriteFolderDataSourceId(typeId)) {
+				if (this.poisByDstOrFavFolderId != null) {
+					final Integer dstOrFavFolderId = getItemDstOrFavFolderIdHeader(position);
+					if (dstOrFavFolderId != null) {
+						if (FavoritesFolderDSTUtils.isFavoriteFolderDataSourceId(dstOrFavFolderId)) {
 							return 10; // TYPE FAVORITE FOLDER
 						}
 						return 8; // TYPE HEADER
@@ -422,13 +422,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if (this.showBrowseHeaderSection) {
 			this.count++;
 		}
-		if (this.poisByType != null) {
-			for (Integer type : this.poisByType.keySet()) {
+		if (this.poisByDstOrFavFolderId != null) {
+			for (Integer dstOrFavFolderId : this.poisByDstOrFavFolderId.keySet()) {
 				if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
 					this.count++;
 				}
-				final List<POIManager> typePOIMs = this.poisByType.get(type);
-				this.count += typePOIMs == null ? 0 : typePOIMs.size();
+				final List<POIManager> dstOrFavFolderIdPOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
+				this.count += dstOrFavFolderIdPOIMs == null ? 0 : dstOrFavFolderIdPOIMs.size();
 			}
 		}
 		if (this.showFooter) {
@@ -442,17 +442,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if (this.showBrowseHeaderSection) {
 			position++;
 		}
-		if (this.poisByType != null) {
-			for (Integer type : this.poisByType.keySet()) {
+		if (this.poisByDstOrFavFolderId != null) {
+			for (Integer dstOrFavFolderId : this.poisByDstOrFavFolderId.keySet()) {
 				if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
 					position++;
 				}
-				final List<POIManager> typePOIMs = this.poisByType.get(type);
-				int indexOf = typePOIMs == null ? -1 : typePOIMs.indexOf(item);
+				final List<POIManager> dstOrFavFolderIdPOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
+				int indexOf = dstOrFavFolderIdPOIMs == null ? -1 : dstOrFavFolderIdPOIMs.indexOf(item);
 				if (indexOf >= 0) {
 					return position + indexOf;
 				}
-				position += typePOIMs == null ? 0 : typePOIMs.size();
+				position += dstOrFavFolderIdPOIMs == null ? 0 : dstOrFavFolderIdPOIMs.size();
 			}
 		}
 		MTLog.w(this, "getPosition() > Cannot find position for item '%s'!", item == null ? null : item.poi.getUUID());
@@ -461,13 +461,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@Nullable
 	public POIManager getItemByUUID(@NonNull String uuid) {
-		if (this.poisByType != null) {
-			for (Integer type : this.poisByType.keySet()) {
-				final List<POIManager> typePOIMs = this.poisByType.get(type);
-				if (typePOIMs != null) {
-					for (POIManager item : typePOIMs) {
-						if (item.poi.getUUID().equals(uuid)) {
-							return item;
+		if (this.poisByDstOrFavFolderId != null) {
+			for (Integer dstOrFavFolderId : this.poisByDstOrFavFolderId.keySet()) {
+				final List<POIManager> dstOrFavFolderIdPOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
+				if (dstOrFavFolderIdPOIMs != null) {
+					for (POIManager poiManager : dstOrFavFolderIdPOIMs) {
+						if (poiManager.poi.getUUID().equals(uuid)) {
+							return poiManager;
 						}
 					}
 				}
@@ -484,17 +484,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if (this.showBrowseHeaderSection) {
 			index++;
 		}
-		if (this.poisByType != null) {
-			for (Integer type : this.poisByType.keySet()) {
+		if (this.poisByDstOrFavFolderId != null) {
+			for (Integer dstOrFavFolderId : this.poisByDstOrFavFolderId.keySet()) {
 				if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
 					index++;
 				}
-				final List<POIManager> typePOIMs = this.poisByType.get(type);
-				final int typePOIMCount = typePOIMs == null ? 0 : typePOIMs.size();
-				if (position >= index && position < index + typePOIMCount) {
-					return typePOIMs.get(position - index);
+				final List<POIManager> dstOrFavFolderIdPOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
+				final int dstOrFavFolderIdPOIMCount = dstOrFavFolderIdPOIMs == null ? 0 : dstOrFavFolderIdPOIMs.size();
+				if (position >= index && position < index + dstOrFavFolderIdPOIMCount) {
+					return dstOrFavFolderIdPOIMs.get(position - index);
 				}
-				index += typePOIMCount;
+				index += dstOrFavFolderIdPOIMCount;
 			}
 		}
 		return null;
@@ -502,12 +502,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@Nullable
 	public POIManager getItem(@Nullable String uuid) {
-		if (this.poisByType != null
+		if (this.poisByDstOrFavFolderId != null
 				&& uuid != null && !uuid.isEmpty()) {
-			for (Integer type : this.poisByType.keySet()) {
-				final List<POIManager> typePOIMs = this.poisByType.get(type);
-				if (typePOIMs != null) {
-					for (POIManager poim : typePOIMs) {
+			for (Integer dstOrFavFolderId : this.poisByDstOrFavFolderId.keySet()) {
+				final List<POIManager> dstOrFavFolderIdPOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
+				if (dstOrFavFolderIdPOIMs != null) {
+					for (POIManager poim : dstOrFavFolderIdPOIMs) {
 						if (poim.poi.getUUID().equals(uuid)) {
 							return poim;
 						}
@@ -519,18 +519,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	@Nullable
-	private Integer getItemTypeHeader(int position) {
+	private Integer getItemDstOrFavFolderIdHeader(int position) {
 		int index = 0;
 		if (this.showBrowseHeaderSection) {
 			index++;
 		}
-		if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE && this.poisByType != null) {
-			for (Integer type : this.poisByType.keySet()) {
+		if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE && this.poisByDstOrFavFolderId != null) {
+			for (Integer dstOrFavFolderId : this.poisByDstOrFavFolderId.keySet()) {
 				if (index == position) {
-					return type;
+					return dstOrFavFolderId;
 				}
 				index++;
-				final List<POIManager> typePOIMs = this.poisByType.get(type);
+				final List<POIManager> typePOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
 				index += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
@@ -549,16 +549,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 				return getFooterView(convertView, parent);
 			}
 			if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE) {
-				final Integer typeId = getItemTypeHeader(position);
-				if (typeId != null) {
-					if (FavoritesFolderDSTUtils.isFavoriteFolderDataSourceId(typeId)) {
-						final int favoriteFolderId = FavoritesFolderDSTUtils.extractFavoriteFolderId(typeId);
+				final Integer dstOrFavFolderId = getItemDstOrFavFolderIdHeader(position);
+				if (dstOrFavFolderId != null) {
+					if (FavoritesFolderDSTUtils.isFavoriteFolderDataSourceId(dstOrFavFolderId)) {
+						final int favoriteFolderId = FavoritesFolderDSTUtils.extractFavoriteFolderId(dstOrFavFolderId);
 						final FavoriteFolder favoriteFolder = this.favoriteFoldersByIds == null ? null : this.favoriteFoldersByIds.get(favoriteFolderId);
 						if (favoriteFolder != null) {
 							return getFavoriteFolderHeaderView(favoriteFolder, convertView, parent);
 						}
 					}
-					final DataSourceType dst = DataSourceType.parseId(typeId);
+					final DataSourceType dst = DataSourceType.parseId(dstOrFavFolderId);
 					if (dst != null) {
 						return getTypeSectionHeaderView(dst, convertView, parent);
 					}
@@ -828,7 +828,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@Override
 	public boolean isEnabled(int position) {
-		return getItemTypeHeader(position) == null; // is NOT separator
+		return getItemDstOrFavFolderIdHeader(position) == null; // is NOT separator
 	}
 
 	public boolean showPoiViewerScreen(@NonNull View view, @NonNull POIManager poim) {
@@ -868,12 +868,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	public void initPOITypes(@NonNull List<DataSourceType> poiTypes) {
-		if (this.poisByType == null) {
-			this.poisByType = new LinkedHashMap<>();
+		if (this.poisByDstOrFavFolderId == null) {
+			this.poisByDstOrFavFolderId = new LinkedHashMap<>();
 		}
 		for (DataSourceType poiType : poiTypes) {
-			if (!this.poisByType.containsKey(poiType.getId())) {
-				this.poisByType.put(poiType.getId(), new ArrayList<>());
+			if (!this.poisByDstOrFavFolderId.containsKey(poiType.getId())) {
+				this.poisByDstOrFavFolderId.put(poiType.getId(), new ArrayList<>());
 			}
 		}
 	}
@@ -885,8 +885,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	private boolean clearPois() {
 		boolean dataSetChanged = false;
-		if (this.poisByType != null && !this.poisByType.isEmpty()) {
-			this.poisByType.clear();
+		if (this.poisByDstOrFavFolderId != null && !this.poisByDstOrFavFolderId.isEmpty()) {
+			this.poisByDstOrFavFolderId.clear();
 			dataSetChanged = true;
 		}
 		if (!this.poiUUID.isEmpty()) {
@@ -916,17 +916,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	private boolean append(@Nullable List<POIManager> pois, boolean dataSetChanged) {
 		if (pois != null) {
-			if (this.poisByType == null) {
-				this.poisByType = new LinkedHashMap<>();
+			if (this.poisByDstOrFavFolderId == null) {
+				this.poisByDstOrFavFolderId = new LinkedHashMap<>();
 			}
 			for (POIManager poim : pois) {
-				final List<POIManager> typePOIMs = CollectionUtils.getOrDefault(this.poisByType, poim.poi.getDataSourceTypeId(), new ArrayList<>());
+				final int dstOrFavFolderId = POIManagerExtKt.getDstOrFavFolderId(poim);
+				final List<POIManager> dstOrFavFolderIdPOIMs = CollectionUtils.getOrDefault(this.poisByDstOrFavFolderId, dstOrFavFolderId, new ArrayList<>());
 				if (!this.poiUUID.contains(poim.poi.getUUID())) {
-					typePOIMs.add(poim);
+					dstOrFavFolderIdPOIMs.add(poim);
 					this.poiUUID.add(poim.poi.getUUID());
 					dataSetChanged = true;
 				}
-				this.poisByType.put(poim.poi.getDataSourceTypeId(), typePOIMs);
+				this.poisByDstOrFavFolderId.put(dstOrFavFolderId, dstOrFavFolderIdPOIMs);
 			}
 		}
 		if (dataSetChanged) {
@@ -944,7 +945,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	}
 
 	public boolean isInitialized() {
-		return this.poisByType != null;
+		return this.poisByDstOrFavFolderId != null;
 	}
 
 	private int poisCount = -1;
@@ -958,10 +959,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	private void initPoisCount() {
 		this.poisCount = 0;
-		if (this.poisByType != null) {
-			for (Integer type : this.poisByType.keySet()) {
-				final List<POIManager> typePOIMs = this.poisByType.get(type);
-				this.poisCount += typePOIMs == null ? 0 : typePOIMs.size();
+		if (this.poisByDstOrFavFolderId != null) {
+			for (Integer dstOrFavFolderId : this.poisByDstOrFavFolderId.keySet()) {
+				final List<POIManager> dstOrFavFolderIdPOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
+				this.poisCount += dstOrFavFolderIdPOIMs == null ? 0 : dstOrFavFolderIdPOIMs.size();
 			}
 		}
 	}
@@ -971,24 +972,27 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		return getPoisCount() > 0;
 	}
 
-	private void updateClosestPoi() {
+	public void updateClosestPoi() {
 		if (getPoisCount() == 0) {
 			this.closestPoiUuids = null;
 			return;
 		}
 		this.closestPoiUuids = new HashSet<>();
-		if (this.poisByType != null) {
-			for (Integer type : this.poisByType.keySet()) {
-				List<POIManager> poiManagers = this.poisByType.get(type);
-				if (poiManagers == null || poiManagers.isEmpty()) {
+		if (this.poisByDstOrFavFolderId != null) {
+			for (Integer dstOrFavFolderId : this.poisByDstOrFavFolderId.keySet()) {
+				final List<POIManager> dstOrFavFolderIdPOIMs = this.poisByDstOrFavFolderId.get(dstOrFavFolderId);
+				if (dstOrFavFolderIdPOIMs == null || dstOrFavFolderIdPOIMs.isEmpty()) continue;
+				final List<String> closestPOIUuids = LocationUtilsExtKt.findClosestPOIUuids(dstOrFavFolderIdPOIMs);
+				if (this.showTypeSectionHeader != SECTION_TYPE_HEADER_NONE && closestPOIUuids.size() == dstOrFavFolderIdPOIMs.size()) {
+					MTLog.d(this, "updateClosestPoi() > all '%s' POIs are closest -> ignore", dstOrFavFolderId);
 					continue;
 				}
-				this.closestPoiUuids.addAll(
-						LocationUtilsExtKt.findClosestPOISUuid(
-								poiManagers
-						)
-				);
+				this.closestPoiUuids.addAll(closestPOIUuids);
 			}
+		}
+		if (this.showTypeSectionHeader == SECTION_TYPE_HEADER_NONE && this.closestPoiUuids.size() == getPoisCount()) {
+			MTLog.d(this, "updateClosestPoi() > all POIs are closest -> ignore");
+			this.closestPoiUuids.clear(); // do not show all POIs as closest (BOLD)
 		}
 	}
 
@@ -999,29 +1003,25 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@SuppressWarnings("unused")
 	public boolean isClosestPOI(int position) {
-		if (this.closestPoiUuids == null) {
-			return false;
-		}
-		POIManager poim = getItem(position);
+		if (this.closestPoiUuids == null) return false;
+		final POIManager poim = getItem(position);
 		return poim != null && this.closestPoiUuids.contains(poim.poi.getUUID());
 	}
 
 	@Nullable
 	public POIManager getClosestPOI() {
-		if (this.closestPoiUuids == null || this.closestPoiUuids.isEmpty()) {
-			return null;
-		}
-		String closestPOIUUID = this.closestPoiUuids.iterator().next();
-		return getItem(closestPOIUUID);
+		if (this.closestPoiUuids == null || this.closestPoiUuids.isEmpty()) return null;
+		final String closestPoiUuid = this.closestPoiUuids.iterator().next();
+		return getItem(closestPoiUuid);
 	}
 
 	@AnyThread
 	private void updateDistancesString() {
 		if (this.location == null) return;
-		if (this.poisByType == null) return;
+		if (this.poisByDstOrFavFolderId == null) return;
 		if (this.distanceUnitsPref == null) return;
-		for (List<POIManager> typePoimList : poisByType.values()) {
-			for (POIManager poim : typePoimList) {
+		for (List<POIManager> dstOrFavFolderIdPOIMs : this.poisByDstOrFavFolderId.values()) {
+			for (POIManager poim : dstOrFavFolderIdPOIMs) {
 				UILocationUtils.updateDistanceWithStringNN(this.distanceUnitsPref, poim, this.location);
 			}
 		}
@@ -1084,9 +1084,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@SuppressWarnings("UnusedReturnValue")
 	protected boolean resetModulesStatus() {
 		boolean didReset = false;
-		if (this.poisByType != null) {
-			for (List<POIManager> poimList : this.poisByType.values()) {
-				for (POIManager poim : poimList) {
+		if (this.poisByDstOrFavFolderId != null) {
+			for (List<POIManager> dstOrFavFolderIdPOIMs : this.poisByDstOrFavFolderId.values()) {
+				for (POIManager poim : dstOrFavFolderIdPOIMs) {
 					if (poim.poi.getType() == POI.ITEM_VIEW_TYPE_MODULE) {
 						poim.allowTriggerStatusAndServiceUpdatesRefresh(); // force get status from provider
 						didReset = true;
@@ -1107,6 +1107,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 	@Nullable
 	private Runnable notifyDataSetChangedLater = null;
 
+	private static final boolean NOTIFY_DEBUG = false;
+
 	private static final boolean NEVER_IGNORE_NOTIFY_DATA_CHANGED = true;
 
 	private void notifyDataSetChanged(
@@ -1118,7 +1120,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		if ((this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE // WARNING: scroll state can stay stuck in other state
 				&& (doNotIgnore || this.lastNotifyDataSetChanged + adapterThresholdMs < now))
 				|| (this.lastNotifyDataSetChanged + (adapterThresholdMs * 2L) < now)) {
-			MTLog.d(this, "notifyDataSetChanged() > NOTIFYING...");
+			if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > NOTIFYING...");
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
 			this.lastNotifyDataSetChanged = now;
@@ -1129,13 +1131,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 		} else {
 			final boolean canIgnore = !(doNotIgnore || NEVER_IGNORE_NOTIFY_DATA_CHANGED);
 			if (canIgnore) {
-				MTLog.d(this, "notifyDataSetChanged() > IGNORED");
+				if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > IGNORED");
 			} else if (this.notifyDataSetChangedLater != null) {
-				MTLog.d(this, "notifyDataSetChanged() > already scheduled");
+				if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > already scheduled");
 			} else {
-				MTLog.d(this, "notifyDataSetChanged() > SCHEDULED");
+				if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > SCHEDULED");
 				this.notifyDataSetChangedLater = () -> {
-					MTLog.d(this, "notifyDataSetChanged() > HANDLER");
+					if (NOTIFY_DEBUG) MTLog.d(this, "notifyDataSetChanged() > HANDLER");
 					this.notifyDataSetChangedLater = null;
 					notifyDataSetChanged(true);
 				};
@@ -1301,9 +1303,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	@Override
 	public void clear() {
-		if (this.poisByType != null) {
-			this.poisByType.clear();
-			this.poisByType = null; // not initialized
+		if (this.poisByDstOrFavFolderId != null) {
+			this.poisByDstOrFavFolderId.clear();
+			this.poisByDstOrFavFolderId = null; // not initialized
 		}
 		resetCounts();
 		this.poiUUID.clear();
@@ -1347,9 +1349,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 
 	public void onDestroy() {
 		disableTimeChangedReceiver();
-		if (this.poisByType != null) {
-			this.poisByType.clear();
-			this.poisByType = null;
+		if (this.poisByDstOrFavFolderId != null) {
+			this.poisByDstOrFavFolderId.clear();
+			this.poisByDstOrFavFolderId = null;
 		}
 		resetCounts();
 		this.poiUUID.clear();
@@ -1591,8 +1593,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements
 			holder.moreBtn.setOnClickListener(view ->
 					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_MORE, type)
 			);
-			holder.layout.setOnClickListener(view ->
-					holder.moreBtn.performClick()
+			holder.layout.setOnClickListener(view -> {
+						if (holder.moreBtn != null) {
+							holder.moreBtn.performClick();
+						}
+					}
 			);
 		} else {
 			holder.layout.setClickable(false);

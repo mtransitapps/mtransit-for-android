@@ -24,7 +24,7 @@ package org.mtransit.android.ui.map
 //
 // @Before
 // fun setUp() {
-// CommonsApp.setup(false)
+// CommonsApp.setup(isAndroidPlatform = false)
 // }
 //
 // @Test

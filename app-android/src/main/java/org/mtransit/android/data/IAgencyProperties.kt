@@ -62,3 +62,7 @@ interface IAgencyProperties {
         return isEnabled && pm.isAppEnabled(this.pkg)
     }
 }
+
+fun String.toShortAuthority() = this.replace("org.mtransit.android.", "[MT]")
+
+val IAgencyProperties.shortAuthority: String get() = this.authority.toShortAuthority()

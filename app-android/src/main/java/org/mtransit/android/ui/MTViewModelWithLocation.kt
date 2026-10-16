@@ -1,13 +1,13 @@
 package org.mtransit.android.ui
 
 import android.app.PendingIntent
-import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.toStringSimple
+import org.mtransit.android.commons.location.toStringSimple
+import android.location.Location as AndroidLocation
 
 abstract class MTViewModelWithLocation : ViewModel(), MTLog.Loggable {
 
@@ -19,11 +19,11 @@ abstract class MTViewModelWithLocation : ViewModel(), MTLog.Loggable {
         _locationSettingsResolution.value = newResolution
     }
 
-    private val _deviceLocation = MutableLiveData<Location?>()
+    private val _deviceLocation = MutableLiveData<AndroidLocation?>()
 
-    val deviceLocation: LiveData<Location?> = _deviceLocation
+    val deviceLocation: LiveData<AndroidLocation?> = _deviceLocation
 
-    fun onDeviceLocationChanged(newDeviceLocation: Location?, force: Boolean = false) {
+    fun onDeviceLocationChanged(newDeviceLocation: AndroidLocation?, force: Boolean = false) {
         if (force) {
             MTLog.d(this, "onDeviceLocationChanged() > save new forced location '${newDeviceLocation?.toStringSimple()}'.")
             _deviceLocation.value = newDeviceLocation

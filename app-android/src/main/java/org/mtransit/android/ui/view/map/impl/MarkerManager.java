@@ -136,11 +136,11 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		clusteringStrategy.onClusterGroupChange(marker);
 	}
 
-	public void onDragStart(DelegatingMarker marker) {
+	public void onDragStart(@NonNull DelegatingMarker marker) {
 		markerAnimator.cancelAnimation(marker, IMarker.AnimationCallback.CancelReason.DRAG_START);
 	}
 
-	public void onPositionChange(DelegatingMarker marker) {
+	public void onPositionChange(@NonNull DelegatingMarker marker) {
 		clusteringStrategy.onPositionChange(marker);
 		markerAnimator.cancelAnimation(marker, IMarker.AnimationCallback.CancelReason.SET_POSITION);
 	}
@@ -149,7 +149,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		clusteringStrategy.onPositionChange(marker);
 	}
 
-	public void onRemove(DelegatingMarker marker) {
+	public void onRemove(@NonNull DelegatingMarker marker) {
 		markers.remove(marker.getReal());
 		createdMarkers.remove(marker.getReal().getMarker());
 		clusteringStrategy.onRemove(marker);

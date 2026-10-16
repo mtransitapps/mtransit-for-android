@@ -23,7 +23,7 @@ public class TextMessage extends DefaultPOI {
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return LOG_TAG;
+		return LOG_TAG + "-" + this.messageId;
 	}
 
 	public static final String AUTHORITY = "org.mtransit.android.message";
@@ -31,9 +31,8 @@ public class TextMessage extends DefaultPOI {
 	private final long messageId;
 
 	public TextMessage(long messageId, @DataSourceTypeId.DataSourceType int dataSourceTypeId, @NonNull String message) {
-		super(AUTHORITY, -1, dataSourceTypeId, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE);
+		super(AUTHORITY, -1, dataSourceTypeId, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE, 0.0d, 0.0d, message);
 		this.messageId = messageId;
-		setName(message);
 	}
 
 	@Discouraged(message = "only useful for DB, use getMessageId() instead")

@@ -10,7 +10,6 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Suppress("MemberVisibilityCanBePrivate", "unused")
 @Singleton
 class LanguageManager @Inject constructor(
     private val userPrefManager: UserPrefManager,
@@ -33,9 +32,9 @@ class LanguageManager @Inject constructor(
         userPrefManager.setLang(userPref)
     }
 
-    fun updateAppLocaleFromUserPref() {
+    fun updateAppLocaleFromUserPref(langUserPrefValue: String? = langUserPref.value) {
         updateAppLocale(
-            when (langUserPref.value) {
+            when (langUserPrefValue) {
                 DefaultPreferenceRepository.PREFS_LANG_EN -> LocaleListCompat.forLanguageTags("en")
                 DefaultPreferenceRepository.PREFS_LANG_FR -> LocaleListCompat.forLanguageTags("fr")
                 DefaultPreferenceRepository.PREFS_LANG_SYSTEM_DEFAULT -> LocaleListCompat.getEmptyLocaleList()
@@ -44,15 +43,16 @@ class LanguageManager @Inject constructor(
         )
     }
 
+    @Suppress("unused")
     fun updateAppLocaleFromLanguageTag(langTag: String) {
-        updateAppLocale(LocaleListCompat.forLanguageTags(langTag))
+        updateAppLocale(
+            LocaleListCompat.forLanguageTags(langTag)
+        )
     }
 
-    fun updateAppLocale(newLocaleList: LocaleListCompat) {
+    private fun updateAppLocale(newLocaleList: LocaleListCompat) {
         val currentLocaleList = AppCompatDelegate.getApplicationLocales()
-        if (currentLocaleList == newLocaleList) {
-            return // SKIP
-        }
+        if (currentLocaleList == newLocaleList) return // SKIP
         AppCompatDelegate.setApplicationLocales(newLocaleList)
     }
 }

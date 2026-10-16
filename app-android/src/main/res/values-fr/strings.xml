@@ -372,4 +372,8 @@
     <string name="deploying_data_in_progress_short">Préparation des horaires&#8230;</string>
     <string name="deploying_data_in_progress_for_short"><![CDATA[Préparation des horaires de <b>%s</b>&#8230;]]></string>
     <string name="deploying_data_done_short">Préparation des horaires terminée&#10003;</string>
+
+    <string name="nearby_place_and_place">Près de %s</string>
+    <string name="place_pin_placed">Punaise placée</string>
+    <string name="place_pin_click_to_nearby">(cliquer pour voir À proximité)</string>
 </resources>

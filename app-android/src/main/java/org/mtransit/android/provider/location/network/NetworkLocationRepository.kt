@@ -1,7 +1,6 @@
 package org.mtransit.android.provider.location.network
 
 import android.content.Context
-import android.location.Location
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
@@ -18,6 +17,7 @@ import org.mtransit.android.ui.view.common.MediatorLiveData3
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.location.Location as AndroidLocation
 
 @Singleton
 class NetworkLocationRepository @Inject constructor(
@@ -47,20 +47,21 @@ class NetworkLocationRepository @Inject constructor(
 
     private val _hasAgenciesAdded = dataSourcesRepository.readingHasAgenciesAdded()
 
-    val ipLocation: LiveData<Location?> = MediatorLiveData3(_ipLocationLat, _ipLocationLng, _hasAgenciesAdded).switchMap { (lat, lng, hasAgenciesAdded) ->
-        liveData {
-            lat ?: return@liveData
-            lng ?: return@liveData
-            hasAgenciesAdded ?: return@liveData
-            if (hasAgenciesAdded) {
-                emit(null) // forget IP location if already loaded
-                return@liveData
+    val ipLocation: LiveData<AndroidLocation?> = MediatorLiveData3(_ipLocationLat, _ipLocationLng, _hasAgenciesAdded)
+        .switchMap { (lat, lng, hasAgenciesAdded) ->
+            liveData {
+                lat ?: return@liveData
+                lng ?: return@liveData
+                hasAgenciesAdded ?: return@liveData
+                if (hasAgenciesAdded) {
+                    emit(null) // forget IP location if already loaded
+                    return@liveData
+                }
+                emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS, PROVIDER_NAME))
             }
-            emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS, PROVIDER_NAME))
         }
-    }
 
-    suspend fun fetchIPLocationIfNecessary(deviceLocation: Location?) {
+    suspend fun fetchIPLocationIfNecessary(deviceLocation: AndroidLocation?) {
         if (deviceLocation != null) {
             return
         }

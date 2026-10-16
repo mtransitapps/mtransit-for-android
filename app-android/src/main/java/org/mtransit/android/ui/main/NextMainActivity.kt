@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
-import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -58,6 +57,7 @@ import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.NightModeUtils
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER", "unused", "MemberVisibilityCanBePrivate")
 @AndroidEntryPoint
@@ -338,7 +338,7 @@ class NextMainActivity :
         // TODO hide loading
     }
 
-    override fun onLastLocationChanged(lastLocation: Location?) {
+    override fun onLastLocationChanged(lastLocation: AndroidLocation?) {
         broadcastDeviceLocationChanged(this, navHostFragment.childFragmentManager.fragments, lastLocation)
     }
 

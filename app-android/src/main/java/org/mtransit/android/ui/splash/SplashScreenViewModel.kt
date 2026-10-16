@@ -255,11 +255,12 @@ class SplashScreenViewModel @Inject constructor(
         val shouldResetUx = appOpenLast?.let { lastAppOpen ->
             now - lastAppOpen >= RESET_DEFAULT_ROOT_SCREEN_AFTER
         } == true
-        if (shouldResetUx) { // user might have forgotten app UX and be stuck in non-default root screen
+        if (shouldResetUx) { // user might have forgotten app UX
             lclPrefRepository.pref.edit {
-                remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID)
+                remove(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID) // reset default screen
+                remove(LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS) // reset Map screen filter
             }
-            userManager.setUserLearnedDrawer(false)
+            userManager.setUserLearnedDrawer(false) // show drawer again
         }
         val dailyUser = appOpenLast?.let {
             val sevenDaysAgo = now - 7.days

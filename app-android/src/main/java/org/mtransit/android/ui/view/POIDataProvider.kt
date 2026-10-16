@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.view
 
 import android.app.Activity
-import android.location.Location
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -10,6 +9,7 @@ import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
 import org.mtransit.android.ui.view.poi.status.POIStatusDataProvider
 import org.mtransit.android.util.LinkUtils.OnUrlClickListener
+import android.location.Location as AndroidLocation
 
 interface POIDataProvider : POIStatusDataProvider, ServiceUpdateLoaderProvider, OnUrlClickListener {
     val activity: Activity?
@@ -21,7 +21,7 @@ interface POIDataProvider : POIStatusDataProvider, ServiceUpdateLoaderProvider, 
     val isShowingFavorite: Boolean
     val locationDeclination: Float?
     val lastCompassInDegree: Int?
-    val deviceLocation: Location?
+    val deviceLocation: AndroidLocation?
     fun hasLastCompassInDegree(): Boolean
     fun hasLocation(): Boolean
     fun providesDataSourcesRepository(): DataSourcesRepository

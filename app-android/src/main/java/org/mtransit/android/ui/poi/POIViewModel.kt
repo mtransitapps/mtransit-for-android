@@ -2,7 +2,7 @@ package org.mtransit.android.ui.poi
 //
 // import android.content.Context
 // import android.hardware.SensorEvent
-// import android.location.Location
+// import android.location.Location as AndroidLocation
 // import android.widget.AbsListView
 // import androidx.annotation.WorkerThread
 // import androidx.lifecycle.LiveData
