@@ -1,9 +1,9 @@
 image: openjdk:11-jdk
 
 variables:
-  ANDROID_COMPILE_SDK: "32"
-  ANDROID_BUILD_TOOLS: "32.0.0"
-  ANDROID_SDK_TOOLS_VERSION: "8092744" # https://developer.android.com/studio/#command-tools
+  ANDROID_COMPILE_SDK: "37.0"
+  ANDROID_BUILD_TOOLS: "37.0.0"
+  ANDROID_SDK_TOOLS_VERSION: "15859902" # https://developer.android.com/studio#command-line-tools-only
   CACHE_KEY: 'gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-gradle-cache-{{ checksum "gradle_cache_key_checksum.txt" }}'
 
 before_script:
@@ -29,8 +29,8 @@ before_script:
   - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
   # SETUP ENV
   - export PATH=$PATH:$ANDROID_HOME/platform-tools/
-  - chmod +x checkout_submodules.sh
-  - ./checkout_submodules.sh
+  - chmod +x submodules_init.sh
+  - ./submodules_init.sh
   - chmod +x commons/sync.sh
   - ./commons/sync.sh
   # GENERATE CACHE KEY
