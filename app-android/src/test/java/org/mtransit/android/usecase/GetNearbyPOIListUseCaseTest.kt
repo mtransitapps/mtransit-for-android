@@ -434,6 +434,7 @@ class GetNearbyPOIListUseCaseTest {
             add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(364L, 2).toPOIM())
             add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(445L, 2).toPOIM())
             add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(747L, 2).toPOIM())
+            add(mkCA_MTL_STM_BUS_BERRI_R_LEVESQUE_52905(747L, 1, isNoPickup = true).toPOIM())
         }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
         whenever_POIMsAroundLoc(CA_MTL_STM_SUBWAY, mainPOI) doReturn mutableListOf<POIManager>().apply {
             add(mkCA_MTL_STM_SUBWAY_BERRI_UQAM_METRO_ORANGE(originalDirectionId = 1).toPOIM()) // Côte-Vertu

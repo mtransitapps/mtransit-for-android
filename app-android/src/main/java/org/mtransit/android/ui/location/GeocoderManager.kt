@@ -3,6 +3,7 @@ package org.mtransit.android.ui.location
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import androidx.annotation.VisibleForTesting
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -19,15 +20,17 @@ import android.location.Geocoder as AndroidGeocoder
 import android.location.Location as AndroidLocation
 
 class GeocoderManager(
-    @ApplicationContext private val appContext: Context,
-    private val ioDispatcher: CoroutineDispatcher,
+    private val makeGeocoder: (Locale) -> AndroidGeocoder,
+    private val getCurrentLocale: () -> Locale = { Locale.getDefault() },
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {
 
     @Inject
     constructor(
         @ApplicationContext appContext: Context,
     ) : this(
-        appContext = appContext,
+        makeGeocoder = { locale -> AndroidGeocoder(appContext, locale) },
+        getCurrentLocale = { Locale.getDefault() },
         ioDispatcher = Dispatchers.IO,
     )
 
@@ -37,8 +40,29 @@ class GeocoderManager(
 
     override fun getLogTag() = LOG_TAG
 
-    private val geocoder: AndroidGeocoder by lazy {
-        AndroidGeocoder(appContext, Locale.getDefault())
+    private val geocoderLock = Any()
+
+    @Volatile
+    private var cachedGeocoder: Pair<Locale, AndroidGeocoder>? = null
+
+    @VisibleForTesting
+    internal fun getGeocoder(): AndroidGeocoder {
+        val currentLocale = getCurrentLocale()
+        cachedGeocoder?.let { (locale, geocoder) ->
+            if (locale == currentLocale) {
+                return geocoder
+            }
+        }
+        return synchronized(geocoderLock) {
+            val existing = cachedGeocoder
+            if (existing != null && existing.first == currentLocale) {
+                existing.second
+            } else {
+                val newGeocoder = makeGeocoder(currentLocale)
+                cachedGeocoder = currentLocale to newGeocoder
+                newGeocoder
+            }
+        }
     }
 
     @Throws(IllegalArgumentException::class)
@@ -47,6 +71,7 @@ class GeocoderManager(
         longitude: Double,
         maxResults: Int = 1
     ): List<AndroidAddress> = withContext(ioDispatcher) {
+        val geocoder = getGeocoder()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             suspendCancellableCoroutine { continuation ->
                 geocoder.getFromLocation(
@@ -77,6 +102,7 @@ class GeocoderManager(
         locationName: String,
         maxResults: Int = 1
     ): List<AndroidAddress> = withContext(ioDispatcher) {
+        val geocoder = getGeocoder()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             suspendCancellableCoroutine { continuation ->
                 geocoder.getFromLocationName(
