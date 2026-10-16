@@ -29,8 +29,8 @@ before_script:
   - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
   # SETUP ENV
   - export PATH=$PATH:$ANDROID_HOME/platform-tools/
-  - chmod +x submodules_init.sh
-  - ./submodules_init.sh
+  - chmod +x sh/git/submodules_init.sh
+  - ./sh/git/submodules_init.sh
   - chmod +x commons/sync.sh
   - ./commons/sync.sh
   # GENERATE CACHE KEY
