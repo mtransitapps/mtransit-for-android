@@ -30,5 +30,5 @@
 			}
 		}
 	},
-    "postCreateCommand": "./submodules_init.sh && ./commons/code_setup.sh"
+    "postCreateCommand": "./.devcontainer/devcontainer_post_create.sh"
 }
