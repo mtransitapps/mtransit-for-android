@@ -1,7 +1,7 @@
 image: openjdk:11-jdk
 
 variables:
-  ANDROID_COMPILE_SDK: "37"
+  ANDROID_COMPILE_SDK: "37.0"
   ANDROID_BUILD_TOOLS: "37.0.0"
   ANDROID_SDK_TOOLS_VERSION: "15859902" # https://developer.android.com/studio#command-line-tools-only
   CACHE_KEY: 'gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-gradle-cache-{{ checksum "gradle_cache_key_checksum.txt" }}'
