@@ -90,7 +90,10 @@ class AgencyPOIsViewModel @Inject constructor(
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             val agency = agency ?: return@liveData
             val poiFilter = POIProviderContract.Filter.getNewEmptyFilter()
-            emit(poiRepository.findPOIMs(agency, poiFilter))
+            emit(
+                poiRepository.findPOIMs(agency, poiFilter)
+                    .sortedWith(POI_MANAGER_ALPHA_COMPARATOR)
+            )
         }
     }
 
