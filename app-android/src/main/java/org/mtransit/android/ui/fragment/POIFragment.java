@@ -2,8 +2,8 @@ package org.mtransit.android.ui.fragment;
 
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.getClosestVehicleLocationUuid;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.getMapMarkerAlphaKt;
+import static org.mtransit.android.ui.fragment.POIFragmentExtKt.getMapVisibleArea;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.getPOIKt;
-import static org.mtransit.android.ui.fragment.POIFragmentExtKt.getVisibleMarkersLocationList;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.makeMapViewConfig;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.makePoiListFooterManager;
 import static org.mtransit.android.ui.fragment.POIFragmentExtKt.onMapClickKt;
@@ -459,7 +459,7 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	@Override
 	public Collection<LatLng> getVisibleArea() {
-		return getVisibleMarkersLocationList(this);
+		return getMapVisibleArea(this);
 	}
 
 	@Nullable
