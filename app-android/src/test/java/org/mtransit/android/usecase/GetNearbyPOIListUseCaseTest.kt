@@ -37,6 +37,7 @@ import org.mtransit.android.commons.data.CA_MTL_STM_BUS
 import org.mtransit.android.commons.data.CA_MTL_STM_SUBWAY
 import org.mtransit.android.commons.data.CA_RICHELIEU_EXO
 import org.mtransit.android.commons.data.CA_STE_JULIE_EXO
+import org.mtransit.android.commons.data.CA_VIA_RAIL
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.mkCA_CRC_EXO_TERM_BROSSARD_Q13
@@ -85,10 +86,17 @@ import org.mtransit.android.commons.data.mkCA_MTL_STM_SUBWAY_MONT_ROYAL
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_MSH_Q2
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_MSH_Q3
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_MSH_Q4
+import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_BLAIN
+import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_FALAISE
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_GRAND_ALLEE
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_LAVOIE
+import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_MASSIF
+import org.mtransit.android.commons.data.mkCA_RICHELIEU_SIR_WILFRID_LAURIER_NADEAU
 import org.mtransit.android.commons.data.mkCA_RICHELIEU_TERM_BROSSARD_Q4
 import org.mtransit.android.commons.data.mkCA_STE_JULIE_EXO_TERM_BROSSARD_Q5
+import org.mtransit.android.commons.data.mkCA_VIA_RAIL_FARL
+import org.mtransit.android.commons.data.mkCA_VIA_RAIL_MNKI
+import org.mtransit.android.commons.data.mkCA_VIA_RAIL_RDDT
 import org.mtransit.android.commons.getAroundCoveredDistanceInMetersJVM
 import org.mtransit.android.commons.updateDistanceMJVM
 import org.mtransit.android.data.AgencyBaseProperties
@@ -706,6 +714,78 @@ class GetNearbyPOIListUseCaseTest {
             assertEquals(mkCA_RICHELIEU_MSH_Q4(25L).uuid, this[1].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 0).uuid, this[2].uuid)
             assertEquals(mkCA_RICHELIEU_MSH_Q2(300L, 1).uuid, this[3].uuid)
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Test
+    fun test_POI_Nearby_Connection_VR_200_S_W_LAURIER() = runTest(mainDispatcherRule.testDispatcher) {
+        val mainAgency = CA_RICHELIEU_EXO
+        val mainPOI = mkCA_RICHELIEU_SIR_WILFRID_LAURIER_FALAISE(200L, 0)
+        whenever_POIMsAroundLoc(CA_RICHELIEU_EXO, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_FALAISE(21L, 0).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_FALAISE(200L, 0).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_FALAISE(300L, 0).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_MASSIF(21L, 0).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_MASSIF(200L, 0).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_MASSIF(300L, 0).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_BLAIN(21L, 1).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_BLAIN(200L, 1).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_BLAIN(300L, 1).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_NADEAU(21, 1).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_NADEAU(200L, 1).toPOIM())
+            add(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_NADEAU(300L, 1).toPOIM())
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        (ALL_AGENCIES - setOf(CA_RICHELIEU_EXO)).forEach {
+            whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
+        }
+
+        val result = subject.invoke(mainPOI, mainAgency)
+
+        assertEquals(5, result.size)
+        with(result.map { it.dataSourceTypeId }.distinct()) {
+            assertEquals(1, this.size)
+            assertEquals(DataSourceTypeId.BUS, this[0])
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.BUS }) {
+            var index = -1
+            assertEquals(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_BLAIN(200L, 1).uuid, this[++index].uuid)
+            assertEquals(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_FALAISE(21L, 0).uuid, this[++index].uuid)
+            assertEquals(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_BLAIN(21L, 1).uuid, this[++index].uuid)
+            assertEquals(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_FALAISE(300L, 0).uuid, this[++index].uuid)
+            assertEquals(mkCA_RICHELIEU_SIR_WILFRID_LAURIER_BLAIN(300L, 1).uuid, this[++index].uuid)
+            assertEquals(this.size, ++index)
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Test
+    fun test_POI_Nearby_Connection_CA_VIA_RAIL_REDDITT() = runTest(mainDispatcherRule.testDispatcher) {
+        val mainAgency = CA_VIA_RAIL
+        val mainPOI = mkCA_VIA_RAIL_RDDT(80_00_119L, 0)
+        whenever_POIMsAroundLoc(CA_VIA_RAIL, mainPOI) doReturn mutableListOf<POIManager>().apply {
+            add(mkCA_VIA_RAIL_RDDT(80_00_119L, 0).toPOIM())
+            add(mkCA_VIA_RAIL_RDDT(80_00_119L, 1).toPOIM())
+            add(mkCA_VIA_RAIL_FARL(80_00_119L, 0).toPOIM())
+            add(mkCA_VIA_RAIL_FARL(80_00_119L, 1).toPOIM())
+            add(mkCA_VIA_RAIL_MNKI(80_00_119L, 0).toPOIM())
+            add(mkCA_VIA_RAIL_MNKI(80_00_119L, 1).toPOIM())
+        }.updateDistanceMJVM(lat = mainPOI.lat, lng = mainPOI.lng)
+        (ALL_AGENCIES - setOf(CA_VIA_RAIL)).forEach {
+            whenever_POIMsAroundLoc(it, mainPOI) doReturn mutableListOf()
+        }
+
+        val result = subject.invoke(mainPOI, mainAgency)
+
+        assertEquals(1, result.size)
+        with(result.map { it.dataSourceTypeId }.distinct()) {
+            assertEquals(1, this.size)
+            assertEquals(DataSourceTypeId.RAIL, this[0])
+        }
+        with(result.filter { it.dataSourceTypeId == DataSourceTypeId.RAIL }) {
+            var index = -1
+            assertEquals(mkCA_VIA_RAIL_RDDT(80_00_119L, 1).uuid, this[++index].uuid)
+            assertEquals(this.size, ++index)
         }
     }
 

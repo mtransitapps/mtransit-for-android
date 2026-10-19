@@ -123,6 +123,18 @@ val CA_STE_JULIE_EXO = mkAgency(
     )
 )
 
+val CA_VIA_RAIL = mkAgency(
+    pkg = "org.mtransit.android.ca_via_rail_train",
+    type = DataSourceType.TYPE_RAIL,
+    shortName = "VIA Rail",
+    area = Area(
+        minLat = 40.7502300443,
+        maxLat = 58.767685933,
+        minLng = -130.352241212,
+        maxLng = -63.2759008362
+    ),
+)
+
 private fun mkAgency(
     pkg: String,
     shortName: String,
@@ -148,4 +160,5 @@ val ALL_AGENCIES = listOf(
     CA_MTL_STM_SUBWAY,
     CA_RICHELIEU_EXO,
     CA_STE_JULIE_EXO,
+    CA_VIA_RAIL,
 )
