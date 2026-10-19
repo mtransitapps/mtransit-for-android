@@ -139,7 +139,7 @@ class GetNearbyPOIListUseCase(
                 val firstPositiveDistance = nearbyPOIs.takeIf { it.isNotEmpty() }?.firstOrNull { it.positiveDistanceOrNull != null }?.distanceOrNull
                 if ((nearbyPOIs.size <= (minSize ?: 0) || newNearbyPOIsLoadedCount > 0 || firstPositiveDistance == null)
                     && maxDistanceInMeters <= (enoughCoverageInMeters ?: Float.MAX_VALUE)
-                    && aroundDiff.increment <= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT)
+                    && aroundDiff.ad <= (AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT)
                     && !LocationUtils.searchComplete(lat, lng, aroundDiff.ad) // world explored
                 ) {
                     val lastDistance = nearbyPOIs.takeIf { it.isNotEmpty() }?.lastOrNull { it.distance < maxDistanceInMeters }?.distanceOrNull
