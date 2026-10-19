@@ -345,10 +345,6 @@ public class MapViewController implements
 		return this.extendedGoogleMap != null;
 	}
 
-	private void destroyGoogleMap() {
-		this.extendedGoogleMap = null;
-	}
-
 	@Override
 	public void onMapReady(@NonNull GoogleMap googleMap) {
 		setupGoogleMap(googleMap);
@@ -1289,7 +1285,11 @@ public class MapViewController implements
 			MTLog.d(this, "onStop() > SKIP (no map)");
 			return;
 		}
-		mapView.onStop();
+		try {
+			mapView.onStop();
+		} catch (NullPointerException npe) {
+			MTLog.w(this, npe, "Crash while stoping map!");
+		}
 	}
 
 	private boolean needToResumeMap = false;
@@ -1426,7 +1426,7 @@ public class MapViewController implements
 		this.mapVisible = false;
 		this.waitingForGlobalLayout = false;
 		this.mapLayoutReady = false;
-		destroyGoogleMap();
+		this.extendedGoogleMap = null;
 		this.initialMapCameraSetup = false;
 		this.initializingMapView.set(false);
 		TaskUtils.cancelQuietly(this.loadClusterItemsTask, true);
