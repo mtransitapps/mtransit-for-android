@@ -757,6 +757,40 @@ fun mkCA_RICHELIEU_MSH_Q4(routeId: Long = 25L, isNoPickup: Boolean = false) = ma
     isNoPickup = isNoPickup,
 )
 
+fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_BLAIN(
+    routeId: Long = 200L,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_RICHELIEU_EXO,
+    routeId = routeId,
+    originalDirectionId = originalDirectionId,
+    directionId = directionId,
+    stopId = 73308,
+    stopName = "Sir-Wilfrid-Laurier / Blain",
+    stopLat = 45.56451,
+    stopLng = -73.18532,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_FALAISE(
+    routeId: Long = 200L,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_RICHELIEU_EXO,
+    routeId = routeId,
+    originalDirectionId = originalDirectionId,
+    directionId = directionId,
+    stopId = 73307,
+    stopName = "Sir-Wilfrid-Laurier / Falaises",
+    stopLat = 45.56501,
+    stopLng = -73.18395,
+    isNoPickup = isNoPickup,
+)
+
 fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_GRAND_ALLEE(
     routeId: Long = 200L,
     originalDirectionId: Int = 0,
@@ -791,6 +825,40 @@ fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_LAVOIE(
     isNoPickup = isNoPickup,
 )
 
+fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_MASSIF(
+    routeId: Long = 200L,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_RICHELIEU_EXO,
+    routeId = routeId,
+    originalDirectionId = originalDirectionId,
+    directionId = directionId,
+    stopId = 73309,
+    stopName = "Sir-Wilfrid-Laurier / Massif",
+    stopLat = 45.56638,
+    stopLng = -73.18243,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_RICHELIEU_SIR_WILFRID_LAURIER_NADEAU(
+    routeId: Long = 200L,
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_RICHELIEU_EXO,
+    routeId = routeId,
+    originalDirectionId = originalDirectionId,
+    directionId = directionId,
+    stopId = 73310,
+    stopName = "Sir-Wilfrid-Laurier / Nadeau",
+    stopLat = 45.56656,
+    stopLng = -73.18288,
+    isNoPickup = isNoPickup,
+)
+
 fun mkCA_RICHELIEU_TERM_BROSSARD_Q4(routeId: Long = 300L, isNoPickup: Boolean = false) = makeRDS(
     agency = CA_RICHELIEU_EXO,
     routeId = routeId,
@@ -810,5 +878,56 @@ fun mkCA_STE_JULIE_EXO_TERM_BROSSARD_Q5(routeId: Long, isNoPickup: Boolean = fal
     stopName = "Term Brossard Q:5",
     stopLat = 45.43666,
     stopLng = -73.43224,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_VIA_RAIL_FARL(
+    routeId: Long = 80_00_119L, // 80-119 // VCVR-TRTO: Vancouver - Toronto
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_VIA_RAIL,
+    routeId = routeId,
+    originalDirectionId = originalDirectionId,
+    directionId = directionId,
+    stopId = 140,
+    stopName = "Farlane",
+    stopLat = 50.00707,
+    stopLng = -94.20048,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_VIA_RAIL_MNKI(
+    routeId: Long = 80_00_119L, // 80-119 // VCVR-TRTO: Vancouver - Toronto
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_VIA_RAIL,
+    routeId = routeId,
+    originalDirectionId = originalDirectionId,
+    directionId = directionId,
+    stopId = 142,
+    stopName = "Minaki",
+    stopLat = 49.98497,
+    stopLng = -94.67016,
+    isNoPickup = isNoPickup,
+)
+
+fun mkCA_VIA_RAIL_RDDT(
+    routeId: Long = 80_00_119L, // 80-119 // VCVR-TRTO: Vancouver - Toronto
+    originalDirectionId: Int = 0,
+    directionId: Long = routeId * 100L + originalDirectionId,
+    isNoPickup: Boolean = false
+) = makeRDS(
+    agency = CA_VIA_RAIL,
+    routeId = routeId,
+    originalDirectionId = originalDirectionId,
+    directionId = directionId,
+    stopId = 144,
+    stopName = "Redditt",
+    stopLat = 49.97867,
+    stopLng = -94.39328,
     isNoPickup = isNoPickup,
 )
