@@ -136,6 +136,8 @@ public interface ExtendedGoogleMap {
 
 	void setTrafficEnabled(boolean trafficEnabled);
 
+	void setTransitEnabled(boolean transitEnabled);
+
 	void snapshot(SnapshotReadyCallback callback);
 
 	void snapshot(SnapshotReadyCallback callback, Bitmap bitmap);

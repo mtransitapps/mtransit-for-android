@@ -358,6 +358,7 @@ public class MapViewController implements
 		applyMapStyle();
 		applyMapType();
 		setupGoogleMapMyLocation();
+		this.extendedGoogleMap.setTransitEnabled(false); // can interfere with the app's transit information
 		this.extendedGoogleMap.setTrafficEnabled(this.config.getTrafficEnabled());
 		this.extendedGoogleMap.setIndoorEnabled(this.config.getIndoorEnabled());
 		this.extendedGoogleMap.setBuildingsEnabled(this.config.getBuildingsEnabled());

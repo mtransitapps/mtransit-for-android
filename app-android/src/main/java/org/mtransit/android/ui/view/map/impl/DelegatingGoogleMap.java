@@ -350,6 +350,11 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
+	public void setTransitEnabled(boolean transitEnabled) {
+		real.setTransitEnabled(transitEnabled);
+	}
+
+	@Override
 	public void snapshot(SnapshotReadyCallback callback) {
 		real.snapshot(callback);
 	}
