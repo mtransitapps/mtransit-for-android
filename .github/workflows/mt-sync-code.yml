@@ -69,25 +69,54 @@ jobs:
           java-version: '21'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-      - name: MT test
-        run: ./test.sh
-      - name: MT artifact > unit tests XML results
+
+      - name: MT detekt
+        run: |
+          ./gradlew detektAll \
+            --no-configure-on-demand --scan # works better with "gradle/actions/setup-gradle"
+      - name: MT detekt > print markdown report (if failure)
+        if: ${{ failure() }}
+        run: |
+          mapfile -d '' reports < <(find . -path '*/build/reports/detekt/*.md' -print0)
+          if (( ${#reports[@]} > 0 )); then
+            cat -- "${reports[@]}"
+          fi
+      - name: MT detekt > artifact > XML results
         uses: actions/upload-artifact@v7
-        if: ${{ !cancelled() }} # even if tests fails
+        if: ${{ always() }} # even if detekt fails
         with:
-          name: unit-test-xml-results
+          name: detekt-xml-results
+          path: |
+            */build/reports/detekt/*.xml
+      - name: MT detekt > artifact > HTML report
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }} # even if detekt fails
+        with:
+          name: detekt-html-reports
+          path: |
+            */build/reports/detekt/*.html
+
+      - name: MT tests
+        if: ${{ success() }} # if detekt successful
+        run: ./test_only.sh
+      - name: MT tests > artifact > XML results
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }} # even if tests fails
+        with:
+          name: test-xml-results
           path: |
             */build/test-results/**/*.xml
             */build/test-results/*.xml
             */build/reports/*.xml
-      - name: MT artifact > HTML reports
+      - name: MT tests > artifact > HTML reports
         uses: actions/upload-artifact@v7
-        if: ${{ !cancelled() }} # even if tests fails
+        if: ${{ always() }} # even if tests fails
         with:
-          name: html-reports
+          name: test-html-reports
           path: |
             */build/reports/
             !**/*.xml
+
       - name: MT commit code change
         run: ./commit_code_change.sh
       - name: MT push commits
