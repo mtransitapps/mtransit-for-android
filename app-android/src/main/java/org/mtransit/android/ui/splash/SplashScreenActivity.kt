@@ -13,7 +13,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.commons.LocaleUtils
+import org.mtransit.android.commons.fixWebViewLocale
 import org.mtransit.android.commons.getText
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.MainActivity
@@ -56,13 +56,13 @@ open class SplashScreenActivity :
         splashScreen.setKeepOnScreenCondition { // Keep the splash screen visible for this Activity
             viewModel.shouldKeepSplashScreenOn.value != false // unknown OR true
         }
+        if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) fixWebViewLocale(this.applicationContext) // before ads SDK
         viewModel.initHasSubscriptionFromCache()
         adManager.init(activity = this, withConsentOnly = true, onInitCompleteListener = {
             viewModel.onAdInitCompleted()
         })
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
-        if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) LocaleUtils.fixWebViewLocale(this.applicationContext)
         viewModel.shouldKeepSplashScreenOn.observe(this) { _ ->
             // DO NOTHING
         }
