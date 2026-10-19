@@ -85,11 +85,11 @@ class UILocationUtilsTest {
 
     @Test
     fun test_keepCenteredOn_many_latLng() {
-        val center = LatLng(45.51245,-73.53313) // Jean-Drapeau station
+        val center = LatLng(45.51245, -73.53313) // Jean-Drapeau station
         mutableSetOf(
             center,
-            LatLng(45.51438,-73.56191), // Berri-UQAM station
-            LatLng(45.52463,-73.52198), // Longueuil-UdeS station
+            LatLng(45.51438, -73.56191), // Berri-UQAM station
+            LatLng(45.52463, -73.52198), // Longueuil-UdeS station
         ).keepCenteredOnAnd(center).let { result ->
             LatLngBounds.builder().include(result).build().let {
                 assertEquals(45.52463, it.northeast.latitude, 0.000_001)
