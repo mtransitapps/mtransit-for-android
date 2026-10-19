@@ -2,17 +2,20 @@ package org.mtransit.android.ui.location
 
 import android.content.Context
 import androidx.annotation.AnyThread
-import com.google.android.gms.maps.model.LatLng
+import androidx.annotation.FloatRange
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.metersToFeet
+import org.mtransit.android.util.include
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import android.location.Address as AndroidAddress
 import android.location.Location as AndroidLocation
+import com.google.android.gms.maps.model.LatLng as GLatLng
+import com.google.android.gms.maps.model.LatLngBounds as GLatLngBounds
 import org.mtransit.android.commons.R as commonsR
 
 object UILocationUtils : LocationUtils() {
@@ -119,16 +122,34 @@ object UILocationUtils : LocationUtils() {
         }
     }
 
-    fun computeArea(center: LatLng, visibleLocation: LatLng): Area {
-        val visibleLocationOppositeCenter = LatLng(
+    fun computeArea(center: GLatLng, visibleLocation: GLatLng): Area {
+        val visibleLocationOppCenter = GLatLng(
             center.latitude - (visibleLocation.latitude - center.latitude),
             center.longitude - (visibleLocation.longitude - center.longitude)
         )
         return Area(
-            minLat = min(visibleLocationOppositeCenter.latitude, visibleLocation.latitude),
-            maxLat = max(visibleLocationOppositeCenter.latitude, visibleLocation.latitude),
-            minLng = min(visibleLocationOppositeCenter.longitude, visibleLocation.longitude),
-            maxLng = max(visibleLocationOppositeCenter.longitude, visibleLocation.longitude)
+            minLat = min(visibleLocationOppCenter.latitude, visibleLocation.latitude),
+            maxLat = max(visibleLocationOppCenter.latitude, visibleLocation.latitude),
+            minLng = min(visibleLocationOppCenter.longitude, visibleLocation.longitude),
+            maxLng = max(visibleLocationOppCenter.longitude, visibleLocation.longitude)
         )
+    }
+
+    fun MutableCollection<GLatLng>.keepCenteredOnAnd(
+        center: GLatLng,
+        @FloatRange(0.0, 1.0) horizontalFactor: Double = 1.0,
+        @FloatRange(0.0, 1.0) verticalFactor: Double = 1.0,
+    ) = apply {
+        val llBound = GLatLngBounds.Builder().include(this@keepCenteredOnAnd).build()
+        val northeastOppCenter = GLatLng(
+            center.latitude - (llBound.northeast.latitude - center.latitude).times(verticalFactor),
+            center.longitude - (llBound.northeast.longitude - center.longitude).times(horizontalFactor),
+        )
+        add(northeastOppCenter)
+        val southwestOppCenter = GLatLng(
+            center.latitude - (llBound.southwest.latitude - center.latitude).times(verticalFactor),
+            center.longitude - (llBound.southwest.longitude - center.longitude).times(horizontalFactor),
+        )
+        add(southwestOppCenter)
     }
 }

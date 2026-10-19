@@ -4,7 +4,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
@@ -20,6 +19,7 @@ import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.POIFragment.BOTTOM_PADDING_DP
 import org.mtransit.android.ui.fragment.POIFragment.TOP_PADDING_DP
+import org.mtransit.android.ui.location.UILocationUtils.keepCenteredOnAnd
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
@@ -41,6 +41,7 @@ import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
+import com.google.android.gms.maps.model.LatLng as GLatLng
 
 internal fun POIFragment.makeMapViewConfig() = MapViewConfig(
     markerProvider = this,
@@ -139,7 +140,7 @@ fun POIFragment.stopVehicleLocationCountdownRefresh() {
     _vehicleLocationCountdownRefreshJob = null
 }
 
-val POIFragment.visibleMarkersLocationList: Collection<LatLng>
+val POIFragment.mapVisibleArea: Collection<GLatLng>
     get() = buildSet {
         val poim = poim ?: return@buildSet
         val poimLatLng = poim.latLng ?: return@buildSet
@@ -202,6 +203,7 @@ val POIFragment.visibleMarkersLocationList: Collection<LatLng>
                 }
             }
         }
+        keepCenteredOnAnd(poimLatLng, horizontalFactor = 1.00, verticalFactor = 0.50) // keep centered on POI before adding vehicle & device locations
         val maxVehicleDistanceInMeters = max(
             poiDistanceToNextRelevantPOIM?.times(3f)?.coerceAtMost(poiDistanceToDeviceLocationInMeters?.times(3f) ?: Float.MAX_VALUE) ?: 0f,
             poiDistanceToDeviceLocationInMeters?.coerceAtMost(poiDistanceToNextRelevantPOIM?.times(3f) ?: Float.MAX_VALUE) ?: 0f
