@@ -2,9 +2,11 @@ package org.mtransit.android.ui.schedule
 
 import org.mockito.kotlin.mock
 import org.mtransit.android.commons.TimeUtils
+import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.toScheduleTimestamp
 import org.mtransit.android.commons.data.updateDepartureForRealTime
 import org.mtransit.android.commons.secsToInstant
+import org.mtransit.commons.CommonsApp
 import java.util.TimeZone
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -24,6 +26,7 @@ class ScheduleAdapterTest {
 
     @BeforeTest
     fun setUp() {
+        CommonsApp.setup(isAndroidPlatform = false)
         TimeUtils.setOverrideCurrentTimeMillis(NOW_IN_MS)
     }
 
@@ -45,7 +48,7 @@ class ScheduleAdapterTest {
             add(mkTime(startsAt + 90.minutes, "trip3"))
             add(mkTime(startsAt + 140.minutes, "trip4"))
             add(mkTime(startsAt + 150.minutes, "trip5"))
-        }
+        }.sortedWith(Schedule.TIMESTAMPS_COMPARATOR)
         subject.localTimeZone = TimeZone.getTimeZone(LOCAL_TZ_ID) // calls subject.updateTimes()
 
         assertEquals(1, notifyDataSetChangedCalled)
@@ -57,8 +60,8 @@ class ScheduleAdapterTest {
             }
             assertNotNull(hourToTimes[11]) {
                 assertEquals(2, it.size)
-                assertEquals("trip2", it[0].tripId)
-                assertEquals("trip3", it[1].tripId)
+                assertEquals("trip3", it[0].tripId)
+                assertEquals("trip2", it[1].tripId)
             }
             assertNotNull(hourToTimes[12]) {
                 assertEquals(2, it.size)
@@ -77,8 +80,8 @@ class ScheduleAdapterTest {
             }
             assertNotNull(hourToTimes[11]) {
                 assertEquals(2, it.size)
-                assertEquals("trip3", it[0].tripId)
-                assertEquals("trip2", it[1].tripId)
+                assertEquals("trip2", it[0].tripId)
+                assertEquals("trip3", it[1].tripId)
             }
             assertNotNull(hourToTimes[12]) {
                 assertEquals(2, it.size)

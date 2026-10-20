@@ -24,6 +24,7 @@ import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.commons.data.arrivalMs
 import org.mtransit.android.commons.data.departureMs
 import org.mtransit.android.commons.data.getDepartureArrivalDiff
+import org.mtransit.android.commons.data.originalDepartureMs
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.allTripsNoService
@@ -298,7 +299,7 @@ class ScheduleAdapter(
         if (hideRealTime) { // need to sort hour timestamps again since last sorted with real-time departure
             this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
                 hourToTimes.forEach { _, scheduleTimestamps ->
-                    scheduleTimestamps.sortWith(Schedule.TIMESTAMPS_COMPARATOR)
+                    scheduleTimestamps.sortBy { it.originalDepartureMs }
                 }
             }
         }
@@ -671,7 +672,7 @@ class ScheduleAdapter(
             val formattedTime = formatTime(
                 context,
                 timestampInMs = timestamp.departureMs(hideRealTime),
-                realTime = if (hideRealTime) false else timestamp.isRealTime,
+                realTime = !hideRealTime && timestamp.isRealTime,
                 localTimeZone = localTZ,
             )
             var timeSb = SpannableStringBuilder(formattedTime)
