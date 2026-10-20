@@ -24,7 +24,6 @@ import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.commons.data.arrivalMs
 import org.mtransit.android.commons.data.departureMs
 import org.mtransit.android.commons.data.getDepartureArrivalDiff
-import org.mtransit.android.commons.data.originalDepartureMs
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.allTripsNoService
@@ -117,7 +116,7 @@ class ScheduleAdapter(
     private var timesCount: Int? = null
 
     private fun makeDayHours() = SparseArrayCompat<MutableList<Schedule.Timestamp>>().apply {
-        for (hourOfTheDay in 0 until HOUR_SEPARATORS_COUNT) {
+        repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
             put(hourOfTheDay, mutableListOf())
         }
     }
@@ -125,7 +124,8 @@ class ScheduleAdapter(
     @VisibleForTesting
     internal val dayToHourToTimestamps = mutableListOf<Pair<Long, SparseArrayCompat<MutableList<Schedule.Timestamp>>>>()
 
-    private var nextTimestamp: Schedule.Timestamp? = null
+    @VisibleForTesting
+    internal var nextTimestamp: Schedule.Timestamp? = null
 
     private var nowToTheMinute: Long = UITimeUtils.currentTimeToTheMinuteMillis()
 
@@ -292,19 +292,30 @@ class ScheduleAdapter(
             }
             dayToHourToTimestamp?.second?.get(calendar.hourOfTheDay)?.add(timestamp)
             newTimesCount++
-            if (this.nextTimestamp == null && departureMs >= this.nowToTheMinute) {
-                this.nextTimestamp = timestamp
+        }
+        this.dayToHourToTimestamps.sortBy { it.first } // SORT DAY GROUPS
+        this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
+            hourToTimes.forEach { _, scheduleTimestamps ->
+                scheduleTimestamps.sortBy { it.departureMs(hideRealTime) }
             }
         }
-        if (hideRealTime) { // need to sort hour timestamps again since last sorted with real-time departure
-            this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
-                hourToTimes.forEach { _, scheduleTimestamps ->
-                    scheduleTimestamps.sortBy { it.originalDepartureMs }
+        updateNextTimestamp()
+        this.timesCount = newTimesCount
+        callNotifyDataSetChanged()
+    }
+
+    private fun updateNextTimestamp() {
+        this.nextTimestamp = null
+        this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
+                hourToTimes[hourOfTheDay]?.forEach { timestamp ->
+                    if (timestamp.departureMs(hideRealTime) >= this.nowToTheMinute) {
+                        this.nextTimestamp = timestamp
+                        return
+                    }
                 }
             }
         }
-        this.timesCount = newTimesCount
-        callNotifyDataSetChanged()
     }
 
     fun getScrollToNowPosition(): Int? {
@@ -400,7 +411,7 @@ class ScheduleAdapter(
         var index = 0
         this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
             index++ // day separator
-            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 index++ // hour separator
                 val hoursTimestamps = hourToTimes[hourOfTheDay].orEmpty()
                 if (index <= position && position < index + hoursTimestamps.size) {
@@ -420,7 +431,7 @@ class ScheduleAdapter(
             val dayPosition = index
             val startIndex = index
             index++ // day separator
-            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 index++ // hour separator
                 index += hourToTimes[hourOfTheDay].orEmpty().size
             }
@@ -454,7 +465,7 @@ class ScheduleAdapter(
                 return dayBeginningMs
             }
             index++ // day separator
-            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 index++ // hour separator
                 index += hourToTimes[hourOfTheDay].orEmpty().size
             }
@@ -469,7 +480,7 @@ class ScheduleAdapter(
         this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
             index++ // day separator
             val cal: Calendar = dayBeginningMs.toCalendar(localTimeZone)
-            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 if (index == position) {
                     cal.hourOfTheDay = hourOfTheDay
                     return cal.timeInMillis
@@ -489,7 +500,7 @@ class ScheduleAdapter(
                 return ITEM_VIEW_TYPE_DAY_SEPARATORS
             }
             index++ // separator
-            for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 if (index == position) {
                     return ITEM_VIEW_TYPE_HOUR_SEPARATORS
                 }
