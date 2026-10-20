@@ -4,11 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
-import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.IntDef
-import androidx.core.util.forEach
+import androidx.annotation.VisibleForTesting
+import androidx.collection.SparseArrayCompat
+import androidx.collection.forEach
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import org.mtransit.android.R
@@ -114,15 +115,14 @@ class ScheduleAdapter(
 
     private var timesCount: Int? = null
 
-    private fun makeDayHours(): SparseArray<MutableList<Schedule.Timestamp>> {
-        return SparseArray<MutableList<Schedule.Timestamp>>().apply {
-            for (hourOfTheDay in 0 until HOUR_SEPARATORS_COUNT) {
-                put(hourOfTheDay, mutableListOf())
-            }
+    private fun makeDayHours() = SparseArrayCompat<MutableList<Schedule.Timestamp>>().apply {
+        for (hourOfTheDay in 0 until HOUR_SEPARATORS_COUNT) {
+            put(hourOfTheDay, mutableListOf())
         }
     }
 
-    private val dayToHourToTimestamps = mutableListOf<Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>>()
+    @VisibleForTesting
+    internal val dayToHourToTimestamps = mutableListOf<Pair<Long, SparseArrayCompat<MutableList<Schedule.Timestamp>>>>()
 
     private var nextTimestamp: Schedule.Timestamp? = null
 
@@ -135,14 +135,14 @@ class ScheduleAdapter(
             field?.removeServiceUpdateLoaderListener(this@ScheduleAdapter)
             field = value
             field?.addServiceUpdateLoaderListener(this@ScheduleAdapter)
-            notifyDataSetChanged() // all times can show POI service updates cancellations...
+            callNotifyDataSetChanged() // all times can show POI service updates cancellations...
         }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
         if (targetUUID != this.optPOIM?.poi?.uuid) return // wrong POI
         this.optPOIM?.setServiceUpdates(serviceUpdates)
-        notifyDataSetChanged() // all times can show POI service updates cancellations...
+        callNotifyDataSetChanged() // all times can show POI service updates cancellations...
     }
 
     var timestamps: List<Schedule.Timestamp>? = null
@@ -196,6 +196,11 @@ class ScheduleAdapter(
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    internal var callNotifyDataSetChanged: () -> Unit = {
+        notifyDataSetChanged()
+    }
+
     var hideRealTime: Boolean = false
         @SuppressLint("NotifyDataSetChanged")
         set(value) {
@@ -208,7 +213,7 @@ class ScheduleAdapter(
         @SuppressLint("NotifyDataSetChanged")
         set(value) {
             if (field != value) {
-                notifyDataSetChanged()
+                callNotifyDataSetChanged()
             }
             field = value
         }
@@ -217,7 +222,7 @@ class ScheduleAdapter(
     fun onTimeChanged(newTimeInMs: Long = UITimeUtils.currentTimeToTheMinuteMillis()) {
         this.nowToTheMinute = newTimeInMs
         if (this.nowToTheMinute > 0L) {
-            notifyDataSetChanged()
+            callNotifyDataSetChanged()
         }
     }
 
@@ -250,17 +255,17 @@ class ScheduleAdapter(
             cal.date++
         }
         if (dataSetChanged) {
-            notifyDataSetChanged()
+            callNotifyDataSetChanged()
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateTimes() {
+    private fun updateTimes() {
         val originalTimeCount = this.timesCount ?: -1
         clearTimes()
         if (this.timestamps == null || this.localTimeZone == null) {
             if (originalTimeCount > 0) {
-                notifyDataSetChanged()
+                callNotifyDataSetChanged()
             }
             return
         }
@@ -268,7 +273,7 @@ class ScheduleAdapter(
         val localTimeZone = this.localTimeZone ?: return
         var newTimesCount = 0
         var dayBeginningCalendar: Calendar? = null
-        var dayToHourToTimestamp: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
+        var dayToHourToTimestamp: Pair<Long, SparseArrayCompat<MutableList<Schedule.Timestamp>>>? = null
         val calendar = Calendar.getInstance(localTimeZone)
         timestamps.forEach { timestamp ->
             val departureMs = timestamp.departureMs(hideRealTime)
@@ -290,8 +295,15 @@ class ScheduleAdapter(
                 this.nextTimestamp = timestamp
             }
         }
+        if (hideRealTime) { // need to sort hour timestamps again since last sorted with real-time departure
+            this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
+                hourToTimes.forEach { _, scheduleTimestamps ->
+                    scheduleTimestamps.sortWith(Schedule.TIMESTAMPS_COMPARATOR)
+                }
+            }
+        }
         this.timesCount = newTimesCount
-        notifyDataSetChanged()
+        callNotifyDataSetChanged()
     }
 
     fun getScrollToNowPosition(): Int? {
@@ -389,10 +401,11 @@ class ScheduleAdapter(
             index++ // day separator
             for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
                 index++ // hour separator
-                if (position >= index && position < index + hourToTimes.get(hourOfTheDay).size) {
-                    return hourToTimes.get(hourOfTheDay)[position - index]
+                val hoursTimestamps = hourToTimes[hourOfTheDay].orEmpty()
+                if (index <= position && position < index + hoursTimestamps.size) {
+                    return hoursTimestamps[position - index]
                 }
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hoursTimestamps.size
             }
         }
         return null
@@ -408,7 +421,7 @@ class ScheduleAdapter(
             index++ // day separator
             for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
                 index++ // hour separator
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hourToTimes[hourOfTheDay].orEmpty().size
             }
             val endIndex = index - 1
             if (itemPosition in (startIndex..endIndex)) {
@@ -442,7 +455,7 @@ class ScheduleAdapter(
             index++ // day separator
             for (hourOfTheDay in 0..<HOUR_SEPARATORS_COUNT) {
                 index++ // hour separator
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hourToTimes[hourOfTheDay].orEmpty().size
             }
         }
         return null
@@ -461,7 +474,7 @@ class ScheduleAdapter(
                     return cal.timeInMillis
                 }
                 index++ // hour separator
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hourToTimes[hourOfTheDay].orEmpty().size
             }
         }
         return null
@@ -480,10 +493,11 @@ class ScheduleAdapter(
                     return ITEM_VIEW_TYPE_HOUR_SEPARATORS
                 }
                 index++ // separator
-                if (position >= index && position < index + hourToTimes.get(hourOfTheDay).size) {
+                val hoursTimestamps = hourToTimes[hourOfTheDay].orEmpty()
+                if (position >= index && position < index + hoursTimestamps.size) {
                     return ITEM_VIEW_TYPE_TIME
                 }
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hoursTimestamps.size
             }
         }
         if (position == index) {
