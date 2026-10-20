@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.schedule
 
-import androidx.collection.forEach
 import org.mockito.kotlin.mock
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.toScheduleTimestamp
