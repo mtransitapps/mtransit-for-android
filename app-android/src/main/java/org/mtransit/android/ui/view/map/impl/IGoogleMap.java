@@ -114,6 +114,8 @@ interface IGoogleMap {
 
 	void setTrafficEnabled(boolean enabled);
 
+	void setTransitEnabled(boolean enabled);
+
 	void snapshot(GoogleMap.SnapshotReadyCallback callback);
 
 	void snapshot(GoogleMap.SnapshotReadyCallback callback, Bitmap bitmap);

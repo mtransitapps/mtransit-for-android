@@ -9,6 +9,7 @@ import org.mtransit.android.BuildConfig
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.LocaleUtils
+import org.mtransit.android.commons.fixWebViewLocale
 import org.mtransit.android.commons.ui.MTCommonApp
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.IStrictMode
@@ -62,7 +63,7 @@ class MTApplication : MTCommonApp() {
             this.leakDetector.setup(this)
         }
         NightModeUtils.setDefaultNightMode(this, null)
-        if (!UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) LocaleUtils.fixWebViewLocale(this)
+        if (!UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) fixWebViewLocale(this) // before ads SDK
         this.remoteConfigProvider.init()
         this.crashReporter.setup(!BuildConfig.DEBUG)
         this.strictMode.setup() // uses crash reporter

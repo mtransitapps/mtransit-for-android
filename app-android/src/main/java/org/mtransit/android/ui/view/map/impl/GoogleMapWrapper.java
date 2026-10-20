@@ -256,6 +256,11 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
+	public final void setTransitEnabled(boolean enabled) {
+		map.setTransitEnabled(enabled);
+	}
+
+	@Override
 	public void snapshot(GoogleMap.SnapshotReadyCallback callback) {
 		map.snapshot(callback);
 	}

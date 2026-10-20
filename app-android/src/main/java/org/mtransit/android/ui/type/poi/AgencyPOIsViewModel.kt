@@ -19,6 +19,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.POI_MANAGER_ALPHA_COMPARATOR
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
@@ -90,7 +91,10 @@ class AgencyPOIsViewModel @Inject constructor(
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             val agency = agency ?: return@liveData
             val poiFilter = POIProviderContract.Filter.getNewEmptyFilter()
-            emit(poiRepository.findPOIMs(agency, poiFilter))
+            emit(
+                poiRepository.findPOIMs(agency, poiFilter)
+                    .sortedWith(POI_MANAGER_ALPHA_COMPARATOR)
+            )
         }
     }
 
