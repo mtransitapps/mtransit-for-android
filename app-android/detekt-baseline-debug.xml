@@ -180,6 +180,7 @@
     <ID>CyclomaticComplexMethod:RDSAgencyRoutesAdapter.kt:RDSAgencyRoutesAdapter.RouteViewHolder$fun bind</ID>
     <ID>CyclomaticComplexMethod:RDSAgencyRoutesFragment.kt:RDSAgencyRoutesFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:RDSDirectionStopsFragment.kt:RDSDirectionStopsFragment$override fun onViewCreated</ID>
+    <ID>CyclomaticComplexMethod:ScheduleAdapter.kt:ScheduleAdapter$@SuppressLint("NotifyDataSetChanged") private fun updateTimes</ID>
     <ID>CyclomaticComplexMethod:ScheduleAdapter.kt:ScheduleAdapter.TimeViewHolder$fun bind</ID>
     <ID>CyclomaticComplexMethod:ScheduleFragment.kt:ScheduleFragment$override fun onViewCreated</ID>
     <ID>CyclomaticComplexMethod:SearchFragment.kt:SearchFragment$override fun onViewCreated</ID>
@@ -440,10 +441,10 @@
     <ID>TooManyFunctions:HomeViewModel.kt:HomeViewModel : MTViewModelWithLocationNewLocationAwareViewModelLocationSettingsAwareViewModelLocationPermissionAwareViewModelModuleDisabledAwareViewModel</ID>
     <ID>TooManyFunctions:IAdManager.kt:IAdManager</ID>
     <ID>TooManyFunctions:InlineBannerAdManager.kt:InlineBannerAdManager : Loggable</ID>
-    <ID>TooManyFunctions:MapViewModel.kt:MapViewModel : MTViewModelWithLocationModuleDisabledAwareViewModelLocationSettingsAwareViewModel</ID>
     <ID>TooManyFunctions:MTBillingManager.kt:MTBillingManager : LoggablePurchasesUpdatedListenerIBillingManager</ID>
     <ID>TooManyFunctions:MainActivity.kt:MainActivity : MTActivityWithLocationOnBackStackChangedListenerAnalyticsScreenIActivityIAdScreenActivityLoggableRewardedAdListener</ID>
     <ID>TooManyFunctions:MapFragment.kt:MapFragment : ABFragmentDeviceLocationListenerLocationSettingsAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>
+    <ID>TooManyFunctions:MapViewModel.kt:MapViewModel : MTViewModelWithLocationModuleDisabledAwareViewModelLocationSettingsAwareViewModel</ID>
     <ID>TooManyFunctions:NearbyFragment.kt:NearbyFragment : ABFragmentDeviceLocationListenerNewLocationAwareFragmentLocationSettingsAwareFragmentLocationPermissionAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>
     <ID>TooManyFunctions:NewsDetailsFragment.kt:NewsDetailsFragment : MTFragmentX</ID>
     <ID>TooManyFunctions:NewsListAdapter.kt:NewsListAdapter : AdapterStickyAdapterLoggable</ID>
