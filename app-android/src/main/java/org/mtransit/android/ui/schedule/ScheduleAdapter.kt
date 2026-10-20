@@ -301,7 +301,7 @@ class ScheduleAdapter(
         }
         updateNextTimestamp()
         this.timesCount = newTimesCount
-        notifyDataSetChanged()
+        callNotifyDataSetChanged()
     }
 
     private fun updateNextTimestamp() {
