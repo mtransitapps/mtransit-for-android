@@ -301,7 +301,21 @@ class ScheduleAdapter(
         }
         updateNextTimestamp()
         this.timesCount = newTimesCount
-        notifyDataSetChanged()
+        callNotifyDataSetChanged()
+    }
+
+    private fun updateNextTimestamp() {
+        this.nextTimestamp = null
+        this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
+                hourToTimes[hourOfTheDay]?.forEach { timestamp ->
+                    if (timestamp.departureMs(hideRealTime) >= this.nowToTheMinute) {
+                        this.nextTimestamp = timestamp
+                        return
+                    }
+                }
+            }
+        }
     }
 
     fun getScrollToNowPosition(): Int? {
