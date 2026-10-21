@@ -67,7 +67,7 @@ jobs:
 
       - name: MT commit code change
         if: steps.check-input-url.outputs.has_input_url == 'true'
-        run: ./commit_code_change.sh
+        run: ./sh/git/commit_code_change.sh
 
       - name: MT download data (& archive)
         if: steps.check-input-url.outputs.has_input_url == 'true'

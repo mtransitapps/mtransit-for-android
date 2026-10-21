@@ -173,15 +173,15 @@ dev.properties
 /.vscode/settings.json
 /.editorconfig
 /assemble_release.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /commit_code_change.sh
+/sh/git/commit_code_change.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /commit_data_change.sh
+/sh/git/commit_data_change.sh
 /build.gradle
 /build.sh
-/dependency_update_apply.sh
-/dependency_update_baseline.sh
-/dependency_update_check.sh
-/dependency_update_commit_code_change.sh
-/dependency_update_push_commits.sh
+/dependencies_baseline_update.sh
 /download_and_parse.sh
 /download_and_prepare.sh
 /download_latest_apk.sh
@@ -190,7 +190,7 @@ dev.properties
 /download_only.sh
 /download_dependencies.sh
 /gh_repo_update_details.sh
-/gitall.sh
+/sh/git/gitall.sh
 /gradle.properties
 /gradle/
 /gradle_cache_key_checksum.txt
@@ -225,12 +225,16 @@ dev.properties
 /app-android/build.gradle
 /app-android/build.sh
 /app-android/dependencies/*
-/app-android/decrypt_file.sh
-/app-android/encrypt_file.sh
+/app-android/sh/keys/decrypt_file.sh
+/app-android/sh/keys/encrypt_file.sh
+# DEPRECATED: remove after /.github/workflows/mt-record-screenshots.yml updated
 /app-android/keys_cleanup.sh
-/app-android/keys_files.sh
+/app-android/sh/keys/cleanup.sh
+/app-android/sh/keys/files.sh
+# DEPRECATED: remove after /.github/workflows/mt-record-screenshots.yml updated
 /app-android/keys_setup.sh
-/app-android/keys_reset.sh
+/app-android/sh/keys/setup.sh
+/app-android/sh/keys/reset.sh
 /app-android/lint.xml
 /app-android/module-proguard-rules.pro
 /app-android/print_current_next_rts_diff.sh
@@ -278,22 +282,22 @@ dev.properties
 /app-android/src/main/res/values*/gtfs_rts_strings.xml
 /app-android/src/main/res/values/module_app_icon_color.xml
 /app-android/src/main/res/values/parent_agency_values.xml
-/app-android/app-signing-release-keys.properties
-/app-android/app-signing-release-keystore-encrypted.keystore
-/app-android/app-signing-release-keystore.keystore
+/app-android/signing/release/keys.properties
+/app-android/signing/release/keystore-encrypted.keystore
+/app-android/signing/release/keystore.keystore
 /app-android/clr
-/app-android/enc/app-signing-release-keys.properties
-/app-android/enc/app-signing-release-keystore-encrypted.keystore
-/app-android/enc/app-signing-release-keystore.keystore
-/app-android/enc/google-play-auto-publisher.json
-/app-android/enc/google-play-upload-certificate.pem
-/app-android/enc/google-play-upload-keys.properties
-/app-android/enc/google-play-upload-keystore.keystore
+/app-android/enc/signing/release/keys.properties
+/app-android/enc/signing/release/keystore-encrypted.keystore
+/app-android/enc/signing/release/keystore.keystore
+/app-android/enc/play-android-publisher-service-account-key.json
+/app-android/enc/signing/play-upload/certificate.pem
+/app-android/enc/signing/play-upload/keys.properties
+/app-android/enc/signing/play-upload/keystore.keystore
 /app-android/enc/src/main/play/contact-email.txt
-/app-android/google-play-auto-publisher.json
-/app-android/google-play-upload-certificate.pem
-/app-android/google-play-upload-keys.properties
-/app-android/google-play-upload-keystore.keystore
+/app-android/play-android-publisher-service-account-key.json
+/app-android/signing/play-upload/certificate.pem
+/app-android/signing/play-upload/keys.properties
+/app-android/signing/play-upload/keystore.keystore
 /app-android/src/main/play/contact-email.txt
 /app-android/src/main/res/values/keys.xml
 /app-android/src/debug/res/values/keys.xml

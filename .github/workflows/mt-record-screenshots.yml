@@ -108,14 +108,14 @@ jobs:
         run: |
           echo "No release APK found, building from source..."
           # Cleanup keys first (fail OK)
-          ./app-android/keys_cleanup.sh || echo "Keys cleanup (pre-setup) completed with warnings (OK)"
+          ./app-android/sh/keys/cleanup.sh || echo "Keys cleanup (pre-setup) completed with warnings (OK)"
           # Setup keys (can fail CI if fail)
-          ./app-android/keys_setup.sh || exit
+          ./app-android/sh/keys/setup.sh || exit
           # Assemble release APK (store result)
           RESULT=0
           ./gradlew :app-android:assembleRelease --no-scan -PuseGooglePlayUploadKeysProperties=false || RESULT=$?
           # Cleanup keys (can fail CI if fail)
-          ./app-android/keys_cleanup.sh || exit
+          ./app-android/sh/keys/cleanup.sh || exit
           # Check if build failed
           if [[ $RESULT -ne 0 ]]; then
             echo "ERROR: Failed to assemble release APK!"
