@@ -57,7 +57,7 @@ jobs:
         id: mt-update-gh-repo-details
         continue-on-error: true # nice to have
         run: |
-          ./gh_repo_update_details.sh
+          ./sh/gh_repo_update_details.sh
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
 
