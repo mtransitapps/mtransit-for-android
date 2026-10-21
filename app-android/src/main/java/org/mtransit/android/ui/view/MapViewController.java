@@ -144,12 +144,14 @@ public class MapViewController implements
 	@Override
 	public void onGlobalLayout() {
 		this.waitingForGlobalLayout = false;
-		final MapView mapView = this.mapView;
-		if (mapView != null) {
-			mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-			this.mapLayoutReady = true;
-			showMapInternal(null);
+		if (this.mapView == null) {
+			MTLog.d(this, "onGlobalLayout() > SKIP (no map)");
+			return;
 		}
+		this.mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+		this.mapLayoutReady = true;
+		MTLog.d(this, "onGlobalLayout() > showMapInternal()...");
+		showMapInternal(null);
 	}
 
 	@Nullable
@@ -321,15 +323,16 @@ public class MapViewController implements
 	}
 
 	private void destroyMapView() {
-		final MapView mapView = this.mapView;
-		if (mapView == null) {
+		if (this.mapView == null) {
 			MTLog.d(this, "onDestroy() > SKIP (no map)");
 			return;
 		}
 		try {
-			mapView.onDestroy();
+			this.mapView.onDestroy();
 		} catch (NullPointerException npe) {
 			MTLog.w(this, npe, "Crash while destroying map!");
+		} finally {
+			this.mapView = null;
 		}
 	}
 
@@ -580,10 +583,9 @@ public class MapViewController implements
 
 	public void hideMap() {
 		this.mapVisible = false;
-		final MapView mapView = this.mapView;
-		if (mapView != null) {
-			if (mapView.getVisibility() == View.VISIBLE) {
-				mapView.setVisibility(View.INVISIBLE); // hide
+		if (this.mapView != null) {
+			if (this.mapView.getVisibility() == View.VISIBLE) {
+				this.mapView.setVisibility(View.INVISIBLE); // hide
 			}
 		}
 		hideTypeSwitch();
@@ -1267,24 +1269,22 @@ public class MapViewController implements
 
 	public void onStart() {
 		this.needToStartMap = true;
-		final MapView mapView = this.mapView;
-		if (mapView == null) {
+		if (this.mapView == null) {
 			MTLog.d(this, "onStart() > SKIP (no map)");
 			return;
 		}
-		mapView.onStart();
+		this.mapView.onStart();
 		this.needToStartMap = false;
 	}
 
 	public void onStop() {
 		this.needToStartMap = false;
-		final MapView mapView = this.mapView;
-		if (mapView == null) {
+		if (this.mapView == null) {
 			MTLog.d(this, "onStop() > SKIP (no map)");
 			return;
 		}
 		try {
-			mapView.onStop();
+			this.mapView.onStop();
 		} catch (NullPointerException npe) {
 			MTLog.w(this, npe, "Crash while stoping map!");
 		}
@@ -1294,12 +1294,11 @@ public class MapViewController implements
 
 	public boolean onResume() {
 		this.needToResumeMap = true;
-		final MapView mapView = this.mapView;
-		if (mapView == null) {
+		if (this.mapView == null) {
 			MTLog.d(this, "onResume() > SKIP (no map)");
 			return false;
 		}
-		mapView.onResume();
+		this.mapView.onResume();
 		this.needToResumeMap = false;
 		showMapInternal(null);
 		addOnLayoutChangeListener(this);
@@ -1337,9 +1336,8 @@ public class MapViewController implements
 
 	public void onPause() {
 		this.needToResumeMap = false;
-		final MapView mapView = this.mapView;
-		if (mapView != null) {
-			mapView.onPause();
+		if (this.mapView != null) {
+			this.mapView.onPause();
 		}
 		if (this.extendedGoogleMap != null) {
 			this.lastCameraPosition = this.extendedGoogleMap.getCameraPosition();
@@ -1385,9 +1383,8 @@ public class MapViewController implements
 	}
 
 	public void onSaveInstanceState(@NonNull Bundle outState) {
-		final MapView mapView = this.mapView;
-		if (mapView != null) {
-			mapView.onSaveInstanceState(outState);
+		if (this.mapView != null) {
+			this.mapView.onSaveInstanceState(outState);
 		}
 		if (this.lastCameraPosition != null) {
 			outState.putParcelable(EXTRA_LAST_CAMERA_POSITION, this.lastCameraPosition);
@@ -1408,9 +1405,8 @@ public class MapViewController implements
 	}
 
 	public void onLowMemory() {
-		final MapView mapView = this.mapView;
-		if (mapView != null) {
-			mapView.onLowMemory();
+		if (this.mapView != null) {
+			this.mapView.onLowMemory();
 		}
 	}
 
