@@ -242,12 +242,12 @@ jobs:
         run: ./sh/git/commit_data_change.sh
       # ----------
 
-      - name: MT generate images if required
+      - name: MT generate images if required w/ shared setup
         id: mt-image-gen
         if: ${{ env.MT_IS_MAIN_REPO != 'true' && steps.mt-check-image-gen-required.outcome == 'success' }}
         continue-on-error: true # nice to have
         run: |
-          ./commons/code_setup.sh;
+          ./commons/sh/shared_setup.sh;
         env:
           MT_GENERATE_IMAGES: true
 

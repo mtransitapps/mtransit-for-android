@@ -63,18 +63,18 @@ jobs:
       - run:
           name: Checkout submodules
           command: ./sh/git/submodules_init.sh
-    #   - run:
-    #       name: commons/sync.sh permissions
-    #       command: sudo chmod +x commons/sync.sh
-    #   - run:
-    #       name: Sync files
-    #       command: ./commons/sync.sh
       - run:
-          name: commons/code_setup.sh permissions
-          command: sudo chmod +x commons/code_setup.sh
+          name: commons/sh/git_setup.sh permissions
+          command: sudo chmod +x commons/sh/git_setup.sh
       - run:
-          name: Sync files
-          command: ./commons/code_setup.sh
+          name: git setup
+          command: ./commons/sh/git_setup.sh
+      - run:
+          name: commons/sh/shared_setup.sh permissions
+          command: sudo chmod +x commons/sh/shared_setup.sh
+      - run:
+          name: shared setup
+          command: ./commons/sh/shared_setup.sh
       - android/restore_build_cache:
           cache_prefix: android-build-cache
       - restore_cache:
@@ -88,7 +88,7 @@ jobs:
             - gradle-cache- # fallback to using the latest cache if no exact match is found
       - run:
           name: Build
-          command: ./build.sh
+          command: ./sh/ci/build.sh
       - save_cache:
           paths:
             - ~/.gradle/caches/

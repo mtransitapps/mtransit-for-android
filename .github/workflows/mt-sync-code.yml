@@ -56,12 +56,14 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
-      - name: MT code sync
+      - name: MT git sync
         # if: github.event_name != 'pull_request'
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
-        run: ./commons/code_sync.sh
-      - name: MT code setup
-        run: ./commons/code_setup.sh
+        run: ./commons/sh/git_sync.sh
+      - name: MT git setup
+        run: ./commons/sh/git_setup.sh
+      - name: MT shared setup
+        run: ./commons/sh/shared_setup.sh
       - name: MT set up JDK 21
         uses: actions/setup-java@v6
         with:

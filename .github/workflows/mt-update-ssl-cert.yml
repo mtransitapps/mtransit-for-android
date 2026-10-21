@@ -31,9 +31,9 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "MT_GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
-      - name: MT code sync
+      - name: MT git sync
         # if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
-        run: ./commons/code_sync.sh
+        run: ./commons/sh/git_sync.sh
       - name: MT set is commit enabled
         run: |
           source ./commons/commons.sh

@@ -2,6 +2,8 @@
 # ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
 #NO DEPENDENCY <= EXECUTED BEFORE GIT SUBMODULE
 
+# USED by 'mtransitapps/gh-actions/.github/actions/setup': https://github.com/mtransitapps/gh-actions/blob/master/.github/actions/setup/action.yml
+
 SCRIPT_DIR="$(dirname "$0")"
 ROOT_DIR="${SCRIPT_DIR}/../..";
 
