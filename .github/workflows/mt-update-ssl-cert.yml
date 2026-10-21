@@ -36,7 +36,7 @@ jobs:
         run: ./commons/sh/git_sync.sh
       - name: MT set is commit enabled
         run: |
-          source ./commons/commons.sh
+          source ./commons/sh/commons.sh
           setGitCommitEnabled
           setGitUser
           echo "MT_GIT_COMMIT_ENABLED=$MT_GIT_COMMIT_ENABLED" >> "$GITHUB_ENV"
