@@ -140,11 +140,11 @@ jobs:
         id: mt-download-data
         timeout-minutes: 10
         continue-on-error: true # optional (continue with archive data)
-        run: ./agency-parser/sh/download.sh
+        run: if [ -d "agency-parser" ]; then ./agency-parser/sh/download.sh; fi
 
       - name: MT select archive
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
-        run: ./prepare_only.sh
+        run: if [ -d "agency-parser" ]; then ./agency-parser/sh/prepare_only.sh; fi 
 
       - name: MT log GTFS CSV previews
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}

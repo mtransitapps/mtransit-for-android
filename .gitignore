@@ -206,7 +206,9 @@ dev.properties
 /parse_current.sh
 /parse_next.sh
 /parse_list_change.sh
+# DEPRECATED: remove after /.github/workflows/mt-sync-code-data.yml updated
 /prepare_only.sh
+/agency-parser/sh/prepare_only.sh
 /push_commits.sh
 /set_app_release_required.sh
 /setup-and-all-app-screenshots.sh
