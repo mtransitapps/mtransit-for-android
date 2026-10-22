@@ -81,11 +81,7 @@ class MTApplication : MTCommonApp() {
         // Current process org.mtransit.android (pid 1111), lock owner org.mtransit.android (pid 2222) is a zombie
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val appProcessName: String = getProcessName()
-            val packageName = getPackageName()
-
-            // If it is not the main process, assign a suffix
-            if (this.packageName != appProcessName) {
-                // Safe suffix name using the process identifier
+            if (packageName != appProcessName) {
                 val suffix = appProcessName.replace("$packageName:", "")
                 @SuppressLint("DeprecatedCall")
                 WebView.setDataDirectorySuffix(suffix)
