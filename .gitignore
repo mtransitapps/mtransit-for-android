@@ -202,7 +202,7 @@ dev.properties
 /gradlew.bat
 # DEPRECATED: remove after CircleCI & GitLab CI config updated
 /init_cache_key.sh
-/sh/init_cache_key.sh
+/sh/ci/init_cache_key.sh
 # DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /lint_only.sh
 /app-android/sh/lint_only.sh
