@@ -218,6 +218,23 @@ dev.properties
 # Kotlin 2.0
 /.kotlin/
 
+# LEGACY keys
+/app-android/app-signing-debug-keys.properties
+/app-android/app-signing-debug-keystore.keystore
+/app-android/app-signing-release-keys.properties
+/app-android/app-signing-release-keystore-encrypted.keystore
+/app-android/app-signing-release-keystore.keystore
+/app-android/enc/app-signing-release-keys.properties
+/app-android/enc/app-signing-release-keystore-encrypted.keystore
+/app-android/enc/app-signing-release-keystore.keystore
+/app-android/enc/google-play-auto-publisher.json
+/app-android/enc/google-play-upload-certificate.pem
+/app-android/enc/google-play-upload-keys.properties
+/app-android/enc/google-play-upload-keystore.keystore
+/app-android/google-play-auto-publisher.json
+/app-android/google-play-upload-certificate.pem
+/app-android/google-play-upload-keys.properties
+/app-android/google-play-upload-keystore.keystore
 
 # Merged from shared/app-android/MT.gitignore
 /app-android/signing/debug/keys.properties
