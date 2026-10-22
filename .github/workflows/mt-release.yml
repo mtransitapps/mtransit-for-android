@@ -138,7 +138,7 @@ jobs:
           echo "$MT_APP_RELEASE_REQUIRED" > $MT_APP_RELEASE_REQUIRED_FILE;
 
       - name: MT assemble release (APK & AAB)
-        run: ./assemble_release.sh
+        run: ./app-android/sh/assemble_release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}

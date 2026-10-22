@@ -172,7 +172,9 @@ dev.properties
 /.idea/vcs.xml
 /.vscode/settings.json
 /.editorconfig
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /assemble_release.sh
+/app-android/sh/assemble_release.sh
 # DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /commit_code_change.sh
 /sh/git/commit_code_change.sh
@@ -254,8 +256,8 @@ dev.properties
 /app-android/sh/keys/reset.sh
 /app-android/lint.xml
 /app-android/module-proguard-rules.pro
-/app-android/print_current_next_rts_diff.sh
-/app-android/print_git_diff_stat.sh
+/app-android/sh/print_current_next_rts_diff.sh
+/app-android/sh/print_git_diff_stat.sh
 /app-android/sh/adb/adb_setup.sh
 /app-android/sh/adb/all_apps_logcat_tag_mt.sh
 /app-android/sh/adb/all_apps_logcat_tag_mtd.sh
@@ -318,9 +320,9 @@ dev.properties
 /app-android/src/main/play/contact-email.txt
 /app-android/src/main/res/values/keys.xml
 /app-android/src/debug/res/values/keys.xml
-/app-android/stage_res_all_schedule_stops.sh
-/app-android/stage_res_current_schedule_stops.sh
-/app-android/stage_res_next_schedule_stops.sh
+/app-android/sh/stage_res_all_schedule_stops.sh
+/app-android/sh/stage_res_current_schedule_stops.sh
+/app-android/sh/stage_res_next_schedule_stops.sh
 
 # Merged from shared-opt-dir/agency-parser/MT.gitignore
 /agency-parser/.mtj.tmp/
