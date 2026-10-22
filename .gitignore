@@ -332,7 +332,7 @@ dev.properties
 /agency-parser/build.gradle
 /agency-parser/check_data_not_outdated.sh
 /agency-parser/check_data_outdated.sh
-/agency-parser/download.sh
+/agency-parser/sh/download.sh
 /agency-parser/force_single_thread_off.sh
 /agency-parser/force_single_thread_on.sh
 /agency-parser/list_change.sh

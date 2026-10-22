@@ -73,7 +73,7 @@ jobs:
         if: steps.check-input-url.outputs.has_input_url == 'true'
         id: mt-download-data
         continue-on-error: true
-        run: ./agency-parser/download.sh
+        run: ./agency-parser/sh/download.sh
         timeout-minutes: 20
 
       - name: MT download data (& archive) retry after 1 min
@@ -81,7 +81,7 @@ jobs:
         run: |
           echo ">> Download failed. Retrying in 1 minute..."
           sleep 60
-          ./agency-parser/download.sh
+          ./agency-parser/sh/download.sh
         timeout-minutes: 20
 
       - name: MT push commits
