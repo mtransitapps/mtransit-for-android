@@ -140,7 +140,7 @@ jobs:
         id: mt-download-data
         timeout-minutes: 10
         continue-on-error: true # optional (continue with archive data)
-        run: ./download_only.sh
+        run: ./agency-parser/download.sh
 
       - name: MT select archive
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
