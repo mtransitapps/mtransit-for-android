@@ -185,7 +185,7 @@ dev.properties
 # DEPRECATED: remove after CircleCI & GitLab CI config updated
 /build.sh
 /sh/ci/build.sh
-/dependencies_baseline_update.sh
+/sh/dependencies_baseline_update.sh
 /download_latest_apk.sh
 /download_latest_apk_main.sh
 /download_latest_apk_repo.sh
