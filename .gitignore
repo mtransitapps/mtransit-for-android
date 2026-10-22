@@ -185,10 +185,12 @@ dev.properties
 # DEPRECATED: remove after CircleCI & GitLab CI config updated
 /build.sh
 /sh/ci/build.sh
-/sh/dependencies_baseline_update.sh
+/sh/ci/dependencies_baseline_update.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /download_latest_apk.sh
-/download_latest_apk_main.sh
-/download_latest_apk_module.sh
+/app-android/sh/download_latest_apk.sh
+/app-android/sh/download_latest_apk_main.sh
+/app-android/sh/download_latest_apk_module.sh
 # DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /gh_repo_update_details.sh
 /sh/gh_repo_update_details.sh
@@ -198,22 +200,40 @@ dev.properties
 /gradle_cache_key_checksum.txt
 /gradlew
 /gradlew.bat
+# DEPRECATED: remove after CircleCI & GitLab CI config updated
 /init_cache_key.sh
+/sh/init_cache_key.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /lint_only.sh
+/app-android/sh/lint_only.sh
 /main_app_debug_force_stop.sh
 /main_app_debug_start.sh
 /main_app_setup.sh
+# DEPRECATED: remove after /.github/workflows/mt-sync-code-data.yml updated
 /parse_current.sh
+/agency-parser/sh/validate_and_parse_current.sh
+# DEPRECATED: remove after /.github/workflows/mt-sync-code-data.yml updated
 /parse_next.sh
+/agency-parser/sh/validate_and_parse_next.sh
+# DEPRECATED: remove after /.github/workflows/mt-sync-code-data.yml updated
 /parse_list_change.sh
+/agency-parser/sh/list_change_ci.sh
 # DEPRECATED: remove after /.github/workflows/mt-sync-code-data.yml updated
 /prepare_only.sh
 /agency-parser/sh/prepare_only.sh
+# DEPRECATED: remove after /.github/workflows/*.yml updated
 /push_commits.sh
+/sh/ci/push_commits.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /set_app_release_required.sh
+/sh/ci/set_app_release_required.sh
+# DEPRECATED: remove after /.github/workflows/mt-record-screenshots.yml updated
 /setup-and-all-app-screenshots.sh
+/sh/ci/setup-and-all-app-screenshots.sh
 /settings.gradle
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /test_only.sh
+/sh/ci/test_only.sh
 
 # Generated files
 /project_name.properties

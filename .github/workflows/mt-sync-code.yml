@@ -100,7 +100,7 @@ jobs:
 
       - name: MT tests
         if: ${{ success() }} # if detekt successful
-        run: ./test_only.sh
+        run: ./sh/ci/test_only.sh
       - name: MT tests > artifact > XML results
         uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
@@ -120,11 +120,11 @@ jobs:
             !**/*.xml
 
       - name: MT commit code change
-        run: ./commit_code_change.sh
+        run: ./sh/git/commit_code_change.sh
       - name: MT push commits
-        run: ./push_commits.sh
+        run: ./sh/ci/push_commits.sh
       - name: MT commit data change
-        run: ./commit_data_change.sh
+        run: ./sh/git/commit_data_change.sh
       - name: MT set app release required
         run: |
           mkdir -p .mt;
@@ -143,7 +143,7 @@ jobs:
             app-android/build/outputs/apk
             app-android/build/outputs/bundle
       - name: MT push commits
-        run: ./push_commits.sh
+        run: ./sh/ci/push_commits.sh
       # - name: MT trigger submodule builds
       #   if: ${{ github.event_name != 'pull_request' && github.ref_name == env.MT_DEFAULT_BRANCH_NAME }}
       #   continue-on-error: true

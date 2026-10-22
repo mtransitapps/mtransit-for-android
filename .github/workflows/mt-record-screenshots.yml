@@ -176,7 +176,7 @@ jobs:
           disable-linux-hw-accel: false
           emulator-boot-timeout: 180
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -no-snapshot-save
-          script: ./setup-and-all-app-screenshots.sh
+          script: ./sh/ci/setup-and-all-app-screenshots.sh
 
       - name: MT upload screenshots
         if: always()

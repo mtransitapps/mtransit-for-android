@@ -86,7 +86,7 @@ jobs:
 
       - name: MT push commits
         if: steps.check-input-url.outputs.has_input_url == 'true'
-        run: ./push_commits.sh
+        run: ./sh/ci/push_commits.sh
 
       - name: MT check if data is outdated or new data downloaded & trigger sync
         if: steps.check-input-url.outputs.has_input_url == 'true'

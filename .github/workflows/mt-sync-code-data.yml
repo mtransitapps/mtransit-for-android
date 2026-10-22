@@ -189,16 +189,16 @@ jobs:
       - name: MT parse current
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         timeout-minutes: 40
-        run: ./parse_current.sh
+        run: if [ -d "agency-parser" ]; then ./agency-parser/sh/validate_and_parse_current.sh; fi
 
       - name: MT parse next
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
         timeout-minutes: 40
-        run: ./parse_next.sh
+        run: if [ -d "agency-parser" ]; then ./agency-parser/sh/validate_and_parse_next.sh; fi
 
       - name: MT parse list change
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
-        run: ./parse_list_change.sh
+        run: if [ -d "agency-parser" ]; then ./agency-parser/sh/list_change_ci.sh; fi
 
       - name: MT check if image generation required
         id: mt-check-image-gen-required
@@ -216,7 +216,7 @@ jobs:
 
       - name: MT push commits
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
-        run: ./push_commits.sh
+        run: ./sh/ci/push_commits.sh
 
       - name: MT artifact > GTFS files
         if: ${{ !cancelled() && env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' && steps.mt-download-data.conclusion != 'skipped' }} # even if tests fails
@@ -280,7 +280,7 @@ jobs:
           echo "MT_SKIP_PUSH_COMMIT=$MT_SKIP_PUSH_COMMIT" >> "$GITHUB_ENV";
 
       - name: MT push commits
-        run: ./push_commits.sh
+        run: ./sh/ci/push_commits.sh
 
       - name: MT trigger release if required
         if: ${{ github.event_name != 'pull_request' && github.event.inputs.skip-app-release != 'true' && github.ref_name == env.MT_DEFAULT_BRANCH_NAME }}
