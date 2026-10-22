@@ -210,7 +210,6 @@ dev.properties
 /set_app_release_required.sh
 /setup-and-all-app-screenshots.sh
 /settings.gradle
-/test.sh
 /test_only.sh
 
 # Generated files
