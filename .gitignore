@@ -327,16 +327,17 @@ dev.properties
 /agency-parser/.mtj.tmp/
 /agency-parser/input/
 /agency-parser/output/
-/agency-parser/archive.sh
-/agency-parser/archive_selection.sh
+/agency-parser/sh/archive.sh
+/agency-parser/sh/archive_selection.sh
 /agency-parser/build.gradle
+# DEPRECATED: remove after /.github/workflows/mt-download-data.yml updated
 /agency-parser/check_data_not_outdated.sh
-/agency-parser/check_data_outdated.sh
+/agency-parser/sh/check_data_not_outdated.sh
 /agency-parser/sh/download.sh
-/agency-parser/force_single_thread_off.sh
-/agency-parser/force_single_thread_on.sh
-/agency-parser/list_change.sh
-/agency-parser/lookup_*.sh
-/agency-parser/parse_*.sh
-/agency-parser/reset_schedule_changes.sh
-/agency-parser/unzip_gtfs.sh
+/agency-parser/sh/force_single_thread_off.sh
+/agency-parser/sh/force_single_thread_on.sh
+/agency-parser/sh/list_change.sh
+/agency-parser/sh/lookup_*.sh
+/agency-parser/sh/parse_*.sh
+/agency-parser/sh/reset_schedule_changes.sh
+/agency-parser/sh/unzip_gtfs.sh
