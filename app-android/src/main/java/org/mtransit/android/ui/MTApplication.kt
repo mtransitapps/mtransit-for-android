@@ -1,5 +1,6 @@
 package org.mtransit.android.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.webkit.WebView
@@ -86,6 +87,7 @@ class MTApplication : MTCommonApp() {
             if (this.packageName != appProcessName) {
                 // Safe suffix name using the process identifier
                 val suffix = appProcessName.replace("$packageName:", "")
+                @SuppressLint("DeprecatedCall")
                 WebView.setDataDirectorySuffix(suffix)
             }
         }
