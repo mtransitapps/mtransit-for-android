@@ -202,7 +202,7 @@ jobs:
 
       - name: MT Publish release
         if: ${{ github.event.inputs.skipPublishRelease != 'true' }}
-        run: ./publish_app_release.sh
+        run: ./app-android/sh/publish_app_release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}

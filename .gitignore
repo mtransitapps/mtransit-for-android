@@ -309,6 +309,8 @@ dev.properties
 /app-android/sh/play/promote_*.sh
 /app-android/sh/play/publish.sh
 /app-android/sh/play/publish_*.sh
+# DEPRECATED: remove after /.github/workflows/mt-release.yml updated
+/publish_app_release.sh
 /app-android/sh/publish_app_release.sh
 /app-android/src/main/play/default-language.txt
 /app-android/src/main/AndroidManifest.xml
