@@ -1,7 +1,11 @@
 #!/bin/bash
 # ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
 
-mapfile -t SUBMODULES < <(git submodule foreach --quiet 'basename "$(pwd)"');
+SCRIPT_DIR="$(dirname "$0")";
+# ROOT_DIR="$(git rev-parse --show-toplevel)"; # not working when running from a submodule
+ROOT_DIR="${SCRIPT_DIR}/../..";
+
+mapfile -t SUBMODULES < <(git -C "$ROOT_DIR" submodule foreach --quiet 'basename "$(pwd)"');
 echo "${#SUBMODULES[@]} submodule(s): ";
 
 COMMIT_MESSAGE_TITLE_START="Sync code";
@@ -9,12 +13,15 @@ if [[ -n "${CI}" ]]; then
   COMMIT_MESSAGE_TITLE_START="CI: $COMMIT_MESSAGE_TITLE_START";
 fi
 
+CURRENT_DIR="$(pwd)";
+cd "$ROOT_DIR" || exit 1; # >>
+
 COMMIT_MESSAGE_TITLE="";
 COMMIT_MESSAGE_BODY="";
 ONE_COMMIT_MESSAGE="";
 COMMITS=0;
 for SUBMODULE in "${SUBMODULES[@]}"; do
-  SUBMODULE_CURRENT_SHA=$(git ls-tree HEAD "$SUBMODULE" | awk '{ print $3 }')
+  SUBMODULE_CURRENT_SHA=$(git -C "$ROOT_DIR" ls-tree HEAD "$SUBMODULE" | awk '{ print $3 }')
   SUBMODULE_LATEST_SHA=$(git -C "$SUBMODULE" rev-parse HEAD);
   if [[ "$SUBMODULE_CURRENT_SHA" == "$SUBMODULE_LATEST_SHA" ]]; then
     echo "- '$SUBMODULE': no change.";
@@ -34,9 +41,11 @@ for SUBMODULE in "${SUBMODULES[@]}"; do
     else
       COMMIT_MESSAGE_TITLE+=" & '$SUBMODULE'";
     fi
-    git add "$SUBMODULE";
+    git -C "$ROOT_DIR" add "$SUBMODULE";
   fi
 done
+
+cd "$CURRENT_DIR" || exit 1; # <<
 
 echo "$COMMITS change(s) to commit.";
 
@@ -44,13 +53,13 @@ if [[ "${COMMITS}" -eq 1 ]]; then
   echo "--------------------------------------------------------------------------------";
   echo -e "$ONE_COMMIT_MESSAGE";
   echo "--------------------------------------------------------------------------------";
-  printf "$ONE_COMMIT_MESSAGE" | git commit -F -
+  printf "$ONE_COMMIT_MESSAGE" | git -C "$ROOT_DIR" commit -F -
 elif [[ "${COMMITS}" -gt 1 ]]; then
   COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE:\n$COMMIT_MESSAGE_BODY";
   echo "--------------------------------------------------------------------------------";
   echo -e "$COMMIT_MESSAGE";
   echo "--------------------------------------------------------------------------------";
-  printf "$COMMIT_MESSAGE" | git commit -F -
+  printf "$COMMIT_MESSAGE" | git -C "$ROOT_DIR" commit -F -
 # else # 0 commits
 # do nothing
 fi

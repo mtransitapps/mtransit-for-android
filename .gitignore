@@ -172,64 +172,68 @@ dev.properties
 /.idea/vcs.xml
 /.vscode/settings.json
 /.editorconfig
-/all_apps_logcat_tag_mt.sh
-/all_apps_logcat_tag_mtd.sh
-/all_apps_pidcat_tag_mt.sh
-/all_apps_pidcat_tag_mtd.sh
-/app_clear_data_debug.sh
-/app_force_stop_debug.sh
-/app_grant_post_notifications_debug.sh
-/app_install_debug.sh
-/app_install_release.sh
-/app_pidcat_debug.sh
-/app_pidcat_debug_tag_mtd.sh
-/app_pidcat_release.sh
-/app_pidcat_release_tag_mt.sh
-/app_reinstall_downgrade_debug_latest.sh
-/app_setup.sh
-/app_start_debug.sh
-/app_start_release.sh
-/app_uninstall_debug.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /assemble_release.sh
+/app-android/sh/assemble_release.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /commit_code_change.sh
+/sh/git/commit_code_change.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /commit_data_change.sh
+/sh/git/commit_data_change.sh
 /build.gradle
+# DEPRECATED: remove after CircleCI & GitLab CI config updated
 /build.sh
-/dependency_update_apply.sh
-/dependency_update_baseline.sh
-/dependency_update_check.sh
-/dependency_update_commit_code_change.sh
-/dependency_update_push_commits.sh
-/download_and_parse.sh
-/download_and_prepare.sh
+/sh/ci/build.sh
+/sh/ci/dependencies_baseline_update.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /download_latest_apk.sh
-/download_latest_apk_main.sh
-/download_latest_apk_repo.sh
-/download_only.sh
-/download_dependencies.sh
+/app-android/sh/download_latest_apk.sh
+/app-android/sh/download_latest_apk_main.sh
+/app-android/sh/download_latest_apk_module.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /gh_repo_update_details.sh
-/gitall.sh
+/sh/gh_repo_update_details.sh
+/sh/git/gitall.sh
 /gradle.properties
 /gradle/
 /gradle_cache_key_checksum.txt
 /gradlew
 /gradlew.bat
+# DEPRECATED: remove after CircleCI & GitLab CI config updated
 /init_cache_key.sh
+/sh/ci/init_cache_key.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /lint_only.sh
+/app-android/sh/lint_only.sh
 /main_app_debug_force_stop.sh
 /main_app_debug_start.sh
 /main_app_setup.sh
+# DEPRECATED: remove after /.github/workflows/mt-sync-code-data.yml updated
 /parse_current.sh
+/agency-parser/sh/validate_and_parse_current.sh
+# DEPRECATED: remove after /.github/workflows/mt-sync-code-data.yml updated
 /parse_next.sh
+/agency-parser/sh/validate_and_parse_next.sh
+# DEPRECATED: remove after /.github/workflows/mt-sync-code-data.yml updated
 /parse_list_change.sh
+/agency-parser/sh/list_change_ci.sh
+# DEPRECATED: remove after /.github/workflows/mt-sync-code-data.yml updated
 /prepare_only.sh
-/publish_app_release.sh
+/agency-parser/sh/prepare_only.sh
+# DEPRECATED: remove after /.github/workflows/*.yml updated
 /push_commits.sh
+/sh/ci/push_commits.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /set_app_release_required.sh
+/sh/ci/set_app_release_required.sh
+# DEPRECATED: remove after /.github/workflows/mt-record-screenshots.yml updated
 /setup-and-all-app-screenshots.sh
+/sh/ci/setup-and-all-app-screenshots.sh
 /settings.gradle
-/test.sh
+# DEPRECATED: remove after /.github/workflows/mt-*.yml updated
 /test_only.sh
+/sh/ci/test_only.sh
 
 # Generated files
 /project_name.properties
@@ -237,29 +241,77 @@ dev.properties
 # Kotlin 2.0
 /.kotlin/
 
-
-# Merged from shared/app-android/MT.gitignore
+# LEGACY keys
 /app-android/app-signing-debug-keys.properties
 /app-android/app-signing-debug-keystore.keystore
+/app-android/app-signing-release-keys.properties
+/app-android/app-signing-release-keystore-encrypted.keystore
+/app-android/app-signing-release-keystore.keystore
+/app-android/enc/app-signing-release-keys.properties
+/app-android/enc/app-signing-release-keystore-encrypted.keystore
+/app-android/enc/app-signing-release-keystore.keystore
+/app-android/enc/google-play-auto-publisher.json
+/app-android/enc/google-play-upload-certificate.pem
+/app-android/enc/google-play-upload-keys.properties
+/app-android/enc/google-play-upload-keystore.keystore
+/app-android/google-play-auto-publisher.json
+/app-android/google-play-upload-certificate.pem
+/app-android/google-play-upload-keys.properties
+/app-android/google-play-upload-keystore.keystore
+
+# Merged from shared/app-android/MT.gitignore
+/app-android/signing/debug/keys.properties
+/app-android/signing/debug/keystore.keystore
 /app-android/build.gradle
-/app-android/build.sh
+/app-android/sh/ci/build.sh
 /app-android/dependencies/*
-/app-android/decrypt_file.sh
-/app-android/encrypt_file.sh
+/app-android/sh/keys/decrypt_file.sh
+/app-android/sh/keys/encrypt_file.sh
+# DEPRECATED: remove after /.github/workflows/mt-record-screenshots.yml updated
 /app-android/keys_cleanup.sh
-/app-android/keys_files.sh
+/app-android/sh/keys/cleanup.sh
+/app-android/sh/keys/files.sh
+# DEPRECATED: remove after /.github/workflows/mt-record-screenshots.yml updated
 /app-android/keys_setup.sh
-/app-android/keys_reset.sh
+/app-android/sh/keys/setup.sh
+/app-android/sh/keys/reset.sh
 /app-android/lint.xml
-/app-android/listing_pull.sh
-/app-android/listing_push.sh
 /app-android/module-proguard-rules.pro
-/app-android/print_current_next_rts_diff.sh
-/app-android/print_git_diff_stat.sh
-/app-android/promote.sh
-/app-android/promote_*.sh
-/app-android/publish.sh
-/app-android/publish_*.sh
+/app-android/sh/print_current_next_rts_diff.sh
+/app-android/sh/print_git_diff_stat.sh
+/app-android/sh/adb/adb_setup.sh
+/app-android/sh/adb/all_apps_logcat_tag_mt.sh
+/app-android/sh/adb/all_apps_logcat_tag_mtd.sh
+/app-android/sh/adb/all_apps_pidcat_tag_mt.sh
+/app-android/sh/adb/all_apps_pidcat_tag_mtd.sh
+/app-android/sh/adb/app_debug_clear_data.sh
+/app-android/sh/adb/app_debug_stop_force.sh
+/app-android/sh/adb/app_debug_grant_post_notifications.sh
+/app-android/sh/adb/app_debug_install.sh
+/app-android/sh/adb/app_debug_pidcat.sh
+/app-android/sh/adb/app_debug_pidcat_tag_mtd.sh
+/app-android/sh/adb/app_debug_reinstall_downgrade_latest.sh
+/app-android/sh/adb/app_debug_start.sh
+/app-android/sh/adb/app_debug_uninstall.sh
+/app-android/sh/adb/app_release_install.sh
+/app-android/sh/adb/app_release_pidcat.sh
+/app-android/sh/adb/app_release_pidcat_tag_mt.sh
+/app-android/sh/adb/app_release_start.sh
+/app-android/sh/adb/app_release_stop_force.sh
+/app-android/sh/adb/app_setup.sh
+/app-android/sh/adb/main_app_debug_start.sh
+/app-android/sh/adb/main_app_debug_stop_force.sh
+/app-android/sh/adb/main_app_setup.sh
+/app-android/sh/adb/pidcat_setup.sh
+/app-android/sh/play/listing_pull.sh
+/app-android/sh/play/listing_push.sh
+/app-android/sh/play/promote.sh
+/app-android/sh/play/promote_*.sh
+/app-android/sh/play/publish.sh
+/app-android/sh/play/publish_*.sh
+# DEPRECATED: remove after /.github/workflows/mt-release.yml updated
+/publish_app_release.sh
+/app-android/sh/publish_app_release.sh
 /app-android/src/main/play/default-language.txt
 /app-android/src/main/AndroidManifest.xml
 /app-android/src/main/play/contact-website.txt
@@ -272,43 +324,44 @@ dev.properties
 /app-android/src/main/res/values*/gtfs_rts_strings.xml
 /app-android/src/main/res/values/module_app_icon_color.xml
 /app-android/src/main/res/values/parent_agency_values.xml
-/app-android/app-signing-release-keys.properties
-/app-android/app-signing-release-keystore-encrypted.keystore
-/app-android/app-signing-release-keystore.keystore
+/app-android/signing/release/keys.properties
+/app-android/signing/release/keystore-encrypted.keystore
+/app-android/signing/release/keystore.keystore
 /app-android/clr
-/app-android/enc/app-signing-release-keys.properties
-/app-android/enc/app-signing-release-keystore-encrypted.keystore
-/app-android/enc/app-signing-release-keystore.keystore
-/app-android/enc/google-play-auto-publisher.json
-/app-android/enc/google-play-upload-certificate.pem
-/app-android/enc/google-play-upload-keys.properties
-/app-android/enc/google-play-upload-keystore.keystore
+/app-android/enc/signing/release/keys.properties
+/app-android/enc/signing/release/keystore-encrypted.keystore
+/app-android/enc/signing/release/keystore.keystore
+/app-android/enc/play-android-publisher-service-account-key.json
+/app-android/enc/signing/play-upload/certificate.pem
+/app-android/enc/signing/play-upload/keys.properties
+/app-android/enc/signing/play-upload/keystore.keystore
 /app-android/enc/src/main/play/contact-email.txt
-/app-android/google-play-auto-publisher.json
-/app-android/google-play-upload-certificate.pem
-/app-android/google-play-upload-keys.properties
-/app-android/google-play-upload-keystore.keystore
+/app-android/play-android-publisher-service-account-key.json
+/app-android/signing/play-upload/certificate.pem
+/app-android/signing/play-upload/keys.properties
+/app-android/signing/play-upload/keystore.keystore
 /app-android/src/main/play/contact-email.txt
 /app-android/src/main/res/values/keys.xml
 /app-android/src/debug/res/values/keys.xml
-/app-android/stage_res_all_schedule_stops.sh
-/app-android/stage_res_current_schedule_stops.sh
-/app-android/stage_res_next_schedule_stops.sh
+/app-android/sh/stage_res_all_schedule_stops.sh
+/app-android/sh/stage_res_current_schedule_stops.sh
+/app-android/sh/stage_res_next_schedule_stops.sh
 
 # Merged from shared-opt-dir/agency-parser/MT.gitignore
 /agency-parser/.mtj.tmp/
 /agency-parser/input/
 /agency-parser/output/
-/agency-parser/archive.sh
-/agency-parser/archive_selection.sh
+/agency-parser/sh/archive.sh
+/agency-parser/sh/archive_selection.sh
 /agency-parser/build.gradle
+# DEPRECATED: remove after /.github/workflows/mt-download-data.yml updated
 /agency-parser/check_data_not_outdated.sh
-/agency-parser/check_data_outdated.sh
-/agency-parser/download.sh
-/agency-parser/force_single_thread_off.sh
-/agency-parser/force_single_thread_on.sh
-/agency-parser/list_change.sh
-/agency-parser/lookup_*.sh
-/agency-parser/parse_*.sh
-/agency-parser/reset_schedule_changes.sh
-/agency-parser/unzip_gtfs.sh
+/agency-parser/sh/check_data_not_outdated.sh
+/agency-parser/sh/download.sh
+/agency-parser/sh/force_single_thread_off.sh
+/agency-parser/sh/force_single_thread_on.sh
+/agency-parser/sh/list_change.sh
+/agency-parser/sh/lookup_*.sh
+/agency-parser/sh/parse_*.sh
+/agency-parser/sh/reset_schedule_changes.sh
+/agency-parser/sh/unzip_gtfs.sh

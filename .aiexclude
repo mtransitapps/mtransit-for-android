@@ -2,15 +2,15 @@
 # Exclude some files from AI in order to focus agent on the important files
 
 # Keys
-/app-android/app-signing-release-keys.properties
-/app-android/app-signing-release-keystore-encrypted.keystore
-/app-android/app-signing-release-keystore.keystore
+/app-android/signing/release/keys.properties
+/app-android/signing/release/keystore-encrypted.keystore
+/app-android/signing/release/keystore.keystore
 /app-android/clr/
 /app-android/enc/
-/app-android/google-play-auto-publisher.json
-/app-android/google-play-upload-certificate.pem
-/app-android/google-play-upload-keys.properties
-/app-android/google-play-upload-keystore.keystore
+/app-android/play-android-publisher-service-account-key.json
+/app-android/signing/play-upload/certificate.pem
+/app-android/signing/play-upload/keys.properties
+/app-android/signing/play-upload/keystore.keystore
 /app-android/src/main/res/values/keys.xml
 /app-android/src/debug/res/values/keys.xml
 

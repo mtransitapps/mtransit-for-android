@@ -29,13 +29,15 @@ before_script:
   - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
   # SETUP ENV
   - export PATH=$PATH:$ANDROID_HOME/platform-tools/
-  - chmod +x submodules_init.sh
-  - ./submodules_init.sh
-  - chmod +x commons/sync.sh
-  - ./commons/sync.sh
+  - chmod +x sh/git/submodules_init.sh
+  - ./sh/git/submodules_init.sh
+  - chmod +x commons/sh/git_setup.sh
+  - ./commons/sh/git_setup.sh
+  - chmod +x commons/sh/shared_setup.sh
+  - ./commons/sh/shared_setup.sh
   # GENERATE CACHE KEY
-  - chmod +x init_cache_key.sh
-  - ./init_cache_key.sh
+  - chmod +x sh/ci/init_cache_key.sh
+  - ./sh/ci/init_cache_key.sh
   - chmod +x ./gradlew
 
 cache:
@@ -50,8 +52,8 @@ stages:
 all:
   stage: build
   script:
-    - chmod +x build.sh
-    - ./build.sh
+    - chmod +x sh/ci/build.sh
+    - ./sh/ci/build.sh
   artifacts:
     paths:
     - app-android/build/reports
