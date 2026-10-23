@@ -9,7 +9,7 @@ SCRIPT_DIR="$(dirname "$0")"
 ROOT_DIR="${SCRIPT_DIR}/../..";
 
 setGitProjectName() { # copy from commons.sh
-	GIT_URL=$(git config --get remote.origin.url);
+	GIT_URL=$(git -C "$ROOT_DIR" config --get remote.origin.url);
 	GIT_PROJECT_NAME=$(basename -- "${GIT_URL}");
 	GIT_PROJECT_NAME="${GIT_PROJECT_NAME%.*}" # remove ".git" extension
 	if [[ -z "${GIT_PROJECT_NAME}" ]]; then
@@ -31,10 +31,10 @@ BEFORE_DATE_SEC=$(date +%s);
 
 echo "> GitHub Actions: $GITHUB_ACTIONS.";
 
-IS_SHALLOW=$(git rev-parse --is-shallow-repository);
+IS_SHALLOW=$(git -C "$ROOT_DIR" rev-parse --is-shallow-repository);
 if [[ "$IS_SHALLOW" == "true" && "$GITHUB_ACTIONS" != "true" ]]; then
 	echo "> Fetching un-shallow GIT repo...";
-	git fetch -v --unshallow;
+	git -C "$ROOT_DIR" fetch -v --unshallow;
 	RESULT=$?;
 	if [[ ${RESULT} -ne 0 ]]; then
 		echo "> Error while fetching un-shallow GIT repository!";
