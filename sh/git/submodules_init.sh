@@ -5,6 +5,7 @@
 # USED by 'mtransitapps/gh-actions/.github/actions/setup': https://github.com/mtransitapps/gh-actions/blob/master/.github/actions/setup/action.yml
 
 SCRIPT_DIR="$(dirname "$0")"
+# ROOT_DIR="$(git rev-parse --show-toplevel)"; # not working when running from a submodule
 ROOT_DIR="${SCRIPT_DIR}/../..";
 
 setGitProjectName() { # copy from commons.sh
