@@ -84,9 +84,12 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import kotlin.Pair;
 
 @SuppressWarnings("DeprecatedCall")
 public class MapViewController implements
@@ -406,6 +409,12 @@ public class MapViewController implements
 		}
 		showMapInternal(null);
 	}
+
+	/**
+	 * Keep vehicle location markers to avoid dynamic O(N) map marker scanning on periodic timers
+	 */
+	@Nullable
+	protected Pair<Place, IMarker> selectedPlaceMarker = null;
 
 	public void setPaddingTopDp(int paddingTopDp) {
 		this.config.setPaddingTopDp(paddingTopDp);
@@ -1198,6 +1207,12 @@ public class MapViewController implements
 			}
 		}
 	}
+
+	/**
+	 * Keep vehicle location markers to avoid dynamic O(N) map marker scanning on periodic timers
+	 */
+	@NonNull
+	protected final ConcurrentHashMap<String, IMarker> vehicleLocationsMarkersByUuid = new ConcurrentHashMap<>(); // WeakHashMap forgets about markers not removed yet
 
 	public boolean addPOIMarkers(@Nullable Collection<MTPOIMarker> poiMarkers) {
 		final Context context = getActivityOrNull();
