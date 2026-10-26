@@ -6,6 +6,7 @@ import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedP
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearVehicleLocationMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeOnLayoutChangeListener;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -564,6 +565,7 @@ public class MapViewController implements
 				mapView.setVisibility(View.VISIBLE);
 			}
 			initMapMarkers();
+			updateVehicleLocationMarkers(this, mapView.getContext());
 			return true; // shown
 		}
 		if (mapView.getVisibility() == View.GONE) {
