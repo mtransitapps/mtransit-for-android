@@ -33,7 +33,6 @@ import org.mtransit.android.ui.view.map.updateAlpha
 import org.mtransit.android.ui.view.map.updateMarker
 import org.mtransit.android.ui.view.map.updateSnippet
 import org.mtransit.android.ui.view.map.updateTitle
-import org.mtransit.android.ui.view.map.uuidOrGenerated
 import org.mtransit.android.util.MapUtils
 import java.util.Locale
 import java.util.UUID
@@ -64,9 +63,10 @@ fun MapViewController.updateVehicleLocationMarkers(
         return true
     }
     val visibleArea = googleMap.getProjection().visibleRegion.toArea()
-    val vehicleLocationsMarkers = vehicleLocationsMarkers.orEmpty()
+    val vehicleLocationsMarkersByUuid = vehicleLocationsMarkers.orEmpty()
+        .mapNotNull { (vehicleLocationUUID, marker) -> vehicleLocationUUID to marker }.toMap()
     val visibleMarkersCount = visibleArea.countMarkersInside(googleMap.getMarkers()) +
-        newVehicleLocations.count { !vehicleLocationsMarkers.none { (vehicleLocation, _) -> vehicleLocation.uuid == it.uuid } }
+        newVehicleLocations.count { vehicleLocationsMarkersByUuid[it.uuid] == null }
     val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)
     val vehicleColorInt = markerProvider.vehicleColorInt
     val vehicleDst = markerProvider.vehicleType
@@ -74,11 +74,9 @@ fun MapViewController.updateVehicleLocationMarkers(
     var index = 0
     newVehicleLocations.forEach { newVehicleLocation ->
         val iconDef = vehicleDst.vehicleIconDef
-        val uuid = newVehicleLocation.uuidOrGenerated
-        val poiZoomGroup = getPOIZoomGroup(currentZoomGroup, isFocused = { it == uuid })
-        var marker = vehicleLocationsMarkers.firstNotNullOfOrNull { (vehicleLocation, marker) ->
-            if (vehicleLocation.uuid == uuid) marker else null
-        }
+        val uuid = newVehicleLocation.uuid
+        val poiZoomGroup = getPOIZoomGroup(currentZoomGroup, isFocused = { it == newVehicleLocation.uuid })
+        var marker = vehicleLocationsMarkersByUuid[uuid]
         if (marker == null) { // ADD new
             marker = googleMap.addMarker(
                 newVehicleLocation.toExtendedMarkerOptions(context, iconDef, vehicleColorInt, poiZoomGroup, config.hideMapMarkerSnippet)
@@ -101,9 +99,9 @@ fun MapViewController.updateVehicleLocationMarkers(
     return true
 }
 
-val MapViewController.vehicleLocationsMarkers: Map<VehicleLocation, IMarker>?
+val MapViewController.vehicleLocationsMarkers: Map<String, IMarker>?
     get() = this.extendedGoogleMap?.markers?.mapNotNull { marker ->
-        (marker.getData<Any?>() as? VehicleLocation)?.let { it to marker }
+        (marker.getData<Any?>() as? VehicleLocation)?.let { it.uuid to marker }
     }?.toMap()
 
 fun MapViewController.areMarkerCollapsing(latLng1: LatLng, latLng2: LatLng): Boolean? {
@@ -126,15 +124,17 @@ fun MapViewController.getPOIZoomGroup(currentZoomGroup: MTMapIconZoomGroup, isFo
 fun MapViewController.removeMissingVehicleLocationMarkers(
     processedVehicleLocationsUUIDs: Set<String> = emptySet(),
 ) {
-    this.vehicleLocationsMarkers?.forEach { (vehicleLocation, marker) ->
-        if (processedVehicleLocationsUUIDs.contains(vehicleLocation.uuid)) return@forEach // KEEP
-        marker.remove()
-    }
+    this.vehicleLocationsMarkers
+        ?.filter { (vehicleLocationUUID, _) -> !processedVehicleLocationsUUIDs.contains(vehicleLocationUUID) }
+        ?.forEach { (_, marker) ->
+            marker.remove()
+        }
 }
 
 fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
-    this.vehicleLocationsMarkers?.forEach { (vehicleLocation, marker) ->
+    this.vehicleLocationsMarkers?.forEach { (_, marker) ->
         marker.apply {
+            val vehicleLocation = getData<Any?>() as? VehicleLocation ?: return@forEach
             updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
             if (!isInfoWindowShown) return@forEach
             updateTitle(vehicleLocation.getMapMarkerTitle(context))
@@ -242,17 +242,15 @@ fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.ap
     vehicleLocationsMarkers?.forEach { (_, marker) -> marker.remove() }
 }
 
-val MapViewController.poiMarkers: Map<MTPOIMarkerIds, IMarker>?
-    get() = this.extendedGoogleMap?.markers?.mapNotNull { marker ->
-        (marker.getData<Any?>() as? MTPOIMarkerIds)?.let { it to marker }
-    }?.toMap()
-
-val MapViewController.clusteredPoiMarkers: Map<MTPOIMarkerIds, IMarker>?
-    get() = this.extendedGoogleMap?.markers?.mapNotNull { it.markers }?.flatten()?.mapNotNull { marker ->
-        (marker.getData<Any?>() as? MTPOIMarkerIds)?.let { it to marker }
-    }?.toMap()
-
 fun MapViewController.clearPOIMarkers() = this.extendedGoogleMap?.apply {
-    poiMarkers?.forEach { (_, marker) -> marker.remove() }
-    clusteredPoiMarkers?.forEach { (_, marker) -> marker.remove() }
+    markers?.forEach { marker ->
+        if (marker.getData<Any?>() is MTPOIMarkerIds) {
+            marker.remove()
+        }
+        marker.markers?.forEach { subMarker ->
+            if (subMarker.getData<Any?>() is MTPOIMarkerIds) {
+                subMarker.remove()
+            }
+        }
+    }
 }

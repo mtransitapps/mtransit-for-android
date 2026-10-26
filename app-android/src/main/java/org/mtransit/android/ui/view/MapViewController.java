@@ -678,6 +678,7 @@ public class MapViewController implements
 		final String closeUUID = IMarkerExtKt.getFirstUUIDOrNull(marker);
 		if (Objects.equals(this.lastSelectedUUID, closeUUID)) {
 			this.lastSelectedUUID = null;
+			return;
 		}
 		final VehicleLocation selectedVehicleLocation = marker.getData() instanceof VehicleLocation ? marker.getData() : null;
 		final String closedVehicleLocationUUID = selectedVehicleLocation == null ? null : selectedVehicleLocation.getUuid();
