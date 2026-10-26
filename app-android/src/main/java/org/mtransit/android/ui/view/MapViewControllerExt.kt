@@ -213,7 +213,7 @@ fun MapViewController.setSelectedPlace(context: Context, place: Place, selectedL
             return@apply
         }
     clearSelectedPlaceMarker()
-    addMarker(place.toExtendedMarkerOptions(context))
+    selectedPlaceMarker = place to addMarker(place.toExtendedMarkerOptions(context))
         .also { marker ->
             if (!marker.isInfoWindowShown) {
                 marker.showInfoWindow()

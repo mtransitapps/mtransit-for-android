@@ -576,7 +576,6 @@ public class MapViewController implements
 			if (!this.poiMarkersLoaded) {
 				refreshMapMarkers(false);
 			}
-			updateVehicleLocationMarkers(this, mapView.getContext());
 			return true; // shown
 		}
 		if (mapView.getVisibility() == View.GONE) {
@@ -755,10 +754,6 @@ public class MapViewController implements
 		final MTMapIconZoomGroup newZoomGroup = MTMapIconZoomGroup.from(cameraPosition.zoom, visibleMarkersCount);
 		if (this.currentMapIconZoomGroup != null && this.currentMapIconZoomGroup != newZoomGroup) {
 			refreshMapMarkers(true);
-			final Context context = getActivityOrNull();
-			if (context != null) {
-				updateVehicleLocationMarkers(this, context);
-			}
 		} else {
 			this.currentMapIconZoomGroup = newZoomGroup;
 		}
@@ -1200,6 +1195,7 @@ public class MapViewController implements
 					marker.setZIndex(poiMarker.getZIndexOrDefault()); // reset original Z-Index changed by showInfoWindow()
 				}
 			}
+			updateVehicleLocationMarkers(mapViewController, context); // needed to compute zoom group
 			mapViewController.poiMarkersLoaded = true;
 			mapViewController.hideLoading();
 			if (!this.update && mapViewController.config.getShowAllMarkersWhenReady()) {
