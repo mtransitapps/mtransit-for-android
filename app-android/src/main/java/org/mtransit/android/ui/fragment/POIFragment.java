@@ -113,8 +113,6 @@ import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog;
-import org.mtransit.android.ui.view.map.MapListener;
-import org.mtransit.android.ui.view.map.MapMarkerProvider;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.MapViewControllerExtKt;
 import org.mtransit.android.ui.view.POIDataProvider;
@@ -130,6 +128,8 @@ import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
+import org.mtransit.android.ui.view.map.MapListener;
+import org.mtransit.android.ui.view.map.MapMarkerProvider;
 import org.mtransit.android.user.UserManager;
 import org.mtransit.android.user.UserPrefManager;
 import org.mtransit.android.util.BatteryOptimizationIssueUtils;
@@ -608,7 +608,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void onPOIsLoaded(@Nullable List<POIManager> poiList) {
-		this.mapViewController.notifyMarkersChanged();
+		this.mapViewController.notifyPOIMarkersChanged();
 		this.mapViewController.showMap(this.binding == null ? null : this.binding.getRoot());
 	}
 

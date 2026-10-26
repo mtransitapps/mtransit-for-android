@@ -155,17 +155,17 @@ data class MTPOIMarker(
 
     fun merge(poiMarker: MTPOIMarker) {
         merge(
-            poiMarker.position,
-            poiMarker.names,
-            poiMarker.agencies,
-            poiMarker.extras,
-            poiMarker.iconDef,
-            poiMarker.color,
-            poiMarker.secondaryColor,
-            poiMarker.alpha,
-            poiMarker.rotation,
-            poiMarker.zIndex,
-            poiMarker.uuidsAndAuthority
+            position = poiMarker.position,
+            names = poiMarker.names,
+            agencies = poiMarker.agencies,
+            extras = poiMarker.extras,
+            iconDef = poiMarker.iconDef,
+            color = poiMarker.color,
+            secondaryColor = poiMarker.secondaryColor,
+            alpha = poiMarker.alpha,
+            rotation = poiMarker.rotation,
+            zIndex = poiMarker.zIndex,
+            uuidsAndAuthority = poiMarker.uuidsAndAuthority
         )
     }
 
@@ -184,17 +184,17 @@ data class MTPOIMarker(
         authority: String
     ) {
         merge(
-            position,
-            mutableListOf(name),
-            mutableListOf(agency),
-            mutableListOf(extra),
-            iconDef,
-            color,
-            secondaryColor,
-            alpha,
-            rotation,
-            zIndex,
-            MTPOIMarkerIds.from(uuid, authority)
+            position = position,
+            names = mutableListOf(name),
+            agencies = mutableListOf(agency),
+            extras = mutableListOf(extra),
+            iconDef = iconDef,
+            color = color,
+            secondaryColor = secondaryColor,
+            alpha = alpha,
+            rotation = rotation,
+            zIndex = zIndex,
+            uuidsAndAuthority = MTPOIMarkerIds.from(uuid, authority)
         )
     }
 

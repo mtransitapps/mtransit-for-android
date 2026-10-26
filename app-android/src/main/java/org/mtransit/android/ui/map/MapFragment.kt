@@ -33,7 +33,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.clearSelectedPlace
+import org.mtransit.android.ui.view.clearSelectedPlaceMarker
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.map.MapListener
 import org.mtransit.android.ui.view.map.MapMarkerProvider
@@ -142,8 +142,8 @@ class MapFragment :
 
         override fun onMapReady() {
             attachedViewModel?.poiMarkers?.value?.let { poiMarkers ->
-                mapViewController.clearMarkers()
-                mapViewController.addMarkers(poiMarkers)
+                mapViewController.clearLoadedPOIMarkers()
+                mapViewController.addPOIMarkers(poiMarkers)
                 mapViewController.showMap(view)
             }
         }
@@ -252,15 +252,15 @@ class MapFragment :
             }
         }
         viewModel.poiMarkers.observe(viewLifecycleOwner) {
-            mapViewController.clearMarkers() // new types -> RESET
+            mapViewController.clearLoadedPOIMarkers() // new types -> RESET
             it?.let { poiMarkers ->
-                mapViewController.addMarkers(poiMarkers)
+                mapViewController.addPOIMarkers(poiMarkers)
                 mapViewController.showMap(view)
             }
         }
         viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
             newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
-                ?: run { mapViewController.clearSelectedPlace() }
+                ?: run { mapViewController.clearSelectedPlaceMarker() }
         }
         viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
             viewModel.selectedLocation.value?.let {
