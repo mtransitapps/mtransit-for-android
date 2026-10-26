@@ -117,10 +117,10 @@ fun MapViewController.getPOIZoomGroup(currentZoomGroup: MTMapIconZoomGroup, isFo
 fun MapViewController.removeMissingVehicleLocationMarkers(
     processedVehicleLocationsUUIDs: Set<String> = emptySet(),
 ) {
-    this.vehicleLocationsMarkersByUuid
-        .filter { (vehicleLocationUUID, _) -> !processedVehicleLocationsUUIDs.contains(vehicleLocationUUID) }
-        .forEach { (_, marker) ->
-            marker.remove()
+    this.vehicleLocationsMarkersByUuid.keys
+        .filter { !processedVehicleLocationsUUIDs.contains(it) }
+        .forEach { uuid ->
+            this.vehicleLocationsMarkersByUuid.remove(uuid)?.remove()
         }
 }
 
@@ -224,10 +224,12 @@ fun MapViewController.setSelectedPlace(context: Context, place: Place, selectedL
 
 fun MapViewController.clearSelectedPlaceMarker() = this.extendedGoogleMap?.apply {
     selectedPlaceMarker?.let { (_, marker) -> marker.remove() }
+    selectedPlaceMarker = null
 }
 
 fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.apply {
     vehicleLocationsMarkersByUuid.forEach { (_, marker) -> marker.remove() }
+    vehicleLocationsMarkersByUuid.clear()
 }
 
 fun MapViewController.clearPOIMarkers() = this.extendedGoogleMap?.apply {

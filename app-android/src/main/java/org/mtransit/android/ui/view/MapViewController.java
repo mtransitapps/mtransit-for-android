@@ -411,7 +411,7 @@ public class MapViewController implements
 	}
 
 	/**
-	 * Keep vehicle location markers to avoid dynamic O(N) map marker scanning on periodic timers
+	 * Keep selected place marker to allow clearing or updating it independently
 	 */
 	@Nullable
 	protected Pair<Place, IMarker> selectedPlaceMarker = null;
