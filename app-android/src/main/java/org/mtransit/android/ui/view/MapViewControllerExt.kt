@@ -63,8 +63,7 @@ fun MapViewController.updateVehicleLocationMarkers(
         return true
     }
     val visibleArea = googleMap.getProjection().visibleRegion.toArea()
-    val vehicleLocationsMarkersByUuid = vehicleLocationsMarkers.orEmpty()
-        .mapNotNull { (vehicleLocationUUID, marker) -> vehicleLocationUUID to marker }.toMap()
+    val vehicleLocationsMarkersByUuid = vehicleLocationsMarkersByUuid.orEmpty()
     val visibleMarkersCount = visibleArea.countMarkersInside(googleMap.getMarkers()) +
         newVehicleLocations.count { vehicleLocationsMarkersByUuid[it.uuid] == null }
     val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)
@@ -99,7 +98,7 @@ fun MapViewController.updateVehicleLocationMarkers(
     return true
 }
 
-val MapViewController.vehicleLocationsMarkers: Map<String, IMarker>?
+val MapViewController.vehicleLocationsMarkersByUuid: Map<String, IMarker>?
     get() = this.extendedGoogleMap?.markers?.mapNotNull { marker ->
         (marker.getData<Any?>() as? VehicleLocation)?.let { it.uuid to marker }
     }?.toMap()
@@ -124,7 +123,7 @@ fun MapViewController.getPOIZoomGroup(currentZoomGroup: MTMapIconZoomGroup, isFo
 fun MapViewController.removeMissingVehicleLocationMarkers(
     processedVehicleLocationsUUIDs: Set<String> = emptySet(),
 ) {
-    this.vehicleLocationsMarkers
+    this.vehicleLocationsMarkersByUuid
         ?.filter { (vehicleLocationUUID, _) -> !processedVehicleLocationsUUIDs.contains(vehicleLocationUUID) }
         ?.forEach { (_, marker) ->
             marker.remove()
@@ -132,7 +131,7 @@ fun MapViewController.removeMissingVehicleLocationMarkers(
 }
 
 fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
-    this.vehicleLocationsMarkers?.forEach { (_, marker) ->
+    this.vehicleLocationsMarkersByUuid?.forEach { (_, marker) ->
         marker.apply {
             val vehicleLocation = getData<Any?>() as? VehicleLocation ?: return@forEach
             updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
@@ -239,7 +238,7 @@ fun MapViewController.clearSelectedPlaceMarker() = this.extendedGoogleMap?.apply
 }
 
 fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.apply {
-    vehicleLocationsMarkers?.forEach { (_, marker) -> marker.remove() }
+    vehicleLocationsMarkersByUuid?.forEach { (_, marker) -> marker.remove() }
 }
 
 fun MapViewController.clearPOIMarkers() = this.extendedGoogleMap?.apply {
