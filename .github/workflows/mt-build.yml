@@ -57,8 +57,8 @@ jobs:
           echo "Checkout branch: '$CHECKOUT_BRANCH'."
           echo "mt_checkout_branch=$CHECKOUT_BRANCH" >> "$GITHUB_OUTPUT"
 
-  MT-TEST-JOB:
-    name: "MT Test"
+  MT-TESTS-JOB:
+    name: "MT Tests"
     needs: MT-SELECT-BRANCH-JOB
     runs-on: ubuntu-latest
     steps:
@@ -75,11 +75,13 @@ jobs:
         uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.1
 
       - name: MT detekt
+        id: mt-detekt
+        continue-on-error: true # run tests even if detekt fails (job failed at the end)
         run: |
           ./gradlew detektAll \
             --no-configure-on-demand --scan # works better with "gradle/actions/setup-gradle"
       - name: MT detekt > print markdown report (if failure)
-        if: ${{ failure() }}
+        if: ${{ steps.mt-detekt.outcome == 'failure' }}
         run: |
           mapfile -d '' reports < <(find . -path '*/build/reports/detekt/*.md' -print0)
           if (( ${#reports[@]} > 0 )); then
@@ -87,25 +89,26 @@ jobs:
           fi
       - name: MT detekt > artifact > XML results
         uses: actions/upload-artifact@v7
-        if: ${{ always() }} # even if detekt fails
+        if: ${{ always() }}
         with:
           name: detekt-xml-results
           path: |
             */build/reports/detekt/*.xml
       - name: MT detekt > artifact > HTML report
         uses: actions/upload-artifact@v7
-        if: ${{ always() }} # even if detekt fails
+        if: ${{ always() }}
         with:
           name: detekt-html-reports
           path: |
             */build/reports/detekt/*.html
 
       - name: MT tests
-        if: ${{ success() }} # if detekt successful
+        id: mt-tests
+        if: ${{ !cancelled() }} # run even if detekt failed
         run: ./test_only.sh
       - name: MT tests > artifact > XML results
         uses: actions/upload-artifact@v7
-        if: ${{ always() }} # even if tests fails
+        if: ${{ always() }}
         with:
           name: test-xml-results
           path: |
@@ -114,12 +117,18 @@ jobs:
             */build/reports/*.xml
       - name: MT tests > artifact > HTML reports
         uses: actions/upload-artifact@v7
-        if: ${{ always() }} # even if tests fails
+        if: ${{ always() }}
         with:
           name: test-html-reports
           path: |
             */build/reports/
             !**/*.xml
+
+      - name: MT fail job if detekt or tests failed
+        if: ${{ !cancelled() && (steps.mt-detekt.outcome == 'failure' || steps.mt-tests.outcome == 'failure') }}
+        run: |
+          echo "detekt: ${{ steps.mt-detekt.outcome }}, tests: ${{ steps.mt-tests.outcome }}"
+          exit 1
 
   MT-LINT-JOB:
     name: "MT Lint"
