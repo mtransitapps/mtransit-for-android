@@ -233,11 +233,11 @@ fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.ap
 }
 
 fun MapViewController.clearPOIMarkers() = this.extendedGoogleMap?.apply {
-    markers?.forEach { marker ->
+    markers?.toList()?.forEach { marker ->
         if (marker.getData<Any?>() is MTPOIMarkerIds) {
             marker.remove()
         }
-        marker.markers?.forEach { subMarker ->
+        marker.markers?.toList()?.forEach { subMarker ->
             if (subMarker.getData<Any?>() is MTPOIMarkerIds) {
                 subMarker.remove()
             }
