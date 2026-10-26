@@ -71,7 +71,7 @@ fun MapViewController.updateVehicleLocationMarkers(
     val vehicleDst = markerProvider.vehicleType
     val processedVehicleLocationsUUIDs = mutableSetOf<String>()
     var index = 0
-    newVehicleLocations.forEach { newVehicleLocation ->
+    newVehicleLocations.associateBy { it.uuid }.values.forEach { newVehicleLocation ->
         val iconDef = vehicleDst.vehicleIconDef
         val uuid = newVehicleLocation.uuid
         val poiZoomGroup = getPOIZoomGroup(currentZoomGroup, isFocused = { it == newVehicleLocation.uuid })

@@ -564,7 +564,9 @@ public class MapViewController implements
 			if (mapView.getVisibility() != View.VISIBLE) {
 				mapView.setVisibility(View.VISIBLE);
 			}
-			initMapMarkers();
+			if (!this.poiMarkersLoaded) {
+				refreshMapMarkers(false);
+			}
 			updateVehicleLocationMarkers(this, mapView.getContext());
 			return true; // shown
 		}
@@ -743,7 +745,11 @@ public class MapViewController implements
 		}
 		final MTMapIconZoomGroup newZoomGroup = MTMapIconZoomGroup.from(cameraPosition.zoom, visibleMarkersCount);
 		if (this.currentMapIconZoomGroup != null && this.currentMapIconZoomGroup != newZoomGroup) {
-			refreshMapMarkers();
+			refreshMapMarkers(true);
+			final Context context = getActivityOrNull();
+			if (context != null) {
+				updateVehicleLocationMarkers(this, context);
+			}
 		} else {
 			this.currentMapIconZoomGroup = newZoomGroup;
 		}
@@ -982,18 +988,6 @@ public class MapViewController implements
 			MTLog.w(this, e, "Error while initializing map camera!");
 			return false;
 		}
-	}
-
-	private void initMapMarkers() {
-		if (this.poiMarkersLoaded) {
-			MTLog.d(this, "initMapMarkers() > SKIP (already loaded)");
-			return;
-		}
-		refreshMapMarkers(false);
-	}
-
-	private void refreshMapMarkers() {
-		refreshMapMarkers(true);
 	}
 
 	private void refreshMapMarkers(boolean update) {
@@ -1428,10 +1422,14 @@ public class MapViewController implements
 
 	public void onDestroyView() {
 		removeOnLayoutChangeListener(this);
+		clearAllMarkers();
 		destroyMapView();
 		this.mapVisible = false;
 		this.waitingForGlobalLayout = false;
 		this.mapLayoutReady = false;
+		if (this.extendedGoogleMap != null) {
+			this.extendedGoogleMap.clear(); // clear everything on the map (all markers...)
+		}
 		this.extendedGoogleMap = null;
 		this.initialMapCameraSetup = false;
 		this.initializingMapView.set(false);
