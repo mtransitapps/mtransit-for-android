@@ -321,7 +321,7 @@
     <ID>NoNameShadowing:MainPreferencesFragment.kt:MainPreferencesFragment${ viewModel.openAdInspector(it) }</ID>
     <ID>NoNameShadowing:MapUtils.kt:MapUtils$color</ID>
     <ID>NoNameShadowing:MapViewControllerExt.kt:markerProvider</ID>
-    <ID>NoNameShadowing:MapViewControllerExt.kt:vehicleLocations</ID>
+    <ID>NoNameShadowing:MapViewControllerExt.kt:newVehicleLocations</ID>
     <ID>NoNameShadowing:NearbyFragment.kt:NearbyFragment${ updateScreenToolbarSubtitle(it) }</ID>
     <ID>NoNameShadowing:NearbyFragment.kt:NearbyFragment${ updateScreenToolbarTitle(it) }</ID>
     <ID>NoNameShadowing:NearbyViewModel.kt:NearbyViewModel${ ColorUtils.parseColor(it) }</ID>

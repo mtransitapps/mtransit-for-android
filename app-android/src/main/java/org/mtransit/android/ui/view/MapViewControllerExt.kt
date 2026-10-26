@@ -51,15 +51,15 @@ fun MapViewController.updateVehicleLocationMarkers(
 ): Boolean {
     selectedUuid?.let { setInitialSelectedUUID(selectedUuid) }
     val googleMap = this.extendedGoogleMap ?: run {
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no google map) #:POIFragment")
+        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no google map)")
         return false
     }
     val markerProvider = markerProvider ?: run {
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no marker provider) #:POIFragment")
+        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no marker provider)")
         return false
     }
     val newVehicleLocations = newVehicleLocations?.takeIf { it.isNotEmpty() } ?: run {
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations) #:POIFragment")
+        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations)")
         removeMissingVehicleLocationMarkers()
         return true
     }
