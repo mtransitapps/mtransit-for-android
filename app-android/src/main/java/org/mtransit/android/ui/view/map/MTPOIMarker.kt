@@ -85,7 +85,16 @@ data class MTPOIMarker(
         ) = marker.apply {
             updatePosition(this@updateMarker.position)
             updateRotation(this@updateMarker.rotationOrDefault)
-            setIcon(context, iconDef.getZoomResId(zoomGroup), iconDef.getZoomSize(zoomGroup), iconDef.replaceColor, color, secondaryColor, Color.BLACK)
+            val iconDef = this@updateMarker.iconDef
+            setIcon(
+                context,
+                iconDef.getZoomResId(zoomGroup),
+                iconDef.getZoomSize(zoomGroup),
+                iconDef.replaceColor,
+                this@updateMarker.color,
+                this@updateMarker.secondaryColor,
+                Color.BLACK
+            )
             setAnchor(iconDef.anchorU, iconDef.anchorV)
             setInfoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
             updateFlat(iconDef.flat)

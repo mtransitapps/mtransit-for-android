@@ -65,15 +65,16 @@ fun MapViewController.updateVehicleLocationMarkers(
         removeMissingVehicleLocationMarkers()
         return true
     }
+    val distinctVehicleLocations = newVehicleLocations.distinctBy { it.uuid }
     val visibleArea = googleMap.getProjection().visibleRegion.toArea()
     val visibleMarkersCount = visibleArea.countMarkersInside(googleMap.getMarkers()) +
-        newVehicleLocations.count { vehicleLocationsMarkersByUuid[it.uuid] == null }
+        distinctVehicleLocations.count { vehicleLocationsMarkersByUuid[it.uuid] == null }
     val currentZoomGroup = getCurrentMapIconZoomGroup(googleMap, visibleMarkersCount)
     val vehicleColorInt = markerProvider.vehicleColorInt
     val vehicleDst = markerProvider.vehicleType
     val processedVehicleLocationsUUIDs = mutableSetOf<String>()
     var index = 0
-    newVehicleLocations.associateBy { it.uuid }.values.forEach { newVehicleLocation ->
+    distinctVehicleLocations.forEach { newVehicleLocation ->
         val iconDef = vehicleDst.vehicleIconDef
         val uuid = newVehicleLocation.uuid
         val poiZoomGroup = getPOIZoomGroup(currentZoomGroup, isFocused = { it == newVehicleLocation.uuid })
@@ -248,10 +249,10 @@ fun MapViewController.addPOIMarkersInternal(context: Context, extendedGoogleMap:
     poiMarkers.forEach { poiMarker ->
         val poiZoomGroup = if (currentZoomGroup == null) null else this.getPOIZoomGroup(currentZoomGroup, isFocused = { uuid -> poiMarker.hasUUID(uuid) })
         val identifier = poiMarker.getIdentifier()
-        this.poiMarkersByIdentifier[identifier]?.let { existingMarker ->
+        val existingMarker = this.poiMarkersByIdentifier[identifier]
+        if (existingMarker != null) {
             poiMarker.updateMarker(existingMarker, context, this.config.markerLabelShowExtra, poiZoomGroup)
-            return@forEach
-        } ?: run {
+        } else {
             extendedGoogleMap.addMarker(
                 poiMarker.toExtendedMarkerOptions(context, this.config.markerLabelShowExtra, poiZoomGroup)
             ).also { newMarker ->
