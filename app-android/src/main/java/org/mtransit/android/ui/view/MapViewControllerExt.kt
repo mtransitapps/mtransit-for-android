@@ -232,8 +232,7 @@ fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.ap
 }
 
 fun MapViewController.removeObsoletePOIMarkers(newPOIMarkers: Collection<MTPOIMarker>?) {
-    val newPOIMarkersByIdentifier = newPOIMarkers?.associate { it.getIdentifier() to it }.orEmpty()
-    val newPOIMarkersIdentifiers = newPOIMarkersByIdentifier.keys
+    val newPOIMarkersIdentifiers = newPOIMarkers?.mapTo(HashSet()) { it.getIdentifier() }.orEmpty()
     val poiMarkersToRemove = this.poiMarkersByIdentifier.keys.filterNot { newPOIMarkersIdentifiers.contains(it) }
     poiMarkersToRemove.forEach { identifierToRemove ->
         this.poiMarkersByIdentifier.remove(identifierToRemove)?.remove()

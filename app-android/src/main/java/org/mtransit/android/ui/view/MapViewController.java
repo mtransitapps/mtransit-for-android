@@ -1240,7 +1240,7 @@ public class MapViewController implements
 		}
 		if (reset) { // IF reset DO remove old markers
 			removeObsoletePOIMarkers(this, poiMarkers);
-		}
+		} // else keep adding new poi marker
 		if (poiMarkers != null) {
 			final MTMapIconZoomGroup currentZoomGroup = this.config.getClusteringEnabled() ? null : this.getCurrentMapIconZoomGroup(this.extendedGoogleMap,
 					AreaExtKt.countPOIMarkersInside(
