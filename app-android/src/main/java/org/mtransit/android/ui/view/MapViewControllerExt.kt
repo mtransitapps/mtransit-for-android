@@ -18,6 +18,7 @@ import org.mtransit.android.ui.location.latLng
 import org.mtransit.android.ui.location.toNameOnly
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
+import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.map.countMarkersInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
@@ -228,4 +229,13 @@ fun MapViewController.clearSelectedPlaceMarker() = this.extendedGoogleMap?.apply
 fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.apply {
     vehicleLocationsMarkersByUuid.forEach { (_, marker) -> marker.remove() }
     vehicleLocationsMarkersByUuid.clear()
+}
+
+fun MapViewController.removeObsoletePOIMarkers(newPOIMarkers: Collection<MTPOIMarker>?) {
+    val newPOIMarkersByIdentifier = newPOIMarkers?.associate { it.getIdentifier() to it }.orEmpty()
+    val newPOIMarkersIdentifiers = newPOIMarkersByIdentifier.keys
+    val poiMarkersToRemove = this.poiMarkersByIdentifier.keys.filterNot { newPOIMarkersIdentifiers.contains(it) }
+    poiMarkersToRemove.forEach { identifierToRemove ->
+        this.poiMarkersByIdentifier.remove(identifierToRemove)?.remove()
+    }
 }

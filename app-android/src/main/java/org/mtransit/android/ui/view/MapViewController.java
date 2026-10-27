@@ -4,6 +4,7 @@ import static org.mtransit.android.ui.view.MapViewControllerExtKt.addOnLayoutCha
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedPlaceMarker;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearVehicleLocationMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeObsoletePOIMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeOnLayoutChangeListener;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
 
@@ -79,13 +80,10 @@ import org.mtransit.android.util.MapUtils;
 import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -1175,23 +1173,7 @@ public class MapViewController implements
 				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no map)");
 				return;
 			}
-			final HashMap<String, MTPOIMarker> newPOIMarkers = new HashMap<>();
-			for (MTPOIMarker poiMarker : poiMarkers) {
-				newPOIMarkers.put(poiMarker.getIdentifier(), poiMarker);
-			}
-			final Set<String> newPOIMarkersIdentifiers = newPOIMarkers.keySet();
-			final List<String> poiMarkersToRemove = new ArrayList<>();
-			for (String identifier : mapViewController.poiMarkersByIdentifier.keySet()) {
-				if (!newPOIMarkersIdentifiers.contains(identifier)) {
-					poiMarkersToRemove.add(identifier);
-				}
-			}
-			for (String identifierToRemove : poiMarkersToRemove) {
-				final IMarker markerToRemove = mapViewController.poiMarkersByIdentifier.remove(identifierToRemove);
-				if (markerToRemove != null) {
-					markerToRemove.remove();
-				}
-			}
+			removeObsoletePOIMarkers(mapViewController, poiMarkers);
 			final String lastSelectedUUID = mapViewController.lastSelectedUUID;
 			mapViewController.lastSelectedUUID = lastSelectedUUID;
 			final MTMapIconZoomGroup currentZoomGroup = mapViewController.config.getClusteringEnabled() ? null : mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap,
@@ -1257,25 +1239,7 @@ public class MapViewController implements
 			return false;
 		}
 		if (reset) { // IF reset DO remove old markers
-			final HashMap<String, MTPOIMarker> newPOIMarkers = new HashMap<>();
-			if (poiMarkers != null) {
-				for (MTPOIMarker poiMarker : poiMarkers) {
-					newPOIMarkers.put(poiMarker.getIdentifier(), poiMarker);
-				}
-			}
-			final Set<String> newPOIMarkersIdentifiers = newPOIMarkers.keySet();
-			final List<String> poiMarkersToRemove = new ArrayList<>();
-			for (String identifier : this.poiMarkersByIdentifier.keySet()) {
-				if (!newPOIMarkersIdentifiers.contains(identifier)) {
-					poiMarkersToRemove.add(identifier);
-				}
-			}
-			for (String identifierToRemove : poiMarkersToRemove) {
-				final IMarker markerToRemove = this.poiMarkersByIdentifier.remove(identifierToRemove);
-				if (markerToRemove != null) {
-					markerToRemove.remove();
-				}
-			}
+			removeObsoletePOIMarkers(this, poiMarkers);
 		}
 		if (poiMarkers != null) {
 			final MTMapIconZoomGroup currentZoomGroup = this.config.getClusteringEnabled() ? null : this.getCurrentMapIconZoomGroup(this.extendedGoogleMap,

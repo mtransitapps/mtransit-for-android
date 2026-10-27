@@ -69,7 +69,7 @@ fun VehicleLocation.updateMarker(
     hideSnippet: Boolean,
 ) = marker.apply {
     val wasInfoWindowShown = this.isInfoWindowShown
-    updatePosition(this@updateMarker.position, animate = true)
+    updatePosition(this@updateMarker.position, animate = true) // vehicle locations are expected to change
     setAnchor(iconDef.anchorU, iconDef.anchorV)
     setInfoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
     updateRotation(getRotation(default = 0.0f))
