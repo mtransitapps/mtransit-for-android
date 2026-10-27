@@ -95,7 +95,6 @@ data class MTPOIMarker(
             updateZIndex(this@updateMarker.zIndexOrDefault)
             updateData(this@updateMarker.uuidsAndAuthority)
         }
-
     }
 
     override fun getLogTag() = LOG_TAG

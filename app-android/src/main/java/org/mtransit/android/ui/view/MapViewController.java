@@ -1246,9 +1246,14 @@ public class MapViewController implements
 	@NonNull
 	protected final ConcurrentHashMap<String, IMarker> vehicleLocationsMarkersByUuid = new ConcurrentHashMap<>(); // WeakHashMap forgets about markers not removed yet
 
-	public boolean addPOIMarkers(@NonNull Context context, @Nullable Collection<MTPOIMarker> poiMarkers, boolean reset) {
+	public boolean addPOIMarkers(@Nullable Collection<MTPOIMarker> poiMarkers, boolean reset) {
 		if (this.extendedGoogleMap == null) {
 			MTLog.d(this, "addPOIMarkers() > SKIP (no map)");
+			return false;
+		}
+		final Context context = getActivityOrNull();
+		if (context == null) {
+			MTLog.d(this, "addPOIMarkers() > SKIP (no context)");
 			return false;
 		}
 		if (reset) { // IF reset DO remove old markers
@@ -1475,15 +1480,6 @@ public class MapViewController implements
 		this.poiMarkersLoaded = false;
 	}
 
-	private void clearAllMarkers() {
-		clearSelectedPlaceMarker(this);
-		clearVehicleLocationMarkers(this);
-		if (this.extendedGoogleMap != null) {
-			this.extendedGoogleMap.clear(); // clear everything on the map (all markers...)
-		}
-		this.poiMarkersByIdentifier.clear();
-	}
-
 	public void onLowMemory() {
 		if (this.mapView != null) {
 			this.mapView.onLowMemory();
@@ -1496,14 +1492,16 @@ public class MapViewController implements
 
 	public void onDestroyView() {
 		removeOnLayoutChangeListener(this);
-		clearAllMarkers();
+		clearSelectedPlaceMarker(this);
+		clearVehicleLocationMarkers(this);
+		this.poiMarkersByIdentifier.clear();
+		if (this.extendedGoogleMap != null) {
+			this.extendedGoogleMap.clear(); // clear everything on the map (all markers...)
+		}
 		destroyMapView();
 		this.mapVisible = false;
 		this.waitingForGlobalLayout = false;
 		this.mapLayoutReady = false;
-		if (this.extendedGoogleMap != null) {
-			this.extendedGoogleMap.clear(); // clear everything on the map (all markers...)
-		}
 		this.extendedGoogleMap = null;
 		this.initialMapCameraSetup = false;
 		this.initializingMapView.set(false);

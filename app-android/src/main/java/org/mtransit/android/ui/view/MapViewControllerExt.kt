@@ -116,11 +116,10 @@ fun MapViewController.getPOIZoomGroup(currentZoomGroup: MTMapIconZoomGroup, isFo
 fun MapViewController.removeMissingVehicleLocationMarkers(
     processedVehicleLocationsUUIDs: Set<String> = emptySet(),
 ) {
-    this.vehicleLocationsMarkersByUuid.keys
-        .filter { !processedVehicleLocationsUUIDs.contains(it) }
-        .forEach { uuid ->
-            this.vehicleLocationsMarkersByUuid.remove(uuid)?.remove()
-        }
+    this.vehicleLocationsMarkersByUuid.keys.forEach { uuid ->
+        if (processedVehicleLocationsUUIDs.contains(uuid)) return@forEach // KEEP
+        this.vehicleLocationsMarkersByUuid.remove(uuid)?.remove()
+    }
 }
 
 fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {

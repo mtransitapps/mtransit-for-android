@@ -142,10 +142,8 @@ class MapFragment :
 
         override fun onMapReady() {
             attachedViewModel?.poiMarkers?.value?.let { poiMarkers ->
-                context?.let {
-                    mapViewController.addPOIMarkers(it, poiMarkers, true)
-                    mapViewController.showMap(view)
-                }
+                mapViewController.addPOIMarkers(poiMarkers, true)
+                mapViewController.showMap(view)
             }
         }
     }
@@ -254,7 +252,7 @@ class MapFragment :
         }
         viewModel.poiMarkers.observe(viewLifecycleOwner) { poiMarkers ->
             val reset = poiMarkers != null // new types -> RESET
-            mapViewController.addPOIMarkers(view.context, poiMarkers, reset)
+            mapViewController.addPOIMarkers(poiMarkers, reset)
             poiMarkers?.let {
                 mapViewController.showMap(view)
             }
