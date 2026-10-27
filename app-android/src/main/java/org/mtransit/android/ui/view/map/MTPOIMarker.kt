@@ -81,11 +81,11 @@ data class MTPOIMarker(
             marker: IMarker,
             context: Context,
             markerLabelShowExtra: Boolean,
-            currentZoomGroup: MTMapIconZoomGroup?,
+            zoomGroup: MTMapIconZoomGroup?,
         ) = marker.apply {
             updatePosition(this@updateMarker.position, animate = true)
             updateRotation(this@updateMarker.rotationOrDefault)
-            setIcon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.getZoomSize(currentZoomGroup), iconDef.replaceColor, color, secondaryColor, Color.BLACK)
+            setIcon(context, iconDef.getZoomResId(zoomGroup), iconDef.getZoomSize(zoomGroup), iconDef.replaceColor, color, secondaryColor, Color.BLACK)
             setAnchor(iconDef.anchorU, iconDef.anchorV)
             setInfoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
             updateFlat(iconDef.flat)
