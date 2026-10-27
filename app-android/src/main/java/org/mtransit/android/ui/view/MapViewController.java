@@ -687,20 +687,18 @@ public class MapViewController implements
 	public void onInfoWindowClose(@Nullable IMarker marker) {
 		if (marker == null) return;
 		if (this.lastSelectedUUID == null) return;
-		final String closeUUID = IMarkerExtKt.getFirstUUIDOrNull(marker);
-		if (Objects.equals(this.lastSelectedUUID, closeUUID)) {
-			this.lastSelectedUUID = null;
-			return;
+		final Object data = marker.getData();
+		String closedUUID;
+		if (data instanceof VehicleLocation) {
+			closedUUID = ((VehicleLocation) data).getUuid();
+		} else if (data instanceof Place) {
+			closedUUID = ((Place) data).getUuid();
+		} else if (data instanceof MTPOIMarkerIds) {
+			closedUUID = IMarkerExtKt.getFirstUUIDOrNull(marker);
+		} else {
+			closedUUID = null;
 		}
-		final VehicleLocation selectedVehicleLocation = marker.getData() instanceof VehicleLocation ? marker.getData() : null;
-		final String closedVehicleLocationUUID = selectedVehicleLocation == null ? null : selectedVehicleLocation.getUuid();
-		if (Objects.equals(this.lastSelectedUUID, closedVehicleLocationUUID)) {
-			this.lastSelectedUUID = null;
-			return;
-		}
-		final Place selectedPlace = marker.getData() instanceof Place ? marker.getData() : null;
-		final String closedPlaceUUID = selectedPlace == null ? null : selectedPlace.getUuid();
-		if (Objects.equals(this.lastSelectedUUID, closedPlaceUUID)) {
+		if (Objects.equals(this.lastSelectedUUID, closedUUID)) {
 			this.lastSelectedUUID = null;
 		}
 	}

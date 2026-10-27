@@ -249,19 +249,15 @@ fun MapViewController.addPOIMarkersInternal(context: Context, extendedGoogleMap:
     poiMarkers.forEach { poiMarker ->
         val poiZoomGroup = if (currentZoomGroup == null) null else this.getPOIZoomGroup(currentZoomGroup, isFocused = { uuid -> poiMarker.hasUUID(uuid) })
         val identifier = poiMarker.getIdentifier()
-        val existingMarker = this.poiMarkersByIdentifier[identifier]
-        if (existingMarker != null) {
+        val marker = this.poiMarkersByIdentifier[identifier]?.let { existingMarker ->
             poiMarker.updateMarker(existingMarker, context, this.config.markerLabelShowExtra, poiZoomGroup)
-        } else {
+        } ?: run {
             extendedGoogleMap.addMarker(
                 poiMarker.toExtendedMarkerOptions(context, this.config.markerLabelShowExtra, poiZoomGroup)
             ).also { newMarker ->
                 this.poiMarkersByIdentifier[identifier] = newMarker
             }
         }
-    }
-    poiMarkers.forEach { poiMarker ->
-        val marker = this.poiMarkersByIdentifier[poiMarker.getIdentifier()] ?: return@forEach
         if (poiMarker.hasUUID(this.lastSelectedUUID)) {
             marker.showInfoWindow()
         } else {
