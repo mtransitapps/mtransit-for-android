@@ -236,13 +236,15 @@ fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.ap
 }
 
 fun MapViewController.addPOIMarkersInternal(context: Context, extendedGoogleMap: ExtendedGoogleMap, poiMarkers: Collection<MTPOIMarker>) {
-    val currentZoomGroup: MTMapIconZoomGroup? = if (this.config.clusteringEnabled) null else this.getCurrentMapIconZoomGroup(
-        extendedGoogleMap,
-        extendedGoogleMap.getProjection().visibleRegion.toArea()
-            .countPOIMarkersInside(
-                poiMarkers
-            )
-    )
+    val currentZoomGroup = this
+        .takeUnless { this.config.clusteringEnabled }
+        ?.getCurrentMapIconZoomGroup(
+            extendedGoogleMap,
+            extendedGoogleMap.getProjection().visibleRegion.toArea()
+                .countPOIMarkersInside(
+                    poiMarkers
+                )
+        )
     poiMarkers.forEach { poiMarker ->
         val poiZoomGroup = if (currentZoomGroup == null) null else this.getPOIZoomGroup(currentZoomGroup, isFocused = { uuid -> poiMarker.hasUUID(uuid) })
         val identifier = poiMarker.getIdentifier()
