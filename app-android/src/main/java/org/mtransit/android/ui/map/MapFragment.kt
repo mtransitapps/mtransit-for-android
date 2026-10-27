@@ -251,8 +251,7 @@ class MapFragment :
             }
         }
         viewModel.poiMarkers.observe(viewLifecycleOwner) { poiMarkers ->
-            val reset = poiMarkers == null // new types -> RESET
-            mapViewController.addPOIMarkers(poiMarkers, reset)
+            mapViewController.addPOIMarkers(poiMarkers, true) // new types -> RESET
             poiMarkers?.let {
                 mapViewController.showMap(view)
             }

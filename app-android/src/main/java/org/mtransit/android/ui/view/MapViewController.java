@@ -1214,9 +1214,7 @@ public class MapViewController implements
 		if (reset) { // IF reset DO remove old markers
 			removeObsoletePOIMarkers(this, poiMarkers);
 		} // else keep adding new poi marker
-		if (poiMarkers != null) {
-			addPOIMarkersInternal(this, context, this.extendedGoogleMap, poiMarkers);
-		}
+		addPOIMarkersInternal(this, context, this.extendedGoogleMap, poiMarkers);
 		this.poiMarkersLoaded = true;
 		hideLoading();
 		if (this.config.getShowAllMarkersWhenReady()) {
