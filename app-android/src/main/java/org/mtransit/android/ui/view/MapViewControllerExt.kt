@@ -237,7 +237,7 @@ fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.ap
 }
 
 fun MapViewController.addPOIMarkersInternal(context: Context, extendedGoogleMap: ExtendedGoogleMap, poiMarkers: Collection<MTPOIMarker>?) {
-    poiMarkers?: return
+    poiMarkers ?: return
     val currentZoomGroup =
         this.takeUnless { this.config.clusteringEnabled }
             ?.getCurrentMapIconZoomGroup(
