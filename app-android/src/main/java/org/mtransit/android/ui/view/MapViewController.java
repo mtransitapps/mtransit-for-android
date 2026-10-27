@@ -4,7 +4,6 @@ import static org.mtransit.android.ui.view.MapViewControllerExtKt.addOnLayoutCha
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.addPOIMarkersInternal;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedPlaceMarker;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearVehicleLocationMarkers;
-import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeObsoletePOIMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeOnLayoutChangeListener;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
