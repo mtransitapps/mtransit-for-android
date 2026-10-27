@@ -27,6 +27,10 @@ data class MTPOIMarker(
     val uuidsAndAuthority: MTPOIMarkerIds,
 ) : MTLog.Loggable {
 
+    fun getIdentifier(): String {
+        return position.toString()
+    }
+
     companion object {
         private val LOG_TAG: String = MTPOIMarker::class.java.simpleName
 
@@ -49,26 +53,49 @@ data class MTPOIMarker(
             context: Context,
             markerLabelShowExtra: Boolean,
             currentZoomGroup: MTMapIconZoomGroup?,
-        ) = ExtendedMarkerOptions()
-            .position(position)
-            .title(title)
-            .snippet(if (markerLabelShowExtra) snippet else null)
-            .anchor(iconDef.anchorU, iconDef.anchorV)
-            .infoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
-            .flat(iconDef.flat)
-            .icon(
+        ) = ExtendedMarkerOptions().apply {
+            position(this@toExtendedMarkerOptions.position)
+            title(this@toExtendedMarkerOptions.title)
+            snippet(if (markerLabelShowExtra) this@toExtendedMarkerOptions.snippet else null)
+            val iconDef = this@toExtendedMarkerOptions.iconDef
+            anchor(iconDef.anchorU, iconDef.anchorV)
+            infoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
+            flat(iconDef.flat)
+            icon(
                 context,
                 iconDef.getZoomResId(currentZoomGroup),
                 iconDef.getZoomSize(currentZoomGroup),
                 iconDef.replaceColor,
-                color,
-                secondaryColor,
+                this@toExtendedMarkerOptions.color,
+                this@toExtendedMarkerOptions.secondaryColor,
                 Color.BLACK
             )
-            .alpha(alphaOrDefault)
-            .rotation(rotationOrDefault)
-            .zIndex(zIndexOrDefault)
-            .data(uuidsAndAuthority)
+            alpha(this@toExtendedMarkerOptions.alphaOrDefault)
+            rotation(this@toExtendedMarkerOptions.rotationOrDefault)
+            zIndex(this@toExtendedMarkerOptions.zIndexOrDefault)
+            data(this@toExtendedMarkerOptions.uuidsAndAuthority)
+        }
+
+        @JvmStatic
+        fun MTPOIMarker.updateMarker(
+            marker: IMarker,
+            context: Context,
+            markerLabelShowExtra: Boolean,
+            currentZoomGroup: MTMapIconZoomGroup?,
+        ) = marker.apply {
+            updatePosition(this@updateMarker.position, animate = true)
+            updateRotation(this@updateMarker.rotationOrDefault)
+            setIcon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.getZoomSize(currentZoomGroup), iconDef.replaceColor, color, secondaryColor, Color.BLACK)
+            setAnchor(iconDef.anchorU, iconDef.anchorV)
+            setInfoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
+            updateFlat(iconDef.flat)
+            updateTitle(this@updateMarker.title)
+            updateSnippet(if (markerLabelShowExtra) this@updateMarker.snippet else null)
+            updateAlpha(this@updateMarker.alphaOrDefault)
+            updateZIndex(this@updateMarker.zIndexOrDefault)
+            updateData(this@updateMarker.uuidsAndAuthority)
+        }
+
     }
 
     override fun getLogTag() = LOG_TAG

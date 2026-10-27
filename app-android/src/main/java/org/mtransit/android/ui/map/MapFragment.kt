@@ -142,9 +142,10 @@ class MapFragment :
 
         override fun onMapReady() {
             attachedViewModel?.poiMarkers?.value?.let { poiMarkers ->
-                mapViewController.clearLoadedPOIMarkers()
-                mapViewController.addPOIMarkers(poiMarkers)
-                mapViewController.showMap(view)
+                context?.let {
+                    mapViewController.addPOIMarkers(it, poiMarkers, true)
+                    mapViewController.showMap(view)
+                }
             }
         }
     }
@@ -251,10 +252,10 @@ class MapFragment :
                 mapViewController.hideLoading()
             }
         }
-        viewModel.poiMarkers.observe(viewLifecycleOwner) {
-            mapViewController.clearLoadedPOIMarkers() // new types -> RESET
-            it?.let { poiMarkers ->
-                mapViewController.addPOIMarkers(poiMarkers)
+        viewModel.poiMarkers.observe(viewLifecycleOwner) { poiMarkers ->
+            val reset = poiMarkers != null // new types -> RESET
+            mapViewController.addPOIMarkers(view.context, poiMarkers, reset)
+            poiMarkers?.let {
                 mapViewController.showMap(view)
             }
         }

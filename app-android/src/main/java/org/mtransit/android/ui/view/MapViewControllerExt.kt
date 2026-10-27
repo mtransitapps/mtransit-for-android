@@ -18,7 +18,6 @@ import org.mtransit.android.ui.location.latLng
 import org.mtransit.android.ui.location.toNameOnly
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
-import org.mtransit.android.ui.view.map.MTPOIMarkerIds
 import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.map.countMarkersInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
@@ -230,17 +229,4 @@ fun MapViewController.clearSelectedPlaceMarker() = this.extendedGoogleMap?.apply
 fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.apply {
     vehicleLocationsMarkersByUuid.forEach { (_, marker) -> marker.remove() }
     vehicleLocationsMarkersByUuid.clear()
-}
-
-fun MapViewController.clearPOIMarkers() = this.extendedGoogleMap?.apply {
-    markers?.toList()?.forEach { marker ->
-        if (marker.getData<Any?>() is MTPOIMarkerIds) {
-            marker.remove()
-        }
-        marker.markers?.toList()?.forEach { subMarker ->
-            if (subMarker.getData<Any?>() is MTPOIMarkerIds) {
-                subMarker.remove()
-            }
-        }
-    }
 }

@@ -183,13 +183,15 @@ public class ExtendedMarkerOptions {
 	}
 
 	@NonNull
-	public ExtendedMarkerOptions icon(@NonNull Context context,
-									  @DrawableRes int iconResId,
-									  @Nullable Integer targetSize,
-									  boolean replaceColor,
-									  @ColorInt @Nullable Integer color,
-									  @ColorInt @Nullable Integer secondaryColor,
-									  @ColorInt int defaultColor) {
+	public ExtendedMarkerOptions icon(
+			@NonNull Context context,
+			@DrawableRes int iconResId,
+			@Nullable Integer targetSize,
+			boolean replaceColor,
+			@ColorInt @Nullable Integer color,
+			@ColorInt @Nullable Integer secondaryColor,
+			@ColorInt int defaultColor
+	) {
 		real.icon(null);
 		realContextWR = new WeakReference<>(context);
 		realIconResId = iconResId;
