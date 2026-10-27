@@ -16,11 +16,15 @@ import org.mtransit.android.data.updateMarker
 import org.mtransit.android.ui.location.UILocationUtils
 import org.mtransit.android.ui.location.latLng
 import org.mtransit.android.ui.location.toNameOnly
+import org.mtransit.android.ui.view.map.ExtendedGoogleMap
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
 import org.mtransit.android.ui.view.map.MTPOIMarker
+import org.mtransit.android.ui.view.map.MTPOIMarker.Companion.toExtendedMarkerOptions
+import org.mtransit.android.ui.view.map.MTPOIMarker.Companion.updateMarker
 import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.map.countMarkersInside
+import org.mtransit.android.ui.view.map.countPOIMarkersInside
 import org.mtransit.android.ui.view.map.distanceToInMeters
 import org.mtransit.android.ui.view.map.getMapMarkerAlpha
 import org.mtransit.android.ui.view.map.getMapMarkerSnippet
@@ -229,6 +233,39 @@ fun MapViewController.clearSelectedPlaceMarker() = this.extendedGoogleMap?.apply
 fun MapViewController.clearVehicleLocationMarkers() = this.extendedGoogleMap?.apply {
     vehicleLocationsMarkersByUuid.forEach { (_, marker) -> marker.remove() }
     vehicleLocationsMarkersByUuid.clear()
+}
+
+fun MapViewController.addPOIMarkersInternal(context: Context, extendedGoogleMap: ExtendedGoogleMap, poiMarkers: Collection<MTPOIMarker>) {
+    val currentZoomGroup: MTMapIconZoomGroup? = if (this.config.clusteringEnabled) null else this.getCurrentMapIconZoomGroup(
+        extendedGoogleMap,
+        extendedGoogleMap.getProjection().visibleRegion.toArea()
+            .countPOIMarkersInside(
+                poiMarkers
+            )
+    )
+    poiMarkers.forEach { poiMarker ->
+        val poiZoomGroup = if (currentZoomGroup == null) null else this.getPOIZoomGroup(currentZoomGroup, isFocused = { uuid -> poiMarker.hasUUID(uuid) })
+        val identifier = poiMarker.getIdentifier()
+        this.poiMarkersByIdentifier[identifier]?.let { existingMarker ->
+            poiMarker.updateMarker(existingMarker, context, this.config.markerLabelShowExtra, poiZoomGroup)
+            return@forEach
+        } ?: run {
+            extendedGoogleMap.addMarker(
+                poiMarker.toExtendedMarkerOptions(context, this.config.markerLabelShowExtra, poiZoomGroup)
+            ).also { newMarker ->
+                this.poiMarkersByIdentifier[identifier] = newMarker
+            }
+        }
+    }
+    poiMarkers.forEach { poiMarker ->
+        val marker = this.poiMarkersByIdentifier[poiMarker.getIdentifier()] ?: return@forEach
+        if (poiMarker.hasUUID(this.lastSelectedUUID)) {
+            marker.showInfoWindow()
+        } else {
+            marker.hideInfoWindow()
+            marker.setZIndex(poiMarker.zIndexOrDefault) // reset original Z-Index changed by showInfoWindow()
+        }
+    }
 }
 
 fun MapViewController.removeObsoletePOIMarkers(newPOIMarkers: Collection<MTPOIMarker>?) {
