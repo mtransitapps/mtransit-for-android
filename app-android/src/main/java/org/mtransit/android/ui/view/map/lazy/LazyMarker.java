@@ -292,8 +292,11 @@ public class LazyMarker implements MTLog.Loggable {
 			final Integer iconColor = color != null ? color
 					: secondaryColor != null ? secondaryColor
 					: defaultColor;
-			if (iconResId != null && replaceColor != null && iconColor != null) {
-				marker.setIcon(MapUtils.getIcon(context, iconResId, iconColor, replaceColor, targetSize));
+			if (iconResId != null && replaceColor != null && iconColor != null) { // context optional for cache hit
+				final BitmapDescriptor icon = MapUtils.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
+				if (icon != null) {
+					marker.setIcon(icon);
+				}
 			}
 		} else {
 			markerOptionsIconResId = iconResId;
@@ -424,8 +427,11 @@ public class LazyMarker implements MTLog.Loggable {
 		final Integer iconColor = color != null ? color
 				: secondaryColor != null ? secondaryColor
 				: defaultColor;
-		if (iconResId != null && replaceColor != null && iconColor != null) {
-			options.icon(MapUtils.getIcon(context, iconResId, iconColor, replaceColor, targetSize));
+		if (iconResId != null && replaceColor != null && iconColor != null) { // context optional for cache hit
+			final BitmapDescriptor icon = MapUtils.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
+			if (icon != null) {
+				options.icon(icon);
+			}
 		}
 		marker = map.addMarker(options);
 		if (listener != null) {

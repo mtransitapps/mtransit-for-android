@@ -175,19 +175,17 @@ object MapUtils : MTLog.Loggable {
 
     @JvmStatic
     fun getIcon(context: Context?, @DrawableRes iconResId: Int, @ColorInt color: Int, replaceColor: Boolean, size: Int? = null): BitmapDescriptor? {
-        var color = color
-        val key = Triple(iconResId, color, size)
-        color = ColorUtils.adaptColorToTheme(context, color)
-        val cachedBitmap: BitmapDescriptor? = cache.get(key)
-        if (cachedBitmap != null) {
+        val cacheKey = Triple(iconResId, color, size)
+        cache.get(cacheKey)?.let { cachedBitmap ->
             return cachedBitmap
         }
-        val newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor)
+        val themeColor = ColorUtils.adaptColorToTheme(context, color)
+        val newBase = ColorUtils.colorizeBitmapResource(context, themeColor, iconResId, replaceColor)
             ?.let { bitmap ->
                 size?.let { bitmap.scale(it, it) } ?: bitmap
-            } ?: return null
+            } ?: return null // not bitmap loaded
         val newBitmapDescriptor = BitmapDescriptorFactory.fromBitmap(newBase)
-        cache.put(key, newBitmapDescriptor)
+        cache.put(cacheKey, newBitmapDescriptor)
         return newBitmapDescriptor
     }
 }
