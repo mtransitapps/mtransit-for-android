@@ -27,6 +27,10 @@ data class MTPOIMarker(
     val uuidsAndAuthority: MTPOIMarkerIds,
 ) : MTLog.Loggable {
 
+    fun getIdentifier(): String {
+        return position.toString()
+    }
+
     companion object {
         private val LOG_TAG: String = MTPOIMarker::class.java.simpleName
 
@@ -49,26 +53,57 @@ data class MTPOIMarker(
             context: Context,
             markerLabelShowExtra: Boolean,
             currentZoomGroup: MTMapIconZoomGroup?,
-        ) = ExtendedMarkerOptions()
-            .position(position)
-            .title(title)
-            .snippet(if (markerLabelShowExtra) snippet else null)
-            .anchor(iconDef.anchorU, iconDef.anchorV)
-            .infoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
-            .flat(iconDef.flat)
-            .icon(
+        ) = ExtendedMarkerOptions().apply {
+            position(this@toExtendedMarkerOptions.position)
+            title(this@toExtendedMarkerOptions.title)
+            snippet(if (markerLabelShowExtra) this@toExtendedMarkerOptions.snippet else null)
+            val iconDef = this@toExtendedMarkerOptions.iconDef
+            anchor(iconDef.anchorU, iconDef.anchorV)
+            infoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
+            flat(iconDef.flat)
+            icon(
                 context,
                 iconDef.getZoomResId(currentZoomGroup),
                 iconDef.getZoomSize(currentZoomGroup),
                 iconDef.replaceColor,
-                color,
-                secondaryColor,
+                this@toExtendedMarkerOptions.color,
+                this@toExtendedMarkerOptions.secondaryColor,
                 Color.BLACK
             )
-            .alpha(alphaOrDefault)
-            .rotation(rotationOrDefault)
-            .zIndex(zIndexOrDefault)
-            .data(uuidsAndAuthority)
+            alpha(this@toExtendedMarkerOptions.alphaOrDefault)
+            rotation(this@toExtendedMarkerOptions.rotationOrDefault)
+            zIndex(this@toExtendedMarkerOptions.zIndexOrDefault)
+            data(this@toExtendedMarkerOptions.uuidsAndAuthority)
+        }
+
+        @JvmStatic
+        fun MTPOIMarker.updateMarker(
+            marker: IMarker,
+            context: Context,
+            markerLabelShowExtra: Boolean,
+            zoomGroup: MTMapIconZoomGroup?,
+        ) = marker.apply {
+            updatePosition(this@updateMarker.position)
+            updateRotation(this@updateMarker.rotationOrDefault)
+            val iconDef = this@updateMarker.iconDef
+            setIcon( // skips updating an already-created marker icon
+                context,
+                iconDef.getZoomResId(zoomGroup),
+                iconDef.getZoomSize(zoomGroup),
+                iconDef.replaceColor,
+                this@updateMarker.color,
+                this@updateMarker.secondaryColor,
+                Color.BLACK
+            )
+            setAnchor(iconDef.anchorU, iconDef.anchorV)
+            setInfoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
+            updateFlat(iconDef.flat)
+            updateTitle(this@updateMarker.title)
+            updateSnippet(if (markerLabelShowExtra) this@updateMarker.snippet else null)
+            updateAlpha(this@updateMarker.alphaOrDefault)
+            updateZIndex(this@updateMarker.zIndexOrDefault)
+            updateData(this@updateMarker.uuidsAndAuthority)
+        }
     }
 
     override fun getLogTag() = LOG_TAG
@@ -155,17 +190,17 @@ data class MTPOIMarker(
 
     fun merge(poiMarker: MTPOIMarker) {
         merge(
-            poiMarker.position,
-            poiMarker.names,
-            poiMarker.agencies,
-            poiMarker.extras,
-            poiMarker.iconDef,
-            poiMarker.color,
-            poiMarker.secondaryColor,
-            poiMarker.alpha,
-            poiMarker.rotation,
-            poiMarker.zIndex,
-            poiMarker.uuidsAndAuthority
+            position = poiMarker.position,
+            names = poiMarker.names,
+            agencies = poiMarker.agencies,
+            extras = poiMarker.extras,
+            iconDef = poiMarker.iconDef,
+            color = poiMarker.color,
+            secondaryColor = poiMarker.secondaryColor,
+            alpha = poiMarker.alpha,
+            rotation = poiMarker.rotation,
+            zIndex = poiMarker.zIndex,
+            uuidsAndAuthority = poiMarker.uuidsAndAuthority
         )
     }
 
@@ -184,17 +219,17 @@ data class MTPOIMarker(
         authority: String
     ) {
         merge(
-            position,
-            mutableListOf(name),
-            mutableListOf(agency),
-            mutableListOf(extra),
-            iconDef,
-            color,
-            secondaryColor,
-            alpha,
-            rotation,
-            zIndex,
-            MTPOIMarkerIds.from(uuid, authority)
+            position = position,
+            names = mutableListOf(name),
+            agencies = mutableListOf(agency),
+            extras = mutableListOf(extra),
+            iconDef = iconDef,
+            color = color,
+            secondaryColor = secondaryColor,
+            alpha = alpha,
+            rotation = rotation,
+            zIndex = zIndex,
+            uuidsAndAuthority = MTPOIMarkerIds.from(uuid, authority)
         )
     }
 

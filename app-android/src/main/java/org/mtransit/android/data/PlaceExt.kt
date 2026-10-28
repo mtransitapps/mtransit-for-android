@@ -21,7 +21,7 @@ fun Place.updateMarker(
     context: Context,
 ) = marker.apply {
     val wasInfoWindowShown = this.isInfoWindowShown
-    updatePosition(this@updateMarker.latLng, animate = false)
+    updatePosition(this@updateMarker.latLng)
     val darkTheme = ColorUtils.isDarkTheme(context)
     val iconColorInt = if (darkTheme) Color.LTGRAY else Color.DKGRAY
     val iconDef = MTMapIconsProvider.selectedDefaultIconDef

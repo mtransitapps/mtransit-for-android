@@ -51,7 +51,7 @@ import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.clearSelectedPlace
+import org.mtransit.android.ui.view.clearSelectedPlaceMarker
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -424,7 +424,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
         if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
             viewModel.vehicleLocations.observe(viewLifecycleOwner) { vehicleLocations ->
-                context?.let { mapViewController.updateVehicleLocationMarkers(it, vehicleLocations = vehicleLocations) }
+                context?.let { mapViewController.updateVehicleLocationMarkers(it, newVehicleLocations = vehicleLocations) }
                 if (viewModel.mapVisible(context) && !vehicleLocations.isNullOrEmpty()) {
                     startVehicleLocationCountdownRefresh(vehicleLocations)
                 } else {
@@ -454,7 +454,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 viewModel.setSelectedOrClosestStopShown()
             }
             listAdapter.setPoisUpdateDistanceAndClosest(poiList, parentViewModel.deviceLocation.value)
-            mapViewController.notifyMarkersChanged()
+            mapViewController.notifyPOIMarkersChanged()
             if (viewModel.listVisible(context)) {
                 val selectedPosition = currentSelectedItemIndexUuid?.first ?: -1
                 if (selectedPosition > 0) {
@@ -468,7 +468,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         }
         viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
             newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
-                ?: run { mapViewController.clearSelectedPlace() }
+                ?: run { mapViewController.clearSelectedPlaceMarker() }
         }
         viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
             viewModel.selectedLocation.value?.let {

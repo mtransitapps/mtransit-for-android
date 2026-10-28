@@ -321,7 +321,7 @@
     <ID>NoNameShadowing:MainPreferencesFragment.kt:MainPreferencesFragment${ viewModel.openAdInspector(it) }</ID>
     <ID>NoNameShadowing:MapUtils.kt:MapUtils$color</ID>
     <ID>NoNameShadowing:MapViewControllerExt.kt:markerProvider</ID>
-    <ID>NoNameShadowing:MapViewControllerExt.kt:vehicleLocations</ID>
+    <ID>NoNameShadowing:MapViewControllerExt.kt:newVehicleLocations</ID>
     <ID>NoNameShadowing:NearbyFragment.kt:NearbyFragment${ updateScreenToolbarSubtitle(it) }</ID>
     <ID>NoNameShadowing:NearbyFragment.kt:NearbyFragment${ updateScreenToolbarTitle(it) }</ID>
     <ID>NoNameShadowing:NearbyViewModel.kt:NearbyViewModel${ ColorUtils.parseColor(it) }</ID>
@@ -444,6 +444,7 @@
     <ID>TooManyFunctions:MTBillingManager.kt:MTBillingManager : LoggablePurchasesUpdatedListenerIBillingManager</ID>
     <ID>TooManyFunctions:MainActivity.kt:MainActivity : MTActivityWithLocationOnBackStackChangedListenerAnalyticsScreenIActivityIAdScreenActivityLoggableRewardedAdListener</ID>
     <ID>TooManyFunctions:MapFragment.kt:MapFragment : ABFragmentDeviceLocationListenerLocationSettingsAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>
+    <ID>TooManyFunctions:MapViewControllerExt.kt:org.mtransit.android.ui.view.MapViewControllerExt.kt</ID>
     <ID>TooManyFunctions:MapViewModel.kt:MapViewModel : MTViewModelWithLocationModuleDisabledAwareViewModelLocationSettingsAwareViewModel</ID>
     <ID>TooManyFunctions:NearbyFragment.kt:NearbyFragment : ABFragmentDeviceLocationListenerNewLocationAwareFragmentLocationSettingsAwareFragmentLocationPermissionAwareFragmentModuleDisabledAwareFragmentMenuProvider</ID>
     <ID>TooManyFunctions:NewsDetailsFragment.kt:NewsDetailsFragment : MTFragmentX</ID>

@@ -1,9 +1,10 @@
 package org.mtransit.android.ui.view;
 
-import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedPlace;
-import static org.mtransit.android.ui.view.MapViewControllerExtKt.getPOIZoomGroup;
-import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeMissingVehicleLocationMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.addOnLayoutChangeListener;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.addPOIMarkersInternal;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearSelectedPlaceMarker;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.clearVehicleLocationMarkers;
+import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeObsoletePOIMarkers;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.removeOnLayoutChangeListener;
 import static org.mtransit.android.ui.view.MapViewControllerExtKt.updateVehicleLocationMarkers;
 
@@ -82,10 +83,13 @@ import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import kotlin.Pair;
 
 @SuppressWarnings("DeprecatedCall")
 public class MapViewController implements
@@ -350,7 +354,7 @@ public class MapViewController implements
 		setupGoogleMap(googleMap);
 	}
 
-	private boolean clusterManagerItemsLoaded = false;
+	private boolean poiMarkersLoaded = false;
 
 	private void setupGoogleMap(@NonNull GoogleMap googleMap) {
 		final Activity activity = getActivityOrNull();
@@ -389,7 +393,7 @@ public class MapViewController implements
 			this.advancedMarkersAvailable = false;
 		}
 		MTLog.d(this, "setupGoogleMap() > capabilities > isAdvancedMarkersAvailable: %s.", this.advancedMarkersAvailable);
-		clearMarkers();
+		this.poiMarkersLoaded = false;
 		int paddingTopPx = 0;
 		if (this.config.getPaddingTopDp() > 0) {
 			paddingTopPx = (int) ResourceUtils.convertDPtoPX(activity, this.config.getPaddingTopDp()); // action bar
@@ -406,8 +410,11 @@ public class MapViewController implements
 		showMapInternal(null);
 	}
 
+	/**
+	 * Keep selected place marker to allow clearing or updating it independently
+	 */
 	@Nullable
-	protected IMarker selectedPlaceMarker = null;
+	protected Pair<Place, IMarker> selectedPlaceMarker = null;
 
 	public void setPaddingTopDp(int paddingTopDp) {
 		this.config.setPaddingTopDp(paddingTopDp);
@@ -451,7 +458,7 @@ public class MapViewController implements
 	}
 
 	private void showHideLoading() {
-		if (this.clusterManagerItemsLoaded) {
+		if (this.poiMarkersLoaded) {
 			hideLoading();
 		} else {
 			showLoading();
@@ -566,7 +573,9 @@ public class MapViewController implements
 			if (mapView.getVisibility() != View.VISIBLE) {
 				mapView.setVisibility(View.VISIBLE);
 			}
-			initMapMarkers();
+			if (!this.poiMarkersLoaded) {
+				refreshMapMarkers(false);
+			}
 			return true; // shown
 		}
 		if (mapView.getVisibility() == View.GONE) {
@@ -631,9 +640,9 @@ public class MapViewController implements
 	public void onInfoWindowClick(@Nullable IMarker marker) {
 		if (marker == null) return;
 		final MTPOIMarkerIds poiMarkerIds = marker.getData() instanceof MTPOIMarkerIds ? marker.getData() : null;
-		final String selectedUUID = poiMarkerIds != null ? poiMarkerIds.getFirstUUIDOrNull() : null;
-		if (poiMarkerIds != null && selectedUUID != null) {
-			this.lastSelectedUUID = selectedUUID; // keep selected if leaving the screen
+		final String selectedPoiUUID = poiMarkerIds != null ? poiMarkerIds.getFirstUUIDOrNull() : null;
+		if (poiMarkerIds != null && selectedPoiUUID != null) {
+			this.lastSelectedUUID = selectedPoiUUID; // keep selected if leaving the screen
 			if (poiMarkerIds.size() > 0) {
 				if (FeatureFlags.F_NAVIGATION) {
 					// TODO navigate to dialog
@@ -649,6 +658,11 @@ public class MapViewController implements
 					}
 				}
 			}
+			return;
+		}
+		final VehicleLocation selectedVehicleLocation = marker.getData() instanceof VehicleLocation ? marker.getData() : null;
+		if (selectedVehicleLocation != null) {
+			this.lastSelectedUUID = selectedVehicleLocation.getUuid(); // keep selected if leaving the screen
 			return;
 		}
 		final Place selectedPlace = marker.getData() instanceof Place ? marker.getData() : null;
@@ -671,8 +685,20 @@ public class MapViewController implements
 
 	@Override
 	public void onInfoWindowClose(@Nullable IMarker marker) {
-		final String closeUUID = IMarkerExtKt.getFirstUUIDOrNull(marker);
-		if (this.lastSelectedUUID != null && this.lastSelectedUUID.equals(closeUUID)) {
+		if (marker == null) return;
+		if (this.lastSelectedUUID == null) return;
+		final Object data = marker.getData();
+		String closedUUID;
+		if (data instanceof VehicleLocation) {
+			closedUUID = ((VehicleLocation) data).getUuid();
+		} else if (data instanceof Place) {
+			closedUUID = ((Place) data).getUuid();
+		} else if (data instanceof MTPOIMarkerIds) {
+			closedUUID = IMarkerExtKt.getFirstUUIDOrNull(marker);
+		} else {
+			closedUUID = null;
+		}
+		if (Objects.equals(this.lastSelectedUUID, closedUUID)) {
 			this.lastSelectedUUID = null;
 		}
 	}
@@ -696,7 +722,13 @@ public class MapViewController implements
 			if (this.config.getAutoClickInfoWindow()) {
 				onInfoWindowClick(marker);
 			}
+		} else if (marker.getData() instanceof VehicleLocation) {
+			this.lastSelectedUUID = ((VehicleLocation) marker.getData()).getUuid();
+			if (this.config.getAutoClickInfoWindow()) {
+				onInfoWindowClick(marker);
+			}
 		} else if (marker.getData() instanceof Place) {
+			this.lastSelectedUUID = ((Place) marker.getData()).getUuid();
 			if (this.config.getAutoClickInfoWindow()) {
 				onInfoWindowClick(marker);
 			}
@@ -725,7 +757,7 @@ public class MapViewController implements
 		}
 		final MTMapIconZoomGroup newZoomGroup = MTMapIconZoomGroup.from(cameraPosition.zoom, visibleMarkersCount);
 		if (this.currentMapIconZoomGroup != null && this.currentMapIconZoomGroup != newZoomGroup) {
-			refreshMapMarkers();
+			refreshMapMarkers(true);
 		} else {
 			this.currentMapIconZoomGroup = newZoomGroup;
 		}
@@ -884,9 +916,7 @@ public class MapViewController implements
 			}
 			return true;
 		}
-		if (markerProvider == null) {
-			return false;
-		}
+		if (markerProvider == null) return false;
 		final Collection<MTPOIMarker> poiMarkers = markerProvider.getPoiMarkers();
 		if (poiMarkers != null) {
 			for (MTPOIMarker poiMarker : poiMarkers) {
@@ -966,18 +996,6 @@ public class MapViewController implements
 			MTLog.w(this, e, "Error while initializing map camera!");
 			return false;
 		}
-	}
-
-	private void initMapMarkers() {
-		if (this.clusterManagerItemsLoaded) {
-			MTLog.d(this, "initMapMarkers() > SKIP (already loaded)");
-			return;
-		}
-		refreshMapMarkers(false);
-	}
-
-	private void refreshMapMarkers() {
-		refreshMapMarkers(true);
 	}
 
 	private void refreshMapMarkers(boolean update) {
@@ -1159,30 +1177,11 @@ public class MapViewController implements
 				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no map)");
 				return;
 			}
-			final String lastSelectedUUID = mapViewController.lastSelectedUUID;
-			mapViewController.clearClusterManagerItems(); // triggers onInfoWindowClose()
-			mapViewController.lastSelectedUUID = lastSelectedUUID;
-			final MTMapIconZoomGroup currentZoomGroup = mapViewController.config.getClusteringEnabled() ? null : mapViewController.getCurrentMapIconZoomGroup(mapViewController.extendedGoogleMap,
-					AreaExtKt.countPOIMarkersInside(
-							AreaExtKt.toArea(mapViewController.extendedGoogleMap.getProjection().getVisibleRegion()),
-							poiMarkers
-					)
-			);
+			removeObsoletePOIMarkers(mapViewController, poiMarkers);
 			final Context context = mapViewController.mapView.getContext();
-			for (MTPOIMarker poiMarker : poiMarkers) {
-				final MTMapIconZoomGroup poiZoomGroup = currentZoomGroup == null ? null : getPOIZoomGroup(mapViewController, currentZoomGroup, poiMarker::hasUUID);
-				final IMarker marker = mapViewController.extendedGoogleMap.addMarker(
-						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, mapViewController.config.getMarkerLabelShowExtra(), poiZoomGroup)
-				);
-				if (poiMarker.hasUUID(mapViewController.lastSelectedUUID)) {
-					marker.showInfoWindow();
-				} else {
-					marker.hideInfoWindow();
-					marker.setZIndex(poiMarker.getZIndexOrDefault()); // reset original Z-Index changed by showInfoWindow()
-				}
-			}
-			updateVehicleLocationMarkers(mapViewController, context);
-			mapViewController.clusterManagerItemsLoaded = true;
+			addPOIMarkersInternal(mapViewController, context, mapViewController.extendedGoogleMap, poiMarkers);
+			updateVehicleLocationMarkers(mapViewController, context); // needed to compute zoom group
+			mapViewController.poiMarkersLoaded = true;
 			mapViewController.hideLoading();
 			if (!this.update && mapViewController.config.getShowAllMarkersWhenReady()) {
 				mapViewController.showMarkers(false, mapViewController.config.getFollowingDevice());
@@ -1190,44 +1189,38 @@ public class MapViewController implements
 		}
 	}
 
+	/**
+	 * Keep POI markers to avoid dynamic O(N) map marker scanning on periodic timers
+	 */
 	@NonNull
-	protected final ConcurrentHashMap<String, IMarker> vehicleLocationsMarkers = new ConcurrentHashMap<>(); // WeakHashMap forgets about markers not removed yet
+	protected final ConcurrentHashMap<String, IMarker> poiMarkersByIdentifier = new ConcurrentHashMap<>();
 
-	public boolean addMarkers(@Nullable Collection<MTPOIMarker> poiMarkers) {
+	/**
+	 * Keep vehicle location markers to avoid dynamic O(N) map marker scanning on periodic timers
+	 */
+	@NonNull
+	protected final ConcurrentHashMap<String, IMarker> vehicleLocationsMarkersByUuid = new ConcurrentHashMap<>(); // WeakHashMap forgets about markers not removed yet
+
+	public boolean addPOIMarkers(@Nullable Collection<MTPOIMarker> poiMarkers, boolean reset) {
+		if (this.extendedGoogleMap == null) {
+			MTLog.d(this, "addPOIMarkers() > SKIP (no map)");
+			return false;
+		}
 		final Context context = getActivityOrNull();
 		if (context == null) {
-			MTLog.d(this, "addMarkers() > SKIP (no context)");
+			MTLog.d(this, "addPOIMarkers() > SKIP (no context)");
 			return false;
 		}
-		return addMarkers(context, poiMarkers);
-	}
-
-	private boolean addMarkers(@NonNull Context context, @Nullable Collection<MTPOIMarker> poiMarkers) {
-		if (this.extendedGoogleMap == null) {
-			MTLog.d(this, "addMarkers() > SKIP (no map)");
-			return false;
+		if (reset) { // IF reset DO remove old markers
+			removeObsoletePOIMarkers(this, poiMarkers);
+		} // else keep adding new poi marker
+		if (poiMarkers == null) {
+			this.poiMarkersLoaded = false;
+			showLoading();
+			return true;
 		}
-		if (poiMarkers != null) {
-			final MTMapIconZoomGroup currentZoomGroup = this.config.getClusteringEnabled() ? null : this.getCurrentMapIconZoomGroup(this.extendedGoogleMap,
-					AreaExtKt.countPOIMarkersInside(
-							AreaExtKt.toArea(this.extendedGoogleMap.getProjection().getVisibleRegion()),
-							poiMarkers
-					)
-			);
-			for (MTPOIMarker poiMarker : poiMarkers) {
-				final MTMapIconZoomGroup poiZoomGroup = currentZoomGroup == null ? null : getPOIZoomGroup(this, currentZoomGroup, poiMarker::hasUUID);
-				final IMarker marker = this.extendedGoogleMap.addMarker(
-						MTPOIMarker.toExtendedMarkerOptions(poiMarker, context, this.config.getMarkerLabelShowExtra(), poiZoomGroup)
-				);
-				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
-					marker.showInfoWindow();
-				} else {
-					marker.hideInfoWindow();
-					marker.setZIndex(poiMarker.getZIndexOrDefault()); // reset original Z-Index changed by showInfoWindow()
-				}
-			}
-		}
-		this.clusterManagerItemsLoaded = true;
+		addPOIMarkersInternal(this, context, this.extendedGoogleMap, poiMarkers);
+		this.poiMarkersLoaded = true;
 		hideLoading();
 		if (this.config.getShowAllMarkersWhenReady()) {
 			showMarkers(false, this.config.getFollowingDevice());
@@ -1394,14 +1387,8 @@ public class MapViewController implements
 		}
 	}
 
-	public void notifyMarkersChanged() {
-		clearMarkers();
-	}
-
-	public void clearMarkers() {
-		clearSelectedPlace(this);
-		removeMissingVehicleLocationMarkers(this);
-		clearClusterManagerItems();
+	public void notifyPOIMarkersChanged() {
+		this.poiMarkersLoaded = false;
 	}
 
 	public void onLowMemory() {
@@ -1416,6 +1403,12 @@ public class MapViewController implements
 
 	public void onDestroyView() {
 		removeOnLayoutChangeListener(this);
+		clearSelectedPlaceMarker(this);
+		clearVehicleLocationMarkers(this);
+		this.poiMarkersByIdentifier.clear();
+		if (this.extendedGoogleMap != null) {
+			this.extendedGoogleMap.clear(); // clear everything on the map (all markers...)
+		}
 		destroyMapView();
 		this.mapVisible = false;
 		this.waitingForGlobalLayout = false;
@@ -1425,14 +1418,6 @@ public class MapViewController implements
 		this.initializingMapView.set(false);
 		TaskUtils.cancelQuietly(this.loadClusterItemsTask, true);
 		this.lastSavedInstanceState = null;
-		clearMarkers();
-	}
-
-	private void clearClusterManagerItems() {
-		if (this.extendedGoogleMap != null) {
-			this.extendedGoogleMap.clear();
-		}
-		this.clusterManagerItemsLoaded = false;
 	}
 
 	public void onDestroy() {
