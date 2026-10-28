@@ -1331,7 +1331,11 @@ public class MapViewController implements
 	public void onPause() {
 		this.needToResumeMap = false;
 		if (this.mapView != null) {
-			this.mapView.onPause();
+			try {
+				this.mapView.onPause();
+			} catch (NullPointerException npe) {
+				MTLog.w(this, npe, "Crash while pausing map!");
+			}
 		}
 		if (this.extendedGoogleMap != null) {
 			this.lastCameraPosition = this.extendedGoogleMap.getCameraPosition();
