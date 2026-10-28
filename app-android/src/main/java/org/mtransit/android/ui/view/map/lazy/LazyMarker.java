@@ -289,8 +289,9 @@ public class LazyMarker implements MTLog.Loggable {
 			@ColorInt @Nullable Integer defaultColor
 	) {
 		if (marker != null) {
-			if (iconResId != null && replaceColor != null && color != null) {
-				marker.setIcon(MapUtils.getIcon(context, iconResId, color, replaceColor, targetSize));
+			final Integer iconColor = color != null ? color : secondaryColor != null ? secondaryColor : defaultColor;
+			if (iconResId != null && replaceColor != null && iconColor != null) {
+				marker.setIcon(MapUtils.getIcon(context, iconResId, iconColor, replaceColor, targetSize));
 			}
 		} else {
 			markerOptionsIconResId = iconResId;
