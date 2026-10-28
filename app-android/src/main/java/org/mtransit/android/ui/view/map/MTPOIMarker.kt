@@ -86,13 +86,12 @@ data class MTPOIMarker(
             updatePosition(this@updateMarker.position)
             updateRotation(this@updateMarker.rotationOrDefault)
             val iconDef = this@updateMarker.iconDef
-            val renderedColor = this@updateMarker.color ?: this@updateMarker.secondaryColor ?: Color.BLACK
-            setIcon(
+            setIcon( // skips updating an already-created marker icon
                 context,
                 iconDef.getZoomResId(zoomGroup),
                 iconDef.getZoomSize(zoomGroup),
                 iconDef.replaceColor,
-                renderedColor, // ensure existing marker icon is always rendered with a valid color
+                this@updateMarker.color,
                 this@updateMarker.secondaryColor,
                 Color.BLACK
             )
