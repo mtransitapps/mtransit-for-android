@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.2.1" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.1)" variant="all" version="9.2.1">
+<issues format="6" by="lint 9.5.0" type="baseline" client="gradle" dependencies="true" name="AGP (9.5.0)" variant="all" version="9.5.0">
 
     <issue
         id="DoNotMockPlatformTypes"
@@ -101,36 +101,124 @@
     </issue>
 
     <issue
+        id="ThreadConstraint"
+        message="Call must be from `@{Main,Ui}Thread`, but context is allowing `@AnyThread`"
+        errorLine1="     NavControllerExtKt.navigateF(navController,"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/org/mtransit/android/util/LinkUtils.java"
+            line="121"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Call must be from `@{Main,Ui}Thread`, but context is allowing `@AnyThread`"
+        errorLine1="      ((MainActivity) activity).addFragmentToStack("
+        errorLine2="                                ^">
+        <location
+            file="src/main/java/org/mtransit/android/util/LinkUtils.java"
+            line="130"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Call must be from `@{Main,Ui}Thread`, but context is allowing `@AnyThread`"
+        errorLine1="    setCurrentSelectedItemChecked(true);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
+            line="570"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Call must be from `@{Main,Ui}Thread`, but context is allowing `@AnyThread`"
+        errorLine1="   setCurrentSelectedItemChecked(true); // keep current position"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
+            line="577"
+            column="4"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Call must be from `@{Main,Ui}Thread`, but context is allowing `@AnyThread`"
+        errorLine1="  mainActivity.showNewFragment(newFragment, false, null);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
+            line="591"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Call must be from `@{Main,Ui}Thread`, but context is allowing `@AnyThread`"
+        errorLine1="   ).executeOnExecutor(getFetchServiceUpdateExecutor());"
+        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/ServiceUpdateLoader.java"
+            line="188"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Call must be from `@{Main,Ui}Thread`, but context is allowing `@AnyThread`"
+        errorLine1="    ).executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/task/StatusLoader.java"
+            line="121"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Call must be from `@{Main,Ui}Thread`, but context is allowing `@AnyThread`"
+        errorLine1="  asyncTask.executeOnExecutor(THREAD_POOL_EXECUTOR, params);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/org/mtransit/android/commons/TaskUtils.java"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ui.fragment.MTFragmentX.onLowMemory is deprecated; consider using an alternative."
         errorLine1="        super.onLowMemory()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/type/poi/AgencyPOIsFragment.kt"
-            line="455"
+            line="470"
             column="9"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ad.banner.SetupBannerAdTask.SetupBannerAdTask is deprecated; consider using an alternative."
-        errorLine1="            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            setupTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="158"
-            column="33"/>
+            line="181"
+            column="25"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.ad.banner.SetupBannerAdTask.SetupBannerAdTask is deprecated; consider using an alternative."
-        errorLine1="            setupBannerAdTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            setupTask = SetupBannerAdTask(this.globalAdManager, this, this.crashReporter, activity)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/BannerAdManager.kt"
-            line="158"
-            column="33"/>
+            line="181"
+            column="25"/>
     </issue>
 
     <issue
@@ -173,7 +261,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/datasource/DataSourcesReader.kt"
-            line="300"
+            line="314"
             column="9"/>
     </issue>
 
@@ -239,7 +327,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="119"
+            line="121"
             column="4"/>
     </issue>
 
@@ -250,7 +338,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="119"
+            line="121"
             column="17"/>
     </issue>
 
@@ -261,7 +349,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="119"
+            line="121"
             column="26"/>
     </issue>
 
@@ -272,7 +360,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="119"
+            line="121"
             column="31"/>
     </issue>
 
@@ -283,7 +371,7 @@
         errorLine2="                                                                                                          ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="119"
+            line="121"
             column="107"/>
     </issue>
 
@@ -294,7 +382,7 @@
         errorLine2="                                                                                                                    ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="119"
+            line="121"
             column="117"/>
     </issue>
 
@@ -305,7 +393,7 @@
         errorLine2="                                                                                                                               ~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="119"
+            line="121"
             column="128"/>
     </issue>
 
@@ -316,7 +404,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="122"
+            line="124"
             column="4"/>
     </issue>
 
@@ -327,7 +415,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="122"
+            line="124"
             column="17"/>
     </issue>
 
@@ -338,7 +426,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="122"
+            line="124"
             column="26"/>
     </issue>
 
@@ -349,7 +437,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="122"
+            line="124"
             column="29"/>
     </issue>
 
@@ -360,7 +448,7 @@
         errorLine2="                                                                                                 ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="122"
+            line="124"
             column="98"/>
     </issue>
 
@@ -371,7 +459,7 @@
         errorLine2="                                                                                                           ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="122"
+            line="124"
             column="108"/>
     </issue>
 
@@ -382,7 +470,7 @@
         errorLine2="                                                                                                                      ~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="122"
+            line="124"
             column="119"/>
     </issue>
 
@@ -393,7 +481,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="155"
+            line="159"
             column="4"/>
     </issue>
 
@@ -404,7 +492,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="155"
+            line="159"
             column="17"/>
     </issue>
 
@@ -415,7 +503,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="155"
+            line="159"
             column="26"/>
     </issue>
 
@@ -426,7 +514,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="155"
+            line="159"
             column="31"/>
     </issue>
 
@@ -437,7 +525,7 @@
         errorLine2="                                                                                        ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="155"
+            line="159"
             column="89"/>
     </issue>
 
@@ -448,7 +536,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="158"
+            line="162"
             column="4"/>
     </issue>
 
@@ -459,7 +547,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="158"
+            line="162"
             column="17"/>
     </issue>
 
@@ -470,7 +558,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="158"
+            line="162"
             column="26"/>
     </issue>
 
@@ -481,7 +569,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="158"
+            line="162"
             column="29"/>
     </issue>
 
@@ -492,7 +580,7 @@
         errorLine2="                                                                               ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="158"
+            line="162"
             column="80"/>
     </issue>
 
@@ -503,7 +591,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="194"
+            line="200"
             column="4"/>
     </issue>
 
@@ -514,7 +602,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="194"
+            line="200"
             column="17"/>
     </issue>
 
@@ -525,7 +613,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="194"
+            line="200"
             column="26"/>
     </issue>
 
@@ -536,7 +624,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="194"
+            line="200"
             column="31"/>
     </issue>
 
@@ -547,7 +635,7 @@
         errorLine2="                                                                                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="194"
+            line="200"
             column="104"/>
     </issue>
 
@@ -558,7 +646,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="197"
+            line="203"
             column="4"/>
     </issue>
 
@@ -569,7 +657,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="197"
+            line="203"
             column="17"/>
     </issue>
 
@@ -580,7 +668,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="197"
+            line="203"
             column="26"/>
     </issue>
 
@@ -591,7 +679,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="197"
+            line="203"
             column="29"/>
     </issue>
 
@@ -602,7 +690,7 @@
         errorLine2="                                                                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="197"
+            line="203"
             column="95"/>
     </issue>
 
@@ -613,7 +701,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="220"
+            line="226"
             column="4"/>
     </issue>
 
@@ -624,7 +712,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="220"
+            line="226"
             column="17"/>
     </issue>
 
@@ -635,7 +723,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="220"
+            line="226"
             column="26"/>
     </issue>
 
@@ -646,7 +734,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="220"
+            line="226"
             column="31"/>
     </issue>
 
@@ -657,7 +745,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="223"
+            line="229"
             column="4"/>
     </issue>
 
@@ -668,7 +756,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="223"
+            line="229"
             column="17"/>
     </issue>
 
@@ -679,7 +767,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="223"
+            line="229"
             column="26"/>
     </issue>
 
@@ -690,7 +778,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="223"
+            line="229"
             column="29"/>
     </issue>
 
@@ -701,7 +789,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="247"
+            line="252"
             column="4"/>
     </issue>
 
@@ -712,7 +800,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="247"
+            line="252"
             column="17"/>
     </issue>
 
@@ -723,7 +811,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="247"
+            line="252"
             column="26"/>
     </issue>
 
@@ -734,7 +822,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="247"
+            line="252"
             column="31"/>
     </issue>
 
@@ -745,7 +833,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="250"
+            line="255"
             column="4"/>
     </issue>
 
@@ -756,7 +844,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="250"
+            line="255"
             column="17"/>
     </issue>
 
@@ -767,7 +855,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="250"
+            line="255"
             column="26"/>
     </issue>
 
@@ -778,7 +866,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="250"
+            line="255"
             column="29"/>
     </issue>
 
@@ -789,7 +877,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="279"
+            line="286"
             column="4"/>
     </issue>
 
@@ -800,7 +888,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="279"
+            line="286"
             column="17"/>
     </issue>
 
@@ -811,7 +899,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="279"
+            line="286"
             column="26"/>
     </issue>
 
@@ -822,7 +910,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="279"
+            line="286"
             column="31"/>
     </issue>
 
@@ -833,7 +921,7 @@
         errorLine2="                                                                                                 ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="279"
+            line="286"
             column="98"/>
     </issue>
 
@@ -844,7 +932,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="282"
+            line="289"
             column="4"/>
     </issue>
 
@@ -855,7 +943,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="282"
+            line="289"
             column="17"/>
     </issue>
 
@@ -866,7 +954,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="282"
+            line="289"
             column="26"/>
     </issue>
 
@@ -877,7 +965,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="282"
+            line="289"
             column="29"/>
     </issue>
 
@@ -888,7 +976,7 @@
         errorLine2="                                                                                        ~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="282"
+            line="289"
             column="89"/>
     </issue>
 
@@ -899,7 +987,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="309"
+            line="316"
             column="4"/>
     </issue>
 
@@ -910,7 +998,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="309"
+            line="316"
             column="17"/>
     </issue>
 
@@ -921,7 +1009,7 @@
         errorLine2="                         ~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="309"
+            line="316"
             column="26"/>
     </issue>
 
@@ -932,7 +1020,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="309"
+            line="316"
             column="31"/>
     </issue>
 
@@ -943,7 +1031,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="313"
+            line="320"
             column="4"/>
     </issue>
 
@@ -954,7 +1042,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="313"
+            line="320"
             column="17"/>
     </issue>
 
@@ -965,7 +1053,7 @@
         errorLine2="                         ~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="313"
+            line="320"
             column="26"/>
     </issue>
 
@@ -976,7 +1064,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/util/FragmentUtils.java"
-            line="313"
+            line="320"
             column="29"/>
     </issue>
 
@@ -987,7 +1075,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="225"
+            line="226"
             column="17"/>
     </issue>
 
@@ -998,7 +1086,7 @@
         errorLine2="                                           ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="225"
+            line="226"
             column="44"/>
     </issue>
 
@@ -1009,7 +1097,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/home/HomeFragment.kt"
-            line="417"
+            line="423"
             column="13"/>
     </issue>
 
@@ -1141,7 +1229,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/MTActivityWithLocation.java"
-            line="35"
+            line="44"
             column="3"/>
     </issue>
 
@@ -1295,7 +1383,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
-            line="34"
+            line="36"
             column="13"/>
     </issue>
 
@@ -1306,7 +1394,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
-            line="34"
+            line="36"
             column="52"/>
     </issue>
 
@@ -1317,7 +1405,7 @@
         errorLine2="                                                         ~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
-            line="34"
+            line="36"
             column="58"/>
     </issue>
 
@@ -1328,7 +1416,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
-            line="34"
+            line="36"
             column="61"/>
     </issue>
 
@@ -1339,7 +1427,7 @@
         errorLine2="                                                                                                      ~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
-            line="34"
+            line="36"
             column="103"/>
     </issue>
 
@@ -1350,7 +1438,7 @@
         errorLine2="                                                                                                            ~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/map/MTPOIMarkerIds.kt"
-            line="34"
+            line="36"
             column="109"/>
     </issue>
 
@@ -1746,52 +1834,8 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/view/common/MTTabLayoutMediator.kt"
-            line="71"
+            line="70"
             column="33"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
-        errorLine1="            return super.onBackPressed()"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="442"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
-        errorLine1="            return super.onBackPressed()"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="442"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
-        errorLine1="        super.onBackPressed()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="451"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="androidx.activity.ComponentActivity.onBackPressed is deprecated; consider using an alternative."
-        errorLine1="        super.onBackPressed()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/ui/MainActivity.kt"
-            line="451"
-            column="9"/>
     </issue>
 
     <issue
@@ -1801,7 +1845,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/map/MapFragment.kt"
-            line="273"
+            line="320"
             column="9"/>
     </issue>
 
@@ -1823,7 +1867,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="226"
+            line="244"
             column="39"/>
     </issue>
 
@@ -1834,7 +1878,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="227"
+            line="245"
             column="26"/>
     </issue>
 
@@ -1845,7 +1889,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="227"
+            line="245"
             column="26"/>
     </issue>
 
@@ -1856,7 +1900,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="268"
+            line="286"
             column="4"/>
     </issue>
 
@@ -1867,7 +1911,7 @@
         errorLine2="       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="285"
+            line="303"
             column="8"/>
     </issue>
 
@@ -1878,7 +1922,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="289"
+            line="307"
             column="4"/>
     </issue>
 
@@ -1889,7 +1933,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="289"
+            line="307"
             column="4"/>
     </issue>
 
@@ -1900,7 +1944,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="289"
+            line="307"
             column="17"/>
     </issue>
 
@@ -1911,7 +1955,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="289"
+            line="307"
             column="17"/>
     </issue>
 
@@ -1922,7 +1966,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="305"
+            line="323"
             column="4"/>
     </issue>
 
@@ -1933,7 +1977,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="305"
+            line="323"
             column="4"/>
     </issue>
 
@@ -1944,7 +1988,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="305"
+            line="323"
             column="17"/>
     </issue>
 
@@ -1955,7 +1999,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="305"
+            line="323"
             column="17"/>
     </issue>
 
@@ -1966,7 +2010,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/NavigationDrawerController.java"
-            line="347"
+            line="365"
             column="53"/>
     </issue>
 
@@ -2263,19 +2307,8 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/fragment/POIFragment.java"
-            line="1535"
+            line="1577"
             column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.graphics.drawable.Drawable.setColorFilter is deprecated; consider using an alternative."
-        errorLine1="   availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter("
-        errorLine2="   ^">
-        <location
-            file="src/main/java/org/mtransit/android/ui/view/POIStatusDetailViewController.java"
-            line="145"
-            column="4"/>
     </issue>
 
     <issue
@@ -2285,7 +2318,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ui/rds/route/direction/RDSDirectionStopsFragment.kt"
-            line="645"
+            line="669"
             column="9"/>
     </issue>
 
@@ -2468,8 +2501,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
-        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Any?, Any?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
             line="25"
@@ -2479,8 +2512,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
-        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Any?, Any?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/banner/SetupBannerAdTask.kt"
             line="25"
@@ -2545,8 +2578,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
-        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Any?, Any?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
             line="24"
@@ -2556,8 +2589,8 @@
     <issue
         id="DeprecatedCall"
         message="org.mtransit.android.commons.task.MTCancellableAsyncTask.MTCancellableAsyncTask is deprecated; consider using an alternative."
-        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Void?, Void?, Boolean?>() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1=") : org.mtransit.android.commons.task.MTCancellableAsyncTask&lt;Any?, Any?, Boolean?>() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/org/mtransit/android/ad/inlinebanner/SetupInlineBannerAdTask.kt"
             line="24"
@@ -2780,7 +2813,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="43"
+            line="45"
             column="3"/>
     </issue>
 
@@ -2791,7 +2824,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="44"
+            line="46"
             column="3"/>
     </issue>
 
@@ -2802,7 +2835,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="45"
+            line="47"
             column="3"/>
     </issue>
 
@@ -2813,7 +2846,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="46"
+            line="48"
             column="3"/>
     </issue>
 
@@ -2824,7 +2857,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="47"
+            line="49"
             column="3"/>
     </issue>
 
@@ -2835,7 +2868,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="48"
+            line="50"
             column="3"/>
     </issue>
 
@@ -2846,7 +2879,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="49"
+            line="51"
             column="3"/>
     </issue>
 
@@ -2857,7 +2890,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="50"
+            line="52"
             column="3"/>
     </issue>
 
@@ -2868,7 +2901,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="51"
+            line="53"
             column="3"/>
     </issue>
 
@@ -2879,7 +2912,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="52"
+            line="54"
             column="3"/>
     </issue>
 
@@ -2890,7 +2923,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="67"
+            line="69"
             column="3"/>
     </issue>
 
@@ -2901,7 +2934,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="68"
+            line="70"
             column="3"/>
     </issue>
 
@@ -2912,7 +2945,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="69"
+            line="71"
             column="3"/>
     </issue>
 
@@ -2923,7 +2956,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="70"
+            line="72"
             column="3"/>
     </issue>
 
@@ -2934,7 +2967,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="71"
+            line="73"
             column="3"/>
     </issue>
 
@@ -2945,7 +2978,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="72"
+            line="74"
             column="3"/>
     </issue>
 
@@ -2956,7 +2989,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="73"
+            line="75"
             column="3"/>
     </issue>
 
@@ -2967,7 +3000,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="74"
+            line="76"
             column="3"/>
     </issue>
 
@@ -2978,7 +3011,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="75"
+            line="77"
             column="3"/>
     </issue>
 
@@ -2989,7 +3022,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="89"
+            line="91"
             column="3"/>
     </issue>
 
@@ -3000,7 +3033,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="90"
+            line="92"
             column="3"/>
     </issue>
 
@@ -3011,7 +3044,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="91"
+            line="93"
             column="3"/>
     </issue>
 
@@ -3022,7 +3055,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="92"
+            line="94"
             column="3"/>
     </issue>
 
@@ -3033,7 +3066,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="93"
+            line="95"
             column="3"/>
     </issue>
 
@@ -3044,7 +3077,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="94"
+            line="96"
             column="3"/>
     </issue>
 
@@ -3055,7 +3088,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="95"
+            line="97"
             column="3"/>
     </issue>
 
@@ -3066,7 +3099,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="96"
+            line="98"
             column="3"/>
     </issue>
 
@@ -3077,7 +3110,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="109"
+            line="111"
             column="3"/>
     </issue>
 
@@ -3088,7 +3121,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="110"
+            line="112"
             column="3"/>
     </issue>
 
@@ -3099,7 +3132,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="111"
+            line="113"
             column="3"/>
     </issue>
 
@@ -3110,7 +3143,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="112"
+            line="114"
             column="3"/>
     </issue>
 
@@ -3121,7 +3154,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="113"
+            line="115"
             column="3"/>
     </issue>
 
@@ -3132,7 +3165,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="114"
+            line="116"
             column="3"/>
     </issue>
 
@@ -3143,7 +3176,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="115"
+            line="117"
             column="3"/>
     </issue>
 
@@ -3154,7 +3187,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="116"
+            line="118"
             column="3"/>
     </issue>
 
@@ -3163,28 +3196,6 @@
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
         errorLine1="  assertEquals(0, result.previousTimesStartIdx);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="130"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(1, result.previousTimesEndIdx);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="131"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(1, result.previousTimeStartIdx);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="132"
@@ -3194,88 +3205,11 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(2, result.previousTimeEndIdx);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="133"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(2, result.nextTimeStartIdx);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="134"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(3, result.nextTimeEndIdx);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="135"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(3, result.nextNextTimeStartIdx);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="136"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(4, result.nextNextTimeEndIdx);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="137"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(0, result.afterNextTimesEndIdx - result.afterNextTimesStartIdx);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="138"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(0, result.previousTimesStartIdx);"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="153"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
         errorLine1="  assertEquals(1, result.previousTimesEndIdx);"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="154"
+            line="133"
             column="3"/>
     </issue>
 
@@ -3286,7 +3220,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="155"
+            line="134"
             column="3"/>
     </issue>
 
@@ -3297,7 +3231,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="156"
+            line="135"
             column="3"/>
     </issue>
 
@@ -3308,7 +3242,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="157"
+            line="136"
             column="3"/>
     </issue>
 
@@ -3319,7 +3253,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="158"
+            line="137"
             column="3"/>
     </issue>
 
@@ -3330,7 +3264,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="159"
+            line="138"
             column="3"/>
     </issue>
 
@@ -3341,7 +3275,106 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="139"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.afterNextTimesEndIdx - result.afterNextTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="140"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(0, result.previousTimesStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="155"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimesEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="156"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(1, result.previousTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="157"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.previousTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="158"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(2, result.nextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="159"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="160"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.nextNextTimeStartIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="161"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4, result.nextNextTimeEndIdx);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="162"
             column="3"/>
     </issue>
 
@@ -3352,7 +3385,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="161"
+            line="163"
             column="3"/>
     </issue>
 
@@ -3363,7 +3396,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="162"
+            line="164"
             column="3"/>
     </issue>
 
@@ -3374,7 +3407,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="177"
+            line="179"
             column="3"/>
     </issue>
 
@@ -3385,7 +3418,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="178"
+            line="180"
             column="3"/>
     </issue>
 
@@ -3396,7 +3429,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="193"
+            line="195"
             column="3"/>
     </issue>
 
@@ -3407,7 +3440,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="194"
+            line="196"
             column="3"/>
     </issue>
 
@@ -3418,7 +3451,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="209"
+            line="211"
             column="3"/>
     </issue>
 
@@ -3429,7 +3462,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="210"
+            line="212"
             column="3"/>
     </issue>
 
@@ -3440,7 +3473,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="211"
+            line="213"
             column="3"/>
     </issue>
 
@@ -3451,7 +3484,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="226"
+            line="228"
             column="3"/>
     </issue>
 
@@ -3462,7 +3495,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="227"
+            line="229"
             column="3"/>
     </issue>
 
@@ -3473,7 +3506,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="228"
+            line="230"
             column="3"/>
     </issue>
 
@@ -3482,28 +3515,6 @@
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
         errorLine1="  assertEquals(3, result.size());"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="243"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="244"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="245"
@@ -3513,30 +3524,30 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(4, result.size());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="261"
+            line="246"
             column="3"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());"
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="262"
+            line="247"
             column="3"/>
     </issue>
 
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="  assertEquals(4, result.size());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="263"
@@ -3546,22 +3557,11 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(4, result.size());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="281"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
         errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="282"
+            line="264"
             column="3"/>
     </issue>
 
@@ -3570,6 +3570,17 @@
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
         errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="265"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4, result.size());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="283"
@@ -3579,55 +3590,11 @@
     <issue
         id="DeprecatedCall"
         message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(3, result.size());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="300"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="301"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="302"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
-        errorLine1="  assertEquals(4, result.size());"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="320"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
         errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());"
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="321"
+            line="284"
             column="3"/>
     </issue>
 
@@ -3638,7 +3605,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="322"
+            line="285"
             column="3"/>
     </issue>
 
@@ -3649,7 +3616,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="341"
+            line="302"
             column="3"/>
     </issue>
 
@@ -3660,7 +3627,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="342"
+            line="303"
             column="3"/>
     </issue>
 
@@ -3671,7 +3638,73 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="304"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(4, result.size());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="322"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="323"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="324"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(3, result.size());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
             line="343"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="344"
+            column="3"/>
+    </issue>
+
+    <issue
+        id="DeprecatedCall"
+        message="junit.framework.Assert.assertEquals is deprecated; consider using an alternative."
+        errorLine1="  assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
+            line="345"
             column="3"/>
     </issue>
 
@@ -3682,7 +3715,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="361"
+            line="363"
             column="3"/>
     </issue>
 
@@ -3693,7 +3726,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="362"
+            line="364"
             column="3"/>
     </issue>
 
@@ -3704,7 +3737,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="363"
+            line="365"
             column="3"/>
     </issue>
 
@@ -3715,7 +3748,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="383"
+            line="385"
             column="3"/>
     </issue>
 
@@ -3726,7 +3759,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="384"
+            line="386"
             column="3"/>
     </issue>
 
@@ -3737,7 +3770,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="385"
+            line="387"
             column="3"/>
     </issue>
 
@@ -3748,7 +3781,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="401"
+            line="403"
             column="3"/>
     </issue>
 
@@ -3759,7 +3792,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="402"
+            line="404"
             column="3"/>
     </issue>
 
@@ -3770,7 +3803,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="403"
+            line="405"
             column="3"/>
     </issue>
 
@@ -3781,7 +3814,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="404"
+            line="406"
             column="3"/>
     </issue>
 
@@ -3792,7 +3825,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="405"
+            line="407"
             column="3"/>
     </issue>
 
@@ -3803,7 +3836,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="406"
+            line="408"
             column="3"/>
     </issue>
 
@@ -3814,7 +3847,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="407"
+            line="409"
             column="3"/>
     </issue>
 
@@ -3825,7 +3858,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="408"
+            line="410"
             column="3"/>
     </issue>
 
@@ -3836,7 +3869,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="409"
+            line="411"
             column="3"/>
     </issue>
 
@@ -3847,7 +3880,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/org/mtransit/android/data/UIScheduleTest.java"
-            line="410"
+            line="412"
             column="3"/>
     </issue>
 
@@ -4001,7 +4034,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="262"
+            line="264"
             column="13"/>
     </issue>
 
