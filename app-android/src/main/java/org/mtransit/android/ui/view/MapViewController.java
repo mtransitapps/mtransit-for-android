@@ -694,7 +694,8 @@ public class MapViewController implements
 		} else if (data instanceof Place) {
 			closedUUID = ((Place) data).getUuid();
 		} else if (data instanceof MTPOIMarkerIds) {
-			closedUUID = IMarkerExtKt.getFirstUUIDOrNull(marker);
+			closedUUID = ((MTPOIMarkerIds) data).hasUUID(this.lastSelectedUUID) ? this.lastSelectedUUID
+					: IMarkerExtKt.getFirstUUIDOrNull(marker);
 		} else {
 			closedUUID = null;
 		}
@@ -1388,6 +1389,8 @@ public class MapViewController implements
 	}
 
 	public void notifyPOIMarkersChanged() {
+		TaskUtils.cancelQuietly(this.loadClusterItemsTask, true);
+		this.loadClusterItemsTask = null;
 		this.poiMarkersLoaded = false;
 	}
 
