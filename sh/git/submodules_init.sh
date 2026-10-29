@@ -6,7 +6,7 @@
 
 SCRIPT_DIR="$(dirname "$0")"
 # ROOT_DIR="$(git rev-parse --show-toplevel)"; # not working when running from a submodule
-ROOT_DIR=$(cd "${SCRIPT_DIR}/../.." && pwd)
+ROOT_DIR=$(cd "${SCRIPT_DIR}/../.." && pwd);
 
 setGitProjectName() { # copy from commons.sh
 	GIT_URL=$(git -C "$ROOT_DIR" config --get remote.origin.url);
@@ -89,7 +89,7 @@ printf '> - "%s"\n' "${SUBMODULES[@]}";
 for SUBMODULE in "${SUBMODULES[@]}" ; do
     echo "--------------------------------------------------------------------------------";
     # Check if the submodule is already registered in .gitmodules
-    if ! git -C "$ROOT_DIR" config --file ".gitmodules" --get "submodule.${SUBMODULE}.path" >/dev/null 2>&1; then
+    if ! git -C "$ROOT_DIR" config --file "$ROOT_DIR/.gitmodules" --get "submodule.${SUBMODULE}.path" >/dev/null 2>&1; then
 		if [[ -d "$ROOT_DIR/$SUBMODULE" ]]; then
 			echo "> Cannot override '$SUBMODULE'!";
 			exit 1;
