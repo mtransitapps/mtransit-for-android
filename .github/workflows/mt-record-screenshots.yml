@@ -79,7 +79,7 @@ jobs:
             exit 1 # error
           fi
           echo "MAIN_APK_FILE=$APK_PATH" >> $GITHUB_OUTPUT
-          echo "Main app APK downloaded successfully."
+          echo "Main app APK downloaded successfully to '$APK_PATH'."
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
 
@@ -96,7 +96,7 @@ jobs:
             exit 1 # triggers fallback step
           fi
           echo "MODULE_APK_FILE=$APK_PATH" >> $GITHUB_OUTPUT
-          echo "Module app APK downloaded successfully."
+          echo "Module app APK downloaded successfully to '$APK_PATH'."
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
 
