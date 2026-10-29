@@ -33,7 +33,7 @@ for SUBMODULE in "${SUBMODULES[@]}"; do
       echo "  - '$SUBMODULE_CHANGE'";
       # Replace PR references (#123) with full GitHub URLs
       SUBMODULE_CHANGE_WITH_URLS=$(printf '%s' "$SUBMODULE_CHANGE" | sed -E "s|\(#([0-9]+)\)|https://github.com/mtransitapps/$SUBMODULE/pull/\1|g");
-      COMMIT_MESSAGE_BODY+="\n- $SUBMODULE: $SUBMODULE_CHANGE_WITH_URLS";
+      COMMIT_MESSAGE_BODY+=$'\n- '"$SUBMODULE: $SUBMODULE_CHANGE_WITH_URLS";
       ONE_COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE_START from '$SUBMODULE': $SUBMODULE_CHANGE_WITH_URLS";
       ((COMMITS++));
     done
@@ -54,7 +54,7 @@ if [[ "${COMMITS}" -eq 1 ]]; then
   echo "--------------------------------------------------------------------------------";
   printf '%s\n' "$ONE_COMMIT_MESSAGE" | git -C "$ROOT_DIR" commit -F -
 elif [[ "${COMMITS}" -gt 1 ]]; then
-  COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE:\n$COMMIT_MESSAGE_BODY";
+  COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE:"$'\n'"$COMMIT_MESSAGE_BODY";
   echo "--------------------------------------------------------------------------------";
   echo -e "$COMMIT_MESSAGE";
   echo "--------------------------------------------------------------------------------";
