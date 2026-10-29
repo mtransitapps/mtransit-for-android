@@ -23,7 +23,11 @@ for SUBMODULE in "${SUBMODULES[@]}"; do
   if [[ "$SUBMODULE_CURRENT_SHA" == "$SUBMODULE_LATEST_SHA" ]]; then
     echo "- '$SUBMODULE': no change.";
   else
-    mapfile -t SUBMODULE_CHANGES < <(git -C "$SUBMODULE" log --oneline --pretty=format:"%s" "$SUBMODULE_CURRENT_SHA"..HEAD);
+    if [[ -z "$SUBMODULE_CURRENT_SHA" ]]; then
+      mapfile -t SUBMODULE_CHANGES < <(git -C "$SUBMODULE" log --oneline --pretty=format:"%s" HEAD);
+    else
+      mapfile -t SUBMODULE_CHANGES < <(git -C "$SUBMODULE" log --oneline --pretty=format:"%s" "$SUBMODULE_CURRENT_SHA"..HEAD);
+    fi
     echo "- '$SUBMODULE': ${#SUBMODULE_CHANGES[@]} changes: ";
     for SUBMODULE_CHANGE in "${SUBMODULE_CHANGES[@]}"; do
       echo "  - '$SUBMODULE_CHANGE'";
@@ -48,13 +52,13 @@ if [[ "${COMMITS}" -eq 1 ]]; then
   echo "--------------------------------------------------------------------------------";
   echo -e "$ONE_COMMIT_MESSAGE";
   echo "--------------------------------------------------------------------------------";
-  printf "$ONE_COMMIT_MESSAGE" | git -C "$ROOT_DIR" commit -F -
+  printf '%s\n' "$ONE_COMMIT_MESSAGE" | git -C "$ROOT_DIR" commit -F -
 elif [[ "${COMMITS}" -gt 1 ]]; then
   COMMIT_MESSAGE="$COMMIT_MESSAGE_TITLE:\n$COMMIT_MESSAGE_BODY";
   echo "--------------------------------------------------------------------------------";
   echo -e "$COMMIT_MESSAGE";
   echo "--------------------------------------------------------------------------------";
-  printf "$COMMIT_MESSAGE" | git -C "$ROOT_DIR" commit -F -
+  printf '%s\n' "$COMMIT_MESSAGE" | git -C "$ROOT_DIR" commit -F -
 # else # 0 commits
 # do nothing
 fi
