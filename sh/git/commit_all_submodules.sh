@@ -5,7 +5,7 @@ SCRIPT_DIR="$(dirname "$0")";
 # ROOT_DIR="$(git rev-parse --show-toplevel)"; # not working when running from a submodule
 ROOT_DIR="${SCRIPT_DIR}/../.."; ROOT_DIR=$(realpath --relative-to="$PWD" "$ROOT_DIR");
 
-mapfile -t SUBMODULES < <(git -C "$ROOT_DIR" submodule foreach --quiet 'basename "$(pwd)"');
+mapfile -t SUBMODULES < <(git -C "$ROOT_DIR" submodule foreach --quiet 'echo "$sm_path"');
 echo "${#SUBMODULES[@]} submodule(s): ";
 
 COMMIT_MESSAGE_TITLE_START="Sync code";
@@ -19,7 +19,7 @@ ONE_COMMIT_MESSAGE="";
 COMMITS=0;
 for SUBMODULE in "${SUBMODULES[@]}"; do
   SUBMODULE_CURRENT_SHA=$(git -C "$ROOT_DIR" ls-tree HEAD "$SUBMODULE" | awk '{ print $3 }')
-  SUBMODULE_LATEST_SHA=$(git -C "$SUBMODULE" rev-parse HEAD);
+  SUBMODULE_LATEST_SHA=$(git -C "$ROOT_DIR/$SUBMODULE" rev-parse HEAD);
   if [[ "$SUBMODULE_CURRENT_SHA" == "$SUBMODULE_LATEST_SHA" ]]; then
     echo "- '$SUBMODULE': no change.";
   else

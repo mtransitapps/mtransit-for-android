@@ -86,9 +86,6 @@ fi
 echo "> Submodules:";
 printf '> - "%s"\n' "${SUBMODULES[@]}";
 
-CURRENT_DIR="$(pwd)";
-cd "$ROOT_DIR" || exit 1; # >>
-
 for SUBMODULE in "${SUBMODULES[@]}" ; do
     echo "--------------------------------------------------------------------------------";
     # Check if the submodule is already registered in .gitmodules
@@ -114,8 +111,6 @@ for SUBMODULE in "${SUBMODULES[@]}" ; do
 	fi
 	echo "'$SUBMODULE' updated successfully."
 done
-
-cd "$CURRENT_DIR" || exit 1; # <<
 
 echo "--------------------------------------------------------------------------------";
 AFTER_DATE=$(date +%D-%X);

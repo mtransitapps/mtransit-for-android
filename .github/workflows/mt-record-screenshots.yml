@@ -73,12 +73,12 @@ jobs:
       - name: MT download main app release APK
         id: download-main-apk
         run: |
-          source ./app-android/sh/download_latest_apk.sh "mtransitapps/mtransit-for-android"
-          if [[ -z "$APK_FILE" ]]; then
+          APK_PATH=$(./app-android/sh/download_latest_apk.sh "mtransitapps/mtransit-for-android")
+          if [[ -z "$APK_PATH" ]]; then
             echo "ERROR: no APK file!"
             exit 1 # error
           fi
-          echo "MAIN_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "MAIN_APK_FILE=$APK_PATH" >> $GITHUB_OUTPUT
           echo "Main app APK downloaded successfully."
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
@@ -90,12 +90,12 @@ jobs:
         run: |
           REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
           MODULE_REPO="mtransitapps/${REPO_NAME}"
-          source ./app-android/sh/download_latest_apk.sh "$MODULE_REPO"
-          if [[ -z "$APK_FILE" ]]; then
+          APK_PATH=$(./app-android/sh/download_latest_apk.sh "$MODULE_REPO")
+          if [[ -z "$APK_PATH" ]]; then
             echo "WARNING: no APK file!"
             exit 1 # triggers fallback step
           fi
-          echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "MODULE_APK_FILE=$APK_PATH" >> $GITHUB_OUTPUT
           echo "Module app APK downloaded successfully."
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
