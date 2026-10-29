@@ -6,7 +6,7 @@
 
 SCRIPT_DIR="$(dirname "$0")"
 # ROOT_DIR="$(git rev-parse --show-toplevel)"; # not working when running from a submodule
-ROOT_DIR="${SCRIPT_DIR}/../.."; ROOT_DIR=$(realpath --relative-to="$ROOT_DIR" "$ROOT_DIR");
+ROOT_DIR="${SCRIPT_DIR}/../.."; ROOT_DIR=$(realpath --relative-to="$PWD" "$ROOT_DIR");
 
 setGitProjectName() { # copy from commons.sh
 	GIT_URL=$(git -C "$ROOT_DIR" config --get remote.origin.url);
