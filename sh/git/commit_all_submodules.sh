@@ -24,9 +24,9 @@ for SUBMODULE in "${SUBMODULES[@]}"; do
     echo "- '$SUBMODULE': no change.";
   else
     if [[ -z "$SUBMODULE_CURRENT_SHA" ]]; then
-      mapfile -t SUBMODULE_CHANGES < <(git -C "$SUBMODULE" log --oneline --pretty=format:"%s" HEAD);
+      mapfile -t SUBMODULE_CHANGES < <(git -C "$ROOT_DIR/$SUBMODULE" log --oneline --pretty=format:"%s" HEAD);
     else
-      mapfile -t SUBMODULE_CHANGES < <(git -C "$SUBMODULE" log --oneline --pretty=format:"%s" "$SUBMODULE_CURRENT_SHA"..HEAD);
+      mapfile -t SUBMODULE_CHANGES < <(git -C "$ROOT_DIR/$SUBMODULE" log --oneline --pretty=format:"%s" "$SUBMODULE_CURRENT_SHA"..HEAD);
     fi
     echo "- '$SUBMODULE': ${#SUBMODULE_CHANGES[@]} changes: ";
     for SUBMODULE_CHANGE in "${SUBMODULE_CHANGES[@]}"; do
