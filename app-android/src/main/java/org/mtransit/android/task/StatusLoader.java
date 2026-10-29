@@ -2,8 +2,8 @@ package org.mtransit.android.task;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.Discouraged;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -100,7 +100,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 	}
 
-	@AnyThread
+	@MainThread
 	public boolean triggerRefresh(
 			@NonNull POIManager poim,
 			@NonNull StatusProviderContract.Filter statusFilter,

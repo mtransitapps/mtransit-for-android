@@ -17,7 +17,6 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -82,7 +81,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 	}
 
-	@AnyThread
+	@MainThread
 	public static boolean open(
 			@Nullable View view,
 			@NonNull Activity activity,
@@ -94,7 +93,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		return open(view, activity, url, label, null, www, useInternalWebBrowserPref);
 	}
 
-	@AnyThread
+	@MainThread
 	public static boolean open(
 			@Nullable View view,
 			@NonNull Activity activity,

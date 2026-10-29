@@ -2,8 +2,8 @@ package org.mtransit.android.task;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.Discouraged;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -164,7 +164,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		);
 	}
 
-	@AnyThread
+	@MainThread
 	private boolean triggerRefresh(
 			@NonNull String targetAuthority,
 			@NonNull String targetUUID,
