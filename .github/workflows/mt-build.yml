@@ -72,7 +72,7 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
       - name: MT detekt
         id: mt-detekt
@@ -145,7 +145,7 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
       - name: MT lint
         run: ./app-android/sh/lint_only.sh
@@ -185,7 +185,7 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
       - name: MT assemble release (APK & AAB)
         run: ./app-android/sh/assemble_release.sh
