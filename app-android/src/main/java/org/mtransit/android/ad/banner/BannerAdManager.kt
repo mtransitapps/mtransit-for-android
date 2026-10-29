@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.view.ViewGroup
-import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import com.google.android.libraries.ads.mobile.sdk.banner.AdSize // #gmaNextGen
 import com.google.android.libraries.ads.mobile.sdk.banner.AdView // #gmaNextGen
@@ -149,7 +148,7 @@ class BannerAdManager @Inject constructor(
         return !smallScreen
     }
 
-    @AnyThread
+    @MainThread
     private fun setupAd(activity: IAdScreenActivity, force: Boolean) {
         logAdsD(this, "setupAd($force) --------------------")
         if (!AdConstants.AD_ENABLED) {

@@ -556,7 +556,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		return true; // processed
 	}
 
-	@AnyThread
+	@MainThread
 	private void selectItem(@Nullable Integer navItemId, boolean clearStack) {
 		if (navItemId == null) return;
 		final MainActivity mainActivity = this.mainActivityWR.get();

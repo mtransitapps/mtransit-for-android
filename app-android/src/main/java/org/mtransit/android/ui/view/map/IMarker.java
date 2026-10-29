@@ -91,13 +91,15 @@ public interface IMarker {
 	@Deprecated
 	void setIcon(@Nullable BitmapDescriptor icon);
 
-	void setIcon(@Nullable Context context,
-				 @DrawableRes @Nullable Integer iconResId,
-				 @Nullable Integer targetSize,
-				 @Nullable Boolean replaceColor,
-				 @ColorInt @Nullable Integer color,
-				 @ColorInt @Nullable Integer secondaryColor,
-				 @ColorInt @Nullable Integer defaultColor);
+	void setIcon(
+			@Nullable Context context,
+			@DrawableRes @Nullable Integer iconResId,
+			@Nullable Integer targetSize,
+			@Nullable Boolean replaceColor,
+			@ColorInt @Nullable Integer color,
+			@ColorInt @Nullable Integer secondaryColor,
+			@ColorInt @Nullable Integer defaultColor
+	);
 
 	@Nullable
 	Integer getColor();

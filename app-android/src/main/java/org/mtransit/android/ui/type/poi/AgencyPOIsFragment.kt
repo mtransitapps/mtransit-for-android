@@ -38,7 +38,7 @@ import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.clearSelectedPlace
+import org.mtransit.android.ui.view.clearSelectedPlaceMarker
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -331,7 +331,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             listAdapter.setPoisUpdateDistanceAndClosest(poiList, parentViewModel.deviceLocation.value)
-            mapViewController.notifyMarkersChanged()
+            mapViewController.notifyPOIMarkersChanged()
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
@@ -352,7 +352,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         }
         viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
             newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
-                ?: run { mapViewController.clearSelectedPlace() }
+                ?: run { mapViewController.clearSelectedPlaceMarker() }
         }
         viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
             viewModel.selectedLocation.value?.let {

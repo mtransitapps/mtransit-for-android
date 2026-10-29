@@ -5,8 +5,6 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.R
-import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.util.MapUtils
@@ -15,10 +13,6 @@ import org.mtransit.commons.toDate
 import kotlin.time.Duration.Companion.seconds
 
 val VehicleLocation.position: LatLng get() = LatLng(this.latitude.toDouble(), this.longitude.toDouble())
-
-val VehicleLocation.uuidOrGenerated: String
-    get() = this.uuid
-        ?: ("generated-uuid-" + TimeUtils.currentTimeMillis()).also { MTLog.d(this, "getUuidOrGenerated() > FAKE uuid: $it.") }
 
 private const val MIN_ALPHA = 0.33f
 
@@ -75,7 +69,7 @@ fun VehicleLocation.updateMarker(
     hideSnippet: Boolean,
 ) = marker.apply {
     val wasInfoWindowShown = this.isInfoWindowShown
-    updatePosition(this@updateMarker.position, animate = true)
+    updatePosition(this@updateMarker.position, animate = true) // vehicle locations are expected to change
     setAnchor(iconDef.anchorU, iconDef.anchorV)
     setInfoWindowAnchor(iconDef.infoWindowAnchorU, iconDef.infoWindowAnchorV)
     updateRotation(getRotation(default = 0.0f))

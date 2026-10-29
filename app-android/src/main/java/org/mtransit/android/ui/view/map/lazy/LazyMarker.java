@@ -54,10 +54,10 @@ public class LazyMarker implements MTLog.Loggable {
 	public LazyMarker(
 			@NonNull GoogleMap map,
 			@NonNull MarkerOptions options,
-			@Nullable Integer optionsColor,
-			@Nullable Integer optionsSecondaryColor,
-			@Nullable Integer optionsDefaultColor,
-			@Nullable Integer optionsIconResId,
+			@Nullable @ColorInt Integer optionsColor,
+			@Nullable @ColorInt Integer optionsSecondaryColor,
+			@Nullable @ColorInt Integer optionsDefaultColor,
+			@Nullable @DrawableRes Integer optionsIconResId,
 			@Nullable Integer optionsTargetSize,
 			@Nullable Boolean optionsIconReplaceColor,
 			@Nullable Context optionsContext,
@@ -289,8 +289,14 @@ public class LazyMarker implements MTLog.Loggable {
 			@ColorInt @Nullable Integer defaultColor
 	) {
 		if (marker != null) {
-			if (iconResId != null && replaceColor != null && color != null) {
-				marker.setIcon(MapUtils.getIcon(context, iconResId, color, replaceColor, targetSize));
+			final Integer iconColor = color != null ? color
+					: secondaryColor != null ? secondaryColor
+					: defaultColor;
+			if (iconResId != null && replaceColor != null && iconColor != null) { // context optional for cache hit
+				final BitmapDescriptor icon = MapUtils.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
+				if (icon != null) {
+					marker.setIcon(icon);
+				}
 			}
 		} else {
 			markerOptionsIconResId = iconResId;
@@ -380,8 +386,8 @@ public class LazyMarker implements MTLog.Loggable {
 	@NonNull
 	private Marker createMarkerIfNecessary() {
 		if (marker == null) {
-			final Context markerOptionsContext = markerOptionsContextWR == null ? null : markerOptionsContextWR.get();
-			createMarker(map,
+			createMarker(
+					map,
 					markerOptions,
 					markerOptionsColor,
 					markerOptionsSecondaryColor,
@@ -389,7 +395,7 @@ public class LazyMarker implements MTLog.Loggable {
 					markerOptionsIconResId,
 					markerOptionsTargetSize,
 					markerOptionsIconReplaceColor,
-					markerOptionsContext,
+					markerOptionsContextWR == null ? null : markerOptionsContextWR.get(),
 					listener
 			);
 			map = null;
@@ -409,20 +415,23 @@ public class LazyMarker implements MTLog.Loggable {
 	private void createMarker(
 			@NonNull GoogleMap map,
 			@NonNull MarkerOptions options,
-			@ColorInt Integer markerOptionsColor,
-			@ColorInt Integer markerOptionsSecondaryColor,
-			@ColorInt Integer markerOptionsDefaultColor,
-			@DrawableRes Integer markerOptionsIconResId,
-			@Nullable Integer markerOptionsTargetSize,
-			@Nullable Boolean markerOptionsIconReplaceColor,
-			@Nullable Context markerOptionsContext,
+			@Nullable @ColorInt Integer color,
+			@Nullable @ColorInt Integer secondaryColor,
+			@Nullable @ColorInt Integer defaultColor,
+			@Nullable @DrawableRes Integer iconResId,
+			@Nullable Integer targetSize,
+			@Nullable Boolean replaceColor,
+			@Nullable Context context,
 			@Nullable OnMarkerCreateListener listener
 	) {
-		if (markerOptionsDefaultColor != null && markerOptionsIconResId != null && markerOptionsContext != null && markerOptionsIconReplaceColor != null) {
-			final int color = markerOptionsColor != null ? markerOptionsColor
-					: markerOptionsSecondaryColor != null ? markerOptionsSecondaryColor
-					  : markerOptionsDefaultColor;
-			options.icon(MapUtils.getIcon(markerOptionsContext, markerOptionsIconResId, color, markerOptionsIconReplaceColor, markerOptionsTargetSize));
+		final Integer iconColor = color != null ? color
+				: secondaryColor != null ? secondaryColor
+				: defaultColor;
+		if (iconResId != null && replaceColor != null && iconColor != null) { // context optional for cache hit
+			final BitmapDescriptor icon = MapUtils.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
+			if (icon != null) {
+				options.icon(icon);
+			}
 		}
 		marker = map.addMarker(options);
 		if (listener != null) {
@@ -432,7 +441,7 @@ public class LazyMarker implements MTLog.Loggable {
 
 	@NonNull
 	private static MarkerOptions copy(@NonNull MarkerOptions options) {
-		MarkerOptions copy = new MarkerOptions();
+		final MarkerOptions copy = new MarkerOptions();
 		copy.alpha(options.getAlpha());
 		copy.anchor(options.getAnchorU(), options.getAnchorV());
 		copy.draggable(options.isDraggable());
