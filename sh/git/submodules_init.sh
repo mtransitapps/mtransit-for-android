@@ -10,6 +10,10 @@ ROOT_DIR="${SCRIPT_DIR}/../.."; ROOT_DIR=$(realpath --relative-to="$ROOT_DIR" "$
 
 setGitProjectName() { # copy from commons.sh
 	GIT_URL=$(git -C "$ROOT_DIR" config --get remote.origin.url);
+	if [[ -z "${GIT_URL}" ]]; then
+		echo "GIT_URL not found!";
+		exit 1;
+	fi
 	GIT_PROJECT_NAME=$(basename -- "${GIT_URL}");
 	GIT_PROJECT_NAME="${GIT_PROJECT_NAME%.*}" # remove ".git" extension
 	if [[ -z "${GIT_PROJECT_NAME}" ]]; then
@@ -88,13 +92,13 @@ cd "$ROOT_DIR" || exit 1; # >>
 for SUBMODULE in "${SUBMODULES[@]}" ; do
     echo "--------------------------------------------------------------------------------";
     # Check if the submodule is already registered in .gitmodules
-    if ! git config --file ".gitmodules" --get "submodule.${SUBMODULE}.path" >/dev/null 2>&1; then
-		if [[ -d "$SUBMODULE" ]]; then
+    if ! git -C "$ROOT_DIR" config --file ".gitmodules" --get "submodule.${SUBMODULE}.path" >/dev/null 2>&1; then
+		if [[ -d "$ROOT_DIR/$SUBMODULE" ]]; then
 			echo "> Cannot override '$SUBMODULE'!";
 			exit 1;
 		fi
 		echo "> Adding submodule '$SUBMODULE'...";
-		git submodule add "https://github.com/mtransitapps/${SUBMODULE}.git" "$SUBMODULE"; # GitHub secret PAT
+		git -C "$ROOT_DIR" submodule add "https://github.com/mtransitapps/${SUBMODULE}.git" "$SUBMODULE"; # GitHub secret PAT
 		RESULT=$?;
 		if [[ ${RESULT} -ne 0 ]]; then
 			echo "> Error while cloning '$SUBMODULE' submodule!";
@@ -102,7 +106,7 @@ for SUBMODULE in "${SUBMODULES[@]}" ; do
 		fi
 		echo "> Adding submodule '$SUBMODULE'... DONE ✓";
 	fi
-	git submodule update --init --recursive "${SUBMODULE}";
+	git -C "$ROOT_DIR" submodule update --init --recursive "${SUBMODULE}";
 	RESULT=$?;
 	if [[ ${RESULT} -ne 0 ]]; then
 		echo "> Error while updating GIT submodule '$SUBMODULE'!";
