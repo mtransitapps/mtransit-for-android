@@ -59,7 +59,7 @@ jobs:
       - name: MT git sync
         # if: github.event_name != 'pull_request'
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
-        run: ./commons/sh/git_sync.sh
+        run: ./commons/sh/git_sync.sh || ./commons/code_sync.sh
       - name: MT git setup
         run: ./commons/sh/git_setup.sh
       - name: MT shared setup
