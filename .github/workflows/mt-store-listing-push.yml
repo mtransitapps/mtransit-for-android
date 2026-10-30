@@ -60,10 +60,10 @@ jobs:
 
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
       - name: MT push store listing
-        run: ./app-android/listing_push.sh
+        run: ./app-android/sh/play/listing_push.sh
         env:
           GITHUB_TOKEN: ${{ secrets.MT_PAT }}
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}

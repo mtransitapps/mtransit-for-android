@@ -55,7 +55,7 @@ jobs:
           token: ${{ secrets.MT_PAT }}
 
       - name: MT setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
       - name: MT read sdk-target from gradle/libs.versions.toml
         id: sdk-target
@@ -73,13 +73,13 @@ jobs:
       - name: MT download main app release APK
         id: download-main-apk
         run: |
-          source ./download_latest_apk.sh "mtransitapps/mtransit-for-android"
-          if [[ -z "$APK_FILE" ]]; then
+          APK_PATH=$(./app-android/sh/download_latest_apk.sh "mtransitapps/mtransit-for-android")
+          if [[ -z "$APK_PATH" ]]; then
             echo "ERROR: no APK file!"
             exit 1 # error
           fi
-          echo "MAIN_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
-          echo "Main app APK downloaded successfully."
+          echo "MAIN_APK_FILE=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "Main app APK downloaded successfully to '$APK_PATH'."
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
 
@@ -90,13 +90,13 @@ jobs:
         run: |
           REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
           MODULE_REPO="mtransitapps/${REPO_NAME}"
-          source ./download_latest_apk.sh "$MODULE_REPO"
-          if [[ -z "$APK_FILE" ]]; then
+          APK_PATH=$(./app-android/sh/download_latest_apk.sh "$MODULE_REPO")
+          if [[ -z "$APK_PATH" ]]; then
             echo "WARNING: no APK file!"
             exit 1 # triggers fallback step
           fi
-          echo "MODULE_APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
-          echo "Module app APK downloaded successfully."
+          echo "MODULE_APK_FILE=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "Module app APK downloaded successfully to '$APK_PATH'."
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
 
@@ -108,14 +108,14 @@ jobs:
         run: |
           echo "No release APK found, building from source..."
           # Cleanup keys first (fail OK)
-          ./app-android/keys_cleanup.sh || echo "Keys cleanup (pre-setup) completed with warnings (OK)"
+          ./app-android/sh/keys/cleanup.sh || echo "Keys cleanup (pre-setup) completed with warnings (OK)"
           # Setup keys (can fail CI if fail)
-          ./app-android/keys_setup.sh || exit
+          ./app-android/sh/keys/setup.sh || exit
           # Assemble release APK (store result)
           RESULT=0
           ./gradlew :app-android:assembleRelease --no-scan -PuseGooglePlayUploadKeysProperties=false || RESULT=$?
           # Cleanup keys (can fail CI if fail)
-          ./app-android/keys_cleanup.sh || exit
+          ./app-android/sh/keys/cleanup.sh || exit
           # Check if build failed
           if [[ $RESULT -ne 0 ]]; then
             echo "ERROR: Failed to assemble release APK!"
@@ -176,7 +176,7 @@ jobs:
           disable-linux-hw-accel: false
           emulator-boot-timeout: 180
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -no-snapshot-save
-          script: ./setup-and-all-app-screenshots.sh
+          script: ./sh/ci/setup-and-all-app-screenshots.sh
 
       - name: MT upload screenshots
         if: always()

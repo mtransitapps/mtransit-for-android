@@ -72,7 +72,7 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
       - name: MT detekt
         id: mt-detekt
@@ -105,7 +105,7 @@ jobs:
       - name: MT tests
         id: mt-tests
         if: ${{ !cancelled() }} # run even if detekt failed
-        run: ./test_only.sh
+        run: ./sh/ci/test_only.sh
       - name: MT tests > artifact > XML results
         uses: actions/upload-artifact@v7
         if: ${{ always() }}
@@ -145,10 +145,10 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
       - name: MT lint
-        run: ./lint_only.sh
+        run: ./app-android/sh/lint_only.sh
       - name: MT lint > print text report (if failure)
         if: ${{ failure() }}
         run: |
@@ -185,13 +185,13 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: mtransitapps/gh-actions/.github/actions/setup@v1.4.1
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
-      - name: MT assemble release (APK & ABB)
-        run: ./assemble_release.sh
+      - name: MT assemble release (APK & AAB)
+        run: ./app-android/sh/assemble_release.sh
         env:
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
-      - name: MT artifact > app-android > APK & ABB
+      - name: MT artifact > app-android > APK & AAB
         uses: actions/upload-artifact@v7
         with:
           name: app-android-apk-bundle
