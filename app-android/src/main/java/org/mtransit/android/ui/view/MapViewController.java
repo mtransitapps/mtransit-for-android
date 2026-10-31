@@ -1273,10 +1273,10 @@ public class MapViewController implements
 		}
 		try {
 			this.mapView.onStart();
+			this.needToStartMap = false;
 		} catch (NullPointerException npe) {
 			MTLog.w(this, npe, "Crash while starting map!");
 		}
-		this.needToStartMap = false;
 	}
 
 	public void onStop() {
@@ -1302,10 +1302,10 @@ public class MapViewController implements
 		}
 		try {
 			this.mapView.onResume();
+			this.needToResumeMap = false;
 		} catch (NullPointerException npe) {
 			MTLog.w(this, npe, "Crash while resuming map!");
 		}
-		this.needToResumeMap = false;
 		showMapInternal(null);
 		addOnLayoutChangeListener(this);
 		setMapType(getMapType());
