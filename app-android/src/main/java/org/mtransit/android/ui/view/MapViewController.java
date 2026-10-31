@@ -308,13 +308,17 @@ public class MapViewController implements
 							MTLog.w(this, e, "Error while creating map view with '%s' (trying again)", MapViewController.this.lastSavedInstanceState);
 							MapViewController.this.mapView.onCreate(null);
 						}
-						if (MapViewController.this.needToStartMap) {
-							MapViewController.this.mapView.onStart();
-							MapViewController.this.needToStartMap = false;
-						}
-						if (MapViewController.this.needToResumeMap) {
-							MapViewController.this.mapView.onResume();
-							MapViewController.this.needToResumeMap = false;
+						try {
+							if (MapViewController.this.needToStartMap) {
+								MapViewController.this.mapView.onStart();
+								MapViewController.this.needToStartMap = false;
+							}
+							if (MapViewController.this.needToResumeMap) {
+								MapViewController.this.mapView.onResume();
+								MapViewController.this.needToResumeMap = false;
+							}
+						} catch (NullPointerException npe) {
+							MTLog.w(this, npe, "Crash while starting/resuming map!");
 						}
 						MapViewController.this.lastSavedInstanceState = null;
 						MapViewController.this.mapView.getMapAsync(MapViewController.this);
