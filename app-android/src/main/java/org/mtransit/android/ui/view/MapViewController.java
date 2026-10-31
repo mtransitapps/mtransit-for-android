@@ -1294,22 +1294,22 @@ public class MapViewController implements
 
 	private boolean needToResumeMap = false;
 
-	public boolean onResume() {
+	public void onResume() {
 		this.needToResumeMap = true;
 		if (this.mapView == null) {
 			MTLog.d(this, "onResume() > SKIP (no map)");
-			return false;
+			return;
 		}
 		try {
 			this.mapView.onResume();
 			this.needToResumeMap = false;
 		} catch (NullPointerException npe) {
 			MTLog.w(this, npe, "Crash while resuming map!");
+			return;
 		}
 		showMapInternal(null);
 		addOnLayoutChangeListener(this);
 		setMapType(getMapType());
-		return true; // resumed
 	}
 
 	private boolean showLastCameraPosition() {
