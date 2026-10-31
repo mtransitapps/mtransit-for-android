@@ -1267,7 +1267,11 @@ public class MapViewController implements
 			MTLog.d(this, "onStart() > SKIP (no map)");
 			return;
 		}
-		this.mapView.onStart();
+		try {
+			this.mapView.onStart();
+		} catch (NullPointerException npe) {
+			MTLog.w(this, npe, "Crash while starting map!");
+		}
 		this.needToStartMap = false;
 	}
 
@@ -1292,7 +1296,11 @@ public class MapViewController implements
 			MTLog.d(this, "onResume() > SKIP (no map)");
 			return false;
 		}
-		this.mapView.onResume();
+		try {
+			this.mapView.onResume();
+		} catch (NullPointerException npe) {
+			MTLog.w(this, npe, "Crash while resuming map!");
+		}
 		this.needToResumeMap = false;
 		showMapInternal(null);
 		addOnLayoutChangeListener(this);
@@ -1382,7 +1390,11 @@ public class MapViewController implements
 
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (this.mapView != null) {
-			this.mapView.onSaveInstanceState(outState);
+			try {
+				this.mapView.onSaveInstanceState(outState);
+			} catch (NullPointerException npe) {
+				MTLog.w(this, npe, "Crash while saving map instance state!");
+			}
 		}
 		if (this.lastCameraPosition != null) {
 			outState.putParcelable(EXTRA_LAST_CAMERA_POSITION, this.lastCameraPosition);
@@ -1400,7 +1412,11 @@ public class MapViewController implements
 
 	public void onLowMemory() {
 		if (this.mapView != null) {
-			this.mapView.onLowMemory();
+			try {
+				this.mapView.onLowMemory();
+			} catch (NullPointerException npe) {
+				MTLog.w(this, npe, "Crash while low memory map!");
+			}
 		}
 	}
 
