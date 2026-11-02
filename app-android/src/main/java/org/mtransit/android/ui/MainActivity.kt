@@ -205,9 +205,9 @@ class MainActivity :
                 onHasAgenciesAddedChanged()
             }
         }
-        this.billingManager.hasSubscription.observe(this) { hasSubscription: Boolean? ->
+        this.billingManager.hasSubscriptionOrNoError.observe(this) { hasSubscriptionOrNoError ->
             lifecycleScope.launch(Dispatchers.IO) {
-                adManager.setHasSubscription(hasSubscription, this@MainActivity)
+                adManager.setHasSubscriptionOrNoError(hasSubscriptionOrNoError, this@MainActivity)
             }
             this.navigationDrawerController?.setVisibleMenuItems()
         }

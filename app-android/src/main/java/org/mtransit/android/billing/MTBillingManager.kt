@@ -26,8 +26,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.util.SystemSettingManager
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -61,6 +63,9 @@ class MTBillingManager @Inject constructor(
         private val PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN: String? = null
         private val PREF_KEY_SUBS_PRODUCT_ID_DEFAULT: String? = PREF_KEY_SUBS_PRODUCT_ID_UNKNOWN
 
+        private const val PREF_KEY_SUBS_ERROR = "pSubscriptionError"
+        private const val PREF_KEY_SUBS_ERROR_DEFAULT = false
+
         private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = null
         // private val OVERRIDE_CURRENT_SUBS_PRODUCT_ID: String? = "f_monthly_subscription_1".takeIf { org.mtransit.android.commons.Constants.DEBUG } // DEBUG
 
@@ -86,6 +91,18 @@ class MTBillingManager @Inject constructor(
         .enableAutoServiceReconnection()
         .build()
 
+    val subsError: LiveData<Boolean> by lazy {
+        lclPrefRepository.pref.liveData(
+            PREF_KEY_SUBS_ERROR, PREF_KEY_SUBS_ERROR_DEFAULT
+        ).distinctUntilChanged()
+    }
+
+    private fun setSubError(error: Boolean = false) {
+        lclPrefRepository.pref.edit {
+            putBoolean(PREF_KEY_SUBS_ERROR, error)
+        }
+    }
+
     override val currentSubsProductId: LiveData<String?> by lazy {
         OVERRIDE_CURRENT_SUBS_PRODUCT_ID?.let { return@lazy MutableLiveData(it) }
         lclPrefRepository.pref.liveDataN(
@@ -105,6 +122,17 @@ class MTBillingManager @Inject constructor(
 
     override val hasSubscription: LiveData<Boolean?> by lazy {
         this.currentSubsProductId.map { it?.isNotBlank() }
+    }
+
+    override val hasSubscriptionOrNoError: LiveData<Boolean?> by lazy {
+        MediatorLiveData2(this.hasSubscription, this.subsError)
+            .map { (hasSubs, hasError) ->
+                hasSubs?.let { return@map it } // if subs status known -> use it
+                hasError?.takeIf { it }?.let { // if error in progress -> use it
+                    return@map false //
+                }
+                return@map null // still loading
+            }
     }
 
     private val isUsingFirebaseTestLab: Boolean by lazy {
@@ -139,12 +167,13 @@ class MTBillingManager @Inject constructor(
                 MTLog.d(this@MTBillingManager, "onBillingSetupFinished(${billingResult.toStringPlus(short = true)})")
                 billingClientResponseCode = billingResult.responseCode
                 if (billingResult.responseCode == BillingResponseCode.OK) {
+                    setSubError(false)
                     queryAvailableProductDetails()
                     queryPurchases()
                     queryUserBillingConfig()
                 } else {
                     MTLog.w(this@MTBillingManager, "Billing setup NOT successful! ${billingResult.responseCode}: ${billingResult.debugMessage}")
-                    handlePurchasesError()
+                    setSubError(true)
                 }
             }
         })
