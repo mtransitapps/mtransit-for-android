@@ -84,7 +84,7 @@ class GlobalAdManager(
     val isSDKInitialized: Boolean get() = this.initialized.get()
 
     @Volatile
-    private var hasSubscription: Boolean? = null
+    private var hasSubscriptionOrNoError: Boolean? = null
 
     @Volatile
     private var hasAgenciesEnabled: Boolean? = null
@@ -222,12 +222,12 @@ class GlobalAdManager(
 
     suspend fun initHasSubscriptionFromCache() = withContext(ioDispatcher) {
         billingManager.getCachedHasSubscription()?.let { hasSubscription ->
-            setHasSubscription(hasSubscription)
+            setHasSubscriptionOrNoError(hasSubscription)
         }
     }
 
-    fun setHasSubscription(hasSubscription: Boolean?) {
-        this.hasSubscription = hasSubscription
+    fun setHasSubscriptionOrNoError(hasSubscriptionOrNoError: Boolean?) {
+        this.hasSubscriptionOrNoError = hasSubscriptionOrNoError
     }
 
     @AnyThread
@@ -235,7 +235,7 @@ class GlobalAdManager(
         if (!AdConstants.AD_ENABLED) return false
         if (demoModeManager.enabled) return false
         if (_newUser == true && newUserAdsFreeAllowed) return false
-        return this.hasSubscription?.not()
+        return this.hasSubscriptionOrNoError?.not()
     }
 
     @AnyThread
@@ -256,7 +256,7 @@ class GlobalAdManager(
             logAdsD(this, "adsAllowed() > ads NOT allowed (demo mode).")
             return false // ads NOT allowed
         }
-        if (hasSubscription == null) { // subscriptions unknown
+        if (hasSubscriptionOrNoError == null) { // subscriptions unknown
             logAdsD(this, "adsAllowed() > ads NOT allowed (subscriptions unknown).")
             return false // ads NOT allowed
         }
@@ -264,15 +264,15 @@ class GlobalAdManager(
             logAdsD(this, "adsAllowed() > ads NOT allowed (new user|ads-free allowed).")
             return false // ads NOT allowed
         }
-        logAdsD(this, "adsAllowed() > has subscriptions: '$hasSubscription'.")
+        logAdsD(this, "adsAllowed() > has subscriptions: '$hasSubscriptionOrNoError'.")
         if (AdConstants.IGNORE_REWARD_HIDING_BANNER) {
-            return hasSubscription == false
+            return hasSubscriptionOrNoError == false
         }
         if (this._rewardedNow != false) { // rewarded status
             logAdsD(this, "adsAllowed() > banner ads NOT allowed (rewarded until: ${this._rewardedUntil?.toDateTimeLog()}).")
             return false // ads NOT allowed
         }
-        return hasSubscription == false
+        return hasSubscriptionOrNoError == false
     }
 
     fun onHasAgenciesEnabledUpdated(hasAgenciesEnabled: Boolean?) {

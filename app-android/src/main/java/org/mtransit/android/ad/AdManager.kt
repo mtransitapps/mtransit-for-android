@@ -111,8 +111,8 @@ class AdManager @Inject internal constructor(
 
     override fun canShowAds() = this.globalAdManager.canShowAds()
 
-    override suspend fun setHasSubscription(hasSubscription: Boolean?, activity: IAdScreenActivity) {
-        this.globalAdManager.setHasSubscription(hasSubscription)
+    override suspend fun setHasSubscriptionOrNoError(hasSubscriptionOrNoError: Boolean?, activity: IAdScreenActivity) {
+        this.globalAdManager.setHasSubscriptionOrNoError(hasSubscriptionOrNoError)
         onShowingAdsUpdated(activity)
     }
 

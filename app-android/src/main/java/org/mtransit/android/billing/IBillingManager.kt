@@ -100,6 +100,8 @@ interface IBillingManager {
 
     val hasSubscription: LiveData<Boolean?>
 
+    val hasSubscriptionOrNoError: LiveData<Boolean?>
+
     val hasBillingConfig: LiveData<Boolean?>
 
     var fullDemoMode: Boolean?

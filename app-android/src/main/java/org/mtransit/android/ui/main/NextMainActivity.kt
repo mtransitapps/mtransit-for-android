@@ -237,9 +237,9 @@ class NextMainActivity :
         billingManager.currentSubsProductId.observe(this) {
             // do nothing
         }
-        billingManager.hasSubscription.observe(this) { hasSubscription ->
-            lifecycleScope.launch(Dispatchers.IO) {
-                adManager.setHasSubscription(hasSubscription, this@NextMainActivity)
+        billingManager.hasSubscriptionOrNoError.observe(this) { hasSubscriptionOrNoError ->
+            lifecycleScope.launch {
+                adManager.setHasSubscriptionOrNoError(hasSubscriptionOrNoError, this@NextMainActivity)
             }
         }
         ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED)

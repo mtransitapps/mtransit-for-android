@@ -18,7 +18,7 @@ interface IAdManager {
 
     fun canShowAds(): Boolean?
 
-    suspend fun setHasSubscription(hasSubscription: Boolean?, activity: IAdScreenActivity)
+    suspend fun setHasSubscriptionOrNoError(hasSubscriptionOrNoError: Boolean?, activity: IAdScreenActivity)
 
     // region App open ad
 
