@@ -91,7 +91,7 @@ class MTBillingManager @Inject constructor(
         .enableAutoServiceReconnection()
         .build()
 
-    val subsError: LiveData<Boolean> by lazy {
+    private val subsError: LiveData<Boolean> by lazy {
         lclPrefRepository.pref.liveData(
             PREF_KEY_SUBS_ERROR, PREF_KEY_SUBS_ERROR_DEFAULT
         ).distinctUntilChanged()
@@ -127,11 +127,7 @@ class MTBillingManager @Inject constructor(
     override val hasSubscriptionOrNoError: LiveData<Boolean?> by lazy {
         MediatorLiveData2(this.hasSubscription, this.subsError)
             .map { (hasSubs, hasError) ->
-                hasSubs?.let { return@map it } // if subs status known -> use it
-                hasError?.takeIf { it }?.let { // if error in progress -> use it
-                    return@map false //
-                }
-                return@map null // still loading
+                hasSubs ?: if (hasError == true) false else null
             }
     }
 

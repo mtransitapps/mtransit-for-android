@@ -238,7 +238,7 @@ class NextMainActivity :
             // do nothing
         }
         billingManager.hasSubscriptionOrNoError.observe(this) { hasSubscriptionOrNoError ->
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch {
                 adManager.setHasSubscriptionOrNoError(hasSubscriptionOrNoError, this@NextMainActivity)
             }
         }

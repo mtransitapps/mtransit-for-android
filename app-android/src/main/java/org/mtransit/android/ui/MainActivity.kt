@@ -206,7 +206,7 @@ class MainActivity :
             }
         }
         this.billingManager.hasSubscriptionOrNoError.observe(this) { hasSubscriptionOrNoError ->
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch {
                 adManager.setHasSubscriptionOrNoError(hasSubscriptionOrNoError, this@MainActivity)
             }
             this.navigationDrawerController?.setVisibleMenuItems()
