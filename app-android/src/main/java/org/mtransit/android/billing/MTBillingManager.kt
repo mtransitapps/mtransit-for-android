@@ -144,6 +144,7 @@ class MTBillingManager @Inject constructor(
                     queryUserBillingConfig()
                 } else {
                     MTLog.w(this@MTBillingManager, "Billing setup NOT successful! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                    handlePurchasesError()
                 }
             }
         })
