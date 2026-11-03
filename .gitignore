@@ -357,6 +357,8 @@ dev.properties
 # DEPRECATED: remove after /.github/workflows/mt-download-data.yml updated
 /agency-parser/check_data_not_outdated.sh
 /agency-parser/sh/check_data_not_outdated.sh
+# DEPRECATED: remove after /.github/workflows/mt-download-data.yml updated
+/agency-parser/download.sh
 /agency-parser/sh/download.sh
 /agency-parser/sh/force_single_thread_off.sh
 /agency-parser/sh/force_single_thread_on.sh
