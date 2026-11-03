@@ -72,7 +72,7 @@ class MTApplication : MTCommonApp() {
         this.strictMode.setup() // uses crash reporter
         this.analyticsManager.setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER)
         this.mainScope.launch {
-            MapsInitializerUtil.initMap(this@MTApplication)
+            MapsInitializerUtil.startInitMap(this@MTApplication)
         }
     }
 

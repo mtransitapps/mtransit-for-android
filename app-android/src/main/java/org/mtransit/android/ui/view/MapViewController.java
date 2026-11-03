@@ -272,7 +272,7 @@ public class MapViewController implements
 			return;
 		}
 		try {
-			MapsInitializerUtil.initMap(parentLayout.getContext(), renderer -> {
+			MapsInitializerUtil.startInitMap(parentLayout.getContext(), renderer -> {
 				applyNewMapView(parentLayout);
 				return kotlin.Unit.INSTANCE;
 			});

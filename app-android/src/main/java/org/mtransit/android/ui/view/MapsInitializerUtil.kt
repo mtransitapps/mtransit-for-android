@@ -1,9 +1,15 @@
 package org.mtransit.android.ui.view
 
+import android.app.Application
 import android.content.Context
 import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.MapsInitializer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
 object MapsInitializerUtil : MTLog.Loggable {
@@ -14,18 +20,39 @@ object MapsInitializerUtil : MTLog.Loggable {
 
     override fun getLogTag() = LOG_TAG
 
+    suspend fun startInitMap(app: Application) = withContext(Dispatchers.IO) {
+        initMap(app, onMapInitialized = {})
+    }
+
     @MainThread
     @JvmStatic
-    @JvmOverloads
-    fun initMap(appContext: Context, callback: (MapsInitializer.Renderer?) -> (Unit) = { }) {
+    fun startInitMap(context: Context, @MainThread onMapInitialized: (MapsInitializer.Renderer?) -> (Unit)) {
         rendererInitialized.get()?.let { renderer ->
             MTLog.d(this, "initMap() > SKIP (already running)")
-            callback(renderer)
+            onMapInitialized(renderer)
+            return
+        }
+        val backgroundExecutor = Executors.newSingleThreadExecutor()
+        backgroundExecutor.execute {
+            initMap(context) { renderer ->
+                ContextCompat.getMainExecutor(context).execute {
+                    onMapInitialized(renderer)
+                }
+                backgroundExecutor.shutdown()
+            }
+        }
+    }
+
+    @WorkerThread
+    private fun initMap(context: Context, onMapInitialized: (MapsInitializer.Renderer?) -> (Unit)) {
+        rendererInitialized.get()?.let { renderer ->
+            MTLog.d(this, "initMap() > SKIP (already running)")
+            onMapInitialized(renderer)
             return
         }
         try {
             @Suppress("DEPRECATION")
-            MapsInitializer.initialize(appContext, MapsInitializer.Renderer.LATEST) { renderer ->
+            MapsInitializer.initialize(context, MapsInitializer.Renderer.LATEST) { renderer ->
                 when (renderer) {
                     MapsInitializer.Renderer.LATEST -> {
                         MTLog.d(this, "The latest version of the renderer is used.")
@@ -35,12 +62,12 @@ object MapsInitializerUtil : MTLog.Loggable {
                         MTLog.d(this, "The legacy version of the renderer is used.")
                     }
                 }
-                this.rendererInitialized.set(renderer)
-                callback(renderer)
+                rendererInitialized.set(renderer)
+                onMapInitialized(renderer)
             }
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while initializing map!")
-            this.rendererInitialized.set(null)
+            rendererInitialized.set(null)
         }
     }
 }
