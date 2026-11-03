@@ -33,7 +33,7 @@ object MapsInitializerUtil : MTLog.Loggable {
         }
         try {
             @Suppress("DEPRECATION")
-            MapsInitializer.initialize(context, PREFERRED_RENDERED) { renderer ->
+            MapsInitializer.initialize(context.applicationContext, PREFERRED_RENDERER) { renderer ->
                 when (renderer) {
                     MapsInitializer.Renderer.LATEST -> {
                         MTLog.d(this, "The latest version of the renderer is used.")
