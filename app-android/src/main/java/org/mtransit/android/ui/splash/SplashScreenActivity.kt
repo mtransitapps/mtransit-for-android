@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.splash
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -68,7 +69,7 @@ open class SplashScreenActivity :
         })
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
-        if (performanceManager.isAtLeast(33)) {
+        if (performanceManager.isAtLeast(Build.VERSION_CODES.TIRAMISU)) {
             MapsInitializerUtil.initMap(this)
         }
         startObserving()
