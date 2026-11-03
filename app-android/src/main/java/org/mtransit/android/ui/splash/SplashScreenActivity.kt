@@ -15,6 +15,7 @@ import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.fixWebViewLocale
 import org.mtransit.android.commons.getText
+import org.mtransit.android.device.PerformanceManager
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.main.NextMainActivity
@@ -49,6 +50,9 @@ open class SplashScreenActivity :
     @Inject
     lateinit var adManager: IAdManager
 
+    @Inject
+    lateinit var performanceManager: PerformanceManager
+
     private val viewModel by viewModels<SplashScreenViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +68,9 @@ open class SplashScreenActivity :
         })
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
-        MapsInitializerUtil.initMap(this)
+        if (performanceManager.isAtLeast(33)) {
+            MapsInitializerUtil.initMap(this)
+        }
         startObserving()
     }
 
