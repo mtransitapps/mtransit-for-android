@@ -10,7 +10,7 @@ object MapsInitializerUtil : MTLog.Loggable {
 
     private val LOG_TAG: String = MapsInitializerUtil::class.java.simpleName
 
-    private val PREFERRED_RENDERED = MapsInitializer.Renderer.LATEST
+    private val PREFERRED_RENDERER = MapsInitializer.Renderer.LATEST
 
     private val rendererInitialized = AtomicReference<MapsInitializer.Renderer>(null)
 
