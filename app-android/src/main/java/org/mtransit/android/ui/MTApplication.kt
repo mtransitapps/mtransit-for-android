@@ -5,8 +5,6 @@ import android.content.Context
 import android.os.Build
 import android.webkit.WebView
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
@@ -17,7 +15,6 @@ import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.IStrictMode
 import org.mtransit.android.dev.LeakDetector
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
-import org.mtransit.android.ui.view.MapsInitializerUtil
 import org.mtransit.android.util.NightModeUtils
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.CommonsApp
@@ -51,8 +48,6 @@ class MTApplication : MTCommonApp() {
     @Inject
     lateinit var remoteConfigProvider: RemoteConfigProvider
 
-    private val mainScope = MainScope()
-
     override fun attachBaseContext(base: Context) {
         // Demo mode: cannot access manager instance before application context is attached => set in activities
         val fixedBase = LocaleUtils.attachBaseContextApplication(base)
@@ -71,9 +66,6 @@ class MTApplication : MTCommonApp() {
         this.crashReporter.setup(!BuildConfig.DEBUG)
         this.strictMode.setup() // uses crash reporter
         this.analyticsManager.setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER)
-        this.mainScope.launch {
-            MapsInitializerUtil.startInitMap(this@MTApplication)
-        }
     }
 
     private fun fixWebViewDataDirectorySuffix() {

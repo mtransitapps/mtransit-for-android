@@ -1,15 +1,9 @@
 package org.mtransit.android.ui.view
 
-import android.app.Application
 import android.content.Context
 import androidx.annotation.MainThread
-import androidx.annotation.WorkerThread
-import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.MapsInitializer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
-import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
 object MapsInitializerUtil : MTLog.Loggable {
@@ -22,31 +16,16 @@ object MapsInitializerUtil : MTLog.Loggable {
 
     override fun getLogTag() = LOG_TAG
 
-    suspend fun startInitMap(app: Application) = withContext(Dispatchers.IO) {
-        initMap(app, onMapInitialized = {})
-    }
-
-    @MainThread
+    /**
+     * [MapsInitializer.initialize] has to be called from **Main Thread**.
+     * There was wrong advice in on the Google Issue Tracker, but they since officially reversed that advice.
+     * (do not call from [android.app.Application.onCreate] to avoid ANRs)
+     * https://developers.google.com/android/reference/com/google/android/gms/maps/MapsInitializer
+     */
     @JvmStatic
-    fun startInitMap(context: Context, @MainThread onMapInitialized: (MapsInitializer.Renderer?) -> (Unit)) {
-        rendererInitialized.get()?.let { renderer ->
-            MTLog.d(this, "initMap() > SKIP (already running)")
-            onMapInitialized(renderer)
-            return
-        }
-        val backgroundExecutor = Executors.newSingleThreadExecutor()
-        backgroundExecutor.execute {
-            initMap(context) { renderer ->
-                ContextCompat.getMainExecutor(context).execute {
-                    onMapInitialized(renderer)
-                }
-                backgroundExecutor.shutdown()
-            }
-        }
-    }
-
-    @WorkerThread
-    private fun initMap(context: Context, onMapInitialized: (MapsInitializer.Renderer?) -> (Unit)) {
+    @JvmOverloads
+    @MainThread
+    fun initMap(context: Context, onMapInitialized: (MapsInitializer.Renderer?) -> (Unit) = {}) {
         rendererInitialized.get()?.let { renderer ->
             MTLog.d(this, "initMap() > SKIP (already running)")
             onMapInitialized(renderer)
