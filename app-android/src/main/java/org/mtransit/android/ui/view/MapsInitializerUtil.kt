@@ -16,6 +16,8 @@ object MapsInitializerUtil : MTLog.Loggable {
 
     private val LOG_TAG: String = MapsInitializerUtil::class.java.simpleName
 
+    private val PREFERRED_RENDERED = MapsInitializer.Renderer.LATEST
+
     private val rendererInitialized = AtomicReference<MapsInitializer.Renderer>(null)
 
     override fun getLogTag() = LOG_TAG
@@ -52,7 +54,7 @@ object MapsInitializerUtil : MTLog.Loggable {
         }
         try {
             @Suppress("DEPRECATION")
-            MapsInitializer.initialize(context, MapsInitializer.Renderer.LATEST) { renderer ->
+            MapsInitializer.initialize(context, PREFERRED_RENDERED) { renderer ->
                 when (renderer) {
                     MapsInitializer.Renderer.LATEST -> {
                         MTLog.d(this, "The latest version of the renderer is used.")
