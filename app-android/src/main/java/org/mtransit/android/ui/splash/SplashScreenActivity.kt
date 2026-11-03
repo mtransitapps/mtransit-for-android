@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.splash
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -15,9 +16,11 @@ import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.fixWebViewLocale
 import org.mtransit.android.commons.getText
+import org.mtransit.android.device.PerformanceManager
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.main.NextMainActivity
+import org.mtransit.android.ui.view.MapsInitializerUtil
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.util.SystemSettingManager
@@ -48,6 +51,9 @@ open class SplashScreenActivity :
     @Inject
     lateinit var adManager: IAdManager
 
+    @Inject
+    lateinit var performanceManager: PerformanceManager
+
     private val viewModel by viewModels<SplashScreenViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +69,13 @@ open class SplashScreenActivity :
         })
         analyticsManager.trackScreenView(this)
         viewModel.onAppOpen()
+        if (performanceManager.isAtLeast(Build.VERSION_CODES.TIRAMISU)) {
+            MapsInitializerUtil.initMap(this)
+        }
+        startObserving()
+    }
+
+    private fun startObserving() {
         viewModel.shouldKeepSplashScreenOn.observe(this) { _ ->
             // DO NOTHING
         }
