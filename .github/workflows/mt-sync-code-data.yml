@@ -144,7 +144,7 @@ jobs:
 
       - name: MT select archive
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
-        run: if [ -d "agency-parser" ]; then ./agency-parser/sh/prepare_only.sh; fi 
+        run: if [ -d "agency-parser" ]; then ./agency-parser/sh/prepare_only.sh; fi
 
       - name: MT log GTFS CSV previews
         if: ${{ env.MT_IS_AGENCY_BIKE != 'true' && env.MT_IS_MAIN_REPO != 'true' }}
