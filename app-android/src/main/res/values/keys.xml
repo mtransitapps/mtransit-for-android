@@ -13,6 +13,9 @@
     <string-array name="google_places_new_api_key"><!-- PROD 2025 $$$ | Android App restriction -->
         <item>INSERT_GOOGLE_PLACES_NEW_API_KEY_HERE</item>
     </string-array>
+    <string-array name="google_maps_embed_api_key">
+        <item>INSERT_GOOGLE_MAPS_EMBED_API_KEY_HERE</item>
+    </string-array>
     <!-- NEWS -->
     <string-array name="twitter_cached_api_url" />
     <string-array name="twitter_bearer_token"><!-- PROD 2026 PpU $$$ -->

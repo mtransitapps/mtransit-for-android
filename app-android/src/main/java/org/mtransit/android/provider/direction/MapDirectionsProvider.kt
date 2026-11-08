@@ -93,9 +93,7 @@ class MapDirectionsProvider @Inject constructor(
         val origin = if (originLat != null && originLng != null) {
             "$originLat,$originLng"
         } else {
-            this.lastDeviceLocation?.let {
-                "${it.latitude},${it.longitude}"
-            }
+            this.lastDeviceLocation?.let { "${it.latitude},${it.longitude}" }
         }
         val destination = if (destinationLat != null && destinationLng != null) "$destinationLat,$destinationLng" else null
         return if (
