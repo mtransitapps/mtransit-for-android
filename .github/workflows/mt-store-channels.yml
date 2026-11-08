@@ -186,26 +186,29 @@ jobs:
           echo "commit_message=${COMMIT_MESSAGE}" >> "$GITHUB_OUTPUT"
 
       - name: MT Commit changes
-        continue-on-error: true
         id: mt-commit-changes
         env:
           COMMIT_MESSAGE: ${{ steps.mt-change-message.outputs.commit_message }}
         run: |
-          git add -v -A config/store
+          mkdir -p config/store
+          if [ -n "$(git status --porcelain config/store)" ]; then
+            git add -v -A config/store
+          fi
           if git diff --staged --quiet; then
             echo "No changes to commit."
-            exit 1 # fail
+            exit 0 # success
           fi
           git switch -C "${MT_BRANCH_NAME}_update_store_channels"
           git config user.name "$MT_BOT_USER_NAME"
           git config user.email "$MT_BOT_USER_EMAIL"
           git commit -m "$COMMIT_MESSAGE"
           git push -u origin "$(git rev-parse --abbrev-ref HEAD)" --force
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
           exit 0 # success
 
       - name: MT Check if PR exists
         id: mt-check-pr-exists
-        if: ${{ steps.mt-commit-changes.outcome == 'success' }}
+        if: ${{ steps.mt-commit-changes.outputs.pushed == 'true' }}
         continue-on-error: true
         run: |
           # gh pr view &>/dev/null # incl. closed PRs
@@ -220,7 +223,7 @@ jobs:
           GH_TOKEN: ${{ secrets.MT_PAT }}
 
       - name: MT Create pull request (if necessary)
-        if: ${{ steps.mt-commit-changes.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'failure' }}
+        if: ${{ steps.mt-commit-changes.outputs.pushed == 'true' && steps.mt-check-pr-exists.outcome == 'failure' }}
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
           COMMIT_MESSAGE: ${{ steps.mt-change-message.outputs.commit_message }}
@@ -228,7 +231,7 @@ jobs:
           gh pr create --base "${MT_BRANCH_NAME}" --fill --title "$COMMIT_MESSAGE" --assignee montransit
           # using CODEOWNERS # gh pr comment --body "@mtransitapps/codeowners please review this pull request"
       - name: MT Update pull request (if necessary)
-        if: ${{ steps.mt-commit-changes.outcome == 'success' && steps.mt-check-pr-exists.outcome == 'success' }}
+        if: ${{ steps.mt-commit-changes.outputs.pushed == 'true' && steps.mt-check-pr-exists.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
           COMMIT_MESSAGE: ${{ steps.mt-change-message.outputs.commit_message }}
