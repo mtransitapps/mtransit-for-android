@@ -15,7 +15,6 @@ import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.KeysIds
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.getUserSelectedAppLocales
 import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.location.CountryProvider
 import org.mtransit.android.provider.location.MTLocationProvider
@@ -29,6 +28,7 @@ import org.mtransit.android.util.KeysManager
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.SystemSettingManager
 import org.mtransit.commons.FeatureFlags
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.location.Location as AndroidLocation
@@ -63,10 +63,11 @@ class MapDirectionsProvider @Inject constructor(
         private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_METRIC = "metric"
         private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_IMPERIAL = "imperial"
 
+        private const val MAP_DIRECTION_URL_MAP_LANG_PARAM = "hl"
         @Suppress("SpellCheckingInspection")
-        private const val EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM = "language" // 2-letters language code like "en" or "fr"
+        private const val EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM = "language" // 2-letters language code like "en"
 
-        private const val EMBED_API_MAP_DIRECTION_URL_MAP_REGION_PARAM = "region" // 2-letters country code like "CA" or "US"
+        private const val EMBED_API_MAP_DIRECTION_URL_MAP_REGION_PARAM = "region" // 2-letters country code like "CA"
 
         @Suppress("SpellCheckingInspection")
         // private const val MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM = "saddr"
@@ -142,12 +143,12 @@ class MapDirectionsProvider @Inject constructor(
                         appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_UNITS_PARAM, EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_IMPERIAL)
                     }
                 }
-                val appLang = getUserSelectedAppLocales()[0]?.language // only getting overridden app language setting (else OS default)
+                val appLang = LocaleUtils.getDefaultLocale().language // always override to be consistent with rest of the app UI
                 if (LocaleUtils.isFR(appLang)) {
                     appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM, appLang)
-                } else if (LocaleUtils.isEN(appLang)) {
-                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM, appLang)
-                } // ELSE keep default
+                } else { // ELSE default app UI language = English
+                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM, Locale.ENGLISH.language)
+                }
                 countryProvider.getCurrentCountryCode()?.let { countryCode ->
                     appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_REGION_PARAM, countryCode)
                 }
@@ -158,6 +159,12 @@ class MapDirectionsProvider @Inject constructor(
                 appendQueryParameter(MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM, MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE)
                 origin?.let { appendQueryParameter(MAP_DIRECTION_URL_ORIGIN_ADDRESS_PARAM, it) }
                 destination?.let { appendQueryParameter(MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM, it) }
+                val appLang = LocaleUtils.getDefaultLocale().language // always override to be consistent with rest of the app UI
+                if (LocaleUtils.isFR(appLang)) {
+                    appendQueryParameter(MAP_DIRECTION_URL_MAP_LANG_PARAM, appLang)
+                } else { // ELSE default app UI language = English
+                    appendQueryParameter(MAP_DIRECTION_URL_MAP_LANG_PARAM, Locale.ENGLISH.language)
+                }
             }.build()
         }
     }
