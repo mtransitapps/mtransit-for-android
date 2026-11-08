@@ -7,7 +7,6 @@ import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.R
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.util.MapUtils
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.toDate
 import kotlin.time.Duration.Companion.seconds
@@ -20,9 +19,9 @@ fun VehicleLocation.getMapMarkerAlpha() =
     reportTimestampCountdown?.inWholeSeconds?.let { seconds ->
         when {
             seconds >= 100L -> MIN_ALPHA
-            else -> MapUtils.MAP_MARKER_ALPHA_DEFAULT - (seconds / 100.0f)
+            else -> MapConstants.MAP_MARKER_ALPHA_DEFAULT - (seconds / 100.0f)
         }
-    }?.coerceIn(MIN_ALPHA, MapUtils.MAP_MARKER_ALPHA_DEFAULT)
+    }?.coerceIn(MIN_ALPHA, MapConstants.MAP_MARKER_ALPHA_DEFAULT)
 
 fun VehicleLocation.getMapMarkerTitle(context: Context): String? =
     reportTimestampCountdown?.inWholeSeconds?.let { seconds ->
@@ -55,7 +54,7 @@ fun VehicleLocation.toExtendedMarkerOptions(
     icon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.getZoomSize(currentZoomGroup), iconDef.replaceColor, iconColorInt, null, Color.BLACK)
     title(getMapMarkerTitle(context))
     snippet(if (hideSnippet) null else getMapMarkerSnippet(context))
-    alpha(getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
+    alpha(getMapMarkerAlpha() ?: MapConstants.MAP_MARKER_ALPHA_DEFAULT)
     data(this@toExtendedMarkerOptions) // used to update marker with countdown
     zIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
 }
@@ -77,7 +76,7 @@ fun VehicleLocation.updateMarker(
     setIcon(context, iconDef.getZoomResId(currentZoomGroup), iconDef.getZoomSize(currentZoomGroup), iconDef.replaceColor, iconColorInt, null, Color.BLACK)
     updateTitle(getMapMarkerTitle(context))
     updateSnippet(if (hideSnippet) null else getMapMarkerSnippet(context))
-    updateAlpha(getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
+    updateAlpha(getMapMarkerAlpha() ?: MapConstants.MAP_MARKER_ALPHA_DEFAULT)
     updateData(this@updateMarker) // used to update marker with countdown
     updateZIndex(MapViewController.MAP_MARKER_Z_INDEX_VEHICLE)
     if (wasInfoWindowShown) this.showInfoWindow()

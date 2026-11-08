@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.loadIFrame;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,7 +10,6 @@ import android.net.Uri;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,20 +35,27 @@ import androidx.fragment.app.FragmentManager;
 import androidx.webkit.WebViewClientCompat;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.databinding.FragmentWebBrowserBinding;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.user.UserPrefManager;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LinkUtils;
+import org.mtransit.commons.TextUtils;
 
 import java.lang.ref.WeakReference;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
 @SuppressWarnings("DeprecatedCall")
+@AndroidEntryPoint
 public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName();
@@ -75,43 +83,40 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	private static final String EXTRA_URL_CURRENT = "extra_url_current";
 
-	@NonNull
-	public static WebBrowserFragment newInstance(@NonNull String url) {
-		return newInstance(url, null);
-	}
+	private static final String EXTRA_USE_IFRAME = "extra_use_iframe";
 
 	@NonNull
-	public static WebBrowserFragment newInstance(@NonNull String url, @Nullable String titleStatic) {
-		WebBrowserFragment f = new WebBrowserFragment();
-		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
-			f.initialUrl = url;
-		}
-		f.setArguments(newInstanceArgs(url, titleStatic));
+	public static WebBrowserFragment newInstance(@NonNull String url, @Nullable String titleStatic, boolean useIFrame) {
+		final WebBrowserFragment f = new WebBrowserFragment();
+		f.setArguments(newInstanceArgs(url, titleStatic, useIFrame));
 		return f;
 	}
 
 	@NonNull
-	public static Bundle newInstanceArgs(@NonNull String url) {
-		return newInstanceArgs(url, null);
-	}
-
-	@NonNull
-	public static Bundle newInstanceArgs(@NonNull String url, @Nullable String titleStatic) {
-		Bundle args = new Bundle();
+	public static Bundle newInstanceArgs(@NonNull String url, @Nullable String titleStatic, boolean useIFrame) {
+		final Bundle args = new Bundle();
 		args.putString(EXTRA_URL_INITIAL, url);
 		args.putString(EXTRA_TITLE_STATIC, titleStatic);
+		args.putBoolean(EXTRA_USE_IFRAME, useIFrame);
 		return args;
 	}
+
+	@Inject
+	UserPrefManager userPrefManager;
 
 	public WebBrowserFragment() {
 		super(R.layout.fragment_web_browser);
 	}
 
-	private String initialUrl;
-	private String currentUrl;
+	private boolean useIFrame = false;
+	@Nullable
+	protected String initialUrl = null;
+	@Nullable
+	private String currentUrl = null;
 	@Nullable
 	private String pageTitleStatic = null;
-	private String pageTitle;
+	@Nullable
+	private String pageTitle = null;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -132,6 +137,10 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (newCurrentUrl != null && !newCurrentUrl.equals(this.currentUrl)) {
 			this.currentUrl = newCurrentUrl;
 		}
+		final Boolean useUseIFrame = BundleUtils.getBoolean(EXTRA_USE_IFRAME, bundles);
+		if (useUseIFrame != null && !useUseIFrame.equals(this.useIFrame)) {
+			this.useIFrame = useUseIFrame;
+		}
 		final WebView webView = binding == null ? null : binding.webView;
 		if (webView != null && bundles.length > 0) {
 			webView.restoreState(bundles[0]);
@@ -149,6 +158,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (!TextUtils.isEmpty(this.currentUrl)) {
 			outState.putString(EXTRA_URL_CURRENT, this.currentUrl);
 		}
+		outState.putBoolean(EXTRA_USE_IFRAME, this.useIFrame);
 		final WebView webView = binding == null ? null : binding.webView;
 		if (webView != null) {
 			webView.saveState(outState);
@@ -156,7 +166,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		super.onSaveInstanceState(outState);
 	}
 
-	private @Nullable FragmentWebBrowserBinding binding = null;
+	protected @Nullable FragmentWebBrowserBinding binding = null;
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -174,6 +184,13 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		};
 		onBackPressedCallback = callback;
 		requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
+		this.userPrefManager.getUseInternalWebBrowser().observe(getViewLifecycleOwner(), this::onUseInternalWebBrowserPrefChanged);
+	}
+
+	private boolean useInternalWebBrowserPref = DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT;
+
+	private void onUseInternalWebBrowserPrefChanged(boolean newUseInternalWebBrowser) {
+		this.useInternalWebBrowserPref = newUseInternalWebBrowser;
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
@@ -192,6 +209,8 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			if (mainActivity != null) EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(mainActivity, getDefaultABBgColor(view.getContext()));
 		}
 		final WebView webView = binding.webView;
+		webView.getSettings().setDomStorageEnabled(true); // useful for modern mobile websites #PWA
+		webView.getSettings().setAllowFileAccess(this.useIFrame); // only useful for bundled HTML webpages inside the app
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setSupportZoom(true);
 		webView.getSettings().setBuiltInZoomControls(true);
@@ -215,10 +234,18 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (binding != null) onResumeToolbar(binding.screenToolbarLayout.screenToolbarLayout, binding.screenToolbarLayout.screenToolbar);
 		final WebView webView = binding == null ? null : binding.webView;
 		if (webView != null) {
-			if (TextUtils.isEmpty(this.currentUrl)) {
-				webView.loadUrl(this.initialUrl);
-			} else if (!this.currentUrl.equals(webView.getUrl())) {
-				webView.loadUrl(this.currentUrl);
+			if (this.currentUrl != null && !this.currentUrl.isEmpty()) {
+				if (!this.currentUrl.equals(webView.getUrl())) {
+					webView.loadUrl(this.currentUrl);
+				}
+			} else if (this.useIFrame) {
+				loadIFrame(this);
+			} else {
+				if (this.initialUrl != null && !this.initialUrl.isEmpty()) {
+					if (!this.initialUrl.equals(webView.getUrl())) {
+						webView.loadUrl(this.initialUrl);
+					}
+				}
 			}
 			webView.onResume();
 		}
@@ -230,6 +257,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		final WebView webView = binding == null ? null : binding.webView;
 		if (webView != null) {
 			webView.onPause();
+			onURLChanged(webView.getUrl());
 		}
 	}
 
@@ -263,7 +291,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			@NonNull String url
 	) {
 		if (LinkUtils.isIntentIntent(url)) {
-			if (LinkUtils.interceptIntent(webView, url)) {
+			if (LinkUtils.interceptIntent(requireActivity(), webView, url, this.useInternalWebBrowserPref)) {
 				return true; // INTERCEPTED
 			}
 		} else if (LinkUtils.intercept(requireActivity(), url)) {

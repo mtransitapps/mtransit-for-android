@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -51,6 +50,7 @@ import org.mtransit.android.data.NewsProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
+import org.mtransit.android.provider.direction.MapDirectionsProvider;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fares.FaresDialog;
@@ -66,7 +66,6 @@ import org.mtransit.android.ui.pref.PreferencesActivity;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.user.UserManager;
 import org.mtransit.android.util.FragmentUtils;
-import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.SystemSettingManager;
 import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.commons.CollectionUtils;
@@ -106,6 +105,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	@NonNull
 	protected final IAnalyticsManager analyticsManager;
 	@NonNull
+	private final MapDirectionsProvider mapDirectionsProvider;
+	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 	@NonNull
 	protected final UserManager userManager;
@@ -140,6 +141,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			@NonNull MainActivity mainActivity,
 			@NonNull CrashReporter crashReporter,
 			@NonNull IAnalyticsManager analyticsManager,
+			@NonNull MapDirectionsProvider mapDirectionsProvider,
 			@NonNull DataSourcesRepository dataSourcesRepository,
 			@NonNull UserManager userManager,
 			@NonNull LocalPreferenceRepository lclPrefRepository,
@@ -156,6 +158,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.userManager = userManager;
 		this.lclPrefRepository = lclPrefRepository;
 		this.analyticsManager = analyticsManager;
+		this.mapDirectionsProvider = mapDirectionsProvider;
 		this.statusLoader = statusLoader;
 		this.consentManager = consentManager;
 		this.billingManager = billingManager;
@@ -613,10 +616,10 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return MapFragment.newInstance();
 		} else if (navItemId == R.id.nav_trip_planner) {
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
-			final Pair<Double, Double> srcLatLng = getTripPlannerSrcLatLng(activity);
 			return WebBrowserFragment.newInstance(
-					MapUtils.getMapsDirectionUrl(null, null, srcLatLng.first, srcLatLng.second, null).toString(),
-					activity.getString(R.string.trip_planner)
+					mapDirectionsProvider.getMapsDirectionUrl(null, null, null, null, null).toString(),
+					activity.getString(R.string.trip_planner),
+					false
 			);
 		} else if (navItemId == R.id.root_nav_news) {
 			return NewsListDetailFragment.newInstance();
@@ -640,8 +643,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		if (navItemId == R.id.nav_trip_planner) {
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
-			final Pair<Double, Double> srcLatLng = getTripPlannerSrcLatLng(activity);
-			MapUtils.showDirection(null, activity, null, null, srcLatLng.first, srcLatLng.second, null, this.useInternalBrowserPref);
+			mapDirectionsProvider.showDirection(null, activity, null, null, null, null, null, this.useInternalBrowserPref);
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 		} else if (navItemId == R.id.nav_fares) {
@@ -687,20 +689,6 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} else {
 			MTLog.w(this, "startNewScreen() > Unexpected screen nav item ID: %s", navItemId);
 		}
-	}
-
-	@NonNull
-	private Pair<Double, Double> getTripPlannerSrcLatLng(Activity activity) {
-		Double optSrcLat = null;
-		Double optSrcLng = null;
-		if (activity instanceof MainActivity) {
-			Location lastLocation = ((MainActivity) activity).getLastLocation();
-			if (lastLocation != null) {
-				optSrcLat = lastLocation.getLatitude();
-				optSrcLng = lastLocation.getLongitude();
-			}
-		}
-		return new Pair<>(optSrcLat, optSrcLng);
 	}
 
 	private boolean isRootScreen(@Nullable Integer navItemId, boolean isUsingFirebaseTestLab) {

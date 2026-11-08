@@ -119,7 +119,7 @@ public final class LinkUtils implements MTLog.Loggable {
 					}
 					NavControllerExtKt.navigateF(navController,
 							R.id.nav_to_web_screen,
-							WebBrowserFragment.newInstanceArgs(url, titleStatic),
+							WebBrowserFragment.newInstanceArgs(url, titleStatic, false),
 							null,
 							extras
 					);
@@ -127,7 +127,7 @@ public final class LinkUtils implements MTLog.Loggable {
 				} else {
 					if (activity instanceof MainActivity) {
 						((MainActivity) activity).addFragmentToStack(
-								WebBrowserFragment.newInstance(url, titleStatic)
+								WebBrowserFragment.newInstance(url, titleStatic, false)
 						);
 						return true;
 					}
@@ -137,25 +137,39 @@ public final class LinkUtils implements MTLog.Loggable {
 		return org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), label); // Intent(ACTION_VIEW) // open external web browser
 	}
 
-	public static boolean interceptIntent(@NonNull WebView webView, @NonNull String url) {
+	public static boolean interceptIntent(@NonNull Activity activity, @NonNull WebView webView, @NonNull String url, boolean useInternalWebBrowserPref) {
 		try {
-			Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+			final Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
 			if (intent != null) {
+				final String fallbackUrl = intent.getStringExtra("browser_fallback_url");
+				if (useInternalWebBrowserPref && fallbackUrl != null && !fallbackUrl.isEmpty()) {
+					if (!LinkUtils.canIntercept(fallbackUrl)) {
+						webView.loadUrl(fallbackUrl); // ELSE load in webview
+						return true; // INTERCEPTED
+					}
+				}
 				if (PackageManagerUtils.isAppInstalledDefault(webView.getContext(), intent)) { // Only works with apps pkg added to AndroidManifest.xml (API Level 30+)
 					org.mtransit.android.commons.LinkUtils.open(webView.getContext(), intent, null);
 					return true; // INTERCEPTED
-				} else {
-					final String fallbackUrl = intent.getStringExtra("browser_fallback_url");
-					if (fallbackUrl != null && !fallbackUrl.isEmpty()) {
-						webView.loadUrl(fallbackUrl);
-						return true; // INTERCEPTED
-					}
+				}
+				if (fallbackUrl != null && !fallbackUrl.isEmpty()) {
+					webView.loadUrl(fallbackUrl);
+					return true; // INTERCEPTED
 				}
 			}
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error while processing '%s'!", url);
 		}
 		return false; // not INTERCEPTED
+	}
+
+	public static boolean canIntercept(@NonNull String url) {
+		return StoreUtils.isStoreIntent(url)
+				|| LinkUtils.isEmailIntent(url)
+				|| LinkUtils.isPhoneNumberIntent(url)
+				|| LinkUtils.isPDFIntent(url)
+				|| LinkUtils.isYouTubeIntent(url)
+				;
 	}
 
 	public static boolean intercept(@NonNull Activity activity, @NonNull String url) {

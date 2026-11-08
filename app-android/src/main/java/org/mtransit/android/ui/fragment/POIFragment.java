@@ -98,6 +98,7 @@ import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.device.DevicePrefManager;
 import org.mtransit.android.provider.FavoriteRepository;
+import org.mtransit.android.provider.direction.MapDirectionsProvider;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -136,7 +137,6 @@ import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
-import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.FeatureFlags;
@@ -247,6 +247,8 @@ public class POIFragment extends ABFragment implements
 	DevicePrefManager devicePrefManager;
 	@Inject
 	IAnalyticsManager analyticsManager;
+	@Inject
+	MapDirectionsProvider mapDirectionsProvider;
 	@Inject
 	FavoriteRepository favoriteRepository;
 	@Inject
@@ -1519,13 +1521,7 @@ public class POIFragment extends ABFragment implements
 			POIManager poim2 = getPoimOrNull();
 			if (poim2 != null) {
 				this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
-				Double optSrcLat = null;
-				Double optSrcLng = null;
-				if (this.deviceLocation != null) {
-					optSrcLat = this.deviceLocation.getLatitude();
-					optSrcLng = this.deviceLocation.getLongitude();
-				}
-				MapUtils.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName(), this.useInternalWebBrowserPref);
+				mapDirectionsProvider.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), null, null, poim2.poi.getName(), this.useInternalWebBrowserPref);
 				return true; // handled
 			}
 		}

@@ -69,6 +69,7 @@ import org.mtransit.android.ui.view.map.MTMapIconZoomGroup;
 import org.mtransit.android.ui.view.map.MTMapIconsProvider;
 import org.mtransit.android.ui.view.map.MTPOIMarker;
 import org.mtransit.android.ui.view.map.MTPOIMarkerIds;
+import org.mtransit.android.ui.view.map.MapConstants;
 import org.mtransit.android.ui.view.map.MapListener;
 import org.mtransit.android.ui.view.map.MapMarkerProvider;
 import org.mtransit.android.ui.view.map.VehicleLocationExtKt;
@@ -510,7 +511,7 @@ public class MapViewController implements
 
 	private int getMapType() {
 		if (this.mapType < 0) {
-			if (this.devicePrefManager == null) return MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT;
+			if (this.devicePrefManager == null) return MapConstants.PREFS_LCL_MAP_TYPE_DEFAULT;
 			//noinspection DiscouragedApi
 			this.mapType = this.devicePrefManager.getMapTypeNow();
 		}
@@ -518,7 +519,7 @@ public class MapViewController implements
 	}
 
 	private void switchMapType() {
-		final int newMapType = getMapType() == MapUtils.MAP_TYPE_NORMAL ? MapUtils.MAP_TYPE_SATELLITE : MapUtils.MAP_TYPE_NORMAL; // switch
+		final int newMapType = getMapType() == MapConstants.MAP_TYPE_NORMAL ? MapConstants.MAP_TYPE_SATELLITE : MapConstants.MAP_TYPE_NORMAL; // switch
 		setMapType(newMapType);
 	}
 
@@ -547,7 +548,7 @@ public class MapViewController implements
 
 	private void setTypeSwitchImg() {
 		if (this.typeSwitchView != null) {
-			this.typeSwitchView.setImageResource(getMapType() == MapUtils.MAP_TYPE_NORMAL ? R.drawable.map_satellite : R.drawable.map_normal);
+			this.typeSwitchView.setImageResource(getMapType() == MapConstants.MAP_TYPE_NORMAL ? R.drawable.map_satellite : R.drawable.map_normal);
 		}
 	}
 
@@ -976,7 +977,7 @@ public class MapViewController implements
 		return updateMapCamera(anim, cameraUpdate);
 	}
 
-	private static final float DEVICE_LOCATION_ZOOM = MapUtils.MAP_ZOOM_LEVEL_STREETS_BUSY;
+	private static final float DEVICE_LOCATION_ZOOM = MapConstants.MAP_ZOOM_LEVEL_STREETS_BUSY;
 
 	private boolean updateMapCamera(boolean anim, @NonNull CameraUpdate cameraUpdate) {
 		if (this.extendedGoogleMap == null) {
@@ -1054,9 +1055,9 @@ public class MapViewController implements
 		}
 	}
 
-	private static final float MAP_MARKER_Z_INDEX_STOP_FOCUSED_ON = MapUtils.MAP_MARKER_Z_INDEX_PRIMARY;
-	public static final float MAP_MARKER_Z_INDEX_VEHICLE = MapUtils.MAP_MARKER_Z_INDEX_SECONDARY;
-	private static final float MAP_MARKER_Z_INDEX_STOPS_OTHER = MapUtils.MAP_MARKER_Z_INDEX_TERTIARY;
+	private static final float MAP_MARKER_Z_INDEX_STOP_FOCUSED_ON = MapConstants.MAP_MARKER_Z_INDEX_PRIMARY;
+	public static final float MAP_MARKER_Z_INDEX_VEHICLE = MapConstants.MAP_MARKER_Z_INDEX_SECONDARY;
+	private static final float MAP_MARKER_Z_INDEX_STOPS_OTHER = MapConstants.MAP_MARKER_Z_INDEX_TERTIARY;
 
 	@Nullable
 	private LoadClusterItemsTask loadClusterItemsTask = null;
