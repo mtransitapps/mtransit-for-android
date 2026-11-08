@@ -44,6 +44,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.direction.MapDirectionsProvider
 import org.mtransit.android.receiver.ModulesReceiver
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -142,6 +143,9 @@ class MainActivity :
     lateinit var userPrefManager: UserPrefManager
 
     @Inject
+    lateinit var devicePrefManager: DevicePrefManager
+
+    @Inject
     lateinit var lclPrefRepository: LocalPreferenceRepository
 
     @Inject
@@ -204,6 +208,12 @@ class MainActivity :
         }
         this.userPrefManager.useInternalWebBrowser.distinctUntilChanged().observe(this) {
             this.navigationDrawerController?.onUseInternalWebBrowserPrefChanged(it)
+        }
+        this.devicePrefManager.mapType.distinctUntilChanged().observe(this) {
+            this.navigationDrawerController?.onMapTypePrefChanged(it)
+        }
+        this.userPrefManager.distanceUnits.distinctUntilChanged().observe(this) {
+            this.navigationDrawerController?.onDistanceUnitsPrefChanged(it)
         }
         this.dataSourcesRepository.readingHasAgenciesAdded().observe(this) { hasAgenciesAdded: Boolean? ->
             if (hasAgenciesAdded == true) {

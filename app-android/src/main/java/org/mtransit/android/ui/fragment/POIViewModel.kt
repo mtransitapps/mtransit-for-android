@@ -46,6 +46,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.location.UILocationUtils
@@ -73,6 +74,7 @@ class POIViewModel @Inject constructor(
     dataSourceRequestManager: DataSourceRequestManager,
     favoriteRepository: FavoriteRepository,
     userPrefManager: UserPrefManager,
+    devicePrefManager: DevicePrefManager,
     remoteConfigProvider: RemoteConfigProvider,
     getNearbyPOIListUseCase: GetNearbyPOIListUseCase,
 ) : ViewModel(), MTLog.Loggable {
@@ -156,6 +158,8 @@ class POIViewModel @Inject constructor(
     val distanceUnitsPref: LiveData<String> = userPrefManager.distanceUnits.distinctUntilChanged()
 
     val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
+
+    val mapTypePref: LiveData<Int> = devicePrefManager.mapType.distinctUntilChanged()
 
     val poim: LiveData<POIManager?> = MediatorLiveData2(poiAgency, uuid)
         .switchMap { (agency, uuid) -> // #onModulesUpdated

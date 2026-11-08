@@ -126,6 +126,10 @@ class DevicePrefManager @Inject constructor(
 
     // region map type
 
+    val mapType: LiveData<Int> = lclPrefRepository.pref.liveData(
+        MapConstants.PREFS_LCL_MAP_TYPE, MapConstants.PREFS_LCL_MAP_TYPE_DEFAULT
+    )
+
     /**
      * RedundantSuspendModifier: calling [android.content.SharedPreferences] with I/O dispatcher
      */

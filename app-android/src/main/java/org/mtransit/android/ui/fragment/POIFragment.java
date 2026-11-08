@@ -381,6 +381,7 @@ public class POIFragment extends ABFragment implements
 
 	private void onDistanceUnitPrefLoaded(@Nullable String distanceUnitPref) {
 		this.distanceUnitPref = distanceUnitPref;
+		onDistanceUnitsPrefChanged(distanceUnitPref);
 		updateDistanceString();
 	}
 
@@ -563,6 +564,7 @@ public class POIFragment extends ABFragment implements
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
 		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitPrefLoaded);
 		viewModel.getUseInternalWebBrowserPref().observe(getViewLifecycleOwner(), this::onUseInternalWebBrowserPrefLoaded);
+		viewModel.getMapTypePref().observe(getViewLifecycleOwner(), this::onMapTypePrefChanged);
 		viewModel.getHasScheduleProviders().observe(getViewLifecycleOwner(), hasScheduleProviders -> setupRDSFullScheduleBtn());
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
@@ -1023,6 +1025,20 @@ public class POIFragment extends ABFragment implements
 
 	private void onUseInternalWebBrowserPrefLoaded(@Nullable Boolean useInternalWebBrowserPref) {
 		this.useInternalWebBrowserPref = useInternalWebBrowserPref;
+	}
+
+	@Nullable
+	private Integer mapTypePref = null;
+
+	private void onMapTypePrefChanged(@Nullable Integer mapTypePref) {
+		this.mapTypePref = mapTypePref;
+	}
+
+	@Nullable
+	private String distanceUnitsPref = null;
+
+	private void onDistanceUnitsPrefChanged(@Nullable String distanceUnitsPref) {
+		this.distanceUnitsPref = distanceUnitsPref;
 	}
 
 	@Override
@@ -1518,10 +1534,21 @@ public class POIFragment extends ABFragment implements
 				return true; // handled
 			}
 		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
-			POIManager poim2 = getPoimOrNull();
-			if (poim2 != null) {
+			final POIManager poim = getPoimOrNull();
+			if (poim != null) {
 				this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
-				mapDirectionsProvider.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), null, null, poim2.poi.getName(), this.useInternalWebBrowserPref);
+				this.mapDirectionsProvider.showDirection(
+						this.binding,
+						requireActivity(),
+						poim.poi.getLat(),
+						poim.poi.getLng(),
+						null,
+						null,
+						poim.poi.getName(),
+						this.useInternalWebBrowserPref,
+						this.mapTypePref,
+						this.distanceUnitsPref
+				);
 				return true; // handled
 			}
 		}

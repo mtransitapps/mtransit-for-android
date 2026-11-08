@@ -78,11 +78,12 @@ class NetworkLocationRepository @Inject constructor(
         runCatching {
             apiService.getCurrentIPLocation()
         }.fold(
-            onSuccess = { (lat, lng) ->
+            onSuccess = { (lat, lng, countryCode) ->
                 if (lat != null && lng != null) {
                     lclPrefRepository.pref.edit {
                         putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, lat)
                         putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, lng)
+                        putString(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_COUNTRY_CODE, countryCode)
                         putLong(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, TimeUtils.currentTimeMillis())
                     }
                 }

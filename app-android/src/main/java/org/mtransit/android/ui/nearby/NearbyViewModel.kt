@@ -30,6 +30,7 @@ import org.mtransit.android.commons.location.toStringSimple
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
@@ -67,6 +68,7 @@ class NearbyViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val userPrefManager: UserPrefManager,
+    private val devicePrefManager: DevicePrefManager,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
     pm: PackageManager,
@@ -170,6 +172,10 @@ class NearbyViewModel @Inject constructor(
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
     val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
+
+    val mapTypePref: LiveData<Int> = devicePrefManager.mapType.distinctUntilChanged()
+
+    val distanceUnitPref: LiveData<String> = userPrefManager.distanceUnits.distinctUntilChanged()
 
     private val _distanceUnitsPref = this.userPrefManager.distanceUnits.distinctUntilChanged()
 

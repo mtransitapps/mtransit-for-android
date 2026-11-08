@@ -335,6 +335,20 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	}
 
 	@Nullable
+	private Integer mapTypePref = null;
+
+	public void onMapTypePrefChanged(@Nullable Integer mapTypePref) {
+		this.mapTypePref = mapTypePref;
+	}
+
+	@Nullable
+	private String distanceUnitsPref;
+
+	public void onDistanceUnitsPrefChanged(@Nullable String distanceUnitsPref) {
+		this.distanceUnitsPref = distanceUnitsPref;
+	}
+
+	@Nullable
 	private Boolean hasAgencyWithFaresWeb = null;
 
 	@Nullable
@@ -617,7 +631,15 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} else if (navItemId == R.id.nav_trip_planner) {
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
 			return WebBrowserFragment.newInstance(
-					mapDirectionsProvider.getMapsDirectionUrl(null, null, null, null, null).toString(),
+					mapDirectionsProvider.getMapsDirectionUrl(
+							null,
+							null,
+							null,
+							null,
+							null,
+							this.mapTypePref,
+							this.distanceUnitsPref
+					).toString(),
 					activity.getString(R.string.trip_planner),
 					false
 			);
@@ -643,7 +665,18 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		}
 		if (navItemId == R.id.nav_trip_planner) {
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
-			mapDirectionsProvider.showDirection(null, activity, null, null, null, null, null, this.useInternalBrowserPref);
+			this.mapDirectionsProvider.showDirection(
+					null,
+					activity,
+					null,
+					null,
+					null,
+					null,
+					null,
+					this.useInternalBrowserPref,
+					this.mapTypePref,
+					this.distanceUnitsPref
+			);
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 		} else if (navItemId == R.id.nav_fares) {

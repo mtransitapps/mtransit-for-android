@@ -5,6 +5,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
+import org.mtransit.android.commons.getUserSelectedAppLocales
 import org.mtransit.android.user.UserPrefManager
 import java.util.Locale
 import javax.inject.Inject
@@ -23,7 +24,7 @@ class LanguageManager @Inject constructor(
     val langUserPref: LiveData<String> = userPrefManager.lang.distinctUntilChanged()
 
     suspend fun updateUserPrefFromAppLocale() {
-        val appLocale = AppCompatDelegate.getApplicationLocales()[0] // not using Locale.getDefault() because it's not user pref
+        val appLocale = getUserSelectedAppLocales()[0] // not using Locale.getDefault() because it's not user pref
         val userPref = when (appLocale?.language) {
             LANG_EN.language -> DefaultPreferenceRepository.PREFS_LANG_EN
             LANG_FR.language -> DefaultPreferenceRepository.PREFS_LANG_FR
@@ -51,7 +52,7 @@ class LanguageManager @Inject constructor(
     }
 
     private fun updateAppLocale(newLocaleList: LocaleListCompat) {
-        val currentLocaleList = AppCompatDelegate.getApplicationLocales()
+        val currentLocaleList = getUserSelectedAppLocales()
         if (currentLocaleList == newLocaleList) return // SKIP
         AppCompatDelegate.setApplicationLocales(newLocaleList)
     }

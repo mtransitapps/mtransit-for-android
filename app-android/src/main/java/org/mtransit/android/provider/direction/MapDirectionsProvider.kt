@@ -14,11 +14,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.KeysIds
+import org.mtransit.android.commons.LocaleUtils
+import org.mtransit.android.commons.getUserSelectedAppLocales
+import org.mtransit.android.device.DevicePrefManager
+import org.mtransit.android.provider.location.CountryProvider
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.WebBrowserFragment
 import org.mtransit.android.ui.view.common.navigateF
+import org.mtransit.android.ui.view.map.MapConstants
 import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.KeysManager
 import org.mtransit.android.util.LinkUtils
@@ -33,7 +38,9 @@ class MapDirectionsProvider @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val remoteConfigProvider: RemoteConfigProvider,
     private val userPrefManager: UserPrefManager,
+    private val devicePrefManager: DevicePrefManager,
     private val locationProvider: MTLocationProvider,
+    private val countryProvider: CountryProvider,
 ) {
 
     companion object {
@@ -47,6 +54,19 @@ class MapDirectionsProvider @Inject constructor(
         private const val EMBED_API_MAP_DIRECTION_URL_PART_1 = "https://www.google.com/maps/embed/v1/directions"
 
         private const val EMBED_API_MAP_DIRECTION_URL_KEY_PARAM = "key"
+
+        @Suppress("SpellCheckingInspection")
+        private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM = "maptype"
+        private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_SATELLITE = "satellite"
+
+        private const val EMBED_API_MAP_DIRECTION_URL_MAP_UNITS_PARAM = "units"
+        private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_METRIC = "metric"
+        private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_IMPERIAL = "imperial"
+
+        @Suppress("SpellCheckingInspection")
+        private const val EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM = "language" // 2-letters language code like "en" or "fr"
+
+        private const val EMBED_API_MAP_DIRECTION_URL_MAP_REGION_PARAM = "region" // 2-letters country code like "CA" or "US"
 
         @Suppress("SpellCheckingInspection")
         // private const val MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM = "saddr"
@@ -83,12 +103,20 @@ class MapDirectionsProvider @Inject constructor(
 
     private val usingEmbedApi get() = embedApiKey != null && useEmbedApi
 
+    @SuppressLint("DiscouragedApi")
+    private fun getMapTypePrefNow() = devicePrefManager.getMapTypeNow()
+
+    @SuppressLint("DiscouragedApi")
+    private fun getDistanceUnitPrefNow() = userPrefManager.getDistanceUnitNow()
+
     fun getMapsDirectionUrl(
         destinationLat: Double?,
         destinationLng: Double?,
         originLat: Double?,
         originLng: Double?,
-        @Suppress("unused") query: String?
+        @Suppress("unused") query: String?,
+        mapTypePref: Int? = getMapTypePrefNow(),
+        distanceUnitsPref: String? = getDistanceUnitPrefNow(),
     ): Uri {
         val origin = if (originLat != null && originLng != null) {
             "$originLat,$originLng"
@@ -104,6 +132,25 @@ class MapDirectionsProvider @Inject constructor(
                 appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM, MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE)
                 appendQueryParameter(MAP_DIRECTION_URL_ORIGIN_ADDRESS_PARAM, origin)
                 appendQueryParameter(MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM, destination)
+                if (mapTypePref == MapConstants.MAP_TYPE_SATELLITE) {
+                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM, EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_SATELLITE)
+                }
+                distanceUnitsPref?.let {
+                    if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_METRIC) {
+                        appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_UNITS_PARAM, EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_METRIC)
+                    } else if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL) {
+                        appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_UNITS_PARAM, EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_IMPERIAL)
+                    }
+                }
+                val appLang = getUserSelectedAppLocales()[0]?.language // only getting overridden app language setting (else OS default)
+                if (LocaleUtils.isFR(appLang)) {
+                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM, appLang)
+                } else if (LocaleUtils.isEN(appLang)) {
+                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM, appLang)
+                } // ELSE keep default
+                countryProvider.getCurrentCountryCode()?.let { countryCode ->
+                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_REGION_PARAM, countryCode)
+                }
                 appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_KEY_PARAM, embedApiKey) // last
             }.build()
         } else {
@@ -116,7 +163,7 @@ class MapDirectionsProvider @Inject constructor(
     }
 
     @SuppressLint("DiscouragedApi")
-    private fun getUseInternalWebBrowserPrefNow(): Boolean = userPrefManager.getUseInternalWebBrowserNow()
+    private fun getUseInternalWebBrowserPrefNow() = userPrefManager.getUseInternalWebBrowserNow()
 
     fun showDirection(
         binding: ViewBinding? = null,
@@ -127,10 +174,20 @@ class MapDirectionsProvider @Inject constructor(
         originLng: Double? = null,
         optQuery: String? = null,
         useInternalWebBrowserPref: Boolean? = getUseInternalWebBrowserPrefNow(),
+        mapTypePref: Int? = getMapTypePrefNow(),
+        distanceUnitsPref: String? = getDistanceUnitPrefNow(),
     ) {
         val useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(appContext)
             && (useInternalWebBrowserPref ?: DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT)
-        val gmmIntentUri = getMapsDirectionUrl(destinationLat, destinationLng, originLat, originLng, optQuery)
+        val gmmIntentUri = getMapsDirectionUrl(
+            destinationLat = destinationLat,
+            destinationLng = destinationLng,
+            originLat = originLat,
+            originLng = originLng,
+            query = optQuery,
+            mapTypePref = mapTypePref,
+            distanceUnitsPref = distanceUnitsPref,
+        )
         val view = binding?.root
         val url = gmmIntentUri.toString()
         val titleStatic = activity.getString(R.string.google_maps)

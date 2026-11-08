@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.pref.liveData
+import org.mtransit.android.ui.view.map.MapConstants
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,6 +34,11 @@ class UserPrefManager @Inject constructor(
     // region distance units
 
     val distanceUnits: LiveData<String> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
+    )
+
+    @Discouraged("use suspend function")
+    fun getDistanceUnitNow() = defaultPrefRepository.pref.getString(
         DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
     )
 

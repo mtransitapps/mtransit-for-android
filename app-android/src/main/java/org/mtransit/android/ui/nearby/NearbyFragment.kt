@@ -291,6 +291,9 @@ class NearbyFragment :
         viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
+        viewModel.mapTypePref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
     }
 
     override fun updateScreenToolbarBgColor() {
@@ -383,7 +386,9 @@ class NearbyFragment :
                     destinationLat = locationPick.latitude,
                     destinationLng = locationPick.longitude,
                     optQuery = viewModel.fixedOnName.value,
-                    useInternalWebBrowserPref = viewModel.useInternalWebBrowserPref.value
+                    useInternalWebBrowserPref = viewModel.useInternalWebBrowserPref.value,
+                    mapTypePref = viewModel.mapTypePref.value,
+                    distanceUnitsPref = viewModel.distanceUnitPref.value,
                 )
                 true // handled
             }
