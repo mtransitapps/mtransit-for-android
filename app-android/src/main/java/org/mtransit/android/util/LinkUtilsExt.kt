@@ -39,6 +39,7 @@ fun interceptIntent(activity: Activity, webView: WebView, url: String, useIntern
     return false // not INTERCEPTED
 }
 
+@SuppressLint("DeprecatedCall")
 private fun processFallbackUrl(activity: Activity, webView: WebView, fallbackUrl: String?): Boolean {
     if (!fallbackUrl.isNullOrEmpty()) {
         if (!LinkUtils.canIntercept(fallbackUrl)) {
