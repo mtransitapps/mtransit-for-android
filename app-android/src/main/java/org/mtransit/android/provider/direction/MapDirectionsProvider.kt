@@ -44,46 +44,60 @@ class MapDirectionsProvider @Inject constructor(
 ) {
 
     companion object {
+
+        // region Maps URL
         // https://developers.google.com/maps/documentation/urls/get-started#directions-action
-        // https://developers.google.com/maps/documentation/urls/android-intents
         // ex: https://maps.google.com/maps?saddr=Montreal,+Quebec&daddr=Toronto,+Ontario&dirflg=r
-        // private const val MAP_DIRECTION_URL_PART_1 = "https://maps.google.com/maps"
-        private const val MAP_DIRECTION_URL_PART_1 = "https://www.google.com/maps/dir/?api=1"
+        // private const val MAPS_URL_DIRECTIONS_PART_1 = "https://maps.google.com/maps"
+        private const val MAPS_URL_DIRECTIONS = "https://www.google.com/maps/dir/?api=1"
+
+        private const val MAPS_URL_DIRECTIONS_P_LANG = "hl"
+
+        @Suppress("SpellCheckingInspection")
+        // private const val MAPS_URL_DIRECTIONS_P_ORIGIN = "saddr"
+        private const val MAPS_URL_DIRECTIONS_P_ORIGIN = "origin"
+
+        @Suppress("SpellCheckingInspection")
+        // private const val MAPS_URL_DIRECTIONS_P_DESTINATION = "daddr"
+        private const val MAPS_URL_DIRECTIONS_P_DESTINATION = "destination"
+
+        @Suppress("SpellCheckingInspection")
+        // private const val MAPS_URL_DIRECTIONS_P_MODE = "dirflg"
+        private const val MAPS_URL_DIRECTIONS_P_MODE = "travelmode"
+
+        // private const val MAPS_URL_DIRECTIONS_P_MODE_V_TRANSIT = "r"
+        private const val MAPS_URL_DIRECTIONS_P_MODE_V_TRANSIT = "transit"
+
+        // endregion
+
+        // region Maps Embed API
 
         // https://developers.google.com/maps/documentation/embed/quickstart
-        private const val EMBED_API_MAP_DIRECTION_URL_PART_1 = "https://www.google.com/maps/embed/v1/directions"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL = "https://www.google.com/maps/embed/v1/directions"
 
-        private const val EMBED_API_MAP_DIRECTION_URL_KEY_PARAM = "key"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_ORIGIN = "origin"
 
-        @Suppress("SpellCheckingInspection")
-        private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM = "maptype"
-        private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_SATELLITE = "satellite"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_DESTINATION = "destination"
 
-        private const val EMBED_API_MAP_DIRECTION_URL_MAP_UNITS_PARAM = "units"
-        private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_METRIC = "metric"
-        private const val EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_IMPERIAL = "imperial"
-
-        private const val MAP_DIRECTION_URL_MAP_LANG_PARAM = "hl"
-        @Suppress("SpellCheckingInspection")
-        private const val EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM = "language" // 2-letters language code like "en"
-
-        private const val EMBED_API_MAP_DIRECTION_URL_MAP_REGION_PARAM = "region" // 2-letters country code like "CA"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_KEY = "key"
 
         @Suppress("SpellCheckingInspection")
-        // private const val MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM = "saddr"
-        private const val MAP_DIRECTION_URL_ORIGIN_ADDRESS_PARAM = "origin"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_TYPE = "maptype"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_TYPE_V_SATELLITE = "satellite"
+
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS = "units"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_METRIC = "metric"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_IMPERIAL = "imperial"
 
         @Suppress("SpellCheckingInspection")
-        // private const val MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM = "daddr"
-        private const val MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM = "destination"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_LANG = "language" // 2-letters language code like "en"
 
-        @Suppress("SpellCheckingInspection")
-        // private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "dirflg"
-        private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "travelmode"
-        private const val EMBED_API_MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "mode"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_REGION = "region" // 2-letters country code like "CA"
 
-        // private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE = "r"
-        private const val MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE = "transit"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_MODE = "mode"
+        private const val MAPS_EMBED_API_DIRECTIONS_URL_P_MODE_V_TRANSIT = "transit"
+
+        // endregion
 
         private const val GOOGLE_MAPS_PKG = "com.google.android.apps.maps"
 
@@ -129,45 +143,55 @@ class MapDirectionsProvider @Inject constructor(
             origin != null && destination != null // origin & destination are required for Maps Embed API
             && usingEmbedApi // FF: ON & valid embed API key available
         ) {
-            EMBED_API_MAP_DIRECTION_URL_PART_1.toUri().buildUpon().apply {
-                appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM, MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE)
-                appendQueryParameter(MAP_DIRECTION_URL_ORIGIN_ADDRESS_PARAM, origin)
-                appendQueryParameter(MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM, destination)
-                if (mapTypePref == MapConstants.MAP_TYPE_SATELLITE) {
-                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM, EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_SATELLITE)
-                }
-                distanceUnitsPref?.let {
-                    if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_METRIC) {
-                        appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_UNITS_PARAM, EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_METRIC)
-                    } else if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL) {
-                        appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_UNITS_PARAM, EMBED_API_MAP_DIRECTION_URL_MAP_TYPE_PARAM_IMPERIAL)
-                    }
-                }
-                val appLang = LocaleUtils.getDefaultLocale().language // always override to be consistent with rest of the app UI
-                if (LocaleUtils.isFR(appLang)) {
-                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM, appLang)
-                } else { // ELSE default app UI language = English
-                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_LANG_PARAM, Locale.ENGLISH.language)
-                }
-                countryProvider.getCurrentCountryCode()?.let { countryCode ->
-                    appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_MAP_REGION_PARAM, countryCode)
-                }
-                appendQueryParameter(EMBED_API_MAP_DIRECTION_URL_KEY_PARAM, embedApiKey) // last
-            }.build()
+            getMapsEmbedApiDirectionUrl(origin, destination, mapTypePref, distanceUnitsPref)
         } else {
-            MAP_DIRECTION_URL_PART_1.toUri().buildUpon().apply {
-                appendQueryParameter(MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM, MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE)
-                origin?.let { appendQueryParameter(MAP_DIRECTION_URL_ORIGIN_ADDRESS_PARAM, it) }
-                destination?.let { appendQueryParameter(MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM, it) }
-                val appLang = LocaleUtils.getDefaultLocale().language // always override to be consistent with rest of the app UI
-                if (LocaleUtils.isFR(appLang)) {
-                    appendQueryParameter(MAP_DIRECTION_URL_MAP_LANG_PARAM, appLang)
-                } else { // ELSE default app UI language = English
-                    appendQueryParameter(MAP_DIRECTION_URL_MAP_LANG_PARAM, Locale.ENGLISH.language)
-                }
-            }.build()
+            getMapsDirectionUrl(origin, destination)
         }
     }
+
+    private fun getMapsDirectionUrl(origin: String?, destination: String?) = MAPS_URL_DIRECTIONS.toUri().buildUpon().apply {
+        appendQueryParameter(MAPS_URL_DIRECTIONS_P_MODE, MAPS_URL_DIRECTIONS_P_MODE_V_TRANSIT)
+        origin?.let { appendQueryParameter(MAPS_URL_DIRECTIONS_P_ORIGIN, it) }
+        destination?.let { appendQueryParameter(MAPS_URL_DIRECTIONS_P_DESTINATION, it) }
+        val appLang = LocaleUtils.getDefaultLocale().language // always override to be consistent with rest of the app UI
+        if (LocaleUtils.isFR(appLang)) {
+            appendQueryParameter(MAPS_URL_DIRECTIONS_P_LANG, appLang)
+        } else { // ELSE default app UI language = English
+            appendQueryParameter(MAPS_URL_DIRECTIONS_P_LANG, Locale.ENGLISH.language)
+        }
+    }.build()
+
+    private fun getMapsEmbedApiDirectionUrl(
+        origin: String,
+        destination: String,
+        mapTypePref: Int?,
+        distanceUnitsPref: String?
+    ) =
+        MAPS_EMBED_API_DIRECTIONS_URL.toUri().buildUpon().apply {
+            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_MODE, MAPS_EMBED_API_DIRECTIONS_URL_P_MODE_V_TRANSIT)
+            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_ORIGIN, origin)
+            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_DESTINATION, destination)
+            if (mapTypePref == MapConstants.MAP_TYPE_SATELLITE) {
+                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_TYPE, MAPS_EMBED_API_DIRECTIONS_URL_P_TYPE_V_SATELLITE)
+            }
+            distanceUnitsPref?.let {
+                if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_METRIC) {
+                    appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS, MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_METRIC)
+                } else if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL) {
+                    appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS, MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_IMPERIAL)
+                }
+            }
+            val appLang = LocaleUtils.getDefaultLocale().language // always override to be consistent with rest of the app UI
+            if (LocaleUtils.isFR(appLang)) {
+                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_LANG, appLang)
+            } else { // ELSE default app UI language = English
+                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_LANG, Locale.ENGLISH.language)
+            }
+            countryProvider.getCurrentCountryCode()?.let { countryCode ->
+                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_REGION, countryCode)
+            }
+            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_KEY, embedApiKey) // last
+        }.build()
 
     @SuppressLint("DiscouragedApi")
     private fun getUseInternalWebBrowserPrefNow() = userPrefManager.getUseInternalWebBrowserNow()
@@ -241,6 +265,7 @@ class MapDirectionsProvider @Inject constructor(
         }
     }
 
+    //  https://developers.google.com/maps/documentation/urls/android-intents
     private fun startMapIntent(activity: Activity, gmmIntentUri: Uri?) {
         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
         mapIntent.setPackage(GOOGLE_MAPS_PKG)

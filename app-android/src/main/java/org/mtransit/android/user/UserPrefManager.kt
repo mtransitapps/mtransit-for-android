@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.ui.view.map.MapConstants
 import javax.inject.Inject
 import javax.inject.Singleton
 

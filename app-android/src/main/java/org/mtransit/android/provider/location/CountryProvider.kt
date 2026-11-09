@@ -10,7 +10,6 @@ import org.mtransit.android.commons.MTLog
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @Singleton
 class CountryProvider @Inject constructor(
     @ApplicationContext private val appContext: Context,
@@ -52,5 +51,4 @@ class CountryProvider @Inject constructor(
     private fun getCurrentCountryCodeFromIP() =
         lclPrefRepository.pref.getString(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_COUNTRY_CODE, null)
             ?.takeIf { it.isNotBlank() }
-
 }
