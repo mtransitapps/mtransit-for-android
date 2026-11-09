@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.isIFrameBaseUrl;
 import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.loadIFrame;
 import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.urlMatch;
+import static org.mtransit.android.util.LinkUtilsExtKt.interceptIntent;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -300,7 +301,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			@NonNull String url
 	) {
 		if (LinkUtils.isIntentIntent(url)) {
-			if (LinkUtils.interceptIntent(requireActivity(), webView, url, this.useInternalWebBrowserPref)) {
+			if (interceptIntent(requireActivity(), webView, url, this.useInternalWebBrowserPref)) {
 				return true; // INTERCEPTED
 			}
 		} else if (LinkUtils.intercept(requireActivity(), url)) {

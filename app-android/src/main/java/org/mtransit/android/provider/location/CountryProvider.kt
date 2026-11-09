@@ -24,7 +24,6 @@ class CountryProvider @Inject constructor(
     override fun getLogTag() = LOG_TAG
 
     fun getCurrentCountryCode(): String? {
-        MTLog.d(this, "getCurrentCountryCode()")
         getCurrentCountryCodeNetwork()?.let {
             MTLog.d(this, "getCurrentCountryCode() > use network country code: $it")
             return it
@@ -43,16 +42,16 @@ class CountryProvider @Inject constructor(
 
     private fun getCurrentCountryCodeFromLocale() =
         ConfigurationCompat.getLocales(appContext.resources.configuration).takeIf { !it.isEmpty }?.get(0)?.country
-            ?.takeIf { it.isNotBlank() }
+            ?.uppercase(Locale.ROOT)?.takeIf { it.isNotBlank() }
 
     private fun getCurrentCountryCodeNetwork() = try {
-        appContext.getSystemService<TelephonyManager>()?.networkCountryIso?.uppercase(Locale.ROOT)
-            ?.takeIf { it.isNotBlank() }
-    } catch (_: UnsupportedOperationException) {
+        appContext.getSystemService<TelephonyManager>()?.networkCountryIso
+            ?.uppercase(Locale.ROOT)?.takeIf { it.isNotBlank() }
+    } catch (_: Exception) {
         null
     }
 
     private fun getCurrentCountryCodeFromIP() =
         lclPrefRepository.pref.getString(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_COUNTRY_CODE, null)
-            ?.takeIf { it.isNotBlank() }
+            ?.uppercase(Locale.ROOT)?.takeIf { it.isNotBlank() }
 }

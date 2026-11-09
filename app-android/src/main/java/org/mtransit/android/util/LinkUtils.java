@@ -15,7 +15,6 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
@@ -47,7 +46,7 @@ import java.util.regex.Pattern;
 
 public final class LinkUtils implements MTLog.Loggable {
 
-	private static final String LOG_TAG = LinkUtils.class.getSimpleName();
+	static final String LOG_TAG = LinkUtils.class.getSimpleName();
 
 	@NonNull
 	@Override
@@ -136,42 +135,6 @@ public final class LinkUtils implements MTLog.Loggable {
 			}
 		}
 		return org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), label); // Intent(ACTION_VIEW) // open external web browser
-	}
-
-	@SuppressLint("DeprecatedCall")
-	public static boolean interceptIntent(@NonNull Activity activity, @NonNull WebView webView, @NonNull String url, boolean useInternalWebBrowserPref) {
-		try {
-			final Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-			if (intent != null) {
-				intent.addCategory(Intent.CATEGORY_BROWSABLE);
-				intent.setComponent(null);
-				if (intent.getSelector() != null) {
-					intent.getSelector().setComponent(null);
-				}
-				final String fallbackUrl = intent.getStringExtra("browser_fallback_url");
-				if (useInternalWebBrowserPref && fallbackUrl != null && !fallbackUrl.isEmpty()) {
-					if (!LinkUtils.canIntercept(fallbackUrl)) {
-						webView.loadUrl(fallbackUrl); // ELSE load in webview
-						return true; // INTERCEPTED
-					}
-				}
-				if (PackageManagerUtils.isAppInstalledDefault(webView.getContext(), intent)) { // Only works with apps pkg added to AndroidManifest.xml (API Level 30+)
-					org.mtransit.android.commons.LinkUtils.open(webView.getContext(), intent, null);
-					return true; // INTERCEPTED
-				}
-				if (fallbackUrl != null && !fallbackUrl.isEmpty()) {
-					if (!LinkUtils.canIntercept(fallbackUrl)) {
-						webView.loadUrl(fallbackUrl);
-						return true; // INTERCEPTED
-					} else if (LinkUtils.intercept(activity, fallbackUrl)) {
-						return true; // INTERCEPTED
-					}
-				}
-			}
-		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error while processing '%s'!", url);
-		}
-		return false; // not INTERCEPTED
 	}
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
