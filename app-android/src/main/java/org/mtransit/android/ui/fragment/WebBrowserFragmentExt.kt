@@ -13,6 +13,11 @@ fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f
     otherUrl ?: return false
     if (this == otherUrl) return true
     if (min >= 1.00f) return false
+    val thisUri = runCatching { this.toUri() }.getOrNull() ?: return false
+    val otherUri = runCatching { otherUrl.toUri() }.getOrNull() ?: return false
+    if (thisUri.scheme != otherUri.scheme || thisUri.host != otherUri.host || thisUri.path != otherUri.path) return false
+    // ELSE it's good enough to get common [pre/suf]fix to approximate
+    // ex: Google Maps directions URLs might only differ by GPS lat/lng slight modification -> should process as match
     val commonPrefixWith = this.commonPrefixWith(otherUrl)
     val commonSuffixWith = this.commonSuffixWith(otherUrl)
     val match = (commonPrefixWith.length + commonSuffixWith.length).coerceAtMost(this.length).toFloat() / this.length

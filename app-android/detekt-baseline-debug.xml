@@ -386,6 +386,7 @@
     <ID>ReturnCount:SearchViewModel.kt:SearchViewModel.POISearchComparator$override fun compare: Int</ID>
     <ID>ReturnCount:SensorManagerImpl.kt:SensorManagerImpl$override fun updateCompass</ID>
     <ID>ReturnCount:SensorManagerImpl.kt:SensorManagerImpl$private fun calculateOrientation: Float?</ID>
+    <ID>ReturnCount:WebBrowserFragmentExt.kt:@JvmOverloads fun String.urlMatch: Boolean</ID>
     <ID>ReturnCount:StickyHeaderItemDecorator.kt:StickyHeaderItemDecorator$override fun onDrawOver</ID>
     <ID>ReturnCount:UIColorUtils.kt:UIColorUtils$@JvmStatic @ColorInt fun adaptBackgroundColorToLightText: Int</ID>
     <ID>ReturnCount:WebBrowserFragmentExt.kt:fun WebBrowserFragment.loadIFrame: Boolean</ID>

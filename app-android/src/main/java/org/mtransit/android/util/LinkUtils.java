@@ -139,10 +139,15 @@ public final class LinkUtils implements MTLog.Loggable {
 	}
 
 	@SuppressLint("DeprecatedCall")
-	public static boolean interceptIntent(@NonNull WebView webView, @NonNull String url, boolean useInternalWebBrowserPref) {
+	public static boolean interceptIntent(@NonNull Activity activity, @NonNull WebView webView, @NonNull String url, boolean useInternalWebBrowserPref) {
 		try {
 			final Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
 			if (intent != null) {
+				intent.addCategory(Intent.CATEGORY_BROWSABLE);
+				intent.setComponent(null);
+				if (intent.getSelector() != null) {
+					intent.getSelector().setComponent(null);
+				}
 				final String fallbackUrl = intent.getStringExtra("browser_fallback_url");
 				if (useInternalWebBrowserPref && fallbackUrl != null && !fallbackUrl.isEmpty()) {
 					if (!LinkUtils.canIntercept(fallbackUrl)) {
@@ -158,6 +163,8 @@ public final class LinkUtils implements MTLog.Loggable {
 					if (!LinkUtils.canIntercept(fallbackUrl)) {
 						webView.loadUrl(fallbackUrl);
 						return true; // INTERCEPTED
+					} else if (LinkUtils.intercept(activity, fallbackUrl)) {
+						return true; // INTERCEPTED
 					}
 				}
 			}
@@ -167,6 +174,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		return false; // not INTERCEPTED
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static boolean canIntercept(@NonNull String url) {
 		return StoreUtils.isStoreIntent(url)
 				|| LinkUtils.isEmailIntent(url)

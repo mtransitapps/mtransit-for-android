@@ -216,6 +216,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		final WebView webView = binding.webView;
 		webView.getSettings().setDomStorageEnabled(true); // useful for modern mobile websites #PWA
 		webView.getSettings().setAllowFileAccess(false); // only useful for bundled HTML webpages inside the app ('file://...')
+		webView.getSettings().setAllowContentAccess(false); // only useful to access ContentProviders ('content://')
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setSupportZoom(true);
 		webView.getSettings().setBuiltInZoomControls(true);
@@ -299,7 +300,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			@NonNull String url
 	) {
 		if (LinkUtils.isIntentIntent(url)) {
-			if (LinkUtils.interceptIntent(webView, url, this.useInternalWebBrowserPref)) {
+			if (LinkUtils.interceptIntent(requireActivity(), webView, url, this.useInternalWebBrowserPref)) {
 				return true; // INTERCEPTED
 			}
 		} else if (LinkUtils.intercept(requireActivity(), url)) {
