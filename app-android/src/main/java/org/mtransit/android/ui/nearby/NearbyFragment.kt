@@ -381,7 +381,7 @@ class NearbyFragment :
                 locationPick ?: return false // not handled
                 viewModel.onShowDirectionClick()
                 mapDirectionsProvider.showDirection(
-                    binding = binding,
+                    view = binding?.root,
                     activity = requireActivity(),
                     destinationLat = locationPick.latitude,
                     destinationLng = locationPick.longitude,

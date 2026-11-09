@@ -9,7 +9,6 @@ import android.view.View
 import androidx.core.net.toUri
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
-import androidx.viewbinding.ViewBinding
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
@@ -193,7 +192,7 @@ class MapDirectionsProvider @Inject constructor(
     private fun getUseInternalWebBrowserPrefNow() = userPrefManager.getUseInternalWebBrowserNow()
 
     fun showDirection(
-        binding: ViewBinding? = null,
+        view: View? = null,
         activity: Activity,
         destinationLat: Double? = null,
         destinationLng: Double? = null,
@@ -215,7 +214,6 @@ class MapDirectionsProvider @Inject constructor(
             mapTypePref = mapTypePref,
             distanceUnitsPref = distanceUnitsPref,
         )
-        val view = binding?.root
         val url = gmmIntentUri.toString()
         val titleStatic = appContext.getString(R.string.trip_planner)
         if (useInternalWebBrowser) {

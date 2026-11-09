@@ -155,8 +155,10 @@ public final class LinkUtils implements MTLog.Loggable {
 					return true; // INTERCEPTED
 				}
 				if (fallbackUrl != null && !fallbackUrl.isEmpty()) {
-					webView.loadUrl(fallbackUrl);
-					return true; // INTERCEPTED
+					if (!LinkUtils.canIntercept(fallbackUrl)) {
+						webView.loadUrl(fallbackUrl);
+						return true; // INTERCEPTED
+					}
 				}
 			}
 		} catch (Exception e) {

@@ -42,7 +42,7 @@ class CountryProvider @Inject constructor(
     }
 
     private fun getCurrentCountryCodeFromLocale() =
-        ConfigurationCompat.getLocales(appContext.resources.configuration)[0]?.country
+        ConfigurationCompat.getLocales(appContext.resources.configuration).takeIf { !it.isEmpty }?.get(0)?.country
             ?.takeIf { it.isNotBlank() }
 
     private fun getCurrentCountryCodeNetwork() =

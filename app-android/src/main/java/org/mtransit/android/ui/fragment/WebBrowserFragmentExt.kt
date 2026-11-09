@@ -58,6 +58,7 @@ private fun makeIFrameHTML(frameUrl: String): String {
                     style="border:0"
                     referrerpolicy="no-referrer-when-downgrade"
                     loading="lazy"
+                    allow="geolocation"
                     allowfullscreen
                     src="${frameUrl.htmlEncode()}">
                 </iframe>

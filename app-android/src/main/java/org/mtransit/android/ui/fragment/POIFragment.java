@@ -1530,7 +1530,15 @@ public class POIFragment extends ABFragment implements
 			final AgencyProperties agency = getAgencyOrNull();
 			final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
 			if (!TextUtils.isEmpty(faresWebUrl)) {
-				LinkUtils.open(this.binding == null ? null : this.binding.getRoot(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true, this.useInternalWebBrowserPref);
+				LinkUtils.open(
+						this.binding == null ? null : this.binding.getRoot(),
+						requireActivity(),
+						faresWebUrl,
+						getString(R.string.fares),
+						null,
+						true,
+						this.useInternalWebBrowserPref
+				);
 				return true; // handled
 			}
 		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
@@ -1538,7 +1546,7 @@ public class POIFragment extends ABFragment implements
 			if (poim != null) {
 				this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
 				this.mapDirectionsProvider.showDirection(
-						this.binding,
+						this.binding == null ? null : this.binding.getRoot(),
 						requireActivity(),
 						poim.poi.getLat(),
 						poim.poi.getLng(),
