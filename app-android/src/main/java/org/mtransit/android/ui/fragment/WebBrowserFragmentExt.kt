@@ -1,10 +1,28 @@
 package org.mtransit.android.ui.fragment
 
 import android.annotation.SuppressLint
+import androidx.annotation.FloatRange
 import androidx.core.net.toUri
+import androidx.core.text.htmlEncode
 
 private const val TEXT_HTML_MIME_TYPE = "text/html"
 private const val UTF_8_ENCODING = "utf-8"
+@JvmOverloads
+fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f): Boolean {
+    otherUrl ?: return false
+    if (this == otherUrl) return true
+    if (min >= 1.00f) return false
+    val commonPrefixWith = this.commonPrefixWith(otherUrl)
+    val commonSuffixWith = this.commonSuffixWith(otherUrl)
+    val match = (commonPrefixWith.length + commonSuffixWith.length).coerceAtMost(this.length).toFloat() / this.length
+    return match > min
+}
+
+fun WebBrowserFragment.isIFrameBaseUrl(url: String): Boolean {
+    val initialFrameUrl = this.initialUrl?.takeIf { it.isNotBlank() }?.takeIf { this.useIFrame } ?: return false
+    val baseUrl = extractBaseUrl(initialFrameUrl) ?: return false
+    return url.startsWith(baseUrl)
+}
 
 @SuppressLint("DeprecatedCall")
 fun WebBrowserFragment.loadIFrame(): Boolean {
@@ -41,7 +59,7 @@ private fun makeIFrameHTML(frameUrl: String): String {
                     referrerpolicy="no-referrer-when-downgrade"
                     loading="lazy"
                     allowfullscreen
-                    src="$frameUrl">
+                    src="${frameUrl.htmlEncode()}">
                 </iframe>
             </body>
             </html>

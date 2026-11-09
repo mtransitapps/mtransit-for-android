@@ -1,6 +1,8 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.isIFrameBaseUrl;
 import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.loadIFrame;
+import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.urlMatch;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -40,11 +42,11 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.databinding.FragmentWebBrowserBinding;
+import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.user.UserPrefManager;
-import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.commons.TextUtils;
 
@@ -58,7 +60,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
-	private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName();
+	protected static final String LOG_TAG = WebBrowserFragment.class.getSimpleName();
 
 	@NonNull
 	@Override
@@ -104,11 +106,14 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Inject
 	UserPrefManager userPrefManager;
 
+	@Inject
+	CrashReporter crashReporter;
+
 	public WebBrowserFragment() {
 		super(R.layout.fragment_web_browser);
 	}
 
-	private boolean useIFrame = false;
+	protected boolean useIFrame = false;
 	@Nullable
 	protected String initialUrl = null;
 	@Nullable
@@ -210,7 +215,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		}
 		final WebView webView = binding.webView;
 		webView.getSettings().setDomStorageEnabled(true); // useful for modern mobile websites #PWA
-		webView.getSettings().setAllowFileAccess(this.useIFrame); // only useful for bundled HTML webpages inside the app
+		webView.getSettings().setAllowFileAccess(false); // only useful for bundled HTML webpages inside the app ('file://...')
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setSupportZoom(true);
 		webView.getSettings().setBuiltInZoomControls(true);
@@ -234,15 +239,18 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (binding != null) onResumeToolbar(binding.screenToolbarLayout.screenToolbarLayout, binding.screenToolbarLayout.screenToolbar);
 		final WebView webView = binding == null ? null : binding.webView;
 		if (webView != null) {
+			final String webViewUrl = webView.getUrl();
 			if (this.currentUrl != null && !this.currentUrl.isEmpty()) {
-				if (!this.currentUrl.equals(webView.getUrl())) {
+				if (!urlMatch(this.currentUrl, webViewUrl)) {
 					webView.loadUrl(this.currentUrl);
 				}
 			} else if (this.useIFrame) {
-				loadIFrame(this);
+				if (webViewUrl == null || webViewUrl.isEmpty()) {
+					loadIFrame(this);
+				}
 			} else {
 				if (this.initialUrl != null && !this.initialUrl.isEmpty()) {
-					if (!this.initialUrl.equals(webView.getUrl())) {
+					if (!urlMatch(this.initialUrl, webViewUrl)) {
 						webView.loadUrl(this.initialUrl);
 					}
 				}
@@ -314,7 +322,16 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	}
 
 	private void onURLChanged(String url) {
-		this.currentUrl = url;
+		if (!URL_ABOUT_BLANK.equals(url) && !LinkUtils.isIntentIntent(url)) {
+			if (this.useIFrame) {
+				if (!isIFrameBaseUrl(this, url)) {
+					this.useIFrame = false; // left the iFrame
+				}
+			}
+			if (!this.useIFrame) {
+				this.currentUrl = url;
+			}
+		}
 		final ActionBarController abController = getAbController();
 		if (abController != null) {
 			abController.setABSubtitle(this, getABSubtitle(getContext()), true);
@@ -536,7 +553,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while parsing URL '%s'!", url);
 			}
-			CrashUtils.w(this, "SSL Error (%d) on '%s' certificate: '%s'!", primaryError, urlHost, certificate);
+			crashReporter.w(this, "SSL Error (%d) on '%s' certificate: '%s'!", primaryError, urlHost, certificate);
 			switch (primaryError) {
 			case SslError.SSL_UNTRUSTED:
 				if (urlHost != null && urlHost.endsWith("stm.info")) {

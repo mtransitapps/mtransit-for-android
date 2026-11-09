@@ -7,6 +7,7 @@ import androidx.core.os.ConfigurationCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,7 +46,7 @@ class CountryProvider @Inject constructor(
             ?.takeIf { it.isNotBlank() }
 
     private fun getCurrentCountryCodeNetwork() =
-        appContext.getSystemService<TelephonyManager>()?.networkCountryIso?.uppercase()
+        appContext.getSystemService<TelephonyManager>()?.networkCountryIso?.uppercase(Locale.ROOT)
             ?.takeIf { it.isNotBlank() }
 
     private fun getCurrentCountryCodeFromIP() =

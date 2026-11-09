@@ -53,11 +53,9 @@ class MapDirectionsProvider @Inject constructor(
 
         private const val MAPS_URL_DIRECTIONS_P_LANG = "hl"
 
-        @Suppress("SpellCheckingInspection")
         // private const val MAPS_URL_DIRECTIONS_P_ORIGIN = "saddr"
         private const val MAPS_URL_DIRECTIONS_P_ORIGIN = "origin"
 
-        @Suppress("SpellCheckingInspection")
         // private const val MAPS_URL_DIRECTIONS_P_DESTINATION = "daddr"
         private const val MAPS_URL_DIRECTIONS_P_DESTINATION = "destination"
 
@@ -73,6 +71,7 @@ class MapDirectionsProvider @Inject constructor(
         // region Maps Embed API
 
         // https://developers.google.com/maps/documentation/embed/quickstart
+        // https://developers.google.com/maps/documentation/embed/embedding-map
         private const val MAPS_EMBED_API_DIRECTIONS_URL = "https://www.google.com/maps/embed/v1/directions"
 
         private const val MAPS_EMBED_API_DIRECTIONS_URL_P_ORIGIN = "origin"
@@ -89,7 +88,6 @@ class MapDirectionsProvider @Inject constructor(
         private const val MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_METRIC = "metric"
         private const val MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_IMPERIAL = "imperial"
 
-        @Suppress("SpellCheckingInspection")
         private const val MAPS_EMBED_API_DIRECTIONS_URL_P_LANG = "language" // 2-letters language code like "en"
 
         private const val MAPS_EMBED_API_DIRECTIONS_URL_P_REGION = "region" // 2-letters country code like "CA"
@@ -100,8 +98,6 @@ class MapDirectionsProvider @Inject constructor(
         // endregion
 
         private const val GOOGLE_MAPS_PKG = "com.google.android.apps.maps"
-
-        @Suppress("SpellCheckingInspection")
         private const val GOOGLE_MAPS_LITE_PKG = "com.google.android.apps.mapslite"
     }
 
@@ -221,7 +217,7 @@ class MapDirectionsProvider @Inject constructor(
         )
         val view = binding?.root
         val url = gmmIntentUri.toString()
-        val titleStatic = activity.getString(R.string.google_maps)
+        val titleStatic = appContext.getString(R.string.trip_planner)
         if (useInternalWebBrowser) {
             if (usingEmbedApi) { // need to use <iframe />
                 showEmbedDirections(view, url, titleStatic, activity)
@@ -231,6 +227,7 @@ class MapDirectionsProvider @Inject constructor(
                 view,
                 activity,
                 url,
+                titleStatic,
                 titleStatic,
                 true,
                 true,
