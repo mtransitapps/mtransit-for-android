@@ -7,6 +7,7 @@ import androidx.core.text.htmlEncode
 
 private const val TEXT_HTML_MIME_TYPE = "text/html"
 private const val UTF_8_ENCODING = "utf-8"
+
 @JvmOverloads
 fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f): Boolean {
     otherUrl ?: return false
