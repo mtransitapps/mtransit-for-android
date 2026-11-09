@@ -397,6 +397,7 @@
     <ID>TooGenericExceptionCaught:BatteryOptimizationIssueUtils.kt:BatteryOptimizationIssueUtils$e: Exception</ID>
     <ID>TooGenericExceptionCaught:GlobalAdManager.kt:GlobalAdManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:InlineBannerAdManager.kt:InlineBannerAdManager$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:LinkUtilsExt.kt:e: Exception</ID>
     <ID>TooGenericExceptionCaught:MTPOIMarkerIds.kt:MTPOIMarkerIds$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MainActivity.kt:MainActivity$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MapViewModel.kt:MapViewModel$e: Exception</ID>

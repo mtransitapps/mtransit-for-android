@@ -48,5 +48,5 @@ private fun processFallbackUrl(activity: Activity, webView: WebView, fallbackUrl
             return true // INTERCEPTED
         }
     }
-    return false; // not INTERCEPTED
+    return false // not INTERCEPTED
 }
