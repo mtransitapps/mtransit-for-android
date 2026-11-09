@@ -294,6 +294,9 @@ class NearbyFragment :
         viewModel.mapTypePref.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
+        viewModel.distanceUnitPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
     }
 
     override fun updateScreenToolbarBgColor() {

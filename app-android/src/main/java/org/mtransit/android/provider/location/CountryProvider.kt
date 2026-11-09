@@ -45,9 +45,12 @@ class CountryProvider @Inject constructor(
         ConfigurationCompat.getLocales(appContext.resources.configuration).takeIf { !it.isEmpty }?.get(0)?.country
             ?.takeIf { it.isNotBlank() }
 
-    private fun getCurrentCountryCodeNetwork() =
+    private fun getCurrentCountryCodeNetwork() = try {
         appContext.getSystemService<TelephonyManager>()?.networkCountryIso?.uppercase(Locale.ROOT)
             ?.takeIf { it.isNotBlank() }
+    } catch (_: UnsupportedOperationException) {
+        null
+    }
 
     private fun getCurrentCountryCodeFromIP() =
         lclPrefRepository.pref.getString(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_COUNTRY_CODE, null)
