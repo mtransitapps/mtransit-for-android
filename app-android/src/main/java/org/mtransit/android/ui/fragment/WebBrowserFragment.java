@@ -54,7 +54,7 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-@SuppressWarnings("DeprecatedCall")
+@SuppressLint("DeprecatedCall")
 @AndroidEntryPoint
 public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
@@ -291,7 +291,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			@NonNull String url
 	) {
 		if (LinkUtils.isIntentIntent(url)) {
-			if (LinkUtils.interceptIntent(requireActivity(), webView, url, this.useInternalWebBrowserPref)) {
+			if (LinkUtils.interceptIntent(webView, url, this.useInternalWebBrowserPref)) {
 				return true; // INTERCEPTED
 			}
 		} else if (LinkUtils.intercept(requireActivity(), url)) {

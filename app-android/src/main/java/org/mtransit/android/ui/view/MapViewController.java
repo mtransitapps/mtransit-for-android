@@ -92,7 +92,7 @@ import java.util.regex.Pattern;
 
 import kotlin.Pair;
 
-@SuppressWarnings("DeprecatedCall")
+@SuppressLint("DeprecatedCall")
 public class MapViewController implements
 		ExtendedGoogleMap.OnCameraIdleListener,
 		ExtendedGoogleMap.OnInfoWindowClickListener,

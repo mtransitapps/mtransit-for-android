@@ -1,5 +1,6 @@
 package org.mtransit.android.util;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -137,7 +138,8 @@ public final class LinkUtils implements MTLog.Loggable {
 		return org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), label); // Intent(ACTION_VIEW) // open external web browser
 	}
 
-	public static boolean interceptIntent(@NonNull Activity activity, @NonNull WebView webView, @NonNull String url, boolean useInternalWebBrowserPref) {
+	@SuppressLint("DeprecatedCall")
+	public static boolean interceptIntent(@NonNull WebView webView, @NonNull String url, boolean useInternalWebBrowserPref) {
 		try {
 			final Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
 			if (intent != null) {

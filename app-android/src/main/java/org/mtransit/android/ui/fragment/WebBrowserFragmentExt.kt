@@ -1,10 +1,12 @@
 package org.mtransit.android.ui.fragment
 
+import android.annotation.SuppressLint
 import androidx.core.net.toUri
 
 private const val TEXT_HTML_MIME_TYPE = "text/html"
 private const val UTF_8_ENCODING = "utf-8"
 
+@SuppressLint("DeprecatedCall")
 fun WebBrowserFragment.loadIFrame(): Boolean {
     val webView = this.binding?.webView ?: return false
     val iFrameUrl = this.initialUrl?.takeIf { it.isNotBlank() } ?: return false
