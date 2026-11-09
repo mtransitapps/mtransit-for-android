@@ -294,7 +294,7 @@ class NearbyFragment :
         viewModel.mapTypePref.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
-        viewModel.distanceUnitPref.observe(viewLifecycleOwner) {
+        viewModel.distanceUnitsPref.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
     }
@@ -391,7 +391,7 @@ class NearbyFragment :
                     optQuery = viewModel.fixedOnName.value,
                     useInternalWebBrowserPref = viewModel.useInternalWebBrowserPref.value,
                     mapTypePref = viewModel.mapTypePref.value,
-                    distanceUnitsPref = viewModel.distanceUnitPref.value,
+                    distanceUnitsPref = viewModel.distanceUnitsPref.value,
                 )
                 true // handled
             }
