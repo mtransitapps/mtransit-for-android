@@ -489,9 +489,12 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 		@NonNull
 		private final WeakReference<WebBrowserFragment> webBrowserFragmentWR;
+		@NonNull
+		private final CrashReporter crashReporter;
 
 		MTWebViewClient(@NonNull WebBrowserFragment webBrowserFragment) {
 			this.webBrowserFragmentWR = new WeakReference<>(webBrowserFragment);
+			this.crashReporter = webBrowserFragment.crashReporter;
 		}
 
 		@Override
