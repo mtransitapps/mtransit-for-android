@@ -16,7 +16,7 @@ object MapIcons {
         cache.evictAll()
     }
 
-    private val cache = LruCache<Triple<Int, Int, Int?>?, BitmapDescriptor?>(128)
+    private val cache = LruCache<Triple<Int, Int, Int?>, BitmapDescriptor>(128)
 
     @JvmStatic
     fun getIcon(context: Context?, @DrawableRes iconResId: Int, @ColorInt color: Int, replaceColor: Boolean, size: Int? = null): BitmapDescriptor? {
@@ -29,8 +29,8 @@ object MapIcons {
             ?.let { bitmap ->
                 size?.let { bitmap.scale(it, it) } ?: bitmap
             } ?: return null // not bitmap loaded
-        val newBitmapDescriptor = BitmapDescriptorFactory.fromBitmap(newBase)
-        cache.put(cacheKey, newBitmapDescriptor)
-        return newBitmapDescriptor
+        return BitmapDescriptorFactory.fromBitmap(newBase).also { newBitmapDescriptor->
+            cache.put(cacheKey, newBitmapDescriptor)
+        }
     }
 }
