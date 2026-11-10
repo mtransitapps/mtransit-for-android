@@ -15,14 +15,20 @@ fun interceptIntent(activity: Activity, webView: WebView, url: String, useIntern
             intent.apply {
                 addCategory(Intent.CATEGORY_BROWSABLE)
                 setComponent(null)
-                selector?.setComponent(null)
+                selector?.apply {
+                    addCategory(Intent.CATEGORY_BROWSABLE)
+                    setComponent(null)
+                }
             }
             val fallbackUrl = intent.getStringExtra("browser_fallback_url")
                 ?.takeIf {
                     val lc = it.lowercase(Locale.ROOT)
                     lc.startsWith("http://") || lc.startsWith("https://") || LinkUtils.canIntercept(it)
                 }
-            if (useInternalWebBrowserPref && processFallbackUrl(activity, webView, fallbackUrl)) {
+            if (useInternalWebBrowserPref
+                && fallbackUrl != null && !LinkUtils.canIntercept(fallbackUrl)
+                && processFallbackUrl(activity, webView, fallbackUrl)
+            ) {
                 return true // INTERCEPTED
             }
             if (PackageManagerUtils.isAppInstalledDefault(webView.context, intent)) { // Only works with apps pkg added to AndroidManifest.xml (API Level 30+)
@@ -41,13 +47,14 @@ fun interceptIntent(activity: Activity, webView: WebView, url: String, useIntern
 
 @SuppressLint("DeprecatedCall")
 private fun processFallbackUrl(activity: Activity, webView: WebView, fallbackUrl: String?): Boolean {
-    if (!fallbackUrl.isNullOrEmpty()) {
-        if (!LinkUtils.canIntercept(fallbackUrl)) {
-            webView.loadUrl(fallbackUrl)
-            return true // INTERCEPTED
-        } else if (LinkUtils.intercept(activity, fallbackUrl)) {
-            return true // INTERCEPTED
-        }
+    return if (fallbackUrl.isNullOrEmpty()) {
+        false // not INTERCEPTED
+    } else if (!LinkUtils.canIntercept(fallbackUrl)) {
+        webView.loadUrl(fallbackUrl)
+        true // INTERCEPTED
+    } else if (LinkUtils.intercept(activity, fallbackUrl)) {
+        true // INTERCEPTED
+    } else {
+        false // not INTERCEPTED
     }
-    return false // not INTERCEPTED
 }
