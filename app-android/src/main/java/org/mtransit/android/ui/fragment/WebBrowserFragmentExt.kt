@@ -29,7 +29,8 @@ fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f
     val commonPrefixWith = thisUrlRest.commonPrefixWith(otherUrlRest)
     val commonSuffixWith = thisUrlRest.commonSuffixWith(otherUrlRest)
     val maxLength = maxOf(thisUrlRest.length, otherUrlRest.length)
-    val match = (commonPrefixWith.length + commonSuffixWith.length).coerceAtMost(maxLength).toFloat() / maxLength
+    val minLength = minOf(thisUrlRest.length, otherUrlRest.length)
+    val match = (commonPrefixWith.length + commonSuffixWith.length).coerceAtMost(minLength).toFloat() / maxLength
     return match > min
 }
 

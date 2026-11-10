@@ -377,19 +377,18 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private String distanceUnitPref = null;
+	private String distanceUnitsPref = null;
 
-	private void onDistanceUnitPrefLoaded(@Nullable String distanceUnitPref) {
-		this.distanceUnitPref = distanceUnitPref;
-		onDistanceUnitsPrefChanged(distanceUnitPref);
+	private void onDistanceUnitsPrefLoaded(@Nullable String distanceUnitsPref) {
+		this.distanceUnitsPref = distanceUnitsPref;
 		updateDistanceString();
 	}
 
 	private void updateDistanceString() {
-		if (this.distanceUnitPref == null) return;
+		if (this.distanceUnitsPref == null) return;
 		if (this.deviceLocation == null) return;
 		if (this.poim == null) return;
-		UILocationUtils.updateDistanceWithStringNN(this.distanceUnitPref, this.poim, this.deviceLocation);
+		UILocationUtils.updateDistanceWithStringNN(this.distanceUnitsPref, this.poim, this.deviceLocation);
 	}
 
 	private void onNewsLoaded(@Nullable List<News> news) {
@@ -562,7 +561,7 @@ public class POIFragment extends ABFragment implements
 		}));
 		viewModel.getPoiAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
-		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitPrefLoaded);
+		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitsPrefLoaded);
 		viewModel.getUseInternalWebBrowserPref().observe(getViewLifecycleOwner(), this::onUseInternalWebBrowserPrefLoaded);
 		viewModel.getMapTypePref().observe(getViewLifecycleOwner(), this::onMapTypePrefChanged);
 		viewModel.getHasScheduleProviders().observe(getViewLifecycleOwner(), hasScheduleProviders -> setupRDSFullScheduleBtn());
@@ -1032,13 +1031,6 @@ public class POIFragment extends ABFragment implements
 
 	private void onMapTypePrefChanged(@Nullable Integer mapTypePref) {
 		this.mapTypePref = mapTypePref;
-	}
-
-	@Nullable
-	private String distanceUnitsPref = null;
-
-	private void onDistanceUnitsPrefChanged(@Nullable String distanceUnitsPref) {
-		this.distanceUnitsPref = distanceUnitsPref;
 	}
 
 	@Override
