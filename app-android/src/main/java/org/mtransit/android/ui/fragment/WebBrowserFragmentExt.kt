@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.annotation.FloatRange
 import androidx.core.net.toUri
 import androidx.core.text.htmlEncode
-import org.mtransit.android.commons.BundleUtils
 import org.mtransit.android.ui.fragment.WebBrowserFragment.EXTRA_USE_IFRAME
 
 private const val TEXT_HTML_MIME_TYPE = "text/html"
@@ -37,7 +36,7 @@ fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f
 }
 
 fun WebBrowserFragment.isIFrameBaseUrl(url: String): Boolean {
-    val originallyUseIFrame = BundleUtils.getBoolean(EXTRA_USE_IFRAME, arguments) ?: false
+    val originallyUseIFrame = arguments?.getBoolean(EXTRA_USE_IFRAME) ?: false
     if (!originallyUseIFrame) return false
     val initialFrameUrl = this.initialUrl?.takeIf { it.isNotBlank() } ?: return false
     val baseUrl = extractBaseUrl(initialFrameUrl) ?: return false
@@ -88,7 +87,7 @@ private fun makeIFrameHTML(frameUrl: String): String {
 }
 
 private fun extractBaseUrl(fullUrl: String): String? {
-    val uri = fullUrl.toUri()
+    val uri = runCatching { fullUrl.toUri() }.getOrNull() ?: return null
     if (uri.scheme == null || uri.host == null) return null
 
     val portPart = uri.port.takeIf { it != -1 }?.let { ":$it" }.orEmpty()

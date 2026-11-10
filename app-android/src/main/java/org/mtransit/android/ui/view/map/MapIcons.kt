@@ -24,6 +24,7 @@ object MapIcons {
         cache.get(cacheKey)?.let { cachedBitmap ->
             return cachedBitmap
         }
+        context ?: return null // no context -> not bitmap from context.resources
         val themeColor = ColorUtils.adaptColorToTheme(context, color)
         val newBase = ColorUtils.colorizeBitmapResource(context, themeColor, iconResId, replaceColor)
             ?.let { bitmap ->
