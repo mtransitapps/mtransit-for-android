@@ -15,12 +15,20 @@ fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f
     if (min >= 1.00f) return false
     val thisUri = runCatching { this.toUri() }.getOrNull() ?: return false
     val otherUri = runCatching { otherUrl.toUri() }.getOrNull() ?: return false
-    if (thisUri.scheme != otherUri.scheme || thisUri.host != otherUri.host) return false
+    if (thisUri.scheme != otherUri.scheme || thisUri.host != otherUri.host || thisUri.port != otherUri.port) return false
     // ELSE it's good enough to get common [pre/suf]fix to approximate
     // ex: Google Maps directions URLs might only differ by GPS lat/lng slight modification -> should process as match
-    val commonPrefixWith = this.commonPrefixWith(otherUrl)
-    val commonSuffixWith = this.commonSuffixWith(otherUrl)
-    val match = (commonPrefixWith.length + commonSuffixWith.length).coerceAtMost(this.length).toFloat() / this.length
+    fun restAfterAuthority(url: String): String? {
+        val authorityStart = url.indexOf("://").takeIf { it >= 0 }?.plus(3) ?: return null
+        val restStart = url.indexOfAny(charArrayOf('/', '?', '#'), authorityStart)
+        return url.substring(if (restStart >= 0) restStart else url.length)
+    }
+    val thisUrlRest = restAfterAuthority(this) ?: return false
+    val otherUrlRest = restAfterAuthority(otherUrl) ?: return false
+    if (thisUrlRest.isEmpty()) return otherUrlRest.isEmpty()
+    val commonPrefixWith = thisUrlRest.commonPrefixWith(otherUrlRest)
+    val commonSuffixWith = thisUrlRest.commonSuffixWith(otherUrlRest)
+    val match = (commonPrefixWith.length + commonSuffixWith.length).coerceAtMost(thisUrlRest.length).toFloat() / thisUrlRest.length
     return match > min
 }
 
