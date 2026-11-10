@@ -29,7 +29,7 @@ object MapIcons {
             ?.let { bitmap ->
                 size?.let { bitmap.scale(it, it) } ?: bitmap
             } ?: return null // not bitmap loaded
-        return BitmapDescriptorFactory.fromBitmap(newBase).also { newBitmapDescriptor->
+        return BitmapDescriptorFactory.fromBitmap(newBase).also { newBitmapDescriptor ->
             cache.put(cacheKey, newBitmapDescriptor)
         }
     }
