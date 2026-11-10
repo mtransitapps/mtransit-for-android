@@ -75,6 +75,7 @@ jobs:
         uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
       - name: MT compile # fail fast before detekt & unit tests
+        id: mt-compile
         run: |
           ./gradlew compileAll \
             --no-configure-on-demand --scan
@@ -109,7 +110,7 @@ jobs:
 
       - name: MT tests
         id: mt-tests
-        if: ${{ !cancelled() }} # run even if detekt failed
+        if: ${{ !cancelled() && steps.mt-compile.outcome == 'success' }} # run even if detekt failed
         run: ./sh/ci/test_only.sh
       - name: MT tests > artifact > XML results
         uses: actions/upload-artifact@v7
