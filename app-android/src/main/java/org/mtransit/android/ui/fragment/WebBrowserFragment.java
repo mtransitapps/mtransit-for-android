@@ -86,7 +86,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	private static final String EXTRA_URL_CURRENT = "extra_url_current";
 
-	private static final String EXTRA_USE_IFRAME = "extra_use_iframe";
+	protected static final String EXTRA_USE_IFRAME = "extra_use_iframe";
 
 	@NonNull
 	public static WebBrowserFragment newInstance(@NonNull String url, @Nullable String titleStatic, boolean useIFrame) {

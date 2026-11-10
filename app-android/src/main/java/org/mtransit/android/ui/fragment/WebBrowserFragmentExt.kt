@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import androidx.annotation.FloatRange
 import androidx.core.net.toUri
 import androidx.core.text.htmlEncode
+import org.mtransit.android.commons.BundleUtils
+import org.mtransit.android.ui.fragment.WebBrowserFragment.EXTRA_USE_IFRAME
 
 private const val TEXT_HTML_MIME_TYPE = "text/html"
 private const val UTF_8_ENCODING = "utf-8"
