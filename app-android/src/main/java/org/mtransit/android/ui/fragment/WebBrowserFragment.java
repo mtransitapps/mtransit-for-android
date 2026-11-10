@@ -327,11 +327,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	private void onURLChanged(@Nullable String url) {
 		if (url != null && !URL_ABOUT_BLANK.equals(url) && !LinkUtils.isIntentIntent(url)) {
-			if (this.useIFrame) {
-				if (!isIFrameBaseUrl(this, url)) {
-					this.useIFrame = false; // left the iFrame
-				}
-			}
+			this.useIFrame = isIFrameBaseUrl(this, url);
 			if (!this.useIFrame) {
 				this.currentUrl = url;
 			}

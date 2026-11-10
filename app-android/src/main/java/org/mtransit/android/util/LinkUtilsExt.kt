@@ -19,6 +19,12 @@ fun interceptIntent(activity: Activity, webView: WebView, url: String, useIntern
                     addCategory(Intent.CATEGORY_BROWSABLE)
                     setComponent(null)
                 }
+                flags = flags and (
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
+                        Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+                    ).inv()
             }
             val fallbackUrl = intent.getStringExtra("browser_fallback_url")
                 ?.takeIf {

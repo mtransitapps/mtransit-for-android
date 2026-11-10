@@ -23,8 +23,8 @@ fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f
         val restStart = url.indexOfAny(charArrayOf('/', '?', '#'), authorityStart)
         return url.substring(if (restStart >= 0) restStart else url.length)
     }
-    val thisUrlRest = restAfterAuthority(this) ?: return false
-    val otherUrlRest = restAfterAuthority(otherUrl) ?: return false
+    val thisUrlRest = restAfterAuthority(this)?.removeSuffix("/") ?: return false
+    val otherUrlRest = restAfterAuthority(otherUrl)?.removeSuffix("/") ?: return false
     if (thisUrlRest.isEmpty()) return otherUrlRest.isEmpty()
     val commonPrefixWith = thisUrlRest.commonPrefixWith(otherUrlRest)
     val commonSuffixWith = thisUrlRest.commonSuffixWith(otherUrlRest)
@@ -35,7 +35,9 @@ fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f
 }
 
 fun WebBrowserFragment.isIFrameBaseUrl(url: String): Boolean {
-    val initialFrameUrl = this.initialUrl?.takeIf { it.isNotBlank() }?.takeIf { this.useIFrame } ?: return false
+    val originallyUseIFrame = BundleUtils.getBoolean(EXTRA_USE_IFRAME, arguments) ?: false
+    if (!originallyUseIFrame) return false
+    val initialFrameUrl = this.initialUrl?.takeIf { it.isNotBlank() } ?: return false
     val baseUrl = extractBaseUrl(initialFrameUrl) ?: return false
     return url.startsWith(baseUrl)
 }
