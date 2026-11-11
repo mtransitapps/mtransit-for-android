@@ -74,6 +74,12 @@ jobs:
         id: mt-setup
         uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.0
 
+      - name: MT compile # fail fast before detekt & unit tests
+        id: mt-compile
+        run: |
+          ./gradlew compileAll \
+            --no-configure-on-demand --scan
+
       - name: MT detekt
         id: mt-detekt
         continue-on-error: true # run tests even if detekt fails (job failed at the end)
@@ -104,7 +110,7 @@ jobs:
 
       - name: MT tests
         id: mt-tests
-        if: ${{ !cancelled() }} # run even if detekt failed
+        if: ${{ !cancelled() && steps.mt-compile.outcome == 'success' }} # run even if detekt failed
         run: ./sh/ci/test_only.sh
       - name: MT tests > artifact > XML results
         uses: actions/upload-artifact@v7
@@ -124,10 +130,15 @@ jobs:
             */build/reports/
             !**/*.xml
 
-      - name: MT fail job if detekt or tests failed
+      - name: "MT checks failed — detekt: ${{ steps.mt-detekt.outcome }}, tests: ${{ steps.mt-tests.outcome }}"
         if: ${{ !cancelled() && (steps.mt-detekt.outcome == 'failure' || steps.mt-tests.outcome == 'failure') }}
         run: |
-          echo "detekt: ${{ steps.mt-detekt.outcome }}, tests: ${{ steps.mt-tests.outcome }}"
+          if [[ "${{ steps.mt-detekt.outcome }}" == "failure" ]]; then
+            echo "::error title=Detekt failed::See the MT detekt step and uploaded reports."
+          fi
+          if [[ "${{ steps.mt-tests.outcome }}" == "failure" ]]; then
+            echo "::error title=Tests failed::See the MT tests step and uploaded reports."
+          fi
           exit 1
 
   MT-LINT-JOB:
