@@ -158,6 +158,25 @@ jobs:
             exit 1 # error
           fi
 
+      - name: set Linux VM timezone
+        if: runner.os == 'Linux'
+        env:
+          TARGET_TZ: ${{ steps.timezone.outputs.TIMEZONE || 'UTC' }}
+        run: |
+          echo "Setting Linux VM timezone to $TARGET_TZ"
+          echo "Current timezone before setting:"
+          timedatectl status | grep "Time zone" || true
+          echo "Current date and time before setting timezone:"
+          date +"%Y-%m-%d %H:%M:%S %Z"
+          echo "Setting timezone to $TARGET_TZ"
+          sudo timedatectl set-timezone "$TARGET_TZ"
+          export TZ="$TARGET_TZ"
+          echo "TZ=$TARGET_TZ" >> "$GITHUB_ENV"
+          echo "Current timezone after setting:"
+          timedatectl status | grep "Time zone" || true
+          echo "Current date and time after setting timezone:"
+          date +"%Y-%m-%d %H:%M:%S %Z"
+
       - name: MT record screenshots with Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         timeout-minutes: 10
@@ -175,7 +194,7 @@ jobs:
           disable-spellchecker: true
           disable-linux-hw-accel: false
           emulator-boot-timeout: 180
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -no-snapshot-save
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -no-snapshot-save -timezone ${{ steps.timezone.outputs.TIMEZONE || 'UTC' }}
           script: ./sh/ci/setup-and-all-app-screenshots.sh
 
       - name: MT upload screenshots
