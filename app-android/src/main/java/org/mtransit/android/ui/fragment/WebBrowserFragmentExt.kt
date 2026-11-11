@@ -36,11 +36,11 @@ fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f
 }
 
 fun WebBrowserFragment.isIFrameBaseUrl(url: String): Boolean {
-    val originallyUseIFrame = arguments?.getBoolean(EXTRA_USE_IFRAME) ?: false
-    if (!originallyUseIFrame) return false
-    val initialFrameUrl = this.initialUrl?.takeIf { it.isNotBlank() } ?: return false
-    val baseUrl = extractBaseUrl(initialFrameUrl) ?: return false
-    return url.startsWith(baseUrl)
+    val initialFrameUrl = this.initialUrl
+        ?.takeIf { it.isNotBlank() }
+        ?.takeIf { arguments?.getBoolean(EXTRA_USE_IFRAME) == true }
+        ?: return false
+    return extractBaseUrl(initialFrameUrl) == url
 }
 
 @SuppressLint("DeprecatedCall")
