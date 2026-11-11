@@ -1,9 +1,13 @@
 package org.mtransit.android.ui
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
+import android.app.Application
 import android.content.Context
 import android.os.Build
+import android.os.Process
 import android.webkit.WebView
+import androidx.core.content.getSystemService
 import dagger.hilt.android.HiltAndroidApp
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.analytics.AnalyticsUserProperties
@@ -59,7 +63,7 @@ class MTApplication : MTCommonApp() {
         if (BuildConfig.DEBUG) {
             this.leakDetector.setup(this)
         }
-        NightModeUtils.setDefaultNightMode(this, null)
+        if (isMainProcess) NightModeUtils.setDefaultNightMode(this, null)
         fixWebViewDataDirectorySuffix() // before any webview usage
         if (!UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) fixWebViewLocale(this) // before ads SDK
         this.remoteConfigProvider.init()
@@ -72,12 +76,23 @@ class MTApplication : MTCommonApp() {
         // RuntimeException: Using WebView from more than one process at once with the same data directory is not supported. https://crbug.com/558377 :
         // Current process org.mtransit.android (pid 1111), lock owner org.mtransit.android (pid 2222) is a zombie
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val appProcessName: String = getProcessName()
-            if (packageName != appProcessName) {
-                val suffix = appProcessName.replace("$packageName:", "")
-                @SuppressLint("DeprecatedCall")
-                WebView.setDataDirectorySuffix(suffix)
+            if (!isMainProcess) {
+                currentProcessName?.replace("$packageName:", "")?.let { suffix ->
+                    @SuppressLint("DeprecatedCall")
+                    WebView.setDataDirectorySuffix(suffix)
+                }
             }
         }
     }
+
+    val Application.currentProcessName: String?
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            getProcessName()
+        } else {
+            val pid = Process.myPid()
+            getSystemService<ActivityManager>()?.runningAppProcesses?.firstOrNull { it.pid == pid }?.processName
+        }
+
+    val Application.isMainProcess: Boolean
+        get() = currentProcessName == packageName
 }
