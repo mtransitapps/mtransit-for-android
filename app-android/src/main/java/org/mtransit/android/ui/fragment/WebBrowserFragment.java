@@ -114,7 +114,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		super(R.layout.fragment_web_browser);
 	}
 
-	protected boolean useIFrame = false;
+	private boolean useIFrame = false;
 	@Nullable
 	protected String initialUrl = null;
 	@Nullable
@@ -142,6 +142,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		final String newCurrentUrl = BundleUtils.getString(EXTRA_URL_CURRENT, bundles);
 		if (newCurrentUrl != null && !newCurrentUrl.equals(this.currentUrl)) {
 			this.currentUrl = newCurrentUrl;
+			updateOpenWWWMenuItem();
 		}
 		final Boolean useUseIFrame = BundleUtils.getBoolean(EXTRA_USE_IFRAME, bundles);
 		if (useUseIFrame != null && !useUseIFrame.equals(this.useIFrame)) {
@@ -265,10 +266,9 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	public void onPause() {
 		super.onPause();
 		final WebView webView = binding == null ? null : binding.webView;
-		if (webView != null) {
-			webView.onPause();
-			onURLChanged(webView.getUrl());
-		}
+		if (webView == null) return;
+		webView.onPause();
+		onURLChanged(webView.getUrl());
 	}
 
 	@Override
@@ -330,6 +330,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 			this.useIFrame = isIFrameBaseUrl(this, url);
 			if (!this.useIFrame) {
 				this.currentUrl = url;
+				updateOpenWWWMenuItem();
 			}
 		}
 		final ActionBarController abController = getAbController();
@@ -396,9 +397,18 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		return context.getString(org.mtransit.android.commons.R.string.web_browser);
 	}
 
+	@Nullable private MenuItem openWWWMenuItem = null;
+
 	@Override
 	public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_web_browser, menu);
+		this.openWWWMenuItem = menu.findItem(R.id.menu_open_www);
+		updateOpenWWWMenuItem();
+	}
+
+	private void updateOpenWWWMenuItem() {
+		if (this.openWWWMenuItem == null) return;
+		this.openWWWMenuItem.setVisible(!TextUtils.isEmpty(this.currentUrl));
 	}
 
 	@Override
