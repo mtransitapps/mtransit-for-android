@@ -631,14 +631,13 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		} else if (navItemId == R.id.nav_trip_planner) {
 			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
 			return WebBrowserFragment.newInstance(
-					mapDirectionsProvider.getMapsDirectionUrl(
+					mapDirectionsProvider.getMapsUrlDirection(
 							null,
 							null,
 							null,
 							null,
 							null,
-							this.mapTypePref,
-							this.distanceUnitsPref
+							null
 					).toString(),
 					activity.getString(R.string.trip_planner),
 					false

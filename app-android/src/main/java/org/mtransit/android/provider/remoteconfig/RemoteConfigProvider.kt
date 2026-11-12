@@ -56,9 +56,9 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
         const val NEW_USER_ADS_FREE_DEFAULT = false
         // const val NEW_USER_ADS_FREE_DEFAULT = true // DEBUG
 
-        const val MAPS_DIRECTION_USE_EMBED_API = "maps_dir_use_embed"
-        const val MAPS_DIRECTION_USE_EMBED_API_DEFAULT = false
-        // const val MAPS_DIRECTION_USE_EMBED_API_DEFAULT = true // DEBUG
+        const val MAPS_DIRECTION_EMBED_API_ENABLED = "mt_maps_embed_api"
+        const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = false
+        // const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = true // DEBUG
     }
 
     override fun getLogTag() = LOG_TAG

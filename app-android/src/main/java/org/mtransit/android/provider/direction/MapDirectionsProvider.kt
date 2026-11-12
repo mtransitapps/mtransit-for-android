@@ -30,6 +30,8 @@ import org.mtransit.commons.FeatureFlags
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import android.location.Location as AndroidLocation
 
 @Singleton
@@ -102,16 +104,15 @@ class MapDirectionsProvider @Inject constructor(
 
     private val lastDeviceLocation: AndroidLocation? get() = locationProvider.lastLocationOrNull
 
-    private val useEmbedApi: Boolean
-        get() = remoteConfigProvider.get(
-            RemoteConfigProvider.MAPS_DIRECTION_USE_EMBED_API, RemoteConfigProvider.MAPS_DIRECTION_USE_EMBED_API_DEFAULT
-        )
+    private val embedApiEnabled: Boolean by lazy {
+        remoteConfigProvider.get(RemoteConfigProvider.MAPS_DIRECTION_EMBED_API_ENABLED, RemoteConfigProvider.MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT)
+    }
 
     private val embedApiKey by lazy {
         KeysManager.getKey(appContext, KeysIds.GOOGLE_MAPS_EMBED_API_KEY)?.takeIf { it.isNotBlank() }
     }
 
-    private val usingEmbedApi get() = embedApiKey != null && useEmbedApi
+    private val canUseEmbedApi get() = embedApiKey != null && embedApiEnabled
 
     @SuppressLint("DiscouragedApi")
     private fun getMapTypePrefNow() = devicePrefManager.getMapTypeNow()
@@ -119,32 +120,32 @@ class MapDirectionsProvider @Inject constructor(
     @SuppressLint("DiscouragedApi")
     private fun getDistanceUnitPrefNow() = userPrefManager.getDistanceUnitNow()
 
-    fun getMapsDirectionUrl(
-        destinationLat: Double?,
-        destinationLng: Double?,
-        originLat: Double?,
-        originLng: Double?,
-        @Suppress("unused") query: String?,
-        mapTypePref: Int? = getMapTypePrefNow(),
-        distanceUnitsPref: String? = getDistanceUnitPrefNow(),
-    ): Uri {
-        val origin = if (originLat != null && originLng != null) {
+    @OptIn(ExperimentalContracts::class)
+    private fun useEmbedApi(
+        destination: String?,
+        origin: String?,
+        @Suppress("SameParameterValue") useInternalWebBrowser: Boolean = getUseInternalWebBrowserPrefNow(),
+    ): Boolean {
+        contract {
+            returns(true) implies (destination != null && origin != null)
+        }
+        return useInternalWebBrowser
+            && origin != null && destination != null // origin & destination are required for Maps Embed API
+            && canUseEmbedApi // FF: ON & valid embed API key available
+    }
+
+    fun getMapsUrlDirection(
+        destinationLat: Double? = null,
+        destinationLng: Double? = null,
+        destination: String? = if (destinationLat != null && destinationLng != null) "$destinationLat,$destinationLng" else null,
+        originLat: Double? = null,
+        originLng: Double? = null,
+        origin: String? = if (originLat != null && originLng != null) {
             "$originLat,$originLng"
         } else {
             this.lastDeviceLocation?.let { "${it.latitude},${it.longitude}" }
-        }
-        val destination = if (destinationLat != null && destinationLng != null) "$destinationLat,$destinationLng" else null
-        return if (
-            origin != null && destination != null // origin & destination are required for Maps Embed API
-            && usingEmbedApi // FF: ON & valid embed API key available
-        ) {
-            getMapsEmbedApiDirectionUrl(origin, destination, mapTypePref, distanceUnitsPref)
-        } else {
-            getMapsDirectionUrl(origin, destination)
-        }
-    }
-
-    private fun getMapsDirectionUrl(origin: String?, destination: String?) = MAPS_URL_DIRECTIONS.toUri().buildUpon().apply {
+        },
+    ): Uri = MAPS_URL_DIRECTIONS.toUri().buildUpon().apply {
         appendQueryParameter(MAPS_URL_DIRECTIONS_P_MODE, MAPS_URL_DIRECTIONS_P_MODE_V_TRANSIT)
         origin?.let { appendQueryParameter(MAPS_URL_DIRECTIONS_P_ORIGIN, it) }
         destination?.let { appendQueryParameter(MAPS_URL_DIRECTIONS_P_DESTINATION, it) }
@@ -159,34 +160,33 @@ class MapDirectionsProvider @Inject constructor(
     private fun getMapsEmbedApiDirectionUrl(
         origin: String,
         destination: String,
-        mapTypePref: Int?,
-        distanceUnitsPref: String?
-    ) =
-        MAPS_EMBED_API_DIRECTIONS_URL.toUri().buildUpon().apply {
-            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_MODE, MAPS_EMBED_API_DIRECTIONS_URL_P_MODE_V_TRANSIT)
-            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_ORIGIN, origin)
-            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_DESTINATION, destination)
-            if (mapTypePref == MapConstants.MAP_TYPE_SATELLITE) {
-                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_TYPE, MAPS_EMBED_API_DIRECTIONS_URL_P_TYPE_V_SATELLITE)
+        mapTypePref: Int? = getMapTypePrefNow(),
+        distanceUnitsPref: String? = getDistanceUnitPrefNow(),
+    ): Uri = MAPS_EMBED_API_DIRECTIONS_URL.toUri().buildUpon().apply {
+        appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_MODE, MAPS_EMBED_API_DIRECTIONS_URL_P_MODE_V_TRANSIT)
+        appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_ORIGIN, origin)
+        appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_DESTINATION, destination)
+        if (mapTypePref == MapConstants.MAP_TYPE_SATELLITE) {
+            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_TYPE, MAPS_EMBED_API_DIRECTIONS_URL_P_TYPE_V_SATELLITE)
+        }
+        distanceUnitsPref?.let {
+            if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_METRIC) {
+                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS, MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_METRIC)
+            } else if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL) {
+                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS, MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_IMPERIAL)
             }
-            distanceUnitsPref?.let {
-                if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_METRIC) {
-                    appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS, MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_METRIC)
-                } else if (it == DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_IMPERIAL) {
-                    appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS, MAPS_EMBED_API_DIRECTIONS_URL_P_UNITS_V_IMPERIAL)
-                }
-            }
-            val appLang = LocaleUtils.getDefaultLocale().language // always override to be consistent with rest of the app UI
-            if (LocaleUtils.isFR(appLang)) {
-                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_LANG, appLang)
-            } else { // ELSE default app UI language = English
-                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_LANG, Locale.ENGLISH.language)
-            }
-            countryProvider.getCurrentCountryCode()?.let { countryCode ->
-                appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_REGION, countryCode)
-            }
-            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_KEY, embedApiKey) // last
-        }.build()
+        }
+        val appLang = LocaleUtils.getDefaultLocale().language // always override to be consistent with rest of the app UI
+        if (LocaleUtils.isFR(appLang)) {
+            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_LANG, appLang)
+        } else { // ELSE default app UI language = English
+            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_LANG, Locale.ENGLISH.language)
+        }
+        countryProvider.getCurrentCountryCode()?.let { countryCode ->
+            appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_REGION, countryCode)
+        }
+        appendQueryParameter(MAPS_EMBED_API_DIRECTIONS_URL_P_KEY, embedApiKey) // last
+    }.build()
 
     @SuppressLint("DiscouragedApi")
     private fun getUseInternalWebBrowserPrefNow() = userPrefManager.getUseInternalWebBrowserNow()
@@ -198,33 +198,29 @@ class MapDirectionsProvider @Inject constructor(
         destinationLng: Double? = null,
         originLat: Double? = null,
         originLng: Double? = null,
-        optQuery: String? = null,
+        @Suppress("unused") optQuery: String? = null,
         useInternalWebBrowserPref: Boolean? = getUseInternalWebBrowserPrefNow(),
         mapTypePref: Int? = getMapTypePrefNow(),
         distanceUnitsPref: String? = getDistanceUnitPrefNow(),
     ) {
         val useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(appContext)
             && (useInternalWebBrowserPref ?: DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT)
-        val gmmIntentUri = getMapsDirectionUrl(
-            destinationLat = destinationLat,
-            destinationLng = destinationLng,
-            originLat = originLat,
-            originLng = originLng,
-            query = optQuery,
-            mapTypePref = mapTypePref,
-            distanceUnitsPref = distanceUnitsPref,
-        )
-        val url = gmmIntentUri.toString()
+        val destination = if (destinationLat != null && destinationLng != null) "$destinationLat,$destinationLng" else null
+        val origin = if (originLat != null && originLng != null) {
+            "$originLat,$originLng"
+        } else {
+            this.lastDeviceLocation?.let { "${it.latitude},${it.longitude}" }
+        }
         val titleStatic = appContext.getString(R.string.trip_planner)
         if (useInternalWebBrowser) {
-            if (usingEmbedApi) { // need to use <iframe />
-                showEmbedDirections(view, url, titleStatic, activity)
+            if (useEmbedApi(destination, origin, useInternalWebBrowser = true)) { // need to use <iframe />
+                showEmbedDirections(view, getMapsEmbedApiDirectionUrl(origin, destination, mapTypePref, distanceUnitsPref).toString(), titleStatic, activity)
                 return
             }
             LinkUtils.open(
                 view,
                 activity,
-                url,
+                getMapsUrlDirection(destination = destination, origin = origin).toString(),
                 titleStatic,
                 titleStatic,
                 true,
@@ -232,7 +228,7 @@ class MapDirectionsProvider @Inject constructor(
             )
             return
         }
-        startMapIntent(activity, gmmIntentUri)
+        startMapIntent(activity, getMapsUrlDirection(destination = destination, origin = origin))
     }
 
     private fun showEmbedDirections(view: View?, url: String, titleStatic: String, activity: Activity) {

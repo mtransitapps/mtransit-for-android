@@ -93,3 +93,19 @@ private fun extractBaseUrl(fullUrl: String): String? {
     val portPart = uri.port.takeIf { it != -1 }?.let { ":$it" }.orEmpty()
     return "${uri.scheme}://${uri.host}$portPart/"
 }
+
+fun extractUrlTag(fullUrl: String): String? {
+    val uri = runCatching { fullUrl.toUri() }.getOrNull() ?: return null
+    if (uri.host == null) return null
+
+    return buildString {
+        append(uri.host)
+        uri.port.takeIf { it != -1 }?.let { port ->
+            append(":$port")
+        }
+        append("/")
+        uri.path?.let { path ->
+            append(path)
+        }
+    }
+}

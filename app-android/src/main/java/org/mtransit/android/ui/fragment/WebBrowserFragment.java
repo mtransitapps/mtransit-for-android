@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.extractUrlTag;
 import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.isIFrameBaseUrl;
 import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.loadIFrame;
 import static org.mtransit.android.ui.fragment.WebBrowserFragmentExtKt.urlMatch;
@@ -74,8 +75,8 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@NonNull
 	@Override
 	public String getScreenName() {
-		if (!TextUtils.isEmpty(this.initialUrl)) {
-			return TRACKING_SCREEN_NAME + "/" + this.initialUrl;
+		if (this.initialUrl != null) {
+			return TRACKING_SCREEN_NAME + "/" + extractUrlTag(this.initialUrl);
 		}
 		return TRACKING_SCREEN_NAME;
 	}
@@ -328,10 +329,12 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	private void onURLChanged(@Nullable String url) {
 		if (url != null && !URL_ABOUT_BLANK.equals(url) && !LinkUtils.isIntentIntent(url)) {
 			this.useIFrame = isIFrameBaseUrl(this, url);
-			if (!this.useIFrame) {
+			if (this.useIFrame) {
+				this.currentUrl = null;
+			} else {
 				this.currentUrl = url;
-				updateOpenWWWMenuItem();
 			}
+			updateOpenWWWMenuItem();
 		}
 		final ActionBarController abController = getAbController();
 		if (abController != null) {
@@ -397,7 +400,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		return context.getString(org.mtransit.android.commons.R.string.web_browser);
 	}
 
-	@Nullable private MenuItem openWWWMenuItem = null;
+	private @Nullable MenuItem openWWWMenuItem = null;
 
 	@Override
 	public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
