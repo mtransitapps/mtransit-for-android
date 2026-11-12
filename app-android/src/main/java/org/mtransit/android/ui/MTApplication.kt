@@ -75,7 +75,7 @@ class MTApplication : MTCommonApp() {
         // Current process org.mtransit.android (pid 1111), lock owner org.mtransit.android (pid 2222) is a zombie
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             if (!isMainProcess) {
-                currentProcessName?.replace("$packageName:", "")?.let { suffix ->
+                currentProcessName?.replace("$packageName:", "")?.takeIf { it.isNotEmpty() }?.let { suffix ->
                     @SuppressLint("DeprecatedCall")
                     WebView.setDataDirectorySuffix(suffix)
                 }
