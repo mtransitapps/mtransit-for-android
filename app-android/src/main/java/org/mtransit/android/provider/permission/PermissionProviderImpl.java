@@ -24,7 +24,7 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 	private final Context appContext;
 
 	public PermissionProviderImpl(@NonNull Context appContext) {
-		this.appContext = appContext;
+		this.appContext = appContext.getApplicationContext();
 	}
 
 	abstract Collection<String> getRequiredPermissions();
