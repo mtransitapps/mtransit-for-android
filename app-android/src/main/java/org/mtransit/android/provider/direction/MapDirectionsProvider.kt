@@ -134,6 +134,7 @@ class MapDirectionsProvider @Inject constructor(
             && canUseEmbedApi // FF: ON & valid embed API key available
     }
 
+    @JvmOverloads
     fun getMapsUrlDirection(
         destinationLat: Double? = null,
         destinationLng: Double? = null,
