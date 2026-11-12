@@ -1056,8 +1056,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onDeviceLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) return;
-		final Context context = getContext();
-		if (this.deviceLocation == null && context != null) {
+		if (this.deviceLocation == null) {
 			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted());
 		}
 		if (this.deviceLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.deviceLocation, newLocation)) {
