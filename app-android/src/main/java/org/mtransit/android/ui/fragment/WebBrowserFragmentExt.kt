@@ -19,13 +19,8 @@ fun String.urlMatch(otherUrl: String?, @FloatRange(0.00, 1.00) min: Float = .75f
     if (thisUri.scheme != otherUri.scheme || thisUri.host != otherUri.host || thisUri.port != otherUri.port) return false
     // ELSE it's good enough to get common [pre/suf]fix to approximate
     // ex: Google Maps directions URLs might only differ by GPS lat/lng slight modification -> should process as match
-    fun restAfterAuthority(url: String): String? {
-        val authorityStart = url.indexOf("://").takeIf { it >= 0 }?.plus(3) ?: return null
-        val restStart = url.indexOfAny(charArrayOf('/', '?', '#'), authorityStart)
-        return url.substring(if (restStart >= 0) restStart else url.length)
-    }
-    val thisUrlRest = restAfterAuthority(this)?.removeSuffix("/") ?: return false
-    val otherUrlRest = restAfterAuthority(otherUrl)?.removeSuffix("/") ?: return false
+    val thisUrlRest = thisUri.schemeSpecificPart.orEmpty().substringAfter(thisUri.authority.orEmpty(), "").removeSuffix("/")
+    val otherUrlRest = otherUri.schemeSpecificPart.orEmpty().substringAfter(otherUri.authority.orEmpty(), "").removeSuffix("/")
     if (thisUrlRest.isEmpty()) return otherUrlRest.isEmpty()
     val commonPrefixWith = thisUrlRest.commonPrefixWith(otherUrlRest)
     val commonSuffixWith = thisUrlRest.commonSuffixWith(otherUrlRest)
@@ -103,9 +98,11 @@ fun extractUrlTag(fullUrl: String): String? {
         uri.port.takeIf { it != -1 }?.let { port ->
             append(":$port")
         }
-        append("/")
         uri.path?.let { path ->
+            if (!path.startsWith("/")) append("/")
             append(path)
+        } ?: run {
+            append("/")
         }
     }
 }

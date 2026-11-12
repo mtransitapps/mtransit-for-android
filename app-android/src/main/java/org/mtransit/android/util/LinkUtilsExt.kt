@@ -6,6 +6,7 @@ import android.content.Intent
 import android.webkit.WebView
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
+import java.net.URISyntaxException
 import java.util.Locale
 
 @SuppressLint("DeprecatedCall")
@@ -45,7 +46,7 @@ fun interceptIntent(activity: Activity, webView: WebView, url: String, useIntern
                 return true // INTERCEPTED
             }
         }
-    } catch (e: Exception) {
+    } catch (e: URISyntaxException) {
         MTLog.w(LinkUtils.LOG_TAG, e, "Error while processing '%s'!", url)
     }
     return false // not INTERCEPTED
