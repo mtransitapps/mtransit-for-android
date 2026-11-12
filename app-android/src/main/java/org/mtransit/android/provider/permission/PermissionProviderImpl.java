@@ -96,7 +96,7 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 		for (int i = 0; i < grantResults.length; i++) {
 			final int grantResult = grantResults[i];
 			final String permission = permissions.length > i ? permissions[i] : null;
-			if (getRequiredPermissions().contains(permission)) {
+			if (permission != null && getRequiredPermissions().contains(permission)) {
 				final Integer previous = this.requestedPermissions.get(permission);
 				if (previous == null || previous != grantResult) {
 					changed = true;
