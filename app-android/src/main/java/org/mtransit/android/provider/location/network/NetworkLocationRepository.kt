@@ -65,7 +65,7 @@ class NetworkLocationRepository @Inject constructor(
         if (deviceLocation != null) {
             return
         }
-        if (locationPermissionProvider.allRequiredPermissionsGranted(appContext)) {
+        if (locationPermissionProvider.allRequiredPermissionsGranted()) {
             return
         }
         if (dataSourcesRepository.hasAgenciesAdded()) {

@@ -124,13 +124,13 @@ public class GoogleLocationProvider
 
 	@Override
 	public boolean needsSetup(@NonNull ScreenWithLocationView screenWithLocationView) {
-		return !this.permissionProvider.allRequiredPermissionsGranted(screenWithLocationView.requireContext());
+		return !this.permissionProvider.allRequiredPermissionsGranted();
 	}
 
 	@Override
 	public void doSetup(@NonNull ScreenWithLocationView screenWithLocationView) {
 		for (String requiredPermission : this.permissionProvider.getRequiredPermissions()) {
-			if (!this.permissionProvider.permissionGranted(appContext, requiredPermission)) {
+			if (!this.permissionProvider.permissionGranted(requiredPermission)) {
 				if (this.permissionProvider.shouldShowRequestPermissionRationale(screenWithLocationView, requiredPermission)) {
 					screenWithLocationView.showPermissionsRationale(this);
 					return;
@@ -193,7 +193,7 @@ public class GoogleLocationProvider
 	}
 
 	private void enableDisableForegroundLocationUpdates() {
-		if (!this.permissionProvider.allRequiredPermissionsGranted(this.appContext)) {
+		if (!this.permissionProvider.allRequiredPermissionsGranted()) {
 			MTLog.d(this, "enableDisableForegroundLocationUpdates() > SKIP (permission NOT granted yet)");
 			return;
 		}
@@ -212,7 +212,7 @@ public class GoogleLocationProvider
 
 	@SuppressLint("MissingPermission")
 	private void enableForegroundLocationUpdates() {
-		if (!this.permissionProvider.allRequiredPermissionsGranted(this.appContext)) {
+		if (!this.permissionProvider.allRequiredPermissionsGranted()) {
 			crashReporter.shouldNotHappen("Last location requested w/o permission!");
 			return;
 		}
@@ -248,7 +248,7 @@ public class GoogleLocationProvider
 	@SuppressLint("MissingPermission")
 	@Override
 	public void readLastLocation() {
-		if (!this.permissionProvider.allRequiredPermissionsGranted(this.appContext)) {
+		if (!this.permissionProvider.allRequiredPermissionsGranted()) {
 			MTLog.d(this, "readLastLocation() > SKIP (no permission)");
 			return;
 		}

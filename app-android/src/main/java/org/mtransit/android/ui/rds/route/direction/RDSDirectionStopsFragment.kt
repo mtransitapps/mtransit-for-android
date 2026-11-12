@@ -237,7 +237,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
                 autoClickInfoWindow = true,
             )
         ).apply {
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
     }
 
@@ -595,7 +595,7 @@ class RDSDirectionStopsFragment : MTFragmentX(R.layout.fragment_rds_direction_st
         mapViewController.apply {
             setDI(dataSourcesRepository, devicePrefManager)
             onAttach(requireActivity())
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
     }
 

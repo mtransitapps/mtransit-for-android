@@ -149,13 +149,13 @@ class NearbyViewModel @Inject constructor(
 
     override val hasAgenciesAdded: LiveData<Boolean> = this.dataSourcesRepository.readingHasAgenciesAdded()
 
-    private var _locationPermissionNeeded = MutableLiveData(!locationPermissionProvider.allRequiredPermissionsGranted(appContext))
+    private val _locationPermissionNeeded = MutableLiveData(!locationPermissionProvider.allRequiredPermissionsGranted())
 
     override val locationPermissionNeeded: LiveData<Boolean> = _locationPermissionNeeded
     // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
     override fun refreshLocationPermissionNeeded() {
-        _locationPermissionNeeded.value = !locationPermissionProvider.allRequiredPermissionsGranted(appContext)
+        _locationPermissionNeeded.value = !locationPermissionProvider.allRequiredPermissionsGranted()
     }
 
     override fun enableLocationPermission(activity: MTActivityWithLocation) {

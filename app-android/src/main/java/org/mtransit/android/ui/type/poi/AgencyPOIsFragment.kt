@@ -196,7 +196,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 autoClickInfoWindow = true,
             )
         ).apply {
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
     }
 
@@ -426,7 +426,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         mapViewController.apply {
             setDI(dataSourcesRepository, devicePrefManager)
             onAttach(requireActivity())
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
     }
 
